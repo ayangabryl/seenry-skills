@@ -4,6 +4,8 @@ Use a fresh authorized review context where available. Supply the actual brief, 
 
 First inspect the ordinary opening viewport and a narrow viewport. Then inspect the full sequence and relevant states. A compressed full-page image is useful for rhythm but can conceal weak imagery, small type, unnecessary borders and text-heavy openings.
 
+Before deciding content is missing, inspect actual scroll traversal and the relevant tab, expansion or dialog states. A full-page screenshot does not trigger those states. Keep the initial view, subsequent views and their action sequence separately; the initial experience still matters. Compare every candidate with evidence appropriate to its proposed interaction. An unexercised dynamic candidate needs observation, not a speculative redesign into a static layout. A demonstrated inaccessible or persistently empty state remains a defect.
+
 For a completed build, also reopen the selected surface renders at equivalent widths. Name which leading material, scale, grouping and interaction relationships survived expansion. A final page may change appropriately as content is added; assess whether the new hierarchy serves the brief rather than accepting a larger page automatically. Record visual drift separately from implementation correctness. A private author style rationale cannot substitute for this comparison.
 
 Evaluate five criteria independently:

@@ -2,6 +2,7 @@
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {collectScrollEvidence} from './scroll_evidence.mjs';
 const flags=Object.fromEntries(process.argv.slice(2).reduce((rows,value,i,all)=>value.startsWith('--')?[...rows,[value.slice(2),all[i+1]]]:rows,[]));
 if(!flags.url||!flags.out)throw new Error('Use --url URL --out DIRECTORY [--playwright MODULE] [--scenario JSON]');
 const out=path.resolve(flags.out);await mkdir(path.dirname(out),{recursive:true});
@@ -38,6 +39,10 @@ try{
             limit:'Opening viewport signals for contextual review; none is automatically a design failure or AI-authorship evidence.'
           };
         })()}));
+      const traversal=scenario.traverse===false?{status:'skipped',reason:'Explicit scenario choice'}:await collectScrollEvidence(page,{capture:async step=>{
+        await page.screenshot({path:path.join(folder,`scroll-${step.index}.png`)});
+      }});
+      await page.screenshot({path:path.join(folder,'page-after-scroll.png'),fullPage:true});
       for(const [index,action] of (scenario.actions||[]).entries()){
         try{
           const locator=action.selector?page.locator(action.selector):null;
@@ -55,11 +60,11 @@ try{
       await page.addStyleTag({content:'*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}'});
       const spacing=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
       await page.screenshot({path:path.join(folder,'text-spacing.png'),fullPage:true});
-      results.push({name,measurements,textSpacing:spacing,errors,responses,steps});
+      results.push({name,measurements,traversal,textSpacing:spacing,errors,responses,steps});
     }catch(error){results.push({name,error:String(error),errors,responses,steps});}
     finally{await context.close();}
   }
 }finally{await browser.close();}
-await writeFile(path.join(out,'report.json'),JSON.stringify({schema:1,url:flags.url,results,
+await writeFile(path.join(out,'report.json'),JSON.stringify({schema:2,url:flags.url,results,
   limitations:['Browser emulation only; videos recorded but not automatically watched.','Executed actions are not assertions of correct business results.','No visual-quality, screen-reader or field-performance certification.']},null,2));
 console.log(JSON.stringify({out,viewports:results.length,actionFailures:results.flatMap(r=>r.steps||[]).filter(x=>!x.executed).length}));

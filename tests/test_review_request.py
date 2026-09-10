@@ -34,4 +34,20 @@ class ReviewRequest(unittest.TestCase):
    with self.assertRaises(ValueError):prepare(m,root,root/'out')
    prepare(self.manifest(),root,root/'out')
    with self.assertRaises(FileExistsError):prepare(self.manifest(),root,root/'out')
+ def test_actual_states_keep_context_hashes_and_anonymous_names(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=self.root(tmp);m=self.manifest()
+   m['candidates'][0]['states']=[{'path':'source.png','observation':'After selecting the second image at 390px.'}]
+   p=prepare(m,root,root/'out');e=p['candidates'][0]['evidence']['state-0']
+   self.assertEqual(e['file'],'A-state-0.png')
+   self.assertIn('second image',e['observation'])
+   self.assertEqual((root/'out/A-state-0.png').read_bytes(),(root/'source.png').read_bytes())
+   self.assertNotIn('private-condition',json.dumps(p))
+   self.assertIn('A-state-0.png',json.dumps(json.loads((root/'out/response.schema.json').read_text())))
+ def test_invalid_state_evidence_is_rejected_before_writing(self):
+  for state in ({'path':'../elsewhere.png','observation':'Clicked'}, {'path':'source.png'}, {'path':'source.png','observation':''}):
+   with tempfile.TemporaryDirectory() as tmp:
+    root=self.root(tmp);m=self.manifest();m['candidates'][0]['states']=[state]
+    with self.assertRaises(ValueError):prepare(m,root,root/'out')
+    self.assertFalse((root/'out').exists())
 if __name__=='__main__':unittest.main()
