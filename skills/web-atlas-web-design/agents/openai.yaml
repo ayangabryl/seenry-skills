@@ -1,0 +1,10 @@
+interface:
+  display_name: "Web Atlas Web Design"
+  short_description: "Build websites from inspected design evidence"
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "web-atlas"
+      description: "Published Web Atlas design reference library"
+      transport: "streamable_http"
+      url: "https://web-atlas.ayangabryl.workers.dev/mcp"

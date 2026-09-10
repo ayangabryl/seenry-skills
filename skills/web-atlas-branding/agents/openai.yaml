@@ -1,0 +1,10 @@
+interface:
+  display_name: "Web Atlas Branding"
+  short_description: "Study identities and brand guidelines"
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "web-atlas"
+      description: "Published Web Atlas design reference library"
+      transport: "streamable_http"
+      url: "https://web-atlas.ayangabryl.workers.dev/mcp"

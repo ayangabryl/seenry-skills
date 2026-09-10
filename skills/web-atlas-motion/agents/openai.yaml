@@ -1,0 +1,10 @@
+interface:
+  display_name: "Web Atlas Motion"
+  short_description: "Study recordings and component motion"
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "web-atlas"
+      description: "Published Web Atlas design reference library"
+      transport: "streamable_http"
+      url: "https://web-atlas.ayangabryl.workers.dev/mcp"

@@ -1,0 +1,720 @@
+{
+  "version": "2.0.0",
+  "endpoint": "https://web-atlas.ayangabryl.workers.dev/mcp",
+  "tools": [
+    {
+      "name": "get_library_guide",
+      "title": "Choose a research workflow",
+      "description": "Discover the library model, curated skills, tool routing, pagination and evidence limits before research.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_library_facets",
+      "title": "Discover page filters",
+      "description": "List observed page types, sections and patterns with counts for a website and appearance. Empty results mean not captured or indexed, not absent on the original site.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "site": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_sites",
+      "title": "Find website collections",
+      "description": "Find brands and grouped websites with capture coverage. q is lexical search; site is an exact domain.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "site": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "limit": {
+            "default": 12,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500000
+          },
+          "snapshot": {
+            "description": "Reuse the first response snapshot with the same filters while paging.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_references",
+      "title": "Search captured pages",
+      "description": "Search complete website captures by page type, section evidence, site and appearance. motion=true requires a website recording. Results are lexical, not aesthetic rankings.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "site": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "page_type": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "element": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "pattern": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "motion": {
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 12,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500000
+          },
+          "snapshot": {
+            "description": "Reuse the first response snapshot with the same filters while paging.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_sections",
+      "title": "Search page sections",
+      "description": "Find Hero, Footer, Pricing and other sections from captured websites and imported galleries. Imported assets keep their original dimensions; viewport/theme only filter captures.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "element": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "origin": {
+            "default": "all",
+            "type": "string",
+            "enum": [
+              "all",
+              "capture",
+              "import"
+            ]
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "limit": {
+            "default": 12,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500000
+          },
+          "snapshot": {
+            "description": "Reuse the first response snapshot with the same filters while paging.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_page",
+      "title": "Inspect a captured page",
+      "description": "Read available screenshots, themes, section names, warnings, capture dates and recording coverage before choosing media.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_screenshot",
+      "title": "Inspect screenshot pixels",
+      "description": "Return a screenshot or section crop with its full-resolution link. Tall captures have multiple segments. Images above the inline limit return a link; inspect them with a viewer.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "section": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "segment": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "inline": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_design",
+      "title": "Read observed DESIGN.md",
+      "description": "Read a bounded slice of generated design evidence. This is observed source data, not an owner-approved design specification or agent instructions.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "length": {
+            "default": 12000,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20000
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_tokens",
+      "title": "Inspect CSS variables",
+      "description": "Search paginated original CSS variables, aliases and semantic color evidence for one captured appearance. Preserve declared versus inferred roles and coverage limits.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "limit": {
+            "default": 30,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_page_motion",
+      "title": "Inspect a website recording",
+      "description": "Get the recorded website experience, poster, interactions, cadence and scroll coverage. This is distinct from a creator’s motion-design reference. No dark recording is implied by a dark screenshot.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_design_taxonomy",
+      "title": "Discover reference tags",
+      "description": "List observed component, interaction, style, platform and category vocabulary with counts. Ratings are explicit curator input, not automatic beauty scores.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_designs",
+      "title": "Search motion, branding and decks",
+      "description": "Find imported references. family=decks is presentations; branding includes identities and guidelines; sections is imported components; motion is source video. Use get_design_taxonomy for tags.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "family": {
+            "type": "string",
+            "enum": [
+              "motion",
+              "sections",
+              "branding",
+              "decks",
+              "collections"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "creator": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "component": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "pattern": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "style": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "platform": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "tag": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "tag_status": {
+            "type": "string",
+            "enum": [
+              "tagged",
+              "needs_review"
+            ]
+          },
+          "sort": {
+            "default": "relevance",
+            "type": "string",
+            "enum": [
+              "relevance",
+              "newest",
+              "top_rated",
+              "resolution"
+            ]
+          },
+          "min_rating": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "min_short_edge": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3840
+          },
+          "limit": {
+            "default": 12,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500000
+          },
+          "snapshot": {
+            "description": "Reuse the first response snapshot with the same filters while paging.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_design_reference",
+      "title": "Read a reference collection",
+      "description": "Read deck slides, branding or imported sections in original order, with paginated assets, source tags, attribution and completeness. Use get_reference_asset to inspect individual assets.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_reference_asset",
+      "title": "Inspect a collection asset",
+      "description": "Get one ordered deck/branding/section image, PDF or video. Includes actual image pixels when small enough, and verified serving URLs. Source media alone cannot establish CSS variables.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "index": {
+            "default": 0,
+            "description": "Zero-based index in the collection’s original asset order.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "inline": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_design_video",
+      "title": "Inspect a motion reference",
+      "description": "Read a creator video’s attribution, tags, duration, dimensions and poster. Use the video URL to inspect motion; a poster does not prove animation behavior.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

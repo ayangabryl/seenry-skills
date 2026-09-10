@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "web-atlas": {
+      "type": "http",
+      "url": "https://web-atlas.ayangabryl.workers.dev/mcp"
+    }
+  }
+}
