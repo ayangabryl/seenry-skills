@@ -12,13 +12,13 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.1**, a local candidate until its branch/release is published. From this checkout:
+The consolidation is **2.0.0-dev.1**, a development candidate; main and released versions may differ. From this checkout:
 
 ```sh
 python scripts/install.py --apply
 ```
 
-For an existing Design Judgment or Web Atlas install, use the reversible [migration](MIGRATION.md). Once this version is published, the standard skills installer can use the canonical repository:
+For an existing Design Judgment or Web Atlas install, use the reversible [migration](MIGRATION.md). After this version is merged/released, the standard skills installer can use the canonical repository:
 
 ```sh
 npx skills add ayangabryl/seenry-skills
