@@ -2,6 +2,8 @@
 import importlib.util
 import json
 import socket
+import subprocess
+import sys
 import tempfile
 import unittest
 from html.parser import HTMLParser
@@ -46,6 +48,27 @@ class ColorLab(unittest.TestCase):
         self.assertFalse(check()['pass'])
         roles['onAction'] = '#111111'
         self.assertTrue(check()['pass'])
+    def test_brief_constraint_catches_readable_but_unrequested_color(self):
+        data = lab.normalize(self.data())
+        data['palettes'][0]['roles']['action'] = '#0055B3'
+        report = lab.audit(data, ['canvas', 'surface', 'action'])
+        self.assertTrue(report['palettes'][0]['role_pairs_pass'])
+        self.assertFalse(report['palettes'][0]['brief_constraints_pass'])
+        data['palettes'][0]['roles']['action'] = '#242424'
+        self.assertTrue(lab.audit(data, ['canvas', 'surface', 'action'])['palettes'][0]['brief_constraints_pass'])
+        self.assertIsNone(lab.audit(data)['palettes'][0]['brief_constraints_pass'])
+        with self.assertRaises(ValueError): lab.audit(data, ['unknownRole'])
+    def test_cli_retains_failed_candidates_and_returns_review_status(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            out = Path(temporary) / 'study'
+            result = subprocess.run([sys.executable, str(ROOT / 'skills/seenry/scripts/color_lab.py'),
+                                     str(EXAMPLE), '--out', str(out), '--achromatic-roles', 'action'],
+                                    capture_output=True, text=True, encoding='utf-8')
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('Review required', result.stderr)
+            self.assertTrue((out / 'index.html').is_file())
+            report = json.loads((out / 'audit.json').read_text(encoding='utf-8'))
+            self.assertFalse(report['palettes'][2]['brief_constraints_pass'])
     def test_invalid_or_unresolved_colors_do_not_get_silent_scores(self):
         for value in ('red', '#1234', '#12345678', 'oklch(50% .2 20)', 'var(--brand)', '#NaNNaN', None, 0):
             with self.subTest(value=value), self.assertRaises(ValueError): lab.color(value)

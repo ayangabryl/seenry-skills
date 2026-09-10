@@ -8,6 +8,7 @@ Write it before product code; update it at decisions. Preserve existing conventi
 ## Brief and product truth
 Audience, task, supplied facts, assumptions, constraints, preserved behavior.
 Requested ambition, scoped preferences, appearance policy and reason.
+Explicit brand/appearance constraints fixed before alternatives; checkable role restrictions where applicable.
 
 ## Reference evidence
 Evidence route: MCP / public web / local; actual host capabilities and gaps.

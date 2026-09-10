@@ -8,6 +8,8 @@ Record the audience, existing identity, content/artwork, ambient use, appearance
 
 Keep explanations observable: “the action is the only large chromatic control” is inspectable; “this tint reduces eye strain” requires relevant evidence and cannot be inferred from a hex code. A **counterexample** must name a situation where the proposed palette itself would be a poor choice, not praise it by listing problems it avoids. Honor explicit white/gray neutrality; do not quietly replace it with parchment or another favored aesthetic.
 
+Freeze explicit brief constraints before generating options. The directions table is a menu of possibilities, not an instruction to select one option from every category. If the brief requires achromatic white/gray, both alternatives must remain inside that requirement. Differentiate surface contrast or action emphasis within it. For the local color lab, pass `--achromatic-roles canvas surface text muted controlBorder action onAction actionHover focus selected onSelected` when that matches the actual brief. Semantic error colors may remain separate unless the user also prohibits them. This check comes from the brief, not the model's own description of its palette. Repeated RGB channels are a strict achromatic check, not a universal definition of a visually quiet neutral.
+
 Sketch the largest color areas before choosing accents: canvas, imagery, surfaces, text and controls. Estimate coverage qualitatively or from the rendered area. A tiny accent swatch and a full-screen field of that color have different effects. There is no required 60/30/10 split. Compare alternatives using identical content and layout so the suspected color effect can actually be assessed.
 
 ## 2. Choose a direction with a reason
@@ -39,6 +41,8 @@ Do not encode selection, availability or error solely through hue. Retain a visi
 ## 4. Inspect a controlled comparison
 
 Use the project's own component renderer when available. Otherwise `scripts/color_lab.py INPUT.json --out DIRECTORY` creates an entirely local comparison page and contrast report. Start from [the example input](../assets/color-lab.example.json), replace its copy and palette hypotheses, and render it. The tool intentionally accepts opaque sRGB hex values only. It rejects unsupported values rather than guessing. Its comparison shell is a study surface, not a reusable finished design or proof of aesthetic quality.
+
+The CLI retains artifacts and exits with code 2 if measured pairs or declared brief constraints fail. Repair or reject that option before selection. A passing ratio cannot override an explicit brand or appearance requirement. Warm/cool neutrals remain available when the brief permits them; do not enable strict achromatic checks by habit.
 
 Inspect both narrow and wide views at actual size. Ask: What is noticed first? Can muted text still be read? Does a large surface compete with the action? Does artwork clash with controls? Can selected, focused and failed states be understood without hue? Does the palette retain character across hero, body, form and footer? A monochrome screenshot helps examine emphasis but is not a color-vision simulation.
 

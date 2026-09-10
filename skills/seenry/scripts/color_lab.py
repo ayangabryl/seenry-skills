@@ -77,7 +77,10 @@ def normalize(data):
     return {'copy': copy, 'palettes': normalized}
 
 
-def audit(data):
+def audit(data, achromatic_roles=()):
+    unknown = set(achromatic_roles) - set(ROLES)
+    if unknown:
+        raise ValueError(f'Unknown achromatic roles: {sorted(unknown)}')
     results = []
     for palette in data['palettes']:
         roles = palette['roles']
@@ -86,13 +89,20 @@ def audit(data):
             ratio = contrast(roles[foreground], roles[background])
             checks.append({'label': label, 'foreground': foreground, 'background': background,
                            'ratio': ratio, 'minimum': minimum, 'pass': ratio >= minimum})
+        constraints = []
+        for role in dict.fromkeys(achromatic_roles):
+            value = roles[role]
+            constraints.append({'role': role, 'required': 'achromatic', 'value': value,
+                                'pass': value[1:3] == value[3:5] == value[5:7]})
         results.append({'name': palette['name'], 'checks': checks,
-                        'role_pairs_pass': all(c['pass'] for c in checks)})
+                        'role_pairs_pass': all(c['pass'] for c in checks),
+                        'brief_constraints': constraints,
+                        'brief_constraints_pass': all(c['pass'] for c in constraints) if constraints else None})
     return {'schema': 1, 'scope': 'Opaque sRGB role pairs in this comparison shell only',
             'limitations': ['Not full WCAG conformance or an aesthetic score.',
                             'No image, gradient, alpha, wide-gamut or color-vision simulation.',
                             'Use final browser-resolved pairs and inspect the actual project.'],
-            'palettes': results}
+            'achromatic_roles': list(dict.fromkeys(achromatic_roles)), 'palettes': results}
 
 
 CSS = '''
@@ -125,6 +135,12 @@ def render(data, report):
                        f'<td>{"Pass" if check["pass"] else "Revise"} (≥{check["minimum"]}:1)</td></tr>'
                        for check in result['checks'])
         tokens = esc(json.dumps(palette['roles'], ensure_ascii=False, indent=2))
+        constraint_note = ''
+        if result['brief_constraints']:
+            failures = [c['role'] for c in result['brief_constraints'] if not c['pass']]
+            constraint_note = ('<p><strong>Brief constraint: ' +
+                               ('Revise. These roles must be achromatic: ' + esc(', '.join(failures))
+                                if failures else 'Pass. Specified roles are achromatic.') + '</strong></p>')
         studies.append(f'''<section class="study" aria-labelledby="name-{index}">
 <div class="canvas" style="{style}"><article class="specimen">
 <h3>{c['title']}</h3><p class="body">{c['body']}</p>
@@ -134,7 +150,7 @@ def render(data, report):
 <p class="error">{c['error']}</p></article></div>
 <div class="context"><h2 id="name-{index}">{esc(palette['name'])}</h2>
 <p>{esc(palette['intent'])}</p><p><strong>Where it can fail:</strong> {esc(palette['counterexample'])}</p></div>
-<details><summary>Inspect role pairs and tokens</summary><table><caption>Ratios are displayed rounded; pass uses the unrounded result.</caption>
+{constraint_note}<details><summary>Inspect role pairs and tokens</summary><table><caption>Ratios are displayed rounded; pass uses the unrounded result.</caption>
 <thead><tr><th>Pair</th><th>Contrast</th><th>Check</th></tr></thead><tbody>{rows}</tbody></table><pre><code>{tokens}</code></pre></details></section>''')
     return '''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seenry · Color comparison</title><style>''' + CSS + '''</style><main><header class="intro">
@@ -148,10 +164,10 @@ document.querySelectorAll('.confirmation').forEach(status=>status.textContent=''
 }));</script></html>'''
 
 
-def build(source, destination):
+def build(source, destination, achromatic_roles=()):
     raw = source.read_bytes()
     data = normalize(json.loads(raw.decode('utf-8')))
-    report = audit(data)
+    report = audit(data, achromatic_roles)
     report['input_sha256'] = hashlib.sha256(raw).hexdigest()
     document = render(data, report)
     destination.mkdir(parents=True, exist_ok=True)
@@ -164,10 +180,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input', type=Path)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--achromatic-roles', nargs='+', choices=ROLES, default=[],
+                        help='Only for an explicitly achromatic brief: roles that must have equal RGB channels.')
     args = parser.parse_args()
     try:
-        result = build(args.input, args.out)
+        result = build(args.input, args.out, args.achromatic_roles)
     except (ValueError, OSError) as exc:
         parser.exit(1, f'{exc}\n')
     print(json.dumps({'output': str(args.out.resolve()), 'palettes': len(result['palettes']),
                       'scope': result['scope']}, indent=2))
+    if any(not p['role_pairs_pass'] or p['brief_constraints_pass'] is False for p in result['palettes']):
+        parser.exit(2, 'Review required: at least one role-pair or declared brief constraint failed. Artifacts retained.\n')
