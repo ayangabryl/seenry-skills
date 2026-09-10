@@ -9,6 +9,8 @@ Write it before product code; update it at decisions. Preserve existing conventi
 Audience, task, supplied facts, assumptions, constraints, preserved behavior.
 Requested ambition, scoped preferences, appearance policy and reason.
 Explicit brand/appearance constraints fixed before alternatives; checkable role restrictions where applicable.
+Visitor offering and visible proof, separated from implementation constraints.
+Opening copy, dominant visual, next action and what can wait until later.
 
 ## Reference evidence
 Evidence route: MCP / public web / local; actual host capabilities and gaps.
@@ -21,6 +23,7 @@ Observed relationship; our inference; transfer; where it would fail.
 A/B/C: distinct concept/mechanism, reading order, alignment anchors,
 content groups, narrow behavior, ordinary usable path and tradeoffs.
 Provisional type, color roles/area, spacing, corners and control emphasis.
+Copy density and section roles; open versus enclosed grouping; why any eyebrow/ordinal exists.
 
 ## Construction history
 Each actual wireframe, typography and surface/interaction artifact.
@@ -38,6 +41,7 @@ Action → transition → result → interruption/recovery; motion ownership.
 Tests run, visual observations, capture paths, unresolved issues.
 Repair history. Author review versus fresh review versus user acceptance.
 Status: draft / needs-revision / ready-for-review / accepted-by-user.
+Per-criterion visual verdicts; functional success cannot override unresolved visual failures.
 ```
 
 If development anatomy is requested, derive safe areas, boxes, baselines and token labels from the real DOM and styles. Gate it from production and keep its controls out of normal flows. It explains current structure; it does not prove wireframing happened earlier.

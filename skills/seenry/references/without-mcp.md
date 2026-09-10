@@ -11,6 +11,8 @@ Seenry's design process runs locally. MCP supplies additional reference evidence
 | Local files, no network | Inspect supplied screenshots, recordings, existing UI, fonts and assets. Load the relevant built-in guides below and build original alternatives locally. | File, actual observation or an explicitly authored hypothesis. A written example is not a captured reference. |
 | No visual inspection capability | Continue the brief, layout proposals, semantic implementation and available functional checks. Preserve renders for an equipped reviewer. | Visual/motion review pending. Do not certify pixels you could not inspect. |
 
+No MCP does not imply no network, no photography or code-only illustration. Do not impose those extra restrictions unless the user, environment or a declared experiment requires them. A restricted benchmark must describe its asset and tool limits separately from the skill’s normal capabilities.
+
 Availability can differ by operation: a browser can render local HTML without internet. Do not repeatedly retry an unavailable service. Never silently install an MCP, require a paid prompt pack, or turn a failed lookup into a fabricated research result. Respect an explicit offline/no-MCP mode even if a server happens to be configured.
 
 ## Built-in decision resources

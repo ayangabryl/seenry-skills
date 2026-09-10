@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.2"
+  version: "2.0.0-dev.3"
 ---
 
 # Study the interaction before animating it

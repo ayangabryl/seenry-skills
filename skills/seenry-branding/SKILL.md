@@ -4,7 +4,7 @@ description: "Research brand identity systems and guidelines from Seenry, includ
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.2"
+  version: "2.0.0-dev.3"
 ---
 
 # Read branding as a system

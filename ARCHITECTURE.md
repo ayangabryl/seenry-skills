@@ -47,3 +47,7 @@ Design Judgment's four entrypoints and the old Web Atlas entrypoints (including 
 The MCP endpoint and tool names remain compatible. MCP-bundled skill resources are deployed separately by the server repository; installing this package does not update those server-side documents. Local Seenry 2 instructions are the active package for a migrated client. Updating the server bundle should retain legacy resource IDs as compatibility resources and test new entrypoint retrieval before deployment.
 
 A renamed package, successful installation and a passing schema test are not evidence of improved model taste. Use the frozen, matched [evaluation protocol](skills/seenry/references/evaluation.md) before announcing an improvement or competitor win.
+
+## Visitor-facing quality gate
+
+Planning records are backstage tools. The visitor sees the actual offering, visible work and useful actions. The content-and-finish guide resolves the opening, copy density, enclosure and control emphasis before expanding the grid. Comparison and review packets load a dedicated visual review. Five criteria remain separate; a functional pass cannot offset a failed opening or weak material. The local review_gate.py checks recorded disposition and evidence paths, not visual quality itself. User acceptance remains the final visual gate.

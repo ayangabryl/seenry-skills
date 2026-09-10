@@ -6,13 +6,14 @@ ROOT = Path(__file__).resolve().parents[1]
 STAGES = {
     'understand': ['design-record.md'],
     'research': ['reference-standards.md'],
-    'plan': ['design-record.md', 'visual-decisions.md', 'color-decisions.md', 'hci-decisions.md'],
-    'prototype': ['visual-decisions.md', 'color-decisions.md', 'interaction-review.md'],
-    'compare': ['reference-standards.md', 'design-record.md'],
-    'build': ['design-record.md', 'interaction-review.md'],
-    'review': ['interaction-review.md', 'reference-standards.md'],
-    'refine': ['interaction-review.md', 'visual-decisions.md', 'color-decisions.md'],
+    'plan': ['design-record.md', 'content-and-finish.md', 'visual-decisions.md', 'color-decisions.md', 'hci-decisions.md'],
+    'prototype': ['content-and-finish.md', 'visual-decisions.md', 'color-decisions.md', 'interaction-review.md'],
+    'compare': ['visual-review.md', 'reference-standards.md', 'design-record.md'],
+    'build': ['content-and-finish.md', 'design-record.md', 'interaction-review.md'],
+    'review': ['visual-review.md', 'interaction-review.md', 'reference-standards.md'],
+    'refine': ['content-and-finish.md', 'visual-review.md', 'interaction-review.md', 'visual-decisions.md', 'color-decisions.md'],
 }
+DEPENDENCIES = {'content-and-finish.md': ['studies/hoy.md']}
 SOURCES = {
     'auto': 'Use an available evidence route; MCP is optional. Record the actual route.',
     'mcp': 'Use connected MCP for research; if unavailable report it and explicitly change route.',
@@ -36,6 +37,10 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
                   motion_root / 'references/scroll-choreography.md', motion_root / 'references/adapters.md']
     if assets:
         paths += [root.parent / 'seenry-assets/SKILL.md']
+    for path in list(paths):
+        for dependency in DEPENDENCIES.get(path.name, []):
+            paths.append(root / 'references' / dependency)
+    paths = list(dict.fromkeys(paths))
     # Resolve every declared selection before returning any partial packet.
     records = []
     for path in paths:
