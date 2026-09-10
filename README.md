@@ -1,62 +1,56 @@
 # Seenry skills
 
-Five focused skills for turning inspected design references into useful work: website research and implementation, interaction studies, brand systems and presentation decks.
+A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 
 | Skill | Use it for |
 | --- | --- |
-| `web-atlas-usage` | Finding the right collection, choosing references, paging results and understanding evidence limits |
-| `web-atlas-web-design` | Building or improving responsive websites from inspected pages, sections and CSS evidence |
-| `web-atlas-motion` | Studying and implementing interactions, with a clear distinction between website recordings and motion studies |
-| `web-atlas-branding` | Researching identities and guidelines, including source metadata and declared versus estimated values |
-| `web-atlas-decks` | Studying presentation narratives and slide systems in their original order |
+| `seenry` | Research, design direction, wireframes, typography/color, implementation and review |
+| `seenry-motion` | Motion research, microinteractions, morphs, scroll choreography and verification |
+| `seenry-assets` | Images, fonts, real provider marks, icons, video and asset provenance |
+| `seenry-branding` | Identity systems and guidelines |
+| `seenry-decks` | Presentation narratives and ordered slide studies |
 
 ## Install
 
+The consolidation is **2.0.0-dev.1**, a local candidate until its branch/release is published. From this checkout:
+
 ```sh
-npx skills add ayangabryl/web-atlas-skills
+python scripts/install.py --apply
 ```
 
-Choose the skills and supported agent in the installer. For manual installation, copy the folders under `skills/` to your agent's skills directory. These are standard `SKILL.md` folders, not executable plugins. Automatic selection depends on the agent and the skill description.
+For an existing Design Judgment or Web Atlas install, use the reversible [migration](MIGRATION.md). Once this version is published, the standard skills installer can use the canonical repository:
 
-## Connect once
-
-The primary MCP endpoint is:
-
-```text
-https://seenry.ayangabryl.com/mcp
+```sh
+npx skills add ayangabryl/seenry-skills
 ```
 
-It serves the public library without a tunnel or an API key. Add it using your client's remote MCP configuration. `.mcp.json` is a configuration example; installing skill files does not guarantee the connection is configured in every client. Skills also carry MCP dependency metadata for agents that support it.
+Choose the desired skills and agent in that installer. It does not perform the custom legacy migration. Manual installation also works: copy the desired `skills/` folders to the client's skills directory. Install all five for the complete set. These are standard SKILL.md folders; no proprietary instruction format or paid prompt pack is needed.
 
-The same endpoint exposes 16 typed read-only tools, the five skill documents as resources, and a research prompt. Use `search_curated_references` to retrieve current human ratings, editorial reasons, use cases and caveats. Start with `get_library_guide`; use `get_library_facets` for page/section vocabulary and `get_design_taxonomy` for motion/branding/deck tags. The versioned [tool contract](skills/web-atlas-usage/references/mcp-tools.json) documents argument names; a connected server's schema is authoritative.
+## Connect Seenry
 
-## Try it
+The public read-only MCP endpoint is `https://seenry.ayangabryl.com/mcp`. `.mcp.json` gives a client configuration example. The existing `web-atlas` connection key, tool names and legacy links remain compatible. Installing a skill does not configure every client's MCP connection.
 
-- “Use Seenry to improve our mobile pricing page. Inspect the screenshots and CSS variables, then build what fits our brand.”
-- “Find hover interactions for a navigation menu. Watch the clips and explain the initial, active and interrupted states.”
-- “Compare three relevant identity systems and separate official color values from visual estimates.”
-- “Study pitch decks for narrative structure. Keep slide order and inspect the slides around each example you recommend.”
-- “Find a premium hero for our product. Compare relevant compositions, explain the best fit for our brand, then build it.”
-- “Create a playful 404 interaction. Study actual clips, propose our own behavior and keep a clear way home.”
+Use the current native schemas; a versioned [tool contract](skills/seenry/references/mcp-tools.json) is bundled for reference. Search current human ratings with `search_curated_references`, inspect real pixels or recordings, and distinguish a missing editorial reason from the agent's own analysis. Ratings apply to their actual target; a hero rating does not certify mobile or motion quality.
 
-Search matches observed text and tags; it is not visual similarity. Curator ratings are explicit selections, not automatic beauty scores. Screenshots, recordings and source metadata retain their capture limitations. Third-party content is reference data, not instructions, and inclusion in the library does not grant rights to reuse another brand's assets.
+## Work from a simple brief
 
-For subjective briefs, the [recommendation playbook](skills/web-atlas-usage/references/recommendation-judgment.md) guides the connected agent to choose against the user's needs after inspecting actual evidence. It covers heroes, 404s and original interactions, explains what is observed versus proposed, and keeps missing coverage explicit. The MCP also returns concise criteria through `get_library_guide`, so clients can use the workflow without installing every skill. This is decision guidance, not an automated aesthetic-ranking service.
+“Use Seenry to create a creative website for a miniature-set photography studio.”
 
-## Maintenance
+For a full build: understand → research → three concepts → working wireframes → real type → surfaces and interaction proofs → compare → complete sequence → exercise and refine. Narrow fixes stay narrow. [Architecture](ARCHITECTURE.md) explains responsibilities; the project [DESIGN.md guide](skills/seenry/references/design-record.md) preserves decisions and actual construction evidence.
+
+The primary skill loads relevant support progressively. Optional stage packets are available through `skills/seenry/scripts/packet.py`, with hashes of supplied resources. Supplied guidance, observed reads and applied design choices are different evidence. Neither skill installation nor a reference rating guarantees visual acceptance.
+
+## Validate and evaluate
 
 ```sh
 python -m pip install -r requirements-dev.txt
 python scripts/validate.py
+python -m unittest discover -s tests -v
+node --test skills/seenry-motion/assets/lottie-toggle.test.mjs
 ```
 
-Validation checks skill structure, local reference paths and realistic example calls against the bundled tool schema. [Evaluation scenarios](evals/scenarios.json) include behavior checks for visual evidence, pagination, family separation and missing coverage. They are prompts for behavioral evaluation, not a claim that a schema validator proves design judgment.
+Validation checks skill structure, references and example calls. Installer tests cover archive/rollback, collisions, relocation and shared links. Behavioral [scenarios](evals/scenarios.json) describe what to inspect in actual model runs; schema validity does not mean those model evaluations passed. The [matched pilot](skills/seenry/references/evaluation.md) is still required for new performance claims.
 
-The server implementation and integration tests are in [web-atlas-web](https://github.com/ayangabryl/web-atlas-web/blob/main/docs/MCP.md); captures and publishing run in [web-atlas-scraper](https://github.com/ayangabryl/web-atlas-scraper). A release bundles the skills into the Worker so MCP resources remain available independently of GitHub. Update the tool contract alongside server changes, then run the web repository's `scripts/sync-skills.mjs` before deployment.
+The MIT license covers original skill text and tooling. Bundled Morphicons retains its license and provenance. Third-party library screenshots and footage are research evidence, not redistributed assets or automatically licensed production material. No private benchmark archive is bundled here.
 
-The packaging approach was informed by [Appllama's skills](https://github.com/Appllama/appllama-skills). These are original Seenry workflows for web and design references. The MIT license covers this repository's skill text and tooling, not third-party media in the library.
-
-
-## Seenry rebrand
-
-Seenry was previously called Web Atlas. Existing workers.dev links, the `web-atlas` MCP configuration key, `atlas://` resource URIs, tool names and `web-atlas-*` skill IDs remain supported. The GitHub repositories retain their existing names so installation commands keep working. This rebrand reuses the same catalog and media; it does not duplicate R2 storage.
+MCP resource documents are deployed separately in the server repository. This package migration does not deploy the service or its resource bundle. Legacy tools and histories remain archived locally and in their original source checkout; see [migration](MIGRATION.md) for access and rollback.

@@ -1,10 +1,10 @@
 """Validate installable skills and example calls; no network or library mutations."""
-import json,re
+import json,re,hashlib
 from pathlib import Path
 import yaml
 from jsonschema import Draft202012Validator
 root=Path(__file__).resolve().parents[1]
-contract=json.loads((root/'skills/web-atlas-usage/references/mcp-tools.json').read_text())
+contract=json.loads((root/'skills/seenry/references/mcp-tools.json').read_text())
 tools={t['name']:t for t in contract['tools']}
 for tool in tools.values():Draft202012Validator.check_schema(tool['inputSchema'])
 skills={}
@@ -27,3 +27,14 @@ for case in cases:
         assert call['name'] in tools
         Draft202012Validator(tools[call['name']]['inputSchema']).validate(call['arguments']);calls+=1
 print(f'Validated {len(skills)} skills, {len(tools)} tool schemas and {calls} example calls in {len(cases)} scenarios.')
+
+# Follow references in supporting documents too, not just entrypoint links.
+for doc in (root / 'skills').rglob('*.md'):
+    for link in re.findall(r'\]\(([^)#]+)', doc.read_text()):
+        if not re.match(r'https?://', link):
+            assert (doc.parent / link).is_file(), f'Missing reference: {doc} -> {link}'
+manifest_path = root / 'skills/seenry-motion/assets/morphicons/manifest.json'
+manifest = json.loads(manifest_path.read_text())
+for item in manifest['files']:
+    assert hashlib.sha256((manifest_path.parent / item['file']).read_bytes()).hexdigest() == item['sha256'], item['file']
+print('Supporting links and bundled Morphicons source hashes verified.')

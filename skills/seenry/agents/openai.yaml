@@ -1,6 +1,6 @@
 interface:
-  display_name: "Seenry Research"
-  short_description: "Research websites and reference collections"
+  display_name: "Seenry"
+  short_description: "Research, prototype, build and review interfaces"
 dependencies:
   tools:
     - type: "mcp"

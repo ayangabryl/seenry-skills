@@ -1,0 +1,34 @@
+{
+  "name": "morphicons",
+  "version": "1.7.1",
+  "source": "https://registry.npmjs.org/morphicons/-/morphicons-1.7.1.tgz",
+  "docs": "https://github.com/guillermolg00/morphicons#vanilla-no-react",
+  "license": "MIT",
+  "package_integrity": "sha512-q5ylxy5/d7vBg0OAzanlooXf05PekovMYDuuQVpr6vAQZxl99lrJbaIi+jJ32PXQf9WEEaDO2pbNBsx1ZhEnFQ==",
+  "files": [
+    {
+      "file": "dom.js",
+      "package_member": "package/dist/dom.js",
+      "sha256": "ce2915838dbc547d9b74207d8776627f69d6ed8014f5a91fe82e30a645009655",
+      "modified": false
+    },
+    {
+      "file": "normalize-CYnN3Npw.js",
+      "package_member": "package/dist/normalize-CYnN3Npw.js",
+      "sha256": "7da2964e74cff390949302e7c771dc89eaf6daa107cd8f5356865277542cc9c3",
+      "modified": false
+    },
+    {
+      "file": "spring-CFHloqPP.js",
+      "package_member": "package/dist/spring-CFHloqPP.js",
+      "sha256": "d107c0752f72e6b6b5acb8016f3c5fa2adfebf661eb85e61562240b87dea9ae7",
+      "modified": false
+    },
+    {
+      "file": "LICENSE",
+      "package_member": "package/LICENSE",
+      "sha256": "bca713965691c297a4fc7e17eb115b373b7d08db4975c1968df7f7707267a4be",
+      "modified": false
+    }
+  ]
+}

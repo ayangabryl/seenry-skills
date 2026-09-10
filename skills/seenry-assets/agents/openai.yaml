@@ -1,6 +1,6 @@
 interface:
-  display_name: "Seenry Web Design"
-  short_description: "Build websites from inspected design evidence"
+  display_name: "Seenry Assets"
+  short_description: "Source images, fonts, marks and media with provenance"
 dependencies:
   tools:
     - type: "mcp"

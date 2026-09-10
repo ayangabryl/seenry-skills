@@ -1,10 +1,10 @@
 ---
-name: web-atlas-motion
+name: seenry-motion
 description: "Research or implement web interactions using Seenry website recordings and creator motion references. Use for entrances, hover states, scrolling, transitions and component animation; distinguish observed motion from static screenshots."
 license: MIT
 metadata:
   author: Seenry
-  version: "1.2.1"
+  version: "2.0.0-dev.1"
 ---
 
 # Study the interaction before animating it
@@ -36,3 +36,11 @@ Record the initial state, trigger, transition, settled state and interruption be
 Implement the user's interaction with a coherent start and end state. Test rapid retriggering, reversal, resizing and leaving the component mid-transition. Preserve focus and reduced-motion behavior. Compare the rendered interaction with the evidence using a short capture or repeatable action sequence. Verify the end state, not just the first animated frame.
 
 When returning inspiration, include the source link, relevant clip interval, observed behavior, why it fits, and capture limitations. Do not infer source CSS variables or an animation library from the visual recording alone.
+
+## Author the motion system
+
+Before product implementation, read [motion craft](references/motion-craft.md). Specify the meaningful state change, spatial anchors, trigger, transition, settled state and interruption/recovery. For scroll-led work read [scroll choreography](references/scroll-choreography.md). Decide the story and reading holds before selecting a runtime. CSS, SVG, Lottie, GSAP, Anime.js, Motion and Three.js are available techniques, not mandatory ingredients or proof of quality. Verify current APIs for the chosen version.
+
+The bundled optional adapters in `assets/` provide interruptible icon swaps, Morphicons path morphs, Lottie state toggles and scoped GSAP scroll scenes. Read [adapter usage](references/adapters.md) before adopting one. These helpers use external rendering libraries where appropriate, but no transitions-dev or other design skill is required. They own presentation, never business state. The ordinary layout and task must remain available without enhancement.
+
+For actual media acquisition and rights use **seenry-assets**. For full interface direction use **seenry**. Keep a source recording's observed behavior separate from our proposed motion and from checks on the finished implementation.

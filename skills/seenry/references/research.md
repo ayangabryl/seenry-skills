@@ -1,21 +1,12 @@
----
-name: web-atlas-usage
-description: "Research website design, page sections, motion references, branding and presentation decks using Seenry. Use when the user wants design inspiration or evidence from the Seenry library."
-license: MIT
-metadata:
-  author: Seenry
-  version: "1.2.1"
----
-
 # Research with Seenry
 
-Seenry was previously called Web Atlas. Existing `web-atlas-*` skill IDs and the `web-atlas` MCP connection key remain supported.
+Seenry was previously called Web Atlas. The `web-atlas` MCP connection key and tool names remain compatible. The package now uses Seenry skill IDs.
 
 Use the public MCP at `https://seenry.ayangabryl.com/mcp`. It serves the published library without an SSH tunnel. The same connection covers websites, sections, motion, branding and decks. If it is unavailable, report the lookup limitation; do not invent library results or install another service implicitly.
 
 ## Choose the right evidence
 
-Call `get_library_guide` when you need the collection model, and inspect the available tool schemas. [mcp-tools.json](references/mcp-tools.json) is the versioned contract; the connected server's schema takes precedence.
+Call `get_library_guide` when you need the collection model, and inspect the available tool schemas. [mcp-tools.json](mcp-tools.json) is the versioned contract; the connected server's schema takes precedence.
 
 | Need | Search | Inspect |
 | --- | --- | --- |
@@ -44,7 +35,7 @@ Use `next` from list/collection responses unchanged to continue with the same fi
 
 For an implementation request, turn observations into decisions for the user's project and continue the build. For research alone, return a focused comparison: reference, observed detail, why it fits, and any limitation. Curator ratings are explicit selections; `top_rated` is not an AI beauty score. No tool provides visual similarity or conversion metrics.
 
-For requests such as “premium hero,” “best 404” or “a new interaction,” use the [recommendation playbook](references/recommendation-judgment.md). The MCP retrieves candidates; the connected agent makes a contextual judgment after inspecting evidence. Interpret quality against the brief rather than searching for the word “premium.”
+For requests such as “premium hero,” “best 404” or “a new interaction,” use the [recommendation playbook](recommendation-judgment.md). The MCP retrieves candidates; the connected agent makes a contextual judgment after inspecting evidence. Interpret quality against the brief rather than searching for the word “premium.”
 
 ## Trust and reuse
 
