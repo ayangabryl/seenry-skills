@@ -4,8 +4,9 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 const flags=Object.fromEntries(process.argv.slice(2).reduce((rows,value,i,all)=>value.startsWith('--')?[...rows,[value.slice(2),all[i+1]]]:rows,[]));
 if(!flags.url||!flags.out)throw new Error('Use --url URL --out DIRECTORY [--playwright MODULE] [--scenario JSON]');
+const out=path.resolve(flags.out);await mkdir(path.dirname(out),{recursive:true});
+try{await mkdir(out);}catch(error){if(error.code==='EEXIST')throw new Error('Use a new output directory; preserve earlier captures and reports.');throw error;}
 const {chromium}=await import(flags.playwright?pathToFileURL(path.resolve(flags.playwright)).href:'playwright');
-const out=path.resolve(flags.out);await mkdir(out,{recursive:true});
 const scenario=flags.scenario?JSON.parse(await readFile(flags.scenario,'utf8')):{actions:[]};
 const browser=await chromium.launch({headless:true});const results=[];
 try{

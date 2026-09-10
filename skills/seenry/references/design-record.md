@@ -48,3 +48,5 @@ Per-criterion visual verdicts; functional success cannot override unresolved vis
 ```
 
 If development anatomy is requested, derive safe areas, boxes, baselines and token labels from the real DOM and styles. Gate it from production and keep its controls out of normal flows. It explains current structure; it does not prove wireframing happened earlier.
+
+For a multi-screen product, follow [system design](system-design.md): link the authoritative shared decisions/version, relevant component APIs and neighboring journey states from each slice. Track planned/built/exercised/reviewed coverage by screen family and state. Keep system coverage distinct from any one run's completion.

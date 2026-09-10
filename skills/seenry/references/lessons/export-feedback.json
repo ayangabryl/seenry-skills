@@ -1,0 +1,64 @@
+{
+  "recorded_at": "2026-09-10T19:11:58.793211+00:00",
+  "source": "User follow-up after rejecting both anonymous exporters",
+  "quotation": "Yes it was clean.",
+  "observed_feedback": [
+    "Clean but insufficiently creative",
+    "Redundant export-tool eyebrow competes with the title",
+    "Ordinary field labels overemphasized by uppercase",
+    "Unrelated green/orange control color roles",
+    "Unnecessary separator and strong enclosures",
+    "Loose vertical spacing and alignment",
+    "Missing visible state-change/download feedback"
+  ],
+  "scope": "These rejected exporter artifacts. No global prohibition of colors, uppercase, whitespace, borders or separators.",
+  "experimental_status": "Development evidence; not future holdout.",
+  "artifacts": [
+    {
+      "variant": "A",
+      "viewport_width": 1440,
+      "file": "export-feedback-A-1440.png",
+      "image_sha256": "222cb4578b73762b66293f61eaa79e4a81188b3e61b35e2ea4e8774878c64732",
+      "source_sha256": "986844a812896bee04d080e62713c77bded4fa4c4252c0d8e82c8ca4ae850ea3",
+      "author_model": "gpt-5.6-luna high",
+      "human_decision": "reject",
+      "source": "Anonymous user comparison on 2026-09-10, followed by detailed feedback",
+      "limits": "One reviewer; multiple properties differ; screenshots do not prove motion quality."
+    },
+    {
+      "variant": "A",
+      "viewport_width": 390,
+      "file": "export-feedback-A-390.png",
+      "image_sha256": "99a2d1525d5a1401f4a2e46f93a96d6fec3a2c0baa822d82f5fe68cd024df958",
+      "source_sha256": "986844a812896bee04d080e62713c77bded4fa4c4252c0d8e82c8ca4ae850ea3",
+      "author_model": "gpt-5.6-luna high",
+      "human_decision": "reject",
+      "source": "Anonymous user comparison on 2026-09-10, followed by detailed feedback",
+      "limits": "One reviewer; multiple properties differ; screenshots do not prove motion quality."
+    },
+    {
+      "variant": "B",
+      "viewport_width": 1440,
+      "file": "export-feedback-B-1440.png",
+      "image_sha256": "aa9c249e3e4caf19f04880e9c28726448b636cdaa55cd73e1c4d285f42af2e7b",
+      "source_sha256": "d4f5ed025ce09badb8f9fbd8ece30a8b9ef57f57981f9551685a0ada7b038c9b",
+      "author_model": "gpt-5.6-luna high",
+      "human_decision": "reject",
+      "source": "Anonymous user comparison on 2026-09-10, followed by detailed feedback",
+      "limits": "One reviewer; multiple properties differ; screenshots do not prove motion quality."
+    },
+    {
+      "variant": "B",
+      "viewport_width": 390,
+      "file": "export-feedback-B-390.png",
+      "image_sha256": "1a2667472eee1b76a971397254769180810bc0967bb4544b93f0703ac0181e5a",
+      "source_sha256": "d4f5ed025ce09badb8f9fbd8ece30a8b9ef57f57981f9551685a0ada7b038c9b",
+      "author_model": "gpt-5.6-luna high",
+      "human_decision": "reject",
+      "source": "Anonymous user comparison on 2026-09-10, followed by detailed feedback",
+      "limits": "One reviewer; multiple properties differ; screenshots do not prove motion quality."
+    }
+  ],
+  "source_record_sha256": "5cf3064ac9e5fb2e05f0df142b3cd66dc246e11de0a2b58c61a760857fa1fe0a",
+  "quotation_scope": "Short verbatim excerpt. Detailed reasons are summarized in observed_feedback; the complete user message remains in the local development record."
+}

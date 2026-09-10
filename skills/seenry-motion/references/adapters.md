@@ -8,3 +8,7 @@ Copy only the helper used and its relative dependencies. Keep project runtime ve
 - `assets/scroll-scene.mjs`: read [scroll choreography](scroll-choreography.md). Inject GSAP and ScrollTrigger from the project. The helper owns only its scene; cleanup must not affect other scenes.
 
 Inspect these small sources before use. Verify input interruption, failure and live reduced motion in the actual product. Bundled adapters do not establish the quality of a new animation. Review current engine documentation when changing versions; do not assume every runtime can morph arbitrary paths.
+
+## Measured disclosure geometry
+
+`assets/geometry-transition.mjs` exports `createDisclosure(panel, options)`. Supply a panel with one natural-height content wrapper; keep wrapper padding inside it. The controller measures the current visual height before cancellation, animates geometry without scaling live text, makes collapsed descendants inert and respects reduced motion. Use `controller.setOpen(next)` from the owning component. Keep the trigger's `aria-expanded` in that component, with `aria-controls` referencing the panel. Before collapsing from inside, move focus to the trigger. Call `destroy()` on unmount. This adapter owns presentation, not your product's selected state or input data.

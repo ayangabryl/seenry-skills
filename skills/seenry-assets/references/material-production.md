@@ -8,6 +8,8 @@ At planning, decide whether imagery is needed, unnecessary or unresolved. “No 
 4. **Judge the collection:** focal visibility, light direction, color temperature, resolution, visual noise, ability to sit beside the actual copy, continuity with the next section. Select or reject with a reason. A beautiful image can still be wrong for the job.
 5. **Prepare production:** confirm item rights and intended use, acquire the permitted variant, record attribution/transformations, create responsive variants with authorized project tools, and inspect in the final layout. Keep a replaceable asset map so temporary material can be replaced without rebuilding structure.
 
+Inspect detail at the actual rendered size, including any crop enlargement and the target pixel density. A loaded image can still be an inadequate source. Compare the permitted larger original, a less aggressive crop, and a smaller placement before choosing. Never upscale a scouting thumbnail and call its resolution verified. The Met helper keeps `preview` and `production_candidate` separate; the latter is a candidate URL, not an automatically approved or downloaded asset.
+
 ## Three honest levels of material
 
 - Blockout: blank areas solely to establish layout; cannot pass material review.
@@ -29,3 +31,7 @@ The helper has an optional public-domain Met Collection search; it needs no toke
 Manifest example: `assets/candidates.example.json`. `check --production` rejects temporary, reference-only, unselected or unreviewed material. It does not validate your legal interpretation or inspect image quality.
 
 Sources: [Met Open Access](https://www.metmuseum.org/hubs/open-access), [Met API](https://metmuseum.github.io/), [Unsplash API](https://unsplash.com/documentation), [Pexels license](https://www.pexels.com/license/).
+
+For a text-only stage host, attach the selected original material directly at surface/build stages alongside construction renders, with explicit evidence roles. A grayscale wireframe screenshot can otherwise become the model’s only picture of a colorful source. Temporary crops, desaturation and diagnostic outlines do not automatically transfer to the finished product. Inspect the actual asset and make its treatment a deliberate decision; do not globally prohibit authored monochrome imagery.
+
+For editors and exporters, the preview must represent the operation’s actual result. Share crop, orientation, color/filter and aspect-ratio state with the output pipeline. Cosmetic desaturation of a preview is misleading when the downloaded file stays in color and no filter operation is selected. This is preview/output fidelity, not a prohibition of monochrome photography in other contexts.

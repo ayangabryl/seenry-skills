@@ -6,6 +6,10 @@ Seenry owns the design process. The optional read-only MCP supplies additional e
 flowchart TD
   U[User brief and existing project] --> S[seenry: scope and product truth]
   S --> R[Select an available evidence route]
+  S --> SYS[System scope: journeys and shared decision record]
+  SYS --> SL[Representative connected slices]
+  SL --> P
+  SYS --> COVER[Track planned, built, exercised and reviewed coverage]
   M[Optional Seenry MCP: inspected references and reviews] --> R
   L[Local studies, supplied files or public sources] --> R
   R --> E[Separate observation, curator reason and inference]
@@ -14,10 +18,17 @@ flowchart TD
   W --> T[Actual typography and content]
   T --> V[Controlled surfaces, assets and interaction proofs]
   CL[Local color lab: same content, different role palettes] --> V
-  V --> C{Rendered comparison}
+  VL[Small local decision lessons] --> V
+  V --> C{Five-criterion rendered comparison}
+  C -->|Missing observation| OBS[Collect evidence with source unchanged]
+  OBS --> C
   C -->|One direction reset| P
-  C -->|Select| B[Build complete sequence and states]
-  B --> Q[Functional, visual and motion review]
+  C -->|Unresolved; repair within shared budget| V
+  C -->|All criteria cleared| B[Build complete sequence and states]
+  KEEP[Selected opening and narrow renders] --> B
+  B --> Q[Compare final with selected slice; exercise and review]
+  Q -->|Missing observation| OBS2[Observe the existing result]
+  OBS2 --> Q
   Q -->|Up to two repair passes| B
   Q --> F[Ready for user review or explicit incomplete status]
   A[seenry-assets: scout, contact sheet, crops, type study] --> P
@@ -49,7 +60,7 @@ No proprietary TALENT.md discovery is required. `SKILL.md` explicitly routes to 
 
 ## Migration boundary
 
-Design Judgment's four entrypoints and the old Web Atlas entrypoints (including the interim seenry-usage/seenry-web-design names) retire from local discovery. Their full local contents are archived, not copied wholesale into this public package. Selected original guidance and four small motion adapters are maintained here. The old coordinator, asset tools, study archives and benchmark histories remain available in the local migration archive or original source checkout. See [migration](MIGRATION.md).
+Design Judgment's four entrypoints and the old Web Atlas entrypoints (including the interim seenry-usage/seenry-web-design names) retire from local discovery. Their full local contents are archived, not copied wholesale into this public package. Selected original guidance and small motion adapters are maintained here. The old coordinator, asset tools, study archives and benchmark histories remain available in the local migration archive or original source checkout. See [migration](MIGRATION.md).
 
 The MCP endpoint and tool names remain compatible. MCP-bundled skill resources are deployed separately by the server repository; installing this package does not update those server-side documents. Local Seenry 2 instructions are the active package for a migrated client. Updating the server bundle should retain legacy resource IDs as compatibility resources and test new entrypoint retrieval before deployment.
 
@@ -68,3 +79,19 @@ AGY can run with native host tools using `scripts/flash_trial.py`. If the model-
 ## Visitor-facing quality gate
 
 Planning records are backstage tools. The visitor sees the actual offering, visible work and useful actions. The content-and-finish guide resolves the opening, copy density, enclosure and control emphasis before expanding the grid. Comparison and review packets load a dedicated visual review. Five criteria remain separate; a functional pass cannot offset a failed opening or weak material. The local review_gate.py checks recorded disposition and evidence paths, not visual quality itself. User acceptance remains the final visual gate.
+
+## Evidence and progression in the development candidate
+
+New `workflow.py` runs use schema 2. It reads the canonical five-criterion comparison before allowing expansion; a `continue_with` repair direction cannot bypass a failed or unknown criterion. A surface repair returns to comparison and shares the same two-repair ceiling as final fixes. The recorder snapshots the exact cited artifacts. Schema 1 histories remain readable for reproduction. This checks the consistency of judgments and progression; it does not make model judgments accurate.
+
+`review_request.py` supplies distinct opening, narrow and full-sequence views, anonymous image filenames, an explicit behavior record and every criterion expected by `review_gate.py`. `reviewer_probe.py` tests order stability and can compare against separately collected human choices. Original mechanical lessons, observed user preferences and unseen evaluation cases have different evidence roles.
+
+The optional focused packet reduces repeated entrypoint text, with the original hash retained. It remains experimental: the sprint produced both a human preference for a Seenry scheduler and a preference for a packing component without appended Seenry guidance. Smaller context and more detailed rules are hypotheses to test, not automatic quality upgrades.
+
+The user rejected both Luna ceramic websites and both image exporters despite functional passes. Model visual judgments also passed these rejected artifacts; stricter evidence gates did not solve aesthetic calibration. The benchmark therefore does not establish consistent website quality. Human rejections stay attached to those exact artifacts and override model-only acceptance. Missing evidence and observed defects also take separate routes: unchanged-source evidence refreshes collect observations; repairs change the product. Neither route reclassifies a rejected result as accepted without a new review.
+
+Code transport accepts complete raw documents or exact hashed patches. The explicit Luna fallback adapter records requested model, image inputs in their actual attachment order, source hashes, events, usage and timeouts. It does not relabel Luna as Flash. Test failures are triaged before they become author repair requests. Native host tools remain the preferred production route.
+
+Selected feedback-motion helpers now enter restricted stage packets as actual authored API/source plus a pinned, hashed runtime manifest. Relative dependencies and licenses must be provisioned by the host; the manifest alone does not establish runtime availability. The exporter feedback lesson stores exact rejected screenshots, source hashes and scoped human reasons. A separate Astra-authored teaching candidate remains outside model-only benchmark outcomes and is not certified by package validation.
+
+For larger systems, `system-design.md` carries shared language, navigation, tokens, components, state ownership and motion across bounded slices. Coverage of the requested screen families and journeys stays separate from slice completion. No large-system generation benchmark was run; routing/record preservation are engineering checks only.

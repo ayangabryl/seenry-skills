@@ -33,6 +33,8 @@ def signature(path):
     digest = hashlib.sha256()
     for child in sorted(path.rglob('*')):
         rel = child.relative_to(path).as_posix()
+        if '__pycache__' in child.relative_to(path).parts or child.name == '.DS_Store' or child.suffix in ('.pyc', '.pyo'):
+            continue
         if child.is_symlink():
             data = b'link:' + os.fsencode(os.readlink(child))
         elif child.is_file():
@@ -129,7 +131,7 @@ def apply(manifest):
                 raise ValueError(f'Concurrent install collision: {target}')
             manifest['installed'].append(entry)
             if entry['kind'] == 'copy':
-                shutil.copytree(entry['source'], target)
+                shutil.copytree(entry['source'], target, ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '*.pyo', '.DS_Store'))
             else:
                 target.symlink_to(entry['canonical'], target_is_directory=True)
             save(manifest, journal)

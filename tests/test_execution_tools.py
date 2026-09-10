@@ -45,6 +45,11 @@ class Execution(unittest.TestCase):
                 elif role=='recording':(self.root/name).write_bytes(b'\x1a\x45\xdf\xa3test-header-fixture')
                 else:(self.root/name).write_text(content)
                 artifacts[role].append(name)
+        if stage in ('compare','review'):
+            image_name=f'{stage}-citation.png'
+            (self.root/image_name).write_bytes((ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes())
+            report={'candidates':[{'id':'A','checks':{k:{'result':'pass','artifact':image_name,'observation':'Fixture judgment, not a real visual evaluation'} for k in ('subject','opening','hierarchy','material','interaction')},'blocking_issues':[]}],'selected':'A'}
+            (self.root/artifacts['judgment'][0]).write_text(json.dumps(report))
         return {'observation':'Fixture record, not visual inspection','artifacts':artifacts,
                 'reviewer':'test fixture','checks':dict.fromkeys(('functional','visual','motion','material'),'pass')}
     def test_cannot_skip_wireframes_or_invent_missing_media(self):
@@ -94,6 +99,80 @@ class Execution(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'budget exhausted'):workflow.record(self.root,'understand',self.submission('understand'))
         result=workflow.load_run(self.root);self.assertEqual(result['status'],'incomplete-budget');self.assertEqual(result['events'],[])
 
+    def test_system_scope_carries_shared_decisions_without_expanding_component_packets(self):
+        project={'scope':'system','media':'none','motion':'feedback','shared_decisions':{'version':'one','navigation':['Library','Settings'],'state_owner':'selected account'}}
+        before=json.dumps(project,sort_keys=True)
+        for stage in packet.STAGES:
+            result=packet.compile_packet(stage,project=project,profile='focused')
+            self.assertIn('seenry/references/system-design.md',[r['path'] for r in result['resources']])
+            self.assertEqual(result['project_decisions']['shared_decisions'],project['shared_decisions'])
+        self.assertEqual(json.dumps(project,sort_keys=True),before)
+        small=packet.compile_packet('build',project={**project,'scope':'component'},profile='focused')
+        self.assertNotIn('seenry/references/system-design.md',[r['path'] for r in small['resources']])
+
+    def test_feedback_packet_supplies_selected_helper_and_pinned_runtime(self):
+        project={'media':'none','motion':'feedback','motion_helpers':['morph-icon','geometry']}
+        result=packet.compile_packet('build',project=project,profile='focused')
+        resources={r['path']:r for r in result['resources']}
+        self.assertIn('seenry-motion/references/adapters.md',resources)
+        self.assertIn('export function createMorphIcon',resources['seenry-motion/assets/morph-icon.mjs']['content'])
+        runtime={r['path']:r['sha256'] for r in result['runtime_files']}
+        self.assertIn('seenry-motion/assets/morphicons/LICENSE',runtime)
+        self.assertIn('seenry-motion/assets/morphicons/dom.js',runtime)
+        self.assertIn('seenry-motion/assets/geometry-transition.mjs',runtime)
+        self.assertFalse(any('scroll-scene' in p for p in runtime))
+        self.assertEqual(packet.compile_packet('plan',project=project)['runtime_files'],[])
+        for invalid in [['unknown'],['geometry','geometry'],[{}]]:
+            with self.assertRaises(ValueError):packet.compile_packet('build',project={**project,'motion_helpers':invalid})
+        with self.assertRaises(ValueError):packet.compile_packet('build',project={**project,'motion':'none'})
+
+    def test_repair_direction_is_not_permission_to_expand_failed_material(self):
+        for stage in workflow.ORDER[:6]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('compare');p=self.root/s['artifacts']['judgment'][0];j=json.loads(p.read_text())
+        j['candidates'][0]['checks']['material']['result']='fail';j['selected']=None;j['continue_with']='A';p.write_text(json.dumps(j))
+        result=workflow.record(self.root,'compare',s)
+        self.assertEqual(result['status'],'needs-prototype-revision')
+        with self.assertRaisesRegex(ValueError,'Comparison is not cleared'):workflow.record(self.root,'build',self.submission('build'))
+        workflow.record(self.root,'surface',self.submission('surface'))
+        result=workflow.record(self.root,'compare',self.submission('compare'))
+        self.assertEqual(result['repairs'],1)
+        workflow.record(self.root,'build',self.submission('build'))
+
+    def test_broad_pass_labels_cannot_override_the_actual_review(self):
+        for stage in workflow.ORDER[:-1]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('review');p=self.root/s['artifacts']['judgment'][0];j=json.loads(p.read_text())
+        j['candidates'][0]['checks']['opening']['result']='revise';p.write_text(json.dumps(j))
+        result=workflow.record(self.root,'review',s)
+        self.assertEqual(result['status'],'needs-revision')
+        self.assertTrue(any(e['role']=='judgment-citation' for e in result['events'][-1]['evidence']))
+
+    def test_resolved_comparison_gap_does_not_erase_history_or_poison_current_state(self):
+        for stage in workflow.ORDER[:6]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('compare');s['artifacts'].pop('judgment');s['unavailable']={'judgment':'Review capability unavailable'}
+        workflow.record(self.root,'compare',s)
+        with self.assertRaisesRegex(ValueError,'Comparison is not cleared'):workflow.record(self.root,'build',self.submission('build'))
+        for stage in ('surface','compare','build','review'):result=workflow.record(self.root,stage,self.submission(stage))
+        self.assertEqual(result['status'],'ready-for-human-review')
+        self.assertTrue(result['events'][6]['unavailable'])
+
+    def test_new_observation_can_refresh_review_without_consuming_code_repair(self):
+        for stage in workflow.ORDER[:7]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('compare');s['mode']='evidence-refresh'
+        (self.root/'observed-feedback.json').write_text('{"observed":"Completion feedback appears after actual download"}')
+        s['artifacts']['evidence']=['observed-feedback.json']
+        result=workflow.record(self.root,'compare',s)
+        self.assertEqual(result['repairs'],0)
+        self.assertEqual(result['events'][-1]['mode'],'evidence-refresh')
+        self.assertEqual(len(result['events']),8)
+
+    def test_evidence_refresh_cannot_hide_source_changes_or_repeat_only_judgment(self):
+        for stage in workflow.ORDER[:7]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('compare');s['mode']='evidence-refresh'
+        with self.assertRaisesRegex(ValueError,'new observation artifact'):workflow.record(self.root,'compare',s)
+        (self.root/'surface-source-0.txt').write_text('changed design')
+        (self.root/'new.json').write_text('{"observation":"new"}');s['artifacts']['evidence']=['new.json']
+        with self.assertRaisesRegex(ValueError,'Source changed'):workflow.record(self.root,'compare',s)
+
 
 class Material(unittest.TestCase):
     def fixture(self): return json.loads((ROOT/'skills/seenry-assets/assets/candidates.example.json').read_text())
@@ -114,6 +193,13 @@ class Material(unittest.TestCase):
     def test_met_non_public_domain_results_are_not_assets(self):
         with patch.object(assets,'request_json',side_effect=[{'objectIDs':[1]},{'isPublicDomain':False,'primaryImageSmall':'https://example.com/a.jpg'}]):
             self.assertEqual(assets.search_met('test',1)['assets'],[])
+    def test_met_preview_and_full_candidate_remain_distinct(self):
+        obj={'isPublicDomain':True,'primaryImageSmall':'https://example.com/preview.jpg','primaryImage':'https://example.com/full.jpg','title':'Vase','objectURL':'https://example.com/object'}
+        with patch.object(assets,'request_json',side_effect=[{'objectIDs':[1]},obj]):
+            item=assets.search_met('vase',1)['assets'][0]
+        self.assertEqual(item['preview'],obj['primaryImageSmall'])
+        self.assertEqual(item['production_candidate'],obj['primaryImage'])
+        self.assertFalse(item['selected']);self.assertFalse(item['rights_reviewed'])
     def test_type_study_uses_content_and_rejects_css_injection(self):
         data=json.loads((ROOT/'skills/seenry-assets/assets/type.example.json').read_text())
         data['heading']='<script>bad</script>';self.assertNotIn('<script>',types.render(data))

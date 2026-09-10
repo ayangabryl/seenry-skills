@@ -10,6 +10,14 @@ Give the opening one dominant idea. Compose type, useful imagery/interaction, ac
 
 Choose section roles from the visitor's questions. A long specification page needs detail; a studio introduction often needs a brief statement and work. Put project explanation beside the relevant work or in an accessible disclosure. Do not hide information needed to decide. Give each paragraph one new job. Delete sentences that repeat the headline, explain the grid, or assert quality without showing it. Replace “computational motion systems” with a clear service description unless the audience actually uses that terminology. Do not replace jargon with vague slogans.
 
+## Give a component the right identity
+
+A single-object utility usually inherits its host's identity. Name the object or task once, then give its controls and state the space they need. An isolated component request is not automatically a request for a new miniature brand, introductory slogan and product explanation. Keep supporting text when it changes a decision; do not repeat the name of the tool as an eyebrow above the object name.
+
+In the supplied Schwaibold music-card video, the track name identifies the object, the artist adds different information, artwork carries color, and familiar transport controls remain subordinate. The sampled anatomy frames separate finished content from layout study layers. These are observed relationships in the supplied clip, not proof of its source code, exact tokens or audio behavior. The original clip is not redistributed with this package.
+
+Transfer the relationship to another object: useful title, distinct metadata, manipulable material and a clear action. Expressive character can come from how the object responds to the task. A multi-object workspace or unfamiliar tool can need its own title and explanation; the compact-object treatment is not a universal one-heading rule. An unbranded utility does not need an invented accent identity before it can be considered complete.
+
 ## Preserve the brief across stages
 
 Keep user facts, user feedback and model hypotheses distinct. An invented studio niche, slogan or positioning statement remains revisable; carrying it into the next packet does not make it a requirement. A direction reset must be able to discard that hypothesis while preserving actual user requirements.
@@ -31,3 +39,8 @@ An ordinal, slash separator, eyebrow or badge is content only if it conveys info
 See the inspected [Hoy study](studies/hoy.md). Transfer its concentration of emphasis and control hierarchy, not its logo, dark background, portraits, copy or exact component shapes. Minimal work still needs a specific visual idea, well-resolved materials and purposeful behavior. It is not achieved by removing color or making everything white.
 
 Before building the rest, record the opening's actual copy, dominant visual, next action, proposed density, enclosure choice and control hierarchy in DESIGN.md. Render the plan: well-written rationale cannot pass a weak prototype.
+# Preserve the selected design while finishing it
+
+Before expanding the selected slice, reopen its actual wide and narrow renders. Retain the source and record three visible relationships that define it: for example, which material leads, its scale relative to the viewport, and how the primary action relates to that material. These are observations of this selected design, not a reusable layout recipe. Carry the defining interaction and current product facts too.
+
+Build with those images available as local references. Added sections must not accidentally turn a material-led opening into a text-heavy introduction. Internal facts, source provenance and prototype limitations need truthful placement; they do not automatically deserve a large hero notice. After expansion, compare the final opening against the selected slice at the same viewport. A required change can be appropriate, but record why its new hierarchy better serves the task. A source-code reference alone may not preserve the selected visual character.

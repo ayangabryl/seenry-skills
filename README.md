@@ -12,7 +12,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.4**, a development candidate; main and released versions may differ. From this checkout:
+The consolidation is **2.0.0-dev.7**, a development candidate; main and released versions may differ. From this checkout:
 
 ```sh
 python scripts/install.py --apply
@@ -74,10 +74,18 @@ python -m pip install -r requirements-dev.txt
 python scripts/validate.py
 python -m unittest discover -s tests -v
 node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
+# Optional real browser verification, with a project Playwright installation:
+node tests/geometry-transition.browser.mjs --playwright /path/to/playwright/index.mjs
 ```
+
+The development candidate adds local rendered decision lessons, an experimental focused packet, exact artifact transport, an interruptible geometry helper, and a comparison gate that blocks expansion of an unresolved prototype. These are capability changes; they are not a claim of consistent visual superiority.
 
 Validation checks skill structure, references and example calls. Installer tests cover archive/rollback, collisions, relocation and shared links. Behavioral [scenarios](evals/scenarios.json) describe what to inspect in actual model runs; schema validity does not mean those model evaluations passed. The [matched pilot](skills/seenry/references/evaluation.md) is still required for new performance claims.
 
 The MIT license covers original skill text and tooling. Bundled Morphicons retains its license and provenance. Third-party library screenshots and footage are research evidence, not redistributed assets or automatically licensed production material. No private benchmark archive is bundled here.
 
 MCP resource documents are deployed separately in the server repository. This package migration does not deploy the service or its resource bundle. Legacy tools and histories remain archived locally and in their original source checkout; see [migration](MIGRATION.md) for access and rollback.
+
+The current development evidence is mixed: a user preferred the Seenry scheduler, preferred the packing baseline, and rejected both Luna website and exporter pairs. Recent changes target actual image delivery, source-preserving evidence refresh, scoped human-feedback examples and motion-helper handoff. This candidate does not establish consistent output quality or superiority over other skills.
+
+For multi-screen applications, the [system design guide](skills/seenry/references/system-design.md) maps journeys, shared component/state decisions and representative screen families. The workflow scales through bounded connected slices; whole-system coverage remains explicit. Large-system output quality has not been benchmarked.

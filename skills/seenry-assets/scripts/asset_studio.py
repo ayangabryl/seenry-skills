@@ -33,7 +33,7 @@ def search_met(query, limit=8, title_only=False):
                 continue
             candidates.append({'id': str(identity), 'title': item['title'],
                 'source': item['objectURL'], 'author': item.get('artistDisplayName') or item.get('culture') or 'Not recorded',
-                'preview': item['primaryImageSmall'], 'license': 'CC0',
+                'preview': item['primaryImageSmall'], 'production_candidate': item.get('primaryImage') or None, 'license': 'CC0',
                 'rights_url': 'https://www.metmuseum.org/hubs/open-access',
                 'rights_reviewed': False, 'role': 'unassigned', 'status': 'temporary',
                 'selected': False, 'alt': item['title'], 'position': [50, 50],
@@ -74,6 +74,8 @@ def validate(data, production=False):
         for field in ('source', 'rights_url'):
             safe_url(asset.get(field))
         safe_url(asset.get('preview'), local=True)
+        if asset.get('production_candidate') is not None:
+            safe_url(asset['production_candidate'])
         if asset['status'] not in ('temporary', 'final', 'reference-only'):
             raise ValueError(f'{identity}: invalid status')
         position = asset.get('position', [50, 50])

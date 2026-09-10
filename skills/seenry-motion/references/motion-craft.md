@@ -8,6 +8,8 @@ For buttons, keep hit area and label/icon anchors stable. Press feedback can be 
 
 For changing containers, measure the before/after geometry or use an appropriate layout animation. Avoid jumps from `display:none`, auto-height transitions assumed to work everywhere, or stretching live text with a scale transform. Move a wrapper while keeping text readable. Retarget from the current visual state on interruption, and clean up stale animations after unmount.
 
+For a disclosure with one natural-height content wrapper, the local `assets/geometry-transition.mjs` helper implements measured, interruptible height changes and live reduced-motion handling. Read its API in [adapters](adapters.md) and its source before copying it. The component still owns focus, `aria-expanded`, selected state and recovery. This is an optional behavior primitive, not a visual design.
+
 For numbers, preserve decimal/unit anchors and use tabular numerals when comparison needs them. A Number Flow-style transition needs a stable accessible value and a reduced-motion update; it is not necessary for every timer tick. Test digit-count changes, negative values, separators and rapid updates. Do not make the colon or unit drift merely because digits animate.
 
 Inspect normal-speed playback, not just endpoints. Exercise ten quick inputs, reversal halfway, pointer leave, keyboard activation, resize, mount/destroy/remount and live reduced-motion changes. Check that delayed async results cannot win over newer input. Pause decorative continuous motion where appropriate; hidden/offscreen scenes should not waste frames. Render the final state from actual application state after cancellation or failure.

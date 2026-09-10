@@ -13,7 +13,7 @@ def evaluate(report, root):
     candidates = report.get('candidates')
     if not isinstance(candidates, list) or not candidates:
         raise ValueError('At least one candidate review is required')
-    eligible, identities, evidence = [], set(), []
+    eligible, identities, evidence, actions = [], set(), [], []
     for candidate in candidates:
         identity = candidate.get('id')
         if not isinstance(identity, str) or not identity.strip() or identity in identities:
@@ -26,11 +26,17 @@ def evaluate(report, root):
         if not isinstance(blockers, list) or any(not isinstance(x, str) or not x.strip() for x in blockers):
             raise ValueError(f'{identity}: blocking_issues must be an explicit list')
         passed = not blockers
+        unresolved = []
         for criterion, check in checks.items():
             if not isinstance(check, dict) or check.get('result') not in RESULTS:
                 raise ValueError(f'{identity}/{criterion}: invalid result')
             if not isinstance(check.get('observation'), str) or not check['observation'].strip():
                 raise ValueError(f'{identity}/{criterion}: observable reason required')
+            issue = check.get('issue_type')
+            if issue is not None and issue not in ('observed-defect', 'missing-evidence'):
+                raise ValueError(f'{identity}/{criterion}: invalid issue_type')
+            if check['result'] != 'pass':
+                unresolved.append({'criterion': criterion, 'issue_type': issue or ('missing-evidence' if check['result'] == 'unverified' else 'observed-defect')})
             artifact = check.get('artifact')
             if not isinstance(artifact, str) or not artifact:
                 raise ValueError(f'{identity}/{criterion}: evidence artifact required')
@@ -43,12 +49,13 @@ def evaluate(report, root):
             passed = passed and check['result'] == 'pass'
         if passed:
             eligible.append(identity)
+        actions.append({'candidate': identity, 'next_action': 'collect-evidence' if unresolved and all(x['issue_type'] == 'missing-evidence' for x in unresolved) else ('repair' if unresolved or blockers else 'eligible'), 'unresolved': unresolved})
     selected = report.get('selected')
     if selected is not None and selected not in identities:
         raise ValueError('Selected candidate does not exist')
     accepted = selected is not None and selected in eligible
     return {'status': 'ready-for-human-review' if accepted else 'needs-revision',
-            'selected': selected, 'eligible': eligible, 'evidence': evidence,
+            'selected': selected, 'eligible': eligible, 'evidence': evidence, 'actions': actions,
             'limit': 'Recorded judgments and existing artifacts checked; pixels and user acceptance not assessed.'}
 
 

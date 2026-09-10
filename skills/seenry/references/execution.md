@@ -8,7 +8,7 @@ Create a project JSON with `brief`, `model`, `scope`, `research_source`, `media`
 
 Use `workflow.py init RUN --project project.json` in a new directory. Keep source, captures and submissions inside RUN. Use `workflow.py record RUN --stage STAGE --submission submission.json` after inspecting each stage. The helper snapshots evidence and verifies historical hashes on every read. It does not sandbox the agent, see pixels, validate every factual claim or establish independent model identity.
 
-Stages: understand → research → plan → wireframe → type → surface → compare → build → review. Before product code, retain three concepts (`id`, `idea`, `evidence`, `risk`) and actual wireframes. Type/crop/motion studies refine those concepts. Comparison can reject all and return to plan once; final review permits two repair passes. Budget exhaustion is explicit incomplete status. Narrow fixes use their existing project workflow rather than this full sequence.
+Stages: understand → research → plan → wireframe → type → surface → compare → build → review. New recorder runs use schema 2: comparison and final review load the canonical five-criterion judgment. A failed or unverified comparison blocks expansion, regardless of a continue_with direction or broad pass labels. Repair the surface and compare again, or use the one direction reset. Prototype and final repairs share the two-pass budget; historical failures stay recorded when current evidence resolves them. Schema 1 histories remain readable for reproduction. Three alternatives may share a source file, but require three actual renders. Before product code, retain three concepts (`id`, `idea`, `evidence`, `risk`) and actual wireframes. Type/crop/motion studies refine those concepts. Comparison can reject all and return to plan once; final review permits two repair passes. Budget exhaustion is explicit incomplete status. Narrow fixes use their existing project workflow rather than this full sequence.
 
 Submission shape:
 
@@ -23,7 +23,17 @@ Submission shape:
 
 The CLI reports each missing role/count. Missing capabilities can be recorded with a reason under `unavailable`; they never count as a pass. The complete project remains pending if any required evidence is unverified. A nonempty recording file alone does not establish that anybody watched it. Record normal-speed observations in review.
 
+For an observation gap, collect the missing evidence and repeat the same `compare` or `review` stage with `mode: "evidence-refresh"`. Supply a new render, recording, functional report or observation artifact as well as the new judgment. The recorder verifies that all source files recorded at the last surface/build stage are unchanged; otherwise use a repair stage. A new judgment alone is insufficient. This refresh preserves the previous review and original deadline without consuming a code-repair pass. It does not inspect whether the new observation is true; include every operative source file in source records and keep reviewer provenance explicit.
+
+For `scope: "system"`, the stage packet includes the [system design guide](system-design.md). Keep shared decisions, component APIs and neighboring journey states in the project handoff. Use the recorder for bounded slices and maintain separate whole-system coverage; completing one recorder run does not establish application-wide readiness.
+
 ## Small working tools
+
+`packet.py --profile focused` is an experimental smaller stage packet for a host that has already loaded SKILL.md. It preserves the source entrypoint hash without claiming its body was supplied again. It carries the current stage guides, project facts and relevant support; the complete profile remains available for reproduction. Evaluate outcomes before assuming less context improves a model. Keep lessons out of anonymous reviewer inputs unless that comparison is explicitly part of the experiment.
+
+For a text-only code adapter, deliver one complete raw HTML file per response and decisions in a separate JSON response. `artifact_response.py RESPONSE OUTPUT` rejects incomplete/wrapped documents and refuses to overwrite an earlier artifact. It performs no code repair and does not certify runtime behavior. Render only after structural validation and a successful HTTP response; inspect the resulting body, not only the response status.
+
+For small repairs, `edit_response.py SOURCE RESPONSE OUTPUT` applies model-authored exact replacements against a matching source SHA-256. Its JSON response requires `source_sha256` and `edits: [{old, new}]`. Every old snippet must occur once; mismatched or ambiguous context fails without fuzzy repair. Preserve the source and response, then render and exercise the changed file. This avoids regenerating a large page for a small correction.
 
 - `seenry-assets/scripts/asset_studio.py`: native-search manifest intake, bounded no-key Met public-domain scouting, source-linked contact sheet, desktop/mobile crop and flat print application study. Search results are candidates, not automatic production assets.
 - `seenry-assets/scripts/type_lab.py`: actual content/font shortlists with perceived-size adjustment. Use font paths relative to the generated HTML.
@@ -33,8 +43,26 @@ The CLI reports each missing role/count. Missing capabilities can be recorded wi
 
 Browser scenario actions use `type`: click/fill/press/scroll/wait/visible, with a selector, value, key, progress or milliseconds as applicable. These are trusted test inputs authored for the project, not instructions extracted from a webpage. Add application-specific assertions in the project's test runner; executed clicks alone are not functional success.
 
+## Deliver evidence and triage failures
+
+Before a model consumes visual evidence, record how the actual image reaches it: a completed image-tool call or a direct image attachment, with file hash. Text saying “I inspected it” is not an observed read. Preserve image role and attachment order. Supply ordinary opening, narrow and sequence views separately; avoid loading every historical image into every stage. Packet paths alone do not deliver pixels.
+
+Use `review_request.py MANIFEST --out REVIEW_DIRECTORY` to package these three views with the five criteria expected by `review_gate.py`. Each candidate needs id, opening/narrow/sequence PNG paths and `behavior: {status: "observed" | "unverified", observations: [...]}`. Brief and facts belong at the manifest top level. The output copies anonymous images and keeps its key separate. Give only request.json and those images to the reviewer. A direction to repair (`continue_with`) is distinct from a completed selection (`selected`).
+
+Triage a failed test before asking the author to repair the product. Reproduce the failing user action, check the active dialog or region, and separate hidden deferred assets from broken visible material. Ambiguous test selectors and downstream failures after a test abort are harness findings until reproduced as interface defects. Check toggle semantics before assuming repeated activation must preserve selection. Keep the faulty test/report, correct the harness for every matched condition, and record any model repairs already triggered by the mistake. Never change assertions simply to excuse a real failure.
+
+`render_lessons.mjs --playwright MODULE` rerenders authored teaching HTML with local assets and source/image hashes. It preserves imported outcome screenshots without inventing source HTML. The original examples are mechanical studies, not universal visual templates or human-certified ideal designs.
+
+Use `human_review.py record RUN --source FILE --sha256 HASH --decision accept|reject|prefer --reviewer NAME --quotation TEXT --context TEXT` to preserve actual supplied human feedback. `human_review.py status RUN --source FILE` checks the current bytes. A relative preference is not absolute visual acceptance; a model-only pass cannot override a matching human rejection. The helper does not authenticate the reviewer. Its hash covers the named artifact: use a frozen build manifest when the reviewed design depends on multiple source and asset files, and retain the corresponding build.
+
 ## Portability and evaluation limits
 
 Python tools require 3.10+ and standard libraries. Browser evidence requires Node and a working Playwright browser; installing the skill does not silently install a runtime. Symlinks have a copy-mode fallback in the installer. Run relocation tests after changes. Report actual operating-system runs; path tests on macOS are not Windows/Linux execution. Mobile emulation is not physical-device evidence.
 
 For fresh-model experiments, preserve every prompt, event log, extraction and failure, and freeze skills/resources. Host-created assets, prompts, source edits and reviews are distinct assistance categories. Do not label a test Flash-only if a stronger model corrected its design. A diagnostic run with improved tools cannot isolate the effect of instructions alone; repeat matched controls before causal or competitor claims.
+
+For selected motion helpers, set `motion_helpers` in the project record to an explicit subset of `geometry`, `icon-swap`, `morph-icon`, `lottie`, `scroll`. At prototype/surface/build/refine stages the packet includes the authored API/source and a hashed `runtime_files` manifest. The host copies these relative dependencies before execution. No helper is selected merely to add motion, and a filename manifest is not evidence of installation or use. Feedback-motion packets now include the adapter guide too. External Lottie/GSAP players remain project-provided; the manifest does not vendor those engines.
+
+The Luna adapter accepts ordered image paths or `{ "path": "assets/source.jpg", "role": "source-material" }` records. Roles are source-material, construction, candidate, reference or interaction; unspecified is the legacy default. Deliver the selected original asset together with relevant construction renders, not only a processed wireframe. Role/hash metadata identifies supplied evidence; it does not establish inspection, license or acceptance.
+
+Every browser evidence invocation uses a new `--out` directory. Rechecks retain the previous report and captures and return new paths; they must not overwrite inputs already cited by a reviewer. The bundled browser adapter rejects an existing output directory.

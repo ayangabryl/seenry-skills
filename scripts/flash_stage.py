@@ -23,11 +23,18 @@ def main():
     if not exe:parser.error('AGY missing; no model substitution')
     command=[exe,'--new-project','--model',args.model,'--mode','accept-edits','--disable-slash-commands','--output-format','stream-json','--print-timeout',f'{args.timeout}s','--print',prompt]
     for directory in args.allow_dir:command.extend(['--add-dir',str(directory.resolve())])
-    started=time.time()
+    runner_hash=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    started=time.time();timed_out=False
     with (args.out/'events.ndjson').open('w') as stdout,(args.out/'stderr.txt').open('w') as stderr:
         child=subprocess.Popen(command,cwd=args.out,stdout=stdout,stderr=stderr,text=True)
         try:code=child.wait(timeout=args.timeout+20)
-        except subprocess.TimeoutExpired:child.terminate();child.wait(timeout=10);code=124
+        except subprocess.TimeoutExpired:
+            timed_out=True
+            child.terminate()
+            try: child.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                child.kill();child.wait(timeout=10)
+            code=124
     init={};result={}
     for line in (args.out/'events.ndjson').read_text(encoding='utf-8').splitlines():
         try:row=json.loads(line)
@@ -40,7 +47,9 @@ def main():
             'started_at':datetime.fromtimestamp(started,timezone.utc).isoformat(),
             'prompt_sha256':hashlib.sha256(prompt.encode()).hexdigest(),'elapsed':time.time()-started,'exit_code':code,
             'usage':result.get('usage'),'denied_actions':result.get('denied_actions',[]),'mode':'host-rendered',
-            'status':'blocked-permission' if result.get('denied_actions') else ('response-produced' if result.get('response') else 'incomplete'),
+            'timed_out':timed_out,
+            'runner_sha256':runner_hash,
+            'status':'blocked-permission' if result.get('denied_actions') else ('response-produced' if result.get('response') and code==0 and not timed_out else 'incomplete'),
             'limit':'Host tools and frozen prompts supplied; no independent serving-model attestation.'}
     if init.get('model') and init['model'] != args.model: record['status']='model-configuration-mismatch'
     (args.out/'run.json').write_text(json.dumps(record,indent=2),encoding='utf-8');print(json.dumps(record,indent=2))

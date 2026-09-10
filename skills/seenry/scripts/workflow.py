@@ -1,6 +1,7 @@
 """Append verified artifact snapshots to a Seenry run. Not a visual judge or sandbox."""
 import argparse
 import hashlib
+import importlib.util
 import json
 import math
 import shutil
@@ -10,13 +11,20 @@ from pathlib import Path
 ORDER = ('understand', 'research', 'plan', 'wireframe', 'type', 'surface', 'compare', 'build', 'review')
 ROLES = {
     'understand': {'brief': 1}, 'research': {'study': 1}, 'plan': {'concepts': 1},
-    'wireframe': {'source': 3, 'render': 3}, 'type': {'source': 1, 'render': 1},
-    'surface': {'source': 3, 'render': 3}, 'compare': {'judgment': 1},
+    'wireframe': {'source': 1, 'render': 3}, 'type': {'source': 1, 'render': 1},
+    'surface': {'source': 1, 'render': 3}, 'compare': {'judgment': 1},
     'build': {'source': 1}, 'review': {'render': 2, 'functional': 1, 'judgment': 1},
 }
 
 
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def disposition(report, root):
+    spec = importlib.util.spec_from_file_location('seenry_review_disposition', Path(__file__).with_name('review_gate.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.evaluate(report, root)
 
 
 def media_kind(path):
@@ -47,7 +55,7 @@ def initialize(root, project):
     if project['motion'] not in ('signature', 'feedback', 'none', 'undecided'): raise ValueError('Invalid motion need')
     if project['research_source'] not in ('auto', 'mcp', 'web', 'local'): raise ValueError('Invalid research route')
     root.mkdir(parents=True, exist_ok=True)
-    data = {'schema': 1, 'project': project, 'started': time.time(), 'events': [],
+    data = {'schema': 2, 'project': project, 'started': time.time(), 'events': [],
             'resets': 0, 'repairs': 0, 'status': 'in-progress',
             'limitations': ['Protocol evidence is not proof of taste, model identity or human acceptance.']}
     save(root, data)
@@ -69,13 +77,26 @@ def record(root, stage, submission):
     previous = events[-1]['stage'] if events else None
     expected = ORDER[ORDER.index(previous) + 1] if previous and previous != 'review' else ('understand' if previous is None else None)
     reset = previous in ('compare', 'review') and stage == 'plan'
-    repair = previous == 'review' and stage == 'build'
-    if reset:
+    repair = (previous == 'review' and stage == 'build') or (previous == 'compare' and stage == 'surface' and data.get('schema', 1) >= 2)
+    refresh = data.get('schema', 1) >= 2 and previous in ('compare', 'review') and stage == previous and submission.get('mode') == 'evidence-refresh'
+    if refresh:
+        source_event = next((e for e in reversed(events) if e['stage'] in ('surface', 'build')), None)
+        sources = [e for e in source_event['evidence'] if e['role'] == 'source'] if source_event else []
+        if not sources:
+            raise ValueError('Evidence refresh needs a recorded source to verify')
+        for source in sources:
+            current = (root / source['original']).resolve()
+            if not current.is_relative_to(root.resolve()) or not current.is_file() or digest(current) != source['sha256']:
+                raise ValueError('Source changed; use a repair stage instead of evidence refresh')
+    elif reset:
         if data['resets'] >= 1: raise ValueError('Direction reset exhausted')
     elif repair:
         if data['repairs'] >= 2: raise ValueError('Repair passes exhausted')
     elif stage != expected:
         raise ValueError(f'Expected {expected}, received {stage}')
+    if data.get('schema', 1) >= 2 and previous == 'compare' and stage == 'build':
+        if (events[-1].get('review_disposition') or {}).get('status') != 'ready-for-human-review':
+            raise ValueError('Comparison is not cleared. Repair the surface and compare again, or use the direction reset; continue_with is not acceptance.')
     if stage not in ROLES: raise ValueError('Unknown stage')
     if not isinstance(submission.get('observation'), str) or not submission['observation'].strip():
         raise ValueError('Record the observable outcome, not only file paths')
@@ -104,6 +125,10 @@ def record(root, stage, submission):
             if role == 'recording' and media_kind(path) != 'recording':
                 raise ValueError('Recording evidence needs an MP4 or WebM file')
             prepared.append((role, path))
+    if refresh:
+        old_hashes = {item['sha256'] for event in events for item in event['evidence']}
+        if not any(role in ('render', 'crop', 'recording', 'functional', 'evidence') and digest(path) not in old_hashes for role, path in prepared):
+            raise ValueError('Evidence refresh needs a new observation artifact, not only another judgment')
     if stage == 'plan':
         concept_paths = artifacts.get('concepts', [])
         if concept_paths:
@@ -113,6 +138,18 @@ def record(root, stage, submission):
                 if any(not isinstance(concept.get(k), str) or not concept[k].strip() for k in ('id', 'idea', 'evidence', 'risk')):
                     raise ValueError('Each concept needs id, idea, evidence and risk')
             if len({c['id'] for c in concepts}) != 3: raise ValueError('Concept ids must differ')
+    judged = None
+    if data.get('schema', 1) >= 2 and stage in ('compare', 'review'):
+        judgments = artifacts.get('judgment', [])
+        if judgments:
+            if len(judgments) != 1: raise ValueError('Use one canonical five-criterion judgment per comparison or review')
+            judged = disposition(json.loads((root / judgments[0]).read_text(encoding='utf-8')), root)
+            # Preserve the exact cited evidence as well as the review that refers to it.
+            included = {path for _, path in prepared}
+            for citation in judged['evidence']:
+                path = (root / citation['artifact']).resolve()
+                if path not in included:
+                    prepared.append(('judgment-citation', path)); included.add(path)
     index = len(events)
     folder = root / 'history' / f'{index:02d}-{stage}'
     if folder.exists(): raise ValueError('Historical snapshot already exists; investigate interrupted write')
@@ -128,12 +165,20 @@ def record(root, stage, submission):
                  'evidence': evidence, 'unavailable': unavailable,
                  'guidance': submission.get('guidance', {'supplied': [], 'observed_loaded': [], 'applied': []}),
                  'checks': submission.get('checks', {}), 'reviewer': submission.get('reviewer', 'not-recorded')}
+        if data.get('schema', 1) >= 2:
+            event['review_disposition'] = judged
+            if refresh: event['mode'] = 'evidence-refresh'
         events.append(event)
         data['resets'] += int(reset); data['repairs'] += int(repair)
-        gaps = any(e['unavailable'] for e in events)
+        current_stages = {e['stage']: e for e in events}
+        gaps = any(e['unavailable'] for e in (current_stages.values() if data.get('schema', 1) >= 2 else events))
         checks = event['checks']
         ready = stage == 'review' and not gaps and all(checks.get(k) == 'pass' for k in ('functional', 'visual', 'motion', 'material')) and event['reviewer'] != 'not-recorded'
+        if data.get('schema', 1) >= 2:
+            ready = ready and bool(judged and judged['status'] == 'ready-for-human-review')
         data['status'] = 'ready-for-human-review' if ready else ('needs-revision' if stage == 'review' else 'in-progress')
+        if data.get('schema', 1) >= 2 and stage == 'compare' and (not judged or judged['status'] != 'ready-for-human-review'):
+            data['status'] = 'needs-prototype-revision'
         data['elapsed_seconds'] = time.time() - data['started']
         if data['elapsed_seconds'] > project.get('budget_seconds', 2400): data['status'] = 'incomplete-budget'
         save(root, data)

@@ -1,0 +1,10 @@
+{
+  "case": "scheduler-005",
+  "reviewer": "user",
+  "choice": "B",
+  "resolved_condition": "component-seenry",
+  "question": "Which would you keep?",
+  "source": "Direct asynchronous user reply",
+  "recorded_at": "2026-09-10T17:10:35.467227+00:00",
+  "limits": "One pairwise preference. No rating or general acceptance inferred."
+}

@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "evidence": "Original teaching hypotheses, one scoped blind preference and a user-rejected exporter case; see per-case sources and limits.",
+  "lessons": [
+    {
+      "id": "state",
+      "title": "State is information",
+      "question": "What must the user know that the action does not already communicate?",
+      "brief": "Preview a sound and distinguish the selected sound from playback state.",
+      "mechanism": "Compare removing a repeated playback badge while keeping a visible, color-independent selected item and the Play/Pause action.",
+      "countercase": "An upload list contains multiple independent jobs. Queued, failed and completed labels convey information that a single Retry action cannot replace. Preserve those labels.",
+      "inspect": [
+        "state-A.png",
+        "state-B.png",
+        "state-counter.png"
+      ],
+      "checks": [
+        "Can someone find the selected item without recognizing a color?",
+        "Does the action name describe what happens next?",
+        "Can keyboard focus be distinguished from selection?"
+      ],
+      "source": "Original authored example informed by the user-rejected listening queue; no human verdict on this new pair."
+    },
+    {
+      "id": "hierarchy",
+      "title": "Group before emphasizing",
+      "question": "Which information is read first, and what belongs together?",
+      "brief": "Choose a workshop session and understand its time and availability.",
+      "mechanism": "Keep identical content and geometry; compare equal heavy text with three semantic roles and spacing that groups title, supporting information and action.",
+      "countercase": "A departures board needs repeated rows and equally prominent destination/time pairs. Do not force a single oversized headline into comparable data.",
+      "inspect": [
+        "hierarchy-A.png",
+        "hierarchy-B.png"
+      ],
+      "checks": [
+        "Is the title more prominent than incidental metadata?",
+        "Are related details closer than unrelated groups?",
+        "Does the narrow layout retain the same reading order?"
+      ],
+      "source": "Original authored study. The preferred relationship is a hypothesis for visual review, not a measured audience preference."
+    },
+    {
+      "id": "color",
+      "title": "Color has a job",
+      "question": "Which areas carry identity, content categories, actions and status?",
+      "brief": "Browse three workshops in a playful print studio and book one.",
+      "mechanism": "Keep the composition fixed. Compare competing colored controls with a colorful identity field, neutral reading surfaces and one consistent action treatment. A third monochrome version is an alternative, not the automatic winner.",
+      "countercase": "A color-mixing tool needs many saturated hues as task content; making every swatch neutral would destroy its purpose.",
+      "inspect": [
+        "color-A.png",
+        "color-B.png",
+        "color-C.png"
+      ],
+      "checks": [
+        "Do content colors compete with the action?",
+        "Can action and availability be understood without color alone?",
+        "Are repeated semantic roles treated consistently?"
+      ],
+      "source": "Original authored palettes. W3C supports non-color encoding; aesthetic preference remains a review judgment."
+    },
+    {
+      "id": "enclosure",
+      "title": "Space follows groups",
+      "question": "Does each border or container separate a useful region?",
+      "brief": "Name an export and choose its file format in a compact dialog.",
+      "mechanism": "Compare nested outlines and equal gaps with shared alignment anchors, a connected label/input group and a distinct action region. Keep usable hit areas and a visible focus ring.",
+      "countercase": "A detachable inspector or draggable window can need an enclosure. Focus outlines are interaction feedback and must remain visible.",
+      "inspect": [
+        "enclosure-A.png",
+        "enclosure-B.png"
+      ],
+      "checks": [
+        "Does the label read with its input?",
+        "Do the close control and content share a deliberate inset?",
+        "Do nested radii fit their inset rather than repeat the same radius?"
+      ],
+      "source": "Original authored study. Inset-dependent corners are optical relationships, not a universal numeric formula."
+    },
+    {
+      "id": "controls",
+      "title": "Emphasis is a limited resource",
+      "question": "Which action deserves a persistent surface?",
+      "brief": "Inspect a photograph, move to adjacent photographs and download the chosen file.",
+      "mechanism": "Compare enclosing every control with one prominent commit action and quieter familiar navigation icons. Keep the same hit areas and focus treatment.",
+      "countercase": "An unfamiliar icon-only command may need a visible label. On a busy photograph, a contrasting control surface may be necessary.",
+      "inspect": [
+        "controls-A.png",
+        "controls-B.png"
+      ],
+      "checks": [
+        "Is the consequential action discoverable?",
+        "Do familiar controls remain recognizable at their actual size?",
+        "Are icon family, optical weight and target sizes coherent?"
+      ],
+      "source": "Original authored control composition using Lucide icons with its license; no hand-drawn control glyphs."
+    },
+    {
+      "id": "continuity",
+      "title": "Motion preserves identity",
+      "question": "What should remain anchored during the change?",
+      "brief": "Expand an event to see attendance details, then collapse or interrupt the transition.",
+      "mechanism": "Compare a snapping height change with a measured, interruptible geometry transition. Keep text unstretched, the event title anchored and the final state immediate under reduced motion.",
+      "countercase": "Repeated timer ticks or urgent feedback may be clearer without animation. Do not add latency to a frequent action merely to show an effect.",
+      "inspect": [
+        "continuity-A.png",
+        "continuity-B.png"
+      ],
+      "checks": [
+        "Does rapid reversal finish at the latest requested state?",
+        "Does the next section move continuously without overlapping content?",
+        "Can reduced-motion users access identical information?"
+      ],
+      "source": "Original working motion study. Static captures cannot establish its timing; operate the HTML and inspect a recording."
+    },
+    {
+      "id": "finish",
+      "title": "A real preference, with limits",
+      "question": "Which relationship makes this compact task easier to scan without unnecessary emphasis?",
+      "brief": "Choose a bicycle-fitting date and time, review, edit and save a calendar reminder.",
+      "mechanism": "One user chose B in a blinded pair: B uses a shorter two-column choice area; A shows three boxed stages at once. Compare density, enclosure and action sequence together. Several variables changed, so this does not establish which single detail caused the preference.",
+      "countercase": "A complex high-stakes form may benefit from explicit step numbering and persistent review. Do not remove useful structure merely because this shorter task used less.",
+      "inspect": [
+        "finish-A.png",
+        "finish-B.png"
+      ],
+      "checks": [
+        "Can the task and current choice be understood at ordinary size?",
+        "Is each region communicating new information?",
+        "Does the selected treatment preserve required keyboard and recovery behavior?"
+      ],
+      "source": "User selected B in a blind comparison on 2026-09-10. One pairwise preference, not a universal quality rating. Both outputs were configured Flash-high with equal facts and host stages; B had appended Seenry guidance. This case is now development evidence and cannot be an unseen holdout."
+    },
+    {
+      "id": "export-feedback",
+      "title": "Clean can still be unresolved",
+      "question": "Which visible details add emphasis without helping this export task, and which necessary states are missing?",
+      "brief": "Export a supplied photograph as PNG/JPEG at 800/1600px, preserving aspect ratio.",
+      "mechanism": "The user rejected both real outputs after trying them. Compare redundant tool eyebrows and emphatic labels, competing color roles, enclosure and vertical density at ordinary size. Their absent transition feedback requires operating the original artifact; these stills cannot verify motion. A cleaner replacement still needs its own visual idea and human review.",
+      "countercase": "PNG and JPEG are technical abbreviations. Format, dimensions and actual success/failure must remain understandable. A separate batch job can need a state label. Colorful content and visible focus boundaries are not the rejected decoration.",
+      "inspect": [
+        "export-feedback-A-1440.png",
+        "export-feedback-A-390.png",
+        "export-feedback-B-1440.png",
+        "export-feedback-B-390.png"
+      ],
+      "checks": [
+        "Does the primary title identify the actual object or task without a second generic tool title?",
+        "Do emphasis and spacing connect each control to its consequence?",
+        "Does the working output acknowledge actual changes and downloads without moving control anchors?"
+      ],
+      "source": "Both Luna-high outputs were rejected by the user; exact source/image hashes and direct feedback are in export-feedback.json. This is development evidence, not an unseen benchmark or universal aesthetic rule.",
+      "feedback_file": "export-feedback.json"
+    }
+  ]
+}

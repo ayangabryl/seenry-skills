@@ -52,3 +52,12 @@ class ReviewDisposition(unittest.TestCase):
         del self.report['candidates'][0]['checks']['opening']
         with self.assertRaises(ValueError):
             gate.evaluate(self.report, self.root)
+
+    def test_missing_observation_routes_to_evidence_not_speculative_repair(self):
+        check = self.report['candidates'][0]['checks']['interaction']
+        check.update(result='unverified', issue_type='missing-evidence')
+        result = gate.evaluate(self.report, self.root)
+        self.assertEqual(result['status'], 'needs-revision')
+        self.assertEqual(result['actions'][0]['next_action'], 'collect-evidence')
+        check.update(result='revise', issue_type='observed-defect')
+        self.assertEqual(gate.evaluate(self.report, self.root)['actions'][0]['next_action'], 'repair')

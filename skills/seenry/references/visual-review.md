@@ -4,6 +4,8 @@ Use a fresh authorized review context where available. Supply the actual brief, 
 
 First inspect the ordinary opening viewport and a narrow viewport. Then inspect the full sequence and relevant states. A compressed full-page image is useful for rhythm but can conceal weak imagery, small type, unnecessary borders and text-heavy openings.
 
+For a completed build, also reopen the selected surface renders at equivalent widths. Name which leading material, scale, grouping and interaction relationships survived expansion. A final page may change appropriately as content is added; assess whether the new hierarchy serves the brief rather than accepting a larger page automatically. Record visual drift separately from implementation correctness. A private author style rationale cannot substitute for this comparison.
+
 Evaluate five criteria independently:
 
 | Criterion | Observable questions |
@@ -16,9 +18,15 @@ Evaluate five criteria independently:
 
 For each, record `pass`, `revise`, `fail` or `unverified`, cite an actual artifact and describe the observable reason. These are reviewer judgments, not instrument measurements. “Swiss dossier,” “premium,” “intentional” and “clean grid” are not evidence. An author can invent a rationale for almost any default.
 
+Distinguish **missing evidence** from an **observed defect**. If completion feedback has not been exercised or motion has not been watched, request that observation before prescribing new code. Record `issue_type: missing-evidence` on the unresolved criterion. Use `issue_type: observed-defect` when the evidence demonstrates a problem. A model's inability to view a recording does not prove the transition is broken; it leaves that review pending. Do not consume repair passes inventing changes to satisfy an observation gap.
+
 A candidate with unresolved `revise`, `fail` or `unverified` criteria cannot be labeled ready. You can name a direction to continue repairing, but keep `selected` null until an acceptable candidate exists. Do not average weak visual work away with strong correctness. If every option fails subject/opening, use the direction reset rather than applying cosmetic edits to the same structure. At the repair ceiling, preserve the result as needs-revision; do not silently redefine success.
 
 Use subtraction comparisons for disputed decoration: remove the numbered eyebrow, repeated outline or redundant paragraph while keeping the rest fixed. Inspect whether information or useful affordance was lost. This establishes a scoped regression, not a ban on all numbers, boxes, colors or fonts.
+
+Before prescribing a quieter badge, dot, bar or container, identify the information it conveys and whether another element already communicates it. Review **remove, retain, then redesign** in that order; removal is a comparison, not an automatic verdict. Separate current item, playback/activity state and keyboard focus. Preserve necessary state feedback, accessible names and focus visibility. Redundant encoding can be useful when it prevents reliance on color alone.
+
+Give one testable repair at a time. If proposing alternatives, explicitly mark them as mutually exclusive; “bar or tint” must not become bar plus tint plus stronger type. Compare the repaired state at ordinary size, including narrow layouts, before accepting it. A softer border or lower opacity does not demonstrate that the original hierarchy problem was resolved.
 
 For an executable disposition check, use `scripts/review_gate.py REPORT.json --root RUN_DIRECTORY`. It checks that cited artifacts exist and that the selected candidate actually passed the recorded criteria. It does not inspect pixels, validate the truth of judgments or confer user acceptance. The JSON shape is:
 
@@ -27,3 +35,7 @@ For an executable disposition check, use `scripts/review_gate.py REPORT.json --r
 ```
 
 Fill every check with the same three fields. The reviewer may reject all alternatives. Compare the repaired result against the same brief and criteria; never claim human approval until it is actually given.
+
+Each `artifact` value names one actual file. Use observations to mention supplementary evidence; do not join filenames with punctuation. `review_request.py` prepares the same evidence roles and five criteria for every candidate. Preserve malformed responses and use a separately recorded format-only retry when necessary; never silently change result values during normalization.
+
+When reviewer reliability is uncertain, use the [visual lesson and probe workflow](visual-lessons.md). Test order consistency and whether its rendered repair preserves useful information. Reviewer fluency is not evidence of accurate selection.

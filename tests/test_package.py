@@ -80,6 +80,17 @@ class Installation(unittest.TestCase):
             installer.undo(plan, manifest.parent)
         self.assertTrue((self.home / '.codex/skills/seenry').is_symlink())
         self.assertIn('User edit', target.read_text(encoding='utf-8'))
+    def test_runtime_bytecode_does_not_become_installed_source_or_block_rollback(self):
+        source=self.home/'checkout';shutil.copytree(ROOT/'skills',source/'skills')
+        cache=source/'skills/seenry/scripts/__pycache__';cache.mkdir(exist_ok=True)
+        (cache/'local.pyc').write_bytes(b'local runtime cache')
+        plan=installer.plan(self.home,source=source);manifest=installer.apply(plan)
+        installed=self.home/'.agents/skills/seenry/scripts/__pycache__'
+        self.assertFalse(installed.exists())
+        installed.mkdir();(installed/'other.pyc').write_bytes(b'created by using the skill')
+        self.assertEqual(installer.plan(self.home,source=source)['status'],'unchanged')
+        installer.undo(plan,manifest.parent)
+        self.assertFalse((self.home/'.agents/skills/seenry').exists())
     def test_failed_symlink_creation_restores_all_old_content(self):
         old, alias = self.legacy()
         plan = installer.plan(self.home, migrate=True)
@@ -137,6 +148,17 @@ class Packets(unittest.TestCase):
             packet.compile_packet('plan', root=relocated)
             with self.assertRaises(FileNotFoundError):
                 packet.compile_packet('plan', motion=True, root=relocated)
+    def test_focused_lessons_resolve_from_relocated_install_without_mcp(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            destination=Path(temporary)/'skills';shutil.copytree(ROOT/'skills',destination)
+            relocated=destination/'seenry'
+            (relocated/'references/mcp-tools.json').unlink()
+            result=packet.compile_packet('surface',root=relocated,research_source='local',profile='focused',project={'media':'needed','motion':'feedback','decisions':['controls']})
+            lessons=result['visual_lessons'];evidence_root=Path(lessons['evidence_root'])
+            self.assertTrue(evidence_root.is_relative_to(destination.resolve()))
+            for lesson in lessons['lessons']:
+                for image in lesson['evidence']:
+                    self.assertTrue((evidence_root/image['file']).is_file())
 
 if __name__ == '__main__':
     unittest.main()
