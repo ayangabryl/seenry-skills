@@ -7,4 +7,4 @@ dependencies:
       value: "web-atlas"
       description: "Published Seenry design reference library"
       transport: "streamable_http"
-      url: "https://seenry.ayangabryl.com/mcp"
+      url: "https://mcp.seenry.design"

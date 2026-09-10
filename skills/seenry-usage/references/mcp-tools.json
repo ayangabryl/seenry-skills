@@ -1,6 +1,6 @@
 {
   "version": "2.2.0",
-  "endpoint": "https://seenry.ayangabryl.com/mcp",
+  "endpoint": "https://mcp.seenry.design",
   "tools": [
     {
       "name": "get_library_guide",

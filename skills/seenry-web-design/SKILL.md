@@ -9,7 +9,7 @@ metadata:
 
 # Build from website evidence
 
-Use Seenry at `https://seenry.ayangabryl.com/mcp` when connected. Keep the user's chosen stack, product purpose, existing design system and requested scope. The library informs decisions; it does not replace the brief.
+Use Seenry at `https://mcp.seenry.design` when connected. Keep the user's chosen stack, product purpose, existing design system and requested scope. The library informs decisions; it does not replace the brief.
 
 ## Research the design problem
 

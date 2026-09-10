@@ -9,7 +9,7 @@ metadata:
 
 # Study the interaction before animating it
 
-Connect to `https://seenry.ayangabryl.com/mcp`. Start with the user's interaction and input method: pointer, keyboard, touch or scroll. Keep existing motion/tooling choices unless the requested effect requires a change.
+Connect to `https://mcp.seenry.design`. Start with the user's interaction and input method: pointer, keyboard, touch or scroll. Keep existing motion/tooling choices unless the requested effect requires a change.
 
 ## Choose the right recording
 

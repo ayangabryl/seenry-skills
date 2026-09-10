@@ -11,7 +11,7 @@ metadata:
 
 Seenry was previously called Web Atlas. Use the canonical `seenry-*` skills. Existing `web-atlas` MCP connection keys and old resource links remain compatible.
 
-Use the public MCP at `https://seenry.ayangabryl.com/mcp`. It serves the published library without an SSH tunnel. The same connection covers websites, sections, motion, branding and decks. If it is unavailable, report the lookup limitation; do not invent library results or install another service implicitly.
+Use the public MCP at `https://mcp.seenry.design`. It serves the published library without an SSH tunnel. The same connection covers websites, sections, motion, branding and decks. If it is unavailable, report the lookup limitation; do not invent library results or install another service implicitly.
 
 ## Choose the right evidence
 

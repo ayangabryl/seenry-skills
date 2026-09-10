@@ -23,7 +23,7 @@ Choose the skills and supported agent in the installer. For manual installation,
 The primary MCP endpoint is:
 
 ```text
-https://seenry.ayangabryl.com/mcp
+https://mcp.seenry.design
 ```
 
 It serves the public library without a tunnel or an API key. Add it using your client's remote MCP configuration. `.mcp.json` is a configuration example; installing skill files does not guarantee the connection is configured in every client. Skills also carry MCP dependency metadata for agents that support it.
