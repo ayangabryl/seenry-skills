@@ -65,12 +65,16 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
             if project['motion'] != 'none' and stage != 'type': motion = True; decisions.append('Motion direction available during planning')
         if stage == 'type': assets = True; decisions.append('Actual typography shortlist guidance selected')
     paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in (FOCUSED_STAGES if focused else STAGES)[stage]]
+    if project is not None and project.get('scope') == 'component' and stage in ('plan', 'type', 'surface', 'prototype', 'build', 'refine'):
+        paths += [root / 'references/content-and-finish.md']
+        decisions.append('Component identity and content hierarchy remain available while planning and applying the finish')
     if project is not None and project.get('scope') == 'system':
         paths += [root / 'references/system-design.md']
         decisions.append('System scope: carry shared decisions and journey context; a finished slice does not certify the whole application')
     lesson_evidence = None
     lesson_stages = ('type', 'surface', 'prototype', 'refine') if focused else ('plan', 'type', 'surface', 'prototype', 'compare', 'review', 'refine')
-    if project is not None and stage in lesson_stages:
+    explicit_lesson_stage = project is not None and bool(project.get('decisions')) and stage in ('plan', 'wireframe', 'type', 'surface', 'prototype', 'compare', 'build', 'review', 'refine')
+    if project is not None and (stage in lesson_stages or explicit_lesson_stage):
         import importlib.util
         spec = importlib.util.spec_from_file_location('seenry_lesson_packet', root / 'scripts/lesson_packet.py')
         module = importlib.util.module_from_spec(spec)

@@ -66,3 +66,9 @@ For selected motion helpers, set `motion_helpers` in the project record to an ex
 The Luna adapter accepts ordered image paths or `{ "path": "assets/source.jpg", "role": "source-material" }` records. Roles are source-material, construction, candidate, reference or interaction; unspecified is the legacy default. Deliver the selected original asset together with relevant construction renders, not only a processed wireframe. Role/hash metadata identifies supplied evidence; it does not establish inspection, license or acceptance.
 
 Every browser evidence invocation uses a new `--out` directory. Rechecks retain the previous report and captures and return new paths; they must not overwrite inputs already cited by a reviewer. The bundled browser adapter rejects an existing output directory.
+
+## Preserve the actual stage handoff
+
+For a staged run, freeze the complete output of `packet.py` for that stage and carry the same project record into the next stage. Explicitly selected `project.decisions` lessons remain available through planning, construction, build and review, including the focused profile. Send the selected resource contents and relevant image evidence to the executing context; a list of filenames is not the guidance itself. Record images actually supplied separately from image inspection.
+
+Do not replace a compiled packet with a hand-picked subset and label the result a test of the complete skill. A deliberately reduced bundle is a separate experiment: preserve the omitted resources and its classification. The exporter continuation showed why this matters: it did not receive the new component-identity guide or rejected-output lesson. Whether either resource improves a new result still requires measurement.

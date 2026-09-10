@@ -24,7 +24,9 @@ class VisualLessons(unittest.TestCase):
   self.assertFalse(focused['entrypoint']['body_supplied'])
   self.assertEqual(complete['entrypoint']['sha256'],focused['entrypoint']['sha256'])
   self.assertLess(sum(len(x['content']) for x in focused['resources']),sum(len(x['content']) for x in complete['resources']))
-  self.assertIsNone(focused['visual_lessons'])
+  self.assertEqual([x['id'] for x in focused['visual_lessons']['lessons']],['state'])
+  default=packet.compile_packet('plan',project={k:v for k,v in project.items() if k!='decisions'},profile='focused')
+  self.assertIsNone(default['visual_lessons'])
   with self.assertRaises(ValueError):packet.compile_packet('plan',profile='unknown')
  def test_observed_preference_does_not_invent_source_html(self):
   lesson=lessons.select(['finish'])['lessons'][0]
@@ -35,6 +37,16 @@ class VisualLessons(unittest.TestCase):
   self.assertTrue(feedback['quotation']);self.assertEqual({x['human_decision'] for x in feedback['artifacts']},{'reject'})
   actual={e['file']:e['sha256'] for e in item['evidence']}
   self.assertEqual(actual,{e['file']:e['image_sha256'] for e in feedback['artifacts']})
+ def test_explicit_feedback_survives_planning_build_and_review_handoffs(self):
+  project={'scope':'component','media':'needed','motion':'feedback','decisions':['export-feedback']}
+  for profile in ('complete','focused'):
+   for stage in ('plan','wireframe','type','surface','compare','build','review','refine'):
+    p=packet.compile_packet(stage,project=project,profile=profile)
+    lesson=p['visual_lessons']['lessons'][0]
+    self.assertEqual(lesson['id'],'export-feedback')
+    self.assertEqual({x['human_decision'] for x in lesson['feedback_record']['record']['artifacts']},{'reject'})
+    if stage in ('plan','type','surface','build','refine'):
+     self.assertIn('seenry/references/content-and-finish.md',[r['path'] for r in p['resources']])
  def test_blinding_hides_labels_and_original_filenames(self):
   with tempfile.TemporaryDirectory() as tmp:
    source=Path(tmp);(source/'obvious-good.png').write_bytes((lessons.ROOT/'state-B.png').read_bytes())
