@@ -12,7 +12,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.1**, a development candidate; main and released versions may differ. From this checkout:
+The consolidation is **2.0.0-dev.2**, a development candidate; main and released versions may differ. From this checkout:
 
 ```sh
 python scripts/install.py --apply
@@ -26,7 +26,9 @@ npx skills add ayangabryl/seenry-skills
 
 Choose the desired skills and agent in that installer. It does not perform the custom legacy migration. Manual installation also works: copy the desired `skills/` folders to the client's skills directory. Install all five for the complete set. These are standard SKILL.md folders; no proprietary instruction format or paid prompt pack is needed.
 
-## Connect Seenry
+## Optional reference connection
+
+The complete design workflow and built-in guides work without MCP. Use ordinary browsing, supplied files or original local prototypes through the [offline research route](skills/seenry/references/without-mcp.md). No reference subscription, API key or paid prompt pack is required. Your agent/model and any optional external services retain their own requirements. MCP expands the evidence available; it does not unlock design rules.
 
 The public read-only MCP endpoint is `https://seenry.ayangabryl.com/mcp`. `.mcp.json` gives a client configuration example. The existing `web-atlas` connection key, tool names and legacy links remain compatible. Installing a skill does not configure every client's MCP connection.
 
@@ -39,6 +41,17 @@ Use the current native schemas; a versioned [tool contract](skills/seenry/refere
 For a full build: understand → research → three concepts → working wireframes → real type → surfaces and interaction proofs → compare → complete sequence → exercise and refine. Narrow fixes stay narrow. [Architecture](ARCHITECTURE.md) explains responsibilities; the project [DESIGN.md guide](skills/seenry/references/design-record.md) preserves decisions and actual construction evidence.
 
 The primary skill loads relevant support progressively. Optional stage packets are available through `skills/seenry/scripts/packet.py`, with hashes of supplied resources. Supplied guidance, observed reads and applied design choices are different evidence. Neither skill installation nor a reference rating guarantees visual acceptance.
+
+## Compare color locally
+
+Define actual copy and competing role palettes in JSON, then render the same component under each direction:
+
+```sh
+python skills/seenry/scripts/color_lab.py skills/seenry/assets/color-lab.example.json --out ./color-study
+python skills/seenry/scripts/packet.py plan --research-source local
+```
+
+Open the generated `index.html` in a browser. It loads no network resources. `audit.json` checks the sample’s opaque sRGB role pairs; it does not score taste, cover arbitrary CSS colors or certify the full product. Read [color decisions](skills/seenry/references/color-decisions.md) for light neutral, dark, restrained and richer color systems.
 
 ## Validate and evaluate
 

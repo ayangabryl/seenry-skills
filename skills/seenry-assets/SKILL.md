@@ -4,10 +4,12 @@ description: "Source and integrate images, fonts, provider marks, icons, illustr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.1"
+  version: "2.0.0-dev.2"
 ---
 
 # Make assets serve the subject
+
+MCP is optional. With no network, work from supplied licensed assets and installed font/icon packages. Keep manifests and inspect local crops normally. Use a clear text action when a nonessential icon is unavailable; never fabricate a real provider mark. External source links below are optional acquisition routes, not runtime dependencies.
 
 Define the asset's job before searching: what it helps a visitor understand, its role in the composition, focal point, light/material, crop and whether it is factual evidence or illustration. A visually elaborate shape that could advertise anything is weak evidence of art direction. No image may be the right choice.
 

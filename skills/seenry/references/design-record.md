@@ -10,7 +10,9 @@ Audience, task, supplied facts, assumptions, constraints, preserved behavior.
 Requested ambition, scoped preferences, appearance policy and reason.
 
 ## Reference evidence
-Source + Seenry ID/link; family, viewport/theme, coverage/date.
+Evidence route: MCP / public web / local; actual host capabilities and gaps.
+Source + Seenry ID/link when present; family, viewport/theme, coverage/date.
+Local authored hypotheses are labeled separately from inspected references.
 Current rating and saved reason (or no reason supplied).
 Observed relationship; our inference; transfer; where it would fail.
 
@@ -27,6 +29,8 @@ Controlled palette comparison using the same layout and real content.
 ## Selected system
 Chosen direction and evidence, rejected alternatives, specific signature.
 Tokens/relationships across sections/screens, assets and provenance.
+Color direction and reason; actual foreground/background state pairs, coverage,
+supported appearances and why the rejected palette served this task less well.
 Action → transition → result → interruption/recovery; motion ownership.
 
 ## Verification and disposition

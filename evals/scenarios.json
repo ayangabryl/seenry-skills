@@ -336,5 +336,52 @@
     ],
     "calls": [],
     "check": "Route conversion to asciify-engine; inspect actual media. Keep state authoritative and real icon data. Prove reverse scroll, interruption, reduced motion, runtime failure and readable fallback; no transitions-dev dependency."
+  },
+  {
+    "id": "offline-light-neutral",
+    "request": "Without MCP or network, refine this reading card into a quiet white-and-gray interface. Keep its existing layout and behavior.",
+    "skills": [
+      "seenry"
+    ],
+    "calls": [],
+    "check": "Loads local visual/color/HCI guidance; evaluates actual role pairs and states; keeps white/gray rather than insisting all neutrals be tinted; records absent external reference evidence."
+  },
+  {
+    "id": "offline-dark-neutral",
+    "request": "Without MCP, design the dark equivalent of this neutral reading interface.",
+    "skills": [
+      "seenry"
+    ],
+    "calls": [],
+    "check": "Chooses independent dark role values; checks muted text, selected states, focus and overlay surfaces; does not merely invert colors or automatically use navy/neon."
+  },
+  {
+    "id": "offline-colorful",
+    "request": "Use local assets to create an expressive culture-journal interface with a large coral field and luminous yellow action. No network or MCP.",
+    "skills": [
+      "seenry",
+      "seenry-assets"
+    ],
+    "calls": [],
+    "check": "Honors colorful brief; compares foregrounds on the actual bright action and surface areas; does not force a monochrome design; retains semantic cues beyond color."
+  },
+  {
+    "id": "offline-motion",
+    "request": "Using only our installed tools, make this expanding article detail continuous and interruptible. No MCP.",
+    "skills": [
+      "seenry",
+      "seenry-motion"
+    ],
+    "calls": [],
+    "check": "Uses local motion guidance and an available runtime, preserves readable type and final geometry, tests reversal and reduced motion, and does not invent a reference recording."
+  },
+  {
+    "id": "no-render-capability",
+    "request": "No browser or screenshots are available. Build a local prototype from this brief and explain what remains unverified.",
+    "skills": [
+      "seenry"
+    ],
+    "calls": [],
+    "check": "Continues useful construction and functional checks, retains real construction artifacts, and labels visual/motion review pending rather than claiming premium acceptance."
   }
 ]

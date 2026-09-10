@@ -105,6 +105,22 @@ class Installation(unittest.TestCase):
         self.assertTrue((self.home / '.codex/skills/seenry').is_symlink())
 
 class Packets(unittest.TestCase):
+    def test_no_mcp_packet_works_without_server_contract_or_lookup_guide(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            destination = Path(temporary) / 'skills'
+            shutil.copytree(ROOT / 'skills', destination)
+            relocated = destination / 'seenry'
+            (relocated / 'references/mcp-tools.json').unlink()
+            (relocated / 'references/research.md').unlink()
+            for stage in packet.STAGES:
+                result = packet.compile_packet(stage, motion=True, assets=True, root=relocated, research_source='local')
+                self.assertEqual(result['research_source'], 'local')
+                paths = [r['path'] for r in result['resources']]
+                self.assertIn('seenry/references/without-mcp.md', paths)
+                self.assertNotIn('seenry/references/research.md', paths)
+            with self.assertRaises(FileNotFoundError):
+                packet.compile_packet('research', root=relocated, research_source='mcp')
+
     def test_stage_selection_is_complete_and_hashed(self):
         for stage in packet.STAGES:
             result = packet.compile_packet(stage, motion=True, assets=True)

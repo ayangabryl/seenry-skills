@@ -1,17 +1,19 @@
 # Seenry architecture
 
-Seenry owns the design process. The read-only MCP supplies evidence. The host supplies browsing, implementation, rendering and available model capabilities. Project records preserve decisions and measured results. None of these layers automatically certifies visual quality.
+Seenry owns the design process. The optional read-only MCP supplies additional evidence. Bundled guides and local studies keep the process available without it. The host supplies browsing, implementation, rendering and available model capabilities. Project records preserve decisions and measured results. None of these layers automatically certifies visual quality.
 
 ```mermaid
 flowchart TD
   U[User brief and existing project] --> S[seenry: scope and product truth]
-  S --> R[Research relevant 4–5 star references]
-  M[Seenry MCP: pixels, tokens, recordings and editorial notes] --> R
+  S --> R[Select an available evidence route]
+  M[Optional Seenry MCP: inspected references and reviews] --> R
+  L[Local studies, supplied files or public sources] --> R
   R --> E[Separate observation, curator reason and inference]
   E --> P[DESIGN.md: three concepts and provisional visual systems]
   P --> W[Working wireframes]
   W --> T[Actual typography and content]
   T --> V[Controlled surfaces, assets and interaction proofs]
+  CL[Local color lab: same content, different role palettes] --> V
   V --> C{Rendered comparison}
   C -->|One direction reset| P
   C -->|Select| B[Build complete sequence and states]

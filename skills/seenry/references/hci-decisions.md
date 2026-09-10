@@ -13,6 +13,8 @@ Maintain a small source map, not a claim to have read every HCI book:
 
 When live retrieval is unavailable, apply the concise principles with the limitation recorded. Do not invent book quotes, page numbers, usability findings or eye-tracking results. These source entrypoints were checked September 2026; recheck changing platform/API details when implementing.
 
+Do not infer reduced fatigue, improved conversion, trust or faster reading from a chosen tint, font or corner radius. Describe the visible hierarchy and a testable hypothesis instead. In a counterexample, state when your proposed treatment would fail the task. Listing generic bad patterns it avoids is not a transfer limit.
+
 ## Turn a principle into a design decision
 
 In the existing DESIGN.md, record only the consequential relationships: **person/task → likely difficulty → principle/source → concrete choice → observable check**. Usually two or three suffice; do not add a ritual checklist to every button.

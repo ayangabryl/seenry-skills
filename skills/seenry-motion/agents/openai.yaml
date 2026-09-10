@@ -1,10 +1,3 @@
 interface:
   display_name: "Seenry Motion"
   short_description: "Study recordings and component motion"
-dependencies:
-  tools:
-    - type: "mcp"
-      value: "web-atlas"
-      description: "Published Seenry design reference library"
-      transport: "streamable_http"
-      url: "https://seenry.ayangabryl.com/mcp"
