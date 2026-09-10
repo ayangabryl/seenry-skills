@@ -68,9 +68,10 @@ class LunaAdapter(unittest.TestCase):
    def terminate(self):self.stopped=True
   with tempfile.TemporaryDirectory() as tmp:
    root=Path(tmp);prompt=root/'prompt.txt';prompt.write_text('A bounded test');out=root/'run';child=Child()
-   with patch('sys.argv',['luna_stage.py','--prompt',str(prompt),'--out',str(out)]),patch.object(luna.shutil,'which',return_value='/fake/codex'),patch.object(luna.subprocess,'Popen',return_value=child),redirect_stdout(io.StringIO()):
+   with patch('sys.argv',['luna_stage.py','--prompt',str(prompt),'--out',str(out)]),patch.object(luna.shutil,'which',return_value='/fake/codex'),patch.object(luna.subprocess,'Popen',return_value=child) as popen,redirect_stdout(io.StringIO()):
     luna.main()
    result=json.loads((out/'run.json').read_text(encoding='utf-8'))
+   self.assertEqual(popen.call_args.kwargs['encoding'],'utf-8')
    self.assertTrue(child.stopped);self.assertTrue(result['interrupted']);self.assertFalse(result['timed_out'])
    self.assertEqual(result['status'],'incomplete');self.assertEqual(result['exit_code'],130);self.assertIsNone(result['usage'])
 if __name__=='__main__':unittest.main()

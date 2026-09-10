@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.14"
+  version: "2.0.0-dev.15"
 ---
 
 # Plan motion before choosing the final composition

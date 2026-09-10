@@ -97,3 +97,14 @@ Use `review_request.py` for construction as well as final review. Its manifest a
 Select `calibration_topics: ["export-feedback"]` or one or two relevant built-in decision topics when a scoped regression needs to reach a fresh reviewer. The packet copies real lesson images, their hashes, feedback and countercases, and writes `images.json` for direct attachment. Calibration images remain separate from candidates and cannot replace a current-candidate evidence citation. Do not pass the author's persuasive rationale or condition label. In matched comparisons, supply the same review criteria and calibration to both conditions and record this choice before judging.
 
 The response schema requires exactly the supplied candidate count. Validate identities and disposition as well; a reviewer who omits an alternative has not completed the comparison. Preserve an incomplete response and retry its format/coverage explicitly. Do not silently supply missing judgments or turn deferred final requirements into construction failures.
+
+
+## Revise retained source without rewriting every file
+
+For an implementation checkpoint or repair, `stage_request.py ... --revision-source prior.html` freezes the exact UTF-8 source, its SHA-256 and a strict response schema. The author returns ordered `find`/`replace` edits against that source. Each match must be unique; the applier rejects stale hashes, missing/ambiguous matches and no-op revisions. Use this format when preserving an existing component is more useful than reproducing the whole file. A genuinely new composition can still need a complete artifact.
+
+```sh
+python skills/seenry/scripts/artifact_revision.py --source prior.html --response model-edits.json --out next.html
+```
+
+Keep the original source, exact model response, application report and new artifact. The applier does not overwrite an existing destination. This is mechanical application of model-authored code, not a host design correction. Invalid revisions remain failures until the model returns a valid correction; do not guess or silently repair its intended code. Render and exercise the new artifact using the same stage gate. The delivery format is an optional execution choice, not evidence of better visual quality or a guaranteed speedup. Historical full-file runs remain unchanged.

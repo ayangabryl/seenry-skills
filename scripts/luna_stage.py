@@ -86,7 +86,7 @@ def main():
         image_inputs = explicit_images(args.images.resolve(), allowed)
     if image_inputs:
         prompt += '\n\nThe following actual images are attached directly, in this order. Inspect their visible pixels; distinguish observations from inference. Source-material is the original asset; construction is an intermediate study whose diagnostic treatment is not automatically the final design. An evidence role does not grant an asset license or human approval:\n' + json.dumps(image_inputs)
-    (args.out / 'prompt.txt').write_text(prompt, encoding='utf-8')
+    (args.out / 'prompt.txt').write_bytes(prompt.encode('utf-8'))
     command = command_for(executable, args.out, image_inputs, args.ignore_user_config,
                           args.out / schema_record['file'] if schema_record else None)
     runner_hash = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -94,7 +94,7 @@ def main():
     timed_out = False
     interrupted = False
     with (args.out / 'events.ndjson').open('w') as stdout, (args.out / 'stderr.txt').open('w') as stderr:
-        child = subprocess.Popen(command, cwd=args.out, stdin=subprocess.PIPE, stdout=stdout, stderr=stderr, text=True)
+        child = subprocess.Popen(command, cwd=args.out, stdin=subprocess.PIPE, stdout=stdout, stderr=stderr, text=True, encoding='utf-8')
         try:
             child.communicate(prompt, timeout=args.timeout)
             code = child.returncode

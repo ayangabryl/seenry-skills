@@ -100,5 +100,19 @@ class StageRequest(unittest.TestCase):
                     request.prepare(stage,self.project(),'Review',out)
                 self.assertFalse(out.exists())
 
+    def test_revision_handoff_freezes_exact_source_and_transport_schema(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);source=root/'previous.html';source.write_bytes('Héllo\r\n'.encode())
+            out=root/'request';manifest=request.prepare('refine',self.project(),'Repair actual evidence',out,revision_source=source)
+            self.assertEqual((out/'revision-source.txt').read_bytes(),source.read_bytes())
+            self.assertEqual(manifest['revision']['source_sha256'],hashlib.sha256(source.read_bytes()).hexdigest())
+            schema=json.loads((out/'response.schema.json').read_text(encoding='utf-8'))
+            self.assertEqual(schema['properties']['source_sha256']['enum'],[manifest['revision']['source_sha256']])
+            self.assertIn('ordered edits',(out/'prompt.txt').read_text(encoding='utf-8'))
+            self.assertEqual(manifest['prompt_sha256'],hashlib.sha256((out/'prompt.txt').read_bytes()).hexdigest())
+            self.assertEqual(source.read_bytes(),'Héllo\r\n'.encode())
+            with self.assertRaises(ValueError):request.prepare('plan',self.project(),'Plan',root/'invalid',revision_source=source)
+            self.assertFalse((root/'invalid').exists())
+
 
 if __name__=='__main__':unittest.main()

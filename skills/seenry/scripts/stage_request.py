@@ -25,7 +25,7 @@ def image_bytes(path):
     return content
 
 
-def prepare(stage, project, task, out, root=ROOT, profile='complete', research_source='local', evidence=None, evidence_root=None, lesson_images='attach'):
+def prepare(stage, project, task, out, root=ROOT, profile='complete', research_source='local', evidence=None, evidence_root=None, lesson_images='attach', revision_source=None):
     root, out = Path(root).resolve(), Path(out).resolve()
     if stage not in AUTHOR_STAGES:
         raise ValueError('Use review_request.py for anonymous comparison/review; keep the author project rationale outside that context')
@@ -33,6 +33,16 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
         raise ValueError('The current stage task is required')
     if lesson_images not in ('attach', 'text-only'):
         raise ValueError('lesson_images must be attach or text-only')
+    revision = None
+    if revision_source is not None:
+        if stage not in ('wireframe', 'type', 'surface', 'build', 'refine'):
+            raise ValueError('A source revision requires an implementation stage')
+        from artifact_revision import response_schema
+        source_content = Path(revision_source).read_bytes()
+        source_text = source_content.decode('utf-8')
+        revision = {'source_file': 'revision-source.txt', 'source_sha256': digest(source_content),
+                    'schema_file': 'response.schema.json'}
+        revision_schema = response_schema(revision['source_sha256'])
     packet = compile_packet(stage, project=project, profile=profile, research_source=research_source, root=root)
     images, runtime, withheld = [], [], []
     lesson_bundle = packet.get('visual_lessons')
@@ -78,6 +88,9 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
         runtime.append((item, content))
     # Resolve every input before creating the new handoff; never overwrite a run.
     out.mkdir(parents=True, exist_ok=False)
+    if revision:
+        (out / revision['source_file']).write_bytes(source_content)
+        (out / revision['schema_file']).write_text(json.dumps(revision_schema, indent=2) + '\n', encoding='utf-8')
     attachments, provenance = [], []
     for index, item in enumerate(images):
         suffix = '.png' if item['content'].startswith(b'\x89PNG') else '.jpg' if item['content'].startswith(b'\xff\xd8') else '.webp'
@@ -102,10 +115,16 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
         + 'Runtime files are staged under runtime/ with their original relative paths and licenses; the implementation host must place them in the project and verify imports. '
         + 'No model call, runtime use, visual acceptance or completed workflow is implied by this handoff.\n'
     )
+    if revision:
+        prompt += ('\nSOURCE REVISION RESPONSE\nReturn only the JSON required by response.schema.json: source_sha256 and one to32 ordered edits with find/replace strings. '
+            'Each find must match exactly once after earlier edits. Use enough unchanged context to disambiguate it; no empty find or no-op edit. '
+            'Preserve parts outside these edits. The host will apply the operations mechanically into a new artifact and preserve this source and your response. '
+            'The revision format changes delivery only; complete the current design stage and retain its required behavior.\n'
+            + json.dumps(revision) + '\nEXACT CURRENT SOURCE\n' + source_text + '\nEND CURRENT SOURCE\n')
     (out / 'packet.json').write_text(json.dumps(packet, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     (out / 'images.json').write_text(json.dumps(attachments, indent=2) + '\n', encoding='utf-8')
-    (out / 'prompt.txt').write_text(prompt, encoding='utf-8')
-    manifest = {'schema':2, 'stage':stage, 'profile':profile, 'lesson_images':lesson_images, 'withheld_images':withheld, 'prompt_sha256':digest(prompt.encode()),
+    (out / 'prompt.txt').write_bytes(prompt.encode('utf-8'))
+    manifest = {'schema':3, 'stage':stage, 'profile':profile, 'lesson_images':lesson_images, 'withheld_images':withheld, 'revision':revision, 'prompt_sha256':digest(prompt.encode()),
                 'packet_sha256':digest((out/'packet.json').read_bytes()), 'images':provenance,
                 'runtime_files':packet['runtime_files'], 'status':'prepared; not executed',
                 'limits':['Supplied, inspected and applied remain separate.', 'The host still owns permissions and rendering capability.']}
@@ -123,12 +142,13 @@ if __name__ == '__main__':
     parser.add_argument('--research-source', choices=SOURCES, default='local')
     parser.add_argument('--lesson-images', choices=('attach','text-only'), default='attach', help='Text-only is an explicit evidence-delivery experiment, not full visual inspection')
     parser.add_argument('--evidence', type=Path, help='Ordered path/role records; paths resolve inside this manifest directory')
+    parser.add_argument('--revision-source', type=Path, help='Freeze an existing UTF-8 source and request exact model edits instead of a full-file response')
     args = parser.parse_args()
     try:
         record = prepare(args.stage, json.loads(args.project.read_text(encoding='utf-8')), args.task.read_text(encoding='utf-8'), args.out,
                          profile=args.profile, research_source=args.research_source,
                          evidence=json.loads(args.evidence.read_text(encoding='utf-8')) if args.evidence else None,
-                         evidence_root=args.evidence.parent if args.evidence else None, lesson_images=args.lesson_images)
+                         evidence_root=args.evidence.parent if args.evidence else None, lesson_images=args.lesson_images, revision_source=args.revision_source)
         print(json.dumps({'out':str(args.out.resolve()), 'images':len(record['images']), 'status':record['status']}))
     except (ValueError, OSError, TypeError, KeyError) as error:
         parser.exit(1, str(error) + '\n')
