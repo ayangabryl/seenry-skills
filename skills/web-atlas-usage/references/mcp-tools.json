@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "endpoint": "https://web-atlas.ayangabryl.workers.dev/mcp",
   "tools": [
     {
@@ -16,6 +16,96 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_curated_references",
+      "title": "Find editorial recommendations",
+      "description": "Find current human-reviewed references by rating, reference type, and editorial use case. Returns the saved reason, suitable uses, caveats and match evidence. Explain fit to the current brief after inspecting media. An empty result means no matching current review, not no good design.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "family": {
+            "type": "string",
+            "enum": [
+              "websites",
+              "pages",
+              "sections",
+              "walkthroughs",
+              "motion",
+              "branding",
+              "decks"
+            ]
+          },
+          "section": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "page_type": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "use_case": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "min_rating": {
+            "default": 4,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "limit": {
+            "default": 12,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500000
+          },
+          "snapshot": {
+            "description": "Reuse the first response snapshot with the same filters while paging.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
         "additionalProperties": false
       }
     },

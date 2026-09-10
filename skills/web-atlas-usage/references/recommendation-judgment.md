@@ -19,6 +19,8 @@ Search the structural need first. Do not pass the entire brief or the word “pr
 
 Use a small, varied shortlist. Prefer different design approaches over many near-identical templates or only famous brands. Sparse tags are a reason to broaden a query, not evidence that useful interactions are absent. Expand only if a material design question remains unanswered. Curator ratings can order discovery but should not override a better fit observed in another candidate. A recording filter can find captured motion; its absence does not prove a site is static.
 
+Start a curated shortlist with `search_curated_references`, using the reference family, optional section/page type and rating threshold. It returns current human reviews with an observed reason, suitable uses and caveats. Ratings are scoped to that reference: a rated site does not rate its individual pages, sections or walkthroughs. Missing reviews and recaptures awaiting another review may produce an empty shortlist; continue with ordinary searches when that is useful. Match evidence explains the filters that selected a result. Personal fit still requires your comparison with the brief, not a copied reason or an invented server-generated explanation.
+
 ## Inspect before choosing
 
 Open the actual relevant image segments or video, using the client's available media tools. Read capture warnings and dates. A loader, obstructing modal or truncated clip cannot establish the hidden design. An incomplete footer need not invalidate a fully visible hero. Scope each conclusion to the region and state actually inspected. A static 404 can inform composition without establishing an interaction or functional recovery link.

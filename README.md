@@ -28,7 +28,7 @@ https://web-atlas.ayangabryl.workers.dev/mcp
 
 It serves the public library without a tunnel or an API key. Add it using your client's remote MCP configuration. `.mcp.json` is a configuration example; installing skill files does not guarantee the connection is configured in every client. Skills also carry MCP dependency metadata for agents that support it.
 
-The same endpoint exposes 15 typed read-only tools, the five skill documents as resources, and a research prompt. Start with `get_library_guide`; use `get_library_facets` for page/section vocabulary and `get_design_taxonomy` for motion/branding/deck tags. The versioned [tool contract](skills/web-atlas-usage/references/mcp-tools.json) documents argument names; a connected server's schema is authoritative.
+The same endpoint exposes 16 typed read-only tools, the five skill documents as resources, and a research prompt. Use `search_curated_references` to retrieve current human ratings, editorial reasons, use cases and caveats. Start with `get_library_guide`; use `get_library_facets` for page/section vocabulary and `get_design_taxonomy` for motion/branding/deck tags. The versioned [tool contract](skills/web-atlas-usage/references/mcp-tools.json) documents argument names; a connected server's schema is authoritative.
 
 ## Try it
 
