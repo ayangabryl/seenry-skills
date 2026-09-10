@@ -4,7 +4,7 @@ description: "Build or improve a website using inspected Web Atlas references, r
 license: MIT
 metadata:
   author: Web Atlas
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Build from website evidence
@@ -18,6 +18,14 @@ For a full website, find relevant brands with `list_sites` and inspect selected 
 Open `get_page` for capture coverage, then `get_screenshot` for the relevant viewport and section. Inspect tall-page segments where the behavior/layout depends on the rest of the page. Compare desktop and mobile only where both exist; do not infer a mobile layout by shrinking the desktop reference. Check dark support explicitly.
 
 Use `get_tokens(id,viewport,theme,q)` for source variable names, values, aliases and evidence of semantic roles. Read `get_design` in bounded slices when the design report would clarify an implementation choice. These are observations from a capture, not a verified owner-authored design specification. Mark estimates as estimates.
+
+## Recommend for the brief
+
+Translate “premium” into a direction appropriate to the product, audience and existing brand. Compare relevant candidates on composition, typography, spacing, imagery, responsive behavior and task clarity. Do not assume dark surfaces, gradients, 3D or extensive animation are required. Search by the actual section/page type and a few supported facets; neither search order nor curator rating establishes the best fit.
+
+For a hero, inspect how the headline, product evidence and primary action work together, including the mobile crop. For a 404, use `search_references(page_type="404")`: look for a clear missing-page message, useful recovery actions and brand character. If interactivity matters, inspect `get_page_motion` where available; a screenshot cannot establish that an interaction or recovery link works. Keep recovery usable without completing an animation or game.
+
+Prefer evidence that visibly covers the requested section and state. A blocked hero cannot support a hero recommendation; a missing footer does not invalidate a fully visible hero. Treat absent mobile/interaction evidence as unknown and explain the specific limitation. Recommend with source links, the observed detail, why it fits and how to adapt it. Avoid unsupported universal beauty scores or conversion claims.
 
 ## Translate, implement, verify
 

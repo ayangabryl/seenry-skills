@@ -4,7 +4,7 @@ description: "Research website design, page sections, motion references, brandin
 license: MIT
 metadata:
   author: Web Atlas
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Research with Web Atlas
@@ -36,6 +36,8 @@ Inspect actual pixels before making visual recommendations. Read warnings, captu
 Use `next` from list/collection responses unchanged to continue with the same filters and snapshot. Stop when there is enough evidence for the task, or `next` is null. New publications are excluded by the snapshot, but recaptures/removals can still change existing results. IDs are stable; paths are media locations. Preserve the returned source link and Web Atlas reference link.
 
 For an implementation request, turn observations into decisions for the user's project and continue the build. For research alone, return a focused comparison: reference, observed detail, why it fits, and any limitation. Curator ratings are explicit selections; `top_rated` is not an AI beauty score. No tool provides visual similarity or conversion metrics.
+
+For requests such as “premium hero,” “best 404” or “a new interaction,” use the [recommendation playbook](references/recommendation-judgment.md). The MCP retrieves candidates; the connected agent makes a contextual judgment after inspecting evidence. Interpret quality against the brief rather than searching for the word “premium.”
 
 ## Trust and reuse
 

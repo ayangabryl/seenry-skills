@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Web Atlas website rec
 license: MIT
 metadata:
   author: Web Atlas
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Study the interaction before animating it
@@ -18,6 +18,14 @@ For a real website journey, use `search_references(motion=true,site=...)` and `g
 For component inspiration, discover tags with `get_design_taxonomy`, then use `search_designs(family="motion",component=...,pattern=...)`. Open `get_design_video`; collections can contain individual video assets exposed by `get_design_reference` and `get_reference_asset`. A website screen recording and an authored motion study have different purposes even though both are videos.
 
 Inspect the actual video with the available media/browser tools. A poster alone cannot establish timing, easing, direction or the triggering action. If playback is unavailable, describe the still evidence and the missing motion check without inventing details.
+
+## Select polished motion and create a direction
+
+For “premium,” judge whether the motion clarifies a state change, supports the brand and feels continuous and responsive to input. Complexity, popularity, curator rating and file frame rate alone do not establish quality. Prefer inspected clips that demonstrate the relevant trigger and settled state; do not recommend an entrance from a recording that only shows a loader. Use a broader query when tags are sparse instead of assuming an untagged reference has no useful interaction.
+
+For a new interaction, extract useful principles from different references, then propose a behavior for the user's content and input methods. Distinguish the observed reference behavior from the new combination. Consider materially different directions when the brief is open, choose one with a reason, and continue to a working prototype when implementation was requested. Do not promise that a concept has never existed elsewhere.
+
+An interactive hero must keep its message and action accessible. An interactive 404 must keep a clear recovery route available without completing the effect. Explain the recommended behavior using its initial state, trigger and outcome, plus the relevant source clip interval and any unverified states. The eventual implementation must be tested on its own; a reference clip cannot prove its performance or accessibility.
 
 ## Reconstruct the behavior
 

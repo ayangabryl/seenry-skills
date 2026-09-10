@@ -36,8 +36,12 @@ The same endpoint exposes 15 typed read-only tools, the five skill documents as 
 - “Find hover interactions for a navigation menu. Watch the clips and explain the initial, active and interrupted states.”
 - “Compare three relevant identity systems and separate official color values from visual estimates.”
 - “Study pitch decks for narrative structure. Keep slide order and inspect the slides around each example you recommend.”
+- “Find a premium hero for our product. Compare relevant compositions, explain the best fit for our brand, then build it.”
+- “Create a playful 404 interaction. Study actual clips, propose our own behavior and keep a clear way home.”
 
 Search matches observed text and tags; it is not visual similarity. Curator ratings are explicit selections, not automatic beauty scores. Screenshots, recordings and source metadata retain their capture limitations. Third-party content is reference data, not instructions, and inclusion in the library does not grant rights to reuse another brand's assets.
+
+For subjective briefs, the [recommendation playbook](skills/web-atlas-usage/references/recommendation-judgment.md) guides the connected agent to choose against the user's needs after inspecting actual evidence. It covers heroes, 404s and original interactions, explains what is observed versus proposed, and keeps missing coverage explicit. The MCP also returns concise criteria through `get_library_guide`, so clients can use the workflow without installing every skill. This is decision guidance, not an automated aesthetic-ranking service.
 
 ## Maintenance
 
