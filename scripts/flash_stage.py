@@ -30,6 +30,24 @@ def stop_child(child):
     except subprocess.TimeoutExpired:child.kill();child.wait(timeout=5)
 
 
+def wait_for_agy(child, log, timeout):
+    deadline=time.monotonic()+timeout
+    try:
+        while True:
+            if authentication_blocked(log):
+                stop_child(child);return 1,False,True
+            remaining=deadline-time.monotonic()
+            if remaining<=0:
+                stop_child(child);return 124,True,False
+            try:
+                code=child.wait(timeout=min(1,remaining))
+                return code,False,authentication_blocked(log)
+            except subprocess.TimeoutExpired:continue
+    except KeyboardInterrupt:
+        stop_child(child)
+        raise
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True);parser.add_argument('--prompt',type=Path,required=True)
@@ -45,16 +63,7 @@ def main():
     started=time.time();timed_out=False;blocked_auth=False
     with (args.out/'events.ndjson').open('w') as stdout,(args.out/'stderr.txt').open('w') as stderr:
         child=subprocess.Popen(command,cwd=args.out,stdout=stdout,stderr=stderr,text=True)
-        deadline=time.monotonic()+args.timeout+20
-        while True:
-            if authentication_blocked(args.out/'cli.log'):
-                blocked_auth=True;stop_child(child);code=1;break
-            remaining=deadline-time.monotonic()
-            if remaining<=0:
-                timed_out=True;stop_child(child);code=124;break
-            try:code=child.wait(timeout=min(1,remaining));break
-            except subprocess.TimeoutExpired:continue
-        blocked_auth=blocked_auth or authentication_blocked(args.out/'cli.log')
+        code,timed_out,blocked_auth=wait_for_agy(child,args.out/'cli.log',args.timeout+20)
     init={};result={}
     for line in (args.out/'events.ndjson').read_text(encoding='utf-8').splitlines():
         try:row=json.loads(line)

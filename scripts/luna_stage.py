@@ -35,13 +35,15 @@ def explicit_images(manifest, allowed):
     return result
 
 
-def command_for(executable, out, images, ignore_user_config=False):
+def command_for(executable, out, images, ignore_user_config=False, output_schema=None):
     # The child runs inside out; a relative -o would otherwise point inside out twice.
     out = Path(out).resolve()
     command = [executable, 'exec', '-m', 'gpt-5.6-luna', '-c', 'model_reasoning_effort="high"',
                '-s', 'read-only', '--ephemeral', '--skip-git-repo-check', '--json', '-o', str(out / 'answer.md')]
     if ignore_user_config:
         command.append('--ignore-user-config')
+    if output_schema is not None:
+        command.extend(['--output-schema', str(Path(output_schema).resolve())])
     for image in images:
         command.extend(['-i', image['path']])
     return command + ['-']
@@ -56,6 +58,7 @@ def main():
     parser.add_argument('--allow-dir', type=Path, action='append', default=[])
     parser.add_argument('--images', type=Path, help='Ordered JSON paths or {path,role} records; preferred to legacy prompt scanning')
     parser.add_argument('--ignore-user-config', action='store_true', help='Fresh-run option: skip user config; authentication and global skill metadata may remain')
+    parser.add_argument('--output-schema', type=Path, help='Optional host-provided JSON response schema; does not validate judgment accuracy')
     args = parser.parse_args()
     if args.timeout < 1:
         parser.error('timeout must be positive')
@@ -64,6 +67,15 @@ def main():
         parser.error('Codex executable not found; no model substitution')
     args.out.mkdir(parents=True, exist_ok=False)
     prompt = args.prompt.read_text(encoding='utf-8')
+    schema_record = None
+    if args.output_schema:
+        content = args.output_schema.read_bytes()
+        value = json.loads(content)
+        if not isinstance(value, dict) or value.get('type') != 'object':
+            parser.error('Output schema must describe a JSON object')
+        schema_path = args.out / 'response.schema.json'
+        schema_path.write_bytes(content)
+        schema_record = {'file': schema_path.name, 'sha256': hashlib.sha256(content).hexdigest()}
     image_inputs = []
     allowed = [p.resolve() for p in args.allow_dir]
     for match in re.finditer(r'(/[^\n"<>\[\]`]+?\.(?:png|jpe?g|webp))(?=["\s\],])', prompt):
@@ -75,7 +87,8 @@ def main():
     if image_inputs:
         prompt += '\n\nThe following actual images are attached directly, in this order. Inspect their visible pixels; distinguish observations from inference. Source-material is the original asset; construction is an intermediate study whose diagnostic treatment is not automatically the final design. An evidence role does not grant an asset license or human approval:\n' + json.dumps(image_inputs)
     (args.out / 'prompt.txt').write_text(prompt, encoding='utf-8')
-    command = command_for(executable, args.out, image_inputs, args.ignore_user_config)
+    command = command_for(executable, args.out, image_inputs, args.ignore_user_config,
+                          args.out / schema_record['file'] if schema_record else None)
     runner_hash = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     started = time.time()
     timed_out = False
@@ -120,6 +133,7 @@ def main():
         'requested_resource_roots': [str(p.resolve()) for p in args.allow_dir],
         'direct_image_inputs': image_inputs,
         'image_selection': 'explicit manifest' if args.images else 'legacy absolute prompt-path scan',
+        'output_schema': schema_record,
         'ignore_user_config': args.ignore_user_config,
         'status': 'response-produced' if completed and code == 0 and not timed_out and answer.stat().st_size else 'incomplete',
         'limits': ['Read-only execution sandbox is not a read isolation boundary.',

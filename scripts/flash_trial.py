@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import time
 from pathlib import Path
+from flash_stage import wait_for_agy
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,21 +45,22 @@ Save verification.json with actual checks, provenance, missing evidence and stat
               'kind':'diagnostic tool-enabled run, not matched causal benchmark','resources':resource_hashes,
               'assistance':{'host':'Skill/tool development, factual constraints and available asset/runtime setup','image_generation':False,'stronger_model_design_corrections':False},
               'ambient_limit':'New AGY project requested; serving identity and hidden ambient context not independently attested.'}
-    args_list=[exe,'--new-project','--model',args.model,'--mode','accept-edits','--disable-slash-commands','--output-format','stream-json','--print-timeout',f'{args.timeout}s','--print',prompt]
+    args_list=[exe,'--new-project','--model',args.model,'--mode','accept-edits','--disable-slash-commands','--log-file',str(root/'cli.log'),'--output-format','stream-json','--print-timeout',f'{args.timeout}s','--print',prompt]
     with (root/'events.ndjson').open('w') as stdout,(root/'stderr.txt').open('w') as stderr:
         process=subprocess.Popen(args_list,cwd=root,stdout=stdout,stderr=stderr,text=True)
-        try:code=process.wait(timeout=args.timeout+20)
-        except subprocess.TimeoutExpired:process.terminate();process.wait(timeout=10);code=124
+        code,timed_out,blocked_auth=wait_for_agy(process,root/'cli.log',args.timeout+20)
     result={};init={}
     for line in (root/'events.ndjson').read_text(encoding='utf-8').splitlines():
         try:row=json.loads(line)
         except ValueError:continue
         if row.get('event')=='init':init=row.get('init',{})
         if row.get('event')=='result':result=row.get('result',{})
-    metadata.update(exit_code=code,elapsed=time.time()-metadata['started'],runtime_configured_model=init.get('model'),
+    metadata.update(exit_code=code,timed_out=timed_out,authentication_blocked=blocked_auth,elapsed=time.time()-metadata['started'],runtime_configured_model=init.get('model'),
                     reported_model=result.get('model'),usage=result.get('usage'),provider_status=result.get('status'),
                     denied_actions=result.get('denied_actions',[]),output_exists=(root/'site/index.html').is_file(),
-                    status='blocked-host-permission' if result.get('denied_actions') else ('needs-host-inspection' if (root/'site/index.html').is_file() else 'incomplete-no-artifact'))
+                    status='blocked-authentication' if blocked_auth else 'blocked-host-permission' if result.get('denied_actions') else ('needs-host-inspection' if (root/'site/index.html').is_file() else 'incomplete-no-artifact'))
+    if blocked_auth:metadata['required_action']='Sign in to Antigravity; no Flash output is available.'
+    metadata['log_handling']='cli.log is private diagnostic data; do not publish it as a benchmark asset.'
     (root/'experiment.json').write_text(json.dumps(metadata,indent=2),encoding='utf-8')
     (root/'result.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     print(json.dumps({k:v for k,v in metadata.items() if k!='resources'},indent=2))

@@ -1,6 +1,7 @@
 import copy
 import tempfile
 import unittest
+from jsonschema import Draft202012Validator
 from pathlib import Path
 from test_package import module, ROOT
 
@@ -61,3 +62,17 @@ class ReviewDisposition(unittest.TestCase):
         self.assertEqual(result['actions'][0]['next_action'], 'collect-evidence')
         check.update(result='revise', issue_type='observed-defect')
         self.assertEqual(gate.evaluate(self.report, self.root)['actions'][0]['next_action'], 'repair')
+
+    def test_structured_transport_rejects_format_drift_but_not_a_bad_judgment(self):
+        schema=gate.response_schema(['A'],['capture.png'])
+        Draft202012Validator.check_schema(schema);validator=Draft202012Validator(schema)
+        report=copy.deepcopy(self.report);report['continue_with']=None
+        for check in report['candidates'][0]['checks'].values():check['issue_type']=None
+        self.assertFalse(list(validator.iter_errors(report)))
+        bad=copy.deepcopy(report);bad['candidates'][0]['checks']['opening']['result']='excellent'
+        self.assertTrue(list(validator.iter_errors(bad)))
+        bad=copy.deepcopy(report);bad['candidates'][0]['checks']['opening']['artifact']='invented.png'
+        self.assertTrue(list(validator.iter_errors(bad)))
+        report['candidates'][0]['checks']['opening']['result']='fail'
+        self.assertFalse(list(validator.iter_errors(report)))
+        self.assertEqual(gate.evaluate(report,self.root)['status'],'needs-revision')

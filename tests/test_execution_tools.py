@@ -154,6 +154,52 @@ class Execution(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'exact current source'):
             workflow.record(self.root,'wireframe',s)
 
+    def candidate_judgment(self, submission, ids, selected, rejected=()):
+        path=self.root/submission['artifacts']['judgment'][0]
+        report=json.loads(path.read_text());template=report['candidates'][0]
+        report['candidates']=[];report['selected']=selected
+        for identity in ids:
+            candidate=copy.deepcopy(template);candidate['id']=identity
+            if identity in rejected:
+                candidate['checks']['geometry']['result']='revise'
+                candidate['blocking_issues']=['Fixture: action clipped at a narrow width']
+            report['candidates'].append(candidate)
+        path.write_text(json.dumps(report))
+
+    def test_passing_direction_advances_without_repairing_discarded_sketches(self):
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');self.candidate_judgment(s,'ABC','B',rejected='AC')
+        first=workflow.record(self.root,'wireframe',s)
+        self.assertEqual(first['events'][-1]['review_disposition']['eligible'],['B'])
+        s=self.submission('type');self.candidate_judgment(s,'B','B')
+        result=workflow.record(self.root,'type',s)
+        self.assertEqual(result['repairs'],0)
+        self.assertEqual(result['events'][-1]['review_disposition']['status'],'ready-for-next-layer')
+        self.assertEqual(result['events'][-2]['review_disposition']['actions'][0]['next_action'],'repair')
+        workflow.record(self.root,'surface',self.submission('surface'))
+
+    def test_narrowing_cannot_omit_initial_alternatives_or_revive_a_failed_direction(self):
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');self.candidate_judgment(s,'B','B')
+        with self.assertRaisesRegex(ValueError,'every planned candidate'):workflow.record(self.root,'wireframe',s)
+        s=self.submission('wireframe');self.candidate_judgment(s,'ABC','B',rejected='AC')
+        workflow.record(self.root,'wireframe',s)
+        s=self.submission('type');self.candidate_judgment(s,'A','A')
+        with self.assertRaisesRegex(ValueError,'rejected direction'):workflow.record(self.root,'type',s)
+
+    def test_selecting_a_failed_candidate_still_blocks_advancement(self):
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');self.candidate_judgment(s,'ABC','A',rejected='AC')
+        workflow.record(self.root,'wireframe',s)
+        with self.assertRaisesRegex(ValueError,'Construction checkpoint is unresolved'):
+            workflow.record(self.root,'type',self.submission('type'))
+
+    def test_schema_three_keeps_composite_layer_contract(self):
+        data=workflow.load_run(self.root);data['schema']=3;workflow.save(self.root,data)
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');self.candidate_judgment(s,'ABC','B',rejected='AC')
+        with self.assertRaisesRegex(ValueError,'one study'):workflow.record(self.root,'wireframe',s)
+
     def test_system_scope_carries_shared_decisions_without_expanding_component_packets(self):
         project={'scope':'system','media':'none','motion':'feedback','shared_decisions':{'version':'one','navigation':['Library','Settings'],'state_owner':'selected account'}}
         before=json.dumps(project,sort_keys=True)

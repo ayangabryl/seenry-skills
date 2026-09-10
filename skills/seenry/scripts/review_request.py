@@ -5,7 +5,7 @@ import json
 import random
 from pathlib import Path
 
-from review_gate import CRITERIA
+from review_gate import CRITERIA, response_schema
 
 
 def prepare(manifest, root, out, seed=0):
@@ -58,6 +58,8 @@ def prepare(manifest, root, out, seed=0):
         'required_review_shape': shape,
         'limits': ['Anonymous image filenames only; facts or behavior prose may still reveal context.', 'This tool validates evidence packaging, not visual quality or accurate model inspection.']}
     (out / 'request.json').write_text(json.dumps(request, indent=2) + '\n', encoding='utf-8')
+    schema=response_schema([x['id'] for x in public], [e['file'] for x in public for e in x['evidence'].values()])
+    (out / 'response.schema.json').write_text(json.dumps(schema, indent=2) + '\n', encoding='utf-8')
     (out / 'private-key.json').write_text(json.dumps({'seed': seed, 'mapping': private}, indent=2) + '\n', encoding='utf-8')
     return request
 

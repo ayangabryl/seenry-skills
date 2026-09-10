@@ -4,7 +4,7 @@ description: "Source and integrate images, fonts, provider marks, icons, illustr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.10"
+  version: "2.0.0-dev.11"
 ---
 
 # Make assets serve the subject

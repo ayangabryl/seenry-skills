@@ -15,9 +15,11 @@ flowchart TD
   R --> E[Separate observation, curator reason and inference]
   E --> P[DESIGN.md: information jobs, three relationships, material and sequence]
   P --> W[Working wireframes]
-  W --> WG{Content, hierarchy and geometry resolved?}
-  WG -->|Repair or one direction reset| P
-  WG -->|Current layer cleared| T[Actual typography and content]
+  W --> WG{Assess each candidate: content, hierarchy and geometry}
+  WG -->|No acceptable direction; repair| W
+  WG -->|One direction reset| P
+  WG -->|Preserve rejected alternatives| ARCH[Archived source, renders and reasons]
+  WG -->|Retain a passing direction provisionally| T[Actual typography and content on retained source]
   T --> TG{Inspect actual labels, proportions and boundaries}
   TG -->|Repair within shared budget| T
   TG -->|Current layer cleared| V[Controlled surfaces, assets and interaction proofs]
@@ -86,7 +88,7 @@ Planning records are backstage tools. The visitor sees the actual offering, visi
 
 ## Evidence and progression in the development candidate
 
-New `workflow.py` runs use schema 3. Wireframe and type judgments assess content, hierarchy and geometry against the exact submitted source hashes. An unresolved layer cannot advance. A layer repair, surface repair and final fix share the two-repair ceiling; a direction reset is available once. The canonical five-criterion comparison still blocks expansion of an unresolved surface. The recorder snapshots exact cited artifacts. Schema 1–2 histories remain readable for reproduction. This checks consistency and progression; it does not make model judgments accurate.
+New `workflow.py` runs use schema 4. Wireframe and type judgments assess content, hierarchy and geometry against the exact submitted source hashes. Initial wireframe review includes every planned candidate. A passing direction may advance without repairing discarded alternatives; their source, captures and failed checks remain in history. A rejected direction cannot bypass its earlier checkpoint by reappearing at typography or final comparison. Early narrowing is provisional, and the finished slice can still fail. A layer repair, surface repair and final fix share the two-repair ceiling; a direction reset is available once. The canonical five-criterion comparison still blocks expansion of an unresolved surface. Schema 1–3 histories keep their original rules. These checks establish consistency and progression, not accurate taste.
 
 The [content model](skills/seenry/references/content-model.md) connects actual information to visible, disclosed, inherited or change-only placement. Material gets a task-specific job before its scale is chosen. `visual_inventory.mjs` gives the reviewer rendered labels, styles, geometry and boundary observations beside captures. These can expose a recurring defect that a fluent overall critique misses; there is no automatic slop score. An experimental text-only lesson mode records withheld images to test reference anchoring without silently dropping guidance.
 
@@ -97,6 +99,8 @@ The optional focused packet reduces repeated entrypoint text, with the original 
 The user rejected both Luna ceramic websites and both image exporters despite functional passes. Model visual judgments also passed these rejected artifacts; stricter evidence gates did not solve aesthetic calibration. The benchmark therefore does not establish consistent website quality. Human rejections stay attached to those exact artifacts and override model-only acceptance. Missing evidence and observed defects also take separate routes: unchanged-source evidence refreshes collect observations; repairs change the product. Neither route reclassifies a rejected result as accepted without a new review.
 
 Code transport accepts complete raw documents or exact hashed patches. The explicit Luna fallback adapter records requested model, image inputs in their actual attachment order, source hashes, events, usage and timeouts. It does not relabel Luna as Flash. Test failures are triaged before they become author repair requests. Native host tools remain the preferred production route.
+
+Review requests also emit an optional response schema. Hosts that support structured responses can constrain candidate IDs, artifact names and criteria at the transport boundary. The disposition check still decides whether the recorded selection is eligible; a correctly shaped but mistaken judgment remains possible. AGY adapters recognize the observed Antigravity sign-in failure and preserve it as blocked-authentication instead of consuming the whole generation ceiling. Private diagnostic logs are excluded from public benchmark evidence.
 
 Selected feedback-motion helpers now enter restricted stage packets as actual authored API/source plus a pinned, hashed runtime manifest. Relative dependencies and licenses must be provisioned by the host; the manifest alone does not establish runtime availability. The exporter feedback lesson stores exact rejected screenshots, source hashes and scoped human reasons. A separate Astra-authored teaching candidate remains outside model-only benchmark outcomes and is not certified by package validation.
 

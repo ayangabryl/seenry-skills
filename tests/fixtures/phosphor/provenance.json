@@ -1,0 +1,12 @@
+{
+  "package": "@phosphor-icons/core",
+  "version": "2.1.1",
+  "source": "https://github.com/phosphor-icons/core",
+  "license": "MIT",
+  "use": "Unmodified glyph fixtures for coordinate-system and filled-paint browser tests",
+  "files": {
+    "Phosphor-LICENSE": "ddbe6082ec3cf979db47e5af549d2849c5d6182b3e005ef91ce1dbb9eb122f11",
+    "pause-fill.svg": "156d3cdfa5cea803caec50b35f49bc635070c8bd84e7fe78df94b025017ccee1",
+    "play-fill.svg": "6d2a75bc5700a68dec50516ebae121c307807e4e6fcca5c863e5b4af006df880"
+  }
+}

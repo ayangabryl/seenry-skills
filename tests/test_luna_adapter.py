@@ -24,6 +24,13 @@ class LunaAdapter(unittest.TestCase):
   self.assertIn('--ignore-user-config',fresh)
   self.assertEqual(fresh[fresh.index('-m')+1],'gpt-5.6-luna')
   self.assertIn('--ephemeral',fresh)
+ def test_response_schema_path_survives_child_directory_change(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   schema=Path(tmp)/'response.schema.json';schema.write_text('{"type":"object"}')
+   relative=Path(os.path.relpath(schema))
+   command=luna.command_for('/bin/codex',Path(tmp),[],output_schema=relative)
+   self.assertEqual(command[command.index('--output-schema')+1],str(schema.resolve()))
+   self.assertNotIn('--output-schema',luna.command_for('/bin/codex',Path(tmp),[]))
  def test_explicit_image_order_is_the_actual_cli_order(self):
   with tempfile.TemporaryDirectory() as tmp:
    r=Path(tmp)

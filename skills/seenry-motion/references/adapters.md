@@ -9,6 +9,8 @@ Copy only the helper used and its relative dependencies. Keep project runtime ve
 
 Inspect these small sources before use. Verify input interruption, failure and live reduced motion in the actual product. Bundled adapters do not establish the quality of a new animation. Review current engine documentation when changing versions; do not assume every runtime can morph arbitrary paths.
 
+For a filled icon family, `createMorphIcon` also accepts `paint: "fill"` and its real `viewBox`, for example `"0 0 256 256"` for Phosphor. Supply actual library node data for both states in the same coordinate system and weight. Do not squeeze a 256-unit path into the default 24-unit viewport or draw approximations of library glyphs. The default remains stroked 24-unit Lucide data. The helper does not fetch or license an icon collection for the project. Test the initial state, intermediate morph and final glyph at the intended size; use a swap if the path transition is unreadable.
+
 ## Measured disclosure geometry
 
 `assets/geometry-transition.mjs` exports `createDisclosure(panel, options)`. Supply a panel with one natural-height content wrapper; keep wrapper padding inside it. The controller measures the current visual height before cancellation, animates geometry without scaling live text, makes collapsed descendants inert and respects reduced motion. Use `controller.setOpen(next)` from the owning component. Keep the trigger's `aria-expanded` in that component, with `aria-controls` referencing the panel. Before collapsing from inside, move focus to the trigger. Call `destroy()` on unmount. This adapter owns presentation, not your product's selected state or input data.

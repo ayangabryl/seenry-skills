@@ -8,6 +8,26 @@ CRITERIA = ('subject', 'opening', 'hierarchy', 'material', 'interaction')
 RESULTS = {'pass', 'revise', 'fail', 'unverified'}
 
 
+def response_schema(identities, artifacts, criteria=CRITERIA):
+    """Optional strict-output transport shape; evaluate still checks disposition."""
+    if not identities or len(set(identities)) != len(identities) or not artifacts:
+        raise ValueError('Unique candidate ids and actual artifact names are required')
+    if any(not isinstance(x,str) or not x.strip() for x in [*identities,*artifacts,*criteria]):
+        raise ValueError('Schema values must be nonempty strings')
+    def object_schema(properties):
+        return {'type':'object','properties':properties,'required':list(properties),'additionalProperties':False}
+    check=object_schema({'result':{'type':'string','enum':sorted(RESULTS)},
+                         'artifact':{'type':'string','enum':list(artifacts)},
+                         'observation':{'type':'string'},
+                         'issue_type':{'type':['string','null'],'enum':['observed-defect','missing-evidence',None]}})
+    candidate=object_schema({'id':{'type':'string','enum':list(identities)},
+                             'checks':object_schema({k:check for k in criteria}),
+                             'blocking_issues':{'type':'array','items':{'type':'string'}}})
+    return object_schema({'candidates':{'type':'array','items':candidate},
+                          'selected':{'type':['string','null'],'enum':[*identities,None]},
+                          'continue_with':{'type':['string','null'],'enum':[*identities,None]}})
+
+
 def evaluate(report, root, criteria=CRITERIA):
     root = Path(root).resolve()
     candidates = report.get('candidates')

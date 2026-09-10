@@ -20,14 +20,15 @@ ROLES = {
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def disposition(report, root, construction=False):
+def disposition(report, root, construction=False, per_candidate=False):
     spec = importlib.util.spec_from_file_location('seenry_review_disposition', Path(__file__).with_name('review_gate.py'))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     if construction:
         result = module.evaluate(report, root, criteria=('content', 'hierarchy', 'geometry'))
-        # This reviews the whole current layer, not a premature final selection.
-        if len(report['candidates']) != 1 or report['candidates'][0]['id'] != 'study':
+        # Legacy layers assess the whole study. New layers may retain a passing
+        # direction while preserving rejected alternatives in the same report.
+        if not per_candidate and (len(report['candidates']) != 1 or report['candidates'][0]['id'] != 'study'):
             raise ValueError('A construction judgment assesses one study containing the current alternatives')
         result['status'] = 'ready-for-next-layer' if result['status'] == 'ready-for-human-review' else 'needs-layer-revision'
         return result
@@ -62,7 +63,7 @@ def initialize(root, project):
     if project['motion'] not in ('signature', 'feedback', 'none', 'undecided'): raise ValueError('Invalid motion need')
     if project['research_source'] not in ('auto', 'mcp', 'web', 'local'): raise ValueError('Invalid research route')
     root.mkdir(parents=True, exist_ok=True)
-    data = {'schema': 3, 'project': project, 'started': time.time(), 'events': [],
+    data = {'schema': 4, 'project': project, 'started': time.time(), 'events': [],
             'resets': 0, 'repairs': 0, 'status': 'in-progress',
             'limitations': ['Protocol evidence is not proof of taste, model identity or human acceptance.']}
     save(root, data)
@@ -162,7 +163,22 @@ def record(root, stage, submission):
                 expected_sources = {p.relative_to(root.resolve()).as_posix():digest(p) for role,p in prepared if role == 'source'}
                 if not expected_sources or report.get('reviewed_sources') != expected_sources:
                     raise ValueError('Construction review must name the exact current source paths and hashes')
-            judged = disposition(report, root, construction=construction and stage in ('wireframe','type'))
+            if data.get('schema', 1) >= 4 and stage in ('wireframe','type','compare'):
+                identities = {c.get('id') for c in report.get('candidates', [])}
+                if identities != {'study'}:
+                    if stage == 'wireframe':
+                        plan_event = next(e for e in reversed(events) if e['stage'] == 'plan')
+                        concept = next(e for e in plan_event['evidence'] if e['role'] == 'concepts')
+                        planned = {c['id'] for c in json.loads((root/concept['snapshot']).read_text())}
+                        if identities != planned:
+                            raise ValueError('Wireframe review must assess every planned candidate')
+                    else:
+                        prior_stage = 'wireframe' if stage == 'type' else 'type'
+                        prior = next(e for e in reversed(events) if e['stage'] == prior_stage)
+                        eligible = set((prior.get('review_disposition') or {}).get('eligible', []))
+                        if 'study' not in eligible and not identities.issubset(eligible):
+                            raise ValueError('A rejected direction cannot advance without repairing its earlier layer or resetting')
+            judged = disposition(report, root, construction=construction and stage in ('wireframe','type'), per_candidate=data.get('schema', 1) >= 4)
             # Preserve the exact cited evidence as well as the review that refers to it.
             included = {path for _, path in prepared}
             for citation in judged['evidence']:
