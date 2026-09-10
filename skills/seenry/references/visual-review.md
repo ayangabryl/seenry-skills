@@ -45,3 +45,6 @@ Each `artifact` value names one actual file. Use observations to mention supplem
 When reviewer reliability is uncertain, use the [visual lesson and probe workflow](visual-lessons.md). Test order consistency and whether its rendered repair preserves useful information. Reviewer fluency is not evidence of accurate selection.
 
 When inspecting controls, separate the accessible action label from the visible mark. `visual_inventory.mjs` records selected text-symbol glyphs and visible SVG/image counts inside controls. Use those observations to catch provisional icon substitutes that survived construction. Mathematical or textual symbols can be correct; this is not an automatic rejection rule. An SVG count alone does not establish library provenance, optical quality or a working transition.
+
+
+A fresh context does not inherit prior feedback. Carry relevant scoped observations and their captures through the review packet, using `calibration_topics` when a built-in case applies. Ask whether the same issue is observable in the current artifact; do not assume it is. Keep source feedback, authored teaching hypotheses and current judgments labeled separately. A calibration case is neither a target composition nor a universal rule. For a construction review set the explicit phase; for a finished artifact retain all five criteria and actual interaction evidence.
