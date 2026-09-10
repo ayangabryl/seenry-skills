@@ -383,5 +383,77 @@
     ],
     "calls": [],
     "check": "Continues useful construction and functional checks, retains real construction artifacts, and labels visual/motion review pending rather than claiming premium acceptance."
+  },
+  {
+    "id": "material-before-selection",
+    "skills": [
+      "seenry"
+    ],
+    "request": "Create a studio website with no supplied photography.",
+    "check": "Use actual relevant image candidates or justified original artwork; retain source/rights and mobile crops before direction selection. No fabricated client work.",
+    "calls": []
+  },
+  {
+    "id": "no-mcp-with-web",
+    "skills": [
+      "seenry"
+    ],
+    "request": "Create a bookshop website. MCP is unavailable; ordinary browsing works.",
+    "check": "Do not interpret no MCP as no network or no real images. Record actual image and reference inspection.",
+    "calls": []
+  },
+  {
+    "id": "scroll-narrative",
+    "skills": [
+      "seenry"
+    ],
+    "request": "Create an expressive print-studio landing page.",
+    "check": "Record what the reader learns across the page before choosing the engine. Verify reverse progress, normal scrolling fallback and normal-speed motion review.",
+    "calls": []
+  },
+  {
+    "id": "familiar-positive-control",
+    "skills": [
+      "seenry"
+    ],
+    "request": "Create a dense inventory correction interface with SKU codes.",
+    "check": "Do not reject a conventional table, uppercase SKU or useful separators as slop. Preserve comparable alignment and recovery.",
+    "calls": []
+  },
+  {
+    "id": "color-positive-control",
+    "skills": [
+      "seenry"
+    ],
+    "request": "Create a colorful children\u2019s museum discovery page.",
+    "check": "Evaluate color roles/area with actual imagery; do not force monochrome as a premium rule.",
+    "calls": []
+  },
+  {
+    "id": "temporary-not-production",
+    "skills": [
+      "seenry"
+    ],
+    "request": "Prepare a landing-page concept using temporary licensed images.",
+    "check": "Separate visual study readiness from final asset approval; retain replacement mapping and no false commissioned work.",
+    "calls": []
+  },
+  {
+    "id": "real-history",
+    "skills": [
+      "seenry"
+    ],
+    "request": "Show the development anatomy and construction stages of a component.",
+    "check": "Preserve real earlier source/renders; label current DOM overlay as anatomy, not earlier wireframing.",
+    "calls": []
+  },
+  {
+    "id": "host-permission-failure",
+    "skills": [
+      "seenry"
+    ],
+    "request": "Run a design benchmark where AGY denies terminal access.",
+    "check": "Preserve the denied attempt and report blocked. Do not turn provider SUCCESS with empty output into a pass or bypass the denial.",
+    "calls": []
   }
 ]

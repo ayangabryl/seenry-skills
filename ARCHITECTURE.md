@@ -9,7 +9,7 @@ flowchart TD
   M[Optional Seenry MCP: inspected references and reviews] --> R
   L[Local studies, supplied files or public sources] --> R
   R --> E[Separate observation, curator reason and inference]
-  E --> P[DESIGN.md: three concepts and provisional visual systems]
+  E --> P[DESIGN.md: three arguments, real material, page narrative]
   P --> W[Working wireframes]
   W --> T[Actual typography and content]
   T --> V[Controlled surfaces, assets and interaction proofs]
@@ -20,12 +20,19 @@ flowchart TD
   B --> Q[Functional, visual and motion review]
   Q -->|Up to two repair passes| B
   Q --> F[Ready for user review or explicit incomplete status]
-  A[seenry-assets] --> T
+  A[seenry-assets: scout, contact sheet, crops, type study] --> P
+  A --> T
   A --> V
-  O[seenry-motion] --> V
+  O[seenry-motion: learning sequence, score, stable anchors] --> P
+  O --> V
   O --> Q
   H[Host: browser, code and media tools] --> W
   H --> Q
+  R --> REC[Host recorder: artifact snapshots and resource hashes]
+  W --> REC
+  C --> REC
+  Q --> REC
+  REC --> F
 ```
 
 For a narrow fix, enter at the affected decision and verification; research-only requests stop at the requested comparison. Planning does not add an approval pause. For a missing visual capability, visual review stays pending. Actual authoring artifacts, not a final grid overlay, establish wireframe history.
@@ -47,6 +54,16 @@ Design Judgment's four entrypoints and the old Web Atlas entrypoints (including 
 The MCP endpoint and tool names remain compatible. MCP-bundled skill resources are deployed separately by the server repository; installing this package does not update those server-side documents. Local Seenry 2 instructions are the active package for a migrated client. Updating the server bundle should retain legacy resource IDs as compatibility resources and test new entrypoint retrieval before deployment.
 
 A renamed package, successful installation and a passing schema test are not evidence of improved model taste. Use the frozen, matched [evaluation protocol](skills/seenry/references/evaluation.md) before announcing an improvement or competitor win.
+
+## Execution and diagnosis
+
+The [execution contract](skills/seenry/references/execution.md) connects project needs to stage packets and host tools. Media and motion can be unresolved at discovery; that uncertainty loads their planning guidance instead of silently excluding them. Research, actual image crops and choreography now feed concept selection. `workflow.py` preserves snapshots and checks order, media evidence types, missing capabilities and bounded revisions. It does not lock an arbitrary agent into the workflow or authenticate screenshots.
+
+`asset_studio.py` accepts native-search manifests and supplies a bounded free Met Collection search plus real image crop/flat print studies. It deliberately separates temporary material from production approval. `type_lab.py` and `color_lab.py` compare actual content without inventing premium font or palette rankings. `score.mjs` provides deterministic choreography independent of an engine. The browser adapter creates measurable evidence; motion recordings still need normal-speed review.
+
+The [quality diagnosis](skills/seenry/references/quality-diagnosis.md) targets contextual weaknesses and proposes controlled comparisons. Descriptor overlap flags cross-project convergence for inspection. Human-label coverage and held-out project splits make calibration auditable; they do not constitute a trained slop detector. The [casebook](skills/seenry/references/studies/casebook.md) labels inspected reference observations separately from original teaching exercises.
+
+AGY can run with native host tools using `scripts/flash_trial.py`. If the model-side terminal is denied, preserve that run as blocked. `scripts/flash_stage.py` supports a separate host-rendered diagnostic without retrying the denied command: the model authors returned artifacts and the host runs rendering/tests. Record the different execution mode; it is not an autonomous-workflow pass.
 
 ## Visitor-facing quality gate
 

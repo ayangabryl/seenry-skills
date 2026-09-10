@@ -1,0 +1,19 @@
+{
+  "heading": "A place for good ideas.",
+  "body": "We make identities and experiences that help people understand what you do.",
+  "label": "Explore the work",
+  "numbers": "09:41 \u00b7 1,280.50 \u00b7 12%",
+  "long_content": "Try the longest actual product title and every supported language here.",
+  "fonts": [
+    {
+      "name": "Installed project font",
+      "source": "assets/InterVariable.woff2",
+      "weight_range": "100 900",
+      "coverage": "Verify against the actual audience"
+    },
+    {
+      "name": "System fallback",
+      "notes": "Compare line breaks and control geometry when the font is unavailable."
+    }
+  ]
+}

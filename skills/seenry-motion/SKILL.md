@@ -4,8 +4,12 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.3"
+  version: "2.0.0-dev.4"
 ---
+
+# Plan motion before choosing the final composition
+
+For a new expressive interface read [worked scores](references/worked-scores.md) during planning. Define the reader's learning sequence, a stable anchor, holds, reversals and static equivalent. The original score primitive and runnable print reveal demonstrate deterministic choreography independently of a paid library or external skill. They are working engineering exercises, not a universal visual template.
 
 # Study the interaction before animating it
 

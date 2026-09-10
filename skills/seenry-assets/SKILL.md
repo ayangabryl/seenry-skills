@@ -4,7 +4,7 @@ description: "Source and integrate images, fonts, provider marks, icons, illustr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.3"
+  version: "2.0.0-dev.4"
 ---
 
 # Make assets serve the subject
@@ -12,6 +12,8 @@ metadata:
 MCP is optional. With no network, work from supplied licensed assets and installed font/icon packages. Keep manifests and inspect local crops normally. Use a clear text action when a nonessential icon is unavailable; never fabricate a real provider mark. External source links below are optional acquisition routes, not runtime dependencies.
 
 Define the asset's job before searching: what it helps a visitor understand, its role in the composition, focal point, light/material, crop and whether it is factual evidence or illustration. A visually elaborate shape that could advertise anything is weak evidence of art direction. No image may be the right choice.
+
+Load [material production](references/material-production.md) while planning an image-led or unresolved concept. It provides actual candidate search, crop/contact-sheet tooling, temporary-image and mockup stages, and replacement criteria. The `scripts/type_lab.py` tool renders font shortlists with real copy and perceived-size adjustment. Use these studies before locking the direction; a blank HTML box cannot pass material review.
 
 ## Resolve real identity first
 

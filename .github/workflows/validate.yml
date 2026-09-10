@@ -19,4 +19,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs
+      - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
+      - run: node --check skills/seenry/scripts/browser_evidence.mjs

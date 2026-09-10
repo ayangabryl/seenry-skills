@@ -9,6 +9,7 @@ Write it before product code; update it at decisions. Preserve existing conventi
 Audience, task, supplied facts, assumptions, constraints, preserved behavior.
 Requested ambition, scoped preferences, appearance policy and reason.
 Explicit brand/appearance constraints fixed before alternatives; checkable role restrictions where applicable.
+Media need and motion ambition, with a reason when none; available host operations and actual gaps.
 Visitor offering and visible proof, separated from implementation constraints.
 Opening copy, dominant visual, next action and what can wait until later.
 
@@ -24,6 +25,7 @@ A/B/C: distinct concept/mechanism, reading order, alignment anchors,
 content groups, narrow behavior, ordinary usable path and tradeoffs.
 Provisional type, color roles/area, spacing, corners and control emphasis.
 Copy density and section roles; open versus enclosed grouping; why any eyebrow/ordinal exists.
+Each section's visitor question, proof, visual load and transition; unresolved asset jobs and actual candidates.
 
 ## Construction history
 Each actual wireframe, typography and surface/interaction artifact.
@@ -40,6 +42,7 @@ Action → transition → result → interruption/recovery; motion ownership.
 ## Verification and disposition
 Tests run, visual observations, capture paths, unresolved issues.
 Repair history. Author review versus fresh review versus user acceptance.
+Cross-project convergence observations and controlled alternatives; temporary assets awaiting replacement.
 Status: draft / needs-revision / ready-for-review / accepted-by-user.
 Per-criterion visual verdicts; functional success cannot override unresolved visual failures.
 ```
