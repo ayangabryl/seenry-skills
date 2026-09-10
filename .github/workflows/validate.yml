@@ -8,6 +8,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,3 +22,13 @@ jobs:
           node-version: 22
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
+      - name: Install the pinned browser test runtime
+        run: npm install --no-save --package-lock=false playwright@1.63.0
+      - name: Install Chromium and host dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Exercise geometry, icons and rendered evidence
+        run: |
+          node tests/geometry-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/morph-icon.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/visual-inventory.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/scroll-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
