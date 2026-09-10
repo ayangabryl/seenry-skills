@@ -86,6 +86,8 @@ class Execution(unittest.TestCase):
         self.assertIn('seenry-motion/references/worked-scores.md',names)
         result=packet.compile_packet('plan',project={'media':'none','motion':'none'})
         self.assertFalse(any(r['path'].startswith('seenry-assets') for r in result['resources']))
+        typed=packet.compile_packet('type',project={'media':'none','motion':'feedback'})
+        self.assertIn('seenry-assets/assets/type.example.json',[r['path'] for r in typed['resources']])
     def test_expired_budget_stops_new_artifact_records(self):
         data=workflow.load_run(self.root)
         with patch.object(workflow.time,'time',return_value=data['started']+2401):

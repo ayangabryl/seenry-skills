@@ -55,6 +55,10 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
             paths += [motion_root / 'references/scroll-choreography.md', motion_root / 'references/adapters.md']
     if assets:
         paths += [root.parent / 'seenry-assets/SKILL.md']
+        if stage == 'type':
+            paths += [root.parent / 'seenry-assets/assets/type.example.json']
+        if stage in ('research', 'plan'):
+            paths += [root.parent / 'seenry-assets/assets/candidates.example.json']
         if stage in ('research','plan','surface','build','review','refine'):
             paths += [root.parent / 'seenry-assets/references/material-production.md']
     # Resolve declared dependencies recursively; arbitrary prose links are progressive reading.
