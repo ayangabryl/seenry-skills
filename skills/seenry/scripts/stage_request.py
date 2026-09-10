@@ -125,9 +125,9 @@ if __name__ == '__main__':
     parser.add_argument('--evidence', type=Path, help='Ordered path/role records; paths resolve inside this manifest directory')
     args = parser.parse_args()
     try:
-        record = prepare(args.stage, json.loads(args.project.read_text()), args.task.read_text(), args.out,
+        record = prepare(args.stage, json.loads(args.project.read_text(encoding='utf-8')), args.task.read_text(encoding='utf-8'), args.out,
                          profile=args.profile, research_source=args.research_source,
-                         evidence=json.loads(args.evidence.read_text()) if args.evidence else None,
+                         evidence=json.loads(args.evidence.read_text(encoding='utf-8')) if args.evidence else None,
                          evidence_root=args.evidence.parent if args.evidence else None, lesson_images=args.lesson_images)
         print(json.dumps({'out':str(args.out.resolve()), 'images':len(record['images']), 'status':record['status']}))
     except (ValueError, OSError, TypeError, KeyError) as error:

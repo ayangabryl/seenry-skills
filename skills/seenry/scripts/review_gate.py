@@ -23,7 +23,7 @@ def response_schema(identities, artifacts, criteria=CRITERIA):
     candidate=object_schema({'id':{'type':'string','enum':list(identities)},
                              'checks':object_schema({k:check for k in criteria}),
                              'blocking_issues':{'type':'array','items':{'type':'string'}}})
-    return object_schema({'candidates':{'type':'array','items':candidate},
+    return object_schema({'candidates':{'type':'array','items':candidate,'minItems':len(identities),'maxItems':len(identities)},
                           'selected':{'type':['string','null'],'enum':[*identities,None]},
                           'continue_with':{'type':['string','null'],'enum':[*identities,None]}})
 

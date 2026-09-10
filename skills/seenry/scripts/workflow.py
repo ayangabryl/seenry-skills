@@ -169,7 +169,7 @@ def record(root, stage, submission):
                     if stage == 'wireframe':
                         plan_event = next(e for e in reversed(events) if e['stage'] == 'plan')
                         concept = next(e for e in plan_event['evidence'] if e['role'] == 'concepts')
-                        planned = {c['id'] for c in json.loads((root/concept['snapshot']).read_text())}
+                        planned = {c['id'] for c in json.loads((root/concept['snapshot']).read_text(encoding='utf-8'))}
                         if identities != planned:
                             raise ValueError('Wireframe review must assess every planned candidate')
                     else:

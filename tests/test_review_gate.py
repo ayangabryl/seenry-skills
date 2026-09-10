@@ -76,3 +76,16 @@ class ReviewDisposition(unittest.TestCase):
         report['candidates'][0]['checks']['opening']['result']='fail'
         self.assertFalse(list(validator.iter_errors(report)))
         self.assertEqual(gate.evaluate(report,self.root)['status'],'needs-revision')
+
+    def test_structured_transport_requires_every_candidate(self):
+        schema=gate.response_schema(['A','B','C'],['capture.png'])
+        validator=Draft202012Validator(schema)
+        report=copy.deepcopy(self.report);report['continue_with']=None
+        for check in report['candidates'][0]['checks'].values():check['issue_type']=None
+        self.assertTrue(list(validator.iter_errors(report)))
+        for identity in ('B','C'):
+            candidate=copy.deepcopy(report['candidates'][0]);candidate['id']=identity
+            report['candidates'].append(candidate)
+        self.assertFalse(list(validator.iter_errors(report)))
+        report['candidates'].append(copy.deepcopy(report['candidates'][0]))
+        self.assertTrue(list(validator.iter_errors(report)))

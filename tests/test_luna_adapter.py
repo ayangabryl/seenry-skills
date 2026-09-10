@@ -8,7 +8,7 @@ ROOT=Path(__file__).resolve().parents[1]
 s=importlib.util.spec_from_file_location('luna',ROOT/'scripts/luna_stage.py');luna=importlib.util.module_from_spec(s);s.loader.exec_module(luna)
 class LunaAdapter(unittest.TestCase):
  def test_relative_output_path_stays_valid_after_child_changes_directory(self):
-  with tempfile.TemporaryDirectory() as tmp:
+  with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
    out=Path(tmp)/'nested'/'run';out.mkdir(parents=True)
    relative=Path(os.path.relpath(out))
    command=luna.command_for('/bin/codex',relative,[])
@@ -16,7 +16,7 @@ class LunaAdapter(unittest.TestCase):
    self.assertTrue(destination.is_absolute())
    self.assertEqual(destination.parent,out.resolve())
    (out/destination).write_text('Actual child output')
-   self.assertEqual((out/'answer.md').read_text(),'Actual child output')
+   self.assertEqual((out/'answer.md').read_text(encoding='utf-8'),'Actual child output')
  def test_fresh_config_option_is_explicit_and_does_not_change_the_requested_model(self):
   ordinary=luna.command_for('/bin/codex',Path('/tmp/output'),[])
   fresh=luna.command_for('/bin/codex',Path('/tmp/output'),[],True)
@@ -25,7 +25,7 @@ class LunaAdapter(unittest.TestCase):
   self.assertEqual(fresh[fresh.index('-m')+1],'gpt-5.6-luna')
   self.assertIn('--ephemeral',fresh)
  def test_response_schema_path_survives_child_directory_change(self):
-  with tempfile.TemporaryDirectory() as tmp:
+  with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
    schema=Path(tmp)/'response.schema.json';schema.write_text('{"type":"object"}')
    relative=Path(os.path.relpath(schema))
    command=luna.command_for('/bin/codex',Path(tmp),[],output_schema=relative)
@@ -70,7 +70,7 @@ class LunaAdapter(unittest.TestCase):
    root=Path(tmp);prompt=root/'prompt.txt';prompt.write_text('A bounded test');out=root/'run';child=Child()
    with patch('sys.argv',['luna_stage.py','--prompt',str(prompt),'--out',str(out)]),patch.object(luna.shutil,'which',return_value='/fake/codex'),patch.object(luna.subprocess,'Popen',return_value=child),redirect_stdout(io.StringIO()):
     luna.main()
-   result=json.loads((out/'run.json').read_text())
+   result=json.loads((out/'run.json').read_text(encoding='utf-8'))
    self.assertTrue(child.stopped);self.assertTrue(result['interrupted']);self.assertFalse(result['timed_out'])
    self.assertEqual(result['status'],'incomplete');self.assertEqual(result['exit_code'],130);self.assertIsNone(result['usage'])
 if __name__=='__main__':unittest.main()
