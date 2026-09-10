@@ -20,9 +20,14 @@ LEGACY = ('design-judgment', 'design-motion', 'design-assets', 'design-video',
 def exists(path):
     return path.exists() or path.is_symlink()
 
+def link_signature(path):
+    # Windows readlink may expose an extended-path prefix. Compare destinations,
+    # not the platform-specific spelling; archive moves preserve the raw link.
+    return {'link': os.path.normcase(os.path.realpath(path))}
+
 def signature(path):
     if path.is_symlink():
-        return {'link': os.readlink(path)}
+        return link_signature(path)
     if not path.is_dir():
         raise ValueError(f'Expected a skill directory: {path}')
     digest = hashlib.sha256()
@@ -58,7 +63,7 @@ def plan(home, source=ROOT, migrate=False, replace=False, link_mode='symlink'):
         canonical = home / '.agents/skills' / name
         for agent in AGENTS:
             target = home / f'.{agent}/skills' / name
-            wanted = signature(origin) if agent == 'agents' or link_mode == 'copy' else {'link': str(canonical)}
+            wanted = signature(origin) if agent == 'agents' or link_mode == 'copy' else link_signature(canonical)
             new.append({'path': str(target), 'source': str(origin), 'canonical': str(canonical),
                         'kind': 'copy' if agent == 'agents' or link_mode == 'copy' else 'symlink', 'signature': wanted})
     if migrate:
