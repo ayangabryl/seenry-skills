@@ -36,6 +36,8 @@ def explicit_images(manifest, allowed):
 
 
 def command_for(executable, out, images, ignore_user_config=False):
+    # The child runs inside out; a relative -o would otherwise point inside out twice.
+    out = Path(out).resolve()
     command = [executable, 'exec', '-m', 'gpt-5.6-luna', '-c', 'model_reasoning_effort="high"',
                '-s', 'read-only', '--ephemeral', '--skip-git-repo-check', '--json', '-o', str(out / 'answer.md')]
     if ignore_user_config:

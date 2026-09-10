@@ -2,10 +2,21 @@ import importlib.util,json,tempfile,unittest
 from unittest.mock import patch
 from contextlib import redirect_stdout
 import io
+import os
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 s=importlib.util.spec_from_file_location('luna',ROOT/'scripts/luna_stage.py');luna=importlib.util.module_from_spec(s);s.loader.exec_module(luna)
 class LunaAdapter(unittest.TestCase):
+ def test_relative_output_path_stays_valid_after_child_changes_directory(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   out=Path(tmp)/'nested'/'run';out.mkdir(parents=True)
+   relative=Path(os.path.relpath(out))
+   command=luna.command_for('/bin/codex',relative,[])
+   destination=Path(command[command.index('-o')+1])
+   self.assertTrue(destination.is_absolute())
+   self.assertEqual(destination.parent,out.resolve())
+   (out/destination).write_text('Actual child output')
+   self.assertEqual((out/'answer.md').read_text(),'Actual child output')
  def test_fresh_config_option_is_explicit_and_does_not_change_the_requested_model(self):
   ordinary=luna.command_for('/bin/codex',Path('/tmp/output'),[])
   fresh=luna.command_for('/bin/codex',Path('/tmp/output'),[],True)
