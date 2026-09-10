@@ -1,5 +1,5 @@
 ---
-name: web-atlas-motion
+name: seenry-motion
 description: "Research or implement web interactions using Seenry website recordings and creator motion references. Use for entrances, hover states, scrolling, transitions and component animation; distinguish observed motion from static screenshots."
 license: MIT
 metadata:

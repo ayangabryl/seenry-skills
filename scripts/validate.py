@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 from jsonschema import Draft202012Validator
 root=Path(__file__).resolve().parents[1]
-contract=json.loads((root/'skills/web-atlas-usage/references/mcp-tools.json').read_text())
+contract=json.loads((root/'skills/seenry-usage/references/mcp-tools.json').read_text())
 tools={t['name']:t for t in contract['tools']}
 for tool in tools.values():Draft202012Validator.check_schema(tool['inputSchema'])
 skills={}

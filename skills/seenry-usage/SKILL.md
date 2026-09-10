@@ -1,5 +1,5 @@
 ---
-name: web-atlas-usage
+name: seenry-usage
 description: "Research website design, page sections, motion references, branding and presentation decks using Seenry. Use when the user wants design inspiration or evidence from the Seenry library."
 license: MIT
 metadata:
@@ -9,7 +9,7 @@ metadata:
 
 # Research with Seenry
 
-Seenry was previously called Web Atlas. Existing `web-atlas-*` skill IDs and the `web-atlas` MCP connection key remain supported.
+Seenry was previously called Web Atlas. Use the canonical `seenry-*` skills. Existing `web-atlas` MCP connection keys and old resource links remain compatible.
 
 Use the public MCP at `https://seenry.ayangabryl.com/mcp`. It serves the published library without an SSH tunnel. The same connection covers websites, sections, motion, branding and decks. If it is unavailable, report the lookup limitation; do not invent library results or install another service implicitly.
 

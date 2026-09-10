@@ -1,5 +1,5 @@
 ---
-name: web-atlas-decks
+name: seenry-decks
 description: "Research presentation decks in Seenry, preserving slide order, narrative roles and source metadata. Use for pitch deck inspiration, presentation structure or slide design; brand identity guidelines use branding research."
 license: MIT
 metadata:

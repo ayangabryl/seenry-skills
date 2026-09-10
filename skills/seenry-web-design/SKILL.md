@@ -1,5 +1,5 @@
 ---
-name: web-atlas-web-design
+name: seenry-web-design
 description: "Build or improve a website using inspected Seenry references, responsive screenshots and observed design tokens. Use for web implementation or visual refinement; retain the project stack and the user\u2019s brand direction."
 license: MIT
 metadata:

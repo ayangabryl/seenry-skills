@@ -1,5 +1,5 @@
 ---
-name: web-atlas-branding
+name: seenry-branding
 description: "Research brand identity systems and guidelines from Seenry, including color, typography, imagery and applications. Use for branding inspiration or translating a provided brand system; presentation narrative belongs to deck research."
 license: MIT
 metadata:
