@@ -4,7 +4,7 @@ description: "Research, design and build distinctive websites, product interface
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.8"
+  version: "2.0.0-dev.9"
 ---
 
 # Seenry
@@ -17,6 +17,7 @@ The design process is backstage. Grids, review gates, numbered alternatives, tok
 
 - **Research:** load [research](references/research.md), inspect the requested evidence and return the comparison. Do not build an unrequested site.
 - **Narrow fix:** inspect the affected state, apply [visual decisions](references/visual-decisions.md) and [interaction review](references/interaction-review.md) where relevant, then verify the change. Do not restart the entire design process.
+- **Component:** read [component design](references/component-design.md) first, then apply the stages to the object and its states. Establish its host and footprint; keep preview scaffolding outside the product. A component request does not automatically include a new brand or landing page.
 - **Product system or connected screens:** load [system design](references/system-design.md). Establish journeys and shared decisions, then apply the stages to representative slices. Compare alternatives for the unresolved journey, not three entire applications. Track system coverage separately from a completed slice.
 - **New interface or substantial redesign:** follow the stages below. A simple prompt is sufficient. Infer reasonable context and ask a consequential question only when an unknown materially changes the result. Honor existing authorization; planning is not an automatic approval pause.
 
@@ -29,7 +30,7 @@ The design process is backstage. Grids, review gates, numbered alternatives, tok
 Before expanding a concept, resolve a representative finished slice: actual copy/type/material, decisive controls, narrow layout and the important transition. Record what survived comparison; a wireframe alone does not establish its finish.
 
 5. **Compare.** Load [visual review](references/visual-review.md). Inspect anonymous renders against the brief and task, withholding the creator's sales pitch. When an authorized fresh review context is available, use it; otherwise label self-review. Review the opening at ordinary viewport size before the full page, then narrow layout and behavior. Evaluate subject fit, visual hierarchy, visible work and surface/control craft separately. A relative winner can still be unacceptable: reject every option when necessary and use one direction reset. Do not let passing functional checks or a persuasive style name excuse a failed visual criterion. A star-rated reference is a comparison standard, not certification of the output.
-6. **Build the sequence.** Update DESIGN.md with the selection, evidence and tradeoffs. Reopen the selected wide/narrow renders and record three visible relationships to retain; keep these images available while building and reviewing. Carry those relationships through hero, body, pricing, navigation, footer and all requested states. Investigate accidental convergence with relevant recent work across unrelated briefs; useful shared controls are not a failure. Keep real provider marks, truthful wording and a coherent fallback when assets or motion fail.
+6. **Build the requested scope.** Update DESIGN.md with the selection, evidence and tradeoffs. Reopen the selected wide/narrow renders and record three visible relationships to retain; keep these images available while building and reviewing. For a component, carry them through its required states and host sizes. For a website, carry them through the requested page sequence. For a product system, carry shared decisions through connected journeys. Investigate accidental convergence with relevant recent work across unrelated briefs; useful shared controls are not a failure. Keep real provider marks, truthful wording and a coherent fallback when assets or motion fail.
 7. **Exercise and refine.** Load [production review](references/production-review.md) and [quality diagnosis](references/quality-diagnosis.md). Complete the main path, mistaken input and recovery; inspect wide/narrow layouts, keyboard, reduced motion and transition midpoints. Review the whole page as well as the hero and watch motion at normal speed. For an ambiguous defect, render a controlled alternative changing only the suspected cause. Allow two repair passes, preserve failures, and report incomplete or unverified work explicitly. Functional verification, author visual review and user acceptance are separate outcomes.
 
 ## Load only the needed support

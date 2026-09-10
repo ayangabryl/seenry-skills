@@ -4,7 +4,7 @@ description: "Source and integrate images, fonts, provider marks, icons, illustr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.8"
+  version: "2.0.0-dev.9"
 ---
 
 # Make assets serve the subject
@@ -36,3 +36,7 @@ Render shortlisted fonts with actual headings, labels, long text, numerals and p
 Use SVG for purposeful vector illustration, Lottie for appropriate authored sequences, video for footage and 3D for spatial interaction when a proof demonstrates acceptable quality. Inspect Lottie bounds, assets, loop endpoints and actual player compatibility. A poster cannot establish timing. Use **seenry-motion** for recording study, motion direction and implementation. Heavy media needs intrinsic dimensions, a coherent poster/fallback and input that remains usable while loading.
 
 Put candidates in the real layout. Compare desktop/mobile crops, copy contrast, focal visibility, collection coherence and neighboring sections. Reject an attractive image if it fails its job. Keep required attribution with the shipped work. Record each selected item's source, author, license/permission evidence, intended use, modifications, local file, bytes and fallback in the existing manifest or `asset-manifest.json`. Keep analysis-only reference media out of production. A manifest is provenance evidence, not automatic legal or visual certification.
+
+## Read the interface, not the distribution bundle
+
+For a bundled font or icon runtime, use its version/license manifest and the documented API or small authored adapter. Do not print a minified library, font binary, source map or entire generated icon catalog into the model context. A short line-based read can still dump hundreds of kilobytes from a one-line bundle. Look up only the required icon names or inspect the rendered result; reading the entire vendor file does not establish correct use. Keep reference research and source-code inspection tied to the current decision.

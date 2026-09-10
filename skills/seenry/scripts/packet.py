@@ -68,6 +68,9 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     if project is not None and project.get('scope') == 'component' and stage in ('plan', 'type', 'surface', 'prototype', 'build', 'refine'):
         paths += [root / 'references/content-and-finish.md']
         decisions.append('Component identity and content hierarchy remain available while planning and applying the finish')
+    if project is not None and project.get('scope') == 'component':
+        paths += [root / 'references/component-design.md']
+        decisions.append('Component scope: preserve its containing context and states; do not silently expand into a landing page')
     if project is not None and project.get('scope') == 'system':
         paths += [root / 'references/system-design.md']
         decisions.append('System scope: carry shared decisions and journey context; a finished slice does not certify the whole application')

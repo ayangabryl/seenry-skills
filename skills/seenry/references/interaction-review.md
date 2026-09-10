@@ -28,3 +28,10 @@ Check press, pending, success and failure. A success icon follows real completio
 - Essential media, fonts and ordinary actions remain usable during loading/failure.
 
 Separate deterministic assertions, visual observations, heuristic interpretation and user acceptance. Name unsupported environments and incomplete checks. Rendering a screenshot is not production-readiness evidence.
+## Verify the behavior promised by a control's role
+
+A painted group of buttons with `role="radio"` still needs the radio group's keyboard behavior. In an ordinary group, arrow keys move selection/focus, Space selects, and Tab enters/leaves the group. Toolbar radio groups have different arrow behavior; use the appropriate [W3C pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/). Native radio inputs can retain that behavior under a custom visual treatment, or use the project's established headless control. Do not hide focusable native inputs with `display:none` and assume the behavior survives.
+
+The fresh exporter looked like segmented choices but implemented only click handlers; its arrow-key checks failed at both widths. Check the chosen interaction with actual input, rather than inferring correctness from ARIA attributes, the presence of event handlers or a working mouse click.
+
+Describe only the completion the application can observe. Dispatching a browser download establishes a handoff, not that the person saved the file to disk. “Download started” can acknowledge that result without an invented delay. Preserve settings and offer recovery when preparation fails; asynchronous changes must not overwrite a newer selection with stale state.

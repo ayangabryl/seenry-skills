@@ -6,6 +6,13 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 s=importlib.util.spec_from_file_location('luna',ROOT/'scripts/luna_stage.py');luna=importlib.util.module_from_spec(s);s.loader.exec_module(luna)
 class LunaAdapter(unittest.TestCase):
+ def test_fresh_config_option_is_explicit_and_does_not_change_the_requested_model(self):
+  ordinary=luna.command_for('/bin/codex',Path('/tmp/output'),[])
+  fresh=luna.command_for('/bin/codex',Path('/tmp/output'),[],True)
+  self.assertNotIn('--ignore-user-config',ordinary)
+  self.assertIn('--ignore-user-config',fresh)
+  self.assertEqual(fresh[fresh.index('-m')+1],'gpt-5.6-luna')
+  self.assertIn('--ephemeral',fresh)
  def test_explicit_image_order_is_the_actual_cli_order(self):
   with tempfile.TemporaryDirectory() as tmp:
    r=Path(tmp)
