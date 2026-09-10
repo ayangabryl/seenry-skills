@@ -20,10 +20,17 @@ ROLES = {
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def disposition(report, root):
+def disposition(report, root, construction=False):
     spec = importlib.util.spec_from_file_location('seenry_review_disposition', Path(__file__).with_name('review_gate.py'))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    if construction:
+        result = module.evaluate(report, root, criteria=('content', 'hierarchy', 'geometry'))
+        # This reviews the whole current layer, not a premature final selection.
+        if len(report['candidates']) != 1 or report['candidates'][0]['id'] != 'study':
+            raise ValueError('A construction judgment assesses one study containing the current alternatives')
+        result['status'] = 'ready-for-next-layer' if result['status'] == 'ready-for-human-review' else 'needs-layer-revision'
+        return result
     return module.evaluate(report, root)
 
 
@@ -55,7 +62,7 @@ def initialize(root, project):
     if project['motion'] not in ('signature', 'feedback', 'none', 'undecided'): raise ValueError('Invalid motion need')
     if project['research_source'] not in ('auto', 'mcp', 'web', 'local'): raise ValueError('Invalid research route')
     root.mkdir(parents=True, exist_ok=True)
-    data = {'schema': 2, 'project': project, 'started': time.time(), 'events': [],
+    data = {'schema': 3, 'project': project, 'started': time.time(), 'events': [],
             'resets': 0, 'repairs': 0, 'status': 'in-progress',
             'limitations': ['Protocol evidence is not proof of taste, model identity or human acceptance.']}
     save(root, data)
@@ -76,11 +83,14 @@ def record(root, stage, submission):
     events = data['events']
     previous = events[-1]['stage'] if events else None
     expected = ORDER[ORDER.index(previous) + 1] if previous and previous != 'review' else ('understand' if previous is None else None)
-    reset = previous in ('compare', 'review') and stage == 'plan'
+    construction = data.get('schema', 1) >= 3
+    reset = previous in (('wireframe', 'type', 'compare', 'review') if construction else ('compare', 'review')) and stage == 'plan'
     repair = (previous == 'review' and stage == 'build') or (previous == 'compare' and stage == 'surface' and data.get('schema', 1) >= 2)
-    refresh = data.get('schema', 1) >= 2 and previous in ('compare', 'review') and stage == previous and submission.get('mode') == 'evidence-refresh'
+    repair = repair or (construction and previous in ('wireframe','type') and stage == previous and submission.get('mode') == 'layer-repair')
+    refresh = data.get('schema', 1) >= 2 and previous in (('wireframe', 'type', 'compare', 'review') if construction else ('compare', 'review')) and stage == previous and submission.get('mode') == 'evidence-refresh'
     if refresh:
-        source_event = next((e for e in reversed(events) if e['stage'] in ('surface', 'build')), None)
+        source_stages = (previous,) if previous in ('wireframe','type') else ('surface','build')
+        source_event = next((e for e in reversed(events) if e['stage'] in source_stages), None)
         sources = [e for e in source_event['evidence'] if e['role'] == 'source'] if source_event else []
         if not sources:
             raise ValueError('Evidence refresh needs a recorded source to verify')
@@ -94,6 +104,9 @@ def record(root, stage, submission):
         if data['repairs'] >= 2: raise ValueError('Repair passes exhausted')
     elif stage != expected:
         raise ValueError(f'Expected {expected}, received {stage}')
+    if construction and previous in ('wireframe','type') and stage == expected:
+        if (events[-1].get('review_disposition') or {}).get('status') != 'ready-for-next-layer':
+            raise ValueError('Construction checkpoint is unresolved. Repair this layer or reset the direction before advancing.')
     if data.get('schema', 1) >= 2 and previous == 'compare' and stage == 'build':
         if (events[-1].get('review_disposition') or {}).get('status') != 'ready-for-human-review':
             raise ValueError('Comparison is not cleared. Repair the surface and compare again, or use the direction reset; continue_with is not acceptance.')
@@ -101,6 +114,7 @@ def record(root, stage, submission):
     if not isinstance(submission.get('observation'), str) or not submission['observation'].strip():
         raise ValueError('Record the observable outcome, not only file paths')
     requirements = dict(ROLES[stage])
+    if construction and stage in ('wireframe','type'): requirements['judgment'] = 1
     project = data['project']
     if stage == 'research' and project['media'] != 'none': requirements['material'] = 1
     if stage == 'plan' and project['motion'] in ('signature', 'undecided'): requirements['score'] = 1
@@ -139,11 +153,16 @@ def record(root, stage, submission):
                     raise ValueError('Each concept needs id, idea, evidence and risk')
             if len({c['id'] for c in concepts}) != 3: raise ValueError('Concept ids must differ')
     judged = None
-    if data.get('schema', 1) >= 2 and stage in ('compare', 'review'):
+    if data.get('schema', 1) >= 2 and (stage in ('compare', 'review') or (construction and stage in ('wireframe','type'))):
         judgments = artifacts.get('judgment', [])
         if judgments:
             if len(judgments) != 1: raise ValueError('Use one canonical five-criterion judgment per comparison or review')
-            judged = disposition(json.loads((root / judgments[0]).read_text(encoding='utf-8')), root)
+            report = json.loads((root / judgments[0]).read_text(encoding='utf-8'))
+            if construction and stage in ('wireframe','type'):
+                expected_sources = {p.relative_to(root.resolve()).as_posix():digest(p) for role,p in prepared if role == 'source'}
+                if not expected_sources or report.get('reviewed_sources') != expected_sources:
+                    raise ValueError('Construction review must name the exact current source paths and hashes')
+            judged = disposition(report, root, construction=construction and stage in ('wireframe','type'))
             # Preserve the exact cited evidence as well as the review that refers to it.
             included = {path for _, path in prepared}
             for citation in judged['evidence']:
@@ -168,6 +187,7 @@ def record(root, stage, submission):
         if data.get('schema', 1) >= 2:
             event['review_disposition'] = judged
             if refresh: event['mode'] = 'evidence-refresh'
+            elif submission.get('mode') == 'layer-repair': event['mode'] = 'layer-repair'
         events.append(event)
         data['resets'] += int(reset); data['repairs'] += int(repair)
         current_stages = {e['stage']: e for e in events}
@@ -179,6 +199,8 @@ def record(root, stage, submission):
         data['status'] = 'ready-for-human-review' if ready else ('needs-revision' if stage == 'review' else 'in-progress')
         if data.get('schema', 1) >= 2 and stage == 'compare' and (not judged or judged['status'] != 'ready-for-human-review'):
             data['status'] = 'needs-prototype-revision'
+        if construction and stage in ('wireframe','type') and (not judged or judged['status'] != 'ready-for-next-layer'):
+            data['status'] = 'needs-layer-revision'
         data['elapsed_seconds'] = time.time() - data['started']
         if data['elapsed_seconds'] > project.get('budget_seconds', 2400): data['status'] = 'incomplete-budget'
         save(root, data)

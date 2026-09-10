@@ -16,7 +16,7 @@ STAGES = {
     'review': ['visual-review.md', 'quality-diagnosis.md', 'production-review.md'],
     'refine': ['content-and-finish.md', 'visual-review.md', 'interaction-review.md', 'visual-decisions.md', 'color-decisions.md'],
 }
-DEPENDENCIES = {'content-and-finish.md': ['studies/hoy.md'], 'visual-review.md': ['visual-lessons.md']}
+DEPENDENCIES = {'content-and-finish.md': ['studies/hoy.md'], 'visual-review.md': ['visual-lessons.md'], 'component-design.md': ['content-model.md']}
 SOURCES = {
     'auto': 'Use an available evidence route; MCP is optional. Record the actual route.',
     'mcp': 'Use connected MCP for research; if unavailable report it and explicitly change route.',
@@ -44,6 +44,14 @@ FOCUSED_STAGES = {
     'refine': ['visual-review.md', 'visual-decisions.md'],
 }
 
+# Component scope substitutes its own decision guides; it is not a website packet
+# with a component warning appended after hero/brand/section instructions.
+COMPONENT_REPLACEMENTS = {
+    'art-direction.md': ['component-design.md'],
+    'design-record.md': ['component-record.md'],
+    'content-and-finish.md': ['component-design.md'],
+}
+
 def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source='auto', project=None, profile='complete'):
     if research_source not in SOURCES:
         raise ValueError(f'Unknown research source: {research_source}')
@@ -64,10 +72,15 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
             if project['media'] != 'none': assets = True; decisions.append('Material guidance loaded before committing to image-led direction')
             if project['motion'] != 'none' and stage != 'type': motion = True; decisions.append('Motion direction available during planning')
         if stage == 'type': assets = True; decisions.append('Actual typography shortlist guidance selected')
-    paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in (FOCUSED_STAGES if focused else STAGES)[stage]]
-    if project is not None and project.get('scope') == 'component' and stage in ('plan', 'type', 'surface', 'prototype', 'build', 'refine'):
-        paths += [root / 'references/content-and-finish.md']
-        decisions.append('Component identity and content hierarchy remain available while planning and applying the finish')
+    selected = (FOCUSED_STAGES if focused else STAGES)[stage]
+    component = project is not None and project.get('scope') == 'component'
+    if component:
+        selected = [name for p in selected for name in COMPONENT_REPLACEMENTS.get(p,[p])]
+        decisions.append('Component-specific guides replace website argument, hero and page-record guidance')
+    paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in selected]
+    if component and stage == 'plan':
+        paths += [root / 'references/component-record.md', root / 'references/color-decisions.md']
+        decisions.append('Resolve inherited versus invented color identity before component concepts')
     if project is not None and project.get('scope') == 'component':
         paths += [root / 'references/component-design.md']
         decisions.append('Component scope: preserve its containing context and states; do not silently expand into a landing page')
@@ -130,7 +143,7 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         if stage in ('research', 'plan'):
             paths += [root.parent / 'seenry-assets/assets/candidates.example.json']
         if stage in ('research','plan','surface','build','review','refine'):
-            paths += [root.parent / 'seenry-assets/references/material-production.md']
+            paths += [root.parent / ('seenry-assets/references/object-material.md' if component else 'seenry-assets/references/material-production.md')]
     # Resolve declared dependencies recursively; arbitrary prose links are progressive reading.
     pending = list(paths)
     seen = set()

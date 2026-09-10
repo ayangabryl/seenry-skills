@@ -33,6 +33,7 @@ class Execution(unittest.TestCase):
         if stage == 'plan': roles['score'] = 1
         if stage == 'surface': roles['crop'] = 1
         if stage == 'review': roles['recording'] = 1
+        if stage in ('wireframe','type'): roles['judgment'] = 1
         artifacts = {}
         for role, count in roles.items():
             artifacts[role] = []
@@ -49,6 +50,9 @@ class Execution(unittest.TestCase):
             image_name=f'{stage}-citation.png'
             (self.root/image_name).write_bytes((ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes())
             report={'candidates':[{'id':'A','checks':{k:{'result':'pass','artifact':image_name,'observation':'Fixture judgment, not a real visual evaluation'} for k in ('subject','opening','hierarchy','material','interaction')},'blocking_issues':[]}],'selected':'A'}
+            (self.root/artifacts['judgment'][0]).write_text(json.dumps(report))
+        if stage in ('wireframe','type'):
+            report={'reviewed_sources':{name:workflow.digest(self.root/name) for name in artifacts['source']},'candidates':[{'id':'study','checks':{k:{'result':'pass','artifact':artifacts['render'][0],'observation':'Fixture layer observation, not visual acceptance'} for k in ('content','hierarchy','geometry')},'blocking_issues':[]}],'selected':'study'}
             (self.root/artifacts['judgment'][0]).write_text(json.dumps(report))
         return {'observation':'Fixture record, not visual inspection','artifacts':artifacts,
                 'reviewer':'test fixture','checks':dict.fromkeys(('functional','visual','motion','material'),'pass')}
@@ -93,11 +97,62 @@ class Execution(unittest.TestCase):
         self.assertFalse(any(r['path'].startswith('seenry-assets') for r in result['resources']))
         typed=packet.compile_packet('type',project={'media':'none','motion':'feedback'})
         self.assertIn('seenry-assets/assets/type.example.json',[r['path'] for r in typed['resources']])
+
+    def test_component_routing_replaces_website_guidance_while_retaining_task_and_material(self):
+        project={'scope':'component','brief':'Export this photograph','media':'needed','motion':'feedback','retained_behavior':['Keep the selected width after failure']}
+        for profile in ('complete','focused'):
+            for stage in ('plan','wireframe','type','surface','build','refine'):
+                packet_result=packet.compile_packet(stage,project=project,profile=profile)
+                names={r['path'] for r in packet_result['resources']}
+                self.assertIn('seenry/references/content-model.md',names)
+                self.assertNotIn('seenry/references/art-direction.md',names)
+                self.assertNotIn('seenry/references/content-and-finish.md',names)
+                self.assertNotIn('seenry/references/studies/hoy.md',names)
+                self.assertEqual(packet_result['project_decisions']['retained_behavior'],project['retained_behavior'])
+            plan=packet.compile_packet('plan',project=project,profile=profile)
+            names={r['path'] for r in plan['resources']}
+            self.assertIn('seenry/references/component-record.md',names)
+            self.assertIn('seenry/references/color-decisions.md',names)
+            self.assertIn('seenry-assets/references/object-material.md',names)
+        website=packet.compile_packet('plan',project={**project,'scope':'website'})
+        names={r['path'] for r in website['resources']}
+        self.assertIn('seenry/references/art-direction.md',names)
+        self.assertIn('seenry-assets/references/material-production.md',names)
     def test_expired_budget_stops_new_artifact_records(self):
         data=workflow.load_run(self.root)
         with patch.object(workflow.time,'time',return_value=data['started']+2401):
             with self.assertRaisesRegex(ValueError,'budget exhausted'):workflow.record(self.root,'understand',self.submission('understand'))
         result=workflow.load_run(self.root);self.assertEqual(result['status'],'incomplete-budget');self.assertEqual(result['events'],[])
+
+    def test_unresolved_type_layer_blocks_surface_and_preserves_bounded_repair(self):
+        for stage in workflow.ORDER[:4]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('type');p=self.root/s['artifacts']['judgment'][0];report=json.loads(p.read_text())
+        report['candidates'][0]['checks']['content']['result']='revise';p.write_text(json.dumps(report))
+        result=workflow.record(self.root,'type',s)
+        self.assertEqual(result['status'],'needs-layer-revision')
+        with self.assertRaisesRegex(ValueError,'Construction checkpoint is unresolved'):
+            workflow.record(self.root,'surface',self.submission('surface'))
+        s=self.submission('type');s['mode']='layer-repair'
+        result=workflow.record(self.root,'type',s)
+        self.assertEqual(result['repairs'],1)
+        self.assertEqual(result['events'][-1]['review_disposition']['status'],'ready-for-next-layer')
+        self.assertEqual(result['events'][-2]['review_disposition']['status'],'needs-layer-revision')
+        workflow.record(self.root,'surface',self.submission('surface'))
+
+    def test_missing_layer_review_is_recorded_but_cannot_advance(self):
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');s['artifacts'].pop('judgment');s['unavailable']={'judgment':'Actual layer inspection unavailable'}
+        workflow.record(self.root,'wireframe',s)
+        with self.assertRaisesRegex(ValueError,'Construction checkpoint is unresolved'):
+            workflow.record(self.root,'type',self.submission('type'))
+        result=workflow.record(self.root,'plan',self.submission('plan'))
+        self.assertEqual(result['resets'],1)
+
+    def test_stale_layer_source_cannot_be_submitted_as_reviewed(self):
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');(self.root/s['artifacts']['source'][0]).write_text('Changed after the review')
+        with self.assertRaisesRegex(ValueError,'exact current source'):
+            workflow.record(self.root,'wireframe',s)
 
     def test_system_scope_carries_shared_decisions_without_expanding_component_packets(self):
         project={'scope':'system','media':'none','motion':'feedback','shared_decisions':{'version':'one','navigation':['Library','Settings'],'state_owner':'selected account'}}

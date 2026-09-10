@@ -8,7 +8,7 @@ CRITERIA = ('subject', 'opening', 'hierarchy', 'material', 'interaction')
 RESULTS = {'pass', 'revise', 'fail', 'unverified'}
 
 
-def evaluate(report, root):
+def evaluate(report, root, criteria=CRITERIA):
     root = Path(root).resolve()
     candidates = report.get('candidates')
     if not isinstance(candidates, list) or not candidates:
@@ -20,7 +20,7 @@ def evaluate(report, root):
             raise ValueError('Candidate ids must be nonempty and unique')
         identities.add(identity)
         checks = candidate.get('checks', {})
-        if set(checks) != set(CRITERIA):
+        if set(checks) != set(criteria):
             raise ValueError(f'{identity}: every visual criterion must be assessed separately')
         blockers = candidate.get('blocking_issues')
         if not isinstance(blockers, list) or any(not isinstance(x, str) or not x.strip() for x in blockers):

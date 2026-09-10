@@ -1,5 +1,9 @@
 # Design the component in its host
 
+Use the [content model](content-model.md) to resolve the visible information, image job, control groups and provisional footprint before naming a visual theme. Carry that inventory into the typography checkpoint and compare it with the rendered component.
+
+Use the [component record](component-record.md) for its DESIGN.md. Website opening, service-proof, brand-manifesto and footer exercises belong to website work; they do not become component requirements because the general skill covers both scopes.
+
 Establish what the person is handling: one image, a selected track, an appointment, a list or a comparison. Record where the component lives and the surrounding information it can inherit. When no host is supplied, use a quiet preview canvas and record the assumed containing width. A component request does not itself require a brand, navigation, promotional introduction or page footer. A requested standalone tool or landing page can legitimately need that larger frame.
 
 Treat the object's content and its action as the starting material. Name the object/task once, show metadata that changes a choice, and group controls by their effect. Keep preview-host explanations, provenance and test controls outside the component. Do not inflate the component to fill a desktop screenshot. Resolve its actual footprint and narrow behavior, then show it at that scale in the preview.

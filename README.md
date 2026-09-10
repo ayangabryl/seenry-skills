@@ -12,7 +12,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.9**, a development candidate; main and released versions may differ. From this checkout:
+The consolidation is **2.0.0-dev.10**, a development candidate; main and released versions may differ. From this checkout:
 
 ```sh
 python scripts/install.py --apply
@@ -89,3 +89,5 @@ MCP resource documents are deployed separately in the server repository. This pa
 The current development evidence is mixed: a user preferred the Seenry scheduler, preferred the packing baseline, and rejected both Luna website and exporter pairs. Recent changes target actual image delivery, source-preserving evidence refresh, scoped human-feedback examples and motion-helper handoff. This candidate does not establish consistent output quality or superiority over other skills.
 
 For multi-screen applications, the [system design guide](skills/seenry/references/system-design.md) maps journeys, shared component/state decisions and representative screen families. The workflow scales through bounded connected slices; whole-system coverage remains explicit. Large-system output quality has not been benchmarked.
+
+The current candidate adds a content model before layout, source-bound wireframe/type review, and a browser-side inventory of visible copy and geometry. Layer failures now block recorder advancement. Negative lesson images are explicitly labeled; an optional text-only delivery mode is experimental. The latest exporter development trials still showed repeated information and overlarge footprints, so these changes are not a new quality claim.

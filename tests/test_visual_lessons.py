@@ -46,7 +46,7 @@ class VisualLessons(unittest.TestCase):
     self.assertEqual(lesson['id'],'export-feedback')
     self.assertEqual({x['human_decision'] for x in lesson['feedback_record']['record']['artifacts']},{'reject'})
     if stage in ('plan','type','surface','build','refine'):
-     self.assertIn('seenry/references/content-and-finish.md',[r['path'] for r in p['resources']])
+     self.assertIn('seenry/references/content-model.md',[r['path'] for r in p['resources']])
  def test_blinding_hides_labels_and_original_filenames(self):
   with tempfile.TemporaryDirectory() as tmp:
    source=Path(tmp);(source/'obvious-good.png').write_bytes((lessons.ROOT/'state-B.png').read_bytes())

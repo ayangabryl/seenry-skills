@@ -13,10 +13,14 @@ flowchart TD
   M[Optional Seenry MCP: inspected references and reviews] --> R
   L[Local studies, supplied files or public sources] --> R
   R --> E[Separate observation, curator reason and inference]
-  E --> P[DESIGN.md: three arguments, real material, page narrative]
+  E --> P[DESIGN.md: information jobs, three relationships, material and sequence]
   P --> W[Working wireframes]
-  W --> T[Actual typography and content]
-  T --> V[Controlled surfaces, assets and interaction proofs]
+  W --> WG{Content, hierarchy and geometry resolved?}
+  WG -->|Repair or one direction reset| P
+  WG -->|Current layer cleared| T[Actual typography and content]
+  T --> TG{Inspect actual labels, proportions and boundaries}
+  TG -->|Repair within shared budget| T
+  TG -->|Current layer cleared| V[Controlled surfaces, assets and interaction proofs]
   CL[Local color lab: same content, different role palettes] --> V
   VL[Small local decision lessons] --> V
   V --> C{Five-criterion rendered comparison}
@@ -82,7 +86,9 @@ Planning records are backstage tools. The visitor sees the actual offering, visi
 
 ## Evidence and progression in the development candidate
 
-New `workflow.py` runs use schema 2. It reads the canonical five-criterion comparison before allowing expansion; a `continue_with` repair direction cannot bypass a failed or unknown criterion. A surface repair returns to comparison and shares the same two-repair ceiling as final fixes. The recorder snapshots the exact cited artifacts. Schema 1 histories remain readable for reproduction. This checks the consistency of judgments and progression; it does not make model judgments accurate.
+New `workflow.py` runs use schema 3. Wireframe and type judgments assess content, hierarchy and geometry against the exact submitted source hashes. An unresolved layer cannot advance. A layer repair, surface repair and final fix share the two-repair ceiling; a direction reset is available once. The canonical five-criterion comparison still blocks expansion of an unresolved surface. The recorder snapshots exact cited artifacts. Schema 1–2 histories remain readable for reproduction. This checks consistency and progression; it does not make model judgments accurate.
+
+The [content model](skills/seenry/references/content-model.md) connects actual information to visible, disclosed, inherited or change-only placement. Material gets a task-specific job before its scale is chosen. `visual_inventory.mjs` gives the reviewer rendered labels, styles, geometry and boundary observations beside captures. These can expose a recurring defect that a fluent overall critique misses; there is no automatic slop score. An experimental text-only lesson mode records withheld images to test reference anchoring without silently dropping guidance.
 
 `review_request.py` supplies distinct opening, narrow and full-sequence views, anonymous image filenames, an explicit behavior record and every criterion expected by `review_gate.py`. `reviewer_probe.py` tests order stability and can compare against separately collected human choices. Original mechanical lessons, observed user preferences and unseen evaluation cases have different evidence roles.
 

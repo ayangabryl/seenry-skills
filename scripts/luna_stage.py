@@ -21,7 +21,7 @@ def explicit_images(manifest, allowed):
         if isinstance(value, dict):
             if set(value) != {'path', 'role'}: raise ValueError('Image records require path and role only')
             role, value = value['role'], value['path']
-        if not isinstance(value, str) or role not in ('unspecified', 'source-material', 'construction', 'candidate', 'reference', 'interaction'):
+        if not isinstance(value, str) or role not in ('unspecified', 'source-material', 'construction', 'candidate', 'reference', 'interaction', 'rejected-example'):
             raise ValueError('Invalid image path or evidence role')
         path = (manifest.parent / value).resolve()
         if not path.is_file() or not any(path.is_relative_to(root) for root in allowed):

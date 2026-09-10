@@ -30,12 +30,24 @@ class StageRequest(unittest.TestCase):
             self.assertIn('Clean but insufficiently creative',prompt)
             self.assertIn('Keep color and aspect ratio',prompt)
             self.assertEqual(len(manifest['images']),4)
+            self.assertEqual({x['role'] for x in manifest['images']},{'rejected-example'})
             for image in manifest['images']:
                 self.assertEqual(hashlib.sha256((out/image['file']).read_bytes()).hexdigest(),image['sha256'])
             for item in manifest['runtime_files']:
                 self.assertEqual(hashlib.sha256((out/'runtime'/item['path']).read_bytes()).hexdigest(),item['sha256'])
             self.assertTrue((out/'runtime/seenry-motion/assets/morphicons/LICENSE').is_file())
             self.assertEqual(manifest['status'],'prepared; not executed')
+
+    def test_text_only_experiment_keeps_feedback_and_records_withheld_pixels(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out=Path(tmp)/'handoff'
+            manifest=request.prepare('build',self.project(),'Finish',out,lesson_images='text-only')
+            self.assertEqual(manifest['images'],[])
+            self.assertEqual(len(manifest['withheld_images']),4)
+            self.assertIn('Clean but insufficiently creative',(out/'prompt.txt').read_text())
+            self.assertEqual(json.loads((out/'images.json').read_text()),[])
+            self.assertFalse((out/'evidence').exists())
+            self.assertTrue((out/'runtime/seenry-motion/assets/morphicons/LICENSE').is_file())
 
     def test_original_asset_and_construction_keep_distinct_ordered_roles(self):
         with tempfile.TemporaryDirectory() as tmp:
