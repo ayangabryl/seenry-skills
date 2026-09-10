@@ -51,7 +51,7 @@ class Installation(unittest.TestCase):
         self.assertFalse(installer.exists(old))
         self.assertFalse(installer.exists(alias))
         backup = manifest.parent / 'entries/codex/design-judgment'
-        self.assertEqual((backup / 'runtime.py').read_text(), 'preserve this tool')
+        self.assertEqual((backup / 'runtime.py').read_text(encoding='utf-8'), 'preserve this tool')
         for name in installer.NAMES:
             canonical = self.home / '.agents/skills' / name
             for agent in installer.AGENTS[1:]:
@@ -59,8 +59,8 @@ class Installation(unittest.TestCase):
         self.assertEqual(installer.plan(self.home, migrate=True)['status'], 'unchanged')
         installer.undo(plan, manifest.parent)
         self.assertTrue(alias.is_symlink())
-        self.assertEqual((old / 'SKILL.md').read_text(), 'old entrypoint')
-        self.assertEqual((unrelated / 'SKILL.md').read_text(), 'keep me')
+        self.assertEqual((old / 'SKILL.md').read_text(encoding='utf-8'), 'old entrypoint')
+        self.assertEqual((unrelated / 'SKILL.md').read_text(encoding='utf-8'), 'keep me')
     def test_copy_mode_and_upgrade_rollback(self):
         first = installer.plan(self.home, link_mode='copy')
         installer.apply(first)
@@ -75,18 +75,18 @@ class Installation(unittest.TestCase):
         plan = installer.plan(self.home)
         manifest = installer.apply(plan)
         target = self.home / '.agents/skills/seenry/SKILL.md'
-        target.write_text(target.read_text() + '\nUser edit\n')
+        target.write_text(target.read_text(encoding='utf-8') + '\nUser edit\n', encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'content changed'):
             installer.undo(plan, manifest.parent)
         self.assertTrue((self.home / '.codex/skills/seenry').is_symlink())
-        self.assertIn('User edit', target.read_text())
+        self.assertIn('User edit', target.read_text(encoding='utf-8'))
     def test_failed_symlink_creation_restores_all_old_content(self):
         old, alias = self.legacy()
         plan = installer.plan(self.home, migrate=True)
         with patch.object(Path, 'symlink_to', side_effect=OSError('no symlink privilege')):
             with self.assertRaises(OSError):
                 installer.apply(plan)
-        self.assertEqual((old / 'runtime.py').read_text(), 'preserve this tool')
+        self.assertEqual((old / 'runtime.py').read_text(encoding='utf-8'), 'preserve this tool')
         self.assertTrue(alias.is_symlink())
         self.assertFalse((self.home / '.agents/skills/seenry').exists())
     def test_missing_source_rejected_before_migration(self):
