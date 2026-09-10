@@ -27,7 +27,10 @@ export function collectVisualInventory(root = document.body, limit = 250) {
       texts.push({...locator(el), text: direct, rendered, box, font: style.fontFamily, size: style.fontSize, weight: style.fontWeight, lineHeight: style.lineHeight, letterSpacing: style.letterSpacing, textTransform: style.textTransform, color: style.color});
     }
     if (el.matches('button,a[href],input:not([type=hidden]),select,textarea,[role=button],[role=radio],[role=checkbox],[role=slider],[role=switch]')) {
-      controls.push({...locator(el), text: (el.getAttribute('aria-label') || el.innerText || el.getAttribute('title') || '').trim().slice(0,200), box, disabled: el.matches(':disabled') || el.getAttribute('aria-disabled') === 'true', radius: style.borderRadius});
+      const controlText = (el.innerText || '').trim().slice(0,200);
+      const symbolGlyphs = [...new Set(controlText.match(/[×▶▷◀◁⏵⏸⏹Ⅱ↑↓←→↗↘↙↖]/gu) || [])];
+      controls.push({...locator(el), text: (el.getAttribute('aria-label') || controlText || el.getAttribute('title') || '').trim().slice(0,200), box, disabled: el.matches(':disabled') || el.getAttribute('aria-disabled') === 'true', radius: style.borderRadius,
+        iconObservation: {symbolGlyphs, svgCount:[...el.querySelectorAll('svg')].filter(visible).length, imageCount:[...el.querySelectorAll('img')].filter(visible).length}});
     }
     const borders = ['Top','Right','Bottom','Left'].map(side => ({side: side.toLowerCase(), width: style[`border${side}Width`], style: style[`border${side}Style`], color: style[`border${side}Color`]})).filter(b => parseFloat(b.width) > 0 && b.style !== 'none' && !/rgba\([^)]*,\s*0\s*\)$/.test(b.color));
     if (borders.length || style.boxShadow !== 'none') boundaries.push({...locator(el), box, borders, shadow: style.boxShadow, radius: style.borderRadius});

@@ -7,7 +7,7 @@ const {chromium}=await import(pathToFileURL(process.argv[index+1]).href);
 const browser=await chromium.launch({headless:true});
 try {
  const page=await browser.newPage({viewport:{width:900,height:700}});
- await page.setContent(`<style>body{margin:0}#host{margin:24px;width:320px;border:1px solid #ddd}#heading{text-transform:uppercase}#transparent{border:3px solid transparent}#hidden-parent{opacity:0}#later{margin-top:900px}button{width:120px;height:44px}</style><main id="host"><p id="heading">Local image tool</p><p>800 × 1242</p><p>800 × 1242</p><button aria-label="Download"><svg width="20" height="20"></svg></button><input value="Private value"><span hidden>Hidden text</span><span id="hidden-parent"><b>Invisible child</b></span><p id="transparent">No visible border</p><p inert>Visible inert content</p><p id="later">Below fold</p></main>`);
+ await page.setContent(`<style>body{margin:0}#host{margin:24px;width:320px;border:1px solid #ddd}#heading{text-transform:uppercase}#transparent{border:3px solid transparent}#hidden-parent{opacity:0}#later{margin-top:900px}button{width:120px;height:44px}</style><main id="host"><p id="heading">Local image tool</p><p>800 × 1242</p><p>800 × 1242</p><button aria-label="Download"><svg width="20" height="20"></svg></button><button id="glyph" aria-label="Pause">Ⅱ</button><input value="Private value"><span hidden>Hidden text</span><span id="hidden-parent"><b>Invisible child</b></span><p id="transparent">No visible border</p><p inert>Visible inert content</p><p id="later">Below fold</p></main>`);
  const source=collectVisualInventory.toString();
  const report=await page.evaluate(src=>Function('return ('+src+')(document.querySelector("#host"))')(),source);
  assert.equal(report.root.width,322);
@@ -15,6 +15,9 @@ try {
  assert.equal(report.repeatedText.find(x=>x.text==='800 × 1242').indexes.length,2);
  assert.equal(report.controls.items.find(x=>x.tag==='button').text,'Download');
  assert.ok(!JSON.stringify(report).includes('Private value'));
+ assert.deepEqual(report.controls.items.find(x=>x.id==='glyph').iconObservation.symbolGlyphs,['Ⅱ']);
+ assert.equal(report.controls.items.find(x=>x.id==='glyph').iconObservation.svgCount,0);
+ assert.equal(report.controls.items.find(x=>x.text==='Download').iconObservation.svgCount,1);
  assert.ok(!report.texts.items.some(x=>/Hidden text|Invisible child/.test(x.text)));
  assert.ok(report.texts.items.some(x=>x.text==='Visible inert content'));
  assert.ok(report.texts.items.find(x=>x.id==='later').box.y>700);

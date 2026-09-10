@@ -19,3 +19,7 @@ For a state-changing action, specify input → immediate acknowledgement → act
 The fresh-context exporter is a development failure case: the model added a brand, oversized introduction and decorative plate number to a single-object utility. It also attempted its first browser render only after finished source existed. Its later browser launch was blocked by the host sandbox; that is a separate capability failure. These observations motivate scope and chronology checks, not a rule that every component must be small, white or unbranded.
 
 Carry the chosen component relationships into related states and uses. A whole product can share its control conventions and tokens while giving other objects their appropriate density, hierarchy and interaction. Do not turn one successful card into the template for every task.
+
+## Carry relationships through the layers
+
+A working wireframe may be provisional in surface treatment, but supplied fonts and real control icons can already be used. Do not seed temporary text glyphs for play, close or directional icons when the approved library is available. Before finishing, inventory what is still provisional: diagnostic copy, icon placeholders, coarse borders, crop framing and unimplemented feedback. Preserve the selected alignment and information relationships while resolving those items. A passing wireframe review does not approve its provisional material.

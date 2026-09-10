@@ -43,3 +43,5 @@ Fill every check with the same three fields. The reviewer may reject all alterna
 Each `artifact` value names one actual file. Use observations to mention supplementary evidence; do not join filenames with punctuation. `review_request.py` prepares the same evidence roles and five criteria for every candidate. Preserve malformed responses and use a separately recorded format-only retry when necessary; never silently change result values during normalization.
 
 When reviewer reliability is uncertain, use the [visual lesson and probe workflow](visual-lessons.md). Test order consistency and whether its rendered repair preserves useful information. Reviewer fluency is not evidence of accurate selection.
+
+When inspecting controls, separate the accessible action label from the visible mark. `visual_inventory.mjs` records selected text-symbol glyphs and visible SVG/image counts inside controls. Use those observations to catch provisional icon substitutes that survived construction. Mathematical or textual symbols can be correct; this is not an automatic rejection rule. An SVG count alone does not establish library provenance, optical quality or a working transition.
