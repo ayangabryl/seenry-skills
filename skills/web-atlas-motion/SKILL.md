@@ -1,15 +1,15 @@
 ---
 name: web-atlas-motion
-description: "Research or implement web interactions using Web Atlas website recordings and creator motion references. Use for entrances, hover states, scrolling, transitions and component animation; distinguish observed motion from static screenshots."
+description: "Research or implement web interactions using Seenry website recordings and creator motion references. Use for entrances, hover states, scrolling, transitions and component animation; distinguish observed motion from static screenshots."
 license: MIT
 metadata:
-  author: Web Atlas
-  version: "1.2.0"
+  author: Seenry
+  version: "1.2.1"
 ---
 
 # Study the interaction before animating it
 
-Connect to `https://web-atlas.ayangabryl.workers.dev/mcp`. Start with the user's interaction and input method: pointer, keyboard, touch or scroll. Keep existing motion/tooling choices unless the requested effect requires a change.
+Connect to `https://seenry.ayangabryl.com/mcp`. Start with the user's interaction and input method: pointer, keyboard, touch or scroll. Keep existing motion/tooling choices unless the requested effect requires a change.
 
 ## Choose the right recording
 

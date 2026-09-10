@@ -1,6 +1,6 @@
 {
   "version": "2.1.0",
-  "endpoint": "https://web-atlas.ayangabryl.workers.dev/mcp",
+  "endpoint": "https://seenry.ayangabryl.com/mcp",
   "tools": [
     {
       "name": "get_library_guide",

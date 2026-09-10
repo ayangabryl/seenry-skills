@@ -1,15 +1,15 @@
 ---
 name: web-atlas-web-design
-description: "Build or improve a website using inspected Web Atlas references, responsive screenshots and observed design tokens. Use for web implementation or visual refinement; retain the project stack and the user\u2019s brand direction."
+description: "Build or improve a website using inspected Seenry references, responsive screenshots and observed design tokens. Use for web implementation or visual refinement; retain the project stack and the user\u2019s brand direction."
 license: MIT
 metadata:
-  author: Web Atlas
-  version: "1.2.0"
+  author: Seenry
+  version: "1.2.1"
 ---
 
 # Build from website evidence
 
-Use Web Atlas at `https://web-atlas.ayangabryl.workers.dev/mcp` when connected. Keep the user's chosen stack, product purpose, existing design system and requested scope. The library informs decisions; it does not replace the brief.
+Use Seenry at `https://seenry.ayangabryl.com/mcp` when connected. Keep the user's chosen stack, product purpose, existing design system and requested scope. The library informs decisions; it does not replace the brief.
 
 ## Research the design problem
 

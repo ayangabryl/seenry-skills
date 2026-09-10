@@ -1,4 +1,4 @@
-# Web Atlas skills
+# Seenry skills
 
 Five focused skills for turning inspected design references into useful work: website research and implementation, interaction studies, brand systems and presentation decks.
 
@@ -23,7 +23,7 @@ Choose the skills and supported agent in the installer. For manual installation,
 The primary MCP endpoint is:
 
 ```text
-https://web-atlas.ayangabryl.workers.dev/mcp
+https://seenry.ayangabryl.com/mcp
 ```
 
 It serves the public library without a tunnel or an API key. Add it using your client's remote MCP configuration. `.mcp.json` is a configuration example; installing skill files does not guarantee the connection is configured in every client. Skills also carry MCP dependency metadata for agents that support it.
@@ -32,7 +32,7 @@ The same endpoint exposes 16 typed read-only tools, the five skill documents as 
 
 ## Try it
 
-- “Use Web Atlas to improve our mobile pricing page. Inspect the screenshots and CSS variables, then build what fits our brand.”
+- “Use Seenry to improve our mobile pricing page. Inspect the screenshots and CSS variables, then build what fits our brand.”
 - “Find hover interactions for a navigation menu. Watch the clips and explain the initial, active and interrupted states.”
 - “Compare three relevant identity systems and separate official color values from visual estimates.”
 - “Study pitch decks for narrative structure. Keep slide order and inspect the slides around each example you recommend.”
@@ -54,4 +54,9 @@ Validation checks skill structure, local reference paths and realistic example c
 
 The server implementation and integration tests are in [web-atlas-web](https://github.com/ayangabryl/web-atlas-web/blob/main/docs/MCP.md); captures and publishing run in [web-atlas-scraper](https://github.com/ayangabryl/web-atlas-scraper). A release bundles the skills into the Worker so MCP resources remain available independently of GitHub. Update the tool contract alongside server changes, then run the web repository's `scripts/sync-skills.mjs` before deployment.
 
-The packaging approach was informed by [Appllama's skills](https://github.com/Appllama/appllama-skills). These are original Web Atlas workflows for web and design references. The MIT license covers this repository's skill text and tooling, not third-party media in the library.
+The packaging approach was informed by [Appllama's skills](https://github.com/Appllama/appllama-skills). These are original Seenry workflows for web and design references. The MIT license covers this repository's skill text and tooling, not third-party media in the library.
+
+
+## Seenry rebrand
+
+Seenry was previously called Web Atlas. Existing workers.dev links, the `web-atlas` MCP configuration key, `atlas://` resource URIs, tool names and `web-atlas-*` skill IDs remain supported. The GitHub repositories retain their existing names so installation commands keep working. This rebrand reuses the same catalog and media; it does not duplicate R2 storage.

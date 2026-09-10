@@ -1,15 +1,17 @@
 ---
 name: web-atlas-usage
-description: "Research website design, page sections, motion references, branding and presentation decks using Web Atlas. Use when the user wants design inspiration or evidence from the Web Atlas library."
+description: "Research website design, page sections, motion references, branding and presentation decks using Seenry. Use when the user wants design inspiration or evidence from the Seenry library."
 license: MIT
 metadata:
-  author: Web Atlas
-  version: "1.2.0"
+  author: Seenry
+  version: "1.2.1"
 ---
 
-# Research with Web Atlas
+# Research with Seenry
 
-Use the public MCP at `https://web-atlas.ayangabryl.workers.dev/mcp`. It serves the published library without an SSH tunnel. The same connection covers websites, sections, motion, branding and decks. If it is unavailable, report the lookup limitation; do not invent library results or install another service implicitly.
+Seenry was previously called Web Atlas. Existing `web-atlas-*` skill IDs and the `web-atlas` MCP connection key remain supported.
+
+Use the public MCP at `https://seenry.ayangabryl.com/mcp`. It serves the published library without an SSH tunnel. The same connection covers websites, sections, motion, branding and decks. If it is unavailable, report the lookup limitation; do not invent library results or install another service implicitly.
 
 ## Choose the right evidence
 
@@ -38,7 +40,7 @@ Use the saved editorial reason as evidence, then explain its fit to the current 
 
 Inspect actual pixels before making visual recommendations. Read warnings, capture date, viewport, theme and completeness first. A card preview is a crop; a long page can have multiple screenshot segments. Imported sections retain source dimensions and must not be described as verified mobile or dark captures.
 
-Use `next` from list/collection responses unchanged to continue with the same filters and snapshot. Stop when there is enough evidence for the task, or `next` is null. New publications are excluded by the snapshot, but recaptures/removals can still change existing results. IDs are stable; paths are media locations. Preserve the returned source link and Web Atlas reference link.
+Use `next` from list/collection responses unchanged to continue with the same filters and snapshot. Stop when there is enough evidence for the task, or `next` is null. New publications are excluded by the snapshot, but recaptures/removals can still change existing results. IDs are stable; paths are media locations. Preserve the returned source link and Seenry reference link.
 
 For an implementation request, turn observations into decisions for the user's project and continue the build. For research alone, return a focused comparison: reference, observed detail, why it fits, and any limitation. Curator ratings are explicit selections; `top_rated` is not an AI beauty score. No tool provides visual similarity or conversion metrics.
 
