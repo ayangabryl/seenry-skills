@@ -39,12 +39,27 @@ try {
  await page.waitForTimeout(700);
  assert.equal(await page.locator('[data-number-text]').first().textContent(),'100.25');
  assert.ok(Math.abs(await position()-initial)<0.6,'Unit anchor survives sign, digit and decimal changes');
- // In-progress animation settles when the user changes motion preference.
- await page.evaluate(()=>amount.update(-12.75));await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(70);
+ // Wait for the browser's actual preference event, not a machine-speed sleep.
+ // Keep the transition longer than the bounded event wait so natural completion
+ // cannot normally masquerade as the preference handler settling it.
+ const preference=async value=>{
+  await page.evaluate(value=>{
+   const media=matchMedia('(prefers-reduced-motion: reduce)');
+   window.preferenceObserved=media.matches===(value==='reduce')?Promise.resolve():new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>{media.removeEventListener('change',changed);reject(Error('Motion preference event was not delivered'));},2000);
+    function changed(){clearTimeout(timer);resolve();}media.addEventListener('change',changed,{once:true});
+   });
+  },value);
+  await page.emulateMedia({reducedMotion:value});await page.evaluate(()=>window.preferenceObserved);
+ };
+ await page.evaluate(()=>{document.querySelector('number-flow').transformTiming={duration:5000,easing:'linear'};amount.update(-12.75);});
+ assert.ok(await page.evaluate(()=>document.querySelector('number-flow').shadowRoot.getAnimations().some(a=>a.playState==='running')));
+ await preference('reduce');
+ assert.equal(await page.evaluate(()=>document.querySelector('number-flow').animated),false);
  assert.equal(await page.evaluate(()=>document.querySelector('number-flow').shadowRoot.getAnimations().filter(a=>a.playState==='running').length),0);
  await page.evaluate(()=>amount.update(8));assert.equal(await page.locator('[data-number-text]').first().textContent(),'8.00');
  assert.equal(await page.evaluate(()=>document.querySelector('number-flow').shadowRoot.getAnimations().filter(a=>a.playState==='running').length),0);
- await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>amount.update(18));
+ await preference('no-preference');await page.evaluate(()=>amount.update(18));
  assert.ok(await page.evaluate(()=>document.querySelector('number-flow').shadowRoot.getAnimations().length)>0);
  await page.evaluate(()=>{amount.destroy();amount.update(999);});
  assert.equal(await page.locator('#amount').textContent(),'18.00');assert.equal(await page.locator('number-flow').count(),0);
