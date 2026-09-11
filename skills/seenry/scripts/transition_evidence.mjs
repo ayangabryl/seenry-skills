@@ -13,7 +13,7 @@ export async function captureTransition(page,{targets,durationMs=700,actions=[]}
   const key='__seenry_probe_'+Date.now()+'_'+Math.random().toString(36).slice(2),performed=[];
   await page.evaluate(({key,targets,durationMs})=>{
     const started=performance.now(),state={frames:[],done:false,raf:null,timer:null,started};
-    const sample=()=>({atMs:performance.now()-started,targets:targets.map(t=>{
+    const sample=()=>({atMs:performance.now()-started,scroll:{x:scrollX,y:scrollY},targets:targets.map(t=>{
       const elements=document.querySelectorAll(t.selector);if(elements.length!==1)return{label:t.label,matches:elements.length};
       const e=elements[0],r=e.getBoundingClientRect(),css=getComputedStyle(e);
       const attributes=Object.fromEntries((t.attributes||[]).map(k=>{const value=e.getAttribute(k);return[k,value===null?null:value.slice(0,3000)]}));
