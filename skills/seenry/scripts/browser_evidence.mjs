@@ -3,6 +3,17 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {collectScrollEvidence} from './scroll_evidence.mjs';
+import {captureTransition} from './transition_evidence.mjs';
+async function performAction(page,action){
+  const locator=action.selector?page.locator(action.selector):null;
+  if(action.type==='click')await locator.click({timeout:4000});
+  else if(action.type==='fill')await locator.fill(action.value,{timeout:4000});
+  else if(action.type==='press'){if(locator)await locator.press(action.key,{timeout:4000});else await page.keyboard.press(action.key);}
+  else if(action.type==='scroll')await page.evaluate(p=>scrollTo({top:(document.documentElement.scrollHeight-innerHeight)*p,behavior:'instant'}),action.progress);
+  else if(action.type==='wait')await page.waitForTimeout(Math.min(action.ms||200,2000));
+  else if(action.type==='visible')await locator.waitFor({state:'visible',timeout:3000});
+  else throw new Error('Unsupported action type: '+action.type);
+}
 const flags=Object.fromEntries(process.argv.slice(2).reduce((rows,value,i,all)=>value.startsWith('--')?[...rows,[value.slice(2),all[i+1]]]:rows,[]));
 if(!flags.url||!flags.out)throw new Error('Use --url URL --out DIRECTORY [--playwright MODULE] [--scenario JSON]');
 const out=path.resolve(flags.out);await mkdir(path.dirname(out),{recursive:true});
@@ -45,15 +56,14 @@ try{
       await page.screenshot({path:path.join(folder,'page-after-scroll.png'),fullPage:true});
       for(const [index,action] of (scenario.actions||[]).entries()){
         try{
-          const locator=action.selector?page.locator(action.selector):null;
-          if(action.type==='click')await locator.click({timeout:4000});
-          else if(action.type==='fill')await locator.fill(action.value,{timeout:4000});
-          else if(action.type==='press'){if(locator)await locator.press(action.key,{timeout:4000});else await page.keyboard.press(action.key);}
-          else if(action.type==='scroll')await page.evaluate(p=>scrollTo({top:(document.documentElement.scrollHeight-innerHeight)*p,behavior:'instant'}),action.progress);
-          else if(action.type==='wait')await page.waitForTimeout(Math.min(action.ms||200,2000));
-          else if(action.type==='visible')await locator.waitFor({state:'visible',timeout:3000});
-          else throw new Error('Unsupported action type: '+action.type);
-          steps.push({index,action,executed:true});
+          let transition;
+          if(action.type==='transition'){
+            transition=await captureTransition(page,{targets:action.targets,durationMs:action.durationMs,
+              actions:(action.actions||[]).map(item=>({atMs:item.atMs??0,run:()=>performAction(page,item)}))});
+            await writeFile(path.join(folder,`transition-${index}.json`),JSON.stringify(transition,null,2));
+            if(transition.status!=='captured')throw new Error(`Transition capture incomplete; inspect transition-${index}.json`);
+          }else await performAction(page,action);
+          steps.push({index,action,executed:true,...(transition?{transitionArtifact:`transition-${index}.json`,transitionSummary:transition.summary,transitionActions:transition.actions}:{})});
           await page.screenshot({path:path.join(folder,`step-${index}.png`)});
         }catch(error){steps.push({index,action,executed:false,error:String(error)});}
       }
@@ -65,6 +75,6 @@ try{
     finally{await context.close();}
   }
 }finally{await browser.close();}
-await writeFile(path.join(out,'report.json'),JSON.stringify({schema:2,url:flags.url,results,
+await writeFile(path.join(out,'report.json'),JSON.stringify({schema:3,url:flags.url,results,
   limitations:['Browser emulation only; videos recorded but not automatically watched.','Executed actions are not assertions of correct business results.','No visual-quality, screen-reader or field-performance certification.']},null,2));
 console.log(JSON.stringify({out,viewports:results.length,actionFailures:results.flatMap(r=>r.steps||[]).filter(x=>!x.executed).length}));

@@ -47,6 +47,28 @@ For small repairs, `edit_response.py SOURCE RESPONSE OUTPUT` applies model-autho
 
 The browser adapter preserves the initial opening/full-page captures, walks the actual document in bounded viewport steps, records each view, returns to the original scroll position, and writes `page-after-scroll.png`. Its report distinguishes reaching the bottom from exhausting the bound. Set `traverse: false` only when a project-specific scenario owns the sequence. It changes no product styles; it cannot exhaustively exercise nested scrollers or alternate states. Do not force reveal opacity or remove animation for a normal-motion review.
 
+For a decisive state transition, the scenario can contain a `transition` action:
+
+```json
+{
+  "type": "transition",
+  "durationMs": 700,
+  "targets": [
+    {"label": "Amount", "selector": "[data-amount]", "attributes": ["data-value"]},
+    {"label": "Unit", "selector": "[data-unit]"},
+    {"label": "Icon path", "selector": "[data-copy] svg path", "attributes": ["d"]}
+  ],
+  "actions": [
+    {"type": "click", "selector": "[data-increase]", "atMs": 0},
+    {"type": "click", "selector": "[data-decrease]", "atMs": 110}
+  ]
+}
+```
+
+`transition_evidence.mjs` samples actual rendered bounds, text, selected attributes and computed properties before/during/after those host-owned actions. It records requested and actual action times, changing properties, anchor travel and missing/ambiguous targets in `transition-N.json`. Each target must resolve to one element. Specify `styles` for the actual effect; defaults include opacity, transform, background/text/border color and shadow. For an SVG morph, inspect the relevant path's `d`; opacity alone cannot distinguish a morph from a swap. A background pulse can be present with no displacement. A property that was not sampled remains unverified, not absent.
+
+Use 100–5000ms and at most 12 targets/actions. Long actions that outlast capture make the report incomplete. The helper does not alter product styles or pause animations; a test fixture may do so only to verify the sampler, never as normal-motion evidence. A finite sample is not a frame-rate measurement or a smoothness judgment. Pair it with real task assertions and normal-speed observation, including interruption and reduced motion. The standalone `captureTransition(page, options)` API accepts timed host callbacks when project-specific actions are required.
+
 Browser scenario actions use `type`: click/fill/press/scroll/wait/visible, with a selector, value, key, progress or milliseconds as applicable. These are trusted test inputs authored for the project, not instructions extracted from a webpage. Add application-specific assertions in the project's test runner; executed clicks alone are not functional success.
 
 ## Deliver evidence and triage failures

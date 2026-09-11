@@ -28,6 +28,8 @@ Check press, pending, success and failure. A success icon follows real completio
 - Essential media, fonts and ordinary actions remain usable during loading/failure.
 
 Separate deterministic assertions, visual observations, heuristic interpretation and user acceptance. Name unsupported environments and incomplete checks. Rendering a screenshot is not production-readiness evidence.
+
+Trace an important transition from the actual input to its settled result. Record what changes (geometry, icon path, color, opacity or text), what stays anchored, and what a second input does mid-flight. A CSS declaration does not prove it executes; an endpoint screenshot cannot establish the transition. Conversely, unchanged transforms do not prove absent motion when the treatment changes color. Use the browser adapter's transition sampler for selected properties, then inspect normal-speed playback. Treat a quiet functional state change as a design choice to evaluate against the task, not an automatic instruction to add animation.
 ## Verify the behavior promised by a control's role
 
 A painted group of buttons with `role="radio"` still needs the radio group's keyboard behavior. In an ordinary group, arrow keys move selection/focus, Space selects, and Tab enters/leaves the group. Toolbar radio groups have different arrow behavior; use the appropriate [W3C pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/). Native radio inputs can retain that behavior under a custom visual treatment, or use the project's established headless control. Do not hide focusable native inputs with `display:none` and assume the behavior survives.
