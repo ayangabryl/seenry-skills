@@ -32,3 +32,25 @@ export function compareDesignContinuity(contract){
  for(const expected of contract.observed.relations){const actual=current.relations.find(r=>r.id===expected.id),spec=contract.spec.relations.find(r=>r.id===expected.id),delta=actual.value-expected.value;checks.push({relation:expected.id,expected:expected.value,actual:actual.value,delta,tolerance:spec.tolerance,result:Math.abs(delta)<=spec.tolerance?'retained':'changed'});}
  return {status:checks.some(c=>c.result==='changed')?'changed':'retained',checks,current,limits:contract.limits};
 }
+
+/** Measure supplied plain-text states in their actual rendered typography. */
+export function measureLabelStates(selector,values,{sourceSha256}={}){
+ if(typeof selector!=='string'||!Array.isArray(values)||!values.length||values.length>12||values.some(v=>typeof v!=='string'||v.length>200)||new Set(values).size!==values.length)throw new TypeError('Use one selector and 1–12 distinct plain-text states, at most 200 characters each');
+ if(!/^[a-f0-9]{64}$/.test(sourceSha256||''))throw new TypeError('Identify the actual source hash');
+ if(document.fonts?.status==='loading')throw new Error('Wait for fonts before measuring labels');
+ const el=one(selector),style=getComputedStyle(el);
+ if(el.children.length||['INPUT','TEXTAREA','SELECT','SVG'].includes(el.tagName))throw new TypeError('Select a plain-text label element; mixed typography, icons and form internals need their own renderer');
+ for(let node=el;node;node=node.parentElement){const s=getComputedStyle(node);if(s.transform!=='none'||(s.zoom&&s.zoom!=='1'&&s.zoom!=='normal')||s.writingMode!=='horizontal-tb')throw new TypeError('Measure an untransformed horizontal label; transformed or vertical text needs an appropriate coordinate model');}
+ const properties=['font-family','font-size','font-weight','font-style','font-stretch','font-variant','font-feature-settings','font-variation-settings','font-kerning','font-optical-sizing','font-size-adjust','font-synthesis','text-rendering','letter-spacing','word-spacing','line-height','text-transform','direction'];
+ const typography=Object.fromEntries(properties.map(p=>[p,style.getPropertyValue(p)]));
+ const before=el.getBoundingClientRect(),number=p=>parseFloat(style.getPropertyValue(p))||0;
+ const availableInlineSize=Math.max(0,before.width-number('padding-left')-number('padding-right')-number('border-left-width')-number('border-right-width'));
+ const probe=document.createElement('span');probe.setAttribute('aria-hidden','true');probe.inert=true;
+ probe.style.setProperty('all','initial','important');
+ for(const[p,v]of Object.entries({...typography,position:'fixed',left:'0px',top:'0px',display:'inline-block',visibility:'hidden','pointer-events':'none','white-space':'pre',width:'max-content','min-width':'0px','max-width':'none',height:'auto','min-height':'0px','max-height':'none',padding:'0px',margin:'0px',border:'0px',transform:'none','box-sizing':'content-box'}))probe.style.setProperty(p,v,'important');
+ const states=[];
+ try{document.body.append(probe);for(const text of values){probe.textContent=text;const rect=probe.getBoundingClientRect();states.push({text,intrinsicInlineSize:rect.width,unwrappedBlockSize:rect.height,fitsCurrentInlineSpace:rect.width<=availableInlineSize+.5});}}
+ finally{probe.remove();}
+ const after=el.getBoundingClientRect(),unchanged=['x','y','width','height'].every(p=>Math.abs(before[p]-after[p])<.01)&&properties.every(p=>getComputedStyle(el).getPropertyValue(p)===typography[p]);
+ return {schema:1,kind:'observed plain-text state footprint; not a button design',status:unchanged?'measured':'unverified',sourceSha256,selector,current:{text:el.textContent,availableInlineSize,blockSize:before.height},typography,states,maximumIntrinsicInlineSize:Math.max(...states.map(s=>s.intrinsicInlineSize)),viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},limits:['Only these supplied strings and current typography are measured; other locales, future text and font loading need another capture.','Unwrapped intrinsic text width does not prescribe the control size, padding, line count or alignment.','Measure ordinary and text-spacing/reflow states separately. Recheck the complete control and actual transitions after a repair.','The temporary probe is hidden and removed; an actively changing application can make the observation unverified.']};
+}

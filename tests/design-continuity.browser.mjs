@@ -15,5 +15,15 @@ try{const page=await browser.newPage({viewport:{width:1200,height:800}});await p
  assert.equal(await page.evaluate(()=>compareDesignContinuity(record).status),'unverified');
  assert.equal(await page.evaluate(()=>{try{captureDesignContinuity({targets:[{id:'x',selector:'h2',styles:[]}],relations:[{id:'bad',from:'x',to:'missing',fromEdge:'left',toEdge:'left',tolerance:1}]},{sourceSha256:'a'.repeat(64),selectionNote:'Invalid'});return false;}catch{return true;}}),true);
  assert.equal(await page.evaluate(()=>{try{captureDesignContinuity({targets:[{id:'x',selector:'h2',styles:['font-made-up']}],relations:[]},{sourceSha256:'a'.repeat(64),selectionNote:'Invalid property'});return false;}catch{return true;}}),true);
+ await page.setContent('<style>.label{font:600 14px/17px Arial;letter-spacing:.02em;display:inline-block;width:60px}body>span{padding:99px!important}</style><button><span class="label">Copy summary</span></button>');
+ const before=await page.content();
+ let labels=await page.evaluate(()=>measureLabelStates('.label',['Copy summary','Copied','<img src="invalid">'],{sourceSha256:'b'.repeat(64)}));
+ assert.equal(labels.status,'measured');assert.equal(labels.states[0].fitsCurrentInlineSpace,false);assert.equal(labels.states[1].fitsCurrentInlineSpace,true);assert.ok(labels.states[0].intrinsicInlineSize>labels.states[1].intrinsicInlineSize);assert.equal(await page.content(),before);
+ const ordinary=labels.states[0].intrinsicInlineSize;
+ await page.addStyleTag({content:'.label{letter-spacing:.12em;word-spacing:.16em;line-height:1.5}'});
+ labels=await page.evaluate(()=>measureLabelStates('.label',['Copy summary','Copied'],{sourceSha256:'b'.repeat(64)}));assert.ok(labels.states[0].intrinsicInlineSize>ordinary);
+ assert.equal(await page.evaluate(()=>{document.querySelector('.label').style.transform='scale(1.1)';try{measureLabelStates('.label',['Copy'],{sourceSha256:'b'.repeat(64)});return false;}catch{return true;}}),true);
+ assert.equal(await page.evaluate(()=>{try{measureLabelStates('button',['Copy'],{sourceSha256:'b'.repeat(64)});return false;}catch{return true;}}),true);
  console.log('Retained design: actual type drift, alignment drift, scroll compensation, width mismatch and missing targets verified. No aesthetic verdict implied.');
+ console.log('Label states: real typography, insufficient space, text-spacing changes, probe cleanup and unsupported structures verified.');
 }finally{await browser.close();await new Promise(r=>server.close(r));}
