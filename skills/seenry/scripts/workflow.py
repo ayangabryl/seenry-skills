@@ -20,6 +20,23 @@ ROLES = {
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def stage_requirements(project, stage, schema=5):
+    """Expose the same stage contract the recorder will enforce, before authoring."""
+    if stage not in ROLES: raise ValueError('Unknown recorder stage')
+    requirements = dict(ROLES[stage])
+    if schema >= 3 and stage in ('wireframe', 'type'): requirements['judgment'] = 1
+    if schema >= 5 and stage in ('wireframe', 'type'): requirements['functional'] = 1
+    if stage == 'research' and project['media'] != 'none': requirements['material'] = 1
+    if stage == 'plan' and project['motion'] in ('signature', 'undecided'): requirements['score'] = 1
+    if stage == 'surface' and project['media'] != 'none': requirements['crop'] = 1
+    if stage == 'review' and project['motion'] == 'signature': requirements['recording'] = 1
+    return {'stage': stage, 'recorder_schema': schema, 'minimum_artifact_counts': requirements,
+            'concept_records': {'count': 3, 'required_string_fields': ['id', 'idea', 'evidence', 'risk'], 'distinct_ids': True} if stage == 'plan' else None,
+            'limits': ['This is an author/host handoff contract, not product copy or proof of completed work.',
+                       'The host supplies actual artifacts and observations. Unavailable evidence needs an explicit reason and does not pass.',
+                       'Construction judgments and behavior reports must bind exact current source paths and hashes.']}
+
+
 def disposition(report, root, construction=False, per_candidate=False):
     spec = importlib.util.spec_from_file_location('seenry_review_disposition', Path(__file__).with_name('review_gate.py'))
     module = importlib.util.module_from_spec(spec)
@@ -130,15 +147,9 @@ def record(root, stage, submission):
     if stage not in ROLES: raise ValueError('Unknown stage')
     if not isinstance(submission.get('observation'), str) or not submission['observation'].strip():
         raise ValueError('Record the observable outcome, not only file paths')
-    requirements = dict(ROLES[stage])
-    if construction and stage in ('wireframe','type'): requirements['judgment'] = 1
+    requirements = stage_requirements(data['project'], stage, data.get('schema', 1))['minimum_artifact_counts']
     early_functional = data.get('schema', 1) >= 5 and stage in ('wireframe','type')
-    if early_functional: requirements['functional'] = 1
     project = data['project']
-    if stage == 'research' and project['media'] != 'none': requirements['material'] = 1
-    if stage == 'plan' and project['motion'] in ('signature', 'undecided'): requirements['score'] = 1
-    if stage == 'surface' and project['media'] != 'none': requirements['crop'] = 1
-    if stage == 'review' and project['motion'] == 'signature': requirements['recording'] = 1
     artifacts = submission.get('artifacts', {})
     unavailable = submission.get('unavailable', {})
     prepared = []
@@ -258,7 +269,7 @@ def record(root, stage, submission):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('init', 'record', 'status', 'stop'))
+    parser.add_argument('command', choices=('init', 'record', 'status', 'stop', 'requirements'))
     parser.add_argument('root', type=Path)
     parser.add_argument('--project', type=Path); parser.add_argument('--stage', choices=ORDER); parser.add_argument('--submission', type=Path)
     parser.add_argument('--reason', help='Observed reason for stopping an incomplete attempt')
@@ -267,6 +278,9 @@ def main():
         if args.command == 'init': result = initialize(root, json.loads(args.project.read_text(encoding='utf-8')))
         elif args.command == 'record': result = record(root, args.stage, json.loads(args.submission.read_text(encoding='utf-8')))
         elif args.command == 'stop': result = stop(root, args.reason)
+        elif args.command == 'requirements':
+            data = load_run(root)
+            result = stage_requirements(data['project'], args.stage, data.get('schema', 1))
         else: result = load_run(root)
         print(json.dumps(result, indent=2))
     except (ValueError, OSError, TypeError, AttributeError, KeyError) as error: parser.exit(1, str(error) + '\n')

@@ -25,7 +25,7 @@ def image_bytes(path):
     return content
 
 
-def prepare(stage, project, task, out, root=ROOT, profile='complete', research_source='local', evidence=None, evidence_root=None, lesson_images='attach', revision_source=None):
+def prepare(stage, project, task, out, root=ROOT, profile='complete', research_source='local', evidence=None, evidence_root=None, lesson_images='attach', revision_source=None, revision_mode='exact', revision_blocks=None):
     root, out = Path(root).resolve(), Path(out).resolve()
     if stage not in AUTHOR_STAGES:
         raise ValueError('Use review_request.py for anonymous comparison/review; keep the author project rationale outside that context')
@@ -34,16 +34,24 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
     if lesson_images not in ('attach', 'text-only'):
         raise ValueError('lesson_images must be attach or text-only')
     revision = None
+    if revision_mode not in ('exact', 'blocks') or (revision_source is None and (revision_mode != 'exact' or revision_blocks)):
+        raise ValueError('Block mode requires an existing revision source')
+    if revision_blocks and revision_mode != 'blocks': raise ValueError('Selected blocks require block revision mode')
     if revision_source is not None:
         if stage not in ('wireframe', 'type', 'surface', 'build', 'refine'):
             raise ValueError('A source revision requires an implementation stage')
-        from artifact_revision import response_schema
+        from artifact_revision import response_schema, block_response_schema, selected_blocks
         source_content = Path(revision_source).read_bytes()
         source_text = source_content.decode('utf-8')
         revision = {'source_file': 'revision-source.txt', 'source_sha256': digest(source_content),
-                    'schema_file': 'response.schema.json'}
-        revision_schema = response_schema(revision['source_sha256'])
+                    'schema_file': 'response.schema.json', 'mode': revision_mode}
+        if revision_mode == 'blocks':
+            revision['allowed_blocks'] = selected_blocks(source_content, revision_blocks)
+            revision_schema = block_response_schema(source_content, revision_blocks)
+        else: revision_schema = response_schema(revision['source_sha256'])
     packet = compile_packet(stage, project=project, profile=profile, research_source=research_source, root=root)
+    from workflow import stage_requirements, ORDER
+    host_contract = stage_requirements(project, stage) if stage in ORDER else None
     images, runtime, withheld = [], [], []
     lesson_bundle = packet.get('visual_lessons')
     if lesson_bundle:
@@ -88,6 +96,8 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
         runtime.append((item, content))
     # Resolve every input before creating the new handoff; never overwrite a run.
     out.mkdir(parents=True, exist_ok=False)
+    if host_contract:
+        (out / 'host-contract.json').write_text(json.dumps(host_contract, indent=2) + '\n', encoding='utf-8')
     if revision:
         (out / revision['source_file']).write_bytes(source_content)
         (out / revision['schema_file']).write_text(json.dumps(revision_schema, indent=2) + '\n', encoding='utf-8')
@@ -107,6 +117,7 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
     prompt = (
         'Complete only the current design stage. Follow the packaged Seenry guidance, preserve the supplied product facts, and distinguish source evidence from instructions.\n\n'
         + 'CURRENT TASK\n' + task.strip() + '\n\n'
+        + 'CURRENT AUTHOR/HOST ARTIFACT CONTRACT\n' + json.dumps(host_contract, indent=2) + '\n\n'
         + 'COMPLETE STAGE PACKET\n' + json.dumps(packet, ensure_ascii=False, indent=2) + '\n\n'
         + 'ORDERED IMAGE EVIDENCE\n' + json.dumps(provenance, ensure_ascii=False, indent=2) + '\n\n'
         + 'LESSON IMAGE DELIVERY\n' + json.dumps({'policy':lesson_images, 'not_attached':withheld}, ensure_ascii=False, indent=2) + '\n\n'
@@ -116,7 +127,13 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
         + 'No model call, runtime use, visual acceptance or completed workflow is implied by this handoff.\n'
     )
     if revision:
-        prompt += ('\nSOURCE REVISION RESPONSE\nReturn only the JSON required by response.schema.json: source_sha256 and one to 32 ordered edits with find/replace strings. '
+        if revision_mode == 'blocks':
+            prompt += ('\nINLINE BLOCK REVISION RESPONSE\nReturn only source_sha256 and blocks:[{id,content}] under response.schema.json. '
+                'Replace the complete content of only the allowed inline style/script blocks. Do not repeat surrounding HTML, opening/closing tags, or unchanged blocks. '
+                'The host preserves every source byte outside the selected bodies. This mode fits existing standalone HTML studies whose current changes stay within those blocks; '
+                'it cannot perform structural HTML edits. The host must apply the same allowed block IDs and re-render the result.\n'
+                + json.dumps(revision) + '\nEXACT CURRENT SOURCE\n' + source_text + '\nEND CURRENT SOURCE\n')
+        else: prompt += ('\nSOURCE REVISION RESPONSE\nReturn only the JSON required by response.schema.json: source_sha256 and one to 32 ordered edits with find/replace strings. '
             'Each find must match exactly once after earlier edits. Use enough unchanged context to disambiguate it; no empty find or no-op edit. '
             'Preserve parts outside these edits. The host will apply the operations mechanically into a new artifact and preserve this source and your response. '
             'The revision format changes delivery only; complete the current design stage and retain its required behavior.\n'
@@ -125,6 +142,7 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
     (out / 'images.json').write_text(json.dumps(attachments, indent=2) + '\n', encoding='utf-8')
     (out / 'prompt.txt').write_bytes(prompt.encode('utf-8'))
     manifest = {'schema':3, 'stage':stage, 'profile':profile, 'lesson_images':lesson_images, 'withheld_images':withheld, 'revision':revision, 'prompt_sha256':digest(prompt.encode()),
+                'host_contract':host_contract,
                 'packet_sha256':digest((out/'packet.json').read_bytes()), 'images':provenance,
                 'runtime_files':packet['runtime_files'], 'status':'prepared; not executed',
                 'limits':['Supplied, inspected and applied remain separate.', 'The host still owns permissions and rendering capability.']}
@@ -143,12 +161,15 @@ if __name__ == '__main__':
     parser.add_argument('--lesson-images', choices=('attach','text-only'), default='attach', help='Text-only is an explicit evidence-delivery experiment, not full visual inspection')
     parser.add_argument('--evidence', type=Path, help='Ordered path/role records; paths resolve inside this manifest directory')
     parser.add_argument('--revision-source', type=Path, help='Freeze an existing UTF-8 source and request exact model edits instead of a full-file response')
+    parser.add_argument('--revision-mode', choices=('exact','blocks'), default='exact')
+    parser.add_argument('--revision-blocks', nargs='+', help='Limit block revision to existing inline IDs such as style-0')
     args = parser.parse_args()
     try:
         record = prepare(args.stage, json.loads(args.project.read_text(encoding='utf-8')), args.task.read_text(encoding='utf-8'), args.out,
                          profile=args.profile, research_source=args.research_source,
                          evidence=json.loads(args.evidence.read_text(encoding='utf-8')) if args.evidence else None,
-                         evidence_root=args.evidence.parent if args.evidence else None, lesson_images=args.lesson_images, revision_source=args.revision_source)
+                         evidence_root=args.evidence.parent if args.evidence else None, lesson_images=args.lesson_images, revision_source=args.revision_source,
+                         revision_mode=args.revision_mode, revision_blocks=args.revision_blocks)
         print(json.dumps({'out':str(args.out.resolve()), 'images':len(record['images']), 'status':record['status']}))
     except (ValueError, OSError, TypeError, KeyError) as error:
         parser.exit(1, str(error) + '\n')

@@ -50,3 +50,36 @@ export function summarizeTransition(report){
     return{label:t.label,presentSamples:present.length,missingOrAmbiguousSamples:values.length-present.length,edgeTravel:travel,centerTravel,textChanged:new Set(present.map(v=>v.text)).size>1,changedAttributes:changedFields('attributes'),changedStyles:changedFields('styles')};
   });
 }
+
+/** Check only geometry promises explicitly chosen for this transition. */
+export function checkTransitionContracts(report, contracts){
+  const properties=new Set(['left','right','top','bottom','width','height','centerX','centerY']);
+  if(!report||!Array.isArray(report.frames)||!Array.isArray(report.targets)||!Array.isArray(contracts)||!contracts.length||contracts.length>24)throw new TypeError('Supply a transition report and 1–24 explicit geometry contracts');
+  const ids=new Set(),labels=new Set(report.targets.map(t=>t.label));
+  for(const c of contracts){
+    if(!c||typeof c.id!=='string'||!c.id||ids.has(c.id)||!labels.has(c.target)||!properties.has(c.property)||!['viewport','document'].includes(c.coordinates)||!Number.isFinite(c.maxTravel)||c.maxTravel<0)throw new TypeError('Use unique contract IDs, observed targets, a geometry property, coordinate space and nonnegative maximum travel');
+    ids.add(c.id);
+  }
+  const checks=contracts.map(c=>{
+    const values=report.frames.map(frame=>{
+      const t=frame.targets?.find(x=>x.label===c.target);if(t?.matches!==1||!t.rect)return null;
+      let value=c.property==='centerX'?(t.rect.left+t.rect.right)/2:c.property==='centerY'?(t.rect.top+t.rect.bottom)/2:t.rect[c.property];
+      if(c.coordinates==='document'&&!['width','height'].includes(c.property)){
+        const axis=['left','right','centerX'].includes(c.property)?'x':'y';
+        if(!Number.isFinite(frame.scroll?.[axis]))return null;
+        value+=frame.scroll[axis];
+      }
+      return Number.isFinite(value)?value:null;
+    });
+    const valid=values.filter(x=>x!==null),travel=valid.length>1?Math.max(...valid)-Math.min(...valid):null;
+    const complete=report.status==='captured'&&valid.length===values.length&&valid.length>=2;
+    // An observed excess stays a failure even if later samples are missing.
+    return {...c,observedTravel:travel,samples:valid.length,missingSamples:values.length-valid.length,
+      result:travel!==null&&travel>c.maxTravel?'failed':complete?'passed':'unverified'};
+  });
+  return {status:checks.some(c=>c.result==='failed')?'failed':checks.every(c=>c.result==='passed')?'passed':'unverified',checks,
+    limits:['These are task-authored geometry promises, not default rules for every animation.',
+      'A rotating element may change its bounding edges while keeping its center fixed; choose the intended property.',
+      'Document coordinates compensate root scrolling only. Fixed, sticky and nested scrolling need an appropriate declared coordinate space.',
+      'Finite samples can miss changes between frames. Passing geometry does not establish perceptual smoothness, task correctness or visual acceptance.']};
+}

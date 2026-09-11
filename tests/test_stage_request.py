@@ -17,6 +17,32 @@ spec.loader.exec_module(request)
 
 
 class StageRequest(unittest.TestCase):
+    def test_type_block_handoff_preserves_markup_and_scopes_changes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);source=root/'wire.html';source.write_bytes(b'<html><style>h1{font-size:20px}</style><body><h1>Export</h1><script>let working=true;</script></body></html>')
+            out=root/'type'
+            manifest=request.prepare('type',self.project(),'Resolve actual typography',out,revision_source=source,revision_mode='blocks',revision_blocks=['style-0'])
+            self.assertEqual((out/'revision-source.txt').read_bytes(),source.read_bytes())
+            schema=json.loads((out/'response.schema.json').read_text(encoding='utf-8'))
+            self.assertEqual(schema['properties']['blocks']['items']['properties']['id']['enum'],['style-0'])
+            self.assertEqual(manifest['revision']['mode'],'blocks')
+            self.assertIn('working=true',(out/'prompt.txt').read_text(encoding='utf-8'))
+
+    def test_host_sees_recorder_requirements_before_authoring(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for stage, role in [('research','material'),('surface','crop'),('wireframe','functional')]:
+                out=root/stage
+                request.prepare(stage,self.project(),'Complete this stage',out)
+                contract=json.loads((out/'host-contract.json').read_text(encoding='utf-8'))
+                self.assertEqual(contract['minimum_artifact_counts'][role],1)
+                self.assertIn(json.dumps(contract,indent=2),(out/'prompt.txt').read_text(encoding='utf-8'))
+            out=root/'plan'
+            request.prepare('plan',self.project(),'Plan the alternatives',out)
+            contract=json.loads((out/'host-contract.json').read_text(encoding='utf-8'))
+            self.assertEqual(contract['concept_records']['required_string_fields'],['id','idea','evidence','risk'])
+            self.assertEqual(contract['concept_records']['count'],3)
+
     def test_cli_reads_utf8_independently_of_locale(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)

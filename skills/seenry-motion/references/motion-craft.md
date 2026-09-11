@@ -16,6 +16,8 @@ Inspect normal-speed playback, not just endpoints. Exercise ten quick inputs, re
 
 Measure the properties the treatment actually uses. Stable geometry can coexist with a background pulse; changed text alone does not prove a number transition. For a path morph, capture the intermediate `d`, not only the accessible name. Seenry's optional `scripts/transition_evidence.mjs` and browser scenario adapter can record these observations without changing product styles. Their finite samples supplement normal-speed review and never certify perceptual quality.
 
+Where the chosen score requires a particular anchor or size to stay stable, declare that geometry promise and its tolerance before review. The same module's `checkTransitionContracts` checks observed travel; retain a failed check even when a model's general review says the interaction passed. A center anchor can be appropriate for a rotating icon while its bounding edges move. Do not turn this into a ban on deliberate resizing, press feedback or moving content.
+
 Gooey/morph effects belong to a meaningful organic merge or separation. Keep filters off text and focus indicators, constrain their bounds and test touch/GPU cost. A large blurred halo is not automatically premium. Lottie, SVG, CSS and Canvas should be selected against the needed behavior and available model/runtime capability, not fashion.
 
 ## Local motion studies

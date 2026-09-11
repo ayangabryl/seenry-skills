@@ -4,6 +4,29 @@ from jsonschema import Draft202012Validator
 from test_package import module,ROOT
 revision=module('artifact_revision',ROOT/'skills/seenry/scripts/artifact_revision.py')
 class ArtifactRevision(unittest.TestCase):
+ def block_response(self,source,blocks):return {'source_sha256':hashlib.sha256(source).hexdigest(),'blocks':blocks}
+ def test_inline_blocks_preserve_surrounding_unicode_markup_and_external_scripts(self):
+  source='<html>日本語\r\n<STYLE media="screen">a{color:red}</STYLE>\r\n<script src="library.js"></script><script type="module">let value=1;</script><p>Keep me</p></html>'.encode()
+  blocks=revision.inline_blocks(source);self.assertEqual([x['id'] for x in blocks],['style-0','script-0'])
+  changed,record=revision.apply_blocks(source,self.block_response(source,[{'id':'style-0','content':'a{color:blue}'}]),['style-0'])
+  self.assertEqual(changed,source.replace(b'a{color:red}',b'a{color:blue}'))
+  self.assertEqual(record['blocks'][0]['id'],'style-0')
+ def test_multiple_blocks_use_original_offsets_and_ignore_comment_markup(self):
+  source=b'<!-- <style>fake</style> --><style>a{color:red}</style><script>let x=1;</script><style>b{margin:0}</style>'
+  changed,_=revision.apply_blocks(source,self.block_response(source,[{'id':'style-0','content':'a{color:rebeccapurple}'},{'id':'style-1','content':'b{margin:2px}'}]))
+  self.assertEqual(changed,source.replace(b'a{color:red}',b'a{color:rebeccapurple}').replace(b'b{margin:0}',b'b{margin:2px}'))
+ def test_disallowed_duplicate_closing_and_stale_blocks_fail(self):
+  source=b'<style>a{color:red}</style><script>let x=1;</script>'
+  for blocks in ([{'id':'script-0','content':'let x=2;'}],[{'id':'style-0','content':'one'},{'id':'style-0','content':'two'}],[{'id':'style-0','content':'</STYLE><script>bad</script>'}],[{'id':'missing','content':'a'}],[{'id':'style-0','content':'a{color:red}'}]):
+   with self.assertRaises(ValueError):revision.apply_blocks(source,self.block_response(source,blocks),['style-0'])
+  stale=self.block_response(source,[{'id':'style-0','content':'a{}'}]);stale['source_sha256']='0'*64
+  with self.assertRaises(ValueError):revision.apply_blocks(source,stale)
+ def test_block_schema_limits_the_author_to_the_selected_existing_element(self):
+  source=b'<style>a{color:red}</style><script>let x=1;</script>'
+  schema=Draft202012Validator(revision.block_response_schema(source,['style-0']))
+  self.assertFalse(list(schema.iter_errors(self.block_response(source,[{'id':'style-0','content':'a{color:blue}'}]))))
+  self.assertTrue(list(schema.iter_errors(self.block_response(source,[{'id':'script-0','content':'let x=2;'}]))))
+  with self.assertRaises(ValueError):revision.inline_blocks(b'<style>not closed')
  def response(self,source,edits):return {'source_sha256':hashlib.sha256(source).hexdigest(),'edits':edits}
  def test_exact_unicode_and_crlf_preserved(self):
   source='a\r\n<button>Exporté</button>\r\n日本語'.encode()

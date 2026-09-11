@@ -15,7 +15,7 @@ flowchart TD
   R --> E[Separate observation, curator reason and inference]
   E --> P[DESIGN.md: information jobs, three relationships, material and sequence]
   P --> W[Working wireframes]
-  W --> WG{Assess each candidate: content, hierarchy and geometry}
+  W --> WG{Assess each candidate: content, hierarchy, geometry and decisive controls}
   WG -->|No acceptable direction; repair| W
   WG -->|One direction reset| P
   WG -->|Preserve rejected alternatives| ARCH[Archived source, renders and reasons]
@@ -23,7 +23,7 @@ flowchart TD
   T --> TG{Inspect actual labels, proportions and boundaries}
   TG -->|Repair within shared budget| T
   TG -->|Current layer cleared| V[Controlled surfaces, assets and interaction proofs]
-  CL[Local color lab: same content, different role palettes] --> V
+  CL[Palette study on actual layout, or local color lab] --> V
   VL[Small local decision lessons] --> V
   V --> C{Five-criterion rendered comparison}
   C -->|Missing observation| OBS[Collect evidence with source unchanged]
@@ -36,7 +36,8 @@ flowchart TD
   Q -->|Missing observation| OBS2[Observe the existing result]
   OBS2 --> Q
   Q -->|Up to two repair passes| B
-  Q --> F[Ready for user review or explicit incomplete status]
+  Q --> CONTRACT[Retain results of explicit task and geometry contracts]
+  CONTRACT --> F[Ready for user review or explicit incomplete status]
   A[seenry-assets: scout, contact sheet, crops, type study] --> P
   A --> T
   A --> V
@@ -107,3 +108,7 @@ Selected feedback-motion helpers now enter restricted stage packets as actual au
 For larger systems, `system-design.md` carries shared language, navigation, tokens, components, state ownership and motion across bounded slices. Coverage of the requested screen families and journeys stays separate from slice completion. No large-system generation benchmark was run; routing/record preservation are engineering checks only.
 
 The optional interaction probe exercises declared controls independently with explicit preconditions and result assertions. Missing control coverage remains unverified; failed selectors or results remain failures. The construction recorder binds behavior observations to current source hashes and blocks advancement when those observations are failed or unverified, even when visual review passes. Scenario quality and truthful reporting still need review. The NumberFlow helper now inherits the selected reading edge and is delivered at the typography stage so its real geometry is evaluated early.
+
+Author and host handoffs now expose the recorder's project-dependent requirements before generation. Required material/crop roles and concept fields are available while preparing the task, instead of first appearing in a rejected submission. The handoff does not fill those fields or fabricate evidence. The palette study temporarily applies authored color tokens to the actual component, preserving measured content/geometry for comparison. A responsive screenshot of one palette is not a second palette. Explicit motion-contract checks compare actual sampled geometry against the chosen promise; their failures remain separate from a model's general visual verdict. None of these tools selects the most creative design automatically.
+
+For standalone HTML studies, an optional hashed block transport replaces only selected inline CSS/script bodies. It preserves surrounding source without reconstructing markup and constrains the response to actual block IDs. It is useful when refinement stays inside those blocks; structural changes and normal application repositories retain their usual editing route. Preserved markup is an engineering property, not a quality judgment.

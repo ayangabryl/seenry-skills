@@ -22,6 +22,7 @@ jobs:
         with:
           node-version: 22
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
+      - run: node --test tests/transition-contracts.test.mjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - name: Install the pinned browser test runtime
         run: npm install --no-save --package-lock=false playwright@1.63.0
