@@ -1,0 +1,22 @@
+# Changelog
+
+## 2.0.0 — 2026-09-11
+
+Seenry now carries the design workflow and research tools in one installable package. A simple brief can move through product facts, reference study, working layout alternatives, typography, color, interaction and rendered review. MCP is optional.
+
+- Consolidates the former Design Judgment and Web Atlas entrypoints into `seenry`, with `seenry-assets`, `seenry-motion`, `seenry-branding` and `seenry-decks`.
+- Adds distinct routes for components, websites and connected product systems, plus shared design records and scoped stage packets.
+- Preserves source, resource hashes, actual construction history and incomplete attempts. Narrow revisions can replace selected inline blocks without regenerating the surrounding artifact.
+- Adds real palette comparisons, rendered state-label measurements, behavior probes, geometry and motion evidence, and independent visual-review handoffs.
+- Includes interruptible motion helpers, Morphicons, NumberFlow, scroll choreography and an optional working study of the five public libraries.dev effect families.
+- Provides reversible local installation and migration, archive/rollback, relocation checks and shared agent-directory links.
+
+### Upgrade
+
+The canonical entrypoint names changed. Existing users should follow [MIGRATION.md](MIGRATION.md) to archive retired names and prevent overlapping automatic discovery. Fresh users can run `npx skills add ayangabryl/seenry-skills`. Installing skills does not automatically configure MCP in every client.
+
+### Validation and limits
+
+The release branch passes 129 Python tests, skill/resource validation and the existing Chromium suites on macOS, Ubuntu and Windows. The optional motion lab has 16 source-bound local checks; its software-GPU evidence does not establish every preset, browser or physical device. The extra local context-restoration probe remains unverified.
+
+These are shipped workflow and tooling capabilities. Human outcome evidence remains mixed. This version does not establish consistent premium output, universal originality or superiority over another design skill.

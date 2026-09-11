@@ -12,17 +12,19 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.26**, a development candidate; main and released versions may differ. From this checkout:
+Install the **2.0.0** release with the standard skills installer:
+
+```sh
+npx skills add ayangabryl/seenry-skills
+```
+
+For a shared local installation across agents, clone this repository and run:
 
 ```sh
 python scripts/install.py --apply
 ```
 
-For an existing Design Judgment or Web Atlas install, use the reversible [migration](MIGRATION.md). After this version is merged/released, the standard skills installer can use the canonical repository:
-
-```sh
-npx skills add ayangabryl/seenry-skills
-```
+For an existing Design Judgment or Web Atlas install, use the reversible [migration](MIGRATION.md). The standard installer does not perform that legacy migration.
 
 Choose the desired skills and agent in that installer. It does not perform the custom legacy migration. Manual installation also works: copy the desired `skills/` folders to the client's skills directory. Install all five for the complete set. These are standard SKILL.md folders; no proprietary instruction format or paid prompt pack is needed.
 
@@ -78,7 +80,7 @@ node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-mot
 node tests/geometry-transition.browser.mjs --playwright /path/to/playwright/index.mjs
 ```
 
-The development candidate includes local rendered decision lessons, focused stage packets, exact artifact revisions, and a comparison gate for unresolved prototypes. [Number transitions](skills/seenry-motion/references/number-transitions.md) now provide a pinned local NumberFlow adapter with anchored units and static fallbacks. [Design continuity](skills/seenry/references/design-continuity.md) compares selected typography and spatial relationships with the finished artifact. These are capability changes; they do not establish consistent visual superiority.
+The release includes local rendered decision lessons, focused stage packets, exact artifact revisions, and a comparison gate for unresolved prototypes. [Number transitions](skills/seenry-motion/references/number-transitions.md) now provide a pinned local NumberFlow adapter with anchored units and static fallbacks. [Design continuity](skills/seenry/references/design-continuity.md) compares selected typography and spatial relationships with the finished artifact. These are capability changes; they do not establish consistent visual superiority.
 
 Validation checks skill structure, references and example calls. Installer tests cover archive/rollback, collisions, relocation and shared links. Behavioral [scenarios](evals/scenarios.json) describe what to inspect in actual model runs; schema validity does not mean those model evaluations passed. The [matched pilot](skills/seenry/references/evaluation.md) is still required for new performance claims.
 
@@ -86,15 +88,9 @@ The MIT license covers original skill text and tooling. Bundled Morphicons retai
 
 MCP resource documents are deployed separately in the server repository. This package migration does not deploy the service or its resource bundle. Legacy tools and histories remain archived locally and in their original source checkout; see [migration](MIGRATION.md) for access and rollback.
 
-The current development evidence is mixed: a user preferred the Seenry scheduler, preferred the packing baseline, and rejected both Luna website and exporter pairs. Recent changes target actual image delivery, source-preserving evidence refresh, scoped human-feedback examples and motion-helper handoff. This candidate does not establish consistent output quality or superiority over other skills.
+Evaluation evidence is mixed; consistent visual superiority has not been established. Treat the workflow, rendered checks and human review as distinct safeguards. This release ships the implementation and tooling described in [the changelog](CHANGELOG.md), without a guarantee of premium output from every model.
 
 For multi-screen applications, the [system design guide](skills/seenry/references/system-design.md) maps journeys, shared component/state decisions and representative screen families. The workflow scales through bounded connected slices; whole-system coverage remains explicit. Large-system output quality has not been benchmarked.
-
-The current candidate adds a content model before layout, source-bound wireframe/type review, and a browser-side inventory of visible copy and geometry. Layer failures now block recorder advancement. New runs also require source-bound behavior observations at wireframe/type, so a visual pass cannot advance known broken or unverified controls. Negative lesson images are explicitly labeled; an optional text-only delivery mode is experimental. The latest exporter development trials still showed repeated information and overlarge footprints, so these changes are not a new quality claim.
-
-The latest handoff retains passing construction directions while archiving rejected sketches, rather than requiring every discarded idea to be finished. Filled-icon families now retain their native viewBox and fill treatment through the motion helper. The Luna adapter can use structured review responses; AGY sign-in failures are reported explicitly. These changes need fresh outcome evaluation and do not change the recorded human rejections.
-
-The browser evidence adapter now retains initial views and a bounded actual scroll sequence. Anonymous reviews can include explicit tab, dialog and transition-state captures. This addresses a measured evidence gap: an unscrolled full-page image can conceal implemented sections. The collector does not certify motion quality or exhaust alternate states.
 
 ### Optional motion capability lab
 
