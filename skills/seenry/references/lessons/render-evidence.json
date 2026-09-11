@@ -1,0 +1,121 @@
+{
+  "generated_at": "2026-09-10T17:45:52.504Z",
+  "platform": "darwin",
+  "browser": "153.0.8010.12",
+  "evidence": [
+    {
+      "file": "state-A.png",
+      "source_sha256": "afb1e2157e0fb0e0e90be53047bfbe8726acab32d243042ca90839af4b305e62",
+      "image_sha256": "17f61ed2824f32319e92f15c77f5b32bb423c04ba1ed4b842ea27f546991fd3e",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "state-B.png",
+      "source_sha256": "ce479f8c321377890018490c5e27c032012828195ae50d5b2ea1b4bf422a0926",
+      "image_sha256": "7337fd4eaa5452de9b4d72e106c2614f457d06511ae029613944d653481b6d97",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "state-counter.png",
+      "source_sha256": "76817ce4f4e872c6c510ac60d324087fd11fda01a7b50c60c76fe643880eed1c",
+      "image_sha256": "c6d77ab65811b3067eac142c56efbc8f23f129a5d65cecbad0c04ca667a3e477",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "hierarchy-A.png",
+      "source_sha256": "809e77e508f7892e31d52cd5e2fdb6a40b24c7b4bf24a814d3098dbf35395da9",
+      "image_sha256": "08884d311945bfb4c68bea759c01880a55f0b99a10aee2cec5c1c1c535029fdf",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "hierarchy-B.png",
+      "source_sha256": "31303485d7b154bc92441a08279c83bcd8798e300b2e12dc3721952a6efe9387",
+      "image_sha256": "515a691af0c03c9fc0d3970811c51c63d804dad12f237942f8f46930dc37dac8",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "color-A.png",
+      "source_sha256": "f2fa249414353a48ee058a437db48a433115720191eac71000a53ad54df4bdf5",
+      "image_sha256": "19749c865e780787b81999d73f991af4c2cbb2c03f7130e2ab8fd569c09fbd45",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "color-B.png",
+      "source_sha256": "91d866ce4a8335bf1222268787bd7a13424b71a565d34323b304088a8213bdc2",
+      "image_sha256": "03d8513f9d933aee0616af5149da117e80ad123d5fc2b841bed014d0e5cd23d8",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "color-C.png",
+      "source_sha256": "26e210bfc8780c80664d5ac680d8a4fa79b87d34e08a1be822dab98037623b66",
+      "image_sha256": "98044d7dbcd85945222cd46506edbdf2bce828942c0005449f6c96085da73734",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "enclosure-A.png",
+      "source_sha256": "58b19eee520e208372c77f37d93050ffc2d2b846b6499ba53838d02bed616786",
+      "image_sha256": "d6e4d9ec6198cf591e0f011144dd26fa7f3aaf36dcc1d39ec02d905d90030a71",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "enclosure-B.png",
+      "source_sha256": "83308a18da52fc8db4f8fdb1244433595720c3f8be58610b9ab58105f6cb56c6",
+      "image_sha256": "ef14b7633b2433edd2e6fba520a9fb858727cab9b50e87b56b5eebc13bc07a82",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "controls-A.png",
+      "source_sha256": "915b9482c803082818d3bd664f40ef3115ffee7446850a8ed697eb67cebb53ff",
+      "image_sha256": "1f77a8455ec79454700fbaf183d1f2a3299f678562f0195bb7b767c458d1281c",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "controls-B.png",
+      "source_sha256": "95304e186249610d45b734bee8a638fc8c152328051e2ee5ece242b197f1b5c9",
+      "image_sha256": "fb4851c9c09ff949a71a68799b9f9f91776bbd0ada44cbe158c20752014e063f",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "continuity-A.png",
+      "source_sha256": "f7a0ee351e82e904a63f7c83b56bbfbec5219f819989bc32d9e39858b0c8accc",
+      "image_sha256": "75121420f8bb56d9ebde00a81df60dc9465640ab41245449781e2a7febb25c5c",
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "file": "continuity-B.png",
+      "source_sha256": "5df85917b1c695b0387eeee17bcb3d68abdb4612f6ec42487f93bc9e9b9b6c80",
+      "image_sha256": "75121420f8bb56d9ebde00a81df60dc9465640ab41245449781e2a7febb25c5c",
+      "errors": [],
+      "overflow": false
+    }
+  ],
+  "retained": [
+    {
+      "file": "finish-A.png",
+      "reason": "No authored source; preserve imported outcome screenshot",
+      "sha256": "ca575868167da38e900c7192af639400758cf95e3ffef2d5b3dd317d099ded7f"
+    },
+    {
+      "file": "finish-B.png",
+      "reason": "No authored source; preserve imported outcome screenshot",
+      "sha256": "a1eec54e2050ad44708445581b13ab489c4c9c7eb33ef7832b20ddcf92124697"
+    }
+  ],
+  "limitations": [
+    "Chromium emulation; not physical-device testing.",
+    "Rendered teaching exercises are not human-calibrated preferences. Imported outcomes retain their separate provenance."
+  ]
+}

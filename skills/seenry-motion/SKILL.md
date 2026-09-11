@@ -4,12 +4,18 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "1.2.1"
+  version: "2.0.0"
 ---
+
+# Plan motion before choosing the final composition
+
+For a new expressive interface read [worked scores](references/worked-scores.md) during planning. Define the reader's learning sequence, a stable anchor, holds, reversals and static equivalent. The original score primitive and runnable print reveal demonstrate deterministic choreography independently of a paid library or external skill. They are working engineering exercises, not a universal visual template.
 
 # Study the interaction before animating it
 
-Connect to `https://mcp.seenry.design`. Start with the user's interaction and input method: pointer, keyboard, touch or scroll. Keep existing motion/tooling choices unless the requested effect requires a change.
+MCP is optional. Without it, inspect supplied recordings or available public evidence, then use the built-in motion craft and choreography guides below to author and test the interaction. With no recording, label proposed timing as a hypothesis and test a local prototype; never claim to have watched a reference. Basic CSS/WAAPI motion needs no reference server or third-party design skill.
+
+If connected, use `https://mcp.seenry.design`. Start with the user's interaction and input method: pointer, keyboard, touch or scroll. Keep existing motion/tooling choices unless the requested effect requires a change.
 
 ## Choose the right recording
 
@@ -36,3 +42,13 @@ Record the initial state, trigger, transition, settled state and interruption be
 Implement the user's interaction with a coherent start and end state. Test rapid retriggering, reversal, resizing and leaving the component mid-transition. Preserve focus and reduced-motion behavior. Compare the rendered interaction with the evidence using a short capture or repeatable action sequence. Verify the end state, not just the first animated frame.
 
 When returning inspiration, include the source link, relevant clip interval, observed behavior, why it fits, and capture limitations. Do not infer source CSS variables or an animation library from the visual recording alone.
+
+## Author the motion system
+
+For luminous boundaries, process orbs, liquid grouping, reflective material or image reveals, read [the libraries.dev decision study](references/libraries-dev.md). It covers the five public library families, their useful roles and failure cases, pinned API differences, truthful state ownership and motion-free equivalents. These are optional free runtime choices. Do not add effects by default or infer that a vendor accessibility statement proves the integration.
+
+Before product implementation, read [motion craft](references/motion-craft.md). Specify the meaningful state change, spatial anchors, trigger, transition, settled state and interruption/recovery. For scroll-led work read [scroll choreography](references/scroll-choreography.md). Decide the story and reading holds before selecting a runtime. CSS, SVG, Lottie, GSAP, Anime.js, Motion and Three.js are available techniques, not mandatory ingredients or proof of quality. Verify current APIs for the chosen version.
+
+The bundled optional adapters in `assets/` provide interruptible icon swaps, Morphicons path morphs, NumberFlow value changes, Lottie state toggles and scoped GSAP scroll scenes. Read [adapter usage](references/adapters.md) before adopting one. These helpers use external rendering libraries where appropriate, but no transitions-dev or other design skill is required. They own presentation, never business state. The ordinary layout and task must remain available without enhancement.
+
+For actual media acquisition and rights use **seenry-assets**. For full interface direction use **seenry**. Keep a source recording's observed behavior separate from our proposed motion and from checks on the finished implementation.

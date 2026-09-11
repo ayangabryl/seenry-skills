@@ -1,0 +1,12 @@
+{
+  "asset": "media/sdo-composite.jpg",
+  "sha256": "3df5c4b7a902048901bf219b9a0c1dc0f364ebca9d1339d27ae027791ecf15a6",
+  "source": "https://sdo.gsfc.nasa.gov/gallery/firstlight/",
+  "original_asset": "https://sdo.gsfc.nasa.gov/assets/img/firstlight/print/composite20100330st.tif",
+  "credit": "NASA / Solar Dynamics Observatory",
+  "date": "2010-03-30",
+  "license_note": "NASA media-use guidance permits informational use with appropriate credit; source media is separate from the code MIT license. No endorsement or agency-logo rights are claimed.",
+  "usage_guidance": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+  "derivation": "Previously converted TIFF to JPEG without crop or recolor; these existing source bytes copied unchanged for offline study.",
+  "study": "Original Astra-authored hypothesis; no human approval or autonomous-model success claim."
+}

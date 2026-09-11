@@ -1,10 +1,3 @@
 interface:
   display_name: "Seenry Decks"
   short_description: "Study presentation stories and slide systems"
-dependencies:
-  tools:
-    - type: "mcp"
-      value: "web-atlas"
-      description: "Published Seenry design reference library"
-      transport: "streamable_http"
-      url: "https://mcp.seenry.design"

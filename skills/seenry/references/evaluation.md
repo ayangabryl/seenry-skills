@@ -1,0 +1,17 @@
+# Evaluate outcomes without contaminating them
+
+Freeze skill commit, model identity/configuration, brief, factual inputs, tools, asset access and budget before generation. Keep these equal across matched conditions. Record ambient context limits. Preserve first output, every revision/failure, elapsed time, tool calls and resource cost.
+
+Separate supplied guidance, observed reads and applied decisions. Packet hashes establish bytes supplied, not comprehension. Record artifacts and evidence with stage history. An enforced coordinator and an agent following instructions are different conditions. The retired Design Judgment coordinator is historical tooling, not an automatically active Seenry runtime.
+
+The existing Flash pilot remains: two prompts (creative color picker; miniature-set photography studio), three repetitions, four conditions (no appended skill, frozen prior skill, revised instructions, complete workflow). Equal tools and ceilings: initially 20 minutes per component, 40 per site. No stronger-model design corrections or image generation in the primary experiment; label assisted runs separately.
+
+Three prototypes, one direction reset and two repair passes bound full workflow. Anonymous comparisons hide author rationale and condition labels. Record reviewer model/context and presentation order. User visual acceptance remains separate from automated correctness. An unreviewed/fallback run is not a full-workflow success.
+
+Pilot criteria: all six full-workflow finals pass critical checks; user accepts at least two of three per brief and prefers full workflow in at least four of six comparisons with frozen prior skill. A pass justifies expansion to other tasks and scoped competitor comparisons, not universal superiority. Package schema tests do not constitute this pilot.
+
+The Datum studio regression (2026-09-10) passed functional checks but failed the user's visual review: process labels, excessive prose, small weak studies and repeated hard enclosures. Include those failure modes in the [visual review](visual-review.md) without turning them into universal shape/color bans. A single fresh pair with frozen prior and revised skills is a diagnostic comparison, not the 24-run pilot. Keep its transport, tools, content, assets and limits matched. Do not include the prior studio's invented technical positioning in a new generic studio brief.
+
+Archive large first outputs, but keep staged prototypes small: build the important opening and one meaningful interaction, not three entire sites. Freeze actual wireframes before typography/surfaces. Use the last complete artifact from a transport response; preserve interrupted drafts and parsing failures. Mechanical extraction does not authorize stronger-model design edits. Record any transport-only normalization explicitly.
+
+The September 10 outcome sprint is development evidence with mixed results: the user preferred the Seenry Flash scheduler, preferred the packing baseline without appended guidance, and rejected both Luna ceramic websites and both Luna image exporters. One rejected website and both rejected exporters had passed model visual review. These observations do not establish instruction superiority or a calibrated visual judge. They motivate clearer image delivery, source-preserving evidence collection and final-versus-prototype review. Keep the exact cases in development after using their feedback; evaluate subsequent changes on fresh briefs. A preference does not identify the causal property unless a controlled comparison supports it.

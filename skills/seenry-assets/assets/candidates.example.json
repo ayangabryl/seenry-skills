@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "assets": [
+    {
+      "id": "supplied-01",
+      "title": "Supplied project photograph",
+      "source": "https://example.com/replace-with-item-page",
+      "author": "Replace with actual author",
+      "preview": "project-photo.jpg",
+      "rights_url": "https://example.com/replace-with-permission",
+      "license": "Permission pending",
+      "rights_reviewed": false,
+      "role": "hero material study",
+      "status": "temporary",
+      "selected": false,
+      "alt": "Replace with an accurate description",
+      "position": [
+        50,
+        50
+      ],
+      "reason": "Selection pending"
+    }
+  ]
+}

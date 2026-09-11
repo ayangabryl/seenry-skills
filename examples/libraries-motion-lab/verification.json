@@ -1,0 +1,124 @@
+{
+  "recordedAt": "2026-09-11T09:05:25.317Z",
+  "scope": "Host-authored capability lab, not a model output benchmark",
+  "environment": "darwin, Chromium, SwiftShader software GPU; 390px viewport emulation",
+  "limits": [
+    "No physical-device or hardware frame-budget evidence",
+    "No Safari/Firefox runtime evidence",
+    "No claim every vendor preset is visually inspected",
+    "GPU-disabled startup and context-loss recovery are not established by explicit fallback toggle",
+    "No heap-leak measurement"
+  ],
+  "records": [
+    {
+      "name": "beam active frames",
+      "passed": true,
+      "detail": {
+        "distinctFrames": 4,
+        "animatedEvidence": true
+      }
+    },
+    {
+      "name": "orbs active frames",
+      "passed": true,
+      "detail": {
+        "distinctFrames": 4,
+        "animatedEvidence": true
+      }
+    },
+    {
+      "name": "gooey active frames",
+      "passed": true,
+      "detail": {
+        "distinctFrames": 1,
+        "animatedEvidence": "requires trigger"
+      }
+    },
+    {
+      "name": "metal active frames",
+      "passed": true,
+      "detail": {
+        "distinctFrames": 4,
+        "animatedEvidence": true
+      }
+    },
+    {
+      "name": "image active frames",
+      "passed": true,
+      "detail": {
+        "distinctFrames": 4,
+        "animatedEvidence": true
+      }
+    },
+    {
+      "name": "All nine orb states render",
+      "passed": true,
+      "detail": 9
+    },
+    {
+      "name": "Gooey states preserve action and focus",
+      "passed": true,
+      "detail": "three behaviors, real keyboard activation"
+    },
+    {
+      "name": "Image presets render actual image",
+      "passed": true,
+      "detail": 3
+    },
+    {
+      "name": "Reduced-motion change preserves focused action",
+      "passed": true,
+      "detail": "same focused DOM button"
+    },
+    {
+      "name": "Explicit pause freezes rendered output",
+      "passed": true,
+      "detail": {
+        "beam": true,
+        "orbs": true,
+        "gooey": true,
+        "metal": true,
+        "image": true
+      }
+    },
+    {
+      "name": "Reduced motion has static, usable controls",
+      "passed": true,
+      "detail": "static captures and action"
+    },
+    {
+      "name": "Explicit GPU fallback keeps image and button",
+      "passed": true,
+      "detail": "host fallback switch, not injected context loss"
+    },
+    {
+      "name": "Unmount and remount",
+      "passed": true,
+      "detail": "mounted DOM removed and restored; heap not measured"
+    },
+    {
+      "name": "1200 reflow",
+      "passed": true,
+      "detail": "no horizontal viewport overflow"
+    },
+    {
+      "name": "390 reflow",
+      "passed": true,
+      "detail": "no horizontal viewport overflow"
+    },
+    {
+      "name": "No runtime exceptions",
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "source_files": {
+    "main.jsx": "a71d63199a145491b8214469a49268474d099b781955de96afe67fdabcac5920",
+    "style.css": "a0e5fff925a1e29e72d17f90a93a822d60a12ed182707905b44165c31862b08d",
+    "bundle.js": "c16e8d9727b1126301966252cd44ff34a9584d961f8235da93cb5b7aacdf25a7",
+    "verify.mjs": "048c8e6c1aaf351bc07d4ddd4e05d5a9106d23d902f80b6a681b24208b1ff284",
+    "package-lock.json": "dbf4c99365f0ee43643ef1ee9e7a498ac7fe5823de2c2a98e9b54303ff03e10b"
+  },
+  "source_commit": "2eaa6fd3dcc2ad1c369c45c7481bc5c3c4168b8f",
+  "status": "selected integration configurations verified; visual acceptance and hardware performance unverified"
+}

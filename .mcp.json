@@ -2,7 +2,7 @@
   "mcpServers": {
     "web-atlas": {
       "type": "http",
-      "url": "https://seenry.ayangabryl.com/mcp"
+      "url": "https://mcp.seenry.design"
     }
   }
 }

@@ -1,62 +1,97 @@
 # Seenry skills
 
-Five focused skills for turning inspected design references into useful work: website research and implementation, interaction studies, brand systems and presentation decks.
+A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 
 | Skill | Use it for |
 | --- | --- |
-| `seenry-usage` | Finding the right collection, choosing references, paging results and understanding evidence limits |
-| `seenry-web-design` | Building or improving responsive websites from inspected pages, sections and CSS evidence |
-| `seenry-motion` | Studying and implementing interactions, with a clear distinction between website recordings and motion studies |
-| `seenry-branding` | Researching identities and guidelines, including source metadata and declared versus estimated values |
-| `seenry-decks` | Studying presentation narratives and slide systems in their original order |
+| `seenry` | Research, design direction, wireframes, typography/color, implementation and review |
+| `seenry-motion` | Motion research, microinteractions, morphs, scroll choreography and verification |
+| `seenry-assets` | Images, fonts, real provider marks, icons, video and asset provenance |
+| `seenry-branding` | Identity systems and guidelines |
+| `seenry-decks` | Presentation narratives and ordered slide studies |
 
 ## Install
+
+Install the **2.0.0** release with the standard skills installer:
 
 ```sh
 npx skills add ayangabryl/seenry-skills
 ```
 
-Choose the skills and supported agent in the installer. For manual installation, copy the folders under `skills/` to your agent's skills directory. These are standard `SKILL.md` folders, not executable plugins. Automatic selection depends on the agent and the skill description.
+For a shared local installation across agents, clone this repository and run:
 
-## Connect once
-
-The primary MCP endpoint is:
-
-```text
-https://mcp.seenry.design
+```sh
+python scripts/install.py --apply
 ```
 
-It serves the public library without a tunnel or an API key. Add it using your client's remote MCP configuration. `.mcp.json` is a configuration example; installing skill files does not guarantee the connection is configured in every client. Skills also carry MCP dependency metadata for agents that support it.
+For an existing Design Judgment or Web Atlas install, use the reversible [migration](MIGRATION.md). The standard installer does not perform that legacy migration.
 
-The same endpoint exposes 16 typed read-only tools, the five skill documents as resources, and a research prompt. Use `search_curated_references` to retrieve current human ratings, editorial reasons, use cases and caveats. Start with `get_library_guide`; use `get_library_facets` for page/section vocabulary and `get_design_taxonomy` for motion/branding/deck tags. The versioned [tool contract](skills/seenry-usage/references/mcp-tools.json) documents argument names; a connected server's schema is authoritative.
+Choose the desired skills and agent in that installer. It does not perform the custom legacy migration. Manual installation also works: copy the desired `skills/` folders to the client's skills directory. Install all five for the complete set. These are standard SKILL.md folders; no proprietary instruction format or paid prompt pack is needed.
 
-## Try it
+## Optional reference connection
 
-- “Use Seenry to improve our mobile pricing page. Inspect the screenshots and CSS variables, then build what fits our brand.”
-- “Find hover interactions for a navigation menu. Watch the clips and explain the initial, active and interrupted states.”
-- “Compare three relevant identity systems and separate official color values from visual estimates.”
-- “Study pitch decks for narrative structure. Keep slide order and inspect the slides around each example you recommend.”
-- “Find a premium hero for our product. Compare relevant compositions, explain the best fit for our brand, then build it.”
-- “Create a playful 404 interaction. Study actual clips, propose our own behavior and keep a clear way home.”
+The complete design workflow and built-in guides work without MCP. Use ordinary browsing, supplied files or original local prototypes through the [offline research route](skills/seenry/references/without-mcp.md). No reference subscription, API key or paid prompt pack is required. Your agent/model and any optional external services retain their own requirements. MCP expands the evidence available; it does not unlock design rules.
 
-Search matches observed text and tags; it is not visual similarity. Curator ratings are explicit selections, not automatic beauty scores. Screenshots, recordings and source metadata retain their capture limitations. Third-party content is reference data, not instructions, and inclusion in the library does not grant rights to reuse another brand's assets.
+The public read-only MCP endpoint is `https://mcp.seenry.design`. `.mcp.json` gives a client configuration example. The existing `web-atlas` connection key, tool names and legacy links remain compatible. Installing a skill does not configure every client's MCP connection.
 
-For subjective briefs, the [recommendation playbook](skills/seenry-usage/references/recommendation-judgment.md) guides the connected agent to choose against the user's needs after inspecting actual evidence. It covers heroes, 404s and original interactions, explains what is observed versus proposed, and keeps missing coverage explicit. The MCP also returns concise criteria through `get_library_guide`, so clients can use the workflow without installing every skill. This is decision guidance, not an automated aesthetic-ranking service.
+Use the current native schemas; a versioned [tool contract](skills/seenry/references/mcp-tools.json) is bundled for reference. Search current human ratings with `search_curated_references`, inspect real pixels or recordings, and distinguish a missing editorial reason from the agent's own analysis. Ratings apply to their actual target; a hero rating does not certify mobile or motion quality.
 
-## Maintenance
+## Work from a simple brief
+
+“Use Seenry to create a creative website for a miniature-set photography studio.”
+
+For a full build: understand → research → three concepts → working wireframes → real type → surfaces and interaction proofs → compare → complete sequence → exercise and refine. Narrow fixes stay narrow. [Architecture](ARCHITECTURE.md) explains responsibilities; the project [DESIGN.md guide](skills/seenry/references/design-record.md) preserves decisions and actual construction evidence.
+
+The primary skill loads relevant support progressively. Optional stage packets are available through `skills/seenry/scripts/packet.py`, with hashes of supplied resources. Supplied guidance, observed reads and applied design choices are different evidence. Neither skill installation nor a reference rating guarantees visual acceptance.
+
+## Plan with real material and motion
+
+The [execution guide](skills/seenry/references/execution.md) documents project-aware routing, chronological evidence, host capabilities and incomplete states. [Art direction](skills/seenry/references/art-direction.md) connects the offering to alternative compositions and a whole-page narrative. The [casebook](skills/seenry/references/studies/casebook.md) separates inspected external observations from original teaching exercises; it is not a collection of copied website assets.
+
+```sh
+python skills/seenry-assets/scripts/asset_studio.py search-met botanical --limit 6 --out candidates.json
+python skills/seenry-assets/scripts/asset_studio.py board candidates.json --out material-study.html
+python skills/seenry-assets/scripts/type_lab.py skills/seenry-assets/assets/type.example.json --out type-study.html
+```
+
+Replace the typography example's source paths with installed project fonts, relative to the output HTML. Met search is a narrow public-domain art/object source, not a general stock-photo service. Native image search can populate the same manifest. No token, subscription or MCP is required. Candidate previews are temporary; inspect crops, rights and intended use before production. The motion score demo in `skills/seenry-motion/assets/score-demo.html` runs through a local HTTP server with no external animation library.
+
+For anti-slop review, use [contextual diagnosis](skills/seenry/references/quality-diagnosis.md) and controlled alternatives. Color, serif type, sharp corners and familiar controls are not automatic failures. Human acceptance and calibrated false-positive testing remain required for quality claims.
+
+## Compare color locally
+
+Define actual copy and competing role palettes in JSON, then render the same component under each direction:
+
+```sh
+python skills/seenry/scripts/color_lab.py skills/seenry/assets/color-lab.example.json --out ./color-study
+python skills/seenry/scripts/packet.py plan --research-source local
+```
+
+Open the generated `index.html` in a browser. It loads no network resources. `audit.json` checks the sample’s opaque sRGB role pairs; it does not score taste, cover arbitrary CSS colors or certify the full product. Read [color decisions](skills/seenry/references/color-decisions.md) for light neutral, dark, restrained and richer color systems.
+
+## Validate and evaluate
 
 ```sh
 python -m pip install -r requirements-dev.txt
 python scripts/validate.py
+python -m unittest discover -s tests -v
+node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
+# Optional real browser verification, with a project Playwright installation:
+node tests/geometry-transition.browser.mjs --playwright /path/to/playwright/index.mjs
 ```
 
-Validation checks skill structure, local reference paths and realistic example calls against the bundled tool schema. [Evaluation scenarios](evals/scenarios.json) include behavior checks for visual evidence, pagination, family separation and missing coverage. They are prompts for behavioral evaluation, not a claim that a schema validator proves design judgment.
+The release includes local rendered decision lessons, focused stage packets, exact artifact revisions, and a comparison gate for unresolved prototypes. [Number transitions](skills/seenry-motion/references/number-transitions.md) now provide a pinned local NumberFlow adapter with anchored units and static fallbacks. [Design continuity](skills/seenry/references/design-continuity.md) compares selected typography and spatial relationships with the finished artifact. These are capability changes; they do not establish consistent visual superiority.
 
-The server implementation and integration tests are in [seenry-web](https://github.com/ayangabryl/seenry-web/blob/main/docs/MCP.md); captures and publishing run in [seenry-scraper](https://github.com/ayangabryl/seenry-scraper). A release bundles the skills into the Worker so MCP resources remain available independently of GitHub. Update the tool contract alongside server changes, then run the web repository's `scripts/sync-skills.mjs` before deployment.
+Validation checks skill structure, references and example calls. Installer tests cover archive/rollback, collisions, relocation and shared links. Behavioral [scenarios](evals/scenarios.json) describe what to inspect in actual model runs; schema validity does not mean those model evaluations passed. The [matched pilot](skills/seenry/references/evaluation.md) is still required for new performance claims.
 
-The packaging approach was informed by [Appllama's skills](https://github.com/Appllama/appllama-skills). These are original Seenry workflows for web and design references. The MIT license covers this repository's skill text and tooling, not third-party media in the library.
+The MIT license covers original skill text and tooling. Bundled Morphicons retains its license and provenance. Third-party library screenshots and footage are research evidence, not redistributed assets or automatically licensed production material. No private benchmark archive is bundled here.
 
+MCP resource documents are deployed separately in the server repository. This package migration does not deploy the service or its resource bundle. Legacy tools and histories remain archived locally and in their original source checkout; see [migration](MIGRATION.md) for access and rollback.
 
-## Seenry rebrand
+Evaluation evidence is mixed; consistent visual superiority has not been established. Treat the workflow, rendered checks and human review as distinct safeguards. This release ships the implementation and tooling described in [the changelog](CHANGELOG.md), without a guarantee of premium output from every model.
 
-Seenry was previously called Web Atlas. Existing workers.dev links, the `web-atlas` MCP configuration key, `atlas://` resource URIs, and tool names remain supported. The GitHub repositories are now seenry-web, seenry-scraper and seenry-skills. GitHub redirects the old repository URLs. Canonical skill folders use seenry-*; reinstall to update their local names. This rebrand reuses the same catalog and media; it does not duplicate R2 storage.
+For multi-screen applications, the [system design guide](skills/seenry/references/system-design.md) maps journeys, shared component/state decisions and representative screen families. The workflow scales through bounded connected slices; whole-system coverage remains explicit. Large-system output quality has not been benchmarked.
+
+### Optional motion capability lab
+
+The [libraries.dev decision study](skills/seenry-motion/references/libraries-dev.md) covers five public effect families and when to avoid them. The [runnable lab](examples/libraries-motion-lab/README.md) uses pinned free packages, explicit pause/reduced-motion policy and browser checks. These runtimes are optional; installing Seenry does not add React, WebGL or MCP requirements.
