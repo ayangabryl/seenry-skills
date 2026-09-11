@@ -33,7 +33,7 @@ class Execution(unittest.TestCase):
         if stage == 'plan': roles['score'] = 1
         if stage == 'surface': roles['crop'] = 1
         if stage == 'review': roles['recording'] = 1
-        if stage in ('wireframe','type'): roles['judgment'] = 1
+        if stage in ('wireframe','type'): roles['judgment'] = 1; roles['functional'] = 1
         artifacts = {}
         for role, count in roles.items():
             artifacts[role] = []
@@ -54,6 +54,7 @@ class Execution(unittest.TestCase):
         if stage in ('wireframe','type'):
             report={'reviewed_sources':{name:workflow.digest(self.root/name) for name in artifacts['source']},'candidates':[{'id':'study','checks':{k:{'result':'pass','artifact':artifacts['render'][0],'observation':'Fixture layer observation, not visual acceptance'} for k in ('content','hierarchy','geometry')},'blocking_issues':[]}],'selected':'study'}
             (self.root/artifacts['judgment'][0]).write_text(json.dumps(report))
+            (self.root/artifacts['functional'][0]).write_text(json.dumps({'reviewed_sources':report['reviewed_sources'],'status':'passed','observations':['Fixture functional result; not a real browser test']}))
         return {'observation':'Fixture record, not visual inspection','artifacts':artifacts,
                 'reviewer':'test fixture','checks':dict.fromkeys(('functional','visual','motion','material'),'pass')}
     def test_cannot_skip_wireframes_or_invent_missing_media(self):
@@ -138,6 +139,29 @@ class Execution(unittest.TestCase):
         self.assertEqual(result['events'][-1]['review_disposition']['status'],'ready-for-next-layer')
         self.assertEqual(result['events'][-2]['review_disposition']['status'],'needs-layer-revision')
         workflow.record(self.root,'surface',self.submission('surface'))
+
+    def test_clean_visual_review_cannot_advance_failed_or_unverified_controls(self):
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');p=self.root/s['artifacts']['functional'][0];report=json.loads(p.read_text())
+        report['status']='failed';report['observations']=['Subtotal input left the computed amount unchanged'];p.write_text(json.dumps(report))
+        result=workflow.record(self.root,'wireframe',s)
+        self.assertEqual(result['status'],'needs-layer-revision')
+        self.assertFalse(result['events'][-1]['functional_cleared'])
+        with self.assertRaisesRegex(ValueError,'Construction behavior is unresolved'):workflow.record(self.root,'type',self.submission('type'))
+        s=self.submission('wireframe');s['mode']='layer-repair'
+        workflow.record(self.root,'wireframe',s)
+        s=self.submission('type');s['checks']['functional']='unverified'
+        workflow.record(self.root,'type',s)
+        with self.assertRaisesRegex(ValueError,'Construction behavior is unresolved'):workflow.record(self.root,'surface',self.submission('surface'))
+
+    def test_construction_behavior_is_bound_to_source_and_missing_evidence_stays_unresolved(self):
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');p=self.root/s['artifacts']['functional'][0];report=json.loads(p.read_text());report['reviewed_sources']={};p.write_text(json.dumps(report))
+        with self.assertRaisesRegex(ValueError,'behavior report must name'):workflow.record(self.root,'wireframe',s)
+        s=self.submission('wireframe');del s['artifacts']['functional'];s['unavailable']={'functional':'Browser unavailable'}
+        result=workflow.record(self.root,'wireframe',s)
+        self.assertFalse(result['events'][-1]['functional_cleared'])
+        with self.assertRaisesRegex(ValueError,'Construction behavior is unresolved'):workflow.record(self.root,'type',self.submission('type'))
 
     def test_missing_layer_review_is_recorded_but_cannot_advance(self):
         for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))

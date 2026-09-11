@@ -19,6 +19,12 @@ try {
   document.querySelector('#increase').onclick=()=>amount.update(amount.value+1);
  },base);
  assert.equal(await page.evaluate(()=>amount.animationSupported),true);
+ // Reserving width must not silently move a left-aligned amount to its end.
+ const readingEdge=()=>page.locator('[data-number-visual]').first().evaluate(el=>{
+  const digit=el.shadowRoot.querySelector('.digit__num:not([inert])');
+  return {slot:el.getBoundingClientRect().left,digit:digit.getBoundingClientRect().left};
+ });
+ let edge=await readingEdge();assert.ok(Math.abs(edge.digit-edge.slot)<1,'Default inherits the host reading edge');
  const position=()=>page.locator('#unit').evaluate(el=>el.getBoundingClientRect().left);
  const initial=await position();
  await page.locator('#increase').focus();await page.keyboard.press('Enter');
@@ -42,6 +48,13 @@ try {
  assert.ok(await page.evaluate(()=>document.querySelector('number-flow').shadowRoot.getAnimations().length)>0);
  await page.evaluate(()=>{amount.destroy();amount.update(999);});
  assert.equal(await page.locator('#amount').textContent(),'18.00');assert.equal(await page.locator('number-flow').count(),0);
+ // Explicit end alignment remains available for aligned quantities/tables.
+ const aligned=await page.evaluate(()=>{
+  const slot=document.querySelector('#amount');
+  const c=createNumberTransition({slot,value:9,reserveValues:[888888],align:'end'});
+  const el=slot.querySelector('[data-number-visual]'),digit=el.shadowRoot.querySelector('.digit__num:not([inert])');
+  const gap=digit.getBoundingClientRect().left-el.getBoundingClientRect().left;c.destroy();return gap;
+ });assert.ok(aligned>40,'Explicit end anchor positions short values within reserved width');
  for(const options of [{locales:'ar-EG'},{locales:'en',format:{notation:'scientific'}},{locales:'en',rtl:true}]){
   const result=await page.evaluate(options=>{
    const slot=document.querySelector('#fallback');slot.style.direction=options.rtl?'rtl':'ltr';slot.textContent='1';
@@ -50,6 +63,7 @@ try {
   },options);assert.equal(result.supported,false);assert.equal(result.text,result.expected);
  }
  assert.equal(await page.evaluate(()=>{try{createNumberTransition({slot:document.querySelector('#fallback'),value:NaN});return false;}catch{return true;}}),true);
+ assert.equal(await page.evaluate(()=>{try{createNumberTransition({slot:document.querySelector('#fallback'),value:1,align:'invalid'});return false;}catch{return true;}}),true);
  assert.deepEqual(errors,[]);
  const fallback=await browser.newPage();await fallback.goto(base+'/README.md');await fallback.setContent('<span id="number">4</span>');
  const unsupported=await fallback.evaluate(async base=>{

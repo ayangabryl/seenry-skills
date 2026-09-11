@@ -18,6 +18,10 @@ Exercise menu → destination → dismissal. Opening a form from navigation must
 
 Check press, pending, success and failure. A success icon follows real completion, not a click or elapsed animation. Keep hit regions and value anchors stable. Repeated input should retarget or interrupt; old asynchronous results must not overwrite newer state. Preserve valid input and offer useful recovery. Test unavailable clipboard, download, network or assets when used.
 
+## Before spending the finishing budget
+
+Exercise each decisive control independently on the retained wireframe, using a known initial state and a concrete expected result. Check what changed and what must remain unchanged. A working people-count field says nothing about subtotal routing; a clickable export button says nothing about its output format. Preserve the action/result observations with the source hash and correct a failed state before typography/surface expansion. Use the optional [interaction probe](execution.md#exercise-the-decisive-controls-before-finishing) or the native project test runner. Final verification still covers edge cases, recovery and motion.
+
 ## Evidence before a completion claim
 
 - Main task and values are correct; recovery retains valid work.

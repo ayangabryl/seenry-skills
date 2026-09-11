@@ -78,6 +78,18 @@ class StageRequest(unittest.TestCase):
             for item in manifest['runtime_files']:
                 self.assertEqual(hashlib.sha256((out/'runtime'/item['path']).read_bytes()).hexdigest(),item['sha256'])
 
+    def test_type_checkpoint_receives_number_geometry_without_unrelated_motion_engines(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out=Path(tmp)/'handoff'
+            project={**self.project(),'motion_helpers':['number','morph-icon'],'decisions':[]}
+            manifest=request.prepare('type',project,'Inspect the actual number reading edge',out)
+            runtime=out/'runtime/seenry-motion/assets'
+            self.assertTrue((runtime/'number-transition.mjs').is_file())
+            self.assertTrue((runtime/'number-flow/esm-env/LICENSE').is_file())
+            self.assertFalse((runtime/'morph-icon.mjs').exists())
+            for item in manifest['runtime_files']:
+                self.assertEqual(hashlib.sha256((out/'runtime'/item['path']).read_bytes()).hexdigest(),item['sha256'])
+
     def test_original_asset_and_construction_keep_distinct_ordered_roles(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)

@@ -2,13 +2,14 @@
 // the application still owns the real value, control semantics and announcements.
 import NumberFlow, {canAnimate} from './number-flow/index.mjs';
 
-export function createNumberTransition({slot, value, locales='en', format={}, duration=360, reserveValues=[]}) {
+export function createNumberTransition({slot, value, locales='en', format={}, duration=360, reserveValues=[], align='inherit'}) {
   if (!(slot instanceof HTMLElement) || slot.children.length || !Number.isFinite(value)) {
     throw new TypeError('Supply a text-only element and a finite initial value');
   }
   if (!Number.isFinite(duration) || duration<0 || duration>5000 || !Array.isArray(reserveValues) || reserveValues.some(v=>!Number.isFinite(v))) {
     throw new TypeError('Use a 0–5000ms duration and finite reserve values');
   }
+  if (!['inherit','start','end','center'].includes(align)) throw new TypeError('Use inherit, start, end or center alignment');
   const formatter=new Intl.NumberFormat(locales, format), resolved=formatter.resolvedOptions();
   const direction=getComputedStyle(slot).direction;
   // NumberFlow 0.6.2 does not support non-Latin numerals, RTL or exponential notation.
@@ -16,7 +17,7 @@ export function createNumberTransition({slot, value, locales='en', format={}, du
   const text=document.createElement('span'), visual=supported ? new NumberFlow() : document.createElement('span');
   text.dataset.numberText=''; visual.dataset.numberVisual=''; visual.setAttribute('aria-hidden','true');
   Object.assign(text.style,{position:'absolute',width:'1px',height:'1px',padding:'0',margin:'-1px',overflow:'hidden',clipPath:'inset(50%)',whiteSpace:'nowrap',border:'0'});
-  Object.assign(visual.style,{display:'inline-block',textAlign:'end',fontVariantNumeric:'tabular-nums'});
+  Object.assign(visual.style,{display:'inline-block',textAlign:align,fontVariantNumeric:'tabular-nums'});
   if (supported) {
     visual.locales=locales;visual.format=Object.freeze({...format});
     visual.transformTiming={duration,easing:'cubic-bezier(.2,.7,.2,1)'};

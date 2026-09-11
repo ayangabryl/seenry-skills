@@ -121,10 +121,11 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     if 'number' in helpers and stage == 'plan':
         paths += [root.parent / 'seenry-motion/references/number-transitions.md']
     selected_helper_files = []
-    if helpers and stage in ('prototype', 'surface', 'build', 'refine'):
+    stage_helpers = helpers if stage in ('prototype', 'surface', 'build', 'refine') else (['number'] if stage == 'type' and 'number' in helpers else [])
+    if stage_helpers:
         motion_root = root.parent / 'seenry-motion'
         paths += [motion_root / 'references/adapters.md']
-        for helper in helpers:
+        for helper in stage_helpers:
             paths += [motion_root / 'assets' / p for p in MOTION_HELPERS[helper]]
             selected_helper_files += [motion_root / 'assets' / p for p in MOTION_HELPERS[helper]]
             if helper == 'number':

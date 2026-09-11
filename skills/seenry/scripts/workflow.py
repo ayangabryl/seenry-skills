@@ -63,7 +63,7 @@ def initialize(root, project):
     if project['motion'] not in ('signature', 'feedback', 'none', 'undecided'): raise ValueError('Invalid motion need')
     if project['research_source'] not in ('auto', 'mcp', 'web', 'local'): raise ValueError('Invalid research route')
     root.mkdir(parents=True, exist_ok=True)
-    data = {'schema': 4, 'project': project, 'started': time.time(), 'events': [],
+    data = {'schema': 5, 'project': project, 'started': time.time(), 'events': [],
             'resets': 0, 'repairs': 0, 'status': 'in-progress',
             'limitations': ['Protocol evidence is not proof of taste, model identity or human acceptance.']}
     save(root, data)
@@ -108,6 +108,8 @@ def record(root, stage, submission):
     if construction and previous in ('wireframe','type') and stage == expected:
         if (events[-1].get('review_disposition') or {}).get('status') != 'ready-for-next-layer':
             raise ValueError('Construction checkpoint is unresolved. Repair this layer or reset the direction before advancing.')
+        if data.get('schema', 1) >= 5 and not events[-1].get('functional_cleared'):
+            raise ValueError('Construction behavior is unresolved. Exercise the retained controls and resolve failures before advancing.')
     if data.get('schema', 1) >= 2 and previous == 'compare' and stage == 'build':
         if (events[-1].get('review_disposition') or {}).get('status') != 'ready-for-human-review':
             raise ValueError('Comparison is not cleared. Repair the surface and compare again, or use the direction reset; continue_with is not acceptance.')
@@ -116,6 +118,8 @@ def record(root, stage, submission):
         raise ValueError('Record the observable outcome, not only file paths')
     requirements = dict(ROLES[stage])
     if construction and stage in ('wireframe','type'): requirements['judgment'] = 1
+    early_functional = data.get('schema', 1) >= 5 and stage in ('wireframe','type')
+    if early_functional: requirements['functional'] = 1
     project = data['project']
     if stage == 'research' and project['media'] != 'none': requirements['material'] = 1
     if stage == 'plan' and project['motion'] in ('signature', 'undecided'): requirements['score'] = 1
@@ -153,6 +157,16 @@ def record(root, stage, submission):
                 if any(not isinstance(concept.get(k), str) or not concept[k].strip() for k in ('id', 'idea', 'evidence', 'risk')):
                     raise ValueError('Each concept needs id, idea, evidence and risk')
             if len({c['id'] for c in concepts}) != 3: raise ValueError('Concept ids must differ')
+    functional_cleared = False
+    if early_functional and artifacts.get('functional'):
+        if len(artifacts['functional']) != 1: raise ValueError('Use one canonical construction behavior report')
+        behavior = json.loads((root / artifacts['functional'][0]).read_text(encoding='utf-8'))
+        sources = {p.relative_to(root.resolve()).as_posix():digest(p) for role,p in prepared if role == 'source'}
+        if not sources or behavior.get('reviewed_sources') != sources:
+            raise ValueError('Construction behavior report must name the exact current source paths and hashes')
+        if behavior.get('status') not in ('passed','failed','unverified') or not isinstance(behavior.get('observations'), list) or not behavior['observations']:
+            raise ValueError('Construction behavior needs status and nonempty observed task results')
+        functional_cleared = behavior['status'] == 'passed' and submission.get('checks', {}).get('functional') == 'pass' and not unavailable.get('functional')
     judged = None
     if data.get('schema', 1) >= 2 and (stage in ('compare', 'review') or (construction and stage in ('wireframe','type'))):
         judgments = artifacts.get('judgment', [])
@@ -202,6 +216,7 @@ def record(root, stage, submission):
                  'checks': submission.get('checks', {}), 'reviewer': submission.get('reviewer', 'not-recorded')}
         if data.get('schema', 1) >= 2:
             event['review_disposition'] = judged
+            if early_functional: event['functional_cleared'] = functional_cleared
             if refresh: event['mode'] = 'evidence-refresh'
             elif submission.get('mode') == 'layer-repair': event['mode'] = 'layer-repair'
         events.append(event)
@@ -217,6 +232,7 @@ def record(root, stage, submission):
             data['status'] = 'needs-prototype-revision'
         if construction and stage in ('wireframe','type') and (not judged or judged['status'] != 'ready-for-next-layer'):
             data['status'] = 'needs-layer-revision'
+        if early_functional and not functional_cleared: data['status'] = 'needs-layer-revision'
         data['elapsed_seconds'] = time.time() - data['started']
         if data['elapsed_seconds'] > project.get('budget_seconds', 2400): data['status'] = 'incomplete-budget'
         save(root, data)
