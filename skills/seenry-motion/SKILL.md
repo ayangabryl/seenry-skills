@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.25"
+  version: "2.0.0-dev.26"
 ---
 
 # Plan motion before choosing the final composition
@@ -44,6 +44,8 @@ Implement the user's interaction with a coherent start and end state. Test rapid
 When returning inspiration, include the source link, relevant clip interval, observed behavior, why it fits, and capture limitations. Do not infer source CSS variables or an animation library from the visual recording alone.
 
 ## Author the motion system
+
+For luminous boundaries, process orbs, liquid grouping, reflective material or image reveals, read [the libraries.dev decision study](references/libraries-dev.md). It covers the five public library families, their useful roles and failure cases, pinned API differences, truthful state ownership and motion-free equivalents. These are optional free runtime choices. Do not add effects by default or infer that a vendor accessibility statement proves the integration.
 
 Before product implementation, read [motion craft](references/motion-craft.md). Specify the meaningful state change, spatial anchors, trigger, transition, settled state and interruption/recovery. For scroll-led work read [scroll choreography](references/scroll-choreography.md). Decide the story and reading holds before selecting a runtime. CSS, SVG, Lottie, GSAP, Anime.js, Motion and Three.js are available techniques, not mandatory ingredients or proof of quality. Verify current APIs for the chosen version.
 

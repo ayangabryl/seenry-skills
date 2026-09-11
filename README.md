@@ -12,7 +12,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.25**, a development candidate; main and released versions may differ. From this checkout:
+The consolidation is **2.0.0-dev.26**, a development candidate; main and released versions may differ. From this checkout:
 
 ```sh
 python scripts/install.py --apply
@@ -95,3 +95,7 @@ The current candidate adds a content model before layout, source-bound wireframe
 The latest handoff retains passing construction directions while archiving rejected sketches, rather than requiring every discarded idea to be finished. Filled-icon families now retain their native viewBox and fill treatment through the motion helper. The Luna adapter can use structured review responses; AGY sign-in failures are reported explicitly. These changes need fresh outcome evaluation and do not change the recorded human rejections.
 
 The browser evidence adapter now retains initial views and a bounded actual scroll sequence. Anonymous reviews can include explicit tab, dialog and transition-state captures. This addresses a measured evidence gap: an unscrolled full-page image can conceal implemented sections. The collector does not certify motion quality or exhaust alternate states.
+
+### Optional motion capability lab
+
+The [libraries.dev decision study](skills/seenry-motion/references/libraries-dev.md) covers five public effect families and when to avoid them. The [runnable lab](examples/libraries-motion-lab/README.md) uses pinned free packages, explicit pause/reduced-motion policy and browser checks. These runtimes are optional; installing Seenry does not add React, WebGL or MCP requirements.

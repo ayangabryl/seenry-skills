@@ -1,0 +1,90 @@
+{
+  "inspectedAt": "2026-09-11",
+  "packages": [
+    {
+      "name": "border-beam",
+      "version": "1.3.0",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Jakubantalik/border-beam.git"
+      },
+      "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0"
+      },
+      "resolved": "https://registry.npmjs.org/border-beam/-/border-beam-1.3.0.tgz",
+      "integrity": "sha512-oZSISp3aQau4ASTmzm5pzxeBinO6Fh2HW0gyEixJgtpUZvRiU0vNpP+IwGRrNpIyqPjA7Rf5EBnVqDSJ49cm5w==",
+      "types_sha256": "4db2a1835421cbcc09754967209afb3e05ef0ae3a88c22db882ddbd385d8c16d"
+    },
+    {
+      "name": "thinking-orbs",
+      "version": "0.3.1",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Jakubantalik/thinking-orbs.git"
+      },
+      "peerDependencies": {
+        "react": ">=18.0.0"
+      },
+      "resolved": "https://registry.npmjs.org/thinking-orbs/-/thinking-orbs-0.3.1.tgz",
+      "integrity": "sha512-3BG1aeB1RUTxItCml/BBuIz5JRM4kZqGuyx+vouv0fXTtcR9ZNoKjWGneHPx94y74GxgArwJZ1qbJR5dt54kSw==",
+      "types_sha256": "3b2ab74cc3a1fb9339a94cc67eb3ba30f63089f50c5dae245c1dc89ebaf4a711"
+    },
+    {
+      "name": "liquid-gooey",
+      "version": "0.2.1",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Jakubantalik/Libraries.git",
+        "directory": "packages/liquid-gooey"
+      },
+      "peerDependencies": {
+        "react": ">=18",
+        "react-dom": ">=18"
+      },
+      "resolved": "https://registry.npmjs.org/liquid-gooey/-/liquid-gooey-0.2.1.tgz",
+      "integrity": "sha512-BRb0Rscie4JCHFmk4bkWxM+p03c34sidLgNE8XFJGRGEyWM/Wf0FYztJH3CfMWwOVajd4dVurAFe+BTSj8Eeeg==",
+      "types_sha256": "9452e83f23358e55ea081740c07b8e0a2f5b0e0f6e5efe05c4b33213d361ae09"
+    },
+    {
+      "name": "metal-fx",
+      "version": "2.0.10",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Jakubantalik/metal-fx.git"
+      },
+      "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0"
+      },
+      "resolved": "https://registry.npmjs.org/metal-fx/-/metal-fx-2.0.10.tgz",
+      "integrity": "sha512-XOeKBZl4xFw+l+7oe/zBt0AK2w87QWpa7QoSgd0c0MzkglQr49vejCVvkl+E3acKHW1K+SEJ8Pyis8v8BCjDpQ==",
+      "types_sha256": "6ef95f4e7ceb7cff313b9dececee3ebf471ddf37db430e6c134571a8eecf48b5"
+    },
+    {
+      "name": "img-fx",
+      "version": "0.5.1",
+      "license": "MIT",
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Jakubantalik/img-fx.git"
+      },
+      "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0",
+        "three": ">=0.149.0"
+      },
+      "resolved": "https://registry.npmjs.org/img-fx/-/img-fx-0.5.1.tgz",
+      "integrity": "sha512-CXIFGoGgK5F80d8I+VXZ96dmfkWqb4EGpecAIVXVXhuUVqCe1571Xhf5oGZ4qmTce0UoTfNMKLQDOgSAbIbH0w==",
+      "types_sha256": "cf46262c87eaf7cf46bfcaece4bd5ecd36a14b4c66088d32b2bed27ebff9a3cf"
+    }
+  ],
+  "limits": [
+    "Current public five-library catalog; not every preset or future library",
+    "Native ports, WebGL context-loss recovery and hardware performance not verified"
+  ]
+}

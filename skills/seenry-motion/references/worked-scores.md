@@ -34,3 +34,7 @@ For a copy button, success follows the clipboard promise. An icon may morph with
 Record a first entry, purposeful slow traversal, fast reversal, repeated activation and reduced-motion path. Watch at normal playback speed. Inspect pauses as carefully as movement. Compare with the static equivalent: does movement clarify origin, causality or relationship? If it only prolongs reading, simplify it. Capture duration/FPS and emulation limits separately from source performance.
 
 [Apple motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion) motivates clear, controllable feedback. [Carbon](https://carbondesignsystem.com/elements/motion/overview/) distinguishes routine task motion from expressive moments; its brand-specific easing rules are not universal prohibitions. [ScrollTrigger](https://gsap.com/docs/v3/Plugins/ScrollTrigger/) provides mechanics, not a narrative.
+
+## Choose local effect mechanisms only after the score
+
+For a boundary light, truthful process presence, liquid grouping, reflective material or image reveal, consult [the optional libraries.dev study](libraries-dev.md). Declare selected package names in `motion_libraries` so later stage packets receive its fit, interruption and fallback guidance. These effects do not supply a page narrative or make a generic composition distinctive by themselves.

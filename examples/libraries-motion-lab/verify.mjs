@@ -1,0 +1,34 @@
+import {pathToFileURL} from 'node:url';
+import {resolve} from 'node:path';
+const args=process.argv.slice(2);
+const option=(key,fallback)=>args.includes(key)?args[args.indexOf(key)+1]:fallback;
+const {chromium}=await import(pathToFileURL(resolve(option('--playwright','./node_modules/playwright/index.mjs'))).href);
+const target=option('--url','http://127.0.0.1:8840/');
+import {mkdir,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+await mkdir('evidence',{recursive:true});
+const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const records=[],errors=[];const hash=b=>createHash('sha256').update(b).digest('hex');
+const ctx=await browser.newContext({viewport:{width:1200,height:950},recordVideo:{dir:'evidence/video',size:{width:1200,height:950}}});
+const page=await ctx.newPage();page.on('pageerror',e=>errors.push(String(e)));
+const check=async(name,fn)=>{try{const detail=await fn();records.push({name,passed:true,detail});console.log(name,'passed')}catch(e){records.push({name,passed:false,error:String(e)});console.log(name,'failed',String(e))}};
+const assert=(c,m)=>{if(!c)throw Error(m)};
+await page.goto(target);await page.waitForTimeout(1000);
+for(const id of ['beam','orbs','gooey','metal','image']) await check(id+' active frames',async()=>{
+ const el=page.locator('#'+id);await el.scrollIntoViewIfNeeded();await page.waitForTimeout(500);
+ const frames=[];for(let i=0;i<4;i++){frames.push(hash(await el.screenshot({path:`evidence/${id}-${i}.png`,animations:'allow'})));await page.waitForTimeout(240)}
+ return {distinctFrames:new Set(frames).size,animatedEvidence:id==='gooey'?'requires trigger':new Set(frames).size>1};
+});
+await check('All nine orb states render',async()=>{for(const s of ['working','searching','solving','listening','connecting','weaving','composing','breathing','shaping']){await page.locator('#orb-state').selectOption(s);await page.waitForTimeout(80);assert(await page.locator('#orbs canvas').count()===1,'missing orb canvas')}return 9});
+await check('Gooey states preserve action and focus',async()=>{await page.locator('#gooey').scrollIntoViewIfNeeded();for(const v of ['morph','move','bend']){await page.locator('#gooey-effect').selectOption(v);const more=page.getByRole('button',{name:'Related actions'});await more.click();await page.waitForTimeout(350);const save=page.locator('#gooey').getByRole('button',{name:'Save'});await save.focus();await page.keyboard.press('Enter');await more.click();await page.waitForTimeout(350);assert(await more.getAttribute('aria-expanded')==='false','not closed')}return 'three behaviors, real keyboard activation'});
+await check('Image presets render actual image',async()=>{for(const v of ['pixels-organic','pixels-mechanic','sweep-gradient']){await page.locator('#image-preset').selectOption(v);await page.waitForTimeout(400);assert(await page.locator('#image img').evaluate(e=>e.complete&&e.naturalWidth>0),'image not loaded')}return 3});
+await check('Reduced-motion change preserves focused action',async()=>{await page.locator('#gooey').scrollIntoViewIfNeeded();const more=page.getByRole('button',{name:'Related actions'});await more.click();const save=page.locator('#gooey').getByRole('button',{name:'Save'});await save.focus();await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(150);assert(await save.evaluate(e=>e===document.activeElement),'focus lost');await page.keyboard.press('Enter');await page.emulateMedia({reducedMotion:'no-preference'});await more.click();return 'same focused DOM button'});
+await check('Explicit pause freezes rendered output',async()=>{await page.locator('#pause').click();const results={};for(const id of ['beam','orbs','gooey','metal','image']){const el=page.locator('#'+id);await el.scrollIntoViewIfNeeded();await page.waitForTimeout(1000);const a=hash(await el.screenshot({animations:'allow'}));await page.waitForTimeout(350);const b=hash(await el.screenshot({animations:'allow'}));results[id]=a===b;assert(a===b,id+' still changing')}return results});
+await check('Reduced motion has static, usable controls',async()=>{await page.locator('#pause').click();await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(200);for(const id of ['beam','orbs','gooey','metal','image']){const el=page.locator('#'+id);await el.scrollIntoViewIfNeeded();await page.waitForTimeout(350);assert(await el.getAttribute('data-running')==='false','running');const a=hash(await el.screenshot());await page.waitForTimeout(250);assert(a===hash(await el.screenshot()),id+' changed')}await page.getByRole('button',{name:'Try the material'}).click();assert(await page.locator('#metal canvas').count()===0,'GPU fallback not used');return 'static captures and action'});
+await check('Explicit GPU fallback keeps image and button',async()=>{await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('#fallback').check();await page.getByRole('button',{name:'Try the material'}).click();assert(await page.locator('#metal canvas,#image canvas').count()===0,'canvas retained');assert(await page.locator('#image img').evaluate(e=>e.complete),'image not ready');return 'host fallback switch, not injected context loss'});
+await check('Unmount and remount',async()=>{await page.locator('#mount').click();assert(await page.locator('section').count()===0,'sections remain');await page.locator('#mount').click();assert(await page.locator('section').count()===5,'missing remount');return 'mounted DOM removed and restored; heap not measured'});
+for(const w of [1200,390]) await check(w+' reflow',async()=>{await page.setViewportSize({width:w,height:950});await page.screenshot({path:`evidence/page-${w}.png`,fullPage:true});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow');return 'no horizontal viewport overflow'});
+records.push({name:'No runtime exceptions',passed:errors.length===0,errors});
+await ctx.close();await browser.close();
+await writeFile('evidence/report.json',JSON.stringify({recordedAt:new Date().toISOString(),scope:'Host-authored capability lab, not a model output benchmark',environment:process.platform+', Chromium, SwiftShader software GPU; 390px viewport emulation',limits:['No physical-device or hardware frame-budget evidence','No Safari/Firefox runtime evidence','No claim every vendor preset is visually inspected','GPU-disabled startup and context-loss recovery are not established by explicit fallback toggle','No heap-leak measurement'],records},null,2));
+console.log(JSON.stringify(records.map(({name,passed,detail,error})=>({name,passed,detail,error})),null,2));

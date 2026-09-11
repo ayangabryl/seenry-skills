@@ -37,3 +37,7 @@ Tune duration against distance, information load and repetition, then compare a 
 ## Keep icon ownership stable
 
 Icon libraries may replace their placeholder elements during initialization. Do not keep querying a removed `i` element or mutate a stale node to update Play/Pause. Put the icon in a stable slot; update that slot through the library's supported API or the bundled adapter, then inspect the rendered state. The button retains its event handler, accessible name and focus. Check first load before testing animation: a null-node exception can prevent every later interaction from being attached. A visually plausible screenshot can hide that failure.
+
+## Optional effect families
+
+When the concept calls for a luminous boundary, a truthful process orb, liquid grouping, reflective material or image reveal, inspect [the libraries.dev decision study](libraries-dev.md) before selecting the runtime. These are five possible visual mechanisms, not a required embellishment pass. In stage project JSON use `motion_libraries` with the exact package names to deliver the study before implementation; ordinary CSS/SVG motion needs no library selection.

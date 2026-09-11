@@ -31,6 +31,7 @@ MOTION_HELPERS = {
     'scroll': ['scroll-scene.mjs'],
     'number': ['number-transition.mjs'],
 }
+MOTION_LIBRARIES = ('border-beam', 'thinking-orbs', 'liquid-gooey', 'metal-fx', 'img-fx')
 FOCUSED_STAGES = {
     'understand': ['design-record.md'],
     'research': ['reference-standards.md'],
@@ -61,6 +62,11 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     focused = profile == 'focused'
     decisions = []
     helpers = project.get('motion_helpers', []) if project else []
+    libraries = project.get('motion_libraries', []) if project else []
+    if not isinstance(libraries, list) or any(not isinstance(n, str) for n in libraries) or len(set(libraries)) != len(libraries) or any(n not in MOTION_LIBRARIES for n in libraries):
+        raise ValueError('motion_libraries must name distinct supported libraries: ' + ', '.join(MOTION_LIBRARIES))
+    if libraries and project.get('motion') == 'none':
+        raise ValueError('Selected motion libraries conflict with motion: none')
     if not isinstance(helpers, list) or any(not isinstance(h, str) for h in helpers) or len(set(helpers)) != len(helpers) or any(h not in MOTION_HELPERS for h in helpers):
         raise ValueError('motion_helpers must name distinct supported helpers: ' + ', '.join(MOTION_HELPERS))
     if helpers and project.get('motion') == 'none':
@@ -79,6 +85,9 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         selected = [name for p in selected for name in COMPONENT_REPLACEMENTS.get(p,[p])]
         decisions.append('Component-specific guides replace website argument, hero and page-record guidance')
     paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in selected]
+    if libraries and stage not in ('understand', 'type'):
+        paths += [root.parent / 'seenry-motion/references/libraries-dev.md']
+        decisions.append('Optional motion library study supplied for: ' + ', '.join(libraries) + '; installation and integration remain unverified')
     if component and stage == 'plan':
         paths += [root / 'references/component-record.md', root / 'references/color-decisions.md',
                   root / 'references/studies/component-family.md']

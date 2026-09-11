@@ -116,6 +116,30 @@ class Installation(unittest.TestCase):
         self.assertTrue((self.home / '.codex/skills/seenry').is_symlink())
 
 class Packets(unittest.TestCase):
+    def test_optional_motion_study_is_scoped_hashed_and_relocatable(self):
+        project = {'media': 'none', 'motion': 'signature', 'motion_libraries': ['liquid-gooey', 'metal-fx']}
+        with tempfile.TemporaryDirectory() as temporary:
+            destination = Path(temporary) / 'skills'
+            shutil.copytree(ROOT / 'skills', destination)
+            for stage in ('plan', 'wireframe', 'surface', 'compare', 'review'):
+                result = packet.compile_packet(stage, project=project, profile='focused', root=destination / 'seenry', research_source='local')
+                study = [r for r in result['resources'] if r['path'].endswith('/libraries-dev.md')]
+                self.assertEqual(len(study), 1)
+                self.assertEqual(len(study[0]['sha256']), 64)
+                self.assertIn('paused', study[0]['content'])
+            (destination / 'seenry-motion/references/libraries-dev.md').unlink()
+            with self.assertRaises(FileNotFoundError):
+                packet.compile_packet('plan', project=project, root=destination / 'seenry')
+        ordinary = packet.compile_packet('plan', project={'media': 'none', 'motion': 'feedback'}, profile='focused')
+        self.assertFalse(any(r['path'].endswith('/libraries-dev.md') for r in ordinary['resources']))
+
+    def test_optional_motion_library_selection_rejects_invalid_or_conflicting_input(self):
+        for libraries in ('liquid-gooey', ['unknown'], ['metal-fx', 'metal-fx'], [None], [{}]):
+            with self.assertRaises(ValueError):
+                packet.compile_packet('plan', project={'media': 'none', 'motion': 'signature', 'motion_libraries': libraries})
+        with self.assertRaises(ValueError):
+            packet.compile_packet('plan', project={'media': 'none', 'motion': 'none', 'motion_libraries': ['border-beam']})
+
     def test_no_mcp_packet_works_without_server_contract_or_lookup_guide(self):
         with tempfile.TemporaryDirectory() as temporary:
             destination = Path(temporary) / 'skills'
