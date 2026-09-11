@@ -12,7 +12,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.22**, a development candidate; main and released versions may differ. From this checkout:
+The consolidation is **2.0.0-dev.23**, a development candidate; main and released versions may differ. From this checkout:
 
 ```sh
 python scripts/install.py --apply

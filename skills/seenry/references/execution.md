@@ -140,6 +140,8 @@ The response schema requires exactly the supplied candidate count. Validate iden
 
 For an implementation checkpoint or repair, `stage_request.py ... --revision-source prior.html` freezes the exact UTF-8 source, its SHA-256 and a strict response schema. The author returns ordered `find`/`replace` edits against that source. Each match must be unique; the applier rejects stale hashes, missing/ambiguous matches and no-op revisions. Use this format when preserving an existing component is more useful than reproducing the whole file. A genuinely new composition can still need a complete artifact.
 
+If `project.retained_source` contains that identical source, the handoff replaces the duplicate with its delivered file/hash reference and records this in the revision manifest. The exact source body remains in the prompt and on disk. A different historical source stays intact; the host must explain its role. Avoid copying whole source files into several project fields.
+
 ```sh
 python skills/seenry/scripts/artifact_revision.py --source prior.html --response model-edits.json --out next.html
 ```

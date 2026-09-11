@@ -17,6 +17,31 @@ spec.loader.exec_module(request)
 
 
 class StageRequest(unittest.TestCase):
+    def test_identical_retained_source_is_delivered_once_without_mutating_project(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);source=root/'current.html'
+            text='<html><style>h1{color:red}</style><body>Unique source marker é</body></html>'
+            source.write_bytes(text.encode('utf-8'))
+            project={**self.project(),'retained_source':text}
+            out=root/'request'
+            manifest=request.prepare('type',project,'Refine type',out,revision_source=source,revision_mode='blocks')
+            self.assertEqual(project['retained_source'],text)
+            self.assertEqual(manifest['revision']['deduplicated_project_fields'],['retained_source'])
+            packet=json.loads((out/'packet.json').read_text(encoding='utf-8'))
+            delivered=packet['project_decisions']['retained_source']
+            self.assertEqual(delivered['sha256'],hashlib.sha256(source.read_bytes()).hexdigest())
+            self.assertEqual((out/delivered['file']).read_bytes(),source.read_bytes())
+            self.assertEqual((out/'prompt.txt').read_text(encoding='utf-8').count('Unique source marker'),1)
+
+    def test_different_retained_source_is_not_silently_discarded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);source=root/'current.html';source.write_bytes(b'<html>Current</html>')
+            project={**self.project(),'retained_source':'<html>Earlier design</html>'}
+            out=root/'request';manifest=request.prepare('refine',project,'Refine',out,revision_source=source)
+            self.assertEqual(manifest['revision']['deduplicated_project_fields'],[])
+            packet=json.loads((out/'packet.json').read_text(encoding='utf-8'))
+            self.assertEqual(packet['project_decisions']['retained_source'],project['retained_source'])
+
     def test_type_block_handoff_preserves_markup_and_scopes_changes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);source=root/'wire.html';source.write_bytes(b'<html><style>h1{font-size:20px}</style><body><h1>Export</h1><script>let working=true;</script></body></html>')

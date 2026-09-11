@@ -49,6 +49,15 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
             revision['allowed_blocks'] = selected_blocks(source_content, revision_blocks)
             revision_schema = block_response_schema(source_content, revision_blocks)
         else: revision_schema = response_schema(revision['source_sha256'])
+        # A common host record already contains this same complete source. Keep
+        # one authoritative body in the prompt, without changing caller data or
+        # discarding a different historical source that may be intentional.
+        revision['deduplicated_project_fields'] = []
+        if project.get('retained_source') == source_text:
+            project = {**project, 'retained_source': {
+                'file': revision['source_file'], 'sha256': revision['source_sha256'],
+                'delivery': 'Exact body follows under EXACT CURRENT SOURCE; identical duplicate omitted.'}}
+            revision['deduplicated_project_fields'].append('retained_source')
     packet = compile_packet(stage, project=project, profile=profile, research_source=research_source, root=root)
     from workflow import stage_requirements, ORDER
     host_contract = stage_requirements(project, stage) if stage in ORDER else None
