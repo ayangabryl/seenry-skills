@@ -76,8 +76,22 @@ def save(root, data):
     temporary.replace(root / 'run.json')
 
 
+def stop(root, reason):
+    """Close an unfinished attempt without disguising its last stage as a result."""
+    if not isinstance(reason, str) or not reason.strip(): raise ValueError('An observed stopping reason is required')
+    data = load_run(root)
+    if data.get('stopped'): raise ValueError('Run is already stopped; retain its original disposition')
+    now = time.time()
+    data['elapsed_seconds'] = now - data['started']
+    data['status'] = 'incomplete-budget' if data['elapsed_seconds'] > data['project'].get('budget_seconds', 2400) else 'incomplete'
+    data['stopped'] = {'time': now, 'reason': reason, 'last_stage': data['events'][-1]['stage'] if data['events'] else None}
+    save(root, data)
+    return data
+
+
 def record(root, stage, submission):
     data = load_run(root)
+    if data.get('stopped'): raise ValueError('Run is stopped; start a separately labeled continuation')
     if time.time() - data['started'] > data['project'].get('budget_seconds', 2400):
         data['status'] = 'incomplete-budget'; save(root, data)
         raise ValueError('Run budget exhausted; evidence remains available, start a separately labeled continuation')
@@ -244,13 +258,15 @@ def record(root, stage, submission):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('init', 'record', 'status'))
+    parser.add_argument('command', choices=('init', 'record', 'status', 'stop'))
     parser.add_argument('root', type=Path)
     parser.add_argument('--project', type=Path); parser.add_argument('--stage', choices=ORDER); parser.add_argument('--submission', type=Path)
+    parser.add_argument('--reason', help='Observed reason for stopping an incomplete attempt')
     args = parser.parse_args(); root = args.root.resolve()
     try:
         if args.command == 'init': result = initialize(root, json.loads(args.project.read_text(encoding='utf-8')))
         elif args.command == 'record': result = record(root, args.stage, json.loads(args.submission.read_text(encoding='utf-8')))
+        elif args.command == 'stop': result = stop(root, args.reason)
         else: result = load_run(root)
         print(json.dumps(result, indent=2))
     except (ValueError, OSError, TypeError, AttributeError, KeyError) as error: parser.exit(1, str(error) + '\n')

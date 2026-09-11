@@ -12,7 +12,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.20**, a development candidate; main and released versions may differ. From this checkout:
+The consolidation is **2.0.0-dev.21**, a development candidate; main and released versions may differ. From this checkout:
 
 ```sh
 python scripts/install.py --apply
@@ -30,7 +30,7 @@ Choose the desired skills and agent in that installer. It does not perform the c
 
 The complete design workflow and built-in guides work without MCP. Use ordinary browsing, supplied files or original local prototypes through the [offline research route](skills/seenry/references/without-mcp.md). No reference subscription, API key or paid prompt pack is required. Your agent/model and any optional external services retain their own requirements. MCP expands the evidence available; it does not unlock design rules.
 
-The public read-only MCP endpoint is `https://seenry.ayangabryl.com/mcp`. `.mcp.json` gives a client configuration example. The existing `web-atlas` connection key, tool names and legacy links remain compatible. Installing a skill does not configure every client's MCP connection.
+The public read-only MCP endpoint is `https://mcp.seenry.design`. `.mcp.json` gives a client configuration example. The existing `web-atlas` connection key, tool names and legacy links remain compatible. Installing a skill does not configure every client's MCP connection.
 
 Use the current native schemas; a versioned [tool contract](skills/seenry/references/mcp-tools.json) is bundled for reference. Search current human ratings with `search_curated_references`, inspect real pixels or recordings, and distinguish a missing editorial reason from the agent's own analysis. Ratings apply to their actual target; a hero rating does not certify mobile or motion quality.
 

@@ -1,5 +1,7 @@
 # Studies by decision
 
+For observed component relationships, see the [Schwaibold component family](component-family.md): eight object-specific observations, transfer questions and countercases from the supplied recording. Its scope and evidence limits are separate from the proposed exercises below.
+
 Select one or two relevant cases; do not load this entire collection into every stage. Evidence types are explicit. These are not twelve human-approved masterpieces or twelve fully implemented reference reconstructions. The two external observations below were inspected on 2026-09-10. Other entries are original teaching exercises with checks to run. Screenshots and source artwork are not licensed for redistribution by this document.
 
 ## 1. Otherkind: work as the primary material — observed reference

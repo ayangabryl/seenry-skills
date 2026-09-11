@@ -80,7 +80,8 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         decisions.append('Component-specific guides replace website argument, hero and page-record guidance')
     paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in selected]
     if component and stage == 'plan':
-        paths += [root / 'references/component-record.md', root / 'references/color-decisions.md']
+        paths += [root / 'references/component-record.md', root / 'references/color-decisions.md',
+                  root / 'references/studies/component-family.md']
         decisions.append('Resolve inherited versus invented color identity before component concepts')
     if project is not None and project.get('scope') == 'component':
         paths += [root / 'references/component-design.md']

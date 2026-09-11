@@ -114,6 +114,7 @@ class Execution(unittest.TestCase):
             names={r['path'] for r in plan['resources']}
             self.assertIn('seenry/references/component-record.md',names)
             self.assertIn('seenry/references/color-decisions.md',names)
+            self.assertIn('seenry/references/studies/component-family.md',names)
             self.assertIn('seenry-assets/references/object-material.md',names)
         website=packet.compile_packet('plan',project={**project,'scope':'website'})
         names={r['path'] for r in website['resources']}
@@ -124,6 +125,22 @@ class Execution(unittest.TestCase):
         with patch.object(workflow.time,'time',return_value=data['started']+2401):
             with self.assertRaisesRegex(ValueError,'budget exhausted'):workflow.record(self.root,'understand',self.submission('understand'))
         result=workflow.load_run(self.root);self.assertEqual(result['status'],'incomplete-budget');self.assertEqual(result['events'],[])
+
+    def test_transport_failure_closes_attempt_without_changing_earlier_artifacts(self):
+        workflow.record(self.root,'understand',self.submission('understand'))
+        earlier=copy.deepcopy(workflow.load_run(self.root)['events'])
+        result=workflow.stop(self.root,'Model response timed out before source was returned')
+        self.assertEqual(result['status'],'incomplete')
+        self.assertEqual(result['stopped']['last_stage'],'understand')
+        self.assertEqual(result['events'],earlier)
+        with self.assertRaisesRegex(ValueError,'stopped'):workflow.record(self.root,'research',self.submission('research'))
+        with self.assertRaisesRegex(ValueError,'already stopped'):workflow.stop(self.root,'Overwrite the reason')
+
+    def test_stop_retains_budget_exhaustion_and_requires_reason(self):
+        with self.assertRaisesRegex(ValueError,'stopping reason'):workflow.stop(self.root,'')
+        data=workflow.load_run(self.root)
+        with patch.object(workflow.time,'time',return_value=data['started']+2401):result=workflow.stop(self.root,'Finishing did not complete within the ceiling')
+        self.assertEqual(result['status'],'incomplete-budget')
 
     def test_unresolved_type_layer_blocks_surface_and_preserves_bounded_repair(self):
         for stage in workflow.ORDER[:4]:workflow.record(self.root,stage,self.submission(stage))

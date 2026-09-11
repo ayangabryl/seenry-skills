@@ -34,6 +34,7 @@ jobs:
           node tests/number-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/interaction-probe.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/design-continuity.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/palette-study.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/visual-inventory.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/scroll-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/transition-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"

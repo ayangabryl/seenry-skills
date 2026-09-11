@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.20"
+  version: "2.0.0-dev.21"
 ---
 
 # Plan motion before choosing the final composition
@@ -15,7 +15,7 @@ For a new expressive interface read [worked scores](references/worked-scores.md)
 
 MCP is optional. Without it, inspect supplied recordings or available public evidence, then use the built-in motion craft and choreography guides below to author and test the interaction. With no recording, label proposed timing as a hypothesis and test a local prototype; never claim to have watched a reference. Basic CSS/WAAPI motion needs no reference server or third-party design skill.
 
-If connected, use `https://seenry.ayangabryl.com/mcp`. Start with the user's interaction and input method: pointer, keyboard, touch or scroll. Keep existing motion/tooling choices unless the requested effect requires a change.
+If connected, use `https://mcp.seenry.design`. Start with the user's interaction and input method: pointer, keyboard, touch or scroll. Keep existing motion/tooling choices unless the requested effect requires a change.
 
 ## Choose the right recording
 
