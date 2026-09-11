@@ -5,7 +5,12 @@ try{const page=await browser.newPage();await page.goto(base+'/README.md');await 
  await page.evaluate(async base=>{const {createMorphIcon}=await import(base+'/skills/seenry-motion/assets/morph-icon.mjs');const parse=async name=>{const text=await(await fetch(base+'/tests/fixtures/phosphor/'+name)).text();const d=new DOMParser().parseFromString(text,'image/svg+xml');return [...d.documentElement.children].map(el=>[el.tagName,Object.fromEntries([...el.attributes].map(a=>[a.name,a.value]))]);};window.play=await parse('play-fill.svg');window.pause=await parse('pause-fill.svg');window.controller=createMorphIcon({slot:document.querySelector('#slot'),initial:play,viewBox:'0 0 256 256',paint:'fill',size:22});},base);
  const initial=await page.locator('#slot svg').evaluate(svg=>({viewBox:svg.getAttribute('viewBox'),fill:svg.getAttribute('fill'),stroke:svg.getAttribute('stroke'),box:svg.getBoundingClientRect().toJSON(),path:svg.querySelector('path').getAttribute('d')}));
  assert.equal(initial.viewBox,'0 0 256 256');assert.equal(initial.fill,'currentColor');assert.equal(initial.stroke,'none');assert.equal(initial.box.width,22);assert.ok(initial.path.length>10);
- await page.evaluate(()=>controller.to(pause));await page.waitForTimeout(80);const middle=await page.locator('#slot path').getAttribute('d');assert.notEqual(middle,initial.path);assert.ok(!middle.includes('NaN'));
+ // Observe an actual animation frame: hosted browsers need not schedule their first frame within 80ms.
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ const target=await page.evaluate(()=>{controller.set(pause);const d=document.querySelector('#slot path').getAttribute('d');controller.set(play);return d;});
+ await page.evaluate(()=>controller.to(pause));
+ const frame=await page.waitForFunction(({start,end})=>{const d=document.querySelector('#slot path').getAttribute('d');return d!==start&&d!==end?d:false;},{start:initial.path,end:target},{polling:'raf',timeout:3000});
+ const middle=await frame.jsonValue();assert.notEqual(middle,initial.path);assert.notEqual(middle,target);assert.ok(!middle.includes('NaN'));
  await page.evaluate(()=>controller.to(play));await page.waitForTimeout(800);const before=await page.locator('#slot svg').boundingBox();assert.equal(before.width,22);
  await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>controller.to(pause));await page.waitForTimeout(30);const settled=await page.locator('#slot path').getAttribute('d');await page.waitForTimeout(80);assert.equal(await page.locator('#slot path').getAttribute('d'),settled);
  await page.evaluate(()=>controller.destroy());assert.equal(await page.locator('#slot svg').count(),0);
