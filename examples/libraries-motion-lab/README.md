@@ -25,3 +25,5 @@ node verify.mjs --url http://127.0.0.1:8840/ --playwright ./node_modules/playwri
 ```
 
 The generated evidence report separates checks from limitations. The packages stay optional: installing Seenry itself does not download these libraries or require MCP, React or WebGL.
+
+The [recorded verification snapshot](verification.json) contains 16 passing checks for the pinned source, with source hashes and limits. Re-run the checks after changing the integration; the snapshot is not a certificate for every use of these packages.
