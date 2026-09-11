@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "human_preference": "C",
+  "human_rationale": null,
+  "question": "After trying pack, add, remove and undo, which would you keep?",
+  "source": "User blind review in this task",
+  "limits": [
+    "A relative preference is not an absolute premium-design acceptance.",
+    "No user rationale was supplied; relationships below are analyst observations.",
+    "Several variables changed. No causal effect of a single color, badge, border or label is established.",
+    "This is now development evidence, not a held-out test."
+  ],
+  "artifacts": [
+    {
+      "label": "A",
+      "source_sha256": "0b4b9af877bc3467edd1e965816c7ed1ffb57f555fee37999be9f0c2bc881667",
+      "image": "packing-A.png",
+      "image_sha256": "ff4a5e88396c3523cc2ee34e47b1be3328f538818aba406f7e9095ea6beb1b92"
+    },
+    {
+      "label": "B",
+      "source_sha256": "3304edaf1afc0ff9f7e448efcc556a6e87ebbacbedec6a78951030e44bcb8273",
+      "image": "packing-B.png",
+      "image_sha256": "e92ca8a46752194710af65451bf80932d21e533206997bf9bd696b1acc44f13b"
+    },
+    {
+      "label": "C",
+      "source_sha256": "3fe515d84d15aa8eaf915f19c8db2c13ba68ade6724993813f68945e6c750087",
+      "image": "packing-C.png",
+      "image_sha256": "debfa410fc9fa22629a6e210637fd04954a4b512deef08f1aaa5db5e4efb3550"
+    }
+  ]
+}

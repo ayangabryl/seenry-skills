@@ -63,6 +63,21 @@ class StageRequest(unittest.TestCase):
             self.assertFalse((out/'evidence').exists())
             self.assertTrue((out/'runtime/seenry-motion/assets/morphicons/LICENSE').is_file())
 
+    def test_number_runtime_and_licenses_are_complete_in_the_handoff(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out=Path(tmp)/'handoff'
+            project={**self.project(),'motion_helpers':['number'],'decisions':[]}
+            manifest=request.prepare('surface',project,'Show the actual changed quantity',out)
+            prompt=(out/'prompt.txt').read_text(encoding='utf-8')
+            self.assertIn('reserveValues',prompt)
+            self.assertIn('Non-Latin numerals',prompt)
+            runtime=out/'runtime/seenry-motion/assets'
+            self.assertTrue((runtime/'number-transition.mjs').is_file())
+            for name in ['LICENSE.md','esm-env/LICENSE','index.mjs','lite.mjs','esm-env/browser-fallback.js']:
+                self.assertTrue((runtime/'number-flow'/name).is_file(),name)
+            for item in manifest['runtime_files']:
+                self.assertEqual(hashlib.sha256((out/'runtime'/item['path']).read_bytes()).hexdigest(),item['sha256'])
+
     def test_original_asset_and_construction_keep_distinct_ordered_roles(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)

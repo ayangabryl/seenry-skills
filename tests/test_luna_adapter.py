@@ -24,6 +24,13 @@ class LunaAdapter(unittest.TestCase):
   self.assertIn('--ignore-user-config',fresh)
   self.assertEqual(fresh[fresh.index('-m')+1],'gpt-5.6-luna')
   self.assertIn('--ephemeral',fresh)
+ def test_shell_feature_disable_is_opt_in_and_preserves_read_only_and_model(self):
+  ordinary=luna.command_for('/bin/codex',Path('/tmp/output'),[])
+  restricted=luna.command_for('/bin/codex',Path('/tmp/output'),[],disable_shell=True)
+  self.assertNotIn('--disable',ordinary)
+  self.assertEqual(restricted[restricted.index('--disable')+1],'shell_tool')
+  self.assertEqual(restricted[restricted.index('-m')+1],'gpt-5.6-luna')
+  self.assertIn('read-only',restricted)
  def test_response_schema_path_survives_child_directory_change(self):
   with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
    schema=Path(tmp)/'response.schema.json';schema.write_text('{"type":"object"}')

@@ -12,7 +12,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-The consolidation is **2.0.0-dev.18**, a development candidate; main and released versions may differ. From this checkout:
+The consolidation is **2.0.0-dev.19**, a development candidate; main and released versions may differ. From this checkout:
 
 ```sh
 python scripts/install.py --apply
@@ -78,7 +78,7 @@ node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-mot
 node tests/geometry-transition.browser.mjs --playwright /path/to/playwright/index.mjs
 ```
 
-The development candidate adds local rendered decision lessons, an experimental focused packet, exact artifact transport, an interruptible geometry helper, and a comparison gate that blocks expansion of an unresolved prototype. These are capability changes; they are not a claim of consistent visual superiority.
+The development candidate includes local rendered decision lessons, focused stage packets, exact artifact revisions, and a comparison gate for unresolved prototypes. [Number transitions](skills/seenry-motion/references/number-transitions.md) now provide a pinned local NumberFlow adapter with anchored units and static fallbacks. [Design continuity](skills/seenry/references/design-continuity.md) compares selected typography and spatial relationships with the finished artifact. These are capability changes; they do not establish consistent visual superiority.
 
 Validation checks skill structure, references and example calls. Installer tests cover archive/rollback, collisions, relocation and shared links. Behavioral [scenarios](evals/scenarios.json) describe what to inspect in actual model runs; schema validity does not mean those model evaluations passed. The [matched pilot](skills/seenry/references/evaluation.md) is still required for new performance claims.
 

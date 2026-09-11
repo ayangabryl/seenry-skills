@@ -29,6 +29,7 @@ MOTION_HELPERS = {
     'morph-icon': ['morph-icon.mjs'],
     'lottie': ['lottie-toggle.mjs'],
     'scroll': ['scroll-scene.mjs'],
+    'number': ['number-transition.mjs'],
 }
 FOCUSED_STAGES = {
     'understand': ['design-record.md'],
@@ -117,6 +118,8 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
             paths += [motion_root / 'references/adapters.md']
             if not project or project['motion'] != 'feedback':
                 paths += [motion_root / 'references/scroll-choreography.md']
+    if 'number' in helpers and stage == 'plan':
+        paths += [root.parent / 'seenry-motion/references/number-transitions.md']
     selected_helper_files = []
     if helpers and stage in ('prototype', 'surface', 'build', 'refine'):
         motion_root = root.parent / 'seenry-motion'
@@ -124,8 +127,10 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         for helper in helpers:
             paths += [motion_root / 'assets' / p for p in MOTION_HELPERS[helper]]
             selected_helper_files += [motion_root / 'assets' / p for p in MOTION_HELPERS[helper]]
-            if helper == 'morph-icon':
-                vendor = motion_root / 'assets/morphicons'
+            if helper == 'number':
+                paths += [motion_root / 'references/number-transitions.md']
+            if helper in ('morph-icon','number'):
+                vendor = motion_root / ('assets/morphicons' if helper == 'morph-icon' else 'assets/number-flow')
                 manifest = vendor / 'manifest.json'
                 metadata = json.loads(manifest.read_text(encoding='utf-8'))
                 selected_helper_files += [manifest]
@@ -144,6 +149,8 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
             paths += [root.parent / 'seenry-assets/assets/candidates.example.json']
         if stage in ('research','plan','surface','build','review','refine'):
             paths += [root.parent / ('seenry-assets/references/object-material.md' if component else 'seenry-assets/references/material-production.md')]
+    if stage in ('type','surface','build','refine'):
+        paths += [root / 'references/design-continuity.md']
     # Resolve declared dependencies recursively; arbitrary prose links are progressive reading.
     pending = list(paths)
     seen = set()

@@ -31,6 +31,8 @@ jobs:
         run: |
           node tests/geometry-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/morph-icon.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/number-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/design-continuity.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/visual-inventory.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/scroll-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/transition-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"

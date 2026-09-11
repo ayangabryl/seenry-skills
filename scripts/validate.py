@@ -34,8 +34,11 @@ for doc in (root / 'skills').rglob('*.md'):
     for link in re.findall(r'\]\(([^)#]+)', doc.read_text(encoding='utf-8')):
         if not re.match(r'https?://', link):
             assert (doc.parent / link).is_file(), f'Missing reference: {doc} -> {link}'
-manifest_path = root / 'skills/seenry-motion/assets/morphicons/manifest.json'
-manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-for item in manifest['files']:
-    assert hashlib.sha256((manifest_path.parent / item['file']).read_bytes()).hexdigest() == item['sha256'], item['file']
-print('Supporting links and bundled Morphicons source hashes verified.')
+for directory in ('morphicons','number-flow'):
+    manifest_path = root / 'skills/seenry-motion/assets' / directory / 'manifest.json'
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    for item in manifest['files']:
+        path=(manifest_path.parent / item['file']).resolve()
+        assert path.is_relative_to(manifest_path.parent.resolve()), item['file']
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == item['sha256'], item['file']
+print('Supporting links and bundled motion runtime hashes verified.')

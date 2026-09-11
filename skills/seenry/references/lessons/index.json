@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "evidence": "Original teaching hypotheses, one scoped blind preference and a user-rejected exporter case; see per-case sources and limits.",
+  "evidence": "Original teaching hypotheses, scoped blind preferences and a user-rejected exporter case; see per-case sources and limits.",
   "lessons": [
     {
       "id": "state",
@@ -172,6 +172,25 @@
       "source": "Original Astra-authored teaching hypothesis, not a Luna/Flash result or human preference. Bounded browser checks found0px action travel in fixed mode, and150.5/125.125px upward travel in fluid mode at ordinary/narrow views. Static panels do not establish motion quality. NASA/SDO photograph with credit and separate media-use provenance in aperture-provenance.json.",
       "working_example": "aperture.html; use mode=fixed or mode=fluid query parameter",
       "study_notes": "aperture-study.md"
+    },
+    {
+      "id": "packing-preference",
+      "title": "Retain scope without banning familiar controls",
+      "question": "Does the organization fit this small task while keeping groups and actions understandable?",
+      "brief": "Pack, add, remove and undo items for a weekend trip.",
+      "mechanism": "One user chose C in a blind set. A uses a compact flat list with uppercase group labels. B expands the task into a wide toolbar and three separate group cards. C retains one component with sentence-case collapsible groups and a concise title. These are visible differences, not a supplied explanation for the preference.",
+      "countercase": "C still has category counts, outlined rows and a divider. This preference cannot support a blanket ban on pills, borders, pale colors or longer components. A large inventory may legitimately need separate regions and a wide toolbar.",
+      "inspect": [
+        "packing-A.png",
+        "packing-B.png",
+        "packing-C.png"
+      ],
+      "checks": [
+        "Does the component footprint fit its actual host and task?",
+        "Are groups and their available actions apparent at ordinary size?",
+        "Do broad anti-slop rules incorrectly reject useful structure in this preferred example?"
+      ],
+      "source": "User selected C, without a reason, after a blind three-way Flash packing comparison. One relative preference, not an absolute quality certification. Source/image digests and limits are retained in packing-preference.json."
     }
   ]
 }

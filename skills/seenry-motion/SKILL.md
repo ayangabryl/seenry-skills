@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.0-dev.18"
+  version: "2.0.0-dev.19"
 ---
 
 # Plan motion before choosing the final composition
@@ -47,6 +47,6 @@ When returning inspiration, include the source link, relevant clip interval, obs
 
 Before product implementation, read [motion craft](references/motion-craft.md). Specify the meaningful state change, spatial anchors, trigger, transition, settled state and interruption/recovery. For scroll-led work read [scroll choreography](references/scroll-choreography.md). Decide the story and reading holds before selecting a runtime. CSS, SVG, Lottie, GSAP, Anime.js, Motion and Three.js are available techniques, not mandatory ingredients or proof of quality. Verify current APIs for the chosen version.
 
-The bundled optional adapters in `assets/` provide interruptible icon swaps, Morphicons path morphs, Lottie state toggles and scoped GSAP scroll scenes. Read [adapter usage](references/adapters.md) before adopting one. These helpers use external rendering libraries where appropriate, but no transitions-dev or other design skill is required. They own presentation, never business state. The ordinary layout and task must remain available without enhancement.
+The bundled optional adapters in `assets/` provide interruptible icon swaps, Morphicons path morphs, NumberFlow value changes, Lottie state toggles and scoped GSAP scroll scenes. Read [adapter usage](references/adapters.md) before adopting one. These helpers use external rendering libraries where appropriate, but no transitions-dev or other design skill is required. They own presentation, never business state. The ordinary layout and task must remain available without enhancement.
 
 For actual media acquisition and rights use **seenry-assets**. For full interface direction use **seenry**. Keep a source recording's observed behavior separate from our proposed motion and from checks on the finished implementation.
