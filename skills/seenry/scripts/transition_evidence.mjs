@@ -45,7 +45,8 @@ export function summarizeTransition(report){
   return report.targets.map(t=>{
     const values=report.frames.map(f=>f.targets.find(x=>x.label===t.label)),present=values.filter(v=>v?.matches===1);
     const travel={};for(const edge of['left','top','right','bottom','width','height']){const numbers=present.map(v=>v.rect[edge]);travel[edge]=numbers.length?Math.max(...numbers)-Math.min(...numbers):null}
+    const centerTravel={};for(const [axis,start,end] of[['x','left','right'],['y','top','bottom']]){const numbers=present.map(v=>(v.rect[start]+v.rect[end])/2);centerTravel[axis]=numbers.length?Math.max(...numbers)-Math.min(...numbers):null}
     const changedFields=field=>[...new Set(present.flatMap(v=>Object.keys(v[field])))].filter(k=>new Set(present.map(v=>v[field][k])).size>1);
-    return{label:t.label,presentSamples:present.length,missingOrAmbiguousSamples:values.length-present.length,edgeTravel:travel,textChanged:new Set(present.map(v=>v.text)).size>1,changedAttributes:changedFields('attributes'),changedStyles:changedFields('styles')};
+    return{label:t.label,presentSamples:present.length,missingOrAmbiguousSamples:values.length-present.length,edgeTravel:travel,centerTravel,textChanged:new Set(present.map(v=>v.text)).size>1,changedAttributes:changedFields('attributes'),changedStyles:changedFields('styles')};
   });
 }
