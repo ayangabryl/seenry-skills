@@ -116,7 +116,7 @@ def prepare(stage, project, task, out, root=ROOT, profile='complete', research_s
         + 'No model call, runtime use, visual acceptance or completed workflow is implied by this handoff.\n'
     )
     if revision:
-        prompt += ('\nSOURCE REVISION RESPONSE\nReturn only the JSON required by response.schema.json: source_sha256 and one to32 ordered edits with find/replace strings. '
+        prompt += ('\nSOURCE REVISION RESPONSE\nReturn only the JSON required by response.schema.json: source_sha256 and one to 32 ordered edits with find/replace strings. '
             'Each find must match exactly once after earlier edits. Use enough unchanged context to disambiguate it; no empty find or no-op edit. '
             'Preserve parts outside these edits. The host will apply the operations mechanically into a new artifact and preserve this source and your response. '
             'The revision format changes delivery only; complete the current design stage and retain its required behavior.\n'

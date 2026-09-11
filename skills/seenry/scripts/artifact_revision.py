@@ -18,19 +18,19 @@ def apply_revision(source, response):
         raise ValueError('Revision does not match the supplied source hash')
     edits = response['edits']
     if not isinstance(edits, list) or not 1 <= len(edits) <= 32:
-        raise ValueError('Supply one to32 ordered exact edits')
+        raise ValueError('Supply one to 32 ordered exact edits')
     content = source.decode('utf-8')
     records = []
     for index, edit in enumerate(edits):
         if not isinstance(edit, dict) or set(edit) != {'find', 'replace'}:
-            raise ValueError(f'Edit{index}: find and replace only')
+            raise ValueError(f'Edit {index}: find and replace only')
         before, after = edit['find'], edit['replace']
         if not isinstance(before, str) or not before or not isinstance(after, str):
-            raise ValueError(f'Edit{index}: nonempty find and string replacement required')
+            raise ValueError(f'Edit {index}: nonempty find and string replacement required')
         if before == after:
-            raise ValueError(f'Edit{index}: unchanged replacement')
+            raise ValueError(f'Edit {index}: unchanged replacement')
         if content.count(before) != 1:
-            raise ValueError(f'Edit{index}: find must match exactly once in the current source')
+            raise ValueError(f'Edit {index}: find must match exactly once in the current source')
         content = content.replace(before, after, 1)
         records.append({'index': index, 'find_sha256': hashlib.sha256(before.encode()).hexdigest(),
                         'replacement_sha256': hashlib.sha256(after.encode()).hexdigest()})

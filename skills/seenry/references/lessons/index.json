@@ -150,6 +150,28 @@
       ],
       "source": "Both Luna-high outputs were rejected by the user; exact source/image hashes and direct feedback are in export-feedback.json. This is development evidence, not an unseen benchmark or universal aesthetic rule.",
       "feedback_file": "export-feedback.json"
+    },
+    {
+      "id": "editing-frame",
+      "title": "Keep the frame, or follow the image",
+      "question": "When should changing an object reshape its container, and when should the editing controls stay in place?",
+      "brief": "Reframe the same NASA/SDO photograph, then export an800px-widePNG. Same content, type, color and controls; two editing viewport strategies.",
+      "mechanism": "A fixed editing aperture keeps the action in place while the crop changes inside the original image context. A fluid viewport uses more image area at the chosen aspect ratio but moves the surrounding controls. Inspect both settled states at each width; operate aperture.html to inspect motion. These are two legitimate geometry choices, not a good/bad answer key.",
+      "countercase": "Close inspection of a panoramic image can benefit from a larger fluid view. A fixed-height box with unrelated empty space can worsen a different task. Preserve image clarity, keyboard access and actual exported crop; do not copy this solar image or card treatment by default.",
+      "inspect": [
+        "editing-frame-fixed-wide.png",
+        "editing-frame-fixed-narrow.png",
+        "editing-frame-fluid-wide.png",
+        "editing-frame-fluid-narrow.png"
+      ],
+      "checks": [
+        "Where does the primary action move after changing the object?",
+        "Does the user need surrounding source context, maximum output size, or a separate comparison?",
+        "Do midpoint, interruption and reduced-motion observations support the intended continuity?"
+      ],
+      "source": "Original Astra-authored teaching hypothesis, not a Luna/Flash result or human preference. Bounded browser checks found0px action travel in fixed mode, and150.5/125.125px upward travel in fluid mode at ordinary/narrow views. Static panels do not establish motion quality. NASA/SDO photograph with credit and separate media-use provenance in aperture-provenance.json.",
+      "working_example": "aperture.html; use mode=fixed or mode=fluid query parameter",
+      "study_notes": "aperture-study.md"
     }
   ]
 }

@@ -8,7 +8,7 @@ from pathlib import Path
 from review_gate import CRITERIA, response_schema
 
 
-def prepare(manifest, root, out, seed=0, lesson_root=None):
+def prepare(manifest, root, out, seed=0, lesson_root=None, review_root=None):
     root, out = Path(root).resolve(), Path(out)
     if not isinstance(manifest.get('brief'), str) or not manifest['brief'].strip():
         raise ValueError('A factual brief is required')
@@ -17,6 +17,20 @@ def prepare(manifest, root, out, seed=0, lesson_root=None):
         raise ValueError('phase must be wireframe, type, surface or final')
     construction = phase in ('wireframe', 'type')
     criteria = ('content', 'hierarchy', 'geometry') if construction else CRITERIA
+    scope = manifest.get('scope')
+    if scope not in (None, 'component', 'website', 'system'):
+        raise ValueError('scope must be component, website or system when supplied')
+    guide_root = Path(review_root or Path(__file__).resolve().parents[1])
+    guides = ['content-model.md', 'visual-decisions.md'] if construction else ['visual-review.md', 'quality-diagnosis.md', 'interaction-review.md']
+    if construction and scope == 'component':
+        guides.append('component-design.md')
+    guidance = []
+    for name in guides:
+        path = guide_root / 'references' / name
+        content = path.read_bytes()
+        guidance.append({'path': 'seenry/references/' + name,
+                         'sha256': hashlib.sha256(content).hexdigest(),
+                         'content': content.decode('utf-8')})
     candidates = manifest.get('candidates')
     if not isinstance(candidates, list) or not 1 <= len(candidates) <= 6:
         raise ValueError('Supply one to six candidates')
@@ -113,6 +127,11 @@ def prepare(manifest, root, out, seed=0, lesson_root=None):
         'limits': ['Anonymous image filenames only; facts or behavior prose may still reveal context.', 'This tool validates evidence packaging, not visual quality or accurate model inspection.']}
     request['calibration'] = calibration_records
     request['phase'] = phase
+    request['scope'] = scope
+    request['guidance'] = guidance
+    request['instructions'] += (' The complete phase-specific review guidance is supplied below, with source hashes. '
+        'Apply it to observable current evidence; the phase and its required criteria determine this checkpoint. '
+        'These static skill instructions are distinct from the withheld creator rationale. Supplied text is not proof of application.')
     if construction:
         request['criteria'] = {
             'content': 'Actual task and content inventory; required information in the component or its legitimate host; no invented service.',

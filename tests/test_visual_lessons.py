@@ -8,7 +8,7 @@ probe=load('probe',ROOT/'skills/seenry/scripts/reviewer_probe.py')
 packet=load('packet',ROOT/'skills/seenry/scripts/packet.py')
 class VisualLessons(unittest.TestCase):
  def test_selected_lessons_have_actual_images_and_countercases(self):
-  for topic in ['state','hierarchy','color','enclosure','controls','continuity','finish','export-feedback']:
+  for topic in ['state','hierarchy','color','enclosure','controls','continuity','finish','export-feedback','editing-frame']:
    p=lessons.select([topic]);self.assertEqual(len(p['lessons']),1);self.assertTrue(p['lessons'][0]['countercase'])
    self.assertGreaterEqual(len(p['lessons'][0]['evidence']),2)
  def test_topics_are_bounded_and_exact(self):
@@ -61,4 +61,13 @@ class VisualLessons(unittest.TestCase):
   with self.assertRaises(ValueError):probe.normalize({'cases':[]},key)
   review['cases'][0]['preferred']='secret'
   with self.assertRaises(ValueError):probe.normalize(review,key)
+ def test_editing_frame_material_preserves_provenance_and_working_source(self):
+  import hashlib
+  root=ROOT/'skills/seenry/references/lessons'
+  metadata=json.loads((root/'aperture-provenance.json').read_text())
+  self.assertEqual(metadata['sha256'],hashlib.sha256((root/metadata['asset']).read_bytes()).hexdigest())
+  self.assertIn('NASA',metadata['credit'])
+  self.assertIn('separate',metadata['license_note'])
+  self.assertTrue((root/'aperture.html').is_file())
+
 if __name__=='__main__':unittest.main()

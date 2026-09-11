@@ -96,6 +96,8 @@ Use `review_request.py` for construction as well as final review. Its manifest a
 
 Select `calibration_topics: ["export-feedback"]` or one or two relevant built-in decision topics when a scoped regression needs to reach a fresh reviewer. The packet copies real lesson images, their hashes, feedback and countercases, and writes `images.json` for direct attachment. Calibration images remain separate from candidates and cannot replace a current-candidate evidence citation. Do not pass the author's persuasive rationale or condition label. In matched comparisons, supply the same review criteria and calibration to both conditions and record this choice before judging.
 
+The request also embeds the actual phase-specific review guides with hashes, rather than relying on a short rubric or links a tool-restricted reviewer cannot open. Missing required guides stop preparation. Construction receives content/layout guidance; surface and final reviews receive the complete visual diagnosis and interaction guidance.
+
 The response schema requires exactly the supplied candidate count. Validate identities and disposition as well; a reviewer who omits an alternative has not completed the comparison. Preserve an incomplete response and retry its format/coverage explicitly. Do not silently supply missing judgments or turn deferred final requirements into construction failures.
 
 

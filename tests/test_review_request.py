@@ -85,4 +85,26 @@ class ReviewRequest(unittest.TestCase):
    root=self.root(tmp);m=self.manifest();m['phase']='whatever'
    with self.assertRaises(ValueError):prepare(m,root,root/'out')
    self.assertFalse((root/'out').exists())
+ def test_full_review_guidance_is_supplied_with_actual_source_hashes(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=self.root(tmp);p=prepare(self.manifest(),root,root/'out')
+   guides={x['path']:x for x in p['guidance']}
+   self.assertIn('seenry/references/visual-review.md',guides)
+   self.assertIn('seenry/references/quality-diagnosis.md',guides)
+   for name,item in guides.items():
+    import hashlib
+    content=(ROOT/'skills'/name).read_bytes()
+    self.assertEqual(item['sha256'],hashlib.sha256(content).hexdigest())
+    self.assertEqual(item['content'].encode('utf-8'),content)
+   self.assertIn('Inspect every supplied candidate',guides['seenry/references/visual-review.md']['content'])
+ def test_missing_guidance_blocks_handoff_and_construction_stays_scoped(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=self.root(tmp)
+   with self.assertRaises(FileNotFoundError):prepare(self.manifest(),root,root/'bad',review_root=root/'missing')
+   self.assertFalse((root/'bad').exists())
+   m=self.manifest();m.update(phase='type',scope='component');p=prepare(m,root,root/'out')
+   names={x['path']for x in p['guidance']}
+   self.assertIn('seenry/references/component-design.md',names)
+   self.assertNotIn('seenry/references/visual-review.md',names)
+
 if __name__=='__main__':unittest.main()
