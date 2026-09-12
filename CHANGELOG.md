@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — 2.0.1-dev.1
+
+- Separates ordinary native design work from optional recorder/model experiments; retains planning, real wireframes, a finished slice and actual review.
+- Makes new CLI handoffs focused by default, with measured guide sizes and topic-specific reading. Selected helper source, dependencies, licenses and requested feedback remain intact.
+- Inherits the research route from the project unless explicitly overridden. Both stage packets and anonymous review handoffs route applicable motion/material guidance, retaining all final review criteria.
+- Consolidates motion around behavior and a compact state contract; expressive-effect API detail stays optional and source attribution stays in provenance. No paid third-party skill content is bundled.
+- Validates 137 Python checks, package resources and one independent planning pass before another output benchmark. These changes are not evidence of improved visual acceptance.
+
 ## 2.0.0 — 2026-09-11
 
 Seenry now carries the design workflow and research tools in one installable package. A simple brief can move through product facts, reference study, working layout alternatives, typography, color, interaction and rendered review. MCP is optional.
@@ -8,7 +16,7 @@ Seenry now carries the design workflow and research tools in one installable pac
 - Adds distinct routes for components, websites and connected product systems, plus shared design records and scoped stage packets.
 - Preserves source, resource hashes, actual construction history and incomplete attempts. Narrow revisions can replace selected inline blocks without regenerating the surrounding artifact.
 - Adds real palette comparisons, rendered state-label measurements, behavior probes, geometry and motion evidence, and independent visual-review handoffs.
-- Includes interruptible motion helpers, Morphicons, NumberFlow, scroll choreography and an optional working study of the five public libraries.dev effect families.
+- Includes interruptible motion helpers, Morphicons, NumberFlow, scroll choreography and an optional working study of five public effect families.
 - Provides reversible local installation and migration, archive/rollback, relocation checks and shared agent-directory links.
 
 ### Upgrade

@@ -1,6 +1,6 @@
 # Motion capability lab
 
-A host-authored integration study for the five public libraries.dev packages. This is not a model-generated product, a landing-page template or proof of visual quality. Read the [decision study](../../skills/seenry-motion/references/libraries-dev.md) before adopting an effect.
+A host-authored integration study for the five public libraries.dev packages. This is not a model-generated product, a landing-page template or proof of visual quality. Read the [decision study](../../skills/seenry-motion/references/expressive-effects.md) before adopting an effect.
 
 From this directory, with Node/npm and Python available:
 

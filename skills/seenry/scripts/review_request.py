@@ -20,15 +20,27 @@ def prepare(manifest, root, out, seed=0, lesson_root=None, review_root=None):
     scope = manifest.get('scope')
     if scope not in (None, 'component', 'website', 'system'):
         raise ValueError('scope must be component, website or system when supplied')
-    guide_root = Path(review_root or Path(__file__).resolve().parents[1])
+    # Carry factual requirements, never the creator's full project/rationale.
+    # Older manifests without needs stay explicitly undecided, not silently none.
+    needs = {key: manifest.get(key, 'undecided') for key in ('media', 'motion')}
+    for key, allowed in (('media', ('needed', 'none', 'undecided')),
+                         ('motion', ('signature', 'feedback', 'none', 'undecided'))):
+        if needs[key] not in allowed:
+            raise ValueError(f'{key} must be one of: ' + ', '.join(allowed))
+    guide_root = Path(review_root or Path(__file__).resolve().parents[1]).resolve()
     guides = ['content-model.md', 'visual-decisions.md'] if construction else ['visual-review.md', 'quality-diagnosis.md', 'interaction-review.md']
     if construction and scope == 'component':
         guides.append('component-design.md')
+    guide_paths = [(f'seenry/references/{name}', guide_root / 'references' / name) for name in guides]
+    if not construction:
+        for key, relative in (('motion', 'seenry-motion/references/motion-contract.md'),
+                              ('media', 'seenry-assets/references/material-review.md')):
+            if needs[key] != 'none':
+                guide_paths.append((relative, guide_root.parent / relative))
     guidance = []
-    for name in guides:
-        path = guide_root / 'references' / name
+    for relative, path in guide_paths:
         content = path.read_bytes()
-        guidance.append({'path': 'seenry/references/' + name,
+        guidance.append({'path': relative,
                          'sha256': hashlib.sha256(content).hexdigest(),
                          'content': content.decode('utf-8')})
     candidates = manifest.get('candidates')
@@ -128,10 +140,15 @@ def prepare(manifest, root, out, seed=0, lesson_root=None, review_root=None):
     request['calibration'] = calibration_records
     request['phase'] = phase
     request['scope'] = scope
+    request['needs'] = needs
+    request['needs_source'] = {key: 'manifest' if key in manifest else 'unspecified' for key in needs}
     request['guidance'] = guidance
     request['instructions'] += (' The complete phase-specific review guidance is supplied below, with source hashes. '
         'Apply it to observable current evidence; the phase and its required criteria determine this checkpoint. '
         'These static skill instructions are distinct from the withheld creator rationale. Supplied text is not proof of application.')
+    request['instructions'] += (' Media/motion needs are factual review scope, not an aesthetic preference. '
+        'Undecided or unspecified does not require adding images or animation; establish relevance from the brief and supplied evidence. '
+        'With explicit none, still judge readability, control feedback and task completion under the main criteria.')
     if construction:
         request['criteria'] = {
             'content': 'Actual task and content inventory; required information in the component or its legitimate host; no invented service.',

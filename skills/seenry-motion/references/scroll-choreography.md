@@ -1,6 +1,6 @@
 # Author a scroll choreography
 
-Start with a story and spatial plan, then author the timeline. A page of unrelated scroll reveals is not a coordinated scene. Our workflow and adapter are original Seenry resources; transitions-dev is not required. GSAP can provide the runtime without supplying the design decisions.
+Start with a story and spatial plan, then author the timeline. A page of unrelated scroll reveals is not a coordinated scene. Our workflow and adapter are original Seenry resources and need no external design skill. GSAP can provide the runtime without supplying the design decisions.
 
 ## Score the scene before implementation
 

@@ -1,5 +1,7 @@
 # Seenry skills
 
+This working revision is **2.0.1-dev.1**, restructuring instruction delivery before further output testing. The published stable release remains 2.0.0.
+
 A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 
 | Skill | Use it for |
@@ -42,7 +44,7 @@ Use the current native schemas; a versioned [tool contract](skills/seenry/refere
 
 For a full build: understand → research → three concepts → working wireframes → real type → surfaces and interaction proofs → compare → complete sequence → exercise and refine. Narrow fixes stay narrow. [Architecture](ARCHITECTURE.md) explains responsibilities; the project [DESIGN.md guide](skills/seenry/references/design-record.md) preserves decisions and actual construction evidence.
 
-The primary skill loads relevant support progressively. Optional stage packets are available through `skills/seenry/scripts/packet.py`, with hashes of supplied resources. Supplied guidance, observed reads and applied design choices are different evidence. Neither skill installation nor a reference rating guarantees visual acceptance.
+The primary skill loads support for the current unresolved decision. Ordinary work uses a compact DESIGN.md, working source and relevant captures; model/recorder manifests belong to explicitly recorded experiments. New CLI handoffs default to focused guidance and inherit the project’s evidence route unless explicitly overridden. Optional stage packets are available through `skills/seenry/scripts/packet.py`, with hashes of supplied resources. Supplied guidance, observed reads and applied design choices are different evidence. Neither skill installation nor a reference rating guarantees visual acceptance.
 
 ## Plan with real material and motion
 
@@ -94,4 +96,4 @@ For multi-screen applications, the [system design guide](skills/seenry/reference
 
 ### Optional motion capability lab
 
-The [libraries.dev decision study](skills/seenry-motion/references/libraries-dev.md) covers five public effect families and when to avoid them. The [runnable lab](examples/libraries-motion-lab/README.md) uses pinned free packages, explicit pause/reduced-motion policy and browser checks. These runtimes are optional; installing Seenry does not add React, WebGL or MCP requirements.
+The [expressive-motion guide](skills/seenry-motion/references/expressive-effects.md) covers five public effect families and when to avoid them. The [runnable lab](examples/libraries-motion-lab/README.md) uses pinned free packages, explicit pause/reduced-motion policy and browser checks. These runtimes are optional; installing Seenry does not add React, WebGL or MCP requirements.

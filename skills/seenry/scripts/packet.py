@@ -38,10 +38,10 @@ FOCUSED_STAGES = {
     'plan': ['art-direction.md'],
     'wireframe': ['art-direction.md'],
     'type': ['visual-decisions.md'],
-    'surface': ['visual-decisions.md', 'color-decisions.md'],
+    'surface': ['visual-decisions.md'],
     'prototype': ['content-and-finish.md', 'visual-decisions.md'],
     'compare': ['visual-review.md'],
-    'build': ['content-and-finish.md', 'interaction-review.md'],
+    'build': ['design-record.md', 'visual-decisions.md'],
     'review': ['visual-review.md', 'production-review.md'],
     'refine': ['visual-review.md', 'visual-decisions.md'],
 }
@@ -54,7 +54,10 @@ COMPONENT_REPLACEMENTS = {
     'content-and-finish.md': ['component-design.md'],
 }
 
-def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source='auto', project=None, profile='complete'):
+def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source=None, project=None, profile='complete'):
+    # An absent flag must not silently override the project's chosen evidence route.
+    if research_source is None:
+        research_source = project.get('research_source', 'auto') if project else 'auto'
     if research_source not in SOURCES:
         raise ValueError(f'Unknown research source: {research_source}')
     root = Path(root).resolve()
@@ -75,7 +78,7 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         if project.get('media') not in ('needed', 'none', 'undecided') or project.get('motion') not in ('signature', 'feedback', 'none', 'undecided'):
             raise ValueError('Project requires explicit media and motion needs; use undecided when unknown')
         # Asset-dependent concepts and choreography must be informed before selection.
-        if stage in ('research', 'plan', 'prototype', 'type', 'surface', 'build', 'refine'):
+        if stage in ('research', 'plan', 'prototype', 'type', 'surface', 'build', 'compare', 'review', 'refine'):
             if project['media'] != 'none': assets = True; decisions.append('Material guidance loaded before committing to image-led direction')
             if project['motion'] != 'none' and stage != 'type': motion = True; decisions.append('Motion direction available during planning')
         if stage == 'type': assets = True; decisions.append('Actual typography shortlist guidance selected')
@@ -86,20 +89,22 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         decisions.append('Component-specific guides replace website argument, hero and page-record guidance')
     paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in selected]
     if libraries and stage not in ('understand', 'type'):
-        paths += [root.parent / 'seenry-motion/references/libraries-dev.md']
+        paths += [root.parent / 'seenry-motion/references/expressive-effects.md']
         decisions.append('Optional motion library study supplied for: ' + ', '.join(libraries) + '; installation and integration remain unverified')
     if component and stage == 'plan':
-        paths += [root / 'references/component-record.md', root / 'references/color-decisions.md',
-                  root / 'references/studies/component-family.md']
-        decisions.append('Resolve inherited versus invented color identity before component concepts')
-    if project is not None and project.get('scope') == 'component':
+        paths += [root / 'references/component-record.md']
+        if not focused:
+            paths += [root / 'references/color-decisions.md', root / 'references/studies/component-family.md']
+        decisions.append('Plan the component in its host; inherited identity precedes invented color')
+    if component and not focused:
         paths += [root / 'references/component-design.md']
         decisions.append('Component scope: preserve its containing context and states; do not silently expand into a landing page')
     if project is not None and project.get('scope') == 'system':
         paths += [root / 'references/system-design.md']
         decisions.append('System scope: carry shared decisions and journey context; a finished slice does not certify the whole application')
     lesson_evidence = None
-    lesson_stages = ('type', 'surface', 'prototype', 'refine') if focused else ('plan', 'type', 'surface', 'prototype', 'compare', 'review', 'refine')
+    # Focused handoffs carry requested teaching cases, not the same default look on every brief.
+    lesson_stages = () if focused else ('plan', 'type', 'surface', 'prototype', 'compare', 'review', 'refine')
     explicit_lesson_stage = project is not None and bool(project.get('decisions')) and stage in ('plan', 'wireframe', 'type', 'surface', 'prototype', 'compare', 'build', 'review', 'refine')
     if project is not None and (stage in lesson_stages or explicit_lesson_stage):
         import importlib.util
@@ -117,17 +122,30 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         paths += [root / 'references/research.md']
     if stage == 'research' and research_source in ('local', 'web'):
         paths += [root / 'references/visual-decisions.md', root / 'references/hci-decisions.md']
+    if focused and project and 'color' in (project.get('decisions') or []) and stage in ('plan','surface','prototype','refine'):
+        paths += [root / 'references/color-decisions.md']
+        decisions.append('Full color guide supplied for the explicitly unresolved color decision')
+    if focused and project and 'export-feedback' in (project.get('decisions') or []) and stage in ('plan','type','surface','build','refine'):
+        paths += [root / 'references/content-model.md']
+        decisions.append('Content model retained for the explicitly selected duplicate-label and feedback regression')
     if motion:
         motion_root = root.parent / 'seenry-motion'
-        if not focused: paths += [motion_root / 'SKILL.md']
-        if stage in ('research','plan') and (not project or project['motion'] != 'feedback'):
-            paths += [motion_root / 'references/worked-scores.md']
-        else:
-            paths += [motion_root / 'references/motion-craft.md']
-        if stage in ('surface', 'build', 'review', 'refine'):
-            paths += [motion_root / 'references/adapters.md']
-            if not project or project['motion'] != 'feedback':
+        if focused:
+            paths += [motion_root / 'references/motion-contract.md']
+            if stage in ('research','plan') and project and project['motion'] == 'signature':
+                paths += [motion_root / 'references/worked-scores.md']
+            if 'scroll' in helpers and stage in ('plan','surface','build','review','refine'):
                 paths += [motion_root / 'references/scroll-choreography.md']
+        else:
+            paths += [motion_root / 'SKILL.md']
+            if stage in ('research','plan') and (not project or project['motion'] != 'feedback'):
+                paths += [motion_root / 'references/worked-scores.md']
+            else:
+                paths += [motion_root / 'references/motion-craft.md']
+            if stage in ('surface', 'build', 'review', 'refine'):
+                paths += [motion_root / 'references/adapters.md']
+                if not project or project['motion'] != 'feedback':
+                    paths += [motion_root / 'references/scroll-choreography.md']
     if 'number' in helpers and stage == 'plan':
         paths += [root.parent / 'seenry-motion/references/number-transitions.md']
     selected_helper_files = []
@@ -158,7 +176,7 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
             paths += [root.parent / 'seenry-assets/assets/type.example.json']
         if stage in ('research', 'plan'):
             paths += [root.parent / 'seenry-assets/assets/candidates.example.json']
-        if stage in ('research','plan','surface','build','review','refine'):
+        if stage in ('research','plan','surface','build','compare','review','refine'):
             paths += [root.parent / ('seenry-assets/references/object-material.md' if component else 'seenry-assets/references/material-production.md')]
     if stage in ('type','surface','build','refine'):
         paths += [root / 'references/design-continuity.md']
@@ -169,7 +187,10 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         path = pending.pop(0)
         if path in seen: continue
         seen.add(path)
-        for dependency in DEPENDENCIES.get(path.name, []):
+        dependencies = DEPENDENCIES.get(path.name, [])
+        if focused and path.name in ('content-and-finish.md','visual-review.md'):
+            dependencies = []  # Examples load only for a selected question; review criteria remain complete.
+        for dependency in dependencies:
             target = root / 'references' / dependency
             paths.append(target); pending.append(target)
     paths = list(dict.fromkeys(paths))
@@ -188,6 +209,9 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         if not path.is_file(): raise FileNotFoundError(f'Missing helper runtime: {path}')
         runtime_files.append({'path': path.relative_to(root.parent).as_posix(), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
     return {'schema': 5, 'stage': stage, 'profile': profile, 'evidence': 'supplied-only', 'routing_decisions': decisions,
+            'guidance_size': {'resources': len(records), 'words': sum(len(r['content'].split()) for r in records),
+                              'bytes': sum(len(r['content'].encode('utf-8')) for r in records),
+                              'scope': 'Supplied resource bodies only; excludes project, image and host-contract payloads. No guidance was truncated.'},
             'entrypoint': {'path': entry.relative_to(root.parent).as_posix(), 'sha256': hashlib.sha256(entry.read_bytes()).hexdigest(), 'body_supplied': not focused},
             'visual_lessons': lesson_evidence,
             'project_decisions': project,
@@ -201,9 +225,9 @@ if __name__ == '__main__':
     parser.add_argument('stage', choices=STAGES)
     parser.add_argument('--motion', action='store_true')
     parser.add_argument('--assets', action='store_true')
-    parser.add_argument('--research-source', choices=SOURCES, default='auto')
+    parser.add_argument('--research-source', choices=SOURCES, default=None, help='Explicit override; otherwise use project research_source, then auto')
     parser.add_argument('--project', type=Path, help='JSON with media and motion needs; enables automatic early support')
-    parser.add_argument('--profile', choices=('complete', 'focused'), default='complete', help='Focused is an experimental smaller stage packet; the host must already load the entrypoint')
+    parser.add_argument('--profile', choices=('complete', 'focused'), default='focused', help='Focused supplies the current decision; the host first loads SKILL.md. Complete supplies broader guidance explicitly.')
     args = parser.parse_args()
     try:
         project = json.loads(args.project.read_text(encoding='utf-8')) if args.project else None

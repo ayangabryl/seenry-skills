@@ -105,7 +105,8 @@ class Execution(unittest.TestCase):
             for stage in ('plan','wireframe','type','surface','build','refine'):
                 packet_result=packet.compile_packet(stage,project=project,profile=profile)
                 names={r['path'] for r in packet_result['resources']}
-                self.assertIn('seenry/references/content-model.md',names)
+                if profile == 'complete' or stage in ('plan','wireframe'):
+                    self.assertIn('seenry/references/content-model.md',names)
                 self.assertNotIn('seenry/references/art-direction.md',names)
                 self.assertNotIn('seenry/references/content-and-finish.md',names)
                 self.assertNotIn('seenry/references/studies/hoy.md',names)
@@ -113,8 +114,11 @@ class Execution(unittest.TestCase):
             plan=packet.compile_packet('plan',project=project,profile=profile)
             names={r['path'] for r in plan['resources']}
             self.assertIn('seenry/references/component-record.md',names)
-            self.assertIn('seenry/references/color-decisions.md',names)
-            self.assertIn('seenry/references/studies/component-family.md',names)
+            if profile == 'complete':
+                self.assertIn('seenry/references/color-decisions.md',names)
+                self.assertIn('seenry/references/studies/component-family.md',names)
+            else:
+                self.assertNotIn('seenry/references/studies/component-family.md',names)
             self.assertIn('seenry-assets/references/object-material.md',names)
         website=packet.compile_packet('plan',project={**project,'scope':'website'})
         names={r['path'] for r in website['resources']}

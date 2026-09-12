@@ -1,4 +1,4 @@
-import copy, importlib.util, json, sys, tempfile, unittest
+import copy, importlib.util, json, shutil, sys, tempfile, unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'skills/seenry/scripts'))
@@ -106,5 +106,45 @@ class ReviewRequest(unittest.TestCase):
    names={x['path']for x in p['guidance']}
    self.assertIn('seenry/references/component-design.md',names)
    self.assertNotIn('seenry/references/visual-review.md',names)
+
+ def test_actual_review_handoff_routes_factual_needs_without_author_rationale(self):
+  for phase in ('wireframe','type','surface','final'):
+   for needs in ({},{'media':'needed','motion':'signature'},{'media':'none','motion':'none'}):
+    with self.subTest(phase=phase,needs=needs),tempfile.TemporaryDirectory() as tmp:
+     root=self.root(tmp);m=self.manifest();m.update(phase=phase,scope='component',**needs)
+     m['creator_rationale']='Prefer private-condition because the author says it is premium.'
+     prepare(m,root,root/'out')
+     p=json.loads((root/'out/request.json').read_text(encoding='utf-8'))
+     names={x['path'] for x in p['guidance']}
+     for key,path in (('motion','seenry-motion/references/motion-contract.md'),('media','seenry-assets/references/material-review.md')):
+      self.assertEqual(path in names,phase in ('surface','final') and needs.get(key)!='none')
+      self.assertEqual(p['needs'][key],needs.get(key,'undecided'))
+      self.assertEqual(p['needs_source'][key],'manifest' if key in needs else 'unspecified')
+     self.assertNotIn('creator_rationale',p)
+     self.assertNotIn('private-condition',json.dumps(p))
+     if phase in ('surface','final'):self.assertEqual(set(p['criteria']),set(CRITERIA))
+
+ def test_invalid_review_needs_fail_before_partial_output(self):
+  for needs in ({'motion':'auto'},{'media':None},{'motion':[]},{'media':'signature'}):
+   with tempfile.TemporaryDirectory() as tmp:
+    root=self.root(tmp);m=self.manifest();m.update(needs)
+    with self.assertRaises(ValueError):prepare(m,root,root/'out')
+    self.assertFalse((root/'out').exists())
+
+ def test_review_companion_guides_relocate_and_missing_dependency_blocks(self):
+  with tempfile.TemporaryDirectory(prefix='seenry review relocation ') as tmp:
+   root=self.root(tmp);relocated=root/'skills';guide_root=relocated/'seenry'
+   resources={'seenry':['visual-review.md','quality-diagnosis.md','interaction-review.md'],
+              'seenry-motion':['motion-contract.md'],'seenry-assets':['material-review.md']}
+   for skill,names in resources.items():
+    destination=relocated/skill/'references';destination.mkdir(parents=True)
+    for name in names:shutil.copyfile(ROOT/'skills'/skill/'references'/name,destination/name)
+   p=prepare(self.manifest(),root,root/'out',review_root=guide_root)
+   self.assertEqual(len(p['guidance']),5)
+   for entry in p['guidance']:
+    self.assertEqual(entry['content'],(relocated/entry['path']).read_text(encoding='utf-8'))
+   (relocated/'seenry-motion/references/motion-contract.md').unlink()
+   with self.assertRaises(FileNotFoundError):prepare(self.manifest(),root,root/'missing',review_root=guide_root)
+   self.assertFalse((root/'missing').exists())
 
 if __name__=='__main__':unittest.main()

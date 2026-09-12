@@ -1,18 +1,20 @@
-# Choose an effect by its job
+# Expressive effects after the behavior decision
 
-Study date: 2026-09-11. This covers the five libraries in the public [libraries.dev catalog](https://libraries.dev/), not every preset, private Studio asset, native port or future release. The free npm packages are MIT licensed. They are optional rendering tools, not a design skill dependency, an image source or a substitute for choreography. No MCP or paid account is required to use this guide.
+Use this technical reference only after the interaction needs liquid continuity, material reflection, process presence, boundary emphasis or image reveal. Start with [the motion contract](motion-contract.md). Select the relevant family below; do not load or install the full catalog for an ordinary control.
 
-## Decide before installing
+The five pinned packages are optional MIT-licensed rendering tools. This guide is authored within Seenry from public documentation and inspected package surfaces; it does not import an external agent skill. No MCP or paid account is required. Source attribution and the scope of the study are recorded in **Provenance** below.
+
+## Decide before selecting an engine
 
 State the change a person needs to understand: where an action is, whether work is actually running, which controls belong together, what material a brand evokes, or which image has arrived. Choose a stable reference point, the trigger, an informative settled state, an interruption rule and a motion-free equivalent. Inspect that moment in the real layout. Remove the effect if it competes with the content or obscures the change.
 
 Use one owning runtime per animated property. Do not let GSAP, React state, a spring and a CSS transition simultaneously write the same transform. Scroll can drive an explicitly supported parameter; a looping shader is not a scroll narrative. For page choreography use [worked scores](worked-scores.md) and [scroll choreography](scroll-choreography.md), with reading holds, reverse travel and a static sequence. None of these five packages provides the complete page score.
 
-For staged runs, explicitly declare `motion_libraries`, for example `["liquid-gooey"]`, in the project JSON alongside `media` and `motion`. The packet compiler supplies this guide during research, planning, prototyping, building and review. This declares an option to investigate, not permission to assume it is installed or compatible. The installed version, license and API must be checked before importing it. Leave the field empty for ordinary CSS/SVG/WAAPI motion.
+For staged runs, explicitly declare `motion_libraries`, for example `["liquid-gooey"]`, in the project JSON alongside `media` and `motion`. The packet compiler can supply this guide to the relevant stage when the selected mechanism needs it. This declares an option to investigate, not permission to assume it is installed or compatible. The installed version, license and API must be checked before importing it. Leave the field empty for ordinary CSS/SVG/WAAPI motion.
 
-## Border Beam: direct attention along a boundary
+## Boundary emphasis
 
-Verified package surface: `border-beam@1.3.0`, React/React DOM >=18 peers. [Documentation](https://libraries.dev/beam), [source](https://github.com/Jakubantalik/border-beam).
+Verified package surface: `border-beam@1.3.0`, React/React DOM >=18 peers.
 
 `BorderBeam` wraps ordinary content. Its five size families are `sm`, `md`, `line`, `pulse-inner` and `pulse-outside`. Color families are `colorful`, `mono`, `ocean` and `sunset`. `active`, `strength`, `duration`, `staticColors`, `theme` and `borderRadius` expose the important controls. `active={false}` controls the effect, not the button's availability.
 
@@ -20,9 +22,9 @@ Fit: a single temporarily emphasized action, a focused tool surface, or a delibe
 
 Keep keyboard focus independently visible. Check bloom clipping, nested radius alignment and contrast at both the brightest and darkest frames. Do not equate a moving border with measured progress. The package contains reduced-motion CSS and intersection handling; this does not certify the complete integration.
 
-## Thinking Orbs: give a real process a recognizable presence
+## Process presence
 
-Verified package surface: `thinking-orbs@0.3.1`, React >=18 peer. [Documentation](https://libraries.dev/orbs), [source](https://github.com/Jakubantalik/thinking-orbs).
+Verified package surface: `thinking-orbs@0.3.1`, React >=18 peer.
 
 `ThinkingOrb` has nine named states: `working`, `searching`, `solving`, `listening`, `connecting`, `weaving`, `composing`, `breathing`, `shaping`. Use the actual `theme` property (`auto`, `light`, `dark`), plus `paused`, `speed` and the separately tuned sizes 20 or 64. Do not assume a `dark` boolean from an older example matches these installed types.
 
@@ -30,9 +32,9 @@ Fit: a conversational process indicator or expressive system identity where a vi
 
 Avoid an always-active ornament in a paused player, ordinary form, or quiet reading surface. A simple text update can be sufficient. Explicitly connect `paused` to user pause, reduced motion, document visibility and viewport visibility. The inspected distributed JS did not expose a `prefers-reduced-motion` hook; absence of that string alone is not a complete behavior audit. Test actual frames instead of relying on the catalog-wide accessibility claim.
 
-## Liquid Gooey: preserve a relationship while shapes change
+## Liquid continuity
 
-Verified package surface: `liquid-gooey@0.2.1`, React/React DOM >=18 peers. [Documentation](https://libraries.dev/gooey), [public monorepo](https://github.com/Jakubantalik/Libraries.dev).
+Verified package surface: `liquid-gooey@0.2.1`, React/React DOM >=18 peers.
 
 `Liquid` owns merged fill, blur, contrast, shadow and filter bounds. `Liquid.Item` exposes `morph`, `move`, `melt` and `bend`, with `x`, `y`, `scale`, `transition` and per-effect tuning. `morph` connects or changes shapes; `move` adds trailing mass; `bend` deforms with velocity. `melt` combines image surfaces: its documented implementation is pairwise, so do not assume an arbitrary grid will blend correctly. Shape physics are not enabled merely by choosing `morph`; inspect `morph.shape` and its tuning.
 
@@ -40,9 +42,9 @@ Fit: revealing a closely related action group, a playful selection indicator, or
 
 Keep text and focus crisp, and preserve hit areas separately from decorative geometry. A collapsed child must not remain tabbable or intercept the parent button. Test opening, closing, immediate reversal, keyboard activation and reduced motion while open. Check filter clipping and touch input. A static group or a short geometry transition is the fallback. The package includes a reduced-motion hook, but verify the selected effect and its nested controls, not just the hook's presence.
 
-## Metal FX: express material, not generic importance
+## Material reflection
 
-Verified package surface: `metal-fx@2.0.10`, React/React DOM >=18 peers. [Documentation](https://libraries.dev/metal), [source](https://github.com/Jakubantalik/metal-fx).
+Verified package surface: `metal-fx@2.0.10`, React/React DOM >=18 peers.
 
 The current v2 API includes `MetalFx`, `MetalText`, `MetalBadge`, `useMetalBend` and `useMetalTextReflection`. The wrapper accepts `preset` (`chromatic`, `silver`, `gold`), `strength`, `paused`, `reflectionTargets`, `disableGlow`, `glowGain`, `innerShadow` and explicit radius. Text and badge components have their own props; do not pass wrapper props blindly. The vendor describes v2 as built on Paper Shaders; v1 examples can differ.
 
@@ -50,9 +52,9 @@ Fit: an instrument, hardware object, crafted identity or a deliberately reflecti
 
 Pointer reflection is optional enhancement. Keyboard and touch users must retain the same action and readable state. Keep label contrast and focus outside the shader's responsibility. Test WebGL capability before enhancement, keep the plain child available, and test context loss rather than assuming initial support lasts. Pass pause policy explicitly; the inspected source's reduced-motion check around pointer effects does not prove every render loop is suspended. Large text, masks and bend variants require their own prototype and performance checks.
 
-## Image FX: reveal an image that actually exists
+## Image reveal
 
-Verified package surface: `img-fx@0.5.1`, React/React DOM >=18 and Three >=0.149 peers. [Documentation](https://libraries.dev/image), [source](https://github.com/Jakubantalik/img-fx).
+Verified package surface: `img-fx@0.5.1`, React/React DOM >=18 and Three >=0.149 peers.
 
 `ImageGeneration` wraps children and supports `pixels-organic`, `pixels-mechanic`, `sweep-gradient`, `images`, `autoReveal`, `paused`, `strength`, theme and reveal timing. Despite the component name it performs no image generation. It requires image URLs or supplied content. Its automatic cycle callback is not a backend job event or download acknowledgment.
 
@@ -62,8 +64,24 @@ Use automatic reveal only for a genuine demonstration or an explicitly desired s
 
 ## Evidence and acceptance
 
-The package manifests and distributed types above were inspected at pinned versions. The [vendor accessibility page](https://libraries.dev/accessibility) makes catalog-wide claims; treat them as vendor statements until exercised. API availability, source inspection, local rendered behavior, cross-browser verification and human visual acceptance are distinct evidence levels.
+The package manifests and distributed types above were inspected at pinned versions. Catalog-wide accessibility claims remain vendor statements until exercised in the chosen integration. API availability, source inspection, local rendered behavior, cross-browser verification and human visual acceptance are distinct evidence levels.
 
 The repository includes a runnable `examples/libraries-motion-lab/` with pinned packages and browser checks. Its capability study exercised a selected configuration of each library in Chromium with a software GPU. It is not proof of all presets, Safari/Firefox behavior, native mobile ports, hardware smoothness or design quality. Native React Native/SwiftUI offerings need their own build and device evidence; a 390px browser capture is mobile emulation.
 
 For adoption, record the exact version, installed source/license, trigger, state ownership, interruption, pause/reduced-motion policy, fallback and a short real recording. Test: repeated input, reversal, offscreen return, resize, keyboard, touch, unmount and recovery. An effect that is attractive in isolation can still fail its content, layout or frame budget. Select it only after comparing the task with and without the treatment.
+
+## Provenance
+
+Public-source study recorded 2026-09-11; skill availability and redistribution terms checked 2026-09-12. The table identifies the documentation and source used for the pinned APIs. Newer upstream versions can differ.
+
+| Package | Public documentation | Public source |
+| --- | --- | --- |
+| `border-beam@1.3.0` | [Boundary effect](https://libraries.dev/beam) | [Source](https://github.com/Jakubantalik/border-beam) |
+| `thinking-orbs@0.3.1` | [Process states](https://libraries.dev/orbs) | [Source](https://github.com/Jakubantalik/thinking-orbs) |
+| `liquid-gooey@0.2.1` | [Liquid effects](https://libraries.dev/gooey) | [Package source](https://github.com/Jakubantalik/Libraries.dev/tree/main/packages/liquid-gooey) |
+| `metal-fx@2.0.10` | [Reflective effects](https://libraries.dev/metal) | [Source](https://github.com/Jakubantalik/metal-fx) |
+| `img-fx@0.5.1` | [Image effects](https://libraries.dev/image) | [Source](https://github.com/Jakubantalik/img-fx) |
+
+The public [catalog](https://libraries.dev/) and [accessibility statements](https://libraries.dev/accessibility) provide vendor context, not independent validation. The repository's `examples/libraries-motion-lab/package-study.json` records exact package versions, package integrity, inspected type hashes and declared MIT licenses. Its recorded verification is limited to selected configurations, not every preset or browser.
+
+The [public source license](https://github.com/Jakubantalik/Libraries.dev/blob/main/LICENSE) permits reuse with its copyright and license notice retained for copied or substantially adapted material; inspect each copied package's own LICENSE as well. Keep generated runtime license notices when distributing a bundle. The [separately offered agent skill](https://libraries.dev/pro) is Pro content under [different redistribution terms](https://libraries.dev/terms). No Pro skill, private preset or paid recipe is bundled here. Seenry's behavior decisions and integration guidance are original; source attribution does not make the vendor a required dependency.

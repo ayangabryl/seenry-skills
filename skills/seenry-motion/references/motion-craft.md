@@ -40,4 +40,4 @@ Icon libraries may replace their placeholder elements during initialization. Do 
 
 ## Optional effect families
 
-When the concept calls for a luminous boundary, a truthful process orb, liquid grouping, reflective material or image reveal, inspect [the libraries.dev decision study](libraries-dev.md) before selecting the runtime. These are five possible visual mechanisms, not a required embellishment pass. In stage project JSON use `motion_libraries` with the exact package names to deliver the study before implementation; ordinary CSS/SVG motion needs no library selection.
+When the concept calls for a luminous boundary, a truthful process orb, liquid grouping, reflective material or image reveal, inspect [the expressive-effects reference](expressive-effects.md) before selecting the runtime. These are five possible visual mechanisms, not a required embellishment pass. In stage project JSON use `motion_libraries` with the exact package names to deliver the study before implementation; ordinary CSS/SVG motion needs no library selection.

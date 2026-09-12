@@ -17,6 +17,25 @@ spec.loader.exec_module(request)
 
 
 class StageRequest(unittest.TestCase):
+    def test_research_route_inherits_project_and_only_explicit_argument_overrides(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for index,(project_route,override,expected) in enumerate([
+                ('web',None,'web'),('local',None,'local'),('auto',None,'auto'),
+                ('web','local','local'),(None,None,'auto')
+            ]):
+                project={'scope':'component','media':'none','motion':'none'}
+                if project_route is not None: project['research_source']=project_route
+                out=root/str(index)
+                request.prepare('understand',project,'Read the brief',out,research_source=override)
+                packet=json.loads((out/'packet.json').read_text(encoding='utf-8'))
+                self.assertEqual(packet['research_source'],expected)
+                self.assertEqual(packet['profile'],'focused')
+            invalid=root/'invalid'
+            with self.assertRaises(ValueError):
+                request.prepare('understand',{'scope':'component','media':'none','motion':'none','research_source':'invented'},'Read',invalid)
+            self.assertFalse(invalid.exists())
+
     def test_identical_retained_source_is_delivered_once_without_mutating_project(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);source=root/'current.html'

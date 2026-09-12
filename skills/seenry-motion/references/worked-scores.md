@@ -37,4 +37,4 @@ Record a first entry, purposeful slow traversal, fast reversal, repeated activat
 
 ## Choose local effect mechanisms only after the score
 
-For a boundary light, truthful process presence, liquid grouping, reflective material or image reveal, consult [the optional libraries.dev study](libraries-dev.md). Declare selected package names in `motion_libraries` so later stage packets receive its fit, interruption and fallback guidance. These effects do not supply a page narrative or make a generic composition distinctive by themselves.
+For a boundary light, truthful process presence, liquid grouping, reflective material or image reveal, consult [the expressive-effects reference](expressive-effects.md). Declare selected package names in `motion_libraries` so later stage packets receive its fit, interruption and fallback guidance. These effects do not supply a page narrative or make a generic composition distinctive by themselves.

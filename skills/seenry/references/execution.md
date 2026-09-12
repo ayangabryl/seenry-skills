@@ -1,8 +1,10 @@
+> Use this guide for the optional recorder, restricted model handoffs or a requested benchmark. Ordinary tasks use SKILL.md, a compact DESIGN.md, native project tools and actual review evidence. Do not require experiment manifests or repeated model runs merely to make a normal UI change.
+
 # Execute the workflow on the host
 
 Native agent tools are the first adapter: browse/search, read permitted assets, edit files, run the project, capture the browser, record interaction. MCP is one optional research source. A host without MCP can still browse; use `local` only when network research is actually unavailable or excluded. Never infer “no photography” from “no MCP”.
 
-## Contract for a fresh build
+## Contract for a recorded run
 
 Create a project JSON with `brief`, `model`, `scope`, `research_source`, `media`, `motion` and `budget_seconds`. `media` is needed/none/undecided; `motion` is signature/feedback/none/undecided. Use explicit `none` with a brief-specific reason, not to bypass unavailable tools. Pass it to `packet.py --project` so planning automatically receives applicable assets and motion guidance. Prefer the wireframe, type and surface packets for those checkpoints; the broader prototype packet remains for older callers. The compiler hashes all declared dependencies and fails on a missing file. Supplied text, observed reads and actual application remain separate records.
 
@@ -37,7 +39,7 @@ For `scope: "system"`, the stage packet includes the [system design guide](syste
 
 ## Small working tools
 
-`packet.py --profile focused` is an experimental smaller stage packet for a host that has already loaded SKILL.md. It preserves the source entrypoint hash without claiming its body was supplied again. It carries the current stage guides, project facts and relevant support; the complete profile remains available for reproduction. Evaluate outcomes before assuming less context improves a model. Keep lessons out of anonymous reviewer inputs unless that comparison is explicitly part of the experiment.
+New packet and handoff CLI calls default to `--profile focused`. The host first loads SKILL.md, then supplies the current project and decision. It preserves the source entrypoint hash without claiming its body was supplied again. It carries the current stage guides, project facts and relevant support; the explicit complete profile remains available for broader studies. The Python compile_packet API keeps its complete-profile default for existing callers. An explicit research-source argument overrides the project field; otherwise the project value is inherited, falling back to auto. Explicit local mode remains local. Evaluate outcomes before assuming less context improves a model. Keep lessons out of anonymous reviewer inputs unless that comparison is explicitly part of the experiment.
 
 For a text-only code adapter, deliver one complete raw HTML file per response and decisions in a separate JSON response. `artifact_response.py RESPONSE OUTPUT` rejects incomplete/wrapped documents and refuses to overwrite an earlier artifact. It performs no code repair and does not certify runtime behavior. Render only after structural validation and a successful HTTP response; inspect the resulting body, not only the response status.
 
@@ -110,7 +112,7 @@ Every browser evidence invocation uses a new `--out` directory. Rechecks retain 
 
 ## Preserve the actual stage handoff
 
-For a creation-stage model adapter, use `stage_request.py STAGE --project project.json --task stage-task.txt --out new-request-directory`. It freezes the complete packet into prompt.txt, copies the selected lesson pixels, keeps their feedback/provenance, and stages the selected helper runtime with licenses. Pass prompt.txt and the ordered images.json to the model adapter. Optional `--evidence input-images.json` adds source-material, construction, candidate, reference or interaction images whose paths resolve inside that manifest's directory. It calls no model and does not mark any image inspected. The complete profile is the default; `--profile focused` retains its experimental status. Comparison/review use `review_request.py` instead: the author's complete project rationale and labeled teaching examples must not leak into an anonymous target review.
+For a creation-stage model adapter, use `stage_request.py STAGE --project project.json --task stage-task.txt --out new-request-directory`. It freezes the full selected packet into prompt.txt, copies the selected lesson pixels, keeps their feedback/provenance, and stages the selected helper runtime with licenses. Pass prompt.txt and the ordered images.json to the model adapter. Optional `--evidence input-images.json` adds source-material, construction, candidate, reference or interaction images whose paths resolve inside that manifest's directory. It calls no model and does not mark any image inspected. Focused is the default; use `--profile complete` for an explicitly broader study. Comparison/review use `review_request.py` instead: the author's complete project rationale and labeled teaching examples must not leak into an anonymous target review.
 
 For a staged run, freeze the complete output of `packet.py` for that stage and carry the same project record into the next stage. Explicitly selected `project.decisions` lessons remain available through planning, construction, build and review, including the focused profile. Send the selected resource contents and relevant image evidence to the executing context; a list of filenames is not the guidance itself. Record images actually supplied separately from image inspection.
 
@@ -132,6 +134,8 @@ Use `review_request.py` for construction as well as final review. Its manifest a
 Select `calibration_topics: ["export-feedback"]` or one or two relevant built-in decision topics when a scoped regression needs to reach a fresh reviewer. The packet copies real lesson images, their hashes, feedback and countercases, and writes `images.json` for direct attachment. Calibration images remain separate from candidates and cannot replace a current-candidate evidence citation. Do not pass the author's persuasive rationale or condition label. In matched comparisons, supply the same review criteria and calibration to both conditions and record this choice before judging.
 
 The request also embeds the actual phase-specific review guides with hashes, rather than relying on a short rubric or links a tool-restricted reviewer cannot open. Missing required guides stop preparation. Construction receives content/layout guidance; surface and final reviews receive the complete visual diagnosis and interaction guidance.
+
+Carry factual `media: needed|none|undecided` and `motion: signature|feedback|none|undecided` at the review manifest top level. These are task requirements, not creator rationale. Surface/final reviews include the compact material and motion contracts unless the corresponding need is explicitly none. Missing fields stay visibly unspecified/undecided and receive those checks; they do not require adding imagery or effects. Construction defers these finish guides. Companion resources resolve relative to the installed package and missing required content stops the handoff before writing any output. Review needs do not change the five final criteria.
 
 The response schema requires exactly the supplied candidate count. Validate identities and disposition as well; a reviewer who omits an alternative has not completed the comparison. Preserve an incomplete response and retry its format/coverage explicitly. Do not silently supply missing judgments or turn deferred final requirements into construction failures.
 

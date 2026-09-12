@@ -25,7 +25,7 @@ def image_bytes(path):
     return content
 
 
-def prepare(stage, project, task, out, root=ROOT, profile='complete', research_source='local', evidence=None, evidence_root=None, lesson_images='attach', revision_source=None, revision_mode='exact', revision_blocks=None):
+def prepare(stage, project, task, out, root=ROOT, profile='focused', research_source=None, evidence=None, evidence_root=None, lesson_images='attach', revision_source=None, revision_mode='exact', revision_blocks=None):
     root, out = Path(root).resolve(), Path(out).resolve()
     if stage not in AUTHOR_STAGES:
         raise ValueError('Use review_request.py for anonymous comparison/review; keep the author project rationale outside that context')
@@ -165,8 +165,8 @@ if __name__ == '__main__':
     parser.add_argument('--project', type=Path, required=True)
     parser.add_argument('--task', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--profile', choices=('complete','focused'), default='complete')
-    parser.add_argument('--research-source', choices=SOURCES, default='local')
+    parser.add_argument('--profile', choices=('complete','focused'), default='focused')
+    parser.add_argument('--research-source', choices=SOURCES, default=None, help='Explicit override; otherwise inherit project research_source or auto')
     parser.add_argument('--lesson-images', choices=('attach','text-only'), default='attach', help='Text-only is an explicit evidence-delivery experiment, not full visual inspection')
     parser.add_argument('--evidence', type=Path, help='Ordered path/role records; paths resolve inside this manifest directory')
     parser.add_argument('--revision-source', type=Path, help='Freeze an existing UTF-8 source and request exact model edits instead of a full-file response')

@@ -1,6 +1,6 @@
 # Carry decisions, not the whole conversation
 
-This focused packet is one stage of Seenry. The host has already selected the workflow from SKILL.md. Resolve the current decision using the supplied facts, previous artifacts and relevant evidence. Keep the complete guides available for a concrete unresolved question; do not reload every guide at every stage.
+This focused packet is one stage of Seenry. The host must first select the workflow from SKILL.md; this packet does not assert that the entrypoint was read. Resolve the current decision using the supplied facts, previous artifacts and relevant evidence. Keep the complete guides available for a concrete unresolved question; do not reload every guide at every stage.
 
 The visitor's task determines the composition. Work with actual copy and material. A quiet utility may use familiar controls; an expressive website needs convincing subject-specific work and a coherent sequence. Neither cleanliness nor novelty alone establishes quality.
 
