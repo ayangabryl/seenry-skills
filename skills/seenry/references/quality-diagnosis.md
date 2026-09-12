@@ -29,6 +29,8 @@ Observed image-export regression: both Luna exporters passed functional checks a
 
 Keep a compact record for recent unrelated projects: opening composition, evidence medium, type roles, palette roles, section rhythm and signature interaction. Compare those dimensions with the new result. Repeated cream background alone is not a failure; repeated opening + visual medium + section order + subject-independent interaction warrants inspection. Avoid globally banning an otherwise useful system. Use `scripts/quality_cases.py compare` for a transparent descriptor-overlap flag; it does not inspect pixels or infer authorship.
 
+Read `evidence_status`, `comparable` and `missing` alongside the flag. Missing or partial descriptors are an evidence gap, not proof of originality. Derive descriptors from the actual outputs; differently worded descriptions of the same composition can evade simple overlap. Investigate a flagged pattern in context rather than rejecting useful shared controls.
+
 ## Calibrate rather than invent accuracy
 
 Store cases with a brief, owned/permitted screenshots, viewport/state, a contextual issue hypothesis, its comparison and **human labels only after review**. Include positive controls: purposeful uppercase airport codes, monochrome utilities, genuinely editorial work, colorful discovery, conventional forms, and sharp-edged identity systems. Include the user's rejected cases as scoped failures, not labels for every occurrence of their colors.

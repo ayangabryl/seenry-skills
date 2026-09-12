@@ -4,7 +4,7 @@ description: "Research, design and build distinctive websites, product interface
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.2"
+  version: "2.0.1-dev.3"
 ---
 
 # Seenry

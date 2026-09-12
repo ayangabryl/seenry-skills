@@ -8,8 +8,12 @@ DIMENSIONS = ('opening', 'medium', 'typography', 'palette', 'rhythm', 'interacti
 
 def compare(a, b):
     shared = [key for key in DIMENSIONS if a.get(key) and a.get(key) == b.get(key)]
+    comparable = [key for key in DIMENSIONS if a.get(key) and b.get(key)]
+    missing = [key for key in DIMENSIONS if key not in comparable]
     return {'shared': shared, 'review_convergence': len(shared) >= 4,
-            'limit': 'Exact author-provided descriptors only; useful consistency can trigger this flag.'}
+            'comparable': comparable, 'missing': missing,
+            'evidence_status': 'complete' if not missing else 'partial' if comparable else 'missing',
+            'limit': 'Exact author-provided descriptors only; useful consistency can trigger this flag. A false flag does not establish novelty; missing descriptors are not differences.'}
 
 
 def summary(cases):

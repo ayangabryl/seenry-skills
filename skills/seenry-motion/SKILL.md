@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.2"
+  version: "2.0.1-dev.3"
 ---
 
 # Design movement around a meaningful change
@@ -27,7 +27,7 @@ For implementation details read [motion craft](references/motion-craft.md). For 
 
 ## Research only what the decision needs
 
-Use supplied recordings or available public evidence when reconstructing or comparing a treatment. Inspect the actual clip. A poster cannot establish timing, easing, keyboard behavior or interruption. Without playback, label timing as proposed and test it locally.
+Use supplied recordings or available public evidence when reconstructing or comparing a treatment. Follow [video study](references/video-study.md) for normal playback and bounded local frame/contact-sheet extraction with actual timestamps and provenance. A poster cannot establish timing, easing, keyboard behavior or interruption. Without playback, label timing as proposed and test it locally.
 
 If Seenry MCP is connected, `search_references(motion=true,site=...)` and `get_page_motion(id,viewport)` find website journeys. For creator studies use `get_design_taxonomy`, `search_designs(family="motion",...)` and `get_design_video`; collections may expose clips through `get_design_reference` and `get_reference_asset`. `search_curated_references` supports `motion` and `walkthroughs` families. Read review reasons, then inspect the clip. Ratings do not prove suitability.
 

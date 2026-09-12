@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — 2.0.1-dev.3
+
+- Routes subject-fit and cross-project convergence guidance only when selected; missing comparison descriptors remain an evidence gap rather than a novelty pass.
+- Removes repeated font-family priming from active typography guidance and the type-study input example. Selection follows the brief, real copy, glyph needs and available files.
+- Adds a conditional branding transfer study from three inspected Seenry references, separating visible relationships, proposed applications and countercases. Core use remains independent of MCP.
+- Adds bounded local video-frame extraction with source hashing, actual timestamps, a contact sheet and explicit playback-review limits. The helper uses installed FFmpeg; it does not download reference media or call a model.
+- Passes 151 local Python tests and package validation on macOS. Synthetic variable-frame-rate extraction is verified; interactive contact-sheet playback remains unverified in the browser.
+- This local revision has no new model output or visual-acceptance result; extraction and routing checks do not establish design superiority.
+
 ## Unreleased — 2.0.1-dev.2
 
 - Adds a cited maintainer study of skill loading, full-context cost, caching and accepted-output efficiency; research detail stays outside default design packets.

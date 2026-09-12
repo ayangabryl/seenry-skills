@@ -177,7 +177,12 @@ class Packets(unittest.TestCase):
             destination=Path(temporary)/'skills';shutil.copytree(ROOT/'skills',destination)
             relocated=destination/'seenry'
             (relocated/'references/mcp-tools.json').unlink()
-            result=packet.compile_packet('surface',root=relocated,research_source='local',profile='focused',project={'media':'needed','motion':'feedback','decisions':['controls']})
+            result=packet.compile_packet('prototype',root=relocated,research_source='local',profile='focused',project={'scope':'component','media':'needed','motion':'feedback','decisions':['controls'],'guide_topics':['subject-fit','convergence']})
+            resources={r['path']:r for r in result['resources']}
+            self.assertIn('seenry/references/quality-diagnosis.md',resources)
+            self.assertIn('seenry/references/component-design.md',resources)
+            self.assertNotIn('seenry/references/art-direction.md',resources)
+            self.assertEqual(result['research_source'],'local')
             lessons=result['visual_lessons'];evidence_root=Path(lessons['evidence_root'])
             self.assertTrue(evidence_root.is_relative_to(destination.resolve()))
             for lesson in lessons['lessons']:

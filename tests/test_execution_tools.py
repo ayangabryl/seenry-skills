@@ -363,5 +363,38 @@ class Calibration(unittest.TestCase):
         descriptor=dict.fromkeys(quality.DIMENSIONS,'same')
         self.assertTrue(quality.compare(descriptor,descriptor)['review_convergence'])
 
+    def test_descriptor_coverage_distinguishes_missing_evidence_from_nonmatches(self):
+        empty=quality.compare({},{})
+        self.assertEqual(empty['evidence_status'],'missing')
+        self.assertEqual(empty['comparable'],[])
+        self.assertEqual(empty['missing'],list(quality.DIMENSIONS))
+        self.assertFalse(empty['review_convergence'])
+        partial=quality.compare({'palette':'blue','opening':'work first'}, {'palette':'red','medium':'photography'})
+        self.assertEqual(partial['evidence_status'],'partial')
+        self.assertEqual(partial['comparable'],['palette'])
+        self.assertEqual(partial['missing'],[key for key in quality.DIMENSIONS if key!='palette'])
+        self.assertEqual(partial['shared'],[])
+        self.assertFalse(partial['review_convergence'])
+        full=dict.fromkeys(quality.DIMENSIONS,'first')
+        different=dict.fromkeys(quality.DIMENSIONS,'second')
+        mismatch=quality.compare(full,different)
+        self.assertEqual(mismatch['evidence_status'],'complete')
+        self.assertEqual(mismatch['comparable'],list(quality.DIMENSIONS))
+        self.assertEqual(mismatch['missing'],[])
+        self.assertEqual(mismatch['shared'],[])
+        self.assertFalse(mismatch['review_convergence'])
+        shared=quality.compare(full,full)
+        self.assertEqual(shared['evidence_status'],'complete')
+        self.assertEqual(shared['shared'],list(quality.DIMENSIONS))
+        self.assertTrue(shared['review_convergence'])
+
+    def test_sparse_shared_descriptors_preserve_the_existing_flag(self):
+        descriptor=dict.fromkeys(quality.DIMENSIONS[:4],'same')
+        result=quality.compare(descriptor,descriptor)
+        self.assertEqual(result['evidence_status'],'partial')
+        self.assertEqual(result['shared'],list(quality.DIMENSIONS[:4]))
+        self.assertEqual(result['missing'],list(quality.DIMENSIONS[4:]))
+        self.assertTrue(result['review_convergence'])
+
 
 if __name__ == '__main__': unittest.main()

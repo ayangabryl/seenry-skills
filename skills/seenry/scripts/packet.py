@@ -32,6 +32,7 @@ MOTION_HELPERS = {
     'number': ['number-transition.mjs'],
 }
 MOTION_LIBRARIES = ('border-beam', 'thinking-orbs', 'liquid-gooey', 'metal-fx', 'img-fx')
+GUIDE_TOPICS = ('subject-fit', 'convergence')
 FOCUSED_STAGES = {
     'understand': ['design-record.md'],
     'research': ['reference-standards.md'],
@@ -64,6 +65,9 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     if profile not in ('complete', 'focused'): raise ValueError('Unknown packet profile: ' + profile)
     focused = profile == 'focused'
     decisions = []
+    guide_topics = project.get('guide_topics', []) if project else []
+    if not isinstance(guide_topics, list) or any(not isinstance(t, str) for t in guide_topics) or len(set(guide_topics)) != len(guide_topics) or any(t not in GUIDE_TOPICS for t in guide_topics):
+        raise ValueError('guide_topics must name distinct supported topics: ' + ', '.join(GUIDE_TOPICS))
     helpers = project.get('motion_helpers', []) if project else []
     libraries = project.get('motion_libraries', []) if project else []
     if not isinstance(libraries, list) or any(not isinstance(n, str) for n in libraries) or len(set(libraries)) != len(libraries) or any(n not in MOTION_LIBRARIES for n in libraries):
@@ -88,6 +92,11 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         selected = [name for p in selected for name in COMPONENT_REPLACEMENTS.get(p,[p])]
         decisions.append('Component-specific guides replace website argument, hero and page-record guidance')
     paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in selected]
+    if guide_topics and stage in ('plan', 'prototype', 'compare', 'review', 'refine'):
+        paths += [root / 'references/quality-diagnosis.md']
+        if 'subject-fit' in guide_topics and stage in ('plan', 'prototype', 'refine'):
+            paths += [root / 'references' / ('component-design.md' if component else 'art-direction.md')]
+        decisions.append('Selected decision guides for: ' + ', '.join(guide_topics) + '; rendered lessons remain separately selected')
     if libraries and stage not in ('understand', 'type'):
         paths += [root.parent / 'seenry-motion/references/expressive-effects.md']
         decisions.append('Optional motion library study supplied for: ' + ', '.join(libraries) + '; installation and integration remain unverified')

@@ -4,7 +4,7 @@ description: "Source and integrate images, fonts, provider marks, icons, illustr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.2"
+  version: "2.0.1-dev.3"
 ---
 
 # Make assets serve the subject
@@ -31,7 +31,7 @@ When generating, use the host's available tool and its instructions. Do not inve
 
 ## Typography and moving media
 
-Render shortlisted fonts with actual headings, labels, long text, numerals and punctuation at comparable perceived size. Verify supported languages, weights, features and fallback metrics. [Inter](https://rsms.me/inter/), [Nunito](https://github.com/google/fonts/tree/main/ofl/nunito) and [Open Runde](https://github.com/lauridskern/open-runde) have different character and supplied files; do not assume interchangeable coverage or italics. A font name does not establish premium execution.
+Choose fonts for the supplied identity, audience, content density and required languages, without a fixed family shortlist. Render actual headings, labels, long text, numerals and punctuation at comparable perceived size. Verify the selected files' weights, italics, optical-size support, glyph coverage, licensing and fallback metrics. Related families need not share features. Use the type-study example as an input schema, replacing its copy and font path with this project's actual candidates; a font name does not establish premium execution.
 
 Use SVG for purposeful vector illustration, Lottie for appropriate authored sequences, video for footage and 3D for spatial interaction when a proof demonstrates acceptable quality. Inspect Lottie bounds, assets, loop endpoints and actual player compatibility. A poster cannot establish timing. Use **seenry-motion** for recording study, motion direction and implementation. Heavy media needs intrinsic dimensions, a coherent poster/fallback and input that remains usable while loading.
 
