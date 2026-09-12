@@ -81,4 +81,42 @@ class LunaAdapter(unittest.TestCase):
    self.assertEqual(popen.call_args.kwargs['encoding'],'utf-8')
    self.assertTrue(child.stopped);self.assertTrue(result['interrupted']);self.assertFalse(result['timed_out'])
    self.assertEqual(result['status'],'incomplete');self.assertEqual(result['exit_code'],130);self.assertIsNone(result['usage'])
+   self.assertEqual(result['delivery_size']['external_schema_bytes'],0)
+   self.assertEqual(result['delivery_size']['image_attachments'],0)
+   self.assertIsNone(result['delivery_size']['token_count'])
+ def test_delivery_size_counts_actual_unicode_prompt_and_attachment_suffix_preserving_raw_usage(self):
+  for usage in ({'input_tokens':0,'cached_input_tokens':0,'output_tokens':0},None):
+   with self.subTest(usage=usage),tempfile.TemporaryDirectory() as tmp:
+    root=Path(tmp);out=root/'run';prompt=root/'prompt.txt';original='Inspect Français — 日本語'
+    prompt.write_text(original,encoding='utf-8')
+    (root/'source.png').write_bytes((ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes())
+    images=root/'images.json';images.write_text('[{"path":"source.png","role":"candidate"}]',encoding='utf-8')
+    schema=root/'schema.json';schema.write_text(json.dumps({'type':'object','description':'Réponse 日本語'},ensure_ascii=False)+'\n',encoding='utf-8')
+    class Child:
+     returncode=0
+     def communicate(self,delivered,timeout):
+      self.delivered=delivered
+      (out/'answer.md').write_text('{}',encoding='utf-8')
+    child=Child()
+    def launch(*args,**kwargs):
+     kwargs['stdout'].write(json.dumps({'type':'turn.completed','usage':usage})+'\n')
+     return child
+    argv=['luna_stage.py','--prompt',str(prompt),'--out',str(out),'--images',str(images),'--allow-dir',str(root),'--output-schema',str(schema)]
+    with patch('sys.argv',argv),patch.object(luna.shutil,'which',return_value='/fake/codex'),patch.object(luna.subprocess,'Popen',side_effect=launch),redirect_stdout(io.StringIO()):
+     luna.main()
+    result=json.loads((out/'run.json').read_text(encoding='utf-8'));size=result['delivery_size']
+    frozen=(out/'prompt.txt').read_text(encoding='utf-8')
+    self.assertEqual(frozen,child.delivered)
+    self.assertTrue(frozen.startswith(original))
+    self.assertGreater(len(frozen),len(original))
+    self.assertIn('attached directly, in this order',frozen)
+    self.assertEqual(size['prompt_bytes'],len((out/'prompt.txt').read_bytes()))
+    self.assertEqual(size['prompt_characters'],len(frozen))
+    self.assertGreater(size['prompt_bytes'],size['prompt_characters'])
+    self.assertEqual(size['image_attachments'],1)
+    self.assertEqual(size['external_schema_bytes'],len(schema.read_bytes()))
+    self.assertEqual((out/'response.schema.json').read_bytes(),schema.read_bytes())
+    self.assertIsNone(size['token_count'])
+    self.assertEqual(result['usage'],usage)
+    self.assertEqual(result['status'],'response-produced')
 if __name__=='__main__':unittest.main()

@@ -4,7 +4,7 @@ description: "Research, design and build distinctive websites, product interface
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.1"
+  version: "2.0.1-dev.2"
 ---
 
 # Seenry
@@ -37,7 +37,7 @@ Use one direction reset and up to two repair passes before reporting unresolved 
 
 ## Read support for the current decision
 
-Load the relevant guide when that decision arises; do not read this entire table for every stage.
+Load the guide for the unresolved decision; reuse it while available in context. Keep DESIGN.md to decisions and evidence links. Stop broad research once material and constraints support a direction; reopen a specific gap when needed. Run established helpers instead of reading their full source. Patch retained implementation rather than reprinting whole files. Keep the author context through construction; use fresh contexts for independent critique or separable work, not every layer. Retain the pixels, behavior checks and detail needed to judge the result.
 
 | Unresolved decision | Guidance |
 | --- | --- |

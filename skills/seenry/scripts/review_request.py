@@ -165,9 +165,16 @@ def prepare(manifest, root, out, seed=0, lesson_root=None, review_root=None):
             'Describe a recurrence concretely instead of replacing it with a general claim that the layout is clean. '
             'Preserve each case\'s counterexample and do not infer motion from its stills. Rejecting a known defect does not establish creativity or human acceptance.')
     (out / 'images.json').write_text(json.dumps(image_inputs, indent=2) + '\n', encoding='utf-8')
-    (out / 'request.json').write_text(json.dumps(request, indent=2) + '\n', encoding='utf-8')
+    prompt = json.dumps(request, indent=2) + '\n'
+    (out / 'request.json').write_text(prompt, encoding='utf-8')
     schema=response_schema([x['id'] for x in public], [e['file'] for x in public for e in x['evidence'].values()], criteria)
     (out / 'response.schema.json').write_text(json.dumps(schema, indent=2) + '\n', encoding='utf-8')
+    prompt_bytes = (out / 'request.json').read_bytes()
+    delivery_size = {'prompt_bytes':len(prompt_bytes), 'prompt_characters':len(prompt_bytes.decode('utf-8')),
+        'image_attachments':len(image_inputs), 'external_schema_bytes':(out / 'response.schema.json').stat().st_size,
+        'token_count':None,
+        'scope':'Prepared request file as written, before adapter reading; attachment count and external response-schema bytes are separate. Excludes adapter additions, provider tokenization, image tokens, ambient context and later tool traffic. Raw provider usage, when available, is authoritative after execution.'}
+    (out / 'delivery-size.json').write_text(json.dumps(delivery_size, indent=2) + '\n', encoding='utf-8')
     (out / 'private-key.json').write_text(json.dumps({'seed': seed, 'mapping': private}, indent=2) + '\n', encoding='utf-8')
     return request
 

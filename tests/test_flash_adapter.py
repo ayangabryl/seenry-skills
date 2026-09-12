@@ -1,6 +1,10 @@
 import importlib.util
+import io
+import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from unittest.mock import patch
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -29,5 +33,26 @@ class FlashBootstrap(unittest.TestCase):
                 return -9
         child=Child();flash.stop_child(child)
         self.assertEqual(child.calls,['terminate','wait','kill','wait'])
+    def test_delivery_size_counts_supplied_utf8_without_inventing_tokens_or_changing_usage(self):
+        for usage in ({'input_tokens':0,'output_tokens':0},None):
+            with self.subTest(usage=usage),tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp);prompt=root/'prompt.txt';out=root/'run';text='Inspect Français — 日本語\nInspect the next view.'
+                prompt.write_bytes(text.replace('\n','\r\n').encode('utf-8'))
+                def launch(command,**kwargs):
+                    self.assertEqual(command[command.index('--print')+1],text)
+                    kwargs['stdout'].write(json.dumps({'event':'result','result':{'response':'Observed','usage':usage}})+'\n')
+                    return object()
+                with patch('sys.argv',['flash_stage.py','--prompt',str(prompt),'--out',str(out)]),patch.object(flash.shutil,'which',return_value='/fake/agy'),patch.object(flash.subprocess,'Popen',side_effect=launch),patch.object(flash,'wait_for_agy',return_value=(0,False,False)),redirect_stdout(io.StringIO()):
+                    flash.main()
+                result=json.loads((out/'run.json').read_text(encoding='utf-8'));size=result['delivery_size']
+                self.assertEqual((out/'prompt.txt').read_text(encoding='utf-8'),text)
+                self.assertEqual(size['prompt_bytes'],len(text.encode('utf-8')))
+                self.assertEqual(size['prompt_characters'],len(text))
+                self.assertGreater(size['prompt_bytes'],size['prompt_characters'])
+                self.assertEqual(size['image_attachments'],0)
+                self.assertEqual(size['external_schema_bytes'],0)
+                self.assertIsNone(size['token_count'])
+                self.assertEqual(result['usage'],usage)
+                self.assertEqual(result['status'],'response-produced')
 
 if __name__=='__main__':unittest.main()

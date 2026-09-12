@@ -151,6 +151,11 @@ def prepare(stage, project, task, out, root=ROOT, profile='focused', research_so
     (out / 'images.json').write_text(json.dumps(attachments, indent=2) + '\n', encoding='utf-8')
     (out / 'prompt.txt').write_bytes(prompt.encode('utf-8'))
     manifest = {'schema':3, 'stage':stage, 'profile':profile, 'lesson_images':lesson_images, 'withheld_images':withheld, 'revision':revision, 'prompt_sha256':digest(prompt.encode()),
+                'delivery_size': {'prompt_bytes':len(prompt.encode('utf-8')), 'prompt_characters':len(prompt),
+                    'image_attachments':len(attachments),
+                    'external_schema_bytes':(out / revision['schema_file']).stat().st_size if revision else 0,
+                    'token_count':None,
+                    'scope':'Prepared prompt text only; attachment count and external response-schema bytes are separate. Excludes provider tokenization, image tokens, ambient context and later tool traffic. Raw provider usage, when available, is authoritative after execution.'},
                 'host_contract':host_contract,
                 'packet_sha256':digest((out/'packet.json').read_bytes()), 'images':provenance,
                 'runtime_files':packet['runtime_files'], 'status':'prepared; not executed',

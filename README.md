@@ -1,6 +1,6 @@
 # Seenry skills
 
-This working revision is **2.0.1-dev.1**, restructuring instruction delivery before further output testing. The published stable release remains 2.0.0.
+This working revision is **2.0.1-dev.2**, restructuring instruction delivery before further output testing. The published stable release remains 2.0.0.
 
 A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 

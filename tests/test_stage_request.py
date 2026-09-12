@@ -98,6 +98,14 @@ class StageRequest(unittest.TestCase):
             prompt=(root/'request/prompt.txt').read_text(encoding='utf-8')
             self.assertIn('Français — 日本語',prompt)
             self.assertIn('Vérifier 日本語',prompt)
+            size=json.loads((root/'request/manifest.json').read_text(encoding='utf-8'))['delivery_size']
+            self.assertEqual(size['prompt_bytes'],len((root/'request/prompt.txt').read_bytes()))
+            self.assertEqual(size['prompt_characters'],len(prompt))
+            self.assertGreater(size['prompt_bytes'],size['prompt_characters'])
+            self.assertEqual(size['image_attachments'],0)
+            self.assertEqual(size['external_schema_bytes'],0)
+            self.assertIsNone(size['token_count'])
+            self.assertNotIn('delivery_size',prompt)
 
     def project(self):
         return {'scope':'component', 'media':'needed', 'motion':'feedback',
@@ -114,6 +122,7 @@ class StageRequest(unittest.TestCase):
             self.assertIn('Clean but insufficiently creative',prompt)
             self.assertIn('Keep color and aspect ratio',prompt)
             self.assertEqual(len(manifest['images']),4)
+            self.assertEqual(manifest['delivery_size']['image_attachments'],4)
             self.assertEqual({x['role'] for x in manifest['images']},{'rejected-example'})
             for image in manifest['images']:
                 self.assertEqual(hashlib.sha256((out/image['file']).read_bytes()).hexdigest(),image['sha256'])
@@ -128,6 +137,7 @@ class StageRequest(unittest.TestCase):
             manifest=request.prepare('build',self.project(),'Finish',out,lesson_images='text-only')
             self.assertEqual(manifest['images'],[])
             self.assertEqual(len(manifest['withheld_images']),4)
+            self.assertEqual(manifest['delivery_size']['image_attachments'],0)
             self.assertIn('Clean but insufficiently creative',(out/'prompt.txt').read_text(encoding='utf-8'))
             self.assertEqual(json.loads((out/'images.json').read_text(encoding='utf-8')),[])
             self.assertFalse((out/'evidence').exists())
@@ -205,6 +215,8 @@ class StageRequest(unittest.TestCase):
             self.assertEqual(manifest['revision']['source_sha256'],hashlib.sha256(source.read_bytes()).hexdigest())
             schema=json.loads((out/'response.schema.json').read_text(encoding='utf-8'))
             self.assertEqual(schema['properties']['source_sha256']['enum'],[manifest['revision']['source_sha256']])
+            self.assertEqual(manifest['delivery_size']['external_schema_bytes'],len((out/'response.schema.json').read_bytes()))
+            self.assertEqual(manifest['delivery_size']['prompt_bytes'],len((out/'prompt.txt').read_bytes()))
             self.assertIn('ordered edits',(out/'prompt.txt').read_text(encoding='utf-8'))
             self.assertEqual(manifest['prompt_sha256'],hashlib.sha256((out/'prompt.txt').read_bytes()).hexdigest())
             self.assertEqual(source.read_bytes(),'Héllo\r\n'.encode())

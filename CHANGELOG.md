@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — 2.0.1-dev.2
+
+- Adds a cited maintainer study of skill loading, full-context cost, caching and accepted-output efficiency; research detail stays outside default design packets.
+- Reuses available guidance and construction context, keeps the decision record concise, and favors retained-source edits while preserving rendered and interaction checks.
+- Measures complete delivered prompt text and separate image/schema inputs alongside existing raw provider usage. Offline size measurements do not invent token counts or billing savings.
+- Preserves review anonymity and existing prompt/request text; no new generation benchmark or paid counting API was needed for this audit.
+- Passes 140 local Python tests and package validation, including UTF-8/CRLF accounting and preservation of zero/null provider usage. Simulated newline checks are not new physical Windows execution evidence.
+
 ## Unreleased — 2.0.1-dev.1
 
 - Separates ordinary native design work from optional recorder/model experiments; retains planning, real wireframes, a finished slice and actual review.

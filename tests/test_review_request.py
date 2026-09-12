@@ -1,5 +1,6 @@
 import copy, importlib.util, json, shutil, sys, tempfile, unittest
 from pathlib import Path
+from unittest.mock import patch
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'skills/seenry/scripts'))
 from review_request import prepare
@@ -22,6 +23,29 @@ class ReviewRequest(unittest.TestCase):
    root=self.root(tmp);m=self.manifest();m['candidates'][0].pop('opening')
    with self.assertRaises(ValueError):prepare(m,root,root/'out')
    self.assertFalse((root/'out').exists())
+ def test_delivery_size_describes_frozen_anonymous_request_without_entering_it(self):
+  original_write=Path.write_text
+  for simulate_crlf in (False,True):
+   with self.subTest(simulate_crlf=simulate_crlf),tempfile.TemporaryDirectory() as tmp:
+    root=self.root(tmp);m=self.manifest();m['brief']='Exporter la photo — 日本語';out=root/'out'
+    def write_text(path,content,*args,**kwargs):
+     if simulate_crlf and path.name=='request.json':
+      return path.write_bytes(content.replace('\n','\r\n').encode('utf-8'))
+     return original_write(path,content,*args,**kwargs)
+    with patch.object(Path,'write_text',write_text):p=prepare(m,root,out)
+    prompt_bytes=(out/'request.json').read_bytes();prompt=prompt_bytes.decode('utf-8')
+    size=json.loads((out/'delivery-size.json').read_text(encoding='utf-8'))
+    if simulate_crlf:self.assertIn(b'\r\n',prompt_bytes)
+    self.assertEqual(json.loads(prompt),p)
+    self.assertEqual(p['brief'],m['brief'])
+    self.assertEqual(size['prompt_bytes'],len(prompt_bytes))
+    self.assertEqual(size['prompt_characters'],len(prompt))
+    self.assertEqual(size['image_attachments'],len(json.loads((out/'images.json').read_text(encoding='utf-8'))))
+    self.assertEqual(size['external_schema_bytes'],len((out/'response.schema.json').read_bytes()))
+    self.assertIsNone(size['token_count'])
+    self.assertNotIn('delivery_size',p)
+    self.assertNotIn('prompt_bytes',prompt)
+    self.assertNotIn('private-condition',json.dumps(size))
  def test_path_escape_and_fake_image_are_rejected(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=self.root(tmp);m=self.manifest();m['candidates'][0]['opening']='../elsewhere.png'
