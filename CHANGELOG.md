@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — 2.0.1-dev.5
+
+- Separates the organizing idea from construction craft for creative briefs, before committing to a finished surface. Ordinary utility work retains its lighter criteria.
+- Adds explicit boolean `concept_review` to anonymous construction requests and recorded project contracts. Opted-in wireframe/type stages cannot advance without a passing concept check; final review retains all five criteria. The helper validates recorded evidence and disposition, not visual taste.
+- Makes consequential component usage explicit in project brand guidelines: source/API, variants, state ownership, keyboard/focus, responsive and motion behavior, contextual misuse and scoped exceptions. The small authoring guide remains compact.
+- Keeps a newly authored palette provisional until a same-composition comparison; the compact visual guide carries this decision without adding a default resource bundle. Inherited brand roles stay intact.
+- Preserves existing default packet routes; no mandatory new model call or image bundle.
+- Passes 160 Python tests and package validation on macOS. The [30-minute component diagnostic](docs/2026-09-12-component-direction-sprint.md) preserves a rejected first finish and a scoped revision; the attempted Flash call was blocked by authentication, so this is not a Flash improvement claim.
+
 ## Unreleased — 2.0.1-dev.4
 
 - Adds project brand-guideline authorship and maintenance, reusing existing docs/tokens/components or a compact BRAND.md. DESIGN.md carries its authority/version and scoped exceptions.

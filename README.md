@@ -1,6 +1,6 @@
 # Seenry skills
 
-This working revision is **2.0.1-dev.4**, adding project brand-guideline authorship and continuity to focused creative decisions. The published stable release remains 2.0.0.
+This working revision is **2.0.1-dev.5**, adding early creative-direction checks and explicit component usage contracts to project brand guidelines. The published stable release remains 2.0.0.
 
 A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 

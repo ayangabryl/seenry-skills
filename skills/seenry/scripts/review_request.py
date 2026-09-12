@@ -1,4 +1,4 @@
-"""Prepare a review with opening, narrow and sequence evidence and all five criteria."""
+"""Prepare anonymous evidence with the explicitly requested phase review criteria."""
 import argparse
 import hashlib
 import json
@@ -15,8 +15,13 @@ def prepare(manifest, root, out, seed=0, lesson_root=None, review_root=None):
     phase = manifest.get('phase', 'final')
     if phase not in ('wireframe', 'type', 'surface', 'final'):
         raise ValueError('phase must be wireframe, type, surface or final')
+    concept_review = manifest.get('concept_review', False)
+    if type(concept_review) is not bool:
+        raise ValueError('concept_review must be a boolean when supplied')
     construction = phase in ('wireframe', 'type')
     criteria = ('content', 'hierarchy', 'geometry') if construction else CRITERIA
+    if construction and concept_review:
+        criteria += ('concept',)
     scope = manifest.get('scope')
     if scope not in (None, 'component', 'website', 'system'):
         raise ValueError('scope must be component, website or system when supplied')
@@ -139,6 +144,8 @@ def prepare(manifest, root, out, seed=0, lesson_root=None, review_root=None):
         'limits': ['Anonymous image filenames only; facts or behavior prose may still reveal context.', 'This tool validates evidence packaging, not visual quality or accurate model inspection.']}
     request['calibration'] = calibration_records
     request['phase'] = phase
+    request['concept_review'] = concept_review
+    request['concept_review_source'] = 'manifest' if 'concept_review' in manifest else 'unspecified'
     request['scope'] = scope
     request['needs'] = needs
     request['needs_source'] = {key: 'manifest' if key in manifest else 'unspecified' for key in needs}
@@ -154,7 +161,12 @@ def prepare(manifest, root, out, seed=0, lesson_root=None, review_root=None):
             'content': 'Actual task and content inventory; required information in the component or its legitimate host; no invented service.',
             'hierarchy': 'Reading order, useful relative scale, grouping and balanced density at ordinary and narrow sizes.',
             'geometry': 'Alignment, usable host footprint, narrow layout and the demonstrated coarse state geometry.'}
-        request['instructions'] += (' CURRENT PHASE: '+phase+'. Review every supplied candidate only against content, hierarchy and geometry. '
+        if concept_review:
+            request['criteria']['concept'] = (
+                'Visible organization of the task\'s object, action and material serves the creative brief. '
+                'Assess the organizing idea separately from craft; unusual controls and final motion or material polish are not required.')
+        criterion_names = ', '.join(criteria[:-1]) + ' and ' + criteria[-1]
+        request['instructions'] += (' CURRENT PHASE: '+phase+'. Review every supplied candidate only against '+criterion_names+'. '
             'This is a construction decision. Final material, completed downloads, recovery, keyboard completion and motion polish are deferred unless the brief explicitly makes their current demonstration necessary to resolve geometry. '
             'Do not add deferred final requirements to current blocking_issues. A current blocker must be explained by a non-pass current check. '
             'Inspect the sequence/host capture before calling shared source credit or context absent. Diagnostic prototype labels outside the component are not its product copy. '

@@ -13,8 +13,12 @@ flowchart TD
   B --> E[Available references and actual material]
   E --> P[Three layout or interaction ideas]
   P --> W[Small working wireframes]
-  W --> C[Inspect and retain one direction]
-  C --> T[Real typography, color, assets and decisive transition]
+  W --> C[Inspect task, hierarchy and geometry]
+  C --> K{Creative brief?}
+  K -->|Yes| J[Judge the visible organizing idea separately]
+  K -->|No| T[Real typography, color, assets and decisive transition]
+  J -->|Direction worth developing| T
+  J -->|Unresolved| P
   T --> Q{Does the finished slice work?}
   Q -->|Observed defect| D[One targeted comparison or repair]
   D --> T
@@ -40,7 +44,7 @@ The ordinary record is DESIGN.md plus source and relevant captures. Do not requi
 | `seenry` | Scope, product truth, layout exploration, shared decisions and review |
 | `seenry-assets` | Actual fonts, marks, icons and material, crops and usage rights |
 | `seenry-motion` | Behavior, anchors, feedback, interruption, choreography and lifecycle |
-| `seenry-branding` / `seenry-decks` | Identity research / ordered presentation research |
+| `seenry-branding` / `seenry-decks` | Identity research and project brand/component usage rules / ordered presentation research |
 | Host | Available tools, permissions, running code and inspecting output |
 | Optional recorder | Evidence chronology and hashes, never an aesthetic verdict |
 
@@ -53,6 +57,8 @@ Keep research notes and provider accounting outside the default skill payload. T
 Load [execution](skills/seenry/references/execution.md) when a restricted host, explicit recorder or requested benchmark needs it. New packet/handoff CLI calls default to the focused profile. Existing Python `compile_packet` callers retain the complete-profile default; explicit `--profile complete` is available. Frozen past run records and the v2.0.0 release preserve previous evidence.
 
 Research routing is resolved once: explicit argument → project research_source → auto. Explicit local-only requests stay local. Missing MCP does not silently disable ordinary browsing. Review receives a short motion/material contract when those needs are present. Anonymous review uses `review_request.py` so creator positioning does not enter the critique.
+
+Creative construction can opt into `concept_review: true` in both project and review manifest. The recorder then requires a separate concept judgment alongside content, hierarchy and geometry before advancing; surface/final retain five criteria. The flag is explicit and defaults false for historical/ordinary runs. In native work, apply the same distinction without requiring recorder files. Neither route turns a model's judgment into human acceptance.
 
 Focused packets preserve project decisions and source hashes, and load teaching examples only for an explicit unresolved topic. They expose their resource count, word count and UTF-8 byte count; those measurements exclude project/source/image payloads and are not token or speed claims. Selected runtime files are hashed and staged separately. No content is truncated to meet a size target.
 

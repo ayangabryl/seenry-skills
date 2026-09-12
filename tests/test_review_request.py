@@ -1,6 +1,7 @@
 import copy, importlib.util, json, shutil, sys, tempfile, unittest
 from pathlib import Path
 from unittest.mock import patch
+from jsonschema import Draft202012Validator
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'skills/seenry/scripts'))
 from review_request import prepare
@@ -109,6 +110,80 @@ class ReviewRequest(unittest.TestCase):
    root=self.root(tmp);m=self.manifest();m['phase']='whatever'
    with self.assertRaises(ValueError):prepare(m,root,root/'out')
    self.assertFalse((root/'out').exists())
+ def test_explicit_concept_review_routes_only_construction_criteria_and_schema(self):
+  for phase in ('wireframe','type','surface','final'):
+   for flag in ({},{'concept_review':False},{'concept_review':True}):
+    with self.subTest(phase=phase,flag=flag),tempfile.TemporaryDirectory() as tmp:
+     root=self.root(tmp);m=self.manifest();m.update(phase=phase,scope='component',**flag)
+     m['brief']='Choose a creative concept with a distinctive idea'
+     m['creator_rationale']='Choose private-condition for its author-proclaimed originality.'
+     p=prepare(m,root,root/'out')
+     construction=phase in ('wireframe','type')
+     expected={'content','hierarchy','geometry'} if construction else set(CRITERIA)
+     if construction and flag.get('concept_review'):expected.add('concept')
+     self.assertEqual(p['concept_review'],flag.get('concept_review',False))
+     self.assertEqual(p['concept_review_source'],'manifest' if flag else 'unspecified')
+     self.assertEqual(set(p['criteria']),expected)
+     self.assertEqual(set(p['required_review_shape']['candidates'][0]['checks']),expected)
+     schema=json.loads((root/'out/response.schema.json').read_text())
+     checks=schema['properties']['candidates']['items']['properties']['checks']
+     self.assertEqual(set(checks['properties']),expected)
+     self.assertEqual(set(checks['required']),expected)
+     self.assertFalse(checks['additionalProperties'])
+     validator=Draft202012Validator(schema)
+     response=copy.deepcopy(p['required_review_shape'])
+     for check in response['candidates'][0]['checks'].values():check['issue_type']='missing-evidence'
+     validator.validate(response)
+     wrong=copy.deepcopy(response);wrong_checks=wrong['candidates'][0]['checks']
+     if 'concept' in expected:del wrong_checks['concept']
+     else:wrong_checks['concept']=copy.deepcopy(next(iter(wrong_checks.values())))
+     self.assertTrue(list(validator.iter_errors(wrong)))
+     if 'concept' in expected:
+      self.assertIn('separately from craft',p['criteria']['concept'])
+      self.assertIn('not required',p['criteria']['concept'])
+      self.assertIn('geometry and concept',p['instructions'])
+      self.assertEqual(checks['properties']['concept']['properties']['artifact']['enum'],
+                       [e['file'] for e in p['candidates'][0]['evidence'].values()])
+     if construction:
+      self.assertEqual({g['path'] for g in p['guidance']},{'seenry/references/'+name for name in
+                       ('content-model.md','visual-decisions.md','component-design.md')})
+     self.assertNotIn('creator_rationale',p)
+     self.assertNotIn('private-condition',json.dumps(p))
+ def test_concept_review_rejects_non_boolean_values_before_writing(self):
+  for phase in ('wireframe','type','surface','final'):
+   for value in (None,0,1,'true','false',[],{}):
+    with self.subTest(phase=phase,value=value),tempfile.TemporaryDirectory() as tmp:
+     root=self.root(tmp);m=self.manifest();m.update(phase=phase,concept_review=value)
+     with self.assertRaisesRegex(ValueError,'concept_review must be a boolean'):
+      prepare(m,root,root/'out')
+     self.assertFalse((root/'out').exists())
+ def test_concept_evidence_and_disposition_are_checked_with_requested_criteria(self):
+  for phase in ('wireframe','type'):
+   with self.subTest(phase=phase),tempfile.TemporaryDirectory() as tmp:
+    root=self.root(tmp);m=self.manifest();m.update(phase=phase,concept_review=True)
+    p=prepare(m,root,root/'out');report=copy.deepcopy(p['required_review_shape'])
+    report['selected']='A';checks=report['candidates'][0]['checks']
+    for check in checks.values():check.update(result='pass',observation='Observed in the supplied opening.')
+    concept=checks['concept'];concept.update(result='unverified',issue_type='missing-evidence',
+                                           observation='The decisive task relationship is not demonstrated.')
+    result=evaluate(report,root/'out',criteria=p['criteria'])
+    self.assertEqual(result['status'],'needs-revision')
+    self.assertEqual(result['eligible'],[])
+    self.assertEqual(result['actions'][0]['next_action'],'collect-evidence')
+    concept.update(result='revise',issue_type='observed-defect',observation='The visible arrangement separates the object from its action.')
+    self.assertEqual(evaluate(report,root/'out',criteria=p['criteria'])['actions'][0]['next_action'],'repair')
+    concept.update(result='pass',issue_type=None,observation='The visible object and action relationship serves the brief.')
+    result=evaluate(report,root/'out',criteria=p['criteria'])
+    self.assertEqual(result['status'],'ready-for-human-review')
+    concept_evidence=next(e for e in result['evidence'] if e['criterion']=='concept')
+    self.assertEqual(concept_evidence['artifact'],'A-opening.png')
+    self.assertEqual(concept_evidence['sha256'],p['candidates'][0]['evidence']['opening']['sha256'])
+    concept['artifact']='missing.png'
+    with self.assertRaisesRegex(ValueError,'evidence must be an existing file'):
+     evaluate(report,root/'out',criteria=p['criteria'])
+    del checks['concept']
+    with self.assertRaisesRegex(ValueError,'every visual criterion'):
+     evaluate(report,root/'out',criteria=p['criteria'])
  def test_full_review_guidance_is_supplied_with_actual_source_hashes(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=self.root(tmp);p=prepare(self.manifest(),root,root/'out')

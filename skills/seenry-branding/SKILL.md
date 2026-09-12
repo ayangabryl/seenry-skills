@@ -4,7 +4,7 @@ description: "Research identity systems and create or maintain project brand gui
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.4"
+  version: "2.0.1-dev.5"
 ---
 
 For original identity authorship, follow the main Seenry workflow and its art-direction guide before researching examples here. Define relationships across wordmark, type, imagery, palette, language and motion; test them in both expressive and dense applications. Researching a brand guide is not itself a new identity design. Preserve a supplied identity unless the user requests rebranding.

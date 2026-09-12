@@ -20,6 +20,17 @@ ROLES = {
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def construction_criteria(concept_review=False):
+    return ('content', 'hierarchy', 'geometry') + (('concept',) if concept_review else ())
+
+
+def review_module():
+    spec = importlib.util.spec_from_file_location('seenry_review_disposition', Path(__file__).with_name('review_gate.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def stage_requirements(project, stage, schema=5):
     """Expose the same stage contract the recorder will enforce, before authoring."""
     if stage not in ROLES: raise ValueError('Unknown recorder stage')
@@ -30,19 +41,23 @@ def stage_requirements(project, stage, schema=5):
     if stage == 'plan' and project['motion'] in ('signature', 'undecided'): requirements['score'] = 1
     if stage == 'surface' and project['media'] != 'none': requirements['crop'] = 1
     if stage == 'review' and project['motion'] == 'signature': requirements['recording'] = 1
+    concept_review = project.get('concept_review', False)
+    if type(concept_review) is not bool: raise ValueError('concept_review must be a boolean when supplied')
+    criteria = construction_criteria(concept_review) if schema >= 3 and stage in ('wireframe', 'type') else (
+        review_module().CRITERIA if schema >= 2 and stage in ('compare', 'review') else ())
     return {'stage': stage, 'recorder_schema': schema, 'minimum_artifact_counts': requirements,
+            'concept_review': concept_review, 'concept_review_source': 'project' if 'concept_review' in project else 'unspecified',
+            'review_criteria': list(criteria),
             'concept_records': {'count': 3, 'required_string_fields': ['id', 'idea', 'evidence', 'risk'], 'distinct_ids': True} if stage == 'plan' else None,
             'limits': ['This is an author/host handoff contract, not product copy or proof of completed work.',
                        'The host supplies actual artifacts and observations. Unavailable evidence needs an explicit reason and does not pass.',
                        'Construction judgments and behavior reports must bind exact current source paths and hashes.']}
 
 
-def disposition(report, root, construction=False, per_candidate=False):
-    spec = importlib.util.spec_from_file_location('seenry_review_disposition', Path(__file__).with_name('review_gate.py'))
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+def disposition(report, root, construction=False, per_candidate=False, concept_review=False):
+    module = review_module()
     if construction:
-        result = module.evaluate(report, root, criteria=('content', 'hierarchy', 'geometry'))
+        result = module.evaluate(report, root, criteria=construction_criteria(concept_review))
         # Legacy layers assess the whole study. New layers may retain a passing
         # direction while preserving rejected alternatives in the same report.
         if not per_candidate and (len(report['candidates']) != 1 or report['candidates'][0]['id'] != 'study'):
@@ -79,6 +94,7 @@ def initialize(root, project):
     if project['media'] not in ('needed', 'none', 'undecided'): raise ValueError('Invalid media need')
     if project['motion'] not in ('signature', 'feedback', 'none', 'undecided'): raise ValueError('Invalid motion need')
     if project['research_source'] not in ('auto', 'mcp', 'web', 'local'): raise ValueError('Invalid research route')
+    if type(project.get('concept_review', False)) is not bool: raise ValueError('concept_review must be a boolean when supplied')
     root.mkdir(parents=True, exist_ok=True)
     data = {'schema': 5, 'project': project, 'started': time.time(), 'events': [],
             'resets': 0, 'repairs': 0, 'status': 'in-progress',
@@ -217,7 +233,8 @@ def record(root, stage, submission):
                         eligible = set((prior.get('review_disposition') or {}).get('eligible', []))
                         if 'study' not in eligible and not identities.issubset(eligible):
                             raise ValueError('A rejected direction cannot advance without repairing its earlier layer or resetting')
-            judged = disposition(report, root, construction=construction and stage in ('wireframe','type'), per_candidate=data.get('schema', 1) >= 4)
+            judged = disposition(report, root, construction=construction and stage in ('wireframe','type'),
+                                 per_candidate=data.get('schema', 1) >= 4, concept_review=project.get('concept_review', False))
             # Preserve the exact cited evidence as well as the review that refers to it.
             included = {path for _, path in prepared}
             for citation in judged['evidence']:

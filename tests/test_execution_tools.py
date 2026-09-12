@@ -53,6 +53,8 @@ class Execution(unittest.TestCase):
             (self.root/artifacts['judgment'][0]).write_text(json.dumps(report))
         if stage in ('wireframe','type'):
             report={'reviewed_sources':{name:workflow.digest(self.root/name) for name in artifacts['source']},'candidates':[{'id':'study','checks':{k:{'result':'pass','artifact':artifacts['render'][0],'observation':'Fixture layer observation, not visual acceptance'} for k in ('content','hierarchy','geometry')},'blocking_issues':[]}],'selected':'study'}
+            if workflow.load_run(self.root)['project'].get('concept_review', False):
+                report['candidates'][0]['checks']['concept']={'result':'pass','artifact':artifacts['render'][0],'observation':'Fixture task-specific organization, not proof of creativity'}
             (self.root/artifacts['judgment'][0]).write_text(json.dumps(report))
             (self.root/artifacts['functional'][0]).write_text(json.dumps({'reviewed_sources':report['reviewed_sources'],'status':'passed','observations':['Fixture functional result; not a real browser test']}))
         return {'observation':'Fixture record, not visual inspection','artifacts':artifacts,
@@ -62,6 +64,65 @@ class Execution(unittest.TestCase):
         workflow.record(self.root,'understand',self.submission('understand'))
         s=self.submission('research'); del s['artifacts']['material']
         with self.assertRaisesRegex(ValueError,'material'): workflow.record(self.root,'research',s)
+    def test_concept_opt_in_is_strict_and_host_contract_exposes_criteria(self):
+        project=workflow.load_run(self.root)['project']
+        for index,value in enumerate((None,0,1,'true','false',[],{})):
+            destination=self.root.parent/f'invalid-{index}'
+            with self.assertRaisesRegex(ValueError,'concept_review must be a boolean'):
+                workflow.initialize(destination,{**project,'concept_review':value})
+            self.assertFalse(destination.exists())
+        for index,flag in enumerate(({}, {'concept_review':False}, {'concept_review':True})):
+            with self.subTest(flag=flag):
+                configured={**project,**flag};destination=self.root.parent/f'valid-{index}'
+                data=workflow.initialize(destination,configured)
+                self.assertEqual(data['project'],configured)
+                for stage in workflow.ORDER:
+                    contract=workflow.stage_requirements(configured,stage)
+                    self.assertEqual(contract['concept_review'],flag.get('concept_review',False))
+                    self.assertEqual(contract['concept_review_source'],'project' if flag else 'unspecified')
+                    expected=['content','hierarchy','geometry'] if stage in ('wireframe','type') else (
+                        ['subject','opening','hierarchy','material','interaction'] if stage in ('compare','review') else [])
+                    if stage in ('wireframe','type') and flag.get('concept_review'):expected.append('concept')
+                    self.assertEqual(contract['review_criteria'],expected)
+        self.assertEqual(workflow.stage_requirements(project,'wireframe',schema=2)['review_criteria'],[])
+        self.assertEqual(workflow.stage_requirements(project,'wireframe',schema=3)['review_criteria'],['content','hierarchy','geometry'])
+
+    def test_missing_or_failing_concept_cannot_advance_opted_in_construction(self):
+        data=workflow.load_run(self.root);data['project']['concept_review']=True;workflow.save(self.root,data)
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        for phase,next_phase in (('wireframe','type'),('type','surface')):
+            s=self.submission(phase);path=self.root/s['artifacts']['judgment'][0];report=json.loads(path.read_text())
+            del report['candidates'][0]['checks']['concept'];path.write_text(json.dumps(report))
+            before=copy.deepcopy(workflow.load_run(self.root)['events'])
+            with self.assertRaisesRegex(ValueError,'every visual criterion'):workflow.record(self.root,phase,s)
+            self.assertEqual(workflow.load_run(self.root)['events'],before)
+            s=self.submission(phase);path=self.root/s['artifacts']['judgment'][0];report=json.loads(path.read_text())
+            report['candidates'][0]['checks']['concept'].update(result='fail',observation='Fixture: the object and action relationship does not serve this task.')
+            path.write_text(json.dumps(report));result=workflow.record(self.root,phase,s)
+            self.assertEqual(result['status'],'needs-layer-revision')
+            self.assertEqual(result['events'][-1]['review_disposition']['eligible'],[])
+            with self.assertRaisesRegex(ValueError,'Construction checkpoint is unresolved'):
+                workflow.record(self.root,next_phase,self.submission(next_phase))
+            s=self.submission(phase);s['mode']='layer-repair';result=workflow.record(self.root,phase,s)
+            self.assertEqual(result['events'][-1]['review_disposition']['status'],'ready-for-next-layer')
+            self.assertTrue(any(e['criterion']=='concept' for e in result['events'][-1]['review_disposition']['evidence']))
+            self.assertEqual(result['events'][-2]['review_disposition']['status'],'needs-layer-revision')
+        for stage in workflow.ORDER[5:]:result=workflow.record(self.root,stage,self.submission(stage))
+        self.assertEqual(result['status'],'ready-for-human-review')
+        self.assertEqual({e['criterion'] for e in result['events'][-1]['review_disposition']['evidence']},
+                         {'subject','opening','hierarchy','material','interaction'})
+
+    def test_concept_opt_in_retains_source_binding_and_candidate_enforcement(self):
+        data=workflow.load_run(self.root);data['project']['concept_review']=True;workflow.save(self.root,data)
+        for stage in workflow.ORDER[:3]:workflow.record(self.root,stage,self.submission(stage))
+        s=self.submission('wireframe');(self.root/s['artifacts']['source'][0]).write_text('Changed source after inspection')
+        with self.assertRaisesRegex(ValueError,'exact current source'):workflow.record(self.root,'wireframe',s)
+        s=self.submission('wireframe');self.candidate_judgment(s,'B','B')
+        with self.assertRaisesRegex(ValueError,'every planned candidate'):workflow.record(self.root,'wireframe',s)
+        s=self.submission('wireframe');self.candidate_judgment(s,'ABC','B',rejected='AC')
+        workflow.record(self.root,'wireframe',s)
+        s=self.submission('type');self.candidate_judgment(s,'A','A')
+        with self.assertRaisesRegex(ValueError,'rejected direction'):workflow.record(self.root,'type',s)
     def test_source_edits_preserve_history_but_snapshot_changes_fail(self):
         s=self.submission('understand'); data=workflow.record(self.root,'understand',s)
         (self.root/s['artifacts']['brief'][0]).write_text('later edit')

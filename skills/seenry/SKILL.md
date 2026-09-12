@@ -4,7 +4,7 @@ description: "Research, design and build distinctive websites, product interface
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.4"
+  version: "2.0.1-dev.5"
 ---
 
 # Seenry
@@ -29,7 +29,7 @@ Keep a component's preview scaffolding outside its UI. Preserve useful behavior 
 Use the host's code, browser and media tools. Keep a compact **DESIGN.md**, the working implementation and the evidence needed to judge it. Formal experiment files are optional.
 
 1. **Understand and study.** Record audience, task, supplied facts, inherited conventions and required states. Decide whether imagery, dark mode or substantial motion serves this task. Use available reference evidence: MCP, ordinary browsing, supplied files or built-in studies. Follow [without MCP](references/without-mcp.md) when needed. Inspect actual pixels or recordings; distinguish observations, ratings and inferred intent.
-2. **Plan before product code.** Develop three meaningfully different layout or interaction ideas using the same facts. Record reading order, groups, alignment, narrow behavior and provisional type, palette, corners and control emphasis. Build small working wireframes of their decisive moment. Compare actual layouts; a finished-screen grid overlay is not earlier wireframe evidence.
+2. **Plan before product code.** Develop three meaningfully different layout or interaction ideas using the same facts. Record reading order, groups, alignment, narrow behavior and provisional type, palette, corners and control emphasis. Build small working wireframes of their decisive moment. For creative briefs, judge the visible organizing idea separately from alignment and usability before selecting. A finished-screen grid overlay is not earlier wireframe evidence.
 3. **Finish one representative slice.** Retain a promising wireframe and its source. Resolve real copy, typography, assets, palette and the decisive transition before expanding. Compare only the choice that remains uncertain on the same composition. Do not rebuild three complete alternatives at every layer. Inspect both ordinary and narrow sizes; keep rejected alternatives and reasons.
 4. **Build consistently.** Carry the selected relationships into all requested states and screens. Use [design continuity](references/design-continuity.md). Keep controls, values and focus stable through loading, success, errors, reversal and repeated input. An unavailable asset or effect needs a usable fallback.
 5. **Review the result, then repair the cause.** Use [visual review](references/visual-review.md) and [production review](references/production-review.md). Inspect the rendered design and exercise its transitions. Separate a weak idea, crowded hierarchy, unresolved material, broken behavior and missing evidence. Change the smallest relevant cause and verify it. A fresh reviewer receives the brief and actual evidence without the creator's sales pitch. Label self-review when no independent reviewer is available. Passing functional checks cannot overrule a failed visual judgment.
