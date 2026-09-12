@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "endpoint": "https://mcp.seenry.design",
   "tools": [
     {
@@ -46,7 +46,8 @@
               "walkthroughs",
               "motion",
               "branding",
-              "decks"
+              "decks",
+              "apps"
             ]
           },
           "section": {
@@ -602,8 +603,8 @@
     },
     {
       "name": "search_designs",
-      "title": "Search motion, branding and decks",
-      "description": "Find imported references. family=decks is presentations; branding includes identities and guidelines; sections is imported components; motion is source video. Use get_design_taxonomy for tags.",
+      "title": "Search motion, branding, decks and apps",
+      "description": "Find imported references. family=apps is public iOS screens; decks is presentations; branding includes identities and guidelines; sections is imported components; motion is source video. Use get_design_taxonomy for tags.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -625,6 +626,7 @@
               "sections",
               "branding",
               "decks",
+              "apps",
               "collections"
             ]
           },
@@ -706,6 +708,113 @@
       }
     },
     {
+      "name": "search_app_screens",
+      "title": "Find app screens with pixels",
+      "description": "Search observed screen titles, flow names and element labels. Returns a bounded inline visual shortlist with source links; not semantic similarity.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "app_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "flow": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "media_type": {
+            "default": "image",
+            "type": "string",
+            "enum": [
+              "image",
+              "video"
+            ]
+          },
+          "limit": {
+            "default": 5,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500000
+          },
+          "snapshot": {
+            "description": "Reuse the first response snapshot with the same filters while paging.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "inline": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_app_flow",
+      "title": "Inspect an ordered app journey",
+      "description": "List observed flows or inspect one exact flow in collection order. Source order is not proof of every possible navigation path.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "flow": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "limit": {
+            "default": 5,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "inline": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
       "name": "get_design_reference",
       "title": "Read a reference collection",
       "description": "Read deck slides, branding or imported sections in original order, with paginated assets, source tags, attribution and completeness. Use get_reference_asset to inspect individual assets.",
@@ -735,6 +844,14 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "detail": {
+            "default": "compact",
+            "type": "string",
+            "enum": [
+              "compact",
+              "full"
+            ]
           }
         },
         "required": [

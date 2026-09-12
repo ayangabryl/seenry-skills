@@ -2,7 +2,7 @@
 
 Seenry was previously called Web Atlas. The `web-atlas` MCP connection key and tool names remain compatible. The package now uses Seenry skill IDs.
 
-When connected, use the optional public MCP at `https://mcp.seenry.design`. It serves the published library without an SSH tunnel. The same connection covers websites, sections, motion, branding and decks. If it is unavailable, follow [design without MCP](without-mcp.md) using public or local evidence. Keep the same prototype and review process; do not invent library results or install another service implicitly.
+When connected, use the optional public MCP at `https://mcp.seenry.design`. It serves the published library without an SSH tunnel. The same connection covers websites, apps, sections, motion, branding and decks. If it is unavailable, follow [design without MCP](without-mcp.md) using public or local evidence. Keep the same prototype and review process; do not invent library results or install another service implicitly.
 
 ## Choose the right evidence
 
@@ -11,6 +11,7 @@ Call `get_library_guide` when you need the collection model, and inspect the ava
 | Need | Search | Inspect |
 | --- | --- | --- |
 | An editorial shortlist with saved reasons | `search_curated_references(family="sections",section="Hero",min_rating=4)` | Saved reason/use cases/caveats, then the actual reference pixels |
+| App screens or a journey | `search_app_screens(q="onboarding")` | Inline pixels, then `get_app_flow(id=...,flow=...)`; see [app research](app-research.md) |
 | A brand's website | `list_sites(q="Apple")`, then `search_references(site="apple.com")` | `get_page`, `get_screenshot` |
 | Full pricing or 404 page | `search_references(page_type="Pricing")` or `page_type="404"` | `get_page`, then screenshot segments |
 | Hero, footer, pricing block or bento grid | `search_sections(element="Hero")` | Use the returned `detailTool` and `detailArguments` |
