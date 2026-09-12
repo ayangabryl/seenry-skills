@@ -1,8 +1,10 @@
 """Check context routing without paying for another broad generation benchmark."""
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -46,7 +48,7 @@ class FocusedRouting(unittest.TestCase):
 
     def test_guide_topics_are_bounded_and_separate_from_rendered_lessons(self):
         project={'scope':'component','media':'none','motion':'none'}
-        for topics in (None, 'subject-fit', ['unknown'], ['subject-fit','subject-fit'], [{}]):
+        for topics in (None, 'subject-fit', ['unknown'], ['subject-fit','subject-fit'], ['brand-guidelines','brand-guidelines'], [{}]):
             with self.subTest(topics=topics), self.assertRaisesRegex(ValueError,'guide_topics'):
                 compile_packet('review',project={**project,'guide_topics':topics},profile='focused')
         for profile in ('focused','complete'):
@@ -90,6 +92,80 @@ class FocusedRouting(unittest.TestCase):
             self.assertEqual(extra,{'seenry/references/quality-diagnosis.md'})
             self.assertEqual(guided['runtime_files'],base['runtime_files'])
             self.assertEqual(guided['research_source'],'local')
+
+    def test_brand_guidelines_are_explicit_and_do_not_add_unrelated_guidance(self):
+        guide='seenry-branding/references/project-guidelines.md'
+        relevant={'plan','type','prototype','surface','build','review','refine'}
+        for profile in ('focused','complete'):
+            for scope in ('component','website','system'):
+                project={'scope':scope,'media':'none','motion':'none','research_source':'local',
+                         'shared_decisions':{'path':'BRAND.md','version':'2',
+                                             'rules':{'action':'Use the existing primary action component',
+                                                      'secondary_text':'var(--text-secondary)'}}}
+                original=json.dumps(project,sort_keys=True)
+                for stage in STAGES:
+                    with self.subTest(profile=profile,scope=scope,stage=stage):
+                        base=compile_packet(stage,project=project,profile=profile)
+                        selected={**project,'guide_topics':['brand-guidelines']}
+                        guided=compile_packet(stage,project=selected,profile=profile)
+                        base_paths={r['path'] for r in base['resources']}
+                        paths=[r['path'] for r in guided['resources']]
+                        self.assertNotIn(guide,base_paths)
+                        self.assertEqual(set(paths)-base_paths,{guide} if stage in relevant else set())
+                        self.assertEqual(len(paths),len(set(paths)))
+                        self.assertNotIn('seenry-branding/assets/BRAND.example.md',paths)
+                        self.assertEqual(guided['project_decisions'],selected)
+                        self.assertEqual(guided['visual_lessons'],base['visual_lessons'])
+                        self.assertEqual(guided['runtime_files'],base['runtime_files'])
+                        self.assertEqual(guided['research_source'],'local')
+                self.assertEqual(json.dumps(project,sort_keys=True),original)
+
+    def test_brand_guidelines_combine_with_diagnosis_and_selected_lessons(self):
+        guide='seenry-branding/references/project-guidelines.md'
+        project={'scope':'component','media':'none','motion':'none','decisions':['color']}
+        for topics in (['subject-fit'],['convergence'],['subject-fit','convergence']):
+            for stage in ('plan','surface','review'):
+                with self.subTest(topics=topics,stage=stage):
+                    base=compile_packet(stage,project={**project,'guide_topics':topics},profile='focused')
+                    guided=compile_packet(stage,project={**project,'guide_topics':topics+['brand-guidelines']},profile='focused')
+                    self.assertEqual({r['path'] for r in guided['resources']}-{r['path'] for r in base['resources']},{guide})
+                    self.assertEqual(guided['visual_lessons'],base['visual_lessons'])
+                    if stage in ('plan','review'):
+                        self.assertIn('seenry/references/quality-diagnosis.md',{r['path'] for r in guided['resources']})
+
+    def test_brand_guideline_handoff_relocates_offline_and_preserves_project_rules(self):
+        from stage_request import prepare
+        project={'scope':'system','media':'none','motion':'none','research_source':'local',
+                 'guide_topics':['brand-guidelines'],
+                 'shared_decisions':{'path':'docs/identity.md','version':'2026-09-12',
+                                     'rules':['Body text uses the bundled sans family.',
+                                              'Use var(--action-primary) for the primary action.']}}
+        original=json.dumps(project,sort_keys=True)
+        with tempfile.TemporaryDirectory() as temporary:
+            destination=Path(temporary)/'skills'
+            shutil.copytree(ROOT/'skills',destination)
+            relocated=destination/'seenry'
+            (relocated/'references/mcp-tools.json').unlink()
+            (relocated/'references/research.md').unlink()
+            (destination/'seenry-branding/assets/BRAND.example.md').unlink(missing_ok=True)
+            guide=destination/'seenry-branding/references/project-guidelines.md'
+            out=Path(temporary)/'request'
+            prepare('build',project,'Extend the settings screen using the supplied identity rules.',out,root=relocated)
+            packet=json.loads((out/'packet.json').read_text())
+            resource=next(r for r in packet['resources'] if r['path']=='seenry-branding/references/project-guidelines.md')
+            self.assertEqual(resource['content'],guide.read_text())
+            self.assertEqual(resource['sha256'],hashlib.sha256(guide.read_bytes()).hexdigest())
+            self.assertEqual(packet['project_decisions']['shared_decisions'],project['shared_decisions'])
+            self.assertEqual(packet['research_source'],'local')
+            self.assertIn(json.dumps(project['shared_decisions']['rules'][1]),(out/'prompt.txt').read_text())
+            self.assertEqual(json.dumps(project,sort_keys=True),original)
+            guide.unlink()
+            compile_packet('build',project={**project,'guide_topics':[]},profile='focused',root=relocated)
+            compile_packet('research',project=project,profile='focused',root=relocated)
+            missing_out=Path(temporary)/'missing-guide-request'
+            with self.assertRaisesRegex(FileNotFoundError,'project-guidelines.md'):
+                prepare('build',project,'Extend the settings screen.',missing_out,root=relocated)
+            self.assertFalse(missing_out.exists())
 
     def test_cli_defaults_to_focused_and_complete_remains_explicit(self):
         cli=ROOT/'skills/seenry/scripts/packet.py'

@@ -2,6 +2,8 @@
 
 A written plan is provisional. A selected type/surface study is a concrete artifact with actual copy, dimensions and state. Carry its source and wide/narrow captures into the next stage; do not ask a model to reconstruct it from a flattering style description.
 
+Reconcile the selected study with existing project brand guidelines and authoritative tokens/components as well as DESIGN.md. Record the guideline version and any intended exception. When a shared rule changes, update its actual source and documentation together, then inspect affected representative uses; a matching prose description cannot establish implementation consistency.
+
 Before retaining it, compare its actual typography and emphasis with DESIGN.md. If the plan says Inter at 22–26px but the study renders another family at 44px, resolve that discrepancy now. Either deliberately revise the plan with rendered evidence or correct the study. Do not silently call the difference polish. A declared family is not proof of a loaded font: inspect loaded font resources and real glyphs as well.
 
 Choose a few consequential relationships to retain, such as the title and field alignment, image-to-control gap, common action height, or the unit's anchor when a quantity changes. Avoid freezing every pixel or copying a successful component's dimensions into an unrelated brief. Keep one record per viewport and important state. A useful responsive change should update the selected evidence and rationale, not be forced back to an obsolete measurement.

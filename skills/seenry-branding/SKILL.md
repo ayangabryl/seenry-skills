@@ -1,13 +1,15 @@
 ---
 name: seenry-branding
-description: "Research brand identity systems and guidelines from Seenry, including color, typography, imagery and applications. Use for branding inspiration or translating a provided brand system; presentation narrative belongs to deck research."
+description: "Research identity systems and create or maintain project brand guidelines for consistent implementation, with or without Seenry MCP. Use for brand research, codifying an existing identity or authoring usable brand rules; presentation narrative belongs to deck research."
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.3"
+  version: "2.0.1-dev.4"
 ---
 
 For original identity authorship, follow the main Seenry workflow and its art-direction guide before researching examples here. Define relationships across wordmark, type, imagery, palette, language and motion; test them in both expressive and dense applications. Researching a brand guide is not itself a new identity design. Preserve a supplied identity unless the user requests rebranding.
+
+For creating, codifying or updating a project's guidelines, use [project guidelines](references/project-guidelines.md). Reuse existing brand documentation and implementation sources; otherwise create a compact `BRAND.md` linked from `DESIGN.md`. A research-only request ends with its findings. A small UI change inherits applicable rules without generating a new manual.
 
 # Read branding as a system
 

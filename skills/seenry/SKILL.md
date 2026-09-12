@@ -4,7 +4,7 @@ description: "Research, design and build distinctive websites, product interface
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.3"
+  version: "2.0.1-dev.4"
 ---
 
 # Seenry
@@ -16,6 +16,7 @@ Make the user's product clear, useful and distinctive. Work with their actual co
 | Request | Start here | Finish at |
 | --- | --- | --- |
 | Research or critique | [Research](references/research.md) or [visual review](references/visual-review.md) | The requested findings; no unrequested build |
+| Create or codify brand guidelines | **seenry-branding** | Project rules linked to actual assets, tokens and applications |
 | A narrow fix | The affected state and relevant decision guide below | Verified correction; no new brand or three-way redesign |
 | Component | [Component record](references/component-record.md) and [component design](references/component-design.md) | The object in its host and required states |
 | Website or substantial redesign | [Design record](references/design-record.md) and [art direction](references/art-direction.md) | The requested page sequence and complete interactions |
@@ -49,7 +50,7 @@ Load the guide for the unresolved decision; reuse it while available in context.
 | A relevant visual failure/example | [Visual lessons](references/visual-lessons.md); inspect one or two useful cases |
 | Images, fonts, marks, icons, crops or ASCII media | **seenry-assets** |
 | Feedback, morphing, numbers or scroll choreography | **seenry-motion** |
-| Identity or presentation research | **seenry-branding** or **seenry-decks** |
+| Identity rules, brand guidelines or presentation research | **seenry-branding** or **seenry-decks** |
 
 Scope feedback to its evidence. A disliked green card does not ban green; an unnecessary status dot does not ban meaningful status. Grids, tokens, test labels and design-process narration stay out of visitor copy unless they are the actual product.
 

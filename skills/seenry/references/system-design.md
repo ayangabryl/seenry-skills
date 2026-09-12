@@ -14,6 +14,8 @@ Compare three alternatives for the important unresolved journey or shell, not th
 
 Keep one authoritative record and link it from each slice's DESIGN.md. Use the existing repository format; no proprietary file type is needed.
 
+Identify existing brand guidelines, token/component sources and their current version before extending the system. Use **seenry-branding** to codify missing shared identity rules in the existing docs or a project `BRAND.md`; keep journey-specific decisions here. Supply relevant rule content to later contexts and record intentional exceptions instead of silently choosing a new identity per screen.
+
 | Shared decision | A new screen inherits | Variation needs a reason |
 | --- | --- | --- |
 | Language and action meaning | Object names, verbs, status meanings and recovery conventions | Domain-specific content and useful labels |

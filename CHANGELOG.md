@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — 2.0.1-dev.4
+
+- Adds project brand-guideline authorship and maintenance, reusing existing docs/tokens/components or a compact BRAND.md. DESIGN.md carries its authority/version and scoped exceptions.
+- Adds an optional authoring outline and three sourced manual studies. Bolt's hierarchy/color pages were inspected visually; Frame.io and FIBA observations are explicitly limited to supplied excerpts.
+- Makes brand-guideline guidance an explicit packet topic, with actual project-rule transport, no mandatory MCP or research/template side load, and unchanged default routing.
+- Extends implementation continuity to reconcile brand rules with actual shared sources and representative applications. Authored, implemented and visually verified coverage remain distinct.
+- Passes 154 Python checks and package validation on macOS. A small offline authorship check produced source-linked BRAND.md/DESIGN.md; its first draft exposed excessive repetition, so small codifications now receive explicit brevity guidance. No rendered brand-system or new website benchmark was performed.
+
 ## Unreleased — 2.0.1-dev.3
 
 - Routes subject-fit and cross-project convergence guidance only when selected; missing comparison descriptors remain an evidence gap rather than a novelty pass.

@@ -34,6 +34,9 @@ Controlled palette comparison using the same layout and real content.
 
 ## Selected system
 Chosen direction and evidence, rejected alternatives, specific signature.
+Authoritative brand guideline path/version/status, when present; link its actual token,
+component and asset sources. Use seenry-branding to codify an absent project guide
+when shared identity rules are needed. Keep detailed rules there and scoped exceptions here.
 Tokens/relationships across sections/screens, assets and provenance.
 Color direction and reason; actual foreground/background state pairs, coverage,
 supported appearances and why the rejected palette served this task less well.

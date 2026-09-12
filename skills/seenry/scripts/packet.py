@@ -32,7 +32,7 @@ MOTION_HELPERS = {
     'number': ['number-transition.mjs'],
 }
 MOTION_LIBRARIES = ('border-beam', 'thinking-orbs', 'liquid-gooey', 'metal-fx', 'img-fx')
-GUIDE_TOPICS = ('subject-fit', 'convergence')
+GUIDE_TOPICS = ('subject-fit', 'convergence', 'brand-guidelines')
 FOCUSED_STAGES = {
     'understand': ['design-record.md'],
     'research': ['reference-standards.md'],
@@ -92,11 +92,15 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         selected = [name for p in selected for name in COMPONENT_REPLACEMENTS.get(p,[p])]
         decisions.append('Component-specific guides replace website argument, hero and page-record guidance')
     paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in selected]
-    if guide_topics and stage in ('plan', 'prototype', 'compare', 'review', 'refine'):
+    diagnosis_topics = [topic for topic in guide_topics if topic in ('subject-fit', 'convergence')]
+    if diagnosis_topics and stage in ('plan', 'prototype', 'compare', 'review', 'refine'):
         paths += [root / 'references/quality-diagnosis.md']
         if 'subject-fit' in guide_topics and stage in ('plan', 'prototype', 'refine'):
             paths += [root / 'references' / ('component-design.md' if component else 'art-direction.md')]
-        decisions.append('Selected decision guides for: ' + ', '.join(guide_topics) + '; rendered lessons remain separately selected')
+        decisions.append('Selected decision guides for: ' + ', '.join(diagnosis_topics) + '; rendered lessons remain separately selected')
+    if 'brand-guidelines' in guide_topics and stage in ('plan', 'type', 'prototype', 'surface', 'build', 'review', 'refine'):
+        paths += [root.parent / 'seenry-branding/references/project-guidelines.md']
+        decisions.append('Selected project brand guideline guidance; preserve the supplied shared decisions and use the template only when needed')
     if libraries and stage not in ('understand', 'type'):
         paths += [root.parent / 'seenry-motion/references/expressive-effects.md']
         decisions.append('Optional motion library study supplied for: ' + ', '.join(libraries) + '; installation and integration remain unverified')

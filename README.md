@@ -1,6 +1,6 @@
 # Seenry skills
 
-This working revision is **2.0.1-dev.3**, improving focused creative decisions and reference evidence before further output testing. The published stable release remains 2.0.0.
+This working revision is **2.0.1-dev.4**, adding project brand-guideline authorship and continuity to focused creative decisions. The published stable release remains 2.0.0.
 
 A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 
@@ -9,7 +9,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 | `seenry` | Research, design direction, wireframes, typography/color, implementation and review |
 | `seenry-motion` | Motion research, microinteractions, morphs, scroll choreography and verification |
 | `seenry-assets` | Images, fonts, real provider marks, icons, video and asset provenance |
-| `seenry-branding` | Identity systems and guidelines |
+| `seenry-branding` | Identity research and project brand-guideline authorship/maintenance |
 | `seenry-decks` | Presentation narratives and ordered slide studies |
 
 ## Install
