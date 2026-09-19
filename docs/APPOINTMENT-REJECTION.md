@@ -33,3 +33,9 @@ Fresh three-condition Luna generation uses the same appointment brief with froze
 All three Luna high runs completed within the 20-minute ceiling (Seenry approximately 13m, Jakub 17m, Emil 8m). Host checks passed for unavailable choices, provisional keyboard selection, Escape/cancel preservation, confirmation, repeated rescheduling, 360px review/result overflow and completion with reduced-motion preference. No successful global-skill reads were found by the command audit. This is not an OS isolation guarantee.
 
 The fresh action rows did not reproduce the oversized confirmation glyph/wrapped-label defect in the inspected states. However, Seenry still rendered uppercase eyebrows, an oversized task heading, repeated availability labels and substantial page framing. It claimed structural alternatives in its design record without retained rendered prototypes. Reads and author claims therefore do not establish applied guidance or completed workflow. Human acceptance remains pending; release remains blocked. The output comparison is a same-brief development diagnostic, not evidence that Seenry outperforms either source collection.
+
+## Human decision on the fresh comparison
+
+The user preferred A (Jakub condition) but rejected A, B and C. This is a relative preference, not an accepted design. Feedback identifies decorative uppercase eyebrows with rules, inappropriate icon choice, weak layout and spacing. Screenshots also expose month text colliding across date-column boundaries, despite the earlier page-overflow checks passing. The large high-contrast current-time panel dominates the replacement choices.
+
+The next diagnostic must inspect internal text fit and information hierarchy. Preserve this as a scoped rejection case; do not infer universal bans on uppercase, rules, green palettes or outlined controls. Do not schedule the website/transfer gates or publish on these results.
