@@ -27,3 +27,9 @@ The craft modules now provide contextual compact-interface type values, distingu
 A local browser helper (`control_geometry.cjs`) records typography and flags icon/label geometry for human inspection; its regression fixture catches the failed pattern without assigning a design-quality score. The helper was added after the next comparison's resource freeze and is therefore host verification only for that comparison.
 
 Fresh three-condition Luna generation uses the same appointment brief with frozen Seenry, Jakub and Emil guidance. Supplied entrypoints are inlined with absolute local reference roots. This is a development comparison on a previously seen brief, not a held-out validation or a claim of superiority. No stronger-model edits are made to generated designs.
+
+## Fresh three-condition outcome
+
+All three Luna high runs completed within the 20-minute ceiling (Seenry approximately 13m, Jakub 17m, Emil 8m). Host checks passed for unavailable choices, provisional keyboard selection, Escape/cancel preservation, confirmation, repeated rescheduling, 360px review/result overflow and completion with reduced-motion preference. No successful global-skill reads were found by the command audit. This is not an OS isolation guarantee.
+
+The fresh action rows did not reproduce the oversized confirmation glyph/wrapped-label defect in the inspected states. However, Seenry still rendered uppercase eyebrows, an oversized task heading, repeated availability labels and substantial page framing. It claimed structural alternatives in its design record without retained rendered prototypes. Reads and author claims therefore do not establish applied guidance or completed workflow. Human acceptance remains pending; release remains blocked. The output comparison is a same-brief development diagnostic, not evidence that Seenry outperforms either source collection.
