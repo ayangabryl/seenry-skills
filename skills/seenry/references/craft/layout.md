@@ -10,6 +10,12 @@ Sketch three structural answers with identical facts. Change reading order, disc
 
 Use content-driven widths, `minmax(0, 1fr)` for flexible tracks and wrapping rather than clipping meaningful text. Preserve DOM reading order. At narrow widths, collapse relationships deliberately instead of scaling down the whole component. Start nested uniform corners near outer radius minus inset, then inspect border thickness and unequal insets optically.
 
+## Choose a boundary, then inspect the grouping
+
+Separate groups with space first. Add a rule when it clarifies scanning across repeated rows, a boundary when a surface must be distinguished, or elevation for a real overlay. Do not stack a tinted card, outline, internal rules and large gaps merely to make the group look designed. Dense tables and form fields can legitimately need boundaries.
+
+Align a separator to the content or surface it separates. An inset rule is valid when its endpoints share that alignment; arbitrary endpoints are not. Inspect the whole state for repeated enclosures and excess top/bottom padding. Apply the same grouping logic to review and confirmation, not just the initial screen.
+
 ## Working example
 
 [Layout study](../../assets/craft/layout.html) switches an appointment summary between a split composition and a stacked composition without changing facts. The width control tests the same layout in a compact host. These are structural studies, not two complete themes.

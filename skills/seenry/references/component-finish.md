@@ -14,6 +14,10 @@ Keep a copy of the current direction. Make one subtraction variant with identica
 
 Inspect both at their intended product footprint, not a full-screen marketing showcase. Record the actual component width, heading size and first actionable control position. If a routine task needs a billboard heading, large brand masthead or an oversized summary card to look finished, test a compact host-sized composition before accepting it. The current value is supporting context unless comparing it is the primary task; do not make its filled area dominate the choices by habit. Record what becomes easier or harder to locate: the current object, the choice and the action. Pick one winner or reject both. When palette remains unresolved, make a separate same-composition comparison using its actual color areas. For an unbranded utility include an achromatic control treatment as a comparison, not a mandatory final style.
 
+## Finish every consequential state
+
+Before accepting a representative slice, render its primary action in the review state and its settled result. For an unresolved finding, select [typography](craft/typography.md), [controls](craft/controls.md) or [motion](craft/motion.md); load only the guide needed for that decision. Check ordinary-case labels, computed type roles, explicit icon dimensions, action-row fit, stationary choice feedback and necessary boundaries. The initial screen cannot stand in for the confirmation screen. Capture each at the intended desktop footprint and a narrow width.
+
 ## Evidence required
 
 Retain before/after captures at the same viewport/state and a short decision tied to visible differences. Exercise the changed control's transition, including reversal and focus. Missing captures mean unverified finish. “Calm,” “premium,” “editorial,” and “clean” are intentions, not observations.

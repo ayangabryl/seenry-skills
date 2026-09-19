@@ -10,6 +10,16 @@ Begin with clear title, body and supporting roles. Add a role only for a differe
 
 Use tabular numerals where changing values should retain width, not for every word. Test real changes through the longest value. Set readable line lengths and line height using the actual script. Avoid hard-coded line breaks that destroy narrow composition. Preserve intentional editorial breaks only with responsive alternatives.
 
+## Calibrate a compact interface
+
+For a routine task without brand type tokens, test a starting specimen with 16px/1.5 body, 14px supporting text, 24px/1.2 task heading and 500–600 action weight. These are adjustable comparison values, not a mandatory style. Compare against the proposed design at the same host width. Do not borrow a landing-page display scale for appointment metadata.
+
+Weight, width and tracking are different variables. Verify the actual loaded face and weight; a requested 760 can fall back to a heavier available face. Start ordinary UI tracking at normal. Test tight display tracking only on the specific heading; do not spread it to dates, labels and buttons. Inspect adjacent glyphs in real words at 100%, not only a zoomed screenshot.
+
+Use sentence case for ordinary field labels and instructions unless the supplied identity requires another treatment. A label is not an eyebrow by default. Prefer position and spacing to uppercase plus wide tracking plus bold weight. Do not re-label a value already clear from its sentence or context.
+
+Record computed font family, size, weight, line height and tracking for the title, metadata, primary action and settled result. Inspect initial, review and confirmation states at narrow width. A three-line short action label or a date larger than the task heading is a finding to resolve, not evidence of an expressive font choice.
+
 ## Working example
 
 [Type specimen](../../assets/craft/typography.html) compares locally available system families on identical reservation copy. Adjust specimen size and inspect the long heading, monetary value and fallback punctuation. It demonstrates the comparison mechanism, not a recommended font list.

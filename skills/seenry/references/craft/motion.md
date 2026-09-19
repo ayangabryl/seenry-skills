@@ -10,6 +10,14 @@ Choose timing by distance, frequency and consequence. Test at normal speed first
 
 Maintain position and focus through expansion. Repeated activation should retarget from the current visual state rather than queue stale animations. If an effect needs layout measurement, read before writing and handle resize or changing content. Reduced motion must retain all information and usable controls.
 
+## Keep utility controls steady
+
+For repeated choices such as time slots, start with a stationary hover treatment: background, foreground or boundary change. A lift and growing shadow imply elevation; use them only when that physical relationship serves the object. Do not apply a global translate-on-hover recipe to every button or card. Gate pointer hover with `(hover: hover) and (pointer: fine)`.
+
+A practical starting study is 120–160ms feedback on the exact changing properties and roughly 160–240ms for an occasional panel transition. Compare against an immediate change; choose by observed continuity and frequency, not by the adjective “premium.” Preserve the clicked target and reading anchor. Keyboard focus must remain explicit without waiting for animation.
+
+Inspect selection → review → cancel and selection → confirm at normal speed. Capture the intermediate change as well as its endpoint. A smooth entry with a jumping exit or a newly oversized success state is unfinished. Reduced-motion behavior must preserve the final information and focus recovery.
+
 ## Working example
 
 [Motion study](../../assets/craft/motion.html) expands an appointment detail region from a stable header. Its CSS grid transition can reverse mid-flight; the collapsed region becomes inert. The explicit reduced-motion switch and operating-system preference remove interpolation. A visible label and expanded state remain.

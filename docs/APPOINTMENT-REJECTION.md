@@ -17,3 +17,13 @@ The repair diagnostic preserves the rejected source and requests Luna-authored e
 Luna produced two serial repairs: removal of selected decoration with palette retained, then a same-structure palette comparison. The first required a recorded whitespace-only search normalization during mechanical edit application; the second applied all 14 exact edits unchanged. These are host-prepared diagnostic repairs, not fresh unassisted generation.
 
 Both passed targeted browser checks for Escape recovery, chosen-time confirmation, 360px overflow and page errors. The achromatic comparison reduces the supporting card's dominance; the large heading, overall footprint and repeated metadata still need work. No visual acceptance is recorded. Guidance now requires a product-footprint check before accepting a component finish. Transfer remains untested; publication remains blocked.
+
+## Second review: typography and consequential states
+
+User screenshots exposed an unbounded confirmation SVG, wrapped action text, excessive type weight/tracking, repeated uppercase metadata, lifting hover effects and redundant boundaries. The source assigned dimensions only to `.arrow`; the check SVG had no rendered dimensions. At a 360px viewport the confirmation button measured 294 × 170.47px with two text lines. This is a geometry defect, not a dispute about style.
+
+The craft modules now provide contextual compact-interface type values, distinguish font weight from width/tracking, require state-asset dimensions and responsive action-row fit, prefer stationary feedback for repeated choices, and review separator grouping. Borders and non-neutral colors remain valid when justified by task and hierarchy. The finish pass covers review and confirmation, not only the initial state.
+
+A local browser helper (`control_geometry.cjs`) records typography and flags icon/label geometry for human inspection; its regression fixture catches the failed pattern without assigning a design-quality score. The helper was added after the next comparison's resource freeze and is therefore host verification only for that comparison.
+
+Fresh three-condition Luna generation uses the same appointment brief with frozen Seenry, Jakub and Emil guidance. Supplied entrypoints are inlined with absolute local reference roots. This is a development comparison on a previously seen brief, not a held-out validation or a claim of superiority. No stronger-model edits are made to generated designs.

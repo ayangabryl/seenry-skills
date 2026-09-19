@@ -12,3 +12,5 @@ Original Seenry prose and executable examples, authored 2026-09-20. The followin
 Existing Seenry consolidation sources: installed references/visual-decisions.md, color-decisions.md and art-direction.md, plus the supplied Seenry entrypoint. Existing local guidance remains the basis for color-area inspection, no universal font/palette list, exact-scope reviews, and retained alternatives.
 
 Examples are isolated teaching demonstrations, not production UI templates or proof of benchmark superiority. They make no network requests and use only platform fonts and inline code. Art-direction artwork is schematic CSS, explicitly labeled, and is not offered as a photography substitute.
+
+Follow-up craft calibration: selected role-scale, real-weight and wrapping practices were studied from Jakub's better-typography; frequent-action restraint and pointer gating from Emil's animate. The candidate recipes are contextual starting values. Icon overflow, action-row fit and confirmation-state checks originate in Seenry's rejected appointment diagnostic. Existing pinned sources and MIT notices remain applicable.
