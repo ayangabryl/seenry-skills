@@ -19,7 +19,7 @@ class VisualLessons(unittest.TestCase):
   self.assertEqual([x['id'] for x in p['visual_lessons']['lessons']],['enclosure'])
  def test_focused_packet_records_unsupplied_entrypoint_and_reduces_repeated_text(self):
   project={'media':'none','motion':'feedback','scope':'component','decisions':['state']}
-  complete=packet.compile_packet('plan',project=project)
+  complete=packet.compile_packet('plan',project=project,profile='complete')
   focused=packet.compile_packet('plan',project=project,profile='focused')
   self.assertFalse(focused['entrypoint']['body_supplied'])
   self.assertEqual(complete['entrypoint']['sha256'],focused['entrypoint']['sha256'])

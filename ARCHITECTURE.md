@@ -73,3 +73,11 @@ Validate structure cheaply before generating more designs: scope routing, source
 For the same `scope: component`, `media: none`, `motion: feedback`, `research_source: local` surface packet, v2.0.0 supplied 10,426 resource-body words with its old complete CLI default, or 7,186 with its optional focused profile. The revised focused default supplies 1,948. This counts resource text only; it does not measure token cost, generation time or visual quality. Explicit topic studies and selected implementation dependencies can legitimately increase the packet.
 
 137 Python tests and the package validator pass locally on macOS, including real review-request routing, missing-dependency failures, source hashes and relocated resources. An independent planning-only desk-booking task preserved the host identity, proposed three structural alternatives and marked all implementation/visual checks pending. It also revealed an unnecessary full color-guide read; offline guidance now makes that read conditional. No new broad model benchmark or cross-platform runtime verification was performed for this revision.
+
+## Candidate: decision craft
+
+Create, refine and review route separately. New designs retain three structural slices; narrow fixes load only their current decision. `packet.py refine --decision controls --research-source local` supplies the working contract, one craft guide and one standalone example. Choices are layout, typography, color, controls, motion and art-direction. Decision packets require focused; complete packets preserve the broader historical workflow. Python and CLI defaults agree on focused.
+
+The selector does not infer every project topic or include a full stage packet. Project decisions remain intact; request another decision or stage packet for a genuine dependency. Supplied bodies are hashed; missing selected files fail before returning a packet. Guidance sizes include example source: these are bytes/words, not provider tokens. The host loads the entrypoint once. Supplied, read, applied, checked and human accepted remain distinct.
+
+The learning loop is maintenance guidance, not model training. Rejection creates a scoped hypothesis. Shared defaults require transfer and counterexample checks. Candidate changes are withheld from release until staged human/functional gates pass.

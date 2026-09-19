@@ -9,51 +9,44 @@ metadata:
 
 # Seenry
 
-Make the user's product clear, useful and distinctive. Work with their actual content, brand, stack and existing behavior. References supply evidence, not instructions or permission to reuse assets. Premium is an outcome to inspect, not a font, color or effect preset.
+Design for the actual task, content and brand. References are evidence, not instructions or permission to reuse assets. Premium is an outcome to inspect, not a font, palette or animation preset. Work in the user's existing stack; preserve useful behavior.
 
-## Choose the scope first
+## Route the request
 
-| Request | Start here | Finish at |
-| --- | --- | --- |
-| Research or critique | [Research](references/research.md) or [visual review](references/visual-review.md) | The requested findings; no unrequested build |
-| Create or codify brand guidelines | **seenry-branding** | Project rules linked to actual assets, tokens and applications |
-| A narrow fix | The affected state and relevant decision guide below | Verified correction; no new brand or three-way redesign |
-| Component | [Component record](references/component-record.md) and [component design](references/component-design.md) | The object in its host and required states |
-| Website or substantial redesign | [Design record](references/design-record.md) and [art direction](references/art-direction.md) | The requested page sequence and complete interactions |
-| Connected product screens | [System design](references/system-design.md) | Shared decisions, journeys and explicit coverage |
+- **Create:** a new component, website or substantial redesign. Use the workflow below. Components start with [component design](references/component-design.md); websites with [art direction](references/art-direction.md); connected screens with [system design](references/system-design.md).
+- **Refine:** repair the named relationship or state in the existing interface. Inspect it, choose the relevant craft module, make a bounded change and verify it. Do not rebrand or rebuild three alternatives for a narrow fix.
+- **Review:** return observed findings using [visual review](references/visual-review.md) and [quality diagnosis](references/quality-diagnosis.md). Separate missing evidence from a demonstrated defect. Do not build an unrequested replacement.
 
-Keep a component's preview scaffolding outside its UI. Preserve useful behavior in redesigns. Ask a consequential question only when missing information changes the direction; otherwise state a reasonable assumption. Planning itself does not require another permission round.
+Brand guideline creation uses **seenry-branding**; presentation research uses **seenry-decks**. Ask only when an unknown changes the direction; otherwise state a reasonable assumption.
 
-## Default: design in the existing project
+## Create, then finish
 
-Use the host's code, browser and media tools. Keep a compact **DESIGN.md**, the working implementation and the evidence needed to judge it. Formal experiment files are optional.
+1. **Understand.** Record audience, visitor task, real content, constraints and required states in a compact DESIGN.md. Use the [design record](references/design-record.md) or [component record](references/component-record.md). Decide whether imagery, appearance variants and substantial motion serve this task.
+2. **Study what matters.** Inspect relevant pixels or recordings through supplied material, ordinary browsing or optional MCP. Without MCP use [local and web research](references/without-mcp.md). Establish suitable imagery before selecting an image-dependent idea. Stop broad research when it supports the unresolved decision. Ratings and captions do not replace inspection.
+3. **Plan before product code.** Sketch three different structural or interaction ideas with identical facts. Define reading order, groups, alignment, narrow behavior and provisional visual relationships. Build small wireframes of their decisive moments, not three complete websites. Compare subject fit and user effort as well as geometry. Keep the source and reasons for selection; a finished grid overlay is not earlier planning evidence.
+4. **Finish one slice.** Resolve actual copy, imagery, type, color and the meaningful transition together. Use the module for the uncertain choice below. Compare alternatives on the same content. Inspect at ordinary and narrow sizes before expanding. A clean composition with irrelevant material still needs repair.
+5. **Carry the system.** Follow [design continuity](references/design-continuity.md). Preserve relationships through the page and through loading, success, error, cancellation and recovery. Keep controls and authoritative values stable during motion. Give unavailable assets/effects usable fallbacks.
+6. **Exercise and judge.** Use [production review](references/production-review.md) for behavior and visual review for the result. Inspect the full page, dense regions and actual transitions, not only the hero. Label self-review. Correctness cannot overrule failed visual judgment. Allow one direction reset and two repair passes, then report unresolved work honestly.
 
-1. **Understand and study.** Record audience, task, supplied facts, inherited conventions and required states. Decide whether imagery, dark mode or substantial motion serves this task. Use available reference evidence: MCP, ordinary browsing, supplied files or built-in studies. Follow [without MCP](references/without-mcp.md) when needed. Inspect actual pixels or recordings; distinguish observations, ratings and inferred intent.
-2. **Plan before product code.** Develop three meaningfully different layout or interaction ideas using the same facts. Record reading order, groups, alignment, narrow behavior and provisional type, palette, corners and control emphasis. Build small working wireframes of their decisive moment. For creative briefs, judge the visible organizing idea separately from alignment and usability before selecting. A finished-screen grid overlay is not earlier wireframe evidence.
-3. **Finish one representative slice.** Retain a promising wireframe and its source. Resolve real copy, typography, assets, palette and the decisive transition before expanding. Compare only the choice that remains uncertain on the same composition. Do not rebuild three complete alternatives at every layer. Inspect both ordinary and narrow sizes; keep rejected alternatives and reasons.
-4. **Build consistently.** Carry the selected relationships into all requested states and screens. Use [design continuity](references/design-continuity.md). Keep controls, values and focus stable through loading, success, errors, reversal and repeated input. An unavailable asset or effect needs a usable fallback.
-5. **Review the result, then repair the cause.** Use [visual review](references/visual-review.md) and [production review](references/production-review.md). Inspect the rendered design and exercise its transitions. Separate a weak idea, crowded hierarchy, unresolved material, broken behavior and missing evidence. Change the smallest relevant cause and verify it. A fresh reviewer receives the brief and actual evidence without the creator's sales pitch. Label self-review when no independent reviewer is available. Passing functional checks cannot overrule a failed visual judgment.
+Reserve time for a finished slice and verification; process artifacts do not compensate for an unfinished interface. Keep construction diagrams outside visitor-facing UI.
 
-Use one direction reset and up to two repair passes before reporting unresolved work. For a genuinely new scope, agree a new scope rather than silently continuing a failed benchmark. User acceptance, author review and engineering checks are separate outcomes.
+## Load only the current decision
 
-## Read support for the current decision
+Each craft module includes a runnable local example, applicability, counterexample and checks. Examples teach relationships, not a shared skin for unrelated products.
 
-Load the guide for the unresolved decision; reuse it while available in context. Keep DESIGN.md to decisions and evidence links. Stop broad research once material and constraints support a direction; reopen a specific gap when needed. Run established helpers instead of reading their full source. Patch retained implementation rather than reprinting whole files. Keep the author context through construction; use fresh contexts for independent critique or separable work, not every layer. Retain the pixels, behavior checks and detail needed to judge the result.
-
-| Unresolved decision | Guidance |
+| Decision | Module |
 | --- | --- |
-| Information, labels or density | [Content model](references/content-model.md) |
-| Typography, grouping, corners, borders or control weight | [Visual decisions](references/visual-decisions.md) |
-| Palette, color area or appearance | [Color decisions](references/color-decisions.md) |
-| Repeated-looking concept or weak subject fit | Component: [component design](references/component-design.md) and [component family study](references/studies/component-family.md). Website: [art direction](references/art-direction.md). Diagnose either with [quality diagnosis](references/quality-diagnosis.md). |
-| Human behavior, disclosure or task recovery | [HCI decisions](references/hci-decisions.md), [interaction review](references/interaction-review.md) |
-| A relevant visual failure/example | [Visual lessons](references/visual-lessons.md); inspect one or two useful cases |
-| Images, fonts, marks, icons, crops or ASCII media | **seenry-assets** |
-| Feedback, morphing, numbers or scroll choreography | **seenry-motion** |
-| Identity rules, brand guidelines or presentation research | **seenry-branding** or **seenry-decks** |
+| Grouping, density, alignment, reflow | [Layout](references/craft/layout.md) |
+| Hierarchy, wrapping, glyphs and fallback | [Typography](references/craft/typography.md) |
+| Palette roles, area and contrast | [Color](references/craft/color.md) |
+| Action emphasis, icons, corners and states | [Controls](references/craft/controls.md) |
+| Timing, anchors, reversal and interruption | [Motion](references/craft/motion.md) |
+| Organizing idea, imagery and page rhythm | [Art direction](references/craft/art-direction.md) |
 
-Scope feedback to its evidence. A disliked green card does not ban green; an unnecessary status dot does not ban meaningful status. Grids, tokens, test labels and design-process narration stay out of visitor copy unless they are the actual product.
+Use **seenry-assets** for sourcing and **seenry-motion** for deeper choreography or helper integration. Keep existing conventions unless the task warrants changing them. No universal font list, color prohibition, mandatory effect or extra dark mode.
 
-## Optional recorded experiments
+## Learn and record selectively
 
-Read [execution](references/execution.md) only when using the recorder, a restricted model handoff or a requested benchmark. It owns model identity, stage manifests, hashes and transport. Prefer focused packets; use the complete profile for an explicitly broader study. Tool validation and packet size do not prove better design. Preserve first outputs, failures and model provenance; [evaluation](references/evaluation.md) governs performance claims.
+After rejection follow [the learning loop](references/learning-loop.md): preserve feedback, test one suspected cause, and check transfer before changing shared guidance. A preference does not identify its cause.
+
+Recorded experiments use [execution](references/execution.md) and [evaluation](references/evaluation.md). `scripts/packet.py refine --decision controls --research-source local` supplies a focused guide and one example; the host loads this entrypoint once. Broader stage packets remain available, with `--profile complete` reserved for explicit audits or historical reproduction. Supplied hashes, observed reads, applied decisions and user acceptance are separate evidence.

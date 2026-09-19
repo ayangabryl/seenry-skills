@@ -148,7 +148,7 @@ class Packets(unittest.TestCase):
             (relocated / 'references/mcp-tools.json').unlink()
             (relocated / 'references/research.md').unlink()
             for stage in packet.STAGES:
-                result = packet.compile_packet(stage, motion=True, assets=True, root=relocated, research_source='local')
+                result = packet.compile_packet(stage, motion=True, assets=True, root=relocated, research_source='local', profile='complete')
                 self.assertEqual(result['research_source'], 'local')
                 paths = [r['path'] for r in result['resources']]
                 self.assertIn('seenry/references/without-mcp.md', paths)

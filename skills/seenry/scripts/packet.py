@@ -55,7 +55,45 @@ COMPONENT_REPLACEMENTS = {
     'content-and-finish.md': ['component-design.md'],
 }
 
-def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source=None, project=None, profile='complete'):
+CRAFT_DECISIONS = ('layout', 'typography', 'color', 'controls', 'motion', 'art-direction')
+
+def compile_decision(stage, decision, root, research_source, project):
+    """A bounded decision packet; examples are source to render, not proof of quality."""
+    if stage not in STAGES:
+        raise ValueError('Unknown stage: ' + str(stage))
+    if decision not in CRAFT_DECISIONS:
+        raise ValueError('Unknown decision: ' + str(decision))
+    if project is not None and not isinstance(project, dict):
+        raise ValueError('Project must be an object')
+    if decision == 'motion' and project and project.get('motion') == 'none':
+        raise ValueError('Motion decision conflicts with motion: none')
+    paths = [root / 'references/working-contract.md',
+             root / 'references/craft' / (decision + '.md'),
+             root / 'assets/craft' / (decision + '.html')]
+    records = []
+    for path in paths:
+        if not path.is_file():
+            raise FileNotFoundError(f'Missing required resource: {path}')
+        data = path.read_bytes()
+        records.append({'path': path.relative_to(root.parent).as_posix(),
+                        'sha256': hashlib.sha256(data).hexdigest(), 'content': data.decode('utf-8')})
+    entry = root / 'SKILL.md'
+    return {'schema': 5, 'stage': stage, 'profile': 'focused', 'decision': decision,
+            'evidence': 'supplied-only',
+            'routing_decisions': ['Only the selected craft decision and its standalone example are supplied; render and judge applicability.'],
+            'guidance_size': {'resources': len(records), 'words': sum(len(r['content'].split()) for r in records),
+                              'bytes': sum(len(r['content'].encode()) for r in records),
+                              'scope': 'Resource bodies including one example; excludes project and host context. No truncation.'},
+            'entrypoint': {'path': entry.relative_to(root.parent).as_posix(),
+                          'sha256': hashlib.sha256(entry.read_bytes()).hexdigest(), 'body_supplied': False},
+            'visual_lessons': None, 'project_decisions': project, 'runtime_files': [],
+            'research_source': research_source, 'execution_constraint': SOURCES[research_source],
+            'constraint_enforcement': 'host responsibility; this compiler does not sandbox tools',
+            'resources': records}
+
+def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source=None, project=None, profile='focused', decision=None):
+    if project is not None and not isinstance(project, dict):
+        raise ValueError('Project must be an object')
     # An absent flag must not silently override the project's chosen evidence route.
     if research_source is None:
         research_source = project.get('research_source', 'auto') if project else 'auto'
@@ -63,6 +101,10 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         raise ValueError(f'Unknown research source: {research_source}')
     root = Path(root).resolve()
     if profile not in ('complete', 'focused'): raise ValueError('Unknown packet profile: ' + profile)
+    if decision is not None:
+        if profile != 'focused':
+            raise ValueError('Decision selection requires focused profile; omit decision for historical complete packets')
+        return compile_decision(stage, decision, root, research_source, project)
     focused = profile == 'focused'
     decisions = []
     guide_topics = project.get('guide_topics', []) if project else []
@@ -241,9 +283,10 @@ if __name__ == '__main__':
     parser.add_argument('--research-source', choices=SOURCES, default=None, help='Explicit override; otherwise use project research_source, then auto')
     parser.add_argument('--project', type=Path, help='JSON with media and motion needs; enables automatic early support')
     parser.add_argument('--profile', choices=('complete', 'focused'), default='focused', help='Focused supplies the current decision; the host first loads SKILL.md. Complete supplies broader guidance explicitly.')
+    parser.add_argument('--decision', choices=CRAFT_DECISIONS, help='Supply only this decision and its working example; requires focused profile')
     args = parser.parse_args()
     try:
         project = json.loads(args.project.read_text(encoding='utf-8')) if args.project else None
-        print(json.dumps(compile_packet(args.stage, args.motion, args.assets, research_source=args.research_source, project=project, profile=args.profile), ensure_ascii=False, indent=2))
+        print(json.dumps(compile_packet(args.stage, args.motion, args.assets, research_source=args.research_source, project=project, profile=args.profile, decision=args.decision), ensure_ascii=False, indent=2))
     except (OSError, UnicodeError, ValueError) as exc:
         parser.exit(1, str(exc) + '\n')
