@@ -16,7 +16,7 @@ STAGES = {
     'review': ['visual-review.md', 'quality-diagnosis.md', 'production-review.md'],
     'refine': ['content-and-finish.md', 'visual-review.md', 'interaction-review.md', 'visual-decisions.md', 'color-decisions.md'],
 }
-DEPENDENCIES = {'content-and-finish.md': ['studies/hoy.md'], 'visual-review.md': ['visual-lessons.md'], 'component-design.md': ['content-model.md']}
+DEPENDENCIES = {'content-and-finish.md': ['studies/hoy.md'], 'visual-review.md': ['visual-lessons.md'], 'component-design.md': ['content-model.md', 'component-finish.md']}
 SOURCES = {
     'auto': 'Use an available evidence route; MCP is optional. Record the actual route.',
     'mcp': 'Use connected MCP for research; if unavailable report it and explicitly change route.',
@@ -70,6 +70,8 @@ def compile_decision(stage, decision, root, research_source, project):
     paths = [root / 'references/working-contract.md',
              root / 'references/craft' / (decision + '.md'),
              root / 'assets/craft' / (decision + '.html')]
+    if project and project.get('scope') == 'component' and decision in ('layout','typography','color','controls'):
+        paths.insert(2, root / 'references/component-finish.md')
     records = []
     for path in paths:
         if not path.is_file():

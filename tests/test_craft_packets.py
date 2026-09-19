@@ -18,7 +18,7 @@ class CraftPackets(unittest.TestCase):
    p=packet.compile_packet('refine',decision=decision,project=project,research_source='local')
    self.assertEqual(p['project_decisions'],project)
    self.assertEqual(p['evidence'],'supplied-only')
-   self.assertEqual(len(p['resources']),3)
+   self.assertEqual(len(p['resources']),4 if decision in ('layout','typography','color','controls') else 3)
    self.assertEqual(sum(r['path'].endswith('.html') for r in p['resources']),1)
    self.assertLess(p['guidance_size']['words'],2500)
    for r in p['resources']:
