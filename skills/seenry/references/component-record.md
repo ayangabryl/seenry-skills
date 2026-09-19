@@ -7,6 +7,7 @@ Keep this record short and proportional to the task. Write it before product cod
 - **Material:** what the person must recognize, inspect or manipulate; an image's required visible detail follows that job. Record the real asset and preview/output relationship.
 - **Three provisional alternatives:** materially different grouping, placement or disclosure of the same choices. Give actual content, a proposed footprint, anchors and narrow reflow. Do not invent new capabilities merely to make the alternatives sound different.
 - **Finish decisions:** actual type roles, palette roles, boundaries, corners and icon/control hierarchy. Use host tokens when available. A utility with no brand does not need an invented accent identity.
+- **Checkable decisions:** selectors for type roles, action labels and repeated groups; chosen size/weight/tracking bounds, internal text fit and any deliberately stationary targets. These are project decisions, not universal style limits.
 - **Decisive transition:** current state, input, immediate acknowledgement, actual result, settled state, reversal/repeated input and failure. State what stays anchored and what moves.
 - **Construction and verification:** actual earlier wireframe/type/surface source and captures, layer observations, selected relationships, functional and motion evidence, unresolved issues and human-review status.
 

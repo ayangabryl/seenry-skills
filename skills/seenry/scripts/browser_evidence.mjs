@@ -5,6 +5,7 @@ import {pathToFileURL} from 'node:url';
 import {collectScrollEvidence} from './scroll_evidence.mjs';
 import {captureTransition} from './transition_evidence.mjs';
 import {probeInteractions,validateProbe} from './interaction_probe.mjs';
+import decisionChecks from './decision_check.cjs';
 async function performAction(page,action){
   const locator=action.selector?page.locator(action.selector):null;
   if(action.type==='click')await locator.click({timeout:4000});
@@ -22,9 +23,9 @@ try{await mkdir(out);}catch(error){if(error.code==='EEXIST')throw new Error('Use
 const {chromium}=await import(flags.playwright?pathToFileURL(path.resolve(flags.playwright)).href:'playwright');
 const scenario=flags.scenario?JSON.parse(await readFile(flags.scenario,'utf8')):{actions:[]};
 if(scenario.probe)validateProbe(scenario.probe);
-const browser=await chromium.launch({headless:true});const results=[];
+const browser=await chromium.launch({headless:true,...(flags['executable-path']?{executablePath:flags['executable-path']}:{})});const results=[];
 try{
-  for(const [name,width,reduced] of [['wide',1440,false],['narrow',390,false],['reflow',320,true]]){
+  for(const [name,width,reduced] of [['wide',1440,false],['intermediate',1000,false],['narrow',390,false],['reflow',320,true]]){
     const folder=path.join(out,name);await mkdir(folder,{recursive:true});
     const context=await browser.newContext({viewport:{width,height:900},reducedMotion:reduced?'reduce':'no-preference',recordVideo:{dir:folder,size:{width,height:900}},acceptDownloads:true});
     const page=await context.newPage();const errors=[],responses=[],steps=[];
@@ -64,6 +65,10 @@ try{
               actions:(action.actions||[]).map(item=>({atMs:item.atMs??0,run:()=>performAction(page,item)}))});
             await writeFile(path.join(folder,`transition-${index}.json`),JSON.stringify(transition,null,2));
             if(transition.status!=='captured')throw new Error(`Transition capture incomplete; inspect transition-${index}.json`);
+          }else if(action.type==='decision-check'){
+            const checked=await decisionChecks.check(page,{rules:action.rules});
+            await writeFile(path.join(folder,`decision-${index}.json`),JSON.stringify(checked,null,2));
+            if(checked.status!=='matched-decisions')throw new Error(`Project decisions ${checked.status}; inspect decision-${index}.json`);
           }else await performAction(page,action);
           steps.push({index,action,executed:true,...(transition?{transitionArtifact:`transition-${index}.json`,transitionSummary:transition.summary,transitionActions:transition.actions}:{})});
           await page.screenshot({path:path.join(folder,`step-${index}.png`)});

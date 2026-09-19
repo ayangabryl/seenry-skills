@@ -30,6 +30,6 @@ An unboxed unlabeled unfamiliar action may look quiet but become undiscoverable.
 
 ## Verify
 
-Exercise hover, keyboard focus, press, repeated activation, saved state and undo. Confirm focus stays on the trigger and success is announced once. Check longest labels and narrow fit. For production icons, verify actual assets, optical weight and hit geometry rather than substituting decorative Unicode symbols.
+Exercise hover, keyboard focus, press, repeated activation, saved state and undo. Confirm focus stays on the trigger and success is announced once. For assistive-only announcements, verify the hiding CSS actually works without removing the live region from the accessibility tree; a class name alone does not implement it. Check longest labels and narrow fit. For production icons, verify actual assets, optical weight and hit geometry rather than substituting decorative Unicode symbols.
 
 With Playwright available, call `require("<skill-root>/scripts/control_geometry.cjs").inspect(page)` after entering each consequential state. It records computed type and flags multiline action text or oversized glyphs for review. It does not decide aesthetic quality; intentional large icon-only controls may be flagged.

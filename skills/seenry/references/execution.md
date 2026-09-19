@@ -187,3 +187,9 @@ These are synchronous UI probes. Use the application test runner for delayed wor
 # Optional motion library research
 
 The project record may select `motion_libraries` from `border-beam`, `thinking-orbs`, `liquid-gooey`, `metal-fx`, and `img-fx`. This delivers the built-in decision study during relevant stages, with its content hash. It does not install packages, make MCP mandatory, or prove that the effect is applied. Unknown, duplicate and motion-disabled selections fail before handoff. Leave it empty for an ordinary interaction that needs no such library. Verify current package APIs and record local runtime evidence separately.
+
+### Check project decisions inside each state
+
+A browser scenario action `{ "type": "decision-check", "rules": [{ "kind": "fit", "selector": ".date-heading" }] }` saves `decision-N.json` and marks that step failed when decisions mismatch or remain unobserved. Add it after entering review and confirmation as well as the opening state. The [component finish guide](component-finish.md) describes the project-owned rules. Matching geometry is not visual acceptance. To use an existing browser installation, pass `--executable-path /absolute/path/to/browser`; omitting it retains Playwright's default browser.
+
+The adapter captures wide, intermediate (1000px), narrow and reflow widths. The intermediate capture catches failures hidden by desktop/mobile endpoints; inspect additional widths around project breakpoints when their grouping changes.
