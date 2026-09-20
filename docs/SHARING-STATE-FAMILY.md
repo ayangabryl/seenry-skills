@@ -23,3 +23,11 @@ This is a feedback-assisted repair, not a fresh-generation trial or an instructi
 The original fails content, row-continuity and access-trigger checks at 320, 390 and 1000 pixels. Host evidence is stored outside the active author directory. Each run retains prompts, skill hashes, original source, intermediate snapshots and usage when returned by the provider.
 
 Package validation and 178 Python tests pass on macOS; browser regressions exercise content fallback and existing decision/state rules in Chromium. These checks do not establish physical-device, Windows or Linux behavior for this revision.
+
+## Repair outcome
+
+The first Luna pass repaired identity rendering and preserved existing nodes, but reached its 12-minute limit before executing its final contract. Independent inspection still found changing label-column widths and a 21.5px desktop movement caused by vertical preview centering. Guidance now makes the host anchor and varying-label footprint explicit.
+
+A second Luna high context received three actual render attachments and those mechanical observations. It fixed the remaining movement while retaining B's visual direction. That six-minute pass also timed out before completing its handoff records. Both incomplete model outcomes remain in the experiment; no successful benchmark or visual-acceptance claim follows.
+
+Independent final verification passes 17 functional checks and content/identity/access/hover checks at 320, 390 and 1000 pixels. The host did not edit interface code. Updated guidance is installed locally with the existing shared links and rollback backup. The final visual direction remains conservative and human acceptance is pending. A fresh transfer result is still required before promoting an outcome claim.

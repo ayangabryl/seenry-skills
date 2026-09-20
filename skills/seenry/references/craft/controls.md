@@ -22,6 +22,8 @@ For routine confirmation, show the changed object and consequence together, then
 
 Read-only facts should not borrow the full border, fill and padding of nearby editable controls unless that distinction remains clear. Model independent actions independently: copying a restricted resource's URL does not grant access. Changing access should not remove an otherwise valid copy action or move its trigger. Reserve secondary controls only where useful; purposeful expansion is preferable to a permanent empty slot.
 
+For a short set of changing labels, compare their actual rendered widths and give that control a consistent footprint. An auto-sized permission label should not steal space from the adjacent identity column on each change. Do not reserve the width of arbitrary long descriptions; reflow those deliberately.
+
 ## Working example
 
 [Control study](../../assets/craft/controls.html) saves a local bookmark with stable button geometry and a reversible state. It uses explicit text, making the example independent of any network icon library.

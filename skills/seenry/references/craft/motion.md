@@ -12,6 +12,8 @@ Maintain position and focus through expansion. Repeated activation should retarg
 
 Keep the DOM identity of unchanged rows and triggers. Update a changed value in place; replacing an entire list can replay every entrance animation and lose focus even when the settled screenshot matches. Animate only genuinely entering content. Test a second change while the first transition is running. A menu can fade while its trigger, surrounding names and reading baseline remain stationary.
 
+Measure in the real host. A vertically centered preview recenters the whole card when its height grows, even if internal anchors are correct. For an expanding utility, keep a stable top/trigger anchor in the host; do not conceal movement by measuring only relative coordinates. Centering can suit a fixed-size object.
+
 ## Keep utility controls steady
 
 For repeated choices such as time slots, start with a stationary hover treatment: background, foreground or boundary change. A lift and growing shadow imply elevation; use them only when that physical relationship serves the object. Do not apply a global translate-on-hover recipe to every button or card. Gate pointer hover with `(hover: hover) and (pointer: fine)`.
