@@ -57,6 +57,35 @@ COMPONENT_REPLACEMENTS = {
 
 CRAFT_DECISIONS = ('layout', 'typography', 'color', 'controls', 'motion', 'art-direction')
 
+def selected_motion_files(root, project):
+    """Resolve explicitly requested helpers, including their pinned runtime closure."""
+    helpers = project.get('motion_helpers', []) if project else []
+    if not isinstance(helpers, list) or any(not isinstance(h, str) or h not in MOTION_HELPERS for h in helpers) or len(set(helpers)) != len(helpers):
+        raise ValueError('motion_helpers must name distinct supported helpers: ' + ', '.join(MOTION_HELPERS))
+    if helpers and project.get('motion') == 'none':
+        raise ValueError('Selected motion helpers conflict with motion: none')
+    paths, runtime = [], []
+    motion_root = root.parent / 'seenry-motion'
+    if helpers: paths.append(motion_root / 'references/adapters.md')
+    if any(h in ('geometry', 'icon-swap', 'morph-icon', 'number') for h in helpers):
+        paths.append(motion_root / 'references/product-transitions.md')
+    for helper in helpers:
+        sources = [motion_root / 'assets' / name for name in MOTION_HELPERS[helper]]
+        paths += sources; runtime += sources
+        if helper == 'number': paths.append(motion_root / 'references/number-transitions.md')
+        if helper == 'scroll': paths.append(motion_root / 'references/scroll-choreography.md')
+        if helper in ('morph-icon','number'):
+            vendor = motion_root / ('assets/morphicons' if helper == 'morph-icon' else 'assets/number-flow')
+            manifest = vendor / 'manifest.json'
+            metadata = json.loads(manifest.read_text(encoding='utf-8')); runtime.append(manifest)
+            for entry in metadata['files']:
+                dep = (vendor / entry['file']).resolve()
+                if not dep.is_relative_to(vendor.resolve()): raise ValueError('Helper dependency escapes its runtime')
+                if hashlib.sha256(dep.read_bytes()).hexdigest() != entry['sha256']:
+                    raise ValueError('Helper runtime differs from pinned manifest: ' + entry['file'])
+                runtime.append(dep)
+    return paths, runtime
+
 def feedback_resources(root, project):
     feedback = project.get('feedback', []) if project else []
     if not isinstance(feedback, list) or any(not isinstance(f, dict) or any(not isinstance(f.get(k), str) or not f[k].strip() for k in ('finding', 'state', 'check')) for f in feedback):
@@ -79,8 +108,11 @@ def compile_decision(stage, decision, root, research_source, project):
     if project and project.get('scope') == 'component' and decision in ('layout','typography','color','controls'):
         paths.insert(2, root / 'references/component-finish.md')
     paths += feedback_resources(root, project)
+    helper_paths, helper_runtime = selected_motion_files(root, project)
+    # A focused decision must not silently discard an explicit runtime selection.
+    paths += helper_paths
     records = []
-    for path in paths:
+    for path in dict.fromkeys(paths):
         if not path.is_file():
             raise FileNotFoundError(f'Missing required resource: {path}')
         data = path.read_bytes()
@@ -89,13 +121,14 @@ def compile_decision(stage, decision, root, research_source, project):
     entry = root / 'SKILL.md'
     return {'schema': 5, 'stage': stage, 'profile': 'focused', 'decision': decision,
             'evidence': 'supplied-only',
-            'routing_decisions': ['Only the selected craft decision and its standalone example are supplied; render and judge applicability.'],
+            'routing_decisions': ['Supply the selected craft decision, one standalone example and declared supporting resources; render and judge applicability.'] + (['Explicit motion helpers include their source and pinned runtime dependency closure.'] if helper_runtime else []),
             'guidance_size': {'resources': len(records), 'words': sum(len(r['content'].split()) for r in records),
                               'bytes': sum(len(r['content'].encode()) for r in records),
                               'scope': 'Resource bodies including one example; excludes project and host context. No truncation.'},
             'entrypoint': {'path': entry.relative_to(root.parent).as_posix(),
                           'sha256': hashlib.sha256(entry.read_bytes()).hexdigest(), 'body_supplied': False},
-            'visual_lessons': None, 'project_decisions': project, 'runtime_files': [],
+            'visual_lessons': None, 'project_decisions': project,
+            'runtime_files': [{'path': p.relative_to(root.parent).as_posix(), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in dict.fromkeys(helper_runtime)],
             'research_source': research_source, 'execution_constraint': SOURCES[research_source],
             'constraint_enforcement': 'host responsibility; this compiler does not sandbox tools',
             'resources': records}
@@ -216,24 +249,8 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     selected_helper_files = []
     stage_helpers = helpers if stage in ('prototype', 'surface', 'build', 'refine') else (['number'] if stage == 'type' and 'number' in helpers else [])
     if stage_helpers:
-        motion_root = root.parent / 'seenry-motion'
-        paths += [motion_root / 'references/adapters.md']
-        for helper in stage_helpers:
-            paths += [motion_root / 'assets' / p for p in MOTION_HELPERS[helper]]
-            selected_helper_files += [motion_root / 'assets' / p for p in MOTION_HELPERS[helper]]
-            if helper == 'number':
-                paths += [motion_root / 'references/number-transitions.md']
-            if helper in ('morph-icon','number'):
-                vendor = motion_root / ('assets/morphicons' if helper == 'morph-icon' else 'assets/number-flow')
-                manifest = vendor / 'manifest.json'
-                metadata = json.loads(manifest.read_text(encoding='utf-8'))
-                selected_helper_files += [manifest]
-                for entry in metadata['files']:
-                    dep = (vendor / entry['file']).resolve()
-                    if not dep.is_relative_to(vendor.resolve()): raise ValueError('Helper dependency escapes its runtime')
-                    if hashlib.sha256(dep.read_bytes()).hexdigest() != entry['sha256']:
-                        raise ValueError('Helper runtime differs from pinned manifest: ' + entry['file'])
-                    selected_helper_files.append(dep)
+        helper_paths, selected_helper_files = selected_motion_files(root, {**(project or {}), 'motion_helpers': stage_helpers})
+        paths += helper_paths
         decisions.append('Selected helper APIs and authored source included; host must copy listed runtime files with licenses before code uses them')
     if assets:
         if not focused: paths += [root.parent / 'seenry-assets/SKILL.md']

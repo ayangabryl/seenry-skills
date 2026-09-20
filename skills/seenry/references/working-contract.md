@@ -10,6 +10,8 @@ Preserve the same business state through pointer, keyboard, touch, interruption 
 
 Carry project feedback into this stage: rejected treatment, affected state and completion check. Recheck each item before handoff. Never mark an unchecked finding resolved or silently restore a rejected choice. These are scoped project constraints, not universal style bans.
 
+Carry explicit copy constraints too, including punctuation and capitalization. If the user prohibits em dashes, check visitor-facing strings before handoff. Write feedback as a sentence about the result, rather than inserting a permission enum into a stock phrase.
+
 For an interactive slice, carry a short state table into the code stage: input, actual result, visible acknowledgement, stable anchor, failure and repeated-input behavior. A promise of “polish later” is not an implemented transition. Where the host restricts file reads, include the selected helper's actual API/source and provision its relative runtime dependencies; a link to an unavailable guide cannot implement it.
 
 For code transport, return one complete raw file per artifact. Use separate JSON for decisions. Do not wrap an entire website in an escaped JSON string. Validate the complete document before rendering; a 200 response can still contain an empty or truncated body. Preserve failed output and request a complete file without silently filling in missing code.

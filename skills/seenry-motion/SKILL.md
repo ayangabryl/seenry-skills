@@ -39,6 +39,8 @@ Use CSS, SVG or Web Animations when sufficient. Existing Lottie, GSAP, Anime.js,
 
 Read [expressive effects](references/expressive-effects.md) only for a selected liquid, material, process, boundary or image treatment. Read [adapter usage](references/adapters.md) when adopting the bundled geometry, icon, number, Lottie or scroll helpers. Libraries own presentation; the application owns truth and recovery. Preserve source licenses for copied runtime assets.
 
+For everyday dropdowns, contextual settings and copy feedback, use the original [product transition recipes](references/product-transitions.md). Select their runtime helpers explicitly so focused handoffs include usable implementation, not just a motion intention.
+
 ## Exercise the meaningful transition
 
 Test initial and settled states, rapid input, reversal, keyboard/touch, resize and live reduced motion. Inspect normal-speed playback and relevant intermediate geometry; endpoints alone cannot prove continuity. Check cancellation, stale async completion and cleanup for the chosen behavior. Keep failed or unavailable checks explicit, and report the actual browser/device coverage.

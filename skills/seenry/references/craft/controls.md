@@ -24,6 +24,14 @@ Read-only facts should not borrow the full border, fill and padding of nearby ed
 
 For a short set of changing labels, compare their actual rendered widths and give that control a consistent footprint. An auto-sized permission label should not steal space from the adjacent identity column on each change. Do not reserve the width of arbitrary long descriptions; reflow those deliberately.
 
+Keep a dependent setting next to the thing it modifies. A permission dropdown revealed alone below unrelated actions loses its context. Label the relationship, group the controls and reflow that group together. Preserve useful anchors without imposing a detached second row just to pass a geometry check.
+
+## Focus is a designed state
+
+An animated disclosure can clip a descendant's focus ring or popup. Check the visible pixels and hit targets, not just DOM visibility: an offscreen menu may still report a nonzero rectangle. Give settled open content a deliberate overflow strategy, or render its popup outside the clipping ancestor. Keep collapsed content inert.
+
+Native focus is not a defect. Replace it only with a visible, coherent treatment. Use `:focus-visible` for buttons; text inputs may legitimately match it after a pointer click. Do not remove focus after typing or successful submission to hide its appearance. Avoid stacking an offset halo, error shadow and field border. Use one immediate indicator, preserve its footprint, and distinguish error text from focus. Do not animate focus visibility or rely on a barely changed background for menu keyboard focus. See [focus and keyboard continuity](../focus-and-keyboard.md) for the local recipe, forced-colors behavior and checks.
+
 ## Working example
 
 [Control study](../../assets/craft/controls.html) saves a local bookmark with stable button geometry and a reversible state. It uses explicit text, making the example independent of any network icon library.

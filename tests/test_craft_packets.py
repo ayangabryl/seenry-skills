@@ -36,3 +36,33 @@ class CraftPackets(unittest.TestCase):
   with self.assertRaises(ValueError):packet.compile_packet('refine',decision='unknown')
   with self.assertRaises(ValueError):packet.compile_packet('refine',decision='color',profile='complete')
   with self.assertRaises(ValueError):packet.compile_packet('refine',decision='motion',project={'motion':'none'})
+
+ def test_focused_motion_supplies_explicit_helpers_and_runtime(self):
+  p=packet.compile_packet('refine',decision='motion',project={'motion':'feedback','motion_helpers':['geometry','icon-swap']})
+  resources={r['path'] for r in p['resources']}
+  runtime={r['path'] for r in p['runtime_files']}
+  self.assertIn('seenry-motion/references/product-transitions.md',resources)
+  for f in ['geometry-transition.mjs','icon-swap.mjs']:
+   self.assertIn('seenry-motion/assets/'+f,resources)
+   self.assertIn('seenry-motion/assets/'+f,runtime)
+  self.assertFalse(any('number-flow/' in x for x in runtime))
+
+ def test_scroll_helper_does_not_load_utility_transition_recipes(self):
+  p=packet.compile_packet('refine',decision='motion',project={'motion':'scroll','motion_helpers':['scroll']})
+  paths={r['path'] for r in p['resources']}
+  self.assertIn('seenry-motion/references/scroll-choreography.md',paths)
+  self.assertNotIn('seenry-motion/references/product-transitions.md',paths)
+
+ def test_focused_helper_closure_relocates_and_rejects_missing_runtime(self):
+  project={'motion':'feedback','motion_helpers':['morph-icon']}
+  with tempfile.TemporaryDirectory() as t:
+   dest=Path(t)/'skills';shutil.copytree(ROOT/'skills',dest)
+   p=packet.compile_packet('refine',decision='motion',project=project,root=dest/'seenry',research_source='local')
+   self.assertTrue(any(x['path'].endswith('LICENSE') for x in p['runtime_files']))
+   (dest/'seenry-motion/assets/morphicons/dom.js').unlink()
+   with self.assertRaises(FileNotFoundError):packet.compile_packet('refine',decision='motion',project=project,root=dest/'seenry')
+
+ def test_focused_helpers_validate_even_with_other_decision(self):
+  for helpers in ['geometry',['unknown'],['geometry','geometry'],[{}]]:
+   with self.assertRaises(ValueError):packet.compile_packet('refine',decision='controls',project={'motion_helpers':helpers})
+  with self.assertRaises(ValueError):packet.compile_packet('refine',decision='controls',project={'motion':'none','motion_helpers':['geometry']})
