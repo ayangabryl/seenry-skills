@@ -18,6 +18,10 @@ Inspect at the intended product footprint. Record component width, heading size 
 
 Before accepting a representative slice, render its primary action in the review state and its settled result. For an unresolved finding, select [typography](craft/typography.md), [controls](craft/controls.md) or [motion](craft/motion.md); load only the guide needed for that decision. Check ordinary-case labels, computed type roles, explicit icon dimensions, action-row fit, stationary choice feedback and necessary boundaries. The initial screen cannot stand in for the confirmation screen. Capture each at the intended desktop footprint and a narrow width.
 
+Treat the component as a family of real content states. Alongside seeded content, render one user-created item, one missing optional field or asset, and the longest credible label. A person with a name and email has two distinct facts; an email-only person needs one identity line, not the same address twice. Preserve alignment without inventing a name or meaningless subtitle. Apply this distinction to files without titles and products without images too.
+
+Plan each mutation as **unchanged / changed / entering / leaving**. Unchanged names, avatars and triggers retain their nodes and positions. Changed values update in place; only entering items get entrance motion. Choose a stable anchor for any necessary expansion. Compare the whole family at the same footprint, including an open control, focus/error treatment, undo and the settled result. Read-only facts must remain visibly different from actions. Typography, insets, icon weight and surface emphasis should form one system across these states, not independent polish patches.
+
 ## Evidence required
 
 Retain before/after captures at the same viewport/state and a short decision tied to visible differences. Exercise the changed control's transition, including reversal and focus. Missing captures mean unverified finish. “Calm,” “premium,” “editorial,” and “clean” are intentions, not observations.
@@ -33,3 +37,5 @@ Example project rule: `{ "kind": "type", "selector": ".task-title", "maxSize": 2
 If implementation contradicts the selected specimen, repair it or explicitly reopen that decision with a rendered alternative. Do not silently describe a 52px bold title as compact typography. If required construction captures are missing, report workflow incomplete; written alternatives are not rendered prototypes.
 
 For selection/disclosure regressions, the [feedback gate](feedback-gate.md) documents `state-change` checks for geometry, node identity, focus and closed height.
+
+For content-dependent defects, `contained-media` checks `img` and `svg` against a declared frame; `distinct-text` compares declared fields within each item. Example: `{ "kind": "distinct-text", "selector": ".identity", "fields": [".name", ".email"] }`. A missing optional field is allowed. Use these only where duplication or overflow has no intended role. Run after adding real content; a check over seeded rows cannot cover a missing-asset fallback. Record visual acceptance separately from these mechanical checks.

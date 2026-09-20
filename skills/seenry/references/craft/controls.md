@@ -14,11 +14,13 @@ For nested uniform rounded surfaces, use outer radius minus total inset (includi
 
 ## Prevent action-row failures
 
-Give every control icon explicit inline and block dimensions plus `flex: none`; a `viewBox` does not constrain its rendered size. Around 1em–1.25em is a useful starting glyph size beside text, separate from the hit target. Apply this to every state asset, not just the initial arrow.
+Give every control icon explicit inline and block dimensions plus `flex: none`; a `viewBox` does not constrain its rendered size. Around 1em–1.25em is a useful starting glyph size beside text, separate from the hit target. Size the actual element: a rule for `svg` does not size an SVG loaded through `img`. Use a shared glyph class on both. Exercise the missing-avatar and missing-image fallback, not just seeded assets.
 
 Let the label keep its readable width. Keep a short commitment label on one line when it fits; if an action row cannot accommodate it, stack the actions or give the primary action the row. Do not fix overflow by clipping meaningful copy, shrinking the font or allowing a two-word action to become a tall narrow column. Check actual confirmation and error labels, not only the first button.
 
 For routine confirmation, show the changed object and consequence together, then the next useful action. A success heading, success badge, completed stepper, status field and confirmation card often repeat one fact. Retain each only if it helps the person understand a different part of the result.
+
+Read-only facts should not borrow the full border, fill and padding of nearby editable controls unless that distinction remains clear. Model independent actions independently: copying a restricted resource's URL does not grant access. Changing access should not remove an otherwise valid copy action or move its trigger. Reserve secondary controls only where useful; purposeful expansion is preferable to a permanent empty slot.
 
 ## Working example
 

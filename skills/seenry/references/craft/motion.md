@@ -10,6 +10,8 @@ Choose timing by distance, frequency and consequence. Test at normal speed first
 
 Maintain position and focus through expansion. Repeated activation should retarget from the current visual state rather than queue stale animations. If an effect needs layout measurement, read before writing and handle resize or changing content. Reduced motion must retain all information and usable controls.
 
+Keep the DOM identity of unchanged rows and triggers. Update a changed value in place; replacing an entire list can replay every entrance animation and lose focus even when the settled screenshot matches. Animate only genuinely entering content. Test a second change while the first transition is running. A menu can fade while its trigger, surrounding names and reading baseline remain stationary.
+
 ## Keep utility controls steady
 
 For repeated choices such as time slots, start with a stationary hover treatment: background, foreground or boundary change. A lift and growing shadow imply elevation; use them only when that physical relationship serves the object. Do not apply a global translate-on-hover recipe to every button or card. Gate pointer hover with `(hover: hover) and (pointer: fine)`.

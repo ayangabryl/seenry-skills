@@ -2,7 +2,8 @@
 async function check(page, contract) {
   if (!contract || !Array.isArray(contract.rules) || contract.rules.length===0) throw new Error('Nonempty project rules required');
   for (const r of contract.rules) {
-    if (!r.selector || !['type','fit','stationary-hover','state-change'].includes(r.kind)) throw new Error('Rule requires selector and supported kind');
+    if (!r.selector || !['type','fit','stationary-hover','state-change','contained-media','distinct-text'].includes(r.kind)) throw new Error('Rule requires selector and supported kind');
+    if (r.kind==='distinct-text' && (!Array.isArray(r.fields)||r.fields.length<2||r.fields.some(x=>typeof x!=='string'||!x.trim()))) throw new Error('Distinct text requires at least two field selectors');
     if (r.kind==='state-change') {
       if (!r.action?.selector || !['click','press'].includes(r.action.type) || (r.action.type==='press'&&!r.action.key)) throw new Error('State change needs an explicit click or key action');
       if (r.probes!==undefined && (!Array.isArray(r.probes)||r.probes.some(x=>typeof x!=='string'))) throw new Error('Probes must be selectors');
@@ -65,6 +66,19 @@ async function check(page, contract) {
       const visible=b.width>0&&b.height>0&&s.visibility!=='hidden';
       if(!visible)return {status:'unobserved',findings:['Enter the state where this element is visible']};
       const findings=[];const values={};
+      if(rule.kind==='contained-media'){
+        values.media=[...el.querySelectorAll('img,svg')].filter(media=>{const r=media.getBoundingClientRect();return r.width&&r.height&&getComputedStyle(media).visibility!=='hidden';}).map(media=>{
+          const r=media.getBoundingClientRect();return {tag:media.tagName.toLowerCase(),width:r.width,height:r.height,escaped:r.left<b.left-.5||r.right>b.right+.5||r.top<b.top-.5||r.bottom>b.bottom+.5,loaded:media.tagName.toLowerCase()!=='img'||(media.complete&&media.naturalWidth>0)};
+        });
+        if(values.media.some(m=>m.escaped))findings.push('Media escapes its declared frame');
+        if(values.media.some(m=>!m.loaded))findings.push('Image is not loaded');
+      }
+      if(rule.kind==='distinct-text'){
+        values.fields=rule.fields.map(selector=>[...el.querySelectorAll(selector)].filter(field=>{const r=field.getBoundingClientRect();return r.width&&r.height&&getComputedStyle(field).visibility!=='hidden';}).map(field=>field.innerText.trim().replace(/\s+/g,' ').toLocaleLowerCase()).filter(Boolean));
+        values.duplicates=[];
+        for(let i=0;i<values.fields.length;i++)for(let j=i+1;j<values.fields.length;j++)for(const value of values.fields[i])if(values.fields[j].includes(value))values.duplicates.push(value);
+        if(values.duplicates.length)findings.push('Declared identity fields repeat the same visible fact');
+      }
       if(rule.kind==='type'){
         values.size=parseFloat(s.fontSize);values.weight=parseFloat(s.fontWeight);values.trackingEm=s.letterSpacing==='normal'?0:parseFloat(s.letterSpacing)/values.size;values.text=el.innerText.trim();values.transform=s.textTransform;
         if(rule.maxSize!==undefined&&values.size>rule.maxSize+.1)findings.push('Size exceeds project decision');

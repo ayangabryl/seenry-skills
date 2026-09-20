@@ -2,6 +2,7 @@
 
 ## Unreleased — 2.0.1-dev.5
 
+- Adds content-state finish checks for duplicate identity and escaped fallback media, plus guidance for persistent rows and independent access/copy actions. Condenses overlapping component planning guidance. The [sharing repair study](docs/SHARING-STATE-FAMILY.md) preserves the rejected original and distinguishes a Luna-authored repair from fresh skill effectiveness.
 - Separates the organizing idea from construction craft for creative briefs, before committing to a finished surface. Ordinary utility work retains its lighter criteria.
 - Adds explicit boolean `concept_review` to anonymous construction requests and recorded project contracts. Opted-in wireframe/type stages cannot advance without a passing concept check; final review retains all five criteria. The helper validates recorded evidence and disposition, not visual taste.
 - Makes consequential component usage explicit in project brand guidelines: source/API, variants, state ownership, keyboard/focus, responsive and motion behavior, contextual misuse and scoped exceptions. The small authoring guide remains compact.
