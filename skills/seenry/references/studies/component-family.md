@@ -24,3 +24,26 @@ The expanded timer and collection show an adjacent development grid with a 24px 
 Before choosing a palette, identify the information-bearing object and the person's next decision. Compare alternatives that change that useful relationship: simultaneous comparison, direct manipulation, or a stable object with disclosed detail. If the same familiar form is the clearest answer, retain it and describe the limited exploration honestly; inventing a gesture solely to appear creative can make the task worse.
 
 The family is coherent without giving every object the same internal structure or surface color. That is an inference from the visible collection, not knowledge of the author's intent. Test it on the current brief with actual material and required states. The recording does not establish keyboard behavior, mobile reflow, error recovery, performance or production readiness. Verify those in the implementation.
+
+## When clean still looks unfinished
+
+Additional Seenry MCP inspection on 2026-09-20: the event card's enlarged frame shows one leading time, a much smaller meridiem, event identity beneath, quieter duration/companion information, and avatars opposite the directions action. These are observed relationships, not measured CSS values. Its subtle enclosure does not compete with the time. The adjacent grid annotates height and radius; it does not establish the creator's implementation process.
+
+The rejected appointment repair had correct geometry but treated its current booking as a grey notice with a thick leading rule. The user's review accepted the reduction in stereotyped decoration but rejected its level of craft. Keep this as a scoped failure, not a ban on callouts or borders.
+
+For a compact scheduling interface, test these decisions on actual content:
+
+- **Object hierarchy:** compose the appointment as one readable identity, with date/time leading and clinician/duration subordinate. Do not repeat an introductory label, notice treatment and separate heading for the same fact. Keep the current booking visible where comparing it helps.
+- **Semantic surfaces:** reserve notice-like emphasis for information requiring attention. Compare the booking context as an ordinary aligned group against its existing banner, with content and behavior unchanged. A warning about losing a booking would justify stronger treatment.
+- **Choice rhythm:** align date headings and time choices so selection can be scanned predictably. Avoid repeated availability prose when enabled/disabled controls plus a group explanation convey it accessibly. Don't remove the unavailable explanation when people need to know why.
+- **State continuity:** keep the appointment identity recognizable through selection, review and confirmation. Show the new time and its consequence where the decision happens; avoid rebuilding the entire interface around a generic success headline.
+
+Choose the relevant relationship, render one controlled alternative, and retain the comparison. These are hypotheses to test on this task, not evidence that Seenry now meets the user's acceptance gate. For another domain, reselect the information-bearing object rather than copying this appointment composition.
+
+### Supporting selection reference
+
+[Date Range Picker by jeetnirnejak](https://seenry.design/#/design/3a06f190c89d7feaef430b5d435aed45), retrieved through Seenry MCP on 2026-09-20. Browser playback samples show a stable calendar and summary, blue endpoint selection and lighter contiguous range segments. A later sample changes the selected start date while the calendar remains in place. The creator describes spring-driven fill/knobs with slower color follow-through; sampled frames do **not** independently verify that timing. Do not copy the palette or claim measured motion quality from these observations.
+
+Transfer: animate the changing selection within stationary labels and geometry, then inspect normal-speed playback, rapid reselection and reduced motion. Countercase: an appointment is a single time, so range handles and a connected range would communicate the wrong operation.
+
+The five-star [Understory booking marketing section](https://seenry.design/#/design/ea9ee52b2cbeff1fe1372def16b3ff9b) provides a useful boundary: its inspected static image uses large uppercase display type, forest green, lime accents and dividers. These devices can belong to a coherent marketing composition; that rating does not make them appropriate for compact appointment controls. The library supplied no written rating rationale. No reference assets are redistributed with this study.

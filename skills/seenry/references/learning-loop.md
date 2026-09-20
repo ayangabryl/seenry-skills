@@ -32,3 +32,7 @@ Supply only the relevant decision guide, real content/assets, current implementa
 Do not remove creative choice by giving every project the same layout, palette or font. Bound implementation complexity by what can be demonstrated locally, while exploring composition and content treatment. Stop research when the unresolved decision is supported. Reserve execution time for a finished slice and inspection; don't spend the entire budget proving that a process was followed.
 
 Shared skill updates are deliberate maintenance, not automatic self-editing after every user interaction. Store project lessons locally; promote only supported, applicable lessons. Keep rejected hypotheses and a rollback path.
+
+## Optional maintainer replay
+
+The repository development tool `scripts/design_loop.py` records immutable artifact hashes, fixed criteria and parent-linked attempts, then compares action-order policies within a budget. See the repository document `docs/DESIGN-LOOP.md`; these development tools are not required or assumed present in a standalone skill installation. Replay is limited to already evaluated branches. Keep human acceptance separate from model review. No accepted record means no demonstrated replay success. Skill promotion still requires fresh-brief and counterexample evidence; ordinary project use does not run recursive experiments.

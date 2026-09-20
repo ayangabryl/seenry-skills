@@ -23,6 +23,16 @@ Separate critical behavior failures from visual judgments. The existing review g
 
 Observed listening-queue regression: a review suggested a muted paused pill and either a selection bar or tinted row. The author retained the pill and combined both row treatments; the user rejected the result despite passing functional checks. In this case, compare removing the redundant playback badge and simplifying current-track emphasis. Also check information truth: a list including the current track is not entirely “upcoming.” This example does not ban status badges or useful selection feedback in other contexts. The proposed subtraction still needs a rendered comparison; it is not a validated replacement design.
 
+## Reopen a rejected composition
+
+If successive repairs only make an ordinary form tidier, reassess the organizing relationship. Distinguish a sound composition with a local defect from a rejected composition whose inherited geometry is the defect. Preserve product facts and behavior, but reopen width, grouping, reading order, disclosure and type roles. Do not carry old CSS limits into a structural reset as if they were user requirements.
+
+Inspect one or two task-relevant reference images at usable resolution. When handing off to another model, attach the actual permitted pixels, identify the relevant region and provide provenance; a prose summary alone loses spatial evidence. Supply the same reference evidence to the independent reviewer. Captions or static frames do not prove motion quality. Missing media is an explicit limitation, not “reference studied.”
+
+Prototype the decisive result as well as the first interaction. For a confirmation, the changed object and its important values should be easy to identify without reading a paragraph; a repeat action should have emphasis appropriate to its secondary role. This is a hypothesis for transactional UI, not a universal template for expressive websites. A receipt with required explanatory prose may need a different hierarchy.
+
+Compare at the intended product scale. Ask the reviewer for visible gaps relative to the references and task, not merely whether the interface is clean or violates style prohibitions. Keep functional pass, model preference and human acceptance separate. Do not weaken the reference target because a model reviewer approved an ordinary result.
+
 ## Cross-project convergence
 
 Observed image-export regression: both Luna exporters passed functional checks and received model visual passes, but the user rejected both. Their feedback named redundant “LOCAL IMAGE EXPORT / TOOL” eyebrows, overemphasized ordinary field labels, unrelated green format and orange download accents, excess enclosure/vertical space, and absent state-change feedback. Use the **export-feedback** rendered lesson to inspect this actual case. Remove redundant emphasis without hiding format, dimensions or success/failure information. Colorful content, technical PNG/JPEG abbreviations, necessary region boundaries and visible focus remain valid. Cleanliness alone did not meet this user's creativity bar; the replacement's visual idea still requires review.
@@ -40,3 +50,5 @@ Freeze a development set and a held-out set by project, not by near-identical sc
 [Tuch and colleagues](https://research.google/pubs/the-role-of-visual-complexity-and-prototypicality-regarding-first-impression-of-websites-working-towards-understanding-aesthetic-judgments/) studied effects on first impressions, not a universal minimalism rule. [Shin and colleagues](https://arxiv.org/html/2603.13036v1) discuss homogenization in web vibe coding; this motivates investigating convergence, not claiming a validated detector.
 
 Use the [rendered decision lessons](visual-lessons.md) for a concrete comparison. Their source and captures are bundled; they are authored hypotheses with countercases, not a scored taste dataset.
+
+For heavy surfaces or uniform panel animation, use [surface and state](studies/surface-and-state.md) to compare material roles and map feedback to the changing object.

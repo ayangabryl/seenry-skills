@@ -22,7 +22,7 @@ Before accepting a representative slice, render its primary action in the review
 
 Retain before/after captures at the same viewport/state and a short decision tied to visible differences. Exercise the changed control's transition, including reversal and focus. Missing captures mean unverified finish. “Calm,” “premium,” “editorial,” and “clean” are intentions, not observations.
 
-Subtraction alone cannot establish a strong concept or professional validation.
+Subtraction cannot establish professional quality. Repeated rejection of composition calls for a [structural reset](quality-diagnosis.md#reopen-a-rejected-composition), not more surface edits. For an orderly but unfinished form, use the [component-family study](studies/component-family.md#when-clean-still-looks-unfinished). Resolve object, choice and action relationships before adding effects; geometry checks cannot choose a good composition.
 
 ## Verify the chosen decisions, not the rationale
 
