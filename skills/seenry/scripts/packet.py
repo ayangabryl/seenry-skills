@@ -57,6 +57,12 @@ COMPONENT_REPLACEMENTS = {
 
 CRAFT_DECISIONS = ('layout', 'typography', 'color', 'controls', 'motion', 'art-direction')
 
+def feedback_resources(root, project):
+    feedback = project.get('feedback', []) if project else []
+    if not isinstance(feedback, list) or any(not isinstance(f, dict) or any(not isinstance(f.get(k), str) or not f[k].strip() for k in ('finding', 'state', 'check')) for f in feedback):
+        raise ValueError('feedback must be records with nonempty finding, state and check strings')
+    return [root / 'references/feedback-gate.md'] if feedback else []
+
 def compile_decision(stage, decision, root, research_source, project):
     """A bounded decision packet; examples are source to render, not proof of quality."""
     if stage not in STAGES:
@@ -72,6 +78,7 @@ def compile_decision(stage, decision, root, research_source, project):
              root / 'assets/craft' / (decision + '.html')]
     if project and project.get('scope') == 'component' and decision in ('layout','typography','color','controls'):
         paths.insert(2, root / 'references/component-finish.md')
+    paths += feedback_resources(root, project)
     records = []
     for path in paths:
         if not path.is_file():
@@ -102,6 +109,7 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     if research_source not in SOURCES:
         raise ValueError(f'Unknown research source: {research_source}')
     root = Path(root).resolve()
+    feedback_paths = feedback_resources(root, project)
     if profile not in ('complete', 'focused'): raise ValueError('Unknown packet profile: ' + profile)
     if decision is not None:
         if profile != 'focused':
@@ -237,6 +245,8 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
             paths += [root.parent / ('seenry-assets/references/object-material.md' if component else 'seenry-assets/references/material-production.md')]
     if stage in ('type','surface','build','refine'):
         paths += [root / 'references/design-continuity.md']
+    paths += feedback_paths
+    if feedback_paths: decisions.append('Explicit project feedback is supplied with its state and completion check; unchecked findings remain unresolved')
     # Resolve declared dependencies recursively; arbitrary prose links are progressive reading.
     pending = list(paths)
     seen = set()

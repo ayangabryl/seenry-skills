@@ -29,3 +29,5 @@ A cinematic entrance may support a rare launch story but obstruct a scheduling t
 ## Verify
 
 Observe normal playback, rapid reversal, keyboard activation, dynamic text, narrow width and reduced motion. Use slow playback or frame inspection only to diagnose a defect already observed. Check that collapse does not strand focus in hidden content. Record what was actually exercised; source review alone cannot establish smoothness or frame performance.
+
+For disclosure, measure the trigger and chosen shell anchor before, during and after expansion. Added compact metadata must not move the trigger to a different grid column. A smooth height transition can still conceal an abrupt control jump; avoid changing padding at the same time without a clear reason. See the measured [media disclosure case](../studies/media-controls-and-containment.md).

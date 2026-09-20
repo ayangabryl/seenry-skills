@@ -47,6 +47,6 @@ Use **seenry-assets** for sourcing and **seenry-motion** for deeper choreography
 
 ## Learn and record selectively
 
-After rejection follow [the learning loop](references/learning-loop.md): preserve feedback, test one suspected cause, and check transfer before changing shared guidance. A preference does not identify its cause.
+After rejection follow [the learning loop](references/learning-loop.md). Carry explicit rejected treatments and states into DESIGN.md and replay the [feedback gate](references/feedback-gate.md) before handoff. Unchecked feedback remains unresolved. Check transfer before changing shared guidance; a preference does not identify its cause.
 
 Recorded experiments use [execution](references/execution.md) and [evaluation](references/evaluation.md). `scripts/packet.py refine --decision controls --research-source local` supplies a focused guide and one example; the host loads this entrypoint once. Broader stage packets remain available, with `--profile complete` reserved for explicit audits or historical reproduction. Supplied hashes, observed reads, applied decisions and user acceptance are separate evidence.

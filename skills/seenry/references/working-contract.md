@@ -8,6 +8,8 @@ Separate supplied facts, proposed identity, implementation limits and unknowns. 
 
 Preserve the same business state through pointer, keyboard, touch, interruption and reduced motion. Judge actual output at ordinary size and narrow width. Passing functional assertions does not establish visual acceptance. A reviewer can reject every option; a direction to repair is not a finished result.
 
+Carry project feedback into this stage: rejected treatment, affected state and completion check. Recheck each item before handoff. Never mark an unchecked finding resolved or silently restore a rejected choice. These are scoped project constraints, not universal style bans.
+
 For an interactive slice, carry a short state table into the code stage: input, actual result, visible acknowledgement, stable anchor, failure and repeated-input behavior. A promise of “polish later” is not an implemented transition. Where the host restricts file reads, include the selected helper's actual API/source and provision its relative runtime dependencies; a link to an unavailable guide cannot implement it.
 
 For code transport, return one complete raw file per artifact. Use separate JSON for decisions. Do not wrap an entire website in an escaped JSON string. Validate the complete document before rendering; a 200 response can still contain an empty or truncated body. Preserve failed output and request a complete file without silently filling in missing code.

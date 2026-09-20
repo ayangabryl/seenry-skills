@@ -2,7 +2,13 @@
 async function check(page, contract) {
   if (!contract || !Array.isArray(contract.rules) || contract.rules.length===0) throw new Error('Nonempty project rules required');
   for (const r of contract.rules) {
-    if (!r.selector || !['type','fit','stationary-hover'].includes(r.kind)) throw new Error('Rule requires selector and supported kind');
+    if (!r.selector || !['type','fit','stationary-hover','state-change'].includes(r.kind)) throw new Error('Rule requires selector and supported kind');
+    if (r.kind==='state-change') {
+      if (!r.action?.selector || !['click','press'].includes(r.action.type) || (r.action.type==='press'&&!r.action.key)) throw new Error('State change needs an explicit click or key action');
+      if (r.probes!==undefined && (!Array.isArray(r.probes)||r.probes.some(x=>typeof x!=='string'))) throw new Error('Probes must be selectors');
+      if (r.boundsAfter!==undefined && (!Array.isArray(r.boundsAfter)||r.boundsAfter.some(x=>!x.selector||!Number.isFinite(x.maxHeight)||x.maxHeight<0))) throw new Error('Invalid after-state bound');
+      if (r.waitMs!==undefined && (!Number.isFinite(r.waitMs)||r.waitMs<0||r.waitMs>2000)) throw new Error('State wait must be 0–2000ms');
+    }
     if (r.kind==='type' && !['maxSize','maxWeight','maxTrackingEm','case'].some(k=>r[k]!==undefined)) throw new Error('Type rule needs a constraint');
     for (const k of ['maxSize','maxWeight','maxTrackingEm']) if (r[k]!==undefined && (!Number.isFinite(r[k]) || r[k]<0)) throw new Error('Invalid numeric constraint');
     if (r.case!==undefined && !['sentence','any'].includes(r.case)) throw new Error('Invalid case constraint');
@@ -12,6 +18,48 @@ async function check(page, contract) {
   for (const rule of contract.rules) {
     const count=await page.locator(rule.selector).count();
     if (!count){results.push({selector:rule.selector,kind:rule.kind,status:'missing',findings:['Selector matched nothing']});continue;}
+    if(rule.kind==='state-change'){
+      const findings=[],values={samples:[],boundsAfter:[]},selectors=[rule.selector,...(rule.probes||[])];
+      const handles=[];
+      try {
+        // Scroll before measuring. Retain references so a visually identical replacement is detectable.
+        const action=page.locator(rule.action.selector);
+        if(await action.count()!==1)throw new Error('Action must match exactly one element');
+        await action.scrollIntoViewIfNeeded();
+        for(const selector of selectors){
+          const els=await page.locator(selector).elementHandles();
+          if(!els.length)findings.push('Probe matched nothing: '+selector);
+          for(let i=0;i<els.length;i++)handles.push({selector,index:i,handle:els[i],before:await els[i].boundingBox()});
+        }
+        if(handles.some(x=>!x.before))findings.push('Enter the visible starting state before measuring');
+        if(rule.action.type==='press')await action.press(rule.action.key);else await action.click();
+        // Sample the transition and settled result; endpoints alone can miss a jump and return.
+        const wait=rule.waitMs??350;
+        for(let step=0;step<7;step++){
+          if(step)await page.waitForTimeout(wait/6);
+          for(const item of handles){
+            const matches=page.locator(item.selector),loc=matches.nth(item.index),after=await matches.count()>item.index?await loc.boundingBox():null;
+            if(!after||!item.before){findings.push('Required probe is missing or hidden: '+item.selector);continue;}
+            const drift=Math.max(...['x','y','width','height'].map(k=>Math.abs(after[k]-item.before[k])));
+            values.samples.push({selector:item.selector,index:item.index,step,maxDrift:drift});
+            if(drift>.5)findings.push('State change moves/resizes stationary probe: '+item.selector);
+          }
+        }
+        if(rule.preserveNodes)for(const item of handles){
+          const same=await item.handle.evaluate((el,{selector,index})=>el.isConnected&&document.querySelectorAll(selector)[index]===el,{selector:item.selector,index:item.index});
+          if(!same)findings.push('State change replaced node: '+item.selector);
+        }
+        if(rule.focusOnAction&&!await action.evaluate(el=>el===document.activeElement))findings.push('Action loses keyboard focus');
+        for(const bound of rule.boundsAfter||[]){
+          const els=await page.locator(bound.selector).all();
+          if(!els.length)findings.push('After-state selector matched nothing: '+bound.selector);
+          for(const el of els){const height=await el.evaluate(e=>e.getBoundingClientRect().height);values.boundsAfter.push({selector:bound.selector,height});if(height>bound.maxHeight+.01)findings.push('Closed region retains height: '+bound.selector);}
+        }
+      }catch(error){findings.push(error.message);}
+      finally{await Promise.all(handles.map(x=>x.handle.dispose()));}
+      results.push({selector:rule.selector,kind:rule.kind,status:findings.length?'mismatch':'matched',findings:[...new Set(findings)],values});
+      continue;
+    }
     const entries=await page.locator(rule.selector).evaluateAll((els,rule)=>els.map(el=>{
       const s=getComputedStyle(el),b=el.getBoundingClientRect();
       const visible=b.width>0&&b.height>0&&s.visibility!=='hidden';
@@ -40,7 +88,7 @@ async function check(page, contract) {
       for(let i=0;i<count;i++){
         if(entries[i].status==='unobserved')continue;
         const el=page.locator(rule.selector).nth(i);await el.scrollIntoViewIfNeeded();await page.mouse.move(0,0);await page.waitForTimeout(250);const before=await el.boundingBox();await el.hover();await page.waitForTimeout(350);const after=await el.boundingBox();
-        if(before&&after&&(Math.abs(before.x-after.x)>.5||Math.abs(before.y-after.y)>.5)){entries[i].status='mismatch';entries[i].findings.push('Hover moves the declared stationary target');}
+        if(before&&after&&['x','y','width','height'].some(k=>Math.abs(before[k]-after[k])>.5)){entries[i].status='mismatch';entries[i].findings.push('Hover moves/resizes the declared stationary target');}
       }
     }
     entries.forEach((entry,index)=>results.push({selector:rule.selector,kind:rule.kind,index,...entry}));

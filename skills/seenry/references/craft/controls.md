@@ -10,7 +10,7 @@ Use an established icon library or actual brand asset. Inspect optical weight an
 
 Keep related label and icon together. Reserve the necessary state footprint so loading or confirmation does not move neighboring controls. Static text, programmatic state and focus should remain truthful while any icon animates. Disable only when the operation truly cannot be repeated; provide a recovery path for failure.
 
-For nested uniform rounded surfaces, use outer radius minus inset as a geometric starting point. Independent buttons need not inherit that equation. Borders can explain structure, shadows elevation; either can become redundant if grouping already does the work.
+For nested uniform rounded surfaces, use outer radius minus total inset (including intervening border and padding) as a geometric starting point, clamped at zero. Inspect actual corner gaps; arbitrary unequal corner radii need an explicit shape concept. Independent buttons need not inherit that equation. Borders can explain structure, shadows elevation; either can become redundant if grouping already does the work.
 
 ## Prevent action-row failures
 
@@ -33,3 +33,5 @@ An unboxed unlabeled unfamiliar action may look quiet but become undiscoverable.
 Exercise hover, keyboard focus, press, repeated activation, saved state and undo. Confirm focus stays on the trigger and success is announced once. For assistive-only announcements, verify the hiding CSS actually works without removing the live region from the accessibility tree; a class name alone does not implement it. Check longest labels and narrow fit. For production icons, verify actual assets, optical weight and hit geometry rather than substituting decorative Unicode symbols.
 
 With Playwright available, call `require("<skill-root>/scripts/control_geometry.cjs").inspect(page)` after entering each consequential state. It records computed type and flags multiline action text or oversized glyphs for review. It does not decide aesthetic quality; intentional large icon-only controls may be flagged.
+
+For compact media controls or unstable disclosure, use the scoped [media and containment study](../studies/media-controls-and-containment.md). It distinguishes familiar track/volume icons from ambiguous symbols and checks the trigger rectangle through expansion.

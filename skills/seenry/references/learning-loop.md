@@ -4,6 +4,8 @@ Use when a user requests iteration, a result is rejected, or maintainers revise 
 
 ## Repair this product
 
+First apply the [feedback gate](feedback-gate.md). A repeat request does not reset the project's known rejections. Carry them into the next executor's input, including when that executor has no conversation history.
+
 1. Preserve the first output and the user's exact judgment. Separate preference, acceptance and task correctness. “B is better” is a preference, not proof that B is ready or that its palette caused the preference.
 2. Identify the smallest consequential gap from actual pixels or behavior. Name the artifact, viewport/state, visible symptom, user consequence and competing explanation. If evidence is missing, inspect it before changing code.
 3. Choose one uncertain decision to compare. Keep content and behavior fixed; change only the suspected cause. For an interaction, retain before/input/transition/settled/reversal evidence. Review at normal speed before slow playback.

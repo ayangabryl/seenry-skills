@@ -12,7 +12,7 @@ A service name is not a brand system. Do not derive an entire palette or theme f
 
 Keep a copy of the current direction. Make one subtraction variant with identical facts, choices and behavior. Remove only unsupported emphasis: duplicate headings, decorative status marks, irrelevant mottos, unexplained image treatments or competing enclosures. Preserve focus, meaningful selection, unavailable states and recovery. In that comparison keep the palette and layout fixed; don't claim to know which change helped if everything changed.
 
-Inspect both at their intended product footprint, not a full-screen marketing showcase. Record the actual component width, heading size and first actionable control position. If a routine task needs a billboard heading, large brand masthead or an oversized summary card to look finished, test a compact host-sized composition before accepting it. The current value is supporting context unless comparing it is the primary task; do not make its filled area dominate the choices by habit. Record what becomes easier or harder to locate: the current object, the choice and the action. Pick one winner or reject both. When palette remains unresolved, make a separate same-composition comparison using its actual color areas. For an unbranded utility include an achromatic control treatment as a comparison, not a mandatory final style.
+Inspect at the intended product footprint. Record component width, heading size and first action position. Test an oversized routine interface inside a compact host before accepting it. Supporting context should not dominate the choices unless comparison is the task. Compare how easily people can locate the object, choice and action; either variant can fail. Resolve palette separately on identical geometry and actual color areas. For an unbranded utility, an achromatic control variant is informative, not mandatory styling.
 
 ## Finish every consequential state
 
@@ -31,3 +31,5 @@ Carry a small project `design-checks.json` into implementation. Define selectors
 Example project rule: `{ "kind": "type", "selector": ".task-title", "maxSize": 26, "maxWeight": 600, "maxTrackingEm": 0.02, "case": "sentence" }`. These values describe one compact utility decision, not every Seenry design. A matched contract does not prove that the decisions were good. Keep the human visual gate.
 
 If implementation contradicts the selected specimen, repair it or explicitly reopen that decision with a rendered alternative. Do not silently describe a 52px bold title as compact typography. If required construction captures are missing, report workflow incomplete; written alternatives are not rendered prototypes.
+
+For selection/disclosure regressions, the [feedback gate](feedback-gate.md) documents `state-change` checks for geometry, node identity, focus and closed height.
