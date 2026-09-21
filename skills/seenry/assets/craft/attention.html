@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Attention follows the task | Seenry study</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f3f1;color:#242424;font:16px/1.5 system-ui,sans-serif}main{max-width:980px;margin:auto;padding:40px 24px}h1{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.2}p{max-width:68ch}button,select{font:inherit;color:inherit}button,select{min-height:44px;border-radius:8px;cursor:pointer}button:focus-visible,select:focus-visible{outline:2px solid #242424;outline-offset:3px}.tools{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:24px 0}.tools label{display:grid;gap:4px;font-size:14px}select{background:white;border:1px solid #aaa;padding:8px 12px}.host{display:grid;grid-template-columns:180px minmax(0,1fr);background:white;border-radius:18px;overflow:hidden}.host nav{padding:24px 16px;background:#eeeef0}.host nav p{margin:0 12px 20px;font-weight:600}.host nav button{display:block;width:100%;padding:8px 12px;text-align:left;border:0;background:transparent;color:#575757}.host nav button[aria-current=page]{background:#fff;color:#242424}.content{padding:28px 32px;min-height:280px}.content h2{font-size:22px;font-weight:600;line-height:1.25;margin:0 0 24px}.document{display:flex;align-items:start;justify-content:space-between;gap:20px}.document strong{font-weight:550}.document p{font-size:14px;color:#606060;margin:6px 0 24px}.action{border:0;background:#292929;color:white;padding:10px 16px;white-space:nowrap}.host[data-treatment=strong] nav{background:#292929}.host[data-treatment=strong] nav p{color:white}.host[data-treatment=strong] nav button{color:#ddd}.host[data-treatment=strong] nav button[aria-current=page]{background:#fafafa;color:#222}.host[data-treatment=strong] nav button:focus-visible{outline-color:white}.status{min-height:24px;font-size:14px;color:#555}.note{font-size:14px;color:#666;margin-top:24px}@media(max-width:600px){main{padding:24px 16px}.host{grid-template-columns:1fr}.host nav{padding:12px;display:flex;gap:4px;flex-wrap:wrap}.host nav p{width:100%;margin:4px 8px}.host nav button{width:auto;padding:8px}.content{padding:24px}.document{flex-direction:column;gap:0}.document p{margin-bottom:16px}}
+</style>
+<main>
+<h1>Attention follows the task</h1>
+<p id="task">You are reviewing the current document. Compare how much attention the navigation takes from that task.</p>
+<div class="tools">
+<label>Task <select id="taskChoice"><option value="work">Review a document</option><option value="find">Find a destination</option></select></label>
+<label>Navigation emphasis <select id="treatment"><option value="quiet">Quiet</option><option value="strong">Strong</option></select></label>
+</div>
+<article class="host" id="sample" data-treatment="quiet">
+<nav aria-label="Workspace"><p>Workshop</p><button type="button" data-page="Projects">Projects</button><button type="button" data-page="Documents" aria-current="page">Documents</button><button type="button" data-page="People">People</button></nav>
+<section class="content" aria-labelledby="pageTitle"><h2 id="pageTitle">Documents</h2><div class="document"><div><strong id="object">Workshop agreement</strong><p id="detail">Revision 3 · Updated today</p></div><button type="button" class="action" id="open">Open document</button></div><p class="status" id="status" role="status"></p></section>
+</article>
+<p class="note">Original schematic teaching example. It isolates attention; it is not a validated finished design or a universal style. The study controls stay outside the product.</p>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const pages={Documents:['Workshop agreement','Revision 3 · Updated today','Open document'],Projects:['Autumn collection','Two documents to review','Open project'],People:['Workshop team','Three collaborators','View people']};
+$('#treatment').addEventListener('change',e=>$('#sample').dataset.treatment=e.target.value);
+$('#taskChoice').addEventListener('change',e=>{$('#task').textContent=e.target.value==='find'?'You are new to this workspace and need to find People. Compare whether the destinations are easy to notice.':'You are reviewing the current document. Compare how much attention the navigation takes from that task.';$('#status').textContent=''});
+document.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-page]').forEach(b=>b.removeAttribute('aria-current'));button.setAttribute('aria-current','page');const page=button.dataset.page;$('#pageTitle').textContent=page;const [name,detail,action]=pages[page];$('#object').textContent=name;$('#detail').textContent=detail;$('#open').textContent=action;$('#status').textContent=''}));
+$('#open').addEventListener('click',()=>$('#status').textContent='Selected '+$('#object').textContent.toLowerCase()+'. This study does not open an external workspace.');
+</script>
+</html>

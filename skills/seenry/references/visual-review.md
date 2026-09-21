@@ -4,11 +4,15 @@ Use a fresh authorized review context where available. Supply the actual brief, 
 
 First inspect the ordinary opening viewport and a narrow viewport. Then inspect the full sequence and relevant states. A compressed full-page image is useful for rhythm but can conceal weak imagery, small type, unnecessary borders and text-heavy openings.
 
+Deliver actual pixels to the reviewer through image attachments or an image-capable viewer. A saved screenshot path, a capture command or a written description alone does not establish visual inspection. Record which images were supplied separately from the reviewer’s claims about what they saw; keep inspection unverified when the host cannot establish it.
+
 Give the next action as **visible observation → consequence for this task → suspected cause → smallest useful change → recheck**. Start with the most consequential unresolved decision. Wrong product facts need a content correction; a weak organizing idea needs layout/material alternatives; a contour defect needs a local geometry correction. Do not spend another complete generation on an issue a focused edit can resolve. For missing evidence, observe the existing source before changing it. “Make it more premium” is not an actionable repair instruction.
 
 Before deciding content is missing, inspect actual scroll traversal and the relevant tab, expansion or dialog states. A full-page screenshot does not trigger those states. Keep the initial view, subsequent views and their action sequence separately; the initial experience still matters. Compare every candidate with evidence appropriate to its proposed interaction. An unexercised dynamic candidate needs observation, not a speculative redesign into a static layout. A demonstrated inaccessible or persistently empty state remains a defect.
 
 For a completed build, also reopen the selected surface renders at equivalent widths. Name which leading material, scale, grouping and interaction relationships survived expansion. A final page may change appropriately as content is added; assess whether the new hierarchy serves the brief rather than accepting a larger page automatically. Record visual drift separately from implementation correctness. A private author style rationale cannot substitute for this comparison.
+
+When the brief names a reference quality target, also compare the rendered result with the relevant inspected reference region. State concrete surviving gaps in composition, material, density or state treatment. Self-authored prototypes establish exploration, not reference parity; working controls establish behavior, not visual acceptance. If that comparison is missing, report the target as unverified even when the implementation checks pass. Supplied images or local studies can support this comparison without MCP.
 
 Evaluate five criteria independently:
 
@@ -21,6 +25,8 @@ Evaluate five criteria independently:
 | `interaction` | Do actual demonstrations support the intended experience? Are repeated input, keyboard, feedback and reduced motion verified where relevant? |
 
 For each, record `pass`, `revise`, `fail` or `unverified`, cite an actual artifact and describe the observable reason. These are reviewer judgments, not instrument measurements. “Swiss dossier,” “premium,” “intentional” and “clean grid” are not evidence. An author can invent a rationale for almost any default.
+
+Apply [evidence support](review-evidence.md) separately to each verdict. Supported failure routes to repair; an uncertain pass routes to a controlled comparison; uninspected evidence remains unverified. New recorded reviews use version 2 and require a support reason and specific next check for unresolved criteria. These qualitative labels do not represent calibrated acceptance probabilities.
 
 For an explicitly creative or expressive request, keep craft and the organizing idea distinct. Under `opening`, name the visible composition, treatment of real material or useful interaction that contributes a particular character to this task. Clear alignment and an identifiable photograph support usability and subject fit; they do not by themselves establish that the requested creative idea is resolved. The creator's theme name cannot supply what the artifact lacks.
 

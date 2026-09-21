@@ -12,6 +12,10 @@ Explicit brand/appearance constraints fixed before alternatives; checkable role 
 Media need and motion ambition, with a reason when none; available host operations and actual gaps.
 Visitor offering and visible proof, separated from implementation constraints.
 Opening copy, dominant visual, next action and what can wait until later.
+Decision brief: discover / compare / perform / monitor / recover (combine if needed).
+Primary attention, supporting information that recedes, expression by region,
+material that proves the offer, and stable interaction anchor. Explain each choice.
+When unresolved, one decision study, its applicable relationship and countercase.
 
 ## Reference evidence
 Evidence route: MCP / public web / local; actual host capabilities and gaps.
@@ -48,6 +52,8 @@ Repair history. Author review versus fresh review versus user acceptance.
 Cross-project convergence observations and controlled alternatives; temporary assets awaiting replacement.
 Status: draft / needs-revision / ready-for-review / accepted-by-user.
 Per-criterion visual verdicts; functional success cannot override unresolved visual failures.
+Per-criterion support: supported / uncertain / uninspected; evidence reason and
+smallest next check. An uncertain pass stays unresolved. No invented percentages.
 ```
 
 If development anatomy is requested, derive safe areas, boxes, baselines and token labels from the real DOM and styles. Gate it from production and keep its controls out of normal flows. It explains current structure; it does not prove wireframing happened earlier.

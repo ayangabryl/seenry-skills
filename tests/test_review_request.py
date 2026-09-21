@@ -19,6 +19,18 @@ class ReviewRequest(unittest.TestCase):
    self.assertEqual(set(p['candidates'][0]['evidence']),{'opening','narrow','sequence','behavior'})
    self.assertEqual(evaluate(p['required_review_shape'],root/'out')['status'],'needs-revision')
    self.assertEqual(json.loads((root/'out/private-key.json').read_text())['mapping'][0]['original_id'],'private-condition')
+ def test_new_request_cannot_silently_downgrade_support_and_legacy_is_explicit(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=self.root(tmp);p=prepare(self.manifest(),root,root/'new')
+   self.assertEqual(p['review_version'],2)
+   report=copy.deepcopy(p['required_review_shape']);report.pop('review_version')
+   with self.assertRaisesRegex(ValueError,'requires review version 2'):
+    evaluate(report,root/'new')
+   manifest=self.manifest();manifest['review_version']=1
+   old=prepare(manifest,root,root/'legacy')
+   self.assertNotIn('review_version',old['required_review_shape'])
+   self.assertNotIn('seenry/references/review-evidence.md',{g['path'] for g in old['guidance']})
+   self.assertFalse(evaluate(old['required_review_shape'],root/'legacy')['support_assessed'])
  def test_missing_view_cannot_be_substituted_with_a_written_claim(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=self.root(tmp);m=self.manifest();m['candidates'][0].pop('opening')
@@ -146,7 +158,7 @@ class ReviewRequest(unittest.TestCase):
                        [e['file'] for e in p['candidates'][0]['evidence'].values()])
      if construction:
       self.assertEqual({g['path'] for g in p['guidance']},{'seenry/references/'+name for name in
-                       ('content-model.md','visual-decisions.md','component-design.md')})
+                       ('content-model.md','visual-decisions.md','component-design.md','review-evidence.md')})
      self.assertNotIn('creator_rationale',p)
      self.assertNotIn('private-condition',json.dumps(p))
  def test_concept_review_rejects_non_boolean_values_before_writing(self):
@@ -163,16 +175,16 @@ class ReviewRequest(unittest.TestCase):
     root=self.root(tmp);m=self.manifest();m.update(phase=phase,concept_review=True)
     p=prepare(m,root,root/'out');report=copy.deepcopy(p['required_review_shape'])
     report['selected']='A';checks=report['candidates'][0]['checks']
-    for check in checks.values():check.update(result='pass',observation='Observed in the supplied opening.')
-    concept=checks['concept'];concept.update(result='unverified',issue_type='missing-evidence',
+    for check in checks.values():check.update(result='pass',observation='Observed in the supplied opening.', issue_type=None, support='supported', support_reason='Current rendered relationship inspected.', next_check=None)
+    concept=checks['concept'];concept.update(result='unverified',issue_type='missing-evidence', support='uninspected', next_check='Inspect the decisive relationship.',
                                            observation='The decisive task relationship is not demonstrated.')
     result=evaluate(report,root/'out',criteria=p['criteria'])
     self.assertEqual(result['status'],'needs-revision')
     self.assertEqual(result['eligible'],[])
     self.assertEqual(result['actions'][0]['next_action'],'collect-evidence')
-    concept.update(result='revise',issue_type='observed-defect',observation='The visible arrangement separates the object from its action.')
+    concept.update(result='revise',issue_type='observed-defect',support='supported',next_check='Compare the revised object placement.',observation='The visible arrangement separates the object from its action.')
     self.assertEqual(evaluate(report,root/'out',criteria=p['criteria'])['actions'][0]['next_action'],'repair')
-    concept.update(result='pass',issue_type=None,observation='The visible object and action relationship serves the brief.')
+    concept.update(result='pass',issue_type=None,support='supported',next_check=None,observation='The visible object and action relationship serves the brief.')
     result=evaluate(report,root/'out',criteria=p['criteria'])
     self.assertEqual(result['status'],'ready-for-human-review')
     concept_evidence=next(e for e in result['evidence'] if e['criterion']=='concept')
@@ -233,13 +245,13 @@ class ReviewRequest(unittest.TestCase):
  def test_review_companion_guides_relocate_and_missing_dependency_blocks(self):
   with tempfile.TemporaryDirectory(prefix='seenry review relocation ') as tmp:
    root=self.root(tmp);relocated=root/'skills';guide_root=relocated/'seenry'
-   resources={'seenry':['visual-review.md','quality-diagnosis.md','interaction-review.md'],
+   resources={'seenry':['visual-review.md','quality-diagnosis.md','interaction-review.md','review-evidence.md'],
               'seenry-motion':['motion-contract.md'],'seenry-assets':['material-review.md']}
    for skill,names in resources.items():
     destination=relocated/skill/'references';destination.mkdir(parents=True)
     for name in names:shutil.copyfile(ROOT/'skills'/skill/'references'/name,destination/name)
    p=prepare(self.manifest(),root,root/'out',review_root=guide_root)
-   self.assertEqual(len(p['guidance']),5)
+   self.assertEqual(len(p['guidance']),6)
    for entry in p['guidance']:
     self.assertEqual(entry['content'],(relocated/entry['path']).read_text(encoding='utf-8'))
    (relocated/'seenry-motion/references/motion-contract.md').unlink()

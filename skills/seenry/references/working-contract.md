@@ -1,17 +1,19 @@
 # Carry decisions, not the whole conversation
 
-This focused packet is one stage of Seenry. The host must first select the workflow from SKILL.md; this packet does not assert that the entrypoint was read. Resolve the current decision using the supplied facts, previous artifacts and relevant evidence. Keep the complete guides available for a concrete unresolved question; do not reload every guide at every stage.
+This packet covers one Seenry stage. The host first selects the workflow from SKILL.md; supplied hashes do not prove it was read. Resolve the current decision using facts, prior artifacts and relevant evidence. Load additional guidance only for an unresolved question.
 
-The visitor's task determines the composition. Work with actual copy and material. A quiet utility may use familiar controls; an expressive website needs convincing subject-specific work and a coherent sequence. Neither cleanliness nor novelty alone establishes quality.
+Use actual copy and material. Familiar controls may suit a utility; an expressive website needs convincing subject-specific work. Neither cleanliness nor novelty alone establishes quality.
 
-Separate supplied facts, proposed identity, implementation limits and unknowns. An image's rights record does not establish the product's manufacturing specifications. Missing commercial details are unknown, not an invitation to invent them. Explain prototype limits briefly where they affect the visitor's decision. Keep source hashes, testing vocabulary and internal file formats out of product copy unless they are the user's task.
+Carry the job, primary attention, what recedes, expression by region and stable anchor from DESIGN.md. For an unclear choice, select one [decision study](studies/decision-studies.md) through project `decision_study`. Uncertain passes need comparison; uninspected states need observation.
 
-Preserve the same business state through pointer, keyboard, touch, interruption and reduced motion. Judge actual output at ordinary size and narrow width. Passing functional assertions does not establish visual acceptance. A reviewer can reject every option; a direction to repair is not a finished result.
+Separate facts, proposed identity, implementation limits and unknowns. Asset provenance does not establish product specifications. Do not invent commercial details. Explain prototype limits where they affect decisions; keep internal testing vocabulary out of product copy.
 
-Carry project feedback into this stage: rejected treatment, affected state and completion check. Recheck each item before handoff. Never mark an unchecked finding resolved or silently restore a rejected choice. These are scoped project constraints, not universal style bans.
+Preserve business state through pointer, keyboard, touch, interruption and reduced motion. Inspect ordinary and narrow renders. Functional success does not establish visual acceptance. Every option may be rejected; a repair direction is unfinished.
 
-Carry explicit copy constraints too, including punctuation and capitalization. If the user prohibits em dashes, check visitor-facing strings before handoff. Write feedback as a sentence about the result, rather than inserting a permission enum into a stock phrase.
+Carry feedback: rejected treatment, affected state and completion check. Recheck before handoff; never mark unchecked findings resolved or restore rejected choices. Keep feedback scoped to the project.
 
-For an interactive slice, carry a short state table into the code stage: input, actual result, visible acknowledgement, stable anchor, failure and repeated-input behavior. A promise of “polish later” is not an implemented transition. Where the host restricts file reads, include the selected helper's actual API/source and provision its relative runtime dependencies; a link to an unavailable guide cannot implement it.
+Check explicit punctuation and capitalization constraints in visitor-facing strings. Describe results naturally instead of inserting internal enum values into stock feedback.
 
-For code transport, return one complete raw file per artifact. Use separate JSON for decisions. Do not wrap an entire website in an escaped JSON string. Validate the complete document before rendering; a 200 response can still contain an empty or truncated body. Preserve failed output and request a complete file without silently filling in missing code.
+Carry the interaction table into code: input, actual result, acknowledgement, anchor, failure and repeated input. Supply selected helper APIs/source and relative runtime dependencies when reads are restricted. A promise of polish or an unavailable link cannot implement a transition.
+
+Return complete raw files, with decisions in separate JSON. Validate before rendering; HTTP success can contain truncated code. Preserve failures and request complete output without silently filling gaps.

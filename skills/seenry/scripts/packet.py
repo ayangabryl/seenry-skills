@@ -16,7 +16,7 @@ STAGES = {
     'review': ['visual-review.md', 'quality-diagnosis.md', 'production-review.md'],
     'refine': ['content-and-finish.md', 'visual-review.md', 'interaction-review.md', 'visual-decisions.md', 'color-decisions.md'],
 }
-DEPENDENCIES = {'content-and-finish.md': ['studies/hoy.md'], 'visual-review.md': ['visual-lessons.md'], 'component-design.md': ['content-model.md', 'component-finish.md']}
+DEPENDENCIES = {'content-and-finish.md': ['studies/hoy.md'], 'visual-review.md': ['visual-lessons.md', 'review-evidence.md'], 'component-design.md': ['content-model.md', 'component-finish.md']}
 SOURCES = {
     'auto': 'Use an available evidence route; MCP is optional. Record the actual route.',
     'mcp': 'Use connected MCP for research; if unavailable report it and explicitly change route.',
@@ -32,7 +32,7 @@ MOTION_HELPERS = {
     'number': ['number-transition.mjs'],
 }
 MOTION_LIBRARIES = ('border-beam', 'thinking-orbs', 'liquid-gooey', 'metal-fx', 'img-fx')
-GUIDE_TOPICS = ('subject-fit', 'convergence', 'brand-guidelines')
+GUIDE_TOPICS = ('subject-fit', 'convergence', 'brand-guidelines', 'marketing-evidence')
 FOCUSED_STAGES = {
     'understand': ['design-record.md'],
     'research': ['reference-standards.md'],
@@ -56,6 +56,32 @@ COMPONENT_REPLACEMENTS = {
 }
 
 CRAFT_DECISIONS = ('layout', 'typography', 'color', 'controls', 'motion', 'art-direction')
+DECISION_STUDIES = {'attention': 'attention', 'expression': 'color', 'comparison': 'layout'}
+
+
+def marketing_resources(stage, root, project, decision=None):
+    """Opt-in website argument guidance, without taxing unrelated craft fixes."""
+    if not project or project.get('scope') == 'component':
+        return []
+    topics = project.get('guide_topics', [])
+    if not isinstance(topics, list) or 'marketing-evidence' not in topics:
+        return []
+    if decision is not None and decision != 'art-direction':
+        return []
+    if stage not in ('understand', 'plan', 'wireframe', 'prototype', 'build', 'compare', 'review', 'refine'):
+        return []
+    return [root / 'references/marketing-evidence.md']
+
+
+def study_resources(root, project):
+    """One explicit teaching case. Never download or silently choose a brand skin."""
+    study = project.get('decision_study') if project else None
+    if study is None:
+        return []
+    if not isinstance(study, str) or study not in DECISION_STUDIES:
+        raise ValueError('decision_study must be attention, expression or comparison')
+    return [root / 'references/studies' / (study + '.md'),
+            root / 'assets/craft' / (DECISION_STUDIES[study] + '.html')]
 
 def selected_motion_files(root, project):
     """Resolve explicitly requested helpers, including their pinned runtime closure."""
@@ -108,6 +134,11 @@ def compile_decision(stage, decision, root, research_source, project):
     if project and project.get('scope') == 'component' and decision in ('layout','typography','color','controls'):
         paths.insert(2, root / 'references/component-finish.md')
     paths += feedback_resources(root, project)
+    paths += marketing_resources(stage, root, project, decision)
+    selected_study = study_resources(root, project)
+    if selected_study:
+        # Replace the generic example with the selected case's working example.
+        paths = [p for p in paths if p.suffix != '.html'] + selected_study
     helper_paths, helper_runtime = selected_motion_files(root, project)
     # A focused decision must not silently discard an explicit runtime selection.
     paths += helper_paths
@@ -143,6 +174,7 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         raise ValueError(f'Unknown research source: {research_source}')
     root = Path(root).resolve()
     feedback_paths = feedback_resources(root, project)
+    selected_study = study_resources(root, project)
     if profile not in ('complete', 'focused'): raise ValueError('Unknown packet profile: ' + profile)
     if decision is not None:
         if profile != 'focused':
@@ -177,6 +209,7 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         selected = [name for p in selected for name in COMPONENT_REPLACEMENTS.get(p,[p])]
         decisions.append('Component-specific guides replace website argument, hero and page-record guidance')
     paths = ([root / 'references/working-contract.md'] if focused else [root / 'SKILL.md']) + [root / 'references' / p for p in selected]
+    paths += marketing_resources(stage, root, project)
     diagnosis_topics = [topic for topic in guide_topics if topic in ('subject-fit', 'convergence')]
     if diagnosis_topics and stage in ('plan', 'prototype', 'compare', 'review', 'refine'):
         paths += [root / 'references/quality-diagnosis.md']
@@ -263,6 +296,9 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     if stage in ('type','surface','build','refine'):
         paths += [root / 'references/design-continuity.md']
     paths += feedback_paths
+    if selected_study:
+        paths += selected_study
+        decisions.append('One explicitly selected decision study with local working example; render before claiming visual inspection.')
     if feedback_paths: decisions.append('Explicit project feedback is supplied with its state and completion check; unchecked findings remain unresolved')
     # Resolve declared dependencies recursively; arbitrary prose links are progressive reading.
     pending = list(paths)
@@ -273,7 +309,7 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         seen.add(path)
         dependencies = DEPENDENCIES.get(path.name, [])
         if focused and path.name in ('content-and-finish.md','visual-review.md'):
-            dependencies = []  # Examples load only for a selected question; review criteria remain complete.
+            dependencies = [d for d in dependencies if d == 'review-evidence.md']
         for dependency in dependencies:
             target = root / 'references' / dependency
             paths.append(target); pending.append(target)

@@ -24,6 +24,8 @@ jobs:
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
       - run: node --test tests/transition-contracts.test.mjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
+      - run: node --check examples/seenry-site/app.js
+      - run: node --check examples/seenry-site/studies/held/app.js
       - name: Install the pinned browser test runtime
         run: npm install --no-save --package-lock=false playwright@1.63.0
       - name: Install Chromium and host dependencies

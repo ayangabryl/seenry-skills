@@ -8,6 +8,8 @@ Write one plain sentence for each: who this is for; what is offered; what visibl
 
 List the visitor's questions in the order they need answers. Map each section to a different question and to its evidence. Delete a section that repeats an answer without adding proof. A studio can lead with work, an unfamiliar product may need demonstration, and an emergency service should lead with availability and action. No fixed hero → three cards → manifesto → pricing sequence.
 
+Choose finished evidence using the [art-direction decision](craft/art-direction.md). Match its scale to the product promise before expanding the page.
+
 ## Develop three different arguments with the same facts
 
 Change the organising idea, not only colors, fonts or corner shapes. For example, a sound studio could demonstrate the difference before explaining it, organise work by listening situations, or expose a spatial mixing process. All must still state the service and offer a normal path without sound. These are possible directions, not a mandatory audio interaction.

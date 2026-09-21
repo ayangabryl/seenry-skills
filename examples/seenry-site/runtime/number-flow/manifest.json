@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "name": "number-flow",
+  "version": "0.6.2",
+  "source": "https://github.com/barvian/number-flow",
+  "documentation": "https://number-flow.barvian.me/vanilla",
+  "license": "MIT",
+  "browser_only": true,
+  "note": "ES module distribution flattened to this directory. Only two esm-env named imports are changed to default imports of the unmodified esm-env 1.2.2 browser fallback. No animation implementation changes. Keep both licenses. Use the project package manager instead when NumberFlow is already installed; avoid duplicate registrations.",
+  "archives": [
+    {
+      "name": "esm-env-1.2.2.tgz",
+      "sha256": "426a193e24a734dc94bfe27c4d5595fcd91296562f23beaabc3650fc1446322e"
+    },
+    {
+      "name": "number-flow-0.6.2.tgz",
+      "sha256": "5c38339f87e82092b2045f13b6f17f2d9004524eb831e771e833661ab3a0a4e2"
+    }
+  ],
+  "files": [
+    {
+      "file": "index.mjs",
+      "sha256": "df08f25a6a37f0d30ba045caaab66c87ba95172df2ed5e9261e2b090aa8a9b8d",
+      "source": "number-flow@0.6.2/package/dist/index.mjs",
+      "source_sha256": "df08f25a6a37f0d30ba045caaab66c87ba95172df2ed5e9261e2b090aa8a9b8d",
+      "transformation": "none"
+    },
+    {
+      "file": "lite.mjs",
+      "sha256": "44956bca0dd721d59765a4a8c1cc6bf59725c1a37abf5c8a125a81dd0e47d6bc",
+      "source": "number-flow@0.6.2/package/dist/lite.mjs",
+      "source_sha256": "3154fb0dfe2983c68a216bf5552f7d8e537759b2ccef3988e8b32aedd2a16b10",
+      "transformation": "local default browser-fallback import"
+    },
+    {
+      "file": "csp.mjs",
+      "sha256": "ebd1628af43db47322906d277a21328bcc7c4585f8a5e9539fb948d035171807",
+      "source": "number-flow@0.6.2/package/dist/csp.mjs",
+      "source_sha256": "ebd1628af43db47322906d277a21328bcc7c4585f8a5e9539fb948d035171807",
+      "transformation": "none"
+    },
+    {
+      "file": "plugins.mjs",
+      "sha256": "5189ebb234bbd1cfcd4a6f1f02da8a8dfb36163784fbbe52a744331587127eac",
+      "source": "number-flow@0.6.2/package/dist/plugins.mjs",
+      "source_sha256": "5189ebb234bbd1cfcd4a6f1f02da8a8dfb36163784fbbe52a744331587127eac",
+      "transformation": "none"
+    },
+    {
+      "file": "ssr-DvIINv8w.mjs",
+      "sha256": "30d9bf40eb534dd2f2ffab886c1628ff0dfd91ad90282f846e400845559a1636",
+      "source": "number-flow@0.6.2/package/dist/ssr-DvIINv8w.mjs",
+      "source_sha256": "fed0a42ce8dd17a833ab6cadb04d0a5cefb55498c4110916fe60d31a2435f0a3",
+      "transformation": "local default browser-fallback import"
+    },
+    {
+      "file": "LICENSE.md",
+      "sha256": "f8a3eac9fd2ae94f18a2bf0459e57d90da539f015a7ec4ad6186a5ca33a6aa9a",
+      "source": "number-flow@0.6.2/package/LICENSE.md",
+      "source_sha256": "f8a3eac9fd2ae94f18a2bf0459e57d90da539f015a7ec4ad6186a5ca33a6aa9a",
+      "transformation": "none"
+    },
+    {
+      "file": "package.json",
+      "sha256": "c31007ea09870ca3cd87849060abbee4605ed7f8314053b93b5eb7f9ebdc3c46",
+      "source": "number-flow@0.6.2/package/package.json",
+      "source_sha256": "c31007ea09870ca3cd87849060abbee4605ed7f8314053b93b5eb7f9ebdc3c46",
+      "transformation": "none"
+    },
+    {
+      "file": "esm-env/browser-fallback.js",
+      "sha256": "baa579ced22e3e0cf42a526ed91b66ec127883d39b1f5ba50fab51dbbd6bfd44",
+      "source": "esm-env@1.2.2/package/browser-fallback.js",
+      "source_sha256": "baa579ced22e3e0cf42a526ed91b66ec127883d39b1f5ba50fab51dbbd6bfd44",
+      "transformation": "none"
+    },
+    {
+      "file": "esm-env/LICENSE",
+      "sha256": "6df5276ee7531fcc5446f19082c12e77bb6c5f081fd2b6d6cf88180a5ee36acd",
+      "source": "esm-env@1.2.2/package/LICENSE",
+      "source_sha256": "6df5276ee7531fcc5446f19082c12e77bb6c5f081fd2b6d6cf88180a5ee36acd",
+      "transformation": "none"
+    },
+    {
+      "file": "esm-env/package.json",
+      "sha256": "2b0bce63e9a106a1a3fea24b5cef4950cc63dab6c4d6245728c83b21cf00e669",
+      "source": "esm-env@1.2.2/package/package.json",
+      "source_sha256": "2b0bce63e9a106a1a3fea24b5cef4950cc63dab6c4d6245728c83b21cf00e669",
+      "transformation": "none"
+    }
+  ]
+}

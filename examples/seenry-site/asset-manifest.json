@@ -1,0 +1,16 @@
+{
+  "images": [
+    {
+      "file": "assets/chair.png",
+      "sha256": "3b0e59539851916baf423e88528701c063a50212defa6934efdb71178aeb11a5",
+      "source": "Original generated Held study; illustrative fictional work"
+    },
+    {
+      "file": "assets/workbench.png",
+      "sha256": "ec1c4bc6c11609bbc1cd0676cc1e373774c39e77a1aa0a4f3fbf4e4cddea2bc7",
+      "source": "Original generated Held study; illustrative fictional work"
+    }
+  ],
+  "dependencies": "Font, icon and runtime licenses are stored adjacent to their sources.",
+  "evidence": "Authored teaching examples; no measured superiority claim."
+}

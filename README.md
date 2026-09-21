@@ -1,6 +1,6 @@
 # Seenry skills
 
-This working revision is **2.0.1-dev.5**, adding early creative-direction checks and explicit component usage contracts to project brand guidelines. The published stable release remains 2.0.0.
+This working revision is **2.0.1-dev.6**, separating design quality from evidence support and adding selectively loaded decision studies. New reviews request inspection, a controlled comparison or repair before advancing unresolved work. The published stable release remains 2.0.0; this development revision has no new accepted-output benchmark.
 
 A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 
@@ -14,7 +14,7 @@ A design workflow that connects reference research to actual layouts, visual dec
 
 ## Install
 
-Install the **2.0.0** release with the standard skills installer:
+Install the current `main` revision with the standard skills installer:
 
 ```sh
 npx skills add ayangabryl/seenry-skills
@@ -97,3 +97,7 @@ For multi-screen applications, the [system design guide](skills/seenry/reference
 ### Optional motion capability lab
 
 The [expressive-motion guide](skills/seenry-motion/references/expressive-effects.md) covers five public effect families and when to avoid them. The [runnable lab](examples/libraries-motion-lab/README.md) uses pinned free packages, explicit pause/reduced-motion policy and browser checks. These runtimes are optional; installing Seenry does not add React, WebGL or MCP requirements.
+
+## Interactive website example
+
+The [Seenry marketing page](examples/seenry-site/README.md) demonstrates composition, timer motion, image cropping, brand guidelines and slide sequence. It is a portable local example with assets and licenses, not a benchmark or a deployment of seenry.design. The [marketing-evidence guide](skills/seenry/references/marketing-evidence.md) can be selected for relevant website packets with `guide_topics: ["marketing-evidence"]`.

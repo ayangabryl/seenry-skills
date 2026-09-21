@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased: 2.0.1-dev.6
+
+- Adds a scoped marketing-evidence guide with opt-in stage/decision routing, portable resource hashes and exclusion from unrelated component fixes.
+- Adds a portable Seenry website example with five working demonstrations and the complete local Held study. Assets and runtime licenses are included; authored examples are not represented as model benchmarks.
+
+- New anonymous review requests use version 2: each criterion has a quality verdict, qualitative evidence support, a reason and a bounded next check. Uncertain passes cannot advance; supported defects request repair; uninspected behavior requests observation. No invented confidence percentages or automatic taste score.
+- Preserves explicit version 1 requests and records whether support was assessed. The gate checks report consistency and artifact existence, not actual visual inspection or human acceptance.
+- Adds one-at-a-time decision studies of attention, brand expression and comparison, based on inspected public Linear, Wise and Mobbin material. Local examples remain authored teaching exercises, with countercases and source limits.
+- Project `decision_study` selects one local case and its example. Focused craft packets replace their generic example; unrelated cases add no default context. Required resources carry hashes and missing dependencies block compilation.
+- Carries attention and expression decisions through DESIGN.md and focused handoffs. Condenses the shared contract to keep existing packet limits.
+- Development update only. Package/routing verification does not establish better fresh outputs, calibrated confidence or reference parity. The previous installed candidate is archived by the reversible installer.
+
 ## Unreleased — 2.0.1-dev.5
 
 - Adds content-state finish checks for duplicate identity and escaped fallback media, plus guidance for persistent rows and independent access/copy actions. Condenses overlapping component planning guidance. The [sharing repair study](docs/SHARING-STATE-FAMILY.md) preserves the rejected original and distinguishes a Luna-authored repair from fresh skill effectiveness.
