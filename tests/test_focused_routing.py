@@ -1,6 +1,7 @@
 """Check context routing without paying for another broad generation benchmark."""
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -151,13 +152,13 @@ class FocusedRouting(unittest.TestCase):
             guide=destination/'seenry-branding/references/project-guidelines.md'
             out=Path(temporary)/'request'
             prepare('build',project,'Extend the settings screen using the supplied identity rules.',out,root=relocated)
-            packet=json.loads((out/'packet.json').read_text())
+            packet=json.loads((out/'packet.json').read_text(encoding='utf-8'))
             resource=next(r for r in packet['resources'] if r['path']=='seenry-branding/references/project-guidelines.md')
-            self.assertEqual(resource['content'],guide.read_text())
+            self.assertEqual(resource['content'],guide.read_text(encoding='utf-8'))
             self.assertEqual(resource['sha256'],hashlib.sha256(guide.read_bytes()).hexdigest())
             self.assertEqual(packet['project_decisions']['shared_decisions'],project['shared_decisions'])
             self.assertEqual(packet['research_source'],'local')
-            self.assertIn(json.dumps(project['shared_decisions']['rules'][1]),(out/'prompt.txt').read_text())
+            self.assertIn(json.dumps(project['shared_decisions']['rules'][1]),(out/'prompt.txt').read_text(encoding='utf-8'))
             self.assertEqual(json.dumps(project,sort_keys=True),original)
             guide.unlink()
             compile_packet('build',project={**project,'guide_topics':[]},profile='focused',root=relocated)
@@ -170,9 +171,20 @@ class FocusedRouting(unittest.TestCase):
     def test_cli_defaults_to_focused_and_complete_remains_explicit(self):
         cli=ROOT/'skills/seenry/scripts/packet.py'
         def run(*args):
-            return json.loads(subprocess.check_output([sys.executable,str(cli),'plan',*args],text=True))
+            return json.loads(subprocess.check_output([sys.executable,str(cli),'plan',*args],text=True,encoding='utf-8'))
         focused=run();complete=run('--profile','complete')
         self.assertEqual(focused['profile'],'focused')
         self.assertFalse(focused['entrypoint']['body_supplied'])
         self.assertTrue(complete['entrypoint']['body_supplied'])
         self.assertLess(focused['guidance_size']['words'],complete['guidance_size']['words'])
+
+    def test_cli_preserves_unicode_under_legacy_stdout_encoding(self):
+        cli=ROOT/'skills/seenry/scripts/packet.py'
+        output=subprocess.check_output(
+            [sys.executable,str(cli),'plan','--profile','complete'],
+            env={**os.environ,'PYTHONIOENCODING':'cp1252','PYTHONUTF8':'0'})
+        decoded=output.decode('utf-8')
+        self.assertTrue(any(ord(char)>127 for char in decoded))
+        packet=json.loads(decoded)
+        expected=compile_packet('plan',profile='complete')
+        self.assertEqual(packet['resources'],expected['resources'])

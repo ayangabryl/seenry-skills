@@ -1,5 +1,5 @@
 """Print a focused Seenry stage packet. Supplied text is not proof of application."""
-import argparse, hashlib, json
+import argparse, hashlib, json, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -351,6 +351,8 @@ if __name__ == '__main__':
     parser.add_argument('--decision', choices=CRAFT_DECISIONS, help='Supply only this decision and its working example; requires focused profile')
     args = parser.parse_args()
     try:
+        # Packet JSON is UTF-8 on every platform, including redirected Windows output.
+        sys.stdout.reconfigure(encoding='utf-8')
         project = json.loads(args.project.read_text(encoding='utf-8')) if args.project else None
         print(json.dumps(compile_packet(args.stage, args.motion, args.assets, research_source=args.research_source, project=project, profile=args.profile, decision=args.decision), ensure_ascii=False, indent=2))
     except (OSError, UnicodeError, ValueError) as exc:
