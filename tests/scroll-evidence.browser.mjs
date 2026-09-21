@@ -12,7 +12,15 @@ try {
  await page.screenshot({fullPage:true});
  assert.equal(await page.locator('#later').evaluate(e=>getComputedStyle(e).opacity),'0','A full-page screenshot does not execute traversal');
  const observations=[];
- const result=await collectScrollEvidence(page,{settleMs:60,capture:async step=>observations.push({...step,opacity:await page.locator('#later').evaluate(e=>getComputedStyle(e).opacity)})});
+ const result=await collectScrollEvidence(page,{settleMs:60,capture:async step=>{
+  const intersects=await page.locator('#later').evaluate(e=>{
+   const bounds=e.getBoundingClientRect();return bounds.top<innerHeight&&bounds.bottom>0;
+  });
+  // Wait for the observed reveal when traversing it. A fixed 60ms pause can
+  // expire before IntersectionObserver and the transition run on a busy runner.
+  if(intersects)await page.waitForFunction(()=>getComputedStyle(document.querySelector('#later')).opacity==='1',null,{timeout:3000});
+  observations.push({...step,opacity:await page.locator('#later').evaluate(e=>getComputedStyle(e).opacity)});
+ }});
  assert.equal(result.reachedBottom,true);
  assert.ok(observations.some(x=>x.opacity==='1'));
  assert.equal(await page.locator('#state').isVisible(),false,'Traversal cannot substitute for tab actions');
