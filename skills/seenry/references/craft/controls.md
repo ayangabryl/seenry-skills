@@ -32,6 +32,8 @@ Give the setting one visible name and let its control express the current value.
 
 An animated disclosure can clip a descendant's focus ring or popup. Check the visible pixels and hit targets, not just DOM visibility: an offscreen menu may still report a nonzero rectangle. Give settled open content a deliberate overflow strategy, or render its popup outside the clipping ancestor. Keep collapsed content inert.
 
+For composed inputs, assign focus to one perceived field boundary, not a second box around only its text area. Verify the final cascade after global focus rules; independent clear/close actions still need their own keyboard indicator.
+
 Native focus is not a defect. Replace it only with a visible, coherent treatment. Use `:focus-visible` for buttons; text inputs may legitimately match it after a pointer click. Do not remove focus after typing or successful submission to hide its appearance. Avoid stacking an offset halo, error shadow and field border. Use one immediate indicator, preserve its footprint, and distinguish error text from focus. Do not animate focus visibility or rely on a barely changed background for menu keyboard focus. See [focus and keyboard continuity](../focus-and-keyboard.md) for the local recipe, forced-colors behavior and checks.
 
 ## Working example
