@@ -1,0 +1,490 @@
+{
+  "001": {
+    "phase": "routing",
+    "case": "Hero crop",
+    "variant": "base"
+  },
+  "002": {
+    "phase": "routing",
+    "case": "Hero crop",
+    "variant": "reordered"
+  },
+  "003": {
+    "phase": "routing",
+    "case": "Hero crop",
+    "variant": "guided"
+  },
+  "004": {
+    "phase": "routing",
+    "case": "Viewport overflow",
+    "variant": "base"
+  },
+  "005": {
+    "phase": "routing",
+    "case": "Viewport overflow",
+    "variant": "reordered"
+  },
+  "006": {
+    "phase": "routing",
+    "case": "Viewport overflow",
+    "variant": "guided"
+  },
+  "007": {
+    "phase": "routing",
+    "case": "Unseen motion",
+    "variant": "base"
+  },
+  "008": {
+    "phase": "routing",
+    "case": "Unseen motion",
+    "variant": "reordered"
+  },
+  "009": {
+    "phase": "routing",
+    "case": "Unseen motion",
+    "variant": "guided"
+  },
+  "010": {
+    "phase": "routing",
+    "case": "Competing hierarchy",
+    "variant": "base"
+  },
+  "011": {
+    "phase": "routing",
+    "case": "Competing hierarchy",
+    "variant": "reordered"
+  },
+  "012": {
+    "phase": "routing",
+    "case": "Competing hierarchy",
+    "variant": "guided"
+  },
+  "013": {
+    "phase": "routing",
+    "case": "Successful crop",
+    "variant": "base"
+  },
+  "014": {
+    "phase": "routing",
+    "case": "Successful crop",
+    "variant": "reordered"
+  },
+  "015": {
+    "phase": "routing",
+    "case": "Successful crop",
+    "variant": "guided"
+  },
+  "016": {
+    "phase": "routing",
+    "case": "Brand constraint",
+    "variant": "base"
+  },
+  "017": {
+    "phase": "routing",
+    "case": "Brand constraint",
+    "variant": "reordered"
+  },
+  "018": {
+    "phase": "routing",
+    "case": "Brand constraint",
+    "variant": "guided"
+  },
+  "019": {
+    "phase": "routing",
+    "case": "False success",
+    "variant": "base"
+  },
+  "020": {
+    "phase": "routing",
+    "case": "False success",
+    "variant": "reordered"
+  },
+  "021": {
+    "phase": "routing",
+    "case": "False success",
+    "variant": "guided"
+  },
+  "022": {
+    "phase": "routing",
+    "case": "Missing fonts",
+    "variant": "base"
+  },
+  "023": {
+    "phase": "routing",
+    "case": "Missing fonts",
+    "variant": "reordered"
+  },
+  "024": {
+    "phase": "routing",
+    "case": "Missing fonts",
+    "variant": "guided"
+  },
+  "025": {
+    "phase": "routing",
+    "case": "Unmeasured preference",
+    "variant": "base"
+  },
+  "026": {
+    "phase": "routing",
+    "case": "Unmeasured preference",
+    "variant": "reordered"
+  },
+  "027": {
+    "phase": "routing",
+    "case": "Unmeasured preference",
+    "variant": "guided"
+  },
+  "028": {
+    "phase": "routing",
+    "case": "Two good layouts",
+    "variant": "base"
+  },
+  "029": {
+    "phase": "routing",
+    "case": "Two good layouts",
+    "variant": "reordered"
+  },
+  "030": {
+    "phase": "routing",
+    "case": "Two good layouts",
+    "variant": "guided"
+  },
+  "031": {
+    "phase": "routing",
+    "case": "Actual configurator",
+    "variant": "base"
+  },
+  "032": {
+    "phase": "routing",
+    "case": "Actual configurator",
+    "variant": "reordered"
+  },
+  "033": {
+    "phase": "routing",
+    "case": "Actual configurator",
+    "variant": "guided"
+  },
+  "034": {
+    "phase": "routing",
+    "case": "Static prototype",
+    "variant": "base"
+  },
+  "035": {
+    "phase": "routing",
+    "case": "Static prototype",
+    "variant": "reordered"
+  },
+  "036": {
+    "phase": "routing",
+    "case": "Static prototype",
+    "variant": "guided"
+  },
+  "037": {
+    "phase": "routing",
+    "case": "Keyboard trap",
+    "variant": "base"
+  },
+  "038": {
+    "phase": "routing",
+    "case": "Keyboard trap",
+    "variant": "reordered"
+  },
+  "039": {
+    "phase": "routing",
+    "case": "Keyboard trap",
+    "variant": "guided"
+  },
+  "040": {
+    "phase": "routing",
+    "case": "Reduced motion",
+    "variant": "base"
+  },
+  "041": {
+    "phase": "routing",
+    "case": "Reduced motion",
+    "variant": "reordered"
+  },
+  "042": {
+    "phase": "routing",
+    "case": "Reduced motion",
+    "variant": "guided"
+  },
+  "043": {
+    "phase": "routing",
+    "case": "Archived interface",
+    "variant": "base"
+  },
+  "044": {
+    "phase": "routing",
+    "case": "Archived interface",
+    "variant": "reordered"
+  },
+  "045": {
+    "phase": "routing",
+    "case": "Archived interface",
+    "variant": "guided"
+  },
+  "046": {
+    "phase": "routing",
+    "case": "Reference mismatch",
+    "variant": "base"
+  },
+  "047": {
+    "phase": "routing",
+    "case": "Reference mismatch",
+    "variant": "reordered"
+  },
+  "048": {
+    "phase": "routing",
+    "case": "Reference mismatch",
+    "variant": "guided"
+  },
+  "049": {
+    "phase": "routing",
+    "case": "Stale evidence",
+    "variant": "base"
+  },
+  "050": {
+    "phase": "routing",
+    "case": "Stale evidence",
+    "variant": "reordered"
+  },
+  "051": {
+    "phase": "routing",
+    "case": "Stale evidence",
+    "variant": "guided"
+  },
+  "052": {
+    "phase": "routing",
+    "case": "Invented metric",
+    "variant": "base"
+  },
+  "053": {
+    "phase": "routing",
+    "case": "Invented metric",
+    "variant": "reordered"
+  },
+  "054": {
+    "phase": "routing",
+    "case": "Invented metric",
+    "variant": "guided"
+  },
+  "055": {
+    "phase": "routing",
+    "case": "Intentional density",
+    "variant": "base"
+  },
+  "056": {
+    "phase": "routing",
+    "case": "Intentional density",
+    "variant": "reordered"
+  },
+  "057": {
+    "phase": "routing",
+    "case": "Intentional density",
+    "variant": "guided"
+  },
+  "058": {
+    "phase": "routing",
+    "case": "Missing task",
+    "variant": "base"
+  },
+  "059": {
+    "phase": "routing",
+    "case": "Missing task",
+    "variant": "reordered"
+  },
+  "060": {
+    "phase": "routing",
+    "case": "Missing task",
+    "variant": "guided"
+  },
+  "061": {
+    "phase": "design",
+    "audience": "newcomer",
+    "dimension": "structure"
+  },
+  "062": {
+    "phase": "design",
+    "audience": "newcomer",
+    "dimension": "evidence"
+  },
+  "063": {
+    "phase": "design",
+    "audience": "newcomer",
+    "dimension": "motion"
+  },
+  "064": {
+    "phase": "design",
+    "audience": "newcomer",
+    "dimension": "hierarchy"
+  },
+  "065": {
+    "phase": "design",
+    "audience": "newcomer",
+    "dimension": "capabilities"
+  },
+  "066": {
+    "phase": "design",
+    "audience": "newcomer",
+    "dimension": "adoption"
+  },
+  "067": {
+    "phase": "design",
+    "audience": "expert",
+    "dimension": "structure"
+  },
+  "068": {
+    "phase": "design",
+    "audience": "expert",
+    "dimension": "evidence"
+  },
+  "069": {
+    "phase": "design",
+    "audience": "expert",
+    "dimension": "motion"
+  },
+  "070": {
+    "phase": "design",
+    "audience": "expert",
+    "dimension": "hierarchy"
+  },
+  "071": {
+    "phase": "design",
+    "audience": "expert",
+    "dimension": "capabilities"
+  },
+  "072": {
+    "phase": "design",
+    "audience": "expert",
+    "dimension": "adoption"
+  },
+  "073": {
+    "phase": "design",
+    "audience": "mobile",
+    "dimension": "structure"
+  },
+  "074": {
+    "phase": "design",
+    "audience": "mobile",
+    "dimension": "evidence"
+  },
+  "075": {
+    "phase": "design",
+    "audience": "mobile",
+    "dimension": "motion"
+  },
+  "076": {
+    "phase": "design",
+    "audience": "mobile",
+    "dimension": "hierarchy"
+  },
+  "077": {
+    "phase": "design",
+    "audience": "mobile",
+    "dimension": "capabilities"
+  },
+  "078": {
+    "phase": "design",
+    "audience": "mobile",
+    "dimension": "adoption"
+  },
+  "079": {
+    "phase": "design",
+    "audience": "keyboard",
+    "dimension": "structure"
+  },
+  "080": {
+    "phase": "design",
+    "audience": "keyboard",
+    "dimension": "evidence"
+  },
+  "081": {
+    "phase": "design",
+    "audience": "keyboard",
+    "dimension": "motion"
+  },
+  "082": {
+    "phase": "design",
+    "audience": "keyboard",
+    "dimension": "hierarchy"
+  },
+  "083": {
+    "phase": "design",
+    "audience": "keyboard",
+    "dimension": "capabilities"
+  },
+  "084": {
+    "phase": "design",
+    "audience": "keyboard",
+    "dimension": "adoption"
+  },
+  "085": {
+    "phase": "design",
+    "audience": "limited_bandwidth",
+    "dimension": "structure"
+  },
+  "086": {
+    "phase": "design",
+    "audience": "limited_bandwidth",
+    "dimension": "evidence"
+  },
+  "087": {
+    "phase": "design",
+    "audience": "limited_bandwidth",
+    "dimension": "motion"
+  },
+  "088": {
+    "phase": "design",
+    "audience": "limited_bandwidth",
+    "dimension": "hierarchy"
+  },
+  "089": {
+    "phase": "design",
+    "audience": "limited_bandwidth",
+    "dimension": "capabilities"
+  },
+  "090": {
+    "phase": "design",
+    "audience": "limited_bandwidth",
+    "dimension": "adoption"
+  },
+  "091": {
+    "phase": "rendered-selection",
+    "task": "A first-time desktop visitor needs to understand Seenry and see complete website evidence."
+  },
+  "092": {
+    "phase": "rendered-selection",
+    "task": "An experienced visitor wants quick setup without losing access to substantial visual evidence."
+  },
+  "093": {
+    "phase": "rendered-selection",
+    "task": "A mobile visitor at390 needs legible full opening evidence and a clear installation path."
+  },
+  "094": {
+    "phase": "rendered-selection",
+    "task": "A desktop visitor wants the largest readable website preview without an oversized introduction."
+  },
+  "095": {
+    "phase": "rendered-selection",
+    "task": "A visitor values seeing the product pitch and complete example together in one desktop viewport, and is willing to open the study for details."
+  },
+  "096": {
+    "phase": "failure-probe",
+    "case": "false-success"
+  },
+  "097": {
+    "phase": "failure-probe",
+    "case": "invented-metric"
+  },
+  "098": {
+    "phase": "failure-probe",
+    "case": "ambiguous-preview"
+  },
+  "099": {
+    "phase": "follow-up"
+  },
+  "100": {
+    "phase": "disposition"
+  }
+}

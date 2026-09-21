@@ -1,0 +1,92 @@
+{
+  "live_requests": 100,
+  "input_tokens": 53584,
+  "estimated_usd": "0.002250528",
+  "reserved_usd": "0.275251200",
+  "max_estimated_budget_usd": "0.50",
+  "exact_fixture_matches": 50,
+  "fixture_count": 60,
+  "by_variant": {
+    "base": 17,
+    "reordered": 16,
+    "guided": 17
+  },
+  "order_stable_pairs": 19,
+  "order_pairs": 20,
+  "mismatches": [
+    {
+      "request": "020",
+      "case": "False success",
+      "variant": "reordered",
+      "expected": "repair",
+      "actual": "retain"
+    },
+    {
+      "request": "034",
+      "case": "Static prototype",
+      "variant": "base",
+      "expected": "compare",
+      "actual": "repair"
+    },
+    {
+      "request": "035",
+      "case": "Static prototype",
+      "variant": "reordered",
+      "expected": "compare",
+      "actual": "repair"
+    },
+    {
+      "request": "036",
+      "case": "Static prototype",
+      "variant": "guided",
+      "expected": "compare",
+      "actual": "observe"
+    },
+    {
+      "request": "052",
+      "case": "Invented metric",
+      "variant": "base",
+      "expected": "repair",
+      "actual": "observe"
+    },
+    {
+      "request": "053",
+      "case": "Invented metric",
+      "variant": "reordered",
+      "expected": "repair",
+      "actual": "observe"
+    },
+    {
+      "request": "054",
+      "case": "Invented metric",
+      "variant": "guided",
+      "expected": "repair",
+      "actual": "observe"
+    },
+    {
+      "request": "058",
+      "case": "Missing task",
+      "variant": "base",
+      "expected": "none",
+      "actual": "observe"
+    },
+    {
+      "request": "059",
+      "case": "Missing task",
+      "variant": "reordered",
+      "expected": "none",
+      "actual": "observe"
+    },
+    {
+      "request": "060",
+      "case": "Missing task",
+      "variant": "guided",
+      "expected": "none",
+      "actual": "observe"
+    }
+  ],
+  "human_acceptance": "rejected",
+  "visual_parity": "unproven",
+  "selected": "rejected by user; no accepted candidate",
+  "feedback": "FEEDBACK.json"
+}

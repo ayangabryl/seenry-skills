@@ -1,0 +1,19 @@
+{
+  "state": {
+    "case": "Brand constraint",
+    "observation": "The established brand requires vivid yellow. The page is legible, hierarchy works and all states were inspected. A generic guide suggests muted palettes."
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Choose the next useful design action for this observed case. Judge the task and evidence, not a generic style preference.",
+      "criteria": {
+        "retain": "Keep the verified treatment; no task-supported defect justifies the suggested change.",
+        "compare": "Render one controlled alternative to resolve a supported uncertainty.",
+        "repair": "Fix a concrete observed failure; verify the affected state.",
+        "observe": "Collect missing or stale relevant evidence before judging or changing the design.",
+        "none": "None of these choices is supported; obtain missing context."
+      }
+    }
+  }
+}

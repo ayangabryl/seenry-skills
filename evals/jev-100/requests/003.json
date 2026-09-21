@@ -1,0 +1,19 @@
+{
+  "state": {
+    "case": "Hero crop",
+    "observation": "A reference hero is 1260px tall. Only the first900px were inspected; a product scene continues below the capture. The agent is about to call the reference complete."
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Choose the next useful design action for this observed case. Judge the task and evidence, not a generic style preference. Distinguish missing inspection from an observed failure. Ambiguous causes require controlled comparison; confidence and style conformity cannot replace evidence.",
+      "criteria": {
+        "observe": "Collect missing or stale relevant evidence before judging or changing the design.",
+        "repair": "Fix a concrete observed failure; verify the affected state.",
+        "compare": "Render one controlled alternative to resolve a supported uncertainty.",
+        "retain": "Keep the verified treatment; no task-supported defect justifies the suggested change.",
+        "none": "None of these choices is supported; obtain missing context."
+      }
+    }
+  }
+}

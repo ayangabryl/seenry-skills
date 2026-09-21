@@ -1,0 +1,19 @@
+{
+  "state": {
+    "current": "All3 pages expose a complete Held site link and opening preview. The full study has Objects, Approach and local inquiry sections.",
+    "prior_choices": "All5 visitor-context planning requests selected section-specific evidence links. This is agreement, not proof.",
+    "constraint": "Do not invent more examples or add unrelated widgets. Keep the opening composition."
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Which bounded follow-up best lets visitors inspect hero-to-footer and interaction capability using existing material?",
+      "criteria": {
+        "section_links": "Add a short set of named links to Objects, Approach and Inquiry in the existing complete study.",
+        "more_visuals": "Generate unrelated decorative screenshots.",
+        "retain": "Keep only the current general complete-study link.",
+        "none": "Evidence is insufficient or supplied choices are not meaningfully distinguishable."
+      }
+    }
+  }
+}

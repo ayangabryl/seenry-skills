@@ -1,0 +1,45 @@
+{
+  "method": "Same content/assets/body/footer. Browser rendered all3 desktop1440 and mobile390. Main coding agent visual review; Jev receives these text observations, never pixels.",
+  "desktop": {
+    "canvas": {
+      "preview_top": 678,
+      "preview_width": 1206,
+      "hero_bottom": 1502,
+      "headline_px": 99.36,
+      "observation": "Headline and whitespace dominate the opening. Website evidence is full width below."
+    },
+    "split": {
+      "preview_top": 275,
+      "preview_width": 757,
+      "hero_bottom": 855,
+      "headline_px": 64.8,
+      "observation": "Product introduction and complete preview appear together. Smaller preview text requires opening live site for detailed reading."
+    },
+    "compact": {
+      "preview_top": 480,
+      "preview_width": 1206,
+      "hero_bottom": 1304,
+      "headline_px": 72,
+      "observation": "Headline left, explanatory copy and install action right. Full-width preview starts198px earlier than canvas."
+    }
+  },
+  "mobile": {
+    "canvas": {
+      "preview_top": 643,
+      "preview_width": 321,
+      "hero_bottom": 1498
+    },
+    "split": {
+      "preview_top": 651,
+      "preview_width": 321,
+      "hero_bottom": 1510
+    },
+    "compact": {
+      "preview_top": 640,
+      "preview_width": 321,
+      "hero_bottom": 1496
+    }
+  },
+  "checks": "No horizontal overflow at390 in all3. Assets loaded after scrolling through body. Both composition states and installation dialog/Escape exercised. Same linked full study. Same authored copy. Preview has visible noninteractive source controls but entire surface opens live study with explicit label.",
+  "limits": "No blind human preference, no new matched reference-site visual review. No measured conversion. Geometry is factual, visual preference remains contextual. All mobile structures nearly identical."
+}

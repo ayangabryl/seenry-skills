@@ -1,0 +1,6 @@
+{
+  "unseen_motion": "observe",
+  "high_confidence": "observe",
+  "source_claim": "observe",
+  "observed_failure": "repair"
+}

@@ -1,0 +1,47 @@
+{
+  "repairs_used": 1,
+  "resets_used": 0,
+  "artifacts": [
+    {
+      "path": "observations.json",
+      "sha256": "5fd3ddbb1e7b27967358b48708295dd1d8092005f80739148ee58c29fdccb18d"
+    },
+    {
+      "path": "repaired-hero.jpg",
+      "sha256": "2bbf867154ea2cdd860e1dee3adf9b2347237bdffcdc3dd57341e7c006943009"
+    },
+    {
+      "path": "repaired-index.html",
+      "sha256": "f30c791a926d1c4e3a227c4e264d593e4d5e62ba78fc62493fa855e76cc24b6d"
+    },
+    {
+      "path": "repaired-style.css",
+      "sha256": "7b6b61a908ef4beb44b56ba9dcf03183b082a7d8079a8d5230b96ae78b5a05a6"
+    }
+  ],
+  "checks": [
+    {
+      "id": "keyboard",
+      "status": "pass",
+      "reason": "Enter on Open the working Held website navigated to Held; URL and Held heading confirmed. Back returned to Seenry. Tab moves past preview to About the work.",
+      "evidence": "observations.json"
+    },
+    {
+      "id": "responsive",
+      "status": "pass",
+      "reason": "No horizontal overflow at390 or320. Full desktop hero captured and inspected.",
+      "evidence": "observations.json"
+    },
+    {
+      "id": "regression",
+      "status": "pass",
+      "reason": "Both composition choices remain usable. Install dialog opens; Escape closes it and returns focus to Get Seenry. Copy previously passed; unchanged copy handler not rerun this round.",
+      "evidence": "observations.json"
+    },
+    {
+      "id": "reference-parity",
+      "status": "uninspected",
+      "reason": "No independent designer review, matched reference comparison or human acceptance. No evidence of consistent aesthetic parity."
+    }
+  ]
+}

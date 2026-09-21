@@ -2,6 +2,8 @@
 
 Seenry turns a brief into design decisions and working evidence. The host supplies code, rendering and available research tools. MCP is an optional source of reference evidence. No layer certifies aesthetic quality automatically.
 
+Optional Jev experiments use [bounded text decisions](skills/seenry/references/jev-decisions.md): the host prepares alternatives, Jev selects typed choices, code validates them, and browser review remains mandatory for visual claims. The [first live pilot](evals/jev-pilot/RESULTS.md) exercised three cases for an estimated $0.000111174 and matched the recorded host baseline. It demonstrates integration, not better design. The json-render composer is not a dependency of this path.
+
 ## Ordinary design work
 
 ```mermaid

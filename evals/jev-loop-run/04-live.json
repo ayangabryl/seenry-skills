@@ -1,0 +1,94 @@
+{
+  "provider": "typesafe",
+  "live": true,
+  "model": "jev-1.13.0",
+  "request_sha256": "27659b7eac67b7ca0bc63c5cda1822d65d21f09fd4866e765510f62b71e17bf0",
+  "elapsed_ms": 690,
+  "answers": {
+    "portfolio": {
+      "type": "choice",
+      "choice": "surface_link",
+      "confidence": 0.44,
+      "probabilities": {
+        "static_caption": 0.04,
+        "repair_crop": 0.06,
+        "surface_link": 0.52,
+        "retain_task_controls": 0.01,
+        "retain_interaction": 0.31,
+        "none": 0.06
+      }
+    },
+    "configurator": {
+      "type": "choice",
+      "choice": "retain_interaction",
+      "confidence": 0.9,
+      "probabilities": {
+        "static_caption": 0.0,
+        "surface_link": 0.0,
+        "repair_crop": 0.01,
+        "retain_task_controls": 0.0,
+        "retain_interaction": 0.91,
+        "none": 0.08
+      }
+    },
+    "editorial": {
+      "type": "choice",
+      "choice": "static_caption",
+      "confidence": 1.0,
+      "probabilities": {
+        "static_caption": 1.0,
+        "surface_link": 0.0,
+        "repair_crop": 0.0,
+        "retain_task_controls": 0.0,
+        "retain_interaction": 0.0,
+        "none": 0.0
+      }
+    },
+    "checkout": {
+      "type": "choice",
+      "choice": "retain_task_controls",
+      "confidence": 0.97,
+      "probabilities": {
+        "static_caption": 0.0,
+        "repair_crop": 0.0,
+        "surface_link": 0.0,
+        "retain_task_controls": 0.98,
+        "retain_interaction": 0.01,
+        "none": 0.01
+      }
+    },
+    "mobile_crop": {
+      "type": "choice",
+      "choice": "repair_crop",
+      "confidence": 0.96,
+      "probabilities": {
+        "static_caption": 0.0,
+        "surface_link": 0.02,
+        "repair_crop": 0.97,
+        "retain_task_controls": 0.0,
+        "retain_interaction": 0.01,
+        "none": 0.0
+      }
+    },
+    "unknown": {
+      "type": "choice",
+      "choice": "none",
+      "confidence": 1.0,
+      "probabilities": {
+        "static_caption": 0.0,
+        "surface_link": 0.0,
+        "repair_crop": 0.0,
+        "retain_task_controls": 0.0,
+        "retain_interaction": 0.0,
+        "none": 1.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1756,
+    "output_tokens": 407
+  },
+  "estimated_usd": "0.000073752",
+  "visual_quality": "unverified",
+  "human_acceptance": "pending"
+}

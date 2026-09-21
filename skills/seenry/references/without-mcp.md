@@ -13,6 +13,8 @@ Seenry's design process runs locally. MCP supplies additional reference evidence
 
 No MCP does not imply no network, no photography or code-only illustration. Do not impose those extra restrictions unless the user, environment or a declared experiment requires them. A restricted benchmark must describe its asset and tool limits separately from the skill’s normal capabilities.
 
+For hero screenshots from any source, apply the [hero capture checks](research.md#verify-a-complete-hero): inspect through the section's actual end, including visuals below the first viewport. Label incomplete supplied images as partial when a fuller source is unavailable.
+
 Availability can differ by operation: a browser can render local HTML without internet. Do not repeatedly retry an unavailable service. Never silently install an MCP, require a paid prompt pack, or turn a failed lookup into a fabricated research result. Respect an explicit offline/no-MCP mode even if a server happens to be configured.
 
 ## Built-in decision resources

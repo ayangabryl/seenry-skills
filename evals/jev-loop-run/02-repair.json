@@ -1,0 +1,47 @@
+{
+  "state": {
+    "brief": "Clarify access to the live Held study from the Seenry marketing page without changing the visual direction.",
+    "observed": "Browser DOM: embedded frame pointer-events none, tabindex -1, no enclosing link. Small caption Opening preview. Source also has inert. Desktop frame width1206 height735. A separate complete-study text link exists. This is an affordance concern, not measured user confusion.",
+    "previous_decision": {
+      "type": "choice",
+      "choice": "preview_affordance",
+      "confidence": 1.0,
+      "probabilities": {
+        "reskin": 0.0,
+        "more_motion": 0.0,
+        "expand_demos": 0.0,
+        "none": 0.0,
+        "preview_affordance": 1.0
+      }
+    },
+    "options": {
+      "surface_link": "Make the preview one native link opening the full study in the same tab. Add a visible caption: Preview \u2014 open the working website. Keep inner frame noninteractive and hidden from assistive technology to avoid duplicate controls. Outline the whole link on keyboard focus; no overlay covering the hero.",
+      "interactive_embed": "Enable all iframe interactions and scrolling inside the scaled opening preview; keep clipping unchanged.",
+      "caption_only": "Leave the preview inactive and change only its small caption; use the existing separate link.",
+      "overlay_button": "Leave preview inactive and add a large centered open-study button overlaying its hero image."
+    }
+  },
+  "questions": {
+    "repair": {
+      "type": "choice",
+      "instructions": "Which option best balances discoverability, keyboard access, legible complete hero evidence and simple navigation for this specific preview? Choose a bounded implementation, not an aesthetic quality rating.",
+      "criteria": {
+        "surface_link": "Make the preview one native link opening the full study in the same tab. Add a visible caption: Preview \u2014 open the working website. Keep inner frame noninteractive and hidden from assistive technology to avoid duplicate controls. Outline the whole link on keyboard focus; no overlay covering the hero.",
+        "interactive_embed": "Enable all iframe interactions and scrolling inside the scaled opening preview; keep clipping unchanged.",
+        "caption_only": "Leave the preview inactive and change only its small caption; use the existing separate link.",
+        "overlay_button": "Leave preview inactive and add a large centered open-study button overlaying its hero image.",
+        "none": "None is suitable; obtain more evidence before proposing a change."
+      }
+    },
+    "verification": {
+      "type": "choice",
+      "instructions": "Which verification is most important after implementing an access change here?",
+      "criteria": {
+        "navigation": "Keyboard activation opens the correct complete study; browser Back restores the marketing page; preview is not clipped at narrow width.",
+        "color": "Check whether the accent color is fashionable.",
+        "confidence": "Stop as soon as model confidence is high.",
+        "none": "No applicable check."
+      }
+    }
+  }
+}

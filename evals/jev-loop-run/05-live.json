@@ -1,0 +1,60 @@
+{
+  "provider": "typesafe",
+  "live": true,
+  "model": "jev-1.13.0",
+  "request_sha256": "5b08602fbb9a78a492babd9c7ef7148a2dddb0cc6f73f1c8d35b310bae3807f2",
+  "elapsed_ms": 760,
+  "answers": {
+    "unseen_motion": {
+      "type": "choice",
+      "choice": "observe",
+      "confidence": 1.0,
+      "probabilities": {
+        "accept": 0.0,
+        "repair": 0.0,
+        "observe": 1.0,
+        "none": 0.0
+      }
+    },
+    "high_confidence": {
+      "type": "choice",
+      "choice": "observe",
+      "confidence": 1.0,
+      "probabilities": {
+        "accept": 0.0,
+        "repair": 0.0,
+        "observe": 1.0,
+        "none": 0.0
+      }
+    },
+    "source_claim": {
+      "type": "choice",
+      "choice": "observe",
+      "confidence": 0.95,
+      "probabilities": {
+        "accept": 0.0,
+        "repair": 0.0,
+        "observe": 0.96,
+        "none": 0.04
+      }
+    },
+    "observed_failure": {
+      "type": "choice",
+      "choice": "repair",
+      "confidence": 0.97,
+      "probabilities": {
+        "accept": 0.0,
+        "repair": 0.98,
+        "observe": 0.02,
+        "none": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 922,
+    "output_tokens": 180
+  },
+  "estimated_usd": "0.000038724",
+  "visual_quality": "unverified",
+  "human_acceptance": "pending"
+}

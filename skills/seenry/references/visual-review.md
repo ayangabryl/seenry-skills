@@ -14,6 +14,8 @@ For a completed build, also reopen the selected surface renders at equivalent wi
 
 When the brief names a reference quality target, also compare the rendered result with the relevant inspected reference region. State concrete surviving gaps in composition, material, density or state treatment. Self-authored prototypes establish exploration, not reference parity; working controls establish behavior, not visual acceptance. If that comparison is missing, report the target as unverified even when the implementation checks pass. Supplied images or local studies can support this comparison without MCP.
 
+For websites, judge the opening against its visitor task and next section. Compare craft, not resemblance: different heights, densities, type and media arrangements are not defects themselves. Explain how each gap harms this brief. Inspect the complete opening alongside the first viewport; distinguish intentional continuation from clipped or buried essentials. For requested reproductions, assess fidelity separately.
+
 Evaluate five criteria independently:
 
 | Criterion | Observable questions |

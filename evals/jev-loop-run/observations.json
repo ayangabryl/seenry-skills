@@ -1,0 +1,11 @@
+{
+  "change": "The entire noninteractive preview is now a native link with a visible open-working-website caption and accessible name. The embedded frame stays noninteractive, hidden from assistive technology. Source remains the full Held study.",
+  "observed": {
+    "keyboard": "Enter on Open the working Held website navigated to Held; URL and Held heading confirmed. Back returned to Seenry. Tab moves past preview to About the work.",
+    "responsive": "No horizontal overflow at390 or320. Full desktop hero captured and inspected.",
+    "regression": "Both composition choices remain usable. Install dialog opens; Escape closes it and returns focus to Get Seenry. Copy previously passed; unchanged copy handler not rerun this round.",
+    "coverage": "One desktop screenshot and narrow preview inspected this round; prior full-page and source hero boundary evidence retained.",
+    "transfer": "Six textual cases matched preregistered routes; four evidence controls matched. No fresh rendered transfer website.",
+    "limits": "No independent designer review, matched reference comparison or human acceptance. No evidence of consistent aesthetic parity."
+  }
+}

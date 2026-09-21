@@ -1,0 +1,26 @@
+{
+  "state": {
+    "product": "Seenry free open-source design skills. Core works without paid services.",
+    "audience": "Visitor navigates with keyboard and needs obvious destinations and usable controls.",
+    "material": "Existing complete fictional Held restoration website with chair/workshop imagery, object studies and local inquiry. No real customer results.",
+    "dimension": "capabilities",
+    "options": {
+      "directory": "Four concise skill links with capability descriptions.",
+      "narrative": "One long process essay explains every skill in sequence.",
+      "demonstrated": "Pair each capability with a short example or link to a specific relevant part of the study."
+    },
+    "fixed": "Keep truthful claims, local fonts, working keyboard navigation, complete hero and footer. This is text-based planning, not a rendered quality score."
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Which offered treatment best serves the stated visitor on this dimension while keeping a coherent full website? Other dimensions are held fixed. Several options may be valid; abstain if context cannot support a choice.",
+      "criteria": {
+        "directory": "Four concise skill links with capability descriptions.",
+        "narrative": "One long process essay explains every skill in sequence.",
+        "demonstrated": "Pair each capability with a short example or link to a specific relevant part of the study.",
+        "none": "None of these choices is supported; obtain missing context."
+      }
+    }
+  }
+}

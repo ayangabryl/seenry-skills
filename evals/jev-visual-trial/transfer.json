@@ -1,0 +1,42 @@
+{
+  "state": {
+    "cases": {
+      "design_tool": "A tool claims it helps create complete websites. The current marketing opening contains five small isolated widgets; none lets visitors inspect a whole website. A complete authored teaching example is available, but no independent benchmark is available.",
+      "service": "A local emergency plumbing service. A visitor has an active leak and needs to know service coverage, call availability and how to contact the team. Work photos exist.",
+      "store": "A returning customer on a furniture shops collection page wants to compare available chairs by size, material and price. Product photos and inventory are available."
+    },
+    "hypothesis": "Scale demonstration evidence to the scope of the specific claim, without imposing showcase-first on every website."
+  },
+  "questions": {
+    "design_tool": {
+      "type": "choice",
+      "instructions": "For the visitor task in `cases.design_tool`, which structure should lead? Judge suitability of information order, not unseen visual quality. Do not apply the hypothesis if it adds friction to this task.",
+      "criteria": {
+        "prominent_example": "Give a substantial, clearly labeled completed example an early readable position, with access to its full path. Use smaller demonstrations for distinct details.",
+        "action_first": "Lead with the immediate action and essential eligibility/availability information; keep examples secondary.",
+        "catalog_first": "Lead with a browsable catalog of available items and practical selection controls; show product details on demand.",
+        "none": "None of these structures addresses this brief."
+      }
+    },
+    "service": {
+      "type": "choice",
+      "instructions": "For the visitor task in `cases.service`, which structure should lead? Judge suitability of information order, not unseen visual quality. Do not apply the hypothesis if it adds friction to this task.",
+      "criteria": {
+        "prominent_example": "Give a substantial, clearly labeled completed example an early readable position, with access to its full path. Use smaller demonstrations for distinct details.",
+        "action_first": "Lead with the immediate action and essential eligibility/availability information; keep examples secondary.",
+        "catalog_first": "Lead with a browsable catalog of available items and practical selection controls; show product details on demand.",
+        "none": "None of these structures addresses this brief."
+      }
+    },
+    "store": {
+      "type": "choice",
+      "instructions": "For the visitor task in `cases.store`, which structure should lead? Judge suitability of information order, not unseen visual quality. Do not apply the hypothesis if it adds friction to this task.",
+      "criteria": {
+        "prominent_example": "Give a substantial, clearly labeled completed example an early readable position, with access to its full path. Use smaller demonstrations for distinct details.",
+        "action_first": "Lead with the immediate action and essential eligibility/availability information; keep examples secondary.",
+        "catalog_first": "Lead with a browsable catalog of available items and practical selection controls; show product details on demand.",
+        "none": "None of these structures addresses this brief."
+      }
+    }
+  }
+}

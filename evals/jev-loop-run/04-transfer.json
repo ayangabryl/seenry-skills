@@ -1,0 +1,84 @@
+{
+  "state": {
+    "portfolio": "A photography portfolio visitor wants to open a project. Large static screenshot shows a carousel arrow but does not respond. A separate small text link works.",
+    "configurator": "A furniture configurator embeds the actual live configurator at native size. Its controls work, keyboard focus is verified and visitors must try colors here before deciding.",
+    "editorial": "An editorial article shows a historical software screenshot to explain a discontinued interface. There is no live destination and the image is clearly captioned as an archival screenshot.",
+    "checkout": "Checkout shows an item thumbnail beside explicit remove and quantity buttons. The visitor must review the order and pay; there is no external demo to explore.",
+    "mobile_crop": "A read-only product preview already links clearly to the live demo. On mobile the source hero image bottom and primary action are outside the frame.",
+    "unknown": "A landing page is described as premium. No screenshot, DOM observation, visitor task or behavior evidence is available."
+  },
+  "questions": {
+    "portfolio": {
+      "type": "choice",
+      "instructions": "For case `portfolio`, select the intervention that best serves its visitor and observed state. Other cases are irrelevant. Do not copy the preceding Seenry repair as a universal default.",
+      "criteria": {
+        "surface_link": "Make the static project preview a clearly named link to its live destination.",
+        "retain_interaction": "Keep the actual embedded interactive controls usable; do not cover them with one link.",
+        "static_caption": "Keep the clearly described static image without fabricating a live destination.",
+        "retain_task_controls": "Keep the order task controls; do not turn the item region into an external demo link.",
+        "repair_crop": "Repair source and frame sizing before changing the established navigation.",
+        "none": "Evidence does not support any of these repairs; inspect first."
+      }
+    },
+    "configurator": {
+      "type": "choice",
+      "instructions": "For case `configurator`, select the intervention that best serves its visitor and observed state. Other cases are irrelevant. Do not copy the preceding Seenry repair as a universal default.",
+      "criteria": {
+        "surface_link": "Make the static project preview a clearly named link to its live destination.",
+        "retain_interaction": "Keep the actual embedded interactive controls usable; do not cover them with one link.",
+        "static_caption": "Keep the clearly described static image without fabricating a live destination.",
+        "retain_task_controls": "Keep the order task controls; do not turn the item region into an external demo link.",
+        "repair_crop": "Repair source and frame sizing before changing the established navigation.",
+        "none": "Evidence does not support any of these repairs; inspect first."
+      }
+    },
+    "editorial": {
+      "type": "choice",
+      "instructions": "For case `editorial`, select the intervention that best serves its visitor and observed state. Other cases are irrelevant. Do not copy the preceding Seenry repair as a universal default.",
+      "criteria": {
+        "surface_link": "Make the static project preview a clearly named link to its live destination.",
+        "retain_interaction": "Keep the actual embedded interactive controls usable; do not cover them with one link.",
+        "static_caption": "Keep the clearly described static image without fabricating a live destination.",
+        "retain_task_controls": "Keep the order task controls; do not turn the item region into an external demo link.",
+        "repair_crop": "Repair source and frame sizing before changing the established navigation.",
+        "none": "Evidence does not support any of these repairs; inspect first."
+      }
+    },
+    "checkout": {
+      "type": "choice",
+      "instructions": "For case `checkout`, select the intervention that best serves its visitor and observed state. Other cases are irrelevant. Do not copy the preceding Seenry repair as a universal default.",
+      "criteria": {
+        "surface_link": "Make the static project preview a clearly named link to its live destination.",
+        "retain_interaction": "Keep the actual embedded interactive controls usable; do not cover them with one link.",
+        "static_caption": "Keep the clearly described static image without fabricating a live destination.",
+        "retain_task_controls": "Keep the order task controls; do not turn the item region into an external demo link.",
+        "repair_crop": "Repair source and frame sizing before changing the established navigation.",
+        "none": "Evidence does not support any of these repairs; inspect first."
+      }
+    },
+    "mobile_crop": {
+      "type": "choice",
+      "instructions": "For case `mobile_crop`, select the intervention that best serves its visitor and observed state. Other cases are irrelevant. Do not copy the preceding Seenry repair as a universal default.",
+      "criteria": {
+        "surface_link": "Make the static project preview a clearly named link to its live destination.",
+        "retain_interaction": "Keep the actual embedded interactive controls usable; do not cover them with one link.",
+        "static_caption": "Keep the clearly described static image without fabricating a live destination.",
+        "retain_task_controls": "Keep the order task controls; do not turn the item region into an external demo link.",
+        "repair_crop": "Repair source and frame sizing before changing the established navigation.",
+        "none": "Evidence does not support any of these repairs; inspect first."
+      }
+    },
+    "unknown": {
+      "type": "choice",
+      "instructions": "For case `unknown`, select the intervention that best serves its visitor and observed state. Other cases are irrelevant. Do not copy the preceding Seenry repair as a universal default.",
+      "criteria": {
+        "surface_link": "Make the static project preview a clearly named link to its live destination.",
+        "retain_interaction": "Keep the actual embedded interactive controls usable; do not cover them with one link.",
+        "static_caption": "Keep the clearly described static image without fabricating a live destination.",
+        "retain_task_controls": "Keep the order task controls; do not turn the item region into an external demo link.",
+        "repair_crop": "Repair source and frame sizing before changing the established navigation.",
+        "none": "Evidence does not support any of these repairs; inspect first."
+      }
+    }
+  }
+}

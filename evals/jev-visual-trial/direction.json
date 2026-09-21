@@ -1,0 +1,32 @@
+{
+  "state": {
+    "brief": "Create a full Seenry marketing website for developers choosing a free open-source design skill. They want to see whether it can produce coherent websites and useful interactions, then install it. Use existing authored local examples and truthful claims. Keep the skill usable without MCP or Jev.",
+    "material": [
+      "Held: complete fictional furniture-restoration website with inquiry interaction and original generated furniture imagery.",
+      "Existing live examples: layout alternatives, focus timer, image cropping, brand palette, deck navigation."
+    ],
+    "constraints": [
+      "No fabricated customers, testimonials or benchmark wins.",
+      "Show actual design evidence at readable scale.",
+      "Carry a consistent hierarchy from hero through body to footer.",
+      "Installation must be easy to find."
+    ],
+    "candidates": {
+      "canvas": "Product introduction and install action, then a large usable preview of Held. Follow with a compact interactive composition comparison, explanation of local skills and optional references, and installation/footer.",
+      "editorial": "Lead with a large Held case study beside a concise Seenry introduction. Explain the choices behind the work in an editorial sequence; finish with capabilities and installation.",
+      "workbench": "Lead with three interactive controls for layout, imagery and behavior beside a live example. Follow with a full website case, scope explanation, and installation."
+    }
+  },
+  "questions": {
+    "direction": {
+      "type": "choice",
+      "instructions": "Which described direction best balances immediately understanding Seenry, inspecting meaningful website evidence, and reaching installation for the audience in `brief`? Consider visitor effort and coverage. You cannot judge unseen visual execution.",
+      "criteria": {
+        "canvas": "Product-led introduction followed by a substantial full-website preview and selective detail demonstrations.",
+        "editorial": "Case-study-led opening and a narrative explanation of design choices.",
+        "workbench": "Hands-on exploration first with several controls, then a website case.",
+        "none": "None fits; the design agent should prepare another direction."
+      }
+    }
+  }
+}

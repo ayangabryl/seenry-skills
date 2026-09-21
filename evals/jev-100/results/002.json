@@ -1,0 +1,28 @@
+{
+  "provider": "typesafe",
+  "live": true,
+  "model": "jev-1.13.0",
+  "request_sha256": "911a8c8aa9b58393f7e0a5ba76551e38bedd0f1e7141b7332fb0b3c16b090d1f",
+  "elapsed_ms": 729,
+  "answers": {
+    "decision": {
+      "type": "choice",
+      "choice": "observe",
+      "confidence": 0.95,
+      "probabilities": {
+        "retain": 0.0,
+        "repair": 0.04,
+        "observe": 0.96,
+        "compare": 0.0,
+        "none": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 471,
+    "output_tokens": 52
+  },
+  "estimated_usd": "0.000019782",
+  "visual_quality": "unverified",
+  "human_acceptance": "pending"
+}

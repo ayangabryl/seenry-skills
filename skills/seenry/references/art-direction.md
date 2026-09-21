@@ -10,9 +10,21 @@ List the visitor's questions in the order they need answers. Map each section to
 
 Choose finished evidence using the [art-direction decision](craft/art-direction.md). Match its scale to the product promise before expanding the page.
 
+## Choose the opening from the brief
+
+Before choosing hero geometry, state what the visitor needs to understand, feel or do first, what material can substantiate that, and what belongs immediately below. Let those decisions determine the composition and its height. The opening can span multiple viewports; a viewport edge or DOM section boundary is not necessarily its narrative end. Check the transition into the next section using the [hero capture checks](research.md#verify-a-complete-hero).
+
+Use reference relationships selectively. Record **observed relationship → reason it works there → relevance here → adaptation**. For example, coordinated product and lifestyle images can connect an unfamiliar service to everyday use; oversized lettering can express an identity when recognition is the point; a compact introduction can give useful inventory more room. These are possible explanations to test against the actual reference and brief, not hero categories to assign by industry. The same business can support several directions. Existing brand rules and user preferences take precedence over novelty.
+
+Name the asset or content dependency that could invalidate each direction. If the idea needs a compelling product demonstration, a decorative screenshot cannot fill that role. Source or build the missing material, or reconsider the direction. Typography, imagery, controls and the handoff to the next section should support the same first impression.
+
+Keep quality criteria stable while allowing their visual expression to vary: subject fit, hierarchy, material quality, coherent identity and usable behavior. Do not borrow a reference's type scale, density, palette or effects merely to make the result resemble a highly rated screen. A quiet service opening and an expressive cultural opening can both succeed on these criteria.
+
 ## Develop three different arguments with the same facts
 
 Change the organising idea, not only colors, fonts or corner shapes. For example, a sound studio could demonstrate the difference before explaining it, organise work by listening situations, or expose a spatial mixing process. All must still state the service and offer a normal path without sound. These are possible directions, not a mandatory audio interaction.
+
+A wide preview, a narrower preview beside the same heading, and a smaller heading over that preview can be useful layout comparisons within one concept. They are not three new organizing ideas. After rejection of the creative direction, identify what changes in the subject’s presentation or evidence before counting a proposal as a direction reset; do not manufacture novelty for a narrow spacing fix.
 
 For each alternative record: dominant material, first reading sequence, a subject-specific operation, what remains still, what it costs the visitor, and the reason it could fail. Make a small composition with candidate media while wireframing. If the direction depends on a hero photograph, prove that a suitable photograph exists before selecting it. Keep the earlier wireframe artifact; a finished layout with a grid overlay is anatomy, not history.
 

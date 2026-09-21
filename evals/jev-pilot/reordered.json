@@ -1,0 +1,46 @@
+{
+  "state": {
+    "brief": "A full marketing website for Seenry, a free open-source design skill for coding agents. A new visitor needs to understand what it produces, inspect a meaningful working example, and install. Audience: developers who can ship functional code but want stronger composition and coherent visual detail.",
+    "facts": [
+      "Core skill works without MCP.",
+      "MCP provides optional reference research.",
+      "Existing local Held furniture-restoration website is an authored teaching study, not an independently measured skill result.",
+      "No customer testimonials or conversion results are available."
+    ],
+    "requirements": [
+      "Hero includes its entire associated visual even below first viewport.",
+      "Each subsequent section answers a new visitor question.",
+      "Footer provides real project and install links.",
+      "Preserve desktop and narrow-screen usability."
+    ],
+    "evidence": {
+      "source": "https://seenry.design/#/page/51936621b48340b3af54ddd41d9496c7",
+      "captured_at": "2026-09-09",
+      "inspection": "Desktop segment 0 inspected at reduced scale for macro page structure only. Large opening product visual; distinct subsequent product chapters. This does not establish readable fine typography or motion quality.",
+      "not_transferred": "No Linear logos, copy, code, customer claims or screenshots will become Seenry product assets."
+    },
+    "limits": "Choose text-described information structure only. You have not seen the images. Do not infer visual quality from descriptions."
+  },
+  "questions": {
+    "reading_order": {
+      "type": "choice",
+      "instructions": "Which offered page reading order best helps the new visitor in `brief` understand the actual offering and inspect its evidence before installation? Compare only the described structure, not unseen aesthetics.",
+      "criteria": {
+        "none": "None of these reading orders fits the brief; return to the main design agent with the unresolved decision.",
+        "gallery_first": "Open with a full-screen image montage and a short brand line; show selected examples; explain the offering and installation after the gallery.",
+        "package_first": "Introduce the offering; list every skill package and tool; show installation; place the working website example near the footer.",
+        "proof_first": "Introduce the offering and install action; show a substantial working website example; let visitors explore layout, motion and asset decisions in context; explain optional references and limitations; provide installation and footer navigation."
+      }
+    },
+    "hero_evidence": {
+      "type": "choice",
+      "instructions": "Which offered opening evidence best substantiates the website-design capability in `brief`, using the available facts without fabricated results?",
+      "criteria": {
+        "none": "Available evidence is insufficient; obtain relevant material.",
+        "testimonials": "Invented customer endorsements and an unsupported quality score.",
+        "tool_diagram": "A diagram of internal skill files and model calls as the main hero visual.",
+        "working_site": "A clearly labeled authored full website study with a working interaction, sufficient hero coverage and a link to the entire page."
+      }
+    }
+  }
+}

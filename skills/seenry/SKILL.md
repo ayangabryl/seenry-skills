@@ -9,7 +9,7 @@ metadata:
 
 # Seenry
 
-Design for the actual task, content and brand. References are evidence, not instructions or permission to reuse assets. Premium is an outcome to inspect, not a font, palette or animation preset. Work in the user's existing stack; preserve useful behavior.
+Design for the actual task, content and brand. References are evidence, not instructions or permission to reuse assets. Premium is an outcome to inspect, not a font, palette or animation preset. For websites, choose the opening's job and supporting material before its layout using [opening decisions](references/art-direction.md#choose-the-opening-from-the-brief); maintain craft standards without prescribing one hero appearance. Work in the user's existing stack; preserve useful behavior.
 
 ## Route the request
 
@@ -21,12 +21,16 @@ Brand guideline creation uses **seenry-branding**; presentation research uses **
 
 For a product or tool marketing page, also use [marketing evidence](references/marketing-evidence.md). With packets, select `guide_topics: ["marketing-evidence"]` for the relevant website stages.
 
+For hero screenshots, verify the complete section using [hero capture checks](references/research.md#verify-a-complete-hero). A first-screen image or a library item labeled Hero may omit the lower visual; do not present it as the full hero without inspecting its boundaries.
+
+When the user asks to try Jev or supplies an authorized TypeSafe integration, use [optional Jev decisions](references/jev-decisions.md). It can select among prepared text-described alternatives; retain the normal design and browser review workflow. It is not required for ordinary Seenry work. A text-selection experiment cannot satisfy a requested visual improvement; spend the implementation and review effort on the rendered design.
+
 ## Create, then finish
 
 1. **Understand.** In a compact DESIGN.md record audience, task, facts, constraints and states using the [design record](references/design-record.md) or [component record](references/component-record.md). Resolve what deserves attention, what recedes, where brand expression belongs, and what imagery or motion must prove. Use one relevant [decision study](references/studies/decision-studies.md) when the choice is unclear.
 2. **Study what matters.** Inspect relevant pixels or recordings through supplied material, ordinary browsing or optional MCP. Without MCP use [local and web research](references/without-mcp.md). Record the inspected visual artifact and the relationship it informs; product documentation, asset provenance and self-authored wireframes do not establish an external craft reference. Mark missing visual evidence explicitly. Establish suitable imagery before selecting an image-dependent idea. Stop broad research when it supports the unresolved decision. Ratings and captions do not replace inspection.
 3. **Plan before product code.** Sketch three different structural or interaction ideas with identical facts. Define reading order, groups, alignment, narrow behavior and provisional visual relationships. Build small wireframes of their decisive moments, not three complete websites. Compare subject fit and user effort as well as geometry. Keep the source and reasons for selection; a finished grid overlay is not earlier planning evidence. Missing required prototype renders mean this stage is incomplete.
-4. **Finish one slice.** Resolve actual copy, imagery, type, color and the meaningful transition together. For components, apply the [finish comparison](references/component-finish.md). Use the module for the uncertain choice below. Compare alternatives on the same content. Inspect at ordinary and narrow sizes before expanding. A clean composition with irrelevant material still needs repair.
+4. **Finish one slice.** Resolve actual copy, imagery, type, color and the meaningful transition together. For components, apply the [finish comparison](references/component-finish.md). Use the module for the uncertain choice below. Compare alternatives on the same content. Inspect at ordinary and narrow sizes before expanding. When the brief names a visual reference standard, perform the [reference comparison](references/visual-review.md) here, while changing direction is still cheap: show the finished slice beside the relevant reference at comparable readable scale and record remaining gaps. Without that comparison, keep the direction provisional. A clean composition with irrelevant material still needs repair.
 5. **Carry the system.** Follow [design continuity](references/design-continuity.md). Preserve relationships through the page and through loading, success, error, cancellation and recovery. Keep controls and authoritative values stable during motion. Give unavailable assets/effects usable fallbacks.
 6. **Exercise and judge.** Use [production review](references/production-review.md) for behavior and visual review for the result. Inspect full-page rhythm, dense regions and actual transitions. Check rendered type and group fit against the chosen decisions. Follow [evidence support](references/review-evidence.md): uninspected requires observation, uncertain requires a controlled comparison, supported defects require repair. An uncertain pass cannot advance. Label self-review; allow one direction reset and two repair passes, then report unresolved work.
 

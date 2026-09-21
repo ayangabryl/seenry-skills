@@ -1,0 +1,26 @@
+{
+  "state": {
+    "product": "Seenry free open-source design skills. Core works without paid services.",
+    "audience": "First-time developer needs to understand the offering and see credible work before installing.",
+    "material": "Existing complete fictional Held restoration website with chair/workshop imagery, object studies and local inquiry. No real customer results.",
+    "dimension": "hierarchy",
+    "options": {
+      "oversized": "Large aspirational heading dominates opening, explanatory copy follows.",
+      "specific": "Moderately sized descriptive product heading followed by evidence.",
+      "case_first": "Case-study title dominates, Seenry purpose sits in a small label."
+    },
+    "fixed": "Keep truthful claims, local fonts, working keyboard navigation, complete hero and footer. This is text-based planning, not a rendered quality score."
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Which offered treatment best serves the stated visitor on this dimension while keeping a coherent full website? Other dimensions are held fixed. Several options may be valid; abstain if context cannot support a choice.",
+      "criteria": {
+        "oversized": "Large aspirational heading dominates opening, explanatory copy follows.",
+        "specific": "Moderately sized descriptive product heading followed by evidence.",
+        "case_first": "Case-study title dominates, Seenry purpose sits in a small label.",
+        "none": "None of these choices is supported; obtain missing context."
+      }
+    }
+  }
+}

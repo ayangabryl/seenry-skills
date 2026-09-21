@@ -23,3 +23,18 @@ The September 10 outcome sprint is development evidence with mixed results: the 
 The Luna appointment comparison supplied frozen skill directories, but both Seenry conditions successfully read a globally installed Seenry entrypoint. The revised condition did not load its new craft guides. User rejection of all outputs remains valid; attribution to the revised package is invalid. Prompt prohibitions and disabled skill-discovery flags did not prevent this.
 
 Use absolute frozen entrypoint paths, inspect actual read events, and stop a contaminated comparison. `scripts/audit_trial_reads.py` at the package root flags observed successful global-skill references in Codex command events. A clear result is only a log check, not isolation or proof of application. For a small repair, an inline frozen packet with tool access disabled can eliminate shell-based reference selection; label it a host-prepared diagnostic and retain its exact content. Never claim that hashes supplied establish what was read or understood.
+
+## Website variety probe — proposed, not run
+
+Use fresh briefs to test whether the skill adapts its decisions beyond the rejected furniture-preview study. These are development prompts, not evidence of improvement. Freeze factual content and available assets before each run; do not prescribe the expected hero layout.
+
+| Brief | Constraint that should influence the design |
+| --- | --- |
+| A local bicycle repair service with appointment booking | Visitors need service area, availability and a clear booking path; supplied workshop photos may support trust. |
+| A sound library for independent game makers | Visitors need to evaluate samples and licensing; browsing must remain usable without autoplay or sound. |
+| An independent film festival | Program, dates and ticket access must coexist with an expressive identity and supplied stills. |
+| A team scheduling product | Show how the supplied workflow resolves availability conflicts; invented customer logos or unsupported performance claims cannot provide proof. |
+
+For each, collect the complete opening and its handoff, a dense middle section, footer, narrow layout and relevant interaction states. Review with the same five visual criteria, scoped to that brief. Record actual reference comparisons and user acceptance separately. A visually different set can still fail; a repeated structural pattern can be appropriate if the content and visitor task justify it. Inspect unexplained convergence in reading order, image treatment and section rhythm rather than counting different colors as variety.
+
+Run the core skill without Jev first when evaluating general availability. Any optional Jev condition uses matched inputs and its own results; text decisions and call counts cannot establish visual improvement. Once feedback informs the instructions, these briefs become development cases and further transfer claims require fresh briefs.

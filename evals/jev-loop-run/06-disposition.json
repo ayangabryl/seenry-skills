@@ -1,0 +1,44 @@
+{
+  "state": {
+    "change": "The entire noninteractive preview is now a native link with a visible open-working-website caption and accessible name. The embedded frame stays noninteractive, hidden from assistive technology. Source remains the full Held study.",
+    "observed": {
+      "keyboard": "Enter on Open the working Held website navigated to Held; URL and Held heading confirmed. Back returned to Seenry. Tab moves past preview to About the work.",
+      "responsive": "No horizontal overflow at390 or320. Full desktop hero captured and inspected.",
+      "regression": "Both composition choices remain usable. Install dialog opens; Escape closes it and returns focus to Get Seenry. Copy previously passed; unchanged copy handler not rerun this round.",
+      "coverage": "One desktop screenshot and narrow preview inspected this round; prior full-page and source hero boundary evidence retained.",
+      "transfer": "Six textual cases matched preregistered routes; four evidence controls matched. No fresh rendered transfer website.",
+      "limits": "No independent designer review, matched reference comparison or human acceptance. No evidence of consistent aesthetic parity."
+    }
+  },
+  "questions": {
+    "candidate": {
+      "type": "choice",
+      "instructions": "Given the actual observations, what disposition is supported for this limited access repair? Do not infer aesthetic superiority.",
+      "criteria": {
+        "retain_pending": "Retain the functional candidate for user review, with quality and human preference limitations explicit.",
+        "revert": "Revert because observations show a regression in the changed behavior.",
+        "unqualified": "Declare consistent professional design parity.",
+        "none": "Need more evidence to select any disposition."
+      }
+    },
+    "next_experiment": {
+      "type": "choice",
+      "instructions": "Which next evaluation would most directly test the remaining consistency claim, instead of merely rechecking the same known case?",
+      "criteria": {
+        "fresh_render": "Freeze the skill and compare it against the candidate on fresh briefs with equal budgets, matched full-page/reference evidence and independent blind human review.",
+        "repeat_votes": "Repeat the same Jev prompt until all probabilities reach1.",
+        "more_docs": "Write more generic design rules without rendering.",
+        "none": "No useful next evaluation available."
+      }
+    },
+    "promotion": {
+      "type": "choice",
+      "instructions": "Which shared lesson is supported at this stage?",
+      "criteria": {
+        "scoped": "Add the bounded evidence workflow and scoped preview contract; keep aesthetic defaults provisional.",
+        "universal": "Require every website to use a giant clickable preview and lavender canvas.",
+        "none": "No transferable lesson at all."
+      }
+    }
+  }
+}

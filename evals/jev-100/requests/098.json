@@ -1,0 +1,19 @@
+{
+  "state": {
+    "case": "ambiguous-preview",
+    "facts": "The preview is clearly labeled and links to a live study. Some painted controls look real, but no attempted interaction failure or observed user confusion is recorded."
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Choose the next action. Here repair means changing a known false claim or observed functional defect. Compare means testing two plausible usable treatments. Observe means the relevant current state itself is missing. Do not let fictional/demo status permit false claims.",
+      "criteria": {
+        "repair": "Correct a known false claim or concrete functional failure now.",
+        "compare": "Compare plausible treatments because effect on users is uncertain.",
+        "observe": "Inspect the missing current state before judging.",
+        "retain": "Keep the current state; evidence supports its contract.",
+        "none": "Evidence is insufficient or supplied choices are not meaningfully distinguishable."
+      }
+    }
+  }
+}

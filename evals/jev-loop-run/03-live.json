@@ -1,0 +1,39 @@
+{
+  "provider": "typesafe",
+  "live": true,
+  "model": "jev-1.13.0",
+  "request_sha256": "a3078dbfcce633c5a89a5a09a375bd1651dd7cd66b27ef4e221d55914d47b79b",
+  "elapsed_ms": 770,
+  "answers": {
+    "repair": {
+      "type": "choice",
+      "choice": "surface_link",
+      "confidence": 0.99,
+      "probabilities": {
+        "caption_only": 0.0,
+        "overlay_button": 0.0,
+        "surface_link": 1.0,
+        "none": 0.0,
+        "interactive_embed": 0.0
+      }
+    },
+    "verification": {
+      "type": "choice",
+      "choice": "navigation",
+      "confidence": 1.0,
+      "probabilities": {
+        "color": 0.0,
+        "none": 0.0,
+        "confidence": 0.0,
+        "navigation": 1.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 949,
+    "output_tokens": 99
+  },
+  "estimated_usd": "0.000039858",
+  "visual_quality": "unverified",
+  "human_acceptance": "pending"
+}

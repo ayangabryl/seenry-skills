@@ -1,0 +1,38 @@
+{
+  "provider": "typesafe",
+  "live": true,
+  "model": "jev-1.13.0",
+  "request_sha256": "9c0ae3254f0b880ed74d98eedf4624e610f431809185926a23ba5489bdf60728",
+  "elapsed_ms": 677,
+  "answers": {
+    "reading_order": {
+      "type": "choice",
+      "choice": "proof_first",
+      "confidence": 0.91,
+      "probabilities": {
+        "gallery_first": 0.02,
+        "package_first": 0.0,
+        "proof_first": 0.94,
+        "none": 0.04
+      }
+    },
+    "hero_evidence": {
+      "type": "choice",
+      "choice": "working_site",
+      "confidence": 0.79,
+      "probabilities": {
+        "testimonials": 0.0,
+        "tool_diagram": 0.01,
+        "working_site": 0.84,
+        "none": 0.15
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 964,
+    "output_tokens": 101
+  },
+  "estimated_usd": "0.000040488",
+  "visual_quality": "unverified",
+  "human_acceptance": "pending"
+}

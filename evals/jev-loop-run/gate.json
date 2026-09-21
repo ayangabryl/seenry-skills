@@ -1,0 +1,17 @@
+{
+  "status": "inspect-or-compare",
+  "failed": [],
+  "unresolved": [
+    "reference-parity"
+  ],
+  "abstained": [],
+  "choices": {
+    "candidate": "retain_pending",
+    "next_experiment": "fresh_render",
+    "promotion": "scoped"
+  },
+  "human_acceptance": "pending",
+  "reference_parity": "unproven",
+  "scope": "Host-recorded evidence and hash integrity only; does not inspect pixels or validate attestations.",
+  "automatic_mutations": false
+}

@@ -12,6 +12,8 @@ Explicit brand/appearance constraints fixed before alternatives; checkable role 
 Media need and motion ambition, with a reason when none; available host operations and actual gaps.
 Visitor offering and visible proof, separated from implementation constraints.
 Opening copy, dominant visual, next action and what can wait until later.
+Website opening: intended first understanding/impression/action, supporting material,
+asset dependency, and transition into the next section; why this fits the brief.
 Decision brief: discover / compare / perform / monitor / recover (combine if needed).
 Primary attention, supporting information that recedes, expression by region,
 material that proves the offer, and stable interaction anchor. Explain each choice.
@@ -23,6 +25,7 @@ Source + Seenry ID/link when present; family, viewport/theme, coverage/date.
 Local authored hypotheses are labeled separately from inspected references.
 Current rating and saved reason (or no reason supplied).
 Observed relationship; our inference; transfer; where it would fail.
+Reference quality comparison: transferable craft relationship versus appearance specific to its source.
 
 ## Alternatives before implementation
 A/B/C: distinct concept/mechanism, reading order, alignment anchors,

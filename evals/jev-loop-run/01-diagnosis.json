@@ -1,0 +1,70 @@
+{
+  "state": {
+    "brief": "Develop Seenry design skill for repeatable website quality with optional Jev. Existing marketing candidate demonstrates a full fictional Held site in an inert opening preview and a composition switch. Visitor wants to inspect website capability and install the free skill.",
+    "observations": [
+      {
+        "id": "O1",
+        "source": "examples/jev-visual-trial/index.html and app.js; browser-inspected last round",
+        "fact": "Large embedded Held preview shows buttons and a plus control but pointer-events:none and inert disable interaction. Separate text link opens the complete study. Caption says Opening preview."
+      },
+      {
+        "id": "O2",
+        "source": "last-round desktop1440/mobile390/320 review",
+        "fact": "Whole-page hierarchy and footer inspected. No horizontal overflow. Mobile word joining and specimen readability repaired. No new observed type or palette defect."
+      },
+      {
+        "id": "O3",
+        "source": "last-round functional review",
+        "fact": "Composition control switches reading order, install copies, Escape restores focus. No actual motion comparison against a reference recording has been performed."
+      },
+      {
+        "id": "O4",
+        "source": "reference scope",
+        "fact": "Linear screenshot inspected for macro rhythm and readable closing, not a matched independent quality assessment."
+      }
+    ],
+    "candidate_interventions": {
+      "preview_affordance": "Make the relationship between inactive preview and live study clear and provide a generous open-study action on the preview surface. Preserve page composition.",
+      "more_motion": "Add animated section entrances and parallax to suggest polish.",
+      "reskin": "Replace lavender, typography and hero layout.",
+      "expand_demos": "Add three more small interactive widgets."
+    },
+    "constraints": [
+      "No invented metrics or customer claims.",
+      "No change may be called improved solely because Jev selected it.",
+      "Two repair passes max; keep earlier source and inspect changed states."
+    ]
+  },
+  "questions": {
+    "priority": {
+      "type": "choice",
+      "instructions": "Which offered intervention is best supported by the observed visitor problem in `observations`, accounting for uncertainty? Select only an offered intervention.",
+      "criteria": {
+        "preview_affordance": "Make the relationship between inactive preview and live study clear and provide a generous open-study action on the preview surface. Preserve page composition.",
+        "more_motion": "Add animated section entrances and parallax to suggest polish.",
+        "reskin": "Replace lavender, typography and hero layout.",
+        "expand_demos": "Add three more small interactive widgets.",
+        "none": "Insufficient evidence or none of the supplied options fits."
+      }
+    },
+    "next_evidence": {
+      "type": "choice",
+      "instructions": "Which observation would most directly test whether the inactive preview causes a usability problem?",
+      "criteria": {
+        "preview_path": "Inspect pointer and keyboard path from preview to full study at desktop and narrow widths.",
+        "palette_poll": "Ask about lavender versus green without changing behavior.",
+        "model_vote": "Ask multiple identical prompts and count agreeing answers.",
+        "none": "Insufficient evidence or none of the supplied options fits."
+      }
+    },
+    "parity_claim": {
+      "type": "choice",
+      "instructions": "What can the given reference evidence support about matching Seenry MCP designs?",
+      "criteria": {
+        "parity": "Consistent parity with professional reference screens is established.",
+        "limited": "Only a scoped development comparison; matched renders and independent human review are still missing.",
+        "none": "Insufficient evidence or none of the supplied options fits."
+      }
+    }
+  }
+}

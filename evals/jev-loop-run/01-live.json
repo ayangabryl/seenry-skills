@@ -1,0 +1,49 @@
+{
+  "provider": "typesafe",
+  "live": true,
+  "model": "jev-1.13.0",
+  "request_sha256": "9e6ecd7f043a36978e48bfc045094ed90f25d9124a3e2902f3a81dfab921049e",
+  "elapsed_ms": 764,
+  "answers": {
+    "priority": {
+      "type": "choice",
+      "choice": "preview_affordance",
+      "confidence": 1.0,
+      "probabilities": {
+        "reskin": 0.0,
+        "more_motion": 0.0,
+        "expand_demos": 0.0,
+        "none": 0.0,
+        "preview_affordance": 1.0
+      }
+    },
+    "next_evidence": {
+      "type": "choice",
+      "choice": "preview_path",
+      "confidence": 0.99,
+      "probabilities": {
+        "palette_poll": 0.0,
+        "preview_path": 1.0,
+        "none": 0.0,
+        "model_vote": 0.0
+      }
+    },
+    "parity_claim": {
+      "type": "choice",
+      "choice": "limited",
+      "confidence": 1.0,
+      "probabilities": {
+        "limited": 1.0,
+        "none": 0.0,
+        "parity": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1111,
+    "output_tokens": 149
+  },
+  "estimated_usd": "0.000046662",
+  "visual_quality": "unverified",
+  "human_acceptance": "pending"
+}

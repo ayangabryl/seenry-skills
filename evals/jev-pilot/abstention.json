@@ -1,0 +1,34 @@
+{
+  "state": {
+    "brief": "Repair a broken keyboard focus trap in an existing login dialog. Preserve the page design; do not create or restructure a marketing website.",
+    "facts": [
+      "No marketing page is requested."
+    ],
+    "requirements": [
+      "Focus must remain in the open modal and return to the triggering button when closed."
+    ],
+    "limits": "If none of the offered marketing page structures or opening visuals applies to this narrow behavior fix, abstain."
+  },
+  "questions": {
+    "reading_order": {
+      "type": "choice",
+      "instructions": "Which offered page reading order best helps the new visitor in `brief` understand the actual offering and inspect its evidence before installation? Compare only the described structure, not unseen aesthetics.",
+      "criteria": {
+        "proof_first": "Introduce the offering and install action; show a substantial working website example; let visitors explore layout, motion and asset decisions in context; explain optional references and limitations; provide installation and footer navigation.",
+        "package_first": "Introduce the offering; list every skill package and tool; show installation; place the working website example near the footer.",
+        "gallery_first": "Open with a full-screen image montage and a short brand line; show selected examples; explain the offering and installation after the gallery.",
+        "none": "None of these reading orders fits the brief; return to the main design agent with the unresolved decision."
+      }
+    },
+    "hero_evidence": {
+      "type": "choice",
+      "instructions": "Which offered opening evidence best substantiates the website-design capability in `brief`, using the available facts without fabricated results?",
+      "criteria": {
+        "working_site": "A clearly labeled authored full website study with a working interaction, sufficient hero coverage and a link to the entire page.",
+        "tool_diagram": "A diagram of internal skill files and model calls as the main hero visual.",
+        "testimonials": "Invented customer endorsements and an unsupported quality score.",
+        "none": "Available evidence is insufficient; obtain relevant material."
+      }
+    }
+  }
+}

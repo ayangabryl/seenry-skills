@@ -1,0 +1,26 @@
+{
+  "state": {
+    "product": "Seenry free open-source design skills. Core works without paid services.",
+    "audience": "Visitor has a slow connection; the meaningful product explanation and adoption action must work before large previews load.",
+    "material": "Existing complete fictional Held restoration website with chair/workshop imagery, object studies and local inquiry. No real customer results.",
+    "dimension": "adoption",
+    "options": {
+      "repeated": "Header and closing installation actions with copyable command in a dialog.",
+      "immediate": "Put command directly beside opening copy as well as the closing.",
+      "deferred": "Explain the full process first; installation appears only at the bottom."
+    },
+    "fixed": "Keep truthful claims, local fonts, working keyboard navigation, complete hero and footer. This is text-based planning, not a rendered quality score."
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Which offered treatment best serves the stated visitor on this dimension while keeping a coherent full website? Other dimensions are held fixed. Several options may be valid; abstain if context cannot support a choice.",
+      "criteria": {
+        "repeated": "Header and closing installation actions with copyable command in a dialog.",
+        "immediate": "Put command directly beside opening copy as well as the closing.",
+        "deferred": "Explain the full process first; installation appears only at the bottom.",
+        "none": "None of these choices is supported; obtain missing context."
+      }
+    }
+  }
+}

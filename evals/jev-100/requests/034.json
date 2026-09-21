@@ -1,0 +1,19 @@
+{
+  "state": {
+    "case": "Static prototype",
+    "observation": "A static preview shows clickable-looking controls; there is a real live destination but only a small text link. Current project promises easy hands-on exploration."
+  },
+  "questions": {
+    "decision": {
+      "type": "choice",
+      "instructions": "Choose the next useful design action for this observed case. Judge the task and evidence, not a generic style preference.",
+      "criteria": {
+        "observe": "Collect missing or stale relevant evidence before judging or changing the design.",
+        "repair": "Fix a concrete observed failure; verify the affected state.",
+        "compare": "Render one controlled alternative to resolve a supported uncertainty.",
+        "retain": "Keep the verified treatment; no task-supported defect justifies the suggested change.",
+        "none": "None of these choices is supported; obtain missing context."
+      }
+    }
+  }
+}

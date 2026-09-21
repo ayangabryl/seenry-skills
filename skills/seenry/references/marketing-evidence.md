@@ -16,6 +16,16 @@ Make the offering and adoption action clear in the opening. Inspect the visitor'
 
 Each visible demo control must have a meaningful result, recovery and usable narrow-screen state. Test download/copy truth and interruptions. Avoid treating simulated progress as real work or a palette switch as proof of automatic art direction. Static evidence needs an accessible caption; animation needs a usable still state.
 
+## Verify the scope of the preview
+
+For each substantial claim, record the promised scope (component, page or flow), the actual artifact, the preview boundary and the next working action. An opening screenshot can introduce a full website, but must be labeled as an opening and link to the complete artifact. Inspect that destination through its footer and main interaction before using it as evidence.
+
+Capture the full hero through its actual section boundary, including associated imagery below the first viewport. For embedded previews, check both the outer frame and the source page at desktop and narrow widths: fitting the frame does not prove that the source hero fits. Read small specimen copy at its displayed size. When hiding deliberate line breaks on mobile, preserve spaces between words. Exercise alternate states and confirm controls stay reachable.
+
+When a static preview contains apparent controls, make its interaction contract explicit: a named link to the live artifact or a clearly static illustration. Do not cover an actual live configurator with an open-demo link.
+
+The [website evidence study](studies/website-evidence.md) records a concrete assisted iteration and its limits. Its layout is an option, not a default for unrelated briefs.
+
 ## Review the actual argument
 
 - Temporarily disregard headings: can the material explain the main capabilities?
