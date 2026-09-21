@@ -36,7 +36,7 @@ An ordinal, slash separator, eyebrow or badge is content only if it conveys info
 
 ## Learn relationships from simple work
 
-See the inspected [Hoy study](studies/hoy.md). Transfer its concentration of emphasis and control hierarchy, not its logo, dark background, portraits, copy or exact component shapes. Minimal work still needs a specific visual idea, well-resolved materials and purposeful behavior. It is not achieved by removing color or making everything white.
+Minimal work still needs a specific visual idea, well-resolved materials and purposeful behavior. It is not achieved by removing color or making everything white.
 
 Before building the rest, record the opening's actual copy, dominant visual, next action, proposed density, enclosure choice and control hierarchy in DESIGN.md. Render the plan: well-written rationale cannot pass a weak prototype.
 # Preserve the selected design while finishing it

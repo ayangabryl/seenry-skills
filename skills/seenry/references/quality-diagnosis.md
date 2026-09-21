@@ -49,6 +49,6 @@ Freeze a development set and a held-out set by project, not by near-identical sc
 
 [Tuch and colleagues](https://research.google/pubs/the-role-of-visual-complexity-and-prototypicality-regarding-first-impression-of-websites-working-towards-understanding-aesthetic-judgments/) studied effects on first impressions, not a universal minimalism rule. [Shin and colleagues](https://arxiv.org/html/2603.13036v1) discuss homogenization in web vibe coding; this motivates investigating convergence, not claiming a validated detector.
 
-Use the [rendered decision lessons](visual-lessons.md) for a concrete comparison. Their source and captures are bundled; they are authored hypotheses with countercases, not a scored taste dataset.
+Use the [decision exercises](visual-lessons.md) for a relevant mechanical comparison. Render with actual project content; their source is not a visual quality standard. Obtain suitable inspected references separately.
 
 For heavy surfaces or uniform panel animation, use [surface and state](studies/surface-and-state.md) to compare material roles and map feedback to the changing object.

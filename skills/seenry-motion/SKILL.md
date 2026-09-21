@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.6"
+  version: "2.0.1-dev.7"
 ---
 
 # Design movement around a meaningful change

@@ -110,20 +110,21 @@ class StageRequest(unittest.TestCase):
     def project(self):
         return {'scope':'component', 'media':'needed', 'motion':'feedback',
                 'motion_helpers':['morph-icon'], 'decisions':['export-feedback'],
+                'feedback':[{'finding':'Keep action labels concise','state':'Export controls','check':'Inspect labels and result feedback'}],
                 'brief':'Export the selected photograph', 'retained_behavior':['Keep color and aspect ratio']}
 
-    def test_feedback_pixels_and_runtime_survive_the_actual_model_handoff(self):
+    def test_project_feedback_and_runtime_survive_without_archived_pixels(self):
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp)/'handoff'
             manifest=request.prepare('build',self.project(),'Finish the selected component',out)
             packet=json.loads((out/'packet.json').read_text(encoding='utf-8'))
             prompt=(out/'prompt.txt').read_text(encoding='utf-8')
             self.assertIn(json.dumps(packet,ensure_ascii=False,indent=2),prompt)
-            self.assertIn('Clean but insufficiently creative',prompt)
+            self.assertIn('Keep action labels concise',prompt)
             self.assertIn('Keep color and aspect ratio',prompt)
-            self.assertEqual(len(manifest['images']),4)
-            self.assertEqual(manifest['delivery_size']['image_attachments'],4)
-            self.assertEqual({x['role'] for x in manifest['images']},{'rejected-example'})
+            self.assertEqual(manifest['images'],[])
+            self.assertEqual(manifest['delivery_size']['image_attachments'],0)
+            self.assertNotIn('feedback_record',json.dumps(packet['visual_lessons']))
             for image in manifest['images']:
                 self.assertEqual(hashlib.sha256((out/image['file']).read_bytes()).hexdigest(),image['sha256'])
             for item in manifest['runtime_files']:
@@ -131,14 +132,14 @@ class StageRequest(unittest.TestCase):
             self.assertTrue((out/'runtime/seenry-motion/assets/morphicons/LICENSE').is_file())
             self.assertEqual(manifest['status'],'prepared; not executed')
 
-    def test_text_only_experiment_keeps_feedback_and_records_withheld_pixels(self):
+    def test_text_only_exercise_keeps_project_feedback_without_claiming_withheld_pixels(self):
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp)/'handoff'
             manifest=request.prepare('build',self.project(),'Finish',out,lesson_images='text-only')
             self.assertEqual(manifest['images'],[])
-            self.assertEqual(len(manifest['withheld_images']),4)
+            self.assertEqual(manifest['withheld_images'],[])
             self.assertEqual(manifest['delivery_size']['image_attachments'],0)
-            self.assertIn('Clean but insufficiently creative',(out/'prompt.txt').read_text(encoding='utf-8'))
+            self.assertIn('Keep action labels concise',(out/'prompt.txt').read_text(encoding='utf-8'))
             self.assertEqual(json.loads((out/'images.json').read_text(encoding='utf-8')),[])
             self.assertFalse((out/'evidence').exists())
             self.assertTrue((out/'runtime/seenry-motion/assets/morphicons/LICENSE').is_file())
@@ -173,7 +174,7 @@ class StageRequest(unittest.TestCase):
     def test_original_asset_and_construction_keep_distinct_ordered_roles(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
-            source=ROOT/'skills/seenry/references/lessons/state-A.png'
+            source=ROOT/'evals/archive/visual-lessons/state-A.png'
             for name in ['photo.png','wireframe.png']:(root/name).write_bytes(source.read_bytes())
             out=root/'handoff'
             manifest=request.prepare('understand',self.project(),'Read the brief',out,
@@ -184,7 +185,7 @@ class StageRequest(unittest.TestCase):
 
     def test_bad_evidence_and_changed_hashes_fail_before_creating_a_partial_handoff(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);(root/'image.png').write_bytes((ROOT/'skills/seenry/references/lessons/state-A.png').read_bytes())
+            root=Path(tmp);(root/'image.png').write_bytes((ROOT/'evals/archive/visual-lessons/state-A.png').read_bytes())
             cases=[{'path':'image.png','role':'source-material','sha256':'0'*64},
                    {'path':'image.png','role':'approved'}, {'path':'../outside.png','role':'candidate'}]
             for index,item in enumerate(cases):

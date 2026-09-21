@@ -46,7 +46,11 @@ Compare a library crop with the parent page and every screenshot segment that in
 
 For a fresh browser capture, keep the intended viewport width, load the hero's fonts and media, and observe any entrance or scroll reveal before measuring the section. Capture its complete bounds without clipping overflow. If it spans multiple images, retain their order and coverage. Inspect the resulting pixels, including the bottom edge, rather than trusting a selector or screenshot success response. A full-page image is useful boundary evidence but should not be mislabeled as a hero-only crop.
 
-Record the source URL or reference ID, capture date, viewport, section bounds or segment IDs, and any missing content. If the end cannot be established, report “partial hero; completeness unverified” and do not approve it as a complete hero reference. For example, a Notion-style introduction with a product demo beneath its headline is incomplete when the screenshot stops before the demo ends, unless the page evidence shows that demo belongs to a separate section.
+Record the source URL or reference ID, capture date, viewport, section bounds or segment IDs, and any missing content. If the end cannot be established, report “partial hero; completeness unverified” and do not approve it as a complete hero reference. For example, an introduction with a product demo beneath its headline is incomplete when the screenshot stops before the demo ends, unless the page evidence shows that demo belongs to a separate section.
+
+## Use the returned media
+
+Follow [Seenry media](../../seenry-assets/references/seenry-media.md) when inspecting CDN media or acquiring project assets. Inspect the exact result, transfer its relevant relationships and keep original project identity. More references are not evidence of a better output.
 
 ## Trust and reuse
 

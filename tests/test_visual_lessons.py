@@ -6,11 +6,16 @@ def load(name,path):
 lessons=load('lessons',ROOT/'skills/seenry/scripts/lesson_packet.py')
 probe=load('probe',ROOT/'skills/seenry/scripts/reviewer_probe.py')
 packet=load('packet',ROOT/'skills/seenry/scripts/packet.py')
+archive=load('archived_lessons',ROOT/'evals/archive/lesson_packet.py')
 class VisualLessons(unittest.TestCase):
- def test_selected_lessons_have_actual_images_and_countercases(self):
+ def test_selected_exercises_supply_hashed_source_without_reference_pixels(self):
   for topic in ['state','hierarchy','color','enclosure','controls','continuity','finish','export-feedback','editing-frame']:
    p=lessons.select([topic]);self.assertEqual(len(p['lessons']),1);self.assertTrue(p['lessons'][0]['countercase'])
-   self.assertGreaterEqual(len(p['lessons'][0]['evidence']),2)
+   self.assertEqual(p['lessons'][0]['evidence'],[])
+   self.assertEqual(len(p['lessons'][0]['resources']),2)
+   import hashlib
+   for r in p['lessons'][0]['resources']:
+    self.assertEqual(r['sha256'],hashlib.sha256((ROOT/'skills/seenry'/r['path']).read_bytes()).hexdigest())
  def test_topics_are_bounded_and_exact(self):
   for topics in [[],['unknown'],['state','state'],['state','color','controls']]:
    with self.assertRaises(ValueError):lessons.select(topics)
@@ -29,27 +34,29 @@ class VisualLessons(unittest.TestCase):
   self.assertIsNone(default['visual_lessons'])
   with self.assertRaises(ValueError):packet.compile_packet('plan',profile='unknown')
  def test_observed_preference_does_not_invent_source_html(self):
-  lesson=lessons.select(['finish'])['lessons'][0]
+  lesson=archive.select(['finish'])['lessons'][0]
   self.assertTrue(all(x['html'] is None for x in lesson['evidence']))
  def test_feedback_reaches_the_packet_with_exact_render_provenance(self):
-  item=lessons.select(['export-feedback'])['lessons'][0]
+  item=archive.select(['export-feedback'])['lessons'][0]
   feedback=item['feedback_record']['record']
   self.assertTrue(feedback['quotation']);self.assertEqual({x['human_decision'] for x in feedback['artifacts']},{'reject'})
   actual={e['file']:e['sha256'] for e in item['evidence']}
   self.assertEqual(actual,{e['file']:e['image_sha256'] for e in feedback['artifacts']})
- def test_explicit_feedback_survives_planning_build_and_review_handoffs(self):
+ def test_explicit_exercise_survives_stages_without_archived_outcome_labels(self):
   project={'scope':'component','media':'needed','motion':'feedback','decisions':['export-feedback']}
   for profile in ('complete','focused'):
    for stage in ('plan','wireframe','type','surface','compare','build','review','refine'):
     p=packet.compile_packet(stage,project=project,profile=profile)
     lesson=p['visual_lessons']['lessons'][0]
     self.assertEqual(lesson['id'],'export-feedback')
-    self.assertEqual({x['human_decision'] for x in lesson['feedback_record']['record']['artifacts']},{'reject'})
+    self.assertNotIn('feedback_record',lesson)
+    self.assertEqual(lesson['evidence'],[])
+    self.assertIn('seenry/references/craft/controls.md',[r['path'] for r in p['resources']])
     if stage in ('plan','type','surface','build','refine'):
      self.assertIn('seenry/references/content-model.md',[r['path'] for r in p['resources']])
  def test_blinding_hides_labels_and_original_filenames(self):
   with tempfile.TemporaryDirectory() as tmp:
-   source=Path(tmp);(source/'obvious-good.png').write_bytes((lessons.ROOT/'state-B.png').read_bytes())
+   source=Path(tmp);(source/'obvious-good.png').write_bytes((archive.ROOT/'state-B.png').read_bytes())
    manifest={'cases':[{'id':'gold-secret','brief':'Choose a track','question':'Which works?','human_labels':[{'secret':'expected'}],'variants':[{'id':'good','image':'obvious-good.png'}]}]}
    public=probe.prepare(manifest,source,source/'out',42)
    text=json.dumps(public);self.assertNotIn('gold-secret',text);self.assertNotIn('expected',text);self.assertNotIn('obvious-good',text)
@@ -63,7 +70,7 @@ class VisualLessons(unittest.TestCase):
   with self.assertRaises(ValueError):probe.normalize(review,key)
  def test_editing_frame_material_preserves_provenance_and_working_source(self):
   import hashlib
-  root=ROOT/'skills/seenry/references/lessons'
+  root=archive.ROOT
   metadata=json.loads((root/'aperture-provenance.json').read_text())
   self.assertEqual(metadata['sha256'],hashlib.sha256((root/metadata['asset']).read_bytes()).hexdigest())
   self.assertIn('NASA',metadata['credit'])

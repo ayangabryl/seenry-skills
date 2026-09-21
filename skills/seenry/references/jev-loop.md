@@ -54,4 +54,4 @@ The first six-request development run is recorded in the source repository at `e
 
 ## Evidence from the larger experiment
 
-The [100-request development study](studies/jev-100.md) records an option-order error and overlapping evaluation labels. Apply known truthfulness and functional requirements before semantic preference selection. Define observe, compare and no-fit as distinct outcomes for the current stage; preserve disagreements instead of converting repeated votes into approval.
+Apply known truthfulness and functional requirements before semantic preference selection. Define observe, compare and no-fit as distinct outcomes for the current stage; preserve disagreements instead of converting repeated votes into approval.

@@ -48,7 +48,7 @@ class Execution(unittest.TestCase):
                 artifacts[role].append(name)
         if stage in ('compare','review'):
             image_name=f'{stage}-citation.png'
-            (self.root/image_name).write_bytes((ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes())
+            (self.root/image_name).write_bytes((ROOT/'evals/archive/visual-lessons/state-B.png').read_bytes())
             report={'candidates':[{'id':'A','checks':{k:{'result':'pass','artifact':image_name,'observation':'Fixture judgment, not a real visual evaluation'} for k in ('subject','opening','hierarchy','material','interaction')},'blocking_issues':[]}],'selected':'A'}
             (self.root/artifacts['judgment'][0]).write_text(json.dumps(report))
         if stage in ('wireframe','type'):

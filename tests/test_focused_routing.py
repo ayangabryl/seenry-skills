@@ -40,12 +40,13 @@ class FocusedRouting(unittest.TestCase):
         p=compile_packet('review',profile='focused',project={'media':'none','motion':'none'})
         self.assertFalse(any(r['path'].startswith(('seenry-motion/','seenry-assets/')) for r in p['resources']))
 
-    def test_selected_color_question_loads_full_guide_and_real_lesson_images(self):
+    def test_selected_color_question_loads_guides_without_historical_pixels(self):
         project={'scope':'component','media':'none','motion':'none','decisions':['color']}
         p=compile_packet('surface',project=project,profile='focused')
         self.assertIn('seenry/references/color-decisions.md',{r['path'] for r in p['resources']})
         self.assertEqual([x['id'] for x in p['visual_lessons']['lessons']],['color'])
-        self.assertTrue(p['visual_lessons']['lessons'][0]['evidence'])
+        self.assertEqual(p['visual_lessons']['lessons'][0]['evidence'],[])
+        self.assertIn('seenry/assets/craft/color.html',[r['path'] for r in p['resources']])
 
     def test_guide_topics_are_bounded_and_separate_from_rendered_lessons(self):
         project={'scope':'component','media':'none','motion':'none'}

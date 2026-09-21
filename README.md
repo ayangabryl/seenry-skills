@@ -48,7 +48,7 @@ The primary skill loads support for the current unresolved decision. Ordinary wo
 
 ## Plan with real material and motion
 
-The [execution guide](skills/seenry/references/execution.md) documents project-aware routing, chronological evidence, host capabilities and incomplete states. [Art direction](skills/seenry/references/art-direction.md) connects the offering to alternative compositions and a whole-page narrative. The [casebook](skills/seenry/references/studies/casebook.md) separates inspected external observations from original teaching exercises; it is not a collection of copied website assets.
+The [execution guide](skills/seenry/references/execution.md) documents project-aware routing, chronological evidence, host capabilities and incomplete states. [Art direction](skills/seenry/references/art-direction.md) connects the offering to alternative compositions and a whole-page narrative. The [casebook](skills/seenry/references/studies/casebook.md) provides task-specific exercises and countercases. Historical output screenshots and source-specific studies live outside the installed skills in `evals/archive`. The skill ships no raster design examples as quality targets.
 
 ```sh
 python skills/seenry-assets/scripts/asset_studio.py search-met botanical --limit 6 --out candidates.json
@@ -82,7 +82,7 @@ node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-mot
 node tests/geometry-transition.browser.mjs --playwright /path/to/playwright/index.mjs
 ```
 
-The release includes local rendered decision lessons, focused stage packets, exact artifact revisions, and a comparison gate for unresolved prototypes. [Number transitions](skills/seenry-motion/references/number-transitions.md) now provide a pinned local NumberFlow adapter with anchored units and static fallbacks. [Design continuity](skills/seenry/references/design-continuity.md) compares selected typography and spatial relationships with the finished artifact. These are capability changes; they do not establish consistent visual superiority.
+The package includes local technical examples, focused stage packets, exact artifact revisions, and a comparison gate for unresolved prototypes. Examples teach mechanisms; inspect relevant references separately for visual quality. [Number transitions](skills/seenry-motion/references/number-transitions.md) now provide a pinned local NumberFlow adapter with anchored units and static fallbacks. [Design continuity](skills/seenry/references/design-continuity.md) compares selected typography and spatial relationships with the finished artifact. These are capability changes; they do not establish consistent visual superiority.
 
 Validation checks skill structure, references and example calls. Installer tests cover archive/rollback, collisions, relocation and shared links. Behavioral [scenarios](evals/scenarios.json) describe what to inspect in actual model runs; schema validity does not mean those model evaluations passed. The [matched pilot](skills/seenry/references/evaluation.md) is still required for new performance claims.
 

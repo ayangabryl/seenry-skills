@@ -24,7 +24,7 @@ Capture the full hero through its actual section boundary, including associated 
 
 When a static preview contains apparent controls, make its interaction contract explicit: a named link to the live artifact or a clearly static illustration. Do not cover an actual live configurator with an open-demo link.
 
-The [website evidence study](studies/website-evidence.md) records a concrete assisted iteration and its limits. Its layout is an option, not a default for unrelated briefs.
+A specimen or screenshot teaser is insufficient when visitors need to judge a complete product. Show representative working evidence and explain its limits. Choose the page sequence for this offering and audience; no previous experiment is a default layout.
 
 ## Review the actual argument
 

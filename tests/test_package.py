@@ -186,8 +186,10 @@ class Packets(unittest.TestCase):
             lessons=result['visual_lessons'];evidence_root=Path(lessons['evidence_root'])
             self.assertTrue(evidence_root.is_relative_to(destination.resolve()))
             for lesson in lessons['lessons']:
-                for image in lesson['evidence']:
-                    self.assertTrue((evidence_root/image['file']).is_file())
+                self.assertEqual(lesson['evidence'],[])
+                for resource in lesson['resources']:
+                    self.assertTrue((relocated/resource['path']).is_file())
+                    self.assertIn('seenry/'+resource['path'],resources)
 
 if __name__ == '__main__':
     unittest.main()

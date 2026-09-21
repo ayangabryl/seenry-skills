@@ -52,11 +52,11 @@ The ordinary record is DESIGN.md plus source and relevant captures. Do not requi
 
 Read the entrypoint, then only the guide that answers the current unresolved decision. Keep advanced API references and examples available without inserting them into every task. Required runtime source, relative dependencies and licenses remain complete whenever a helper is selected. A compact packet must not omit an actual implementation dependency.
 
-Keep research notes and provider accounting outside the default skill payload. The [context-efficiency study](docs/context-efficiency.md) documents actual skill loading, cache limits, full-handoff measurements and the accepted-output cost criterion. Runtime guides stay focused on making the interface.
+Keep historical output screenshots, source-specific research narratives and provider accounting outside the installed skill payload. Legacy decision topic names route to local technical examples without old images or preference labels. Current MCP research can retrieve exact CDN media URLs through the [asset evidence workflow](skills/seenry-assets/references/seenry-media.md); it is optional and does not turn reference media into licensed deliverable assets. The [context-efficiency study](docs/context-efficiency.md) documents actual skill loading, cache limits, full-handoff measurements and the accepted-output cost criterion. Runtime guides stay focused on making the interface.
 
 ## Optional model handoff and experiment path
 
-Load [execution](skills/seenry/references/execution.md) when a restricted host, explicit recorder or requested benchmark needs it. New packet/handoff CLI calls default to the focused profile. Existing Python `compile_packet` callers retain the complete-profile default; explicit `--profile complete` is available. Frozen past run records and the v2.0.0 release preserve previous evidence.
+Load [execution](skills/seenry/references/execution.md) when a restricted host, explicit recorder or requested benchmark needs it. New packet/handoff CLI calls default to the focused profile. Python and CLI packets default to focused guidance; explicit `--profile complete` remains available for broad audits. Neither profile automatically attaches historical screenshot lessons. Frozen past run records and the v2.0.0 release preserve previous evidence.
 
 Research routing is resolved once: explicit argument → project research_source → auto. Explicit local-only requests stay local. Missing MCP does not silently disable ordinary browsing. Review receives a short motion/material contract when those needs are present. Anonymous review uses `review_request.py` so creator positioning does not enter the critique.
 

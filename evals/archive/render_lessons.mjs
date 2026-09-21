@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 const args = process.argv.slice(2);
 const moduleIndex = args.indexOf('--playwright');
 const {chromium} = await import(moduleIndex >= 0 ? pathToFileURL(path.resolve(args[moduleIndex + 1])).href : 'playwright');
-const root = fileURLToPath(new URL('../references/lessons/', import.meta.url));
+const root = fileURLToPath(new URL('./visual-lessons/', import.meta.url));
 const manifest = JSON.parse(await readFile(path.join(root, 'index.json'), 'utf8'));
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const browser = await chromium.launch();

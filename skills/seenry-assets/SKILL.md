@@ -4,7 +4,7 @@ description: "Source and integrate images, fonts, provider marks, icons, illustr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.6"
+  version: "2.0.1-dev.7"
 ---
 
 # Make assets serve the subject
@@ -22,6 +22,8 @@ For a named AI provider, company or product, obtain the genuine mark from the ow
 For actual products, work, teams or customer evidence use supplied or authorized material. Generated concepts must not masquerade as real client work or endorsements. For atmosphere or metaphor, source or generate a subject-specific visual. A reference library's public screenshot is not permission to ship the depicted asset.
 
 ## Source, shortlist, inspect
+
+With Seenry MCP, use [Seenry media](references/seenry-media.md) for exact CDN URLs, targeted inspection, reference versus deliverable assets, and original generation when needed. Read this only when the library is part of the task.
 
 Seenry references can establish composition and art direction. Asset acquisition still needs an exact item page, author, usable variant and rights evidence. Use available native search/image tools or provider APIs. Avoid an indiscriminate scraper and do not bypass access controls. A CDN URL or search thumbnail alone is insufficient provenance. Check selected items' current licensing, attribution, modification and redistribution conditions before shipping. Free acquisition is not unrestricted rights.
 

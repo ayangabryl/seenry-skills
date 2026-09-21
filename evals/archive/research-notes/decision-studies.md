@@ -1,6 +1,6 @@
 # Select a relationship to study
 
-Use one case for an unresolved choice, not every case for every design. These are Seenry decision exercises. Their runnable examples explain a mechanism; they are not accepted benchmark outputs or templates for visual style. Source-specific research is kept outside the installed package.
+Use one case for an unresolved choice, not every case for every design. These are original summaries of public work and authored teaching examples. They are not accepted benchmark outputs or permission to reuse a company's assets.
 
 | Choice | Study |
 | --- | --- |

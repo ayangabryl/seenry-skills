@@ -16,7 +16,7 @@ STAGES = {
     'review': ['visual-review.md', 'quality-diagnosis.md', 'production-review.md'],
     'refine': ['content-and-finish.md', 'visual-review.md', 'interaction-review.md', 'visual-decisions.md', 'color-decisions.md'],
 }
-DEPENDENCIES = {'content-and-finish.md': ['studies/hoy.md'], 'visual-review.md': ['visual-lessons.md', 'review-evidence.md'], 'component-design.md': ['content-model.md', 'component-finish.md']}
+DEPENDENCIES = {'visual-review.md': ['visual-lessons.md', 'review-evidence.md'], 'component-design.md': ['content-model.md', 'component-finish.md']}
 SOURCES = {
     'auto': 'Use an available evidence route; MCP is optional. Record the actual route.',
     'mcp': 'Use connected MCP for research; if unavailable report it and explicitly change route.',
@@ -234,8 +234,8 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         paths += [root / 'references/system-design.md']
         decisions.append('System scope: carry shared decisions and journey context; a finished slice does not certify the whole application')
     lesson_evidence = None
-    # Focused handoffs carry requested teaching cases, not the same default look on every brief.
-    lesson_stages = () if focused else ('plan', 'type', 'surface', 'prototype', 'compare', 'review', 'refine')
+    # Both profiles exclude historical screenshots; examples are explicitly selected.
+    lesson_stages = ()
     explicit_lesson_stage = project is not None and bool(project.get('decisions')) and stage in ('plan', 'wireframe', 'type', 'surface', 'prototype', 'compare', 'build', 'review', 'refine')
     if project is not None and (stage in lesson_stages or explicit_lesson_stage):
         import importlib.util
@@ -246,11 +246,13 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
             ['state', 'controls'] if project.get('scope') == 'component' else ['hierarchy', 'color'])
         lesson_evidence = module.select(topics, root / 'references/lessons')
         paths += [root / 'references/visual-lessons.md']
-        decisions.append('Selected actual lesson renders; host must provide image inspection and record observed reads')
+        for lesson in lesson_evidence['lessons']:
+            paths += [root / resource['path'] for resource in lesson['resources']]
+        decisions.append('Selected technical exercise source only; no archived reference images or human preference labels supplied')
     if stage == 'research' or (not focused and research_source in ('local', 'web')):
         paths += [root / 'references/without-mcp.md']
     if stage == 'research' and research_source in ('auto', 'mcp'):
-        paths += [root / 'references/research.md']
+        paths += [root / 'references/research.md', root.parent / 'seenry-assets/references/seenry-media.md']
     if stage == 'research' and research_source in ('local', 'web'):
         paths += [root / 'references/visual-decisions.md', root / 'references/hci-decisions.md']
     if focused and project and 'color' in (project.get('decisions') or []) and stage in ('plan','surface','prototype','refine'):

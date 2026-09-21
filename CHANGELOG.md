@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased: 2.0.1-dev.7
+
+- Removes 45 historical raster assets from installable skills, including rejected benchmark outputs, speculative teaching screenshots and previous website candidates. Preserves the original material, feedback, hashes and attribution under `evals/archive` for explicit development analysis.
+- Replaces named-site study narratives with concise Seenry decision exercises. Retains third-party runtime licenses and adaptation notices. Mechanical HTML examples remain locally usable and are explicitly not premium visual standards.
+- Keeps legacy decision topic names and helper paths compatible while supplying selected craft source without archived pixels or preference labels. Both focused and complete packets exclude unrequested historical lessons. Missing required exercise files still fail clearly.
+- Adds optional MCP-to-CDN media guidance covering exact returned URLs, targeted pixel/playback inspection, responsive evidence, original asset production and reference versus deliverable use. Local-only tasks do not load this route.
+- This is package hygiene and retrieval support, not a claim of benchmark superiority or guaranteed design quality.
+
 ## Unreleased: 2.0.1-dev.6
 
 - Adds a scoped marketing-evidence guide with opt-in stage/decision routing, portable resource hashes and exclusion from unrelated component fixes.

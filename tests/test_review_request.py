@@ -10,7 +10,7 @@ class ReviewRequest(unittest.TestCase):
  def manifest(self):
   return {'brief':'Choose a useful design','candidates':[{'id':'private-condition','opening':'source.png','narrow':'source.png','sequence':'source.png','behavior':{'status':'unverified','observations':['No interaction evidence supplied.']}}]}
  def root(self,tmp):
-  root=Path(tmp);(root/'source.png').write_bytes((ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes());return root
+  root=Path(tmp);(root/'source.png').write_bytes((ROOT/'evals/archive/visual-lessons/state-B.png').read_bytes());return root
  def test_keeps_criteria_and_evidence_roles_separate(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=self.root(tmp);p=prepare(self.manifest(),root,root/'out')
@@ -87,16 +87,17 @@ class ReviewRequest(unittest.TestCase):
     root=self.root(tmp);m=self.manifest();m['candidates'][0]['states']=[state]
     with self.assertRaises(ValueError):prepare(m,root,root/'out')
     self.assertFalse((root/'out').exists())
- def test_scoped_feedback_and_actual_pixels_reach_fresh_review(self):
+ def test_calibration_does_not_reintroduce_archived_rejected_designs(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=self.root(tmp);m=self.manifest();m['calibration_topics']=['export-feedback']
    p=prepare(m,root,root/'out');case=p['calibration'][0]
    self.assertEqual(case['id'],'export-feedback')
-   self.assertIn('feedback_record',case)
-   self.assertEqual(len(case['evidence']),4)
+   self.assertNotIn('feedback_record',case)
+   self.assertEqual(case['evidence'],[])
+   self.assertTrue(case['countercase'])
    self.assertNotIn('private-condition',json.dumps(p))
    images=json.loads((root/'out/images.json').read_text(encoding='utf-8'))
-   self.assertEqual(sum(x['role']=='rejected-example' for x in images),4)
+   self.assertEqual(sum(x['role']=='rejected-example' for x in images),0)
    self.assertEqual(len(p['candidates']),1)
    schema=(root/'out/response.schema.json').read_text(encoding='utf-8')
    self.assertNotIn('calibration-export-feedback',schema)

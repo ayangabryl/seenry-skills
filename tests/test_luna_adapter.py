@@ -41,7 +41,7 @@ class LunaAdapter(unittest.TestCase):
  def test_explicit_image_order_is_the_actual_cli_order(self):
   with tempfile.TemporaryDirectory() as tmp:
    r=Path(tmp)
-   for name in ['b.png','a.png']:(r/name).write_bytes((ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes())
+   for name in ['b.png','a.png']:(r/name).write_bytes((ROOT/'evals/archive/visual-lessons/state-B.png').read_bytes())
    m=r/'images.json';m.write_text(json.dumps(['b.png','a.png','b.png']))
    images=luna.explicit_images(m,[r]);command=luna.command_for('/bin/codex',r,images)
    self.assertEqual([command[i+1] for i,v in enumerate(command)if v=='-i'],[str((r/'b.png').resolve()),str((r/'a.png').resolve())])
@@ -54,7 +54,7 @@ class LunaAdapter(unittest.TestCase):
    with self.assertRaises(ValueError):luna.explicit_images(m,[r])
  def test_original_material_and_construction_roles_survive_delivery(self):
   with tempfile.TemporaryDirectory() as tmp:
-   r=Path(tmp);img=(ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes()
+   r=Path(tmp);img=(ROOT/'evals/archive/visual-lessons/state-B.png').read_bytes()
    for n in ['asset.png','study.png']:(r/n).write_bytes(img)
    m=r/'images.json';m.write_text(json.dumps([{'path':'asset.png','role':'source-material'},{'path':'study.png','role':'construction'}]))
    result=luna.explicit_images(m,[r]);self.assertEqual([x['role'] for x in result],['source-material','construction'])
@@ -62,7 +62,7 @@ class LunaAdapter(unittest.TestCase):
    with self.assertRaises(ValueError):luna.explicit_images(m,[r])
  def test_manifest_respects_its_explicit_resource_scope(self):
   with tempfile.TemporaryDirectory() as tmp:
-   r=Path(tmp);m=r/'images.json';(r/'a.png').write_bytes((ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes());m.write_text('["a.png"]')
+   r=Path(tmp);m=r/'images.json';(r/'a.png').write_bytes((ROOT/'evals/archive/visual-lessons/state-B.png').read_bytes());m.write_text('["a.png"]')
    with self.assertRaises(ValueError):luna.explicit_images(m,[r/'other'])
  def test_interruption_terminates_child_and_preserves_incomplete_record(self):
   class Child:
@@ -89,7 +89,7 @@ class LunaAdapter(unittest.TestCase):
    with self.subTest(usage=usage),tempfile.TemporaryDirectory() as tmp:
     root=Path(tmp);out=root/'run';prompt=root/'prompt.txt';original='Inspect Français — 日本語'
     prompt.write_text(original,encoding='utf-8')
-    (root/'source.png').write_bytes((ROOT/'skills/seenry/references/lessons/state-B.png').read_bytes())
+    (root/'source.png').write_bytes((ROOT/'evals/archive/visual-lessons/state-B.png').read_bytes())
     images=root/'images.json';images.write_text('[{"path":"source.png","role":"candidate"}]',encoding='utf-8')
     schema=root/'schema.json';schema.write_text(json.dumps({'type':'object','description':'Réponse 日本語'},ensure_ascii=False)+'\n',encoding='utf-8')
     class Child:
