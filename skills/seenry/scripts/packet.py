@@ -83,14 +83,35 @@ def study_resources(root, project):
     return [root / 'references/studies' / (study + '.md'),
             root / 'assets/craft' / (DECISION_STUDIES[study] + '.html')]
 
+def selected_patterns(root, project):
+    names = project.get('motion_patterns', []) if project else []
+    if not isinstance(names, list) or any(not isinstance(n, str) for n in names) or len(set(names)) != len(names):
+        raise ValueError('motion_patterns must be distinct supported identifiers')
+    if not names: return [], []
+    if project.get('motion') == 'none':
+        raise ValueError('Selected motion patterns conflict with motion: none')
+    folder = root.parent / 'seenry-motion/references/patterns'
+    catalog = json.loads((folder / 'catalog.json').read_text(encoding='utf-8'))
+    paths, helpers = [], []
+    for name in names:
+        if name not in catalog: raise ValueError('Unknown motion pattern: ' + name)
+        entry = catalog[name]
+        path = (folder / entry['guide']).resolve()
+        if not path.is_relative_to(folder.resolve()): raise ValueError('Pattern guide escapes its directory')
+        paths.append(path); helpers += entry['helpers']
+    return list(dict.fromkeys(paths)), list(dict.fromkeys(helpers))
+
+
 def selected_motion_files(root, project):
     """Resolve explicitly requested helpers, including their pinned runtime closure."""
     helpers = project.get('motion_helpers', []) if project else []
+    pattern_paths, pattern_helpers = selected_patterns(root, project)
     if not isinstance(helpers, list) or any(not isinstance(h, str) or h not in MOTION_HELPERS for h in helpers) or len(set(helpers)) != len(helpers):
         raise ValueError('motion_helpers must name distinct supported helpers: ' + ', '.join(MOTION_HELPERS))
     if helpers and project.get('motion') == 'none':
         raise ValueError('Selected motion helpers conflict with motion: none')
-    paths, runtime = [], []
+    helpers = list(dict.fromkeys(helpers + pattern_helpers))
+    paths, runtime = pattern_paths, []
     motion_root = root.parent / 'seenry-motion'
     if helpers: paths.append(motion_root / 'references/adapters.md')
     if any(h in ('geometry', 'icon-swap', 'morph-icon', 'number') for h in helpers):
@@ -164,6 +185,41 @@ def compile_decision(stage, decision, root, research_source, project):
             'constraint_enforcement': 'host responsibility; this compiler does not sandbox tools',
             'resources': records}
 
+def compile_replication(stage, decision, root, research_source, project, profile):
+    if stage not in STAGES: raise ValueError('Unknown stage: ' + str(stage))
+    if profile != 'focused': raise ValueError('Replication requires focused profile; complete remains a historical creative audit')
+    if decision is not None and decision not in CRAFT_DECISIONS: raise ValueError('Unknown decision: ' + str(decision))
+    if project.get('media') not in ('needed','none','undecided') or project.get('motion') not in ('signature','feedback','none','undecided'):
+        raise ValueError('Project requires explicit media and motion needs')
+    # Creative case studies and art direction propose substitutions and must not be silently mixed in.
+    if project.get('decision_study') or project.get('guide_topics') or project.get('motion_libraries'):
+        raise ValueError('Replication uses source measurements; omit creative studies/topics/libraries and choose a motion_patterns mechanism')
+    if decision == 'motion' and project['motion'] == 'none': raise ValueError('Motion decision conflicts with motion: none')
+    paths = [root / 'references/working-contract.md', root / 'references/replication.md']
+    if decision and decision != 'art-direction':
+        paths.append(root / 'references/craft' / (decision + '.md'))
+    if project['motion'] != 'none':
+        paths.append(root.parent / 'seenry-motion/references/replication.md')
+    if stage == 'research' and research_source in ('auto','mcp'):
+        paths.append(root.parent / 'seenry-assets/references/seenry-media.md')
+    paths += feedback_resources(root, project)
+    helpers, runtime = selected_motion_files(root, project)
+    paths += helpers
+    records = []
+    for path in dict.fromkeys(paths):
+        data = path.read_bytes()  # Required files fail rather than returning a partial packet.
+        records.append({'path':path.relative_to(root.parent).as_posix(), 'sha256':hashlib.sha256(data).hexdigest(), 'content':data.decode('utf-8')})
+    entry = root / 'SKILL.md'
+    return {'schema':5, 'stage':stage, 'profile':profile, 'decision':decision, 'intent':'replicate',
+        'evidence':'supplied-only', 'routing_decisions':['Preserve inspected source geometry and behavior; no creative alternatives or generic example substitutes.', 'Record target, actual and uncertainty separately; passing checks is not visual approval.'],
+        'guidance_size':{'resources':len(records), 'words':sum(len(r['content'].split()) for r in records), 'bytes':sum(len(r['content'].encode()) for r in records), 'scope':'Selected guidance only. No truncation; source media and observed reads are separate.'},
+        'entrypoint':{'path':entry.relative_to(root.parent).as_posix(),'sha256':hashlib.sha256(entry.read_bytes()).hexdigest(),'body_supplied':False},
+        'visual_lessons':None, 'project_decisions':project,
+        'runtime_files':[{'path':p.relative_to(root.parent).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in dict.fromkeys(runtime)],
+        'research_source':research_source, 'execution_constraint':SOURCES[research_source],
+        'constraint_enforcement':'host responsibility; this compiler does not sandbox tools', 'resources':records}
+
+
 def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source=None, project=None, profile='focused', decision=None):
     if project is not None and not isinstance(project, dict):
         raise ValueError('Project must be an object')
@@ -173,6 +229,10 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     if research_source not in SOURCES:
         raise ValueError(f'Unknown research source: {research_source}')
     root = Path(root).resolve()
+    intent = project.get('intent', 'create') if project else 'create'
+    if intent not in ('create','refine','review','replicate'): raise ValueError('Unknown project intent: ' + str(intent))
+    if intent == 'replicate': return compile_replication(stage, decision, root, research_source, project, profile)
+    selected_patterns(root, project)  # Reject invalid or conflicting selectors on every route.
     feedback_paths = feedback_resources(root, project)
     selected_study = study_resources(root, project)
     if profile not in ('complete', 'focused'): raise ValueError('Unknown packet profile: ' + profile)
@@ -283,7 +343,7 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
         paths += [root.parent / 'seenry-motion/references/number-transitions.md']
     selected_helper_files = []
     stage_helpers = helpers if stage in ('prototype', 'surface', 'build', 'refine') else (['number'] if stage == 'type' and 'number' in helpers else [])
-    if stage_helpers:
+    if stage_helpers or (project and project.get('motion_patterns')):
         helper_paths, selected_helper_files = selected_motion_files(root, {**(project or {}), 'motion_helpers': stage_helpers})
         paths += helper_paths
         decisions.append('Selected helper APIs and authored source included; host must copy listed runtime files with licenses before code uses them')

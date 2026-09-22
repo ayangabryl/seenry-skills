@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "required_states": [
+    "actions-open",
+    "share-open",
+    "opening",
+    "closing"
+  ],
+  "motion_states": [
+    "opening",
+    "closing"
+  ],
+  "artifacts": {
+    "source-open": {
+      "role": "source",
+      "path": "frames/frame-004.png",
+      "sha256": "58cf2d8b68a7b3307378ddeaba0f3dfa737c18f8c5815731092be1f370dd375d"
+    },
+    "source-share": {
+      "role": "source",
+      "path": "frames/frame-012.png",
+      "sha256": "adea9a99a9d664f2992c8fda1e4e1ff1b09a6a36b77d7c803ef3b35dacdc1d96"
+    },
+    "output-open": {
+      "role": "output",
+      "path": "verification/actions-open.png",
+      "sha256": "5fcd279ffbebfc10883fb71fd3547959d7bd6d931e3bc16fc2f58a0c7ea4f6a0"
+    },
+    "output-share": {
+      "role": "output",
+      "path": "verification/share-open.png",
+      "sha256": "30f8f112e8ddf1bee791352e69b48d1c278276afd52d5c5bca851cee1c1ce791"
+    }
+  },
+  "measurements": [
+    {
+      "name": "actions-open shell left",
+      "state": "actions-open",
+      "kind": "geometry",
+      "target": 309,
+      "actual": 309,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-open",
+      "output_artifact": "output-open"
+    },
+    {
+      "name": "actions-open shell top",
+      "state": "actions-open",
+      "kind": "geometry",
+      "target": 67,
+      "actual": 67,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-open",
+      "output_artifact": "output-open"
+    },
+    {
+      "name": "actions-open shell width",
+      "state": "actions-open",
+      "kind": "geometry",
+      "target": 271,
+      "actual": 271,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-open",
+      "output_artifact": "output-open"
+    },
+    {
+      "name": "actions-open shell height",
+      "state": "actions-open",
+      "kind": "geometry",
+      "target": 264,
+      "actual": 264,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-open",
+      "output_artifact": "output-open"
+    },
+    {
+      "name": "actions-open row pitch",
+      "state": "actions-open",
+      "kind": "type-spacing",
+      "target": 59,
+      "actual": 59,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-open",
+      "output_artifact": "output-open"
+    },
+    {
+      "name": "share-open shell left",
+      "state": "share-open",
+      "kind": "geometry",
+      "target": 623,
+      "actual": 623,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-share",
+      "output_artifact": "output-share"
+    },
+    {
+      "name": "share-open shell top",
+      "state": "share-open",
+      "kind": "geometry",
+      "target": 430,
+      "actual": 430,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-share",
+      "output_artifact": "output-share"
+    },
+    {
+      "name": "share-open shell width",
+      "state": "share-open",
+      "kind": "geometry",
+      "target": 267,
+      "actual": 267,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-share",
+      "output_artifact": "output-share"
+    },
+    {
+      "name": "share-open shell height",
+      "state": "share-open",
+      "kind": "geometry",
+      "target": 190,
+      "actual": 190,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-share",
+      "output_artifact": "output-share"
+    },
+    {
+      "name": "share-open row pitch",
+      "state": "share-open",
+      "kind": "type-spacing",
+      "target": 59,
+      "actual": 59,
+      "tolerance": 1,
+      "basis": "Source pixels at 1154x720; output native CSS/DOM geometry and rendered crop. Allow one edge pixel for compression/antialiasing.",
+      "source_artifact": "source-share",
+      "output_artifact": "output-share"
+    }
+  ],
+  "unresolved": [
+    "Exact font unavailable; Arial is a disclosed approximation.",
+    "Lucide icons approximate the observed silhouettes; original asset source is unknown.",
+    "Opening and closing inspected in normal-speed replay and sampled frames, but the complete paths are fitted approximations, not established within a measured trajectory tolerance.",
+    "Narrow layout and accessibility behavior are proposed, not present in the reference."
+  ]
+}

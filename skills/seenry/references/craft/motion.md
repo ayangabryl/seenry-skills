@@ -2,6 +2,14 @@
 
 Use when a state jumps, continuity is lost, feedback feels delayed, or a narrative needs movement. Inspect the existing motion language before adding a library.
 
+For a requested recreation, [match the observed transition](../../../seenry-motion/references/replication.md). Preserve its measured shape, path, content timing and return. Proposed timing recipes below do not override a reference. Select other mechanisms through the [motion pattern index](../../../seenry-motion/references/patterns.md).
+
+## Complete the transition coverage
+
+Before finishing an interactive output, inventory the states people can actually reach. For each changing region record its trigger, what stays fixed, how it enters and exits, and the reduced-motion equivalent. Implement the transitions as part of the component, not as a final decorative pass. Carry the same timing and feedback relationships across connected pages. Do not restart unchanged content or fade the entire application for a small selection.
+
+A media preview can use a stable play/pause control and reveal secondary tools on demand. A scroll-driven scene keeps one progress owner, a readable static state and ordinary scrolling; a loop needs a pause action and must suspend when hidden. User motion preferences can disable interpolation without losing the settled state. A keyboard focus indicator and authoritative data updates remain immediate. Choosing no interpolation for a frequent action is valid when documented and observed, not an excuse to skip the state design.
+
 ## Execute
 
 Write a self-contained motion contract: trigger; starting and ending states; stationary anchor; changing properties; exact implementation timing; interruption and reversal; reduced-motion behavior; and a visible non-motion cue. The executor should not need an earlier conversation to reconstruct these choices.

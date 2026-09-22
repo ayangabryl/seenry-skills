@@ -1,8 +1,10 @@
 # Carry decisions, not the whole conversation
 
-This packet covers one Seenry stage. The host first selects the workflow from SKILL.md; supplied hashes do not prove it was read. Resolve the current decision using facts, prior artifacts and relevant evidence. Load additional guidance only for an unresolved question.
+This packet covers one stage selected from SKILL.md. Supplied hashes do not prove reads. Resolve the current decision from project facts and evidence; load more guidance only for unresolved questions.
 
-Use actual copy and material. Familiar controls may suit a utility; an expressive website needs convincing subject-specific work. Neither cleanliness nor novelty alone establishes quality.
+For `intent: "replicate"`, preserve the observed reference. Use reconstruction guidance; do not invent alternatives or retime from default recipes. Disclose substitutions and unobserved states.
+
+Use actual copy and material. Familiar controls may suit a utility; an expressive website needs subject-specific work. Cleanliness and novelty alone cannot establish quality.
 
 Carry the job, primary attention, what recedes, expression by region and stable anchor from DESIGN.md. For an unclear choice, select one [decision study](studies/decision-studies.md) through project `decision_study`. Uncertain passes need comparison; uninspected states need observation.
 
@@ -16,4 +18,4 @@ Check explicit punctuation and capitalization constraints in visitor-facing stri
 
 Carry the interaction table into code: input, actual result, acknowledgement, anchor, failure and repeated input. Supply selected helper APIs/source and relative runtime dependencies when reads are restricted. A promise of polish or an unavailable link cannot implement a transition.
 
-Return complete raw files, with decisions in separate JSON. Validate before rendering; HTTP success can contain truncated code. Preserve failures and request complete output without silently filling gaps.
+Return complete files and separate decision JSON. Validate before rendering: HTTP success can contain truncated code. Preserve failures; do not silently fill gaps.

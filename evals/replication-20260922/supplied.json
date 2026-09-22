@@ -1,0 +1,34 @@
+{
+  "intent": "replicate",
+  "guidance_size": {
+    "resources": 4,
+    "words": 2205,
+    "bytes": 15757,
+    "scope": "Selected guidance only. No truncation; source media and observed reads are separate."
+  },
+  "entrypoint": {
+    "path": "seenry/SKILL.md",
+    "sha256": "348ac44661febfe02e03ea9f20a03c4859419cee11293742a455adbc0f6911ca",
+    "body_supplied": false
+  },
+  "research_source": "local",
+  "runtime_files": [],
+  "resources": [
+    {
+      "path": "seenry/references/working-contract.md",
+      "sha256": "d8a5410fef91933e571b975acfb8ad0d1c1d134b08c71f816380fa9dd88a90a6"
+    },
+    {
+      "path": "seenry/references/replication.md",
+      "sha256": "cc1462c2b100c43a2a75a610c7c8b813642b9ee42c68bc36d1a0eb2ef255f65e"
+    },
+    {
+      "path": "seenry-motion/references/replication.md",
+      "sha256": "4c1d1a0755f4266e985ec3dcf3e7315e02b9985eb302c3be2ef505f954efe527"
+    },
+    {
+      "path": "seenry-motion/references/patterns/surfaces.md",
+      "sha256": "7ef02f17c1774bf879e1b42ead850a3471645191572c3ecf8556203fd7f1d3c6"
+    }
+  ]
+}

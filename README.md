@@ -101,3 +101,9 @@ The [expressive-motion guide](skills/seenry-motion/references/expressive-effects
 ## Interactive website example
 
 The [Seenry marketing page](examples/seenry-site/README.md) demonstrates composition, timer motion, image cropping, brand guidelines and slide sequence. It is a portable local example with assets and licenses, not a benchmark or a deployment of seenry.design. The [marketing-evidence guide](skills/seenry/references/marketing-evidence.md) can be selected for relevant website packets with `guide_topics: ["marketing-evidence"]`.
+
+## Faithful reference reconstruction
+
+Use [replicate mode](skills/seenry/references/replication.md) for an exact-reference task. Set `intent: "replicate"` in a focused packet; it preserves the observed layout instead of proposing three creative alternatives. [Motion mechanisms](skills/seenry-motion/references/patterns.md) are selected through `motion_patterns`; unrelated guides remain unloaded. Required helper runtimes and licenses are included in the packet manifest.
+
+The [replication study](evals/replication-20260922/README.md) distinguishes supplied guidance, source observations, authored changes and remaining mismatches. The optional evidence checker validates a numeric ledger and local artifact hashes, not visual quality or author truthfulness. [Research scope and licensing](third-party/motion-research/README.md) explain why this package does not vendor the transitions.dev library.

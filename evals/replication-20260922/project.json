@@ -1,0 +1,1 @@
+{"scope":"component","intent":"replicate","media":"none","motion":"signature","motion_patterns":["fluid-menu"],"research_source":"local","reference":"seenry:24ebbdf6910e69ca125cfae5350b4d01","required_states":["closed","actions-open","share-open","opening","closing"],"exceptions":["Add keyboard and reduced-motion behavior; source does not demonstrate these"]}

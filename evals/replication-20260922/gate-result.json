@@ -1,0 +1,17 @@
+{
+  "status": "unverified",
+  "mismatches": [],
+  "unresolved": [
+    "opening: missing geometry evidence",
+    "opening: missing motion evidence",
+    "opening: missing type-spacing evidence",
+    "closing: missing geometry evidence",
+    "closing: missing motion evidence",
+    "closing: missing type-spacing evidence",
+    "Exact font unavailable; Arial is a disclosed approximation.",
+    "Lucide icons approximate the observed silhouettes; original asset source is unknown.",
+    "Opening and closing inspected in normal-speed replay and sampled frames, but the complete paths are fitted approximations, not established within a measured trajectory tolerance.",
+    "Narrow layout and accessibility behavior are proposed, not present in the reference."
+  ],
+  "scope": "Checks supplied numeric measurements and local artifact hashes only. Does not inspect pixels, verify the author, certify whole-reference fidelity or grant user acceptance."
+}

@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.7"
+  version: "2.0.1-dev.8"
 ---
 
 # Design movement around a meaningful change
@@ -12,6 +12,8 @@ metadata:
 Motion should help people follow an action, relationship or change of state. Start from the task and the existing interface; retain the project's working behavior and runtime. MCP, paid accounts and another design skill are not required.
 
 ## Define the interaction
+
+For a faithful recreation, use [motion reconstruction](references/replication.md) before selecting a recipe. Preserve observed geometry, trajectories, timing and content. An adapted animation must not be reported as a replica.
 
 Read [the motion contract](references/motion-contract.md) when planning or changing an interaction. Record its trigger, real state owner, stationary anchor, feedback, settled result and interruption behavior. A simple button needs a few lines; an expressive scene may need a score. Make this decision before committing the layout to moving or overlapping content.
 
@@ -40,6 +42,8 @@ Use CSS, SVG or Web Animations when sufficient. Existing Lottie, GSAP, Anime.js,
 Read [expressive effects](references/expressive-effects.md) only for a selected liquid, material, process, boundary or image treatment. Read [adapter usage](references/adapters.md) when adopting the bundled geometry, icon, number, Lottie or scroll helpers. Libraries own presentation; the application owns truth and recovery. Preserve source licenses for copied runtime assets.
 
 For everyday dropdowns, contextual settings and copy feedback, use the original [product transition recipes](references/product-transitions.md). Select their runtime helpers explicitly so focused handoffs include usable implementation, not just a motion intention.
+
+For other transition families, select a pattern from the [motion index](references/patterns.md). Load its focused guide and required helpers, not every effect. These are original Seenry recipes. A project's separately licensed third-party snippets can be used within that project; they are not bundled or relabeled as Seenry's library.
 
 ## Exercise the meaningful transition
 
