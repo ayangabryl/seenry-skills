@@ -1,6 +1,6 @@
 # Seenry skills
 
-This working revision is **2.0.1-dev.6**, separating design quality from evidence support and adding selectively loaded decision studies. New reviews request inspection, a controlled comparison or repair before advancing unresolved work. The published stable release remains 2.0.0; this development revision has no new accepted-output benchmark.
+The current development release is **2.0.1-dev.8**. It adds a dedicated reference-replication route, measured motion comparison, explicit hover and press inspection, and 25 selectively loaded motion mechanisms. The stable release remains 2.0.0. This development release has package and author-assisted reconstruction checks, not a new unassisted benchmark or a guarantee of reference fidelity.
 
 A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 

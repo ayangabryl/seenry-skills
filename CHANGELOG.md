@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased: 2.0.1-dev.8
+## 2.0.1-dev.8 · 2026-09-22
 
 - Explicitly separates hover entry/hold/exit/reentry, pressed and focus states from click/open transitions during reference replication. Unobserved hover remains a disclosed proposed behavior.
 
