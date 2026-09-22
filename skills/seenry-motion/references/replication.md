@@ -20,6 +20,10 @@ A useful score has tracks:
 
 Store measurements and estimates separately. A fitted curve is an approximation with residual error. Do not claim exact spring parameters from a compressed clip or interpolate missing captured frames as if they were observed.
 
+## Hover is a separate transition
+
+Inspect pointer entry, held hover, exit and reentry before settlement. Record the affected layer, delay, trajectory and return timing; distinguish hover from pressed, focus and persistent selected/open states. A pointer in a recording does not prove which event triggered a change. For a replica, preserve the observed color, shape, icon or position response instead of adding a default lift or bounce. If the clip never shows hover, mark it unobserved and label any necessary behavior as proposed. Keep hit areas stable, test movement from trigger to revealed content, and provide keyboard/touch access without requiring hover.
+
 ## Choose the mechanism from the evidence
 
 - A panel appearing near a trigger is not necessarily a button-to-panel morph. Follow the **same boundary** through the clip. If it continuously changes shape, animate that surface or a shared background; do not leave a second trigger underneath unless observed.

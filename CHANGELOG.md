@@ -2,6 +2,8 @@
 
 ## Unreleased: 2.0.1-dev.8
 
+- Explicitly separates hover entry/hold/exit/reentry, pressed and focus states from click/open transitions during reference replication. Unobserved hover remains a disclosed proposed behavior.
+
 - Adds a dedicated replicate route that preserves inspected composition and observed motion instead of invoking creative alternatives. Focused packets keep source constraints and exclude unrelated design studies.
 - Adds 25 optional motion mechanism selectors across six original guides, with existing helper/runtime dependencies supplied and hashed when selected. This is guidance coverage, not a redistribution of transitions.dev or a claim of 25 finished effects.
 - Adds a numeric evidence-ledger checker that fails on missing/changed artifacts, unresolved measurements and mismatches. It does not inspect pixels or certify fidelity.

@@ -15,7 +15,7 @@ For the decisive region record:
 - **Geometry:** shell and content bounds, padding, gaps, alignment, anchor coordinates, clipping, overlap, corner radii and border widths. Identify which dimensions change between states.
 - **Type:** actual wording, line breaks, family if verifiable, weight, size, line height, letter spacing, text block width and baseline. Keep visible labels intact. A similar font at the same size can have different widths; check the rendered specimen.
 - **Material:** sampled flat colors, border/opacity, shadows only where observed, icon silhouette/stroke and asset crop. Keep unknowns marked. Generated art is an approximation, not the original asset. It cannot certify an exact match; use permitted originals when available and disclose substitutions.
-- **Behavior:** triggering action, closed/open/selected/error states, hit areas, focus and return path. A recording establishes only the interactions it shows. Implement necessary unseen accessibility and recovery behavior, label it as proposed, and do not change the observed layout to accommodate it silently.
+- **Behavior:** idle, hover, pressed, focus, closed/open/selected/error states, triggering action, hit areas and return path. A recording establishes only the interactions it shows. Implement necessary unseen accessibility and recovery behavior, label it as proposed, and do not change the observed layout to accommodate it silently.
 
 Do not replace an observed dark compact menu with a white illustrated collection, rounded rectangles with pills, or a morphing surface with an unrelated fade simply because both perform the same action. Source-specific details are requirements for this task, not new global design defaults.
 
