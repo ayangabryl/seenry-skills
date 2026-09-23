@@ -14,3 +14,6 @@ Then turn guides off. Inspect optical centering of icons and glyphs, perceived r
 
 ## Completion gate
 Record viewport sizes, measured shared edges, radius roles, overflow result and any intentional exception. A ruler screenshot alone is not proof of visual quality. Fix unexplained deviations at their shared token/component owner, then recheck representative components and the full page. Do not add a second cascade of per-section values to conceal the first.
+
+## Visible-surface gate
+Do not conclude alignment or corner consistency from section bounds or an ancestor's computed radius alone. Identify the first painted descendant (image, iframe, white card, canvas) and measure its visible edge against adjacent toolbar, caption and action edges. Inspect padding, transparent gutters, child backgrounds and clipping at every intervening wrapper. A rounded transparent ancestor with an inset square child can still look square. Check actual screenshot corners at readable scale in every relevant tab/viewport state. A deliberately centered device preview is a documented exception to edge alignment, not an exception to its surface-radius rule. Report which painted surfaces were inspected; uninspected states remain unverified.
