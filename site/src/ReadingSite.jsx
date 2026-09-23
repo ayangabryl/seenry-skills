@@ -28,6 +28,7 @@ import { BrandApplications, DeckNarrative } from "./CapabilityDemos";
 import "./reading-site.css";
 import { SourcedMedia, DeckStudy } from "./EvidenceDemos";
 import { WebsiteRedesign, BrandGuidelineDemo } from "./ProjectDemos";
+import MotionLibrary from "./MotionLibrary";
 const repository = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
 function CopyInstall() {
@@ -503,7 +504,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                 </>
               }
             >
-              <MotionStudy />
+              <MotionLibrary />
               <NumberStudy />
               <p className="r-footnote">
                 These are interactive examples. Motion choices should suit the

@@ -13,3 +13,7 @@ Site production build and skill validator passed. Browser: project next/previous
 
 ## Distinct browsing direction
 The opening now pairs a compact studio introduction with a large artwork viewer and directly selectable project list. The skill-stack variant retains its headline-first opening and previous/next carousel. The project list interaction is authored, not attributed to Arc Projects.
+
+## Flow revision, September 24
+Inspected Goa Architecture hero through Seenry MCP (37a16c6aacd04154b94aade3e3323eab): large material-first image, typographic introduction and concise supporting description. Combined its material/intro relationship with Arc's varied project scale; not a replica. Replaced the cramped split project selector with introduction, credited atmosphere photography, project studies, services, process, contact. Project illustrations expand in a native dialog with Close/Escape. Original source art is not reused.
+Photo: Joel Filipe, https://unsplash.com/photos/white-modern-cement-building-under-blue-sky-RFDP7_80v5A ; license https://unsplash.com/license previously inspected. Remote Unsplash image, reserved dimensions and gray fallback. Mood reference, explicitly not completed client work.

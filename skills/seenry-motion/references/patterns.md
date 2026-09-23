@@ -22,3 +22,7 @@ Keep one owner for each animated property. Audit actual input, interruption, cur
 ## Coverage is not fidelity
 
 Use [variant coverage](variant-coverage.md) to route a requested treatment to its mechanism and identify the implementation work still required. A listed family is guidance, not a bundled third-party snippet or a visually certified result.
+
+## Interactive examples and implementation prompts
+
+The [Seenry motion library](https://skill.seenry.design/#motion-library) provides 12 original, interactive recipes with per-example prompts, search and category filters. Their [React source](https://github.com/ayangabryl/seenry-skills/blob/main/site/src/MotionLibrary.jsx) and adjacent CSS are MIT-licensed project examples, not a published npm runtime. Inspect the relevant implementation before adapting it. Copied prompts preserve project brand rules and specify state ownership, keyboard access, reduced motion and interruption checks. These examples are not the licensed transitions.dev collection and do not claim its visual fidelity.

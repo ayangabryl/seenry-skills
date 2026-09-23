@@ -13,7 +13,7 @@ const versions = [
   {label: "Before", path: "fieldwork-generic", title: "Deliberately generic Fieldwork website", note: "An authored example of generic AI-style design—not the original Sol output or a benchmark result."},
   {label: "Seenry", path: "fieldwork-redesign", title: "Fieldwork redesigned with Seenry", note: "Core Seenry: clearer reading order, shorter copy and consistent controls."},
   {label: "+ Skill stack", path: "fieldwork-stack", title: "Fieldwork with the Seenry skill stack", note: "Seenry + Branding, Assets and Motion: project brand rules, original artwork and an interactive project viewer."},
-  {label: "+ MCP", path: "fieldwork-mcp", title: "Fieldwork with skills and MCP", note: "The skill stack + an inspected Arc Projects reference: a split project browser, directly selectable studies and varied project composition."},
+  {label: "+ MCP", path: "fieldwork-mcp", title: "Fieldwork with skills and MCP", note: "MCP research informed a photographic opening, varied project studies and an expanded artwork viewer. Photography is credited as a mood reference."},
 ];
 export function WebsiteRedesign() {
   const [selected, setSelected] = useState(3);
@@ -26,7 +26,7 @@ export function WebsiteRedesign() {
     </div>
     <iframe key={url} src={url} title={version.title} loading="lazy" />
     <p className="r-footnote">{version.note}</p>
-    <p className="r-footnote">Illustrative before/after comparison using original artwork. All four versions are authored demonstrations, not independent model tests. <a href={`/demos/${version.path}/${selected ? "DESIGN.md" : "manifest.md"}`}>Read the record ↗</a></p>
+    <p className="r-footnote">Illustrative before/after comparison; the MCP version also adds credited photography. All four versions are authored demonstrations, not independent model tests. <a href={`/demos/${version.path}/${selected ? "DESIGN.md" : "manifest.md"}`}>Read the record ↗</a></p>
   </div>;
 }
 const examples = [
