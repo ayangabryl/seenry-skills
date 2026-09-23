@@ -295,3 +295,5 @@
     transform: none;
   }
 }
+
+.p-research-results{margin:24px 0;max-width:760px;font-size:14px;line-height:1.7;color:#686868}.p-research-results summary{cursor:pointer;color:#303030;width:fit-content;padding:8px 0}.p-research-results p{margin:16px 0}.p-research-results strong{color:#303030;font-weight:600}.p-research-results a{color:#303030;text-underline-offset:4px}.p-research-results summary:focus-visible{outline:2px solid #777;outline-offset:4px;border-radius:6px}

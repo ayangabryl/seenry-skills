@@ -20,3 +20,6 @@ Current opening: neutral shell and white type over a darkened architecture photo
 
 ## Superseding direction — 24 September
 The previous tower-photo overlay is retired. The opening now separates studio proposition, a large domestic courtyard concept and its factual caption. Neutral #f7f7f7 canvas; material color belongs to imagery. 24px media corners, 1184px frame, 40px desktop/20px mobile gutters. One stylesheet owns the demo; old override layers removed. Courtyard image is original built-in imagegen concept artwork, not a completed commission. Remaining project diagrams are labeled studies. Project view, filtering, inquiry validation and reduced motion remain functional.
+
+
+All three project cards now use original imagegen architectural concepts with a consistent domestic material direction. SVG remains appropriate for interface icons and explanatory diagrams, but no longer serves as project artwork in this MCP demonstration. Visible disclosures identify generated concept work.

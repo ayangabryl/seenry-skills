@@ -12,7 +12,7 @@ import "./project-demos.css";
 const versions = [
   {label: "Before", path: "fieldwork-luna", title: "Fieldwork baseline by Luna without design skills", note: "Luna’s standalone attempt without design skills or reference research. Preserved as generated."},
   {label: "Seenry Skill", path: "fieldwork-redesign", title: "Fieldwork redesigned with Seenry", note: "Seenry workflow: a consistent brand, clear reading order, original illustrations and checked interactions."},
-  {label: "Skill + MCP", path: "fieldwork-mcp", title: "Fieldwork with Seenry and MCP research", note: "Inspected architecture references informed the image-first opening and project exploration. Photography is a credited mood reference."},
+  {label: "Skill + MCP", path: "fieldwork-mcp", title: "Fieldwork with Seenry and MCP research", note: "Inspected architecture references informed the composition and project exploration. All three architectural images are original AI-generated concepts."},
 ];
 export function WebsiteRedesign() {
   const [selected, setSelected] = useState(1);
@@ -25,6 +25,13 @@ export function WebsiteRedesign() {
     </div>
     <iframe key={url} src={url} title={version.title} loading="lazy" />
     <p className="r-footnote">{version.note}</p>
+    {selected === 2 && <details className="p-research-results"><summary>Research results — what changed?</summary><div>
+      <p><strong>Before.</strong> Luna’s preserved version uses a bold graphic palette and abstract illustrations. It introduces the studio, but says less about the spaces it designs.</p>
+      <p><strong>Seenry Skill.</strong> Shared typography, spacing and controls make the page easier to scan. SVG studies stay sharp at every size and give precise control over color and shape. They suit diagrams; they cannot convey material texture or daylight like a rendered interior.</p>
+      <p><strong>Skill + MCP.</strong> Storey’s architectural image scale and SSA’s project captions informed a project-first layout. Copy sits outside the image, the caption identifies the study, and each project opens for closer inspection. Matching generated imagery communicates the studio’s domestic scale, light and materials.</p>
+      <p>MCP supplied reference evidence; imagegen supplied original concept images. The improvement comes from applying both to the brief, not from the file format alone. These are authored design judgments, not measured customer outcomes or a controlled model benchmark.</p>
+      <a href="/demos/fieldwork-mcp/DESIGN.md">References, decisions and image prompts ↗</a>
+    </div></details>}
     <p className="r-footnote">One brief, three approaches. The redesigns are guided demonstrations; this is not a controlled model benchmark. <a href={`/demos/${version.path}/${selected ? "DESIGN.md" : "README.md"}`}>Read the record ↗</a></p>
   </div>;
 }
