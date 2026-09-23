@@ -646,7 +646,7 @@ function Reconstruction() {
         style={{
           width: 1154,
           height: 720,
-          transform: `scale(${width / 1154})`,
+          transform: `scale(${Math.max(0.62, width / 1154)})`,
         }}
       />
     </div>
