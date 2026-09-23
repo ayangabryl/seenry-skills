@@ -1177,3 +1177,197 @@
   font-size: 9px;
   padding: 8px 2px;
 }
+/* Skill chapters: capabilities followed by evidence, in reading order. */
+.skill-sequence {
+  padding: 0 40px;
+}
+.skill-index {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0 38px;
+}
+.skill-index a {
+  padding: 9px 14px;
+  background: #eee;
+  border-radius: 999px;
+  font-size: 12px;
+  text-decoration: none;
+  color: #555;
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+.skill-index a:hover {
+  background: #ddd;
+  color: #222;
+}
+.skill-chapter {
+  padding: 30px 0 64px;
+  scroll-margin-top: 92px;
+}
+.chapter-heading {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 28px;
+}
+.chapter-name {
+  font-size: 13px;
+  color: #777;
+}
+.chapter-heading h2 {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin: 12px 0 0;
+  max-width: 370px;
+}
+.chapter-heading p {
+  font-size: 13px;
+  line-height: 1.75;
+  margin: 0;
+  max-width: 450px;
+}
+.chapter-heading ul {
+  display: flex;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+  font-size: 11px;
+  color: #777;
+}
+.chapter-source {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  color: #383838;
+  text-underline-offset: 4px;
+}
+.chapter-examples {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px 24px;
+}
+.chapter-motion .chapter-examples {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.example-info h3 {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  margin: 0 0 5px;
+}
+.chapter-seenry .chapter-examples {
+  grid-template-columns: 1.6fr 1fr;
+}
+.chapter-branding .chapter-examples,
+.chapter-decks .chapter-examples {
+  max-width: 780px;
+  grid-template-columns: 1fr;
+}
+.chapter-branding .example-stage,
+.chapter-decks .example-stage {
+  height: 380px;
+}
+.mcp-notes .proof-examples {
+  grid-column: 1/-1;
+  width: 100%;
+  margin-top: 20px;
+}
+.proof-examples .example-stage {
+  height: auto;
+  aspect-ratio: 1;
+  min-height: 0;
+}
+.example-stage .reconstruction {
+  height: 100%;
+}
+.example-stage .reconstruction iframe {
+  left: calc(50% - 577px);
+  top: 50%;
+  margin-top: -360px;
+  transform-origin: center center;
+}
+.full-study-link {
+  grid-column: 1/-1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  text-underline-offset: 4px;
+}
+.source-example form > div {
+  transition: box-shadow 0.18s;
+  min-height: 44px;
+}
+.source-example form > div:focus-within,
+.demo-search:focus-within {
+  box-shadow:
+    0 0 0 2px #737373,
+    0 0 0 5px #ffffff;
+  outline: none;
+}
+.source-example input:focus-visible,
+.demo-search input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.source-example input {
+  min-height: 24px;
+  border-radius: 0;
+}
+@media (max-width: 1000px) {
+  .chapter-motion .chapter-examples {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chapter-seenry .chapter-examples {
+    grid-template-columns: 1fr;
+  }
+  .chapter-seenry .example-stage {
+    height: 340px;
+  }
+}
+@media (max-width: 600px) {
+  .skill-sequence {
+    padding: 0 16px;
+  }
+  .skill-index {
+    gap: 6px;
+    padding-bottom: 20px;
+  }
+  .skill-index a {
+    font-size: 11px;
+    padding: 8px 12px;
+  }
+  .skill-chapter {
+    padding: 26px 0 36px;
+  }
+  .chapter-heading {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .chapter-heading h2 {
+    font-size: 26px;
+  }
+  .chapter-heading p {
+    font-size: 13px;
+  }
+  .chapter-examples,
+  .chapter-motion .chapter-examples {
+    grid-template-columns: 1fr;
+  }
+  .chapter-branding .example-stage,
+  .chapter-decks .example-stage {
+    height: 320px;
+  }
+  .mcp-notes .proof-examples {
+    grid-template-columns: 1fr;
+  }
+}

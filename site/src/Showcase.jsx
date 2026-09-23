@@ -500,18 +500,6 @@ export default function Showcase({
   Art,
   CopyButton,
 }) {
-  const [category, set] = useState("All");
-  const [query, search] = useState("");
-  const categories = [
-    "All",
-    "Motion",
-    "Design",
-    "Assets",
-    "Video",
-    "Branding",
-    "Decks",
-    "MCP",
-  ];
   const demos = [
     {
       title: "Layout anatomy",
@@ -625,21 +613,87 @@ export default function Showcase({
       el: <DeckSection />,
     },
   ];
-  const visible = demos.filter(
-    (d) =>
-      (category === "All" || category === d.cat) &&
-      `${d.title} ${d.desc} ${d.cat}`
-        .toLowerCase()
-        .includes(query.toLowerCase()),
-  );
+  const chapters = [
+    {
+      id: "seenry",
+      name: "Seenry",
+      description: "Design a complete interface.",
+      body: "Work from the content and the task: establish hierarchy, compare layouts, choose typography and assets, then build and review the result.",
+      capabilities: [
+        "Layout & alignment",
+        "Typography & color",
+        "Responsive interfaces",
+        "Reference reconstruction",
+      ],
+      categories: ["Design"],
+    },
+    {
+      id: "motion",
+      name: "Seenry Motion",
+      description: "Make state changes easy to follow.",
+      body: "Plan what stays still, what moves and how an interaction responds when interrupted. Try navigation, disclosure, values, feedback and scroll-driven compositions below.",
+      capabilities: [
+        "Menus & surfaces",
+        "Navigation & transitions",
+        "Numbers & feedback",
+        "Hover & scroll",
+      ],
+      categories: ["Motion"],
+    },
+    {
+      id: "assets",
+      name: "Seenry Assets",
+      description: "Find the right material for the design.",
+      body: "Search for existing photography, choose licensed type and icons, create original artwork when needed, and check the framing. Video sourcing and playback belong here too.",
+      capabilities: [
+        "Image search",
+        "Fonts & icons",
+        "Original artwork",
+        "Video & responsive media",
+      ],
+      categories: ["Assets"],
+    },
+    {
+      id: "branding",
+      name: "Seenry Branding",
+      description: "Keep the identity consistent.",
+      body: "Research brand references and turn decisions about type, color, imagery and components into usable project guidelines.",
+      capabilities: ["Identity research", "Palette & type", "Brand guidelines"],
+      categories: ["Branding"],
+    },
+    {
+      id: "decks",
+      name: "Seenry Decks",
+      description: "Build a clear visual sequence.",
+      body: "Study reference decks in order, identify each slide’s role and shape a presentation around its narrative—not a set of disconnected layouts.",
+      capabilities: ["Deck research", "Slide order", "Narrative & hierarchy"],
+      categories: ["Decks"],
+    },
+  ];
+  function card(d) {
+    return (
+      <article
+        className={"showcase-card " + (d.dark ? "dark-demo" : "")}
+        key={d.title}
+      >
+        <div className="example-stage">{d.el}</div>
+        <div className="example-info">
+          <div>
+            <h3>{d.title}</h3>
+            <p>{d.desc}</p>
+          </div>
+        </div>
+      </article>
+    );
+  }
   return (
     <>
       <section className="showcase-intro">
         <div>
-          <h1>The Seenry workshop</h1>
+          <h1>Seenry Skills</h1>
           <p>
-            Working studies in layout, motion and visual design. Open an example
-            and try changing it.
+            Five skills for designing and building with your coding agent. See
+            what each one does, then try the examples.
           </p>
         </div>
         <div className="quick-install">
@@ -650,72 +704,55 @@ export default function Showcase({
           </a>
         </div>
       </section>
-      <section className="showcase-library" id="playground">
-        <div className="showcase-tools">
-          <Switch
-            items={categories}
-            value={category}
-            onChange={set}
-            label="Filter examples"
-          />
-          <label className="demo-search">
-            <Search size={17} />
-            <input
-              value={query}
-              onChange={(e) => search(e.target.value)}
-              placeholder="Find an example"
-              aria-label="Find an example"
-            />
-            {query && (
-              <button
-                onClick={() => search("")}
-                aria-label="Clear example search"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </label>
-        </div>
-        <div className="example-count" aria-live="polite">
-          {visible.length} interactive examples{" "}
-          <span>Original implementations · Try the controls</span>
-        </div>
-        <div className="showcase-grid">
-          {visible.map((d) => (
-            <article
-              className={
-                "showcase-card " +
-                (d.wide ? "wide " : "") +
-                (d.dark ? "dark-demo" : "")
-              }
-              key={d.title}
-            >
-              <div className="example-stage">{d.el}</div>
-              <div className="example-info">
-                <div>
-                  <h2>{d.title}</h2>
-                  <p>{d.desc}</p>
-                </div>
-                <span>{d.cat}</span>
-              </div>
-            </article>
+      <div id="playground" className="skill-sequence">
+        <nav className="skill-index" aria-label="Skills">
+          {chapters.map((c) => (
+            <a key={c.id} href={"#" + c.id}>
+              {c.name.replace("Seenry ", "")}
+            </a>
           ))}
-        </div>
-        {!visible.length && (
-          <div className="demo-empty">
-            <h2>No matching examples</h2>
-            <button
-              className="demo-action"
-              onClick={() => {
-                search("");
-                set("All");
-              }}
-            >
-              Clear filters
-            </button>
-          </div>
-        )}
-      </section>
+          <a href="#mcp">Skill + MCP</a>
+        </nav>
+        {chapters.map((c) => (
+          <section
+            className={"skill-chapter chapter-" + c.id}
+            id={c.id}
+            key={c.id}
+          >
+            <div className="chapter-heading">
+              <div>
+                <span className="chapter-name">{c.name}</span>
+                <h2>{c.description}</h2>
+              </div>
+              <div>
+                <p>{c.body}</p>
+                <ul>
+                  {c.capabilities.map((x) => (
+                    <li key={x}>{x}</li>
+                  ))}
+                </ul>
+                <a
+                  className="chapter-source"
+                  href={
+                    "https://github.com/ayangabryl/seenry-skills/tree/main/skills/" +
+                    (c.id === "seenry" ? "seenry" : "seenry-" + c.id)
+                  }
+                >
+                  Read the skill <ArrowUpRight size={14} />
+                </a>
+              </div>
+            </div>
+            <div className="chapter-examples">
+              {demos
+                .filter((d) => c.categories.includes(d.cat))
+                .sort((a, b) =>
+                  c.id === "seenry" ? (a.wide ? -1 : b.wide ? 1 : 0) : 0,
+                )
+                .map(card)}
+            </div>
+          </section>
+        ))}
+      </div>
       <section className="mcp-notes" id="mcp">
         <h2>What MCP adds</h2>
         <div>
@@ -743,6 +780,17 @@ export default function Showcase({
             Skills work without MCP. Library access follows your Seenry plan.
           </small>
         </div>
+        <div className="chapter-examples proof-examples">
+          {demos.filter((d) => ["Video", "MCP"].includes(d.cat)).map(card)}
+        </div>
+        <a
+          className="full-study-link"
+          href="/demos/liquid-popover/index.html"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Open the interactive study at full size <ArrowUpRight size={15} />
+        </a>
       </section>
       <section className="showcase-install" id="install">
         <h2>Use Seenry in your next project.</h2>

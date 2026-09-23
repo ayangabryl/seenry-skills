@@ -383,7 +383,7 @@ function MotionSection() {
 function AssetSection() {
   const [asset, set] = useState("Fold");
   return (
-    <section id="assets" className="split-section">
+    <section className="split-section">
       <SectionIntro
         tag="02 / SEENRY-ASSETS"
         title="The right material. In the right place."
@@ -430,7 +430,7 @@ function AssetSection() {
 function BrandSection() {
   const [tone, set] = useState("Stone");
   return (
-    <section className="split-section" id="branding">
+    <section className="split-section">
       <SectionIntro
         tag="03 / SEENRY-BRANDING"
         title="One identity. Everywhere."
@@ -497,7 +497,7 @@ const slides = [
 function DeckSection() {
   const [n, set] = useState(0);
   return (
-    <section className="split-section" id="decks">
+    <section className="split-section">
       <SectionIntro
         tag="04 / SEENRY-DECKS"
         title="Make the story easy to follow."
@@ -646,7 +646,7 @@ function Reconstruction() {
         style={{
           width: 1154,
           height: 720,
-          transform: `scale(${Math.max(0.62, width / 1154)})`,
+          transform: `scale(${width / 680})`,
         }}
       />
     </div>
@@ -771,7 +771,7 @@ function App() {
           seenry.<span>skills</span>
         </a>
         <nav aria-label="Main navigation">
-          <a href="#playground">Playground</a>
+          <a href="#playground">The skills</a>
           <a href="#mcp">Skills + MCP</a>
           <a href="#install" className="nav-install">
             Install <ArrowDown />
