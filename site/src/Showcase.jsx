@@ -1,4 +1,12 @@
 import {
+  ResponsiveStudio,
+  FormFlow,
+  SharedSelection,
+  OperationFeedback,
+  BrandApplications,
+  DeckNarrative,
+} from "./CapabilityDemos";
+import {
   createNotificationState,
   notificationEvent,
 } from "../../skills/seenry-motion/assets/notification-state.mjs";
@@ -502,6 +510,42 @@ export default function Showcase({
   const [selectedExamples, selectExample] = useState({});
   const demos = [
     {
+      title: "Responsive website",
+      cat: "Design",
+      desc: "Switch the viewport, search the collection, open an object and save it. A working interface, not a static mockup.",
+      el: <ResponsiveStudio Art={Art} />,
+    },
+    {
+      title: "Onboarding flow",
+      cat: "Design",
+      desc: "Try an empty submission, move between steps and complete the example. Your input stays local.",
+      el: <FormFlow />,
+    },
+    {
+      title: "Coordinated transitions",
+      cat: "Motion",
+      desc: "Switch the period. The selection, heading and chart stay connected through rapid changes.",
+      el: <SharedSelection />,
+    },
+    {
+      title: "Loading to success",
+      cat: "Motion",
+      desc: "A simulated operation with stable button dimensions, progress and a clear completion state.",
+      el: <OperationFeedback />,
+    },
+    {
+      title: "Identity in use",
+      cat: "Branding",
+      desc: "The same identity across a poster, business card and label. Switch the entire set between light and dark.",
+      el: <BrandApplications />,
+    },
+    {
+      title: "Narrative structure",
+      cat: "Decks",
+      desc: "Context, evidence, proposal. Inspect how a slide’s role changes its composition and message.",
+      el: <DeckNarrative />,
+    },
+    {
       title: "Layout anatomy",
       cat: "Design",
       desc: "Inspect the composition: columns, inset, gutter and reading edge.",
@@ -718,9 +762,9 @@ export default function Showcase({
             .filter((d) => c.categories.includes(d.cat))
             .sort((a, b) =>
               c.id === "seenry"
-                ? a.wide
+                ? a.title === "Responsive website"
                   ? -1
-                  : b.wide
+                  : b.title === "Responsive website"
                     ? 1
                     : 0
                 : c.id === "assets"
@@ -743,6 +787,9 @@ export default function Showcase({
               <div className="chapter-heading">
                 <span className="chapter-number">0{chapterIndex + 1}</span>
                 <h2>{c.name}</h2>
+                <span className="chapter-example-count">
+                  {examples.length} interactive examples
+                </span>
                 <p>
                   {c.id === "seenry"
                     ? "Layout, typography and responsive interfaces. Compare the decisions behind a design."

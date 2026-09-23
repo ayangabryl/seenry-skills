@@ -1030,7 +1030,7 @@ footer > small {
   nav {
     gap: 18px;
   }
-  nav > a:first-child {
+  header nav > a:first-child {
     display: none;
   }
   nav > a {
