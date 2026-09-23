@@ -1,6 +1,6 @@
 # Craft consolidation provenance
 
-Original Seenry prose and executable examples, authored 2026-09-20. The following upstream resources were read at pinned commits. No upstream examples or lengthy passages were copied. Applicable upstream licenses and attribution remain required for distribution of adapted guidance; the integrating maintainer is collecting them separately.
+Original Seenry prose and executable examples, authored 2026-09-20. The following upstream resources were read at pinned commits. No upstream examples or lengthy passages were copied. Applicable upstream licenses and attribution remain required for distribution of adapted guidance; they are included in this directory.
 
 | Source | Pinned resource | Selective adaptation |
 | --- | --- | --- |
@@ -12,3 +12,5 @@ Original Seenry prose and executable examples, authored 2026-09-20. The followin
 Existing Seenry consolidation sources: installed references/visual-decisions.md, color-decisions.md and art-direction.md, plus the supplied Seenry entrypoint. Existing local guidance remains the basis for color-area inspection, no universal font/palette list, exact-scope reviews, and retained alternatives.
 
 Examples are isolated teaching demonstrations, not production UI templates or proof of benchmark superiority. They make no network requests and use only platform fonts and inline code. Art-direction artwork is schematic CSS, explicitly labeled, and is not offered as a photography substitute.
+
+September 24 integration adds references/interface-implementation.md (better-layout, better-typography, better-writing) and seenry-motion/references/implementation-decisions.md (animate). Required implementation guidance is bundled rather than delegated to source URLs. Source-only brand research links were moved out of working guidance; their prior provenance remains in repository history and research records.

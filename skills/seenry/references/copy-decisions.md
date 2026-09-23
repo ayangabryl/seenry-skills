@@ -30,4 +30,4 @@ Render the final words at wide and narrow widths. Keep factual meaning when redu
 
 ## Research basis
 
-Studied on 2026-09-23: [Corey Haines copywriting](https://github.com/coreyhaines31/marketingskills/tree/main/skills/copywriting), [copy-editing](https://github.com/coreyhaines31/marketingskills/tree/main/skills/copy-editing), and [Impeccable clarify](https://github.com/pbakaus/impeccable/blob/main/skill/reference/clarify.md). Useful principles: audience/offer context, distinct editing passes, meaningful state messages. This guide is original synthesis. It does not adopt headline formulas, universal CTA bans, unsupported uplift figures or simulated-review scores as proof.
+For product-state messages and shared terminology, use [interface implementation](interface-implementation.md). Research provenance is retained in the distribution notices.

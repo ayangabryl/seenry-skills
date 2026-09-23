@@ -12,4 +12,4 @@ OKLCH is a construction tool: adjust lightness, chroma and hue independently; re
 
 Record a reason tied to the offering and an observed weakness of the rejected alternative. If both are merely different, say so. Preserve the user's neutral shell when showing colorful demo content; a capability example does not authorize a site-wide rebrand.
 
-Research: [Impeccable colorize](https://github.com/pbakaus/impeccable/blob/main/skill/reference/colorize.md) reinforces role/area choices. [Wise's rebrand account](https://wise.com/gb/blog/a-brand-for-everywhere-wise-unveils-bold-new-look) describes a core green alongside broader supporting colors and imagery. Neither establishes a universal formula for other brands. Original synthesis, researched 2026-09-23.
+Palette roles, area and pair measurements are the working rules here; no external skill is required. Research provenance is retained in the distribution notices.

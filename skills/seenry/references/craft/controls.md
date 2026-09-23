@@ -53,3 +53,5 @@ With Playwright available, call `require("<skill-root>/scripts/control_geometry.
 For compact media controls or unstable disclosure, use the scoped [media and containment study](../studies/media-controls-and-containment.md). It distinguishes familiar track/volume icons from ambiguous symbols and checks the trigger rectangle through expansion.
 
 For a scaled or clipped interactive embed, frame the union of every reachable open state, not just its trigger or first menu. Menus can open in opposite directions. Measure transformed bounds against the host at desktop and mobile sizes, then open each branch with pointer and keyboard. Provide a full-size view when fitting the whole interaction makes its controls too small. A focus rule in guidance is not evidence that the final CSS cascade implements it; inspect the focused pixels in the delivered product.
+
+For implementation across related controls and content, use [interface implementation](../interface-implementation.md).

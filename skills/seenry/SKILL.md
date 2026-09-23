@@ -4,7 +4,7 @@ description: "Research, design, refine or faithfully reconstruct websites and in
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.13"
+  version: "2.0.1-dev.14"
 ---
 
 # Seenry
@@ -42,6 +42,8 @@ This workflow is for new design and deliberate adaptation. Replication uses sour
 6. **Exercise and judge.** Use [production review](references/production-review.md) for behavior and visual review for the result. Inspect full-page rhythm, dense regions and actual transitions. Check rendered type and group fit against the chosen decisions. Follow [evidence support](references/review-evidence.md): uninspected requires observation, uncertain requires a controlled comparison, supported defects require repair. An uncertain pass cannot advance. Label self-review; allow one direction reset and two repair passes, then report unresolved work.
 
 Reserve time for a finished slice and verification; process artifacts do not compensate for an unfinished interface. Keep construction diagrams outside visitor-facing UI.
+
+For combined layout, type, control and wording polish, use [interface implementation](references/interface-implementation.md). It includes the implementation rules locally; no external skill install is needed.
 
 ## Load only the current decision
 

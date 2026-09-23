@@ -29,3 +29,5 @@ A spacious booking confirmation can help occasional reading; applying that footp
 ## Verify
 
 Check 320px host width, long location names, text zoom, keyboard order and expanded content. Inspect common edges at actual size. Keep the action near the decision it commits. Record the chosen relationship and one rejected alternative in DESIGN.md. A mathematically aligned grid is evidence of alignment, not evidence of a compelling concept.
+
+For implementation across related controls and content, use [interface implementation](../interface-implementation.md).

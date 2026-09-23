@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.10"
+  version: "2.0.1-dev.11"
 ---
 
 # Design movement around a meaningful change
@@ -34,6 +34,8 @@ Use supplied recordings or available public evidence when reconstructing or comp
 If Seenry MCP is connected, `search_references(motion=true,site=...)` and `get_page_motion(id,viewport)` find website journeys. For creator studies use `get_design_taxonomy`, `search_designs(family="motion",...)` and `get_design_video`; collections may expose clips through `get_design_reference` and `get_reference_asset`. `search_curated_references` supports `motion` and `walkthroughs` families. Read review reasons, then inspect the clip. Ratings do not prove suitability.
 
 Check recording coverage, duration, cadence, observed unique frames and warnings. Do not confuse encoded frame rate with capture fidelity or a partial journey with a complete one. Distinguish observed behavior from inferred implementation. For research deliverables include source, clip interval, applicable behavior and limitations. An offline task can proceed using the bundled behavior guides.
+
+Use [implementation decisions](references/implementation-decisions.md) to choose timing, properties, interruption, hover gating and reduced-motion behavior. The guidance is bundled; reference links are optional research.
 
 ## Choose the smallest capable mechanism
 

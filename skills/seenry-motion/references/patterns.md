@@ -1,6 +1,6 @@
 # Select a motion mechanism
 
-This is original Seenry implementation guidance, not the transitions.dev snippet collection. Select the current mechanism after inspecting the reference. A guide supplies decisions and checks; it does not prove that every named variant is implemented or visually matched. If the project already has licensed snippets, inspect the relevant local snippet and its terms instead of assuming it is bundled here.
+This is Seenry implementation guidance. Select the current mechanism after inspecting the reference. A guide supplies decisions and checks; it does not prove that every named variant is implemented or visually matched. If the project already has licensed snippets, inspect the relevant local snippet and its terms instead of assuming it is bundled here.
 
 For faithful reproduction first read [motion reconstruction](replication.md). Source geometry and trajectory override starting recipes. For ordinary product work use [local transitions](product-transitions.md). For scroll use [scroll choreography](scroll-choreography.md).
 
@@ -25,6 +25,6 @@ Use [variant coverage](variant-coverage.md) to route a requested treatment to it
 
 ## Interactive examples and implementation prompts
 
-The [Seenry motion library](https://skill.seenry.design/#motion-library) provides 18 original, interactive recipes with per-example prompts, search and category filters. Their [React source](https://github.com/ayangabryl/seenry-skills/blob/main/site/src/MotionLibrary.jsx) and adjacent CSS are MIT-licensed project examples, not a published npm runtime. Inspect the relevant implementation before adapting it. Copied prompts preserve project brand rules and specify state ownership, keyboard access, reduced motion and interruption checks. These examples are not the licensed transitions.dev collection and do not claim its visual fidelity.
+The [Seenry motion library](https://skill.seenry.design/#motion-library) provides 18 original, interactive recipes with per-example prompts, search and category filters. Their [React source](https://github.com/ayangabryl/seenry-skills/blob/main/site/src/MotionLibrary.jsx) and adjacent CSS are MIT-licensed project examples, not a published npm runtime. Inspect the relevant implementation before adapting it. Copied prompts preserve project brand rules and specify state ownership, keyboard access, reduced motion and interruption checks. Examples demonstrate their documented behavior; they do not establish fidelity to an external reference.
 
 Expressive recipes include transient blur on words, digit changes, status labels, view changes, images and expanding actions. Keep blur bounded to the changing layer, clear it fully at rest, and remove it under reduced motion. Do not add a perpetual blur or animate a full-screen filter for a small state change.

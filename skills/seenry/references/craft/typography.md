@@ -31,3 +31,5 @@ A distinctive display face may serve a short exhibition title yet obscure depart
 ## Verify
 
 Inspect narrow wrapping, 200% zoom, fallback rendering and the actual downloaded font files in production. Exercise long translated labels. Apply text-spacing overrides as tolerance tests, not mandatory default settings. Record available weights and the observation that selected the family. Never report a glyph or feature as verified merely because a related font supports it.
+
+For implementation across related controls and content, use [interface implementation](../interface-implementation.md).
