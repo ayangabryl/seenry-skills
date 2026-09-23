@@ -1,3 +1,4 @@
+import ImageBlend from './ImageBlend';
 import React, { createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useCallback, useRef, useState } from 'react';
 
 // Seenry surface renderer. Original implementation using browser SVG primitives.
@@ -56,12 +57,7 @@ export function FluidSurface({children,fill='#202020',blur=6,contrast=18,shadow,
  const r=s.radius,side=s.effect==='bend'?s.bx:0;
  return <g key={s.key}>{s.effect==='bend'?<path d={`M${s.x+r},${s.y} Q${s.x+s.w/2},${s.y+bend} ${s.x+s.w-r},${s.y} Q${s.x+s.w},${s.y} ${s.x+s.w},${s.y+r} Q${s.x+s.w+side},${s.y+s.h/2} ${s.x+s.w},${s.y+s.h-r} Q${s.x+s.w},${s.y+s.h} ${s.x+s.w-r},${s.y+s.h} Q${s.x+s.w/2},${s.y+s.h+bend} ${s.x+r},${s.y+s.h} Q${s.x},${s.y+s.h} ${s.x},${s.y+s.h-r} Q${s.x+side},${s.y+s.h/2} ${s.x},${s.y+r} Q${s.x},${s.y} ${s.x+r},${s.y} Z`}/>:<rect x={x} y={y} width={w} height={h} rx={r}/>}</g>
  })}</g>
- {images.length>0&&(()=>{
- const a=images[0],b=images[1];
- const gap=b?Math.max(Math.max(a.x,b.x)-Math.min(a.x+a.w,b.x+b.w),Math.max(a.y,b.y)-Math.min(a.y+a.h,b.y+b.h)):100;
- const contact=Math.max(0,Math.min(1,1-gap/24));
- return <g><defs><filter id={id+'-images'} x="-30%" y="-30%" width="160%" height="160%" colorInterpolationFilters="sRGB"><feGaussianBlur stdDeviation={contact*10}/><feColorMatrix type="matrix" values={`1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 ${1+contact*17} ${-contact*8.5}`}/></filter>{images.map(s=><clipPath key={s.key} id={id+s.key}><rect x={s.x} y={s.y} width={s.w} height={s.h} rx={s.radius}/></clipPath>)}</defs><g filter={contact>0?`url(#${id}-images)`:undefined}>{images.map(s=><image key={s.key} href={s.src} x={s.x} y={s.y} width={s.w} height={s.h} preserveAspectRatio="xMidYMid slice" clipPath={`url(#${id+s.key})`}/>)}</g></g>
- })()}
+ {images.length>0&&<ImageBlend images={images} id={id+"-blend"}/>}
 
  </svg>}{children}</div></Context.Provider>
 }
