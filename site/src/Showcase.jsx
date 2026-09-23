@@ -499,6 +499,7 @@ export default function Showcase({
   Art,
   CopyButton,
 }) {
+  const [selectedExamples, selectExample] = useState({});
   const demos = [
     {
       title: "Layout anatomy",
@@ -689,11 +690,11 @@ export default function Showcase({
     <>
       <section className="showcase-intro">
         <div>
+          <span className="intro-label">
+            Open-source · For your coding agent
+          </span>
           <h1>Seenry Skills</h1>
-          <p>
-            Five skills for designing and building with your coding agent. See
-            what each one does, then try the examples.
-          </p>
+          <p>Design interfaces, refine motion and work with real references.</p>
         </div>
         <div className="quick-install">
           <code>npx skills add ayangabryl/seenry-skills</code>
@@ -712,24 +713,65 @@ export default function Showcase({
           ))}
           <a href="#mcp">Skill + MCP</a>
         </nav>
-        {chapters.map((c) => (
-          <section
-            className={"skill-chapter chapter-" + c.id}
-            id={c.id}
-            key={c.id}
-          >
-            <div className="chapter-heading">
-              <div>
-                <span className="chapter-name">{c.name}</span>
-                <h2>{c.description}</h2>
-              </div>
-              <div>
-                <p>{c.body}</p>
-                <ul>
-                  {c.capabilities.map((x) => (
-                    <li key={x}>{x}</li>
+        {chapters.map((c, chapterIndex) => {
+          const examples = demos
+            .filter((d) => c.categories.includes(d.cat))
+            .sort((a, b) =>
+              c.id === "seenry"
+                ? a.wide
+                  ? -1
+                  : b.wide
+                    ? 1
+                    : 0
+                : c.id === "assets"
+                  ? a.title === "Original artwork"
+                    ? -1
+                    : b.title === "Original artwork"
+                      ? 1
+                      : 0
+                  : 0,
+            );
+          const selected = selectedExamples[c.id] || examples[0].title;
+          const example =
+            examples.find((d) => d.title === selected) || examples[0];
+          return (
+            <section
+              className={"skill-chapter chapter-" + c.id}
+              id={c.id}
+              key={c.id}
+            >
+              <div className="chapter-heading">
+                <span className="chapter-number">0{chapterIndex + 1}</span>
+                <h2>{c.name}</h2>
+                <p>
+                  {c.id === "seenry"
+                    ? "Layout, typography and responsive interfaces. Compare the decisions behind a design."
+                    : c.id === "motion"
+                      ? "Menus, navigation, numbers and feedback. Try the transitions, including their return states."
+                      : c.id === "assets"
+                        ? "Find photography and fonts, create artwork, and make the crop work."
+                        : c.id === "branding"
+                          ? "Turn type, color and imagery into a consistent visual identity."
+                          : "Give every slide a role. Build a sequence with a clear beginning and end."}
+                </p>
+                <div
+                  className="example-picker"
+                  role="group"
+                  aria-label={c.name + " examples"}
+                >
+                  {examples.map((d) => (
+                    <button
+                      key={d.title}
+                      aria-pressed={d.title === selected}
+                      onClick={() =>
+                        selectExample((prev) => ({ ...prev, [c.id]: d.title }))
+                      }
+                    >
+                      {d.title}
+                      <ArrowRight size={14} />
+                    </button>
                   ))}
-                </ul>
+                </div>
                 <a
                   className="chapter-source"
                   href={
@@ -740,37 +782,27 @@ export default function Showcase({
                   Read the skill <ArrowUpRight size={14} />
                 </a>
               </div>
-            </div>
-            <div className="chapter-examples">
-              {demos
-                .filter((d) => c.categories.includes(d.cat))
-                .sort((a, b) =>
-                  c.id === "seenry" ? (a.wide ? -1 : b.wide ? 1 : 0) : 0,
-                )
-                .map(card)}
-            </div>
-          </section>
-        ))}
+              <div className="chapter-examples" aria-live="polite">
+                <motion.div
+                  key={example.title}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {card(example)}
+                </motion.div>
+              </div>
+            </section>
+          );
+        })}
       </div>
       <section className="mcp-notes" id="mcp">
-        <h2>What MCP adds</h2>
+        <h2>Build from a reference.</h2>
         <div>
           <p>
-            The skills guide the work. Seenry MCP supplies real website screens,
-            app flows, sections, brand references, decks and recordings to
-            inspect.
-          </p>
-          <p>
-            <strong>Recreate:</strong> measure the reference, build, compare and
-            refine.
-            <br />
-            <strong>Take inspiration:</strong> carry a useful principle into an
-            original interface.
-          </p>
-          <p>
-            Video support means finding footage, inspecting recorded
-            interactions and integrating players. It does not mean generating
-            videos.
+            Connect Seenry to inspect real screens and recordings inside your
+            coding agent. Recreate a reference or use it to guide an original
+            design.
           </p>
           <a className="primary" href="https://seenry.design/mcp">
             Connect Seenry MCP <ArrowUpRight size={16} />

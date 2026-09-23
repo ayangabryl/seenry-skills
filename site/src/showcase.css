@@ -1371,3 +1371,247 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Focused skill chapters: one explanation and one working example. */
+.showcase-intro {
+  display: block;
+  max-width: 1120px;
+  margin: auto;
+  padding: 58px 0 44px;
+  border-bottom: 1px solid #e5e5e5;
+}
+.intro-label {
+  font-size: 12px;
+  color: #737373;
+}
+.showcase-intro h1 {
+  font-size: 42px;
+  letter-spacing: -1.8px;
+  margin: 14px 0 12px;
+  line-height: 1.1;
+}
+.showcase-intro p {
+  font-size: 16px;
+  max-width: none;
+  margin: 0;
+}
+.quick-install {
+  margin-top: 24px;
+  background: transparent;
+  padding: 0;
+  max-width: none;
+  gap: 14px;
+}
+.quick-install code {
+  font-size: 12px;
+  width: auto;
+  background: #eee;
+  padding: 13px 16px;
+  border-radius: 10px;
+}
+.quick-install a {
+  font-size: 12px;
+  margin-left: 6px;
+}
+.skill-index {
+  padding: 22px 0;
+  gap: 22px;
+  border-bottom: 1px solid #e5e5e5;
+}
+.skill-index a {
+  background: transparent;
+  padding: 5px 0;
+  border-radius: 0;
+  font-size: 13px;
+}
+.skill-index a:hover {
+  background: transparent;
+  color: #111;
+}
+.skill-chapter {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 64px;
+  padding: 64px 0;
+  border-bottom: 1px solid #e5e5e5;
+  align-items: start;
+}
+.chapter-heading {
+  display: block;
+  margin: 0;
+}
+.chapter-number {
+  font-size: 12px;
+  color: #909090;
+  font-variant-numeric: tabular-nums;
+}
+.chapter-heading h2 {
+  font-size: 25px;
+  letter-spacing: -0.7px;
+  margin: 14px 0 12px;
+}
+.chapter-heading p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.example-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 24px 0;
+}
+.example-picker button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  color: #777;
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+.example-picker button svg {
+  opacity: 0;
+  transition:
+    opacity 0.18s,
+    transform 0.18s;
+  transform: translateX(-3px);
+}
+.example-picker button:hover {
+  background: #f0f0f0;
+  color: #222;
+}
+.example-picker button[aria-pressed="true"] {
+  background: #eaeaea;
+  color: #222;
+}
+.example-picker button[aria-pressed="true"] svg {
+  opacity: 1;
+  transform: none;
+}
+.skill-chapter .chapter-examples {
+  display: block;
+  max-width: none;
+  min-width: 0;
+}
+.skill-chapter .example-stage {
+  height: 440px;
+  border-radius: 18px;
+  background: #eee;
+}
+.skill-chapter .example-info {
+  padding-top: 16px;
+}
+.skill-chapter .example-info h3 {
+  font-size: 13px;
+  color: #333;
+}
+.skill-chapter .example-info p {
+  font-size: 12px;
+  max-width: 540px;
+}
+.chapter-source {
+  font-size: 12px;
+  color: #666;
+}
+.mcp-notes {
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+.mcp-notes h2 {
+  font-size: 26px;
+  letter-spacing: -0.7px;
+}
+.mcp-notes p {
+  font-size: 14px;
+}
+@media (max-width: 1000px) {
+  .showcase-intro {
+    margin: 0 40px;
+  }
+  .skill-chapter {
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 30px;
+  }
+  .skill-chapter .example-stage {
+    height: 400px;
+  }
+}
+@media (max-width: 700px) {
+  .showcase-intro {
+    margin: 0 20px;
+    padding: 32px 0;
+  }
+  .showcase-intro h1 {
+    font-size: 34px;
+  }
+  .showcase-intro p {
+    font-size: 14px;
+    max-width: 300px;
+  }
+  .quick-install {
+    gap: 10px;
+  }
+  .quick-install code {
+    font-size: 10px;
+  }
+  .quick-install a {
+    width: 100%;
+    margin: 4px 0 0;
+  }
+  .skill-index {
+    gap: 18px;
+    flex-wrap: nowrap;
+    overflow: auto;
+  }
+  .skill-index a {
+    white-space: nowrap;
+  }
+  .skill-chapter {
+    display: block;
+    padding: 36px 0;
+  }
+  .chapter-heading h2 {
+    font-size: 24px;
+    margin: 8px 0;
+  }
+  .chapter-heading p {
+    max-width: 400px;
+  }
+  .example-picker {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 18px 0 14px;
+  }
+  .example-picker button {
+    font-size: 11px;
+    padding: 9px 11px;
+  }
+  .example-picker button svg {
+    display: none;
+  }
+  .chapter-source {
+    display: inline-flex;
+    margin-bottom: 20px;
+  }
+  .skill-chapter .example-stage {
+    height: 360px;
+  }
+  .chapter-seenry .example-stage {
+    height: 390px;
+  }
+  .chapter-number {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .example-picker button,
+  .example-picker button svg {
+    transition: none;
+  }
+}
