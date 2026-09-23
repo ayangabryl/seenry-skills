@@ -4,7 +4,7 @@ Use this technical reference only after the interaction needs liquid continuity,
 
 The five pinned packages are optional MIT-licensed rendering tools. This guide is authored within Seenry from public documentation and inspected package surfaces; it does not import an external agent skill. No MCP or paid account is required. Source attribution and the scope of the study are recorded in **Provenance** below.
 
-For the reusable React adapter, shared-color rule and measured action-fan configuration, use [surface effects](surface-effects.md).
+The current Seenry fluid implementation is original and does not install liquid-gooey. For its React renderer, shared-color rule and measured action-fan configuration, use [surface effects](surface-effects.md).
 
 ## Decide before selecting an engine
 

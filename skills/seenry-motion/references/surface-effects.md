@@ -16,9 +16,9 @@ These are choices, not a checklist to apply everywhere. Use plain opacity/transl
 
 ## Working implementation
 
-Install `liquid-gooey@0.2.2` for React 18+ and copy [FluidSurface.jsx](../assets/fluid/FluidSurface.jsx) together with [LICENSE.upstream](../assets/fluid/LICENSE.upstream). The wrapper uses the MIT engine; it does not claim original ownership of that implementation. Its public names are FluidSurface and FluidItem. The pinned dependency remains visible in package metadata. Do not rename provenance away.
+Use the original [FluidSurface.jsx](../assets/fluid/FluidSurface.jsx) renderer with React; no third-party fluid package. Read its [supported API and limits](../assets/fluid/README.md). It uses SVG silhouette filtering and unfiltered interactive DOM. It is a new implementation, not a renamed wrapper or copied engine.
 
-`FluidSurface` forwards `fill`, `blur`, `contrast`, `shadow`, `filterPadding` and normal group props. `FluidItem` forwards the engine's `effect`, geometry and options. The application owns open/closed state, conditional content, hit testing, tab order, Escape, outside interaction and focus restoration. The wrapper switches to static DOM on live reduced-motion preference changes. Test those semantics in every context you ship.
+The application owns state, conditional content, hit testing, tab order, Escape, outside interaction and focus restoration. The renderer switches to static DOM under live reduced motion. Test those semantics in every context. The supported options are shared fill/blur/contrast and item geometry/timing; do not pass another engine's advanced physics options and assume they work.
 
 One shared silhouette has **one fill**. Keep the trigger and revealed panel on the same semantic surface token for a continuous merge. Text/icons are a separate sharp foreground. A different-color button and panel can still have good motion, but use separate surfaces and an opacity/geometry handoff; do not promise a seamless single-color mass across incompatible fills. Theme changes must update both layers together.
 
@@ -26,7 +26,7 @@ Keep a group large enough for full travel, overshoot and shadow. Do not filter t
 
 ## Measured action fan recipe
 
-Public reference inspected September 24, 2026: Libraries.dev's `/gooey.html` preview. These numbers describe that action fan, not all its effects.
+Public reference inspected September 24, 2026: Libraries.dev's `/gooey.html` preview. These numbers describe that action fan, not all its effects. They are reference configuration, not proof that the new renderer matches its physics.
 
 - Four 40×40px circles. Trigger stays in place.
 - Final action offsets from trigger: (-54,-34), (0,-64), (+54,-34) CSS px.
@@ -48,3 +48,8 @@ Group a motion library by effect family, then by applicable context. Keep a repr
 A search disclosure can use ordinary geometry animation without a liquid filter: keep a 52px field, reveal a 36px close action on focus or nonempty input, and animate width/opacity/scale over 220ms with cubic-bezier(.22,1,.36,1). Preserve focus while moving to close. Escape clears and focuses the stable search wrapper; blur with empty input removes the close button. Under reduced motion, switch immediately. This is a smooth layout transition, not evidence of a filtered liquid merge.
 
 For blurred numbers, reserve digit columns with tabular numerals. Animate only changed glyphs, with a single semantic current value; blank leading slots instead of showing unwanted zeros. Test carry and borrow (99↔100) and rapid retargeting. Blur is temporary during change, never the resting state. Keep numbers and their units readable and stationary once settled.
+
+
+## Number cross-blur correction
+
+The inspected Transitions.dev Number pop-in uses simultaneous incoming/outgoing glyphs, 8px travel, 2px blur, 500ms cubic-bezier(.34,1.45,.64,1), and 70ms stagger at the inspected desktop viewport. This replaces the former 70% travel / 160ms wait-mode example. Keep two reusable layers per column, cancel old animations on a new value, and use the visible incoming layer as the next outgoing start. Under reduced motion switch to the latest value immediately. Keep original research attribution in the evidence record; do not claim independent invention of the reference behavior.

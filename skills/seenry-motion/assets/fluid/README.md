@@ -1,27 +1,21 @@
-# Fluid surfaces adapter
+# Seenry fluid renderer
 
-Install the pinned MIT runtime in your React project:
+Original React + browser SVG implementation. No third-party fluid package is required. Copy `FluidSurface.jsx` into your React project under the repository's MIT license.
 
-```sh
-npm install liquid-gooey@0.2.2
-```
-
-Copy `FluidSurface.jsx` and `LICENSE.upstream` into your project. Preserve the license. This is a Seenry integration adapter for Jakub Antalik's engine, not a renamed claim of authorship.
+FluidSurface owns the visual silhouette; your existing DOM owns labels, events, focus and accessibility. It measures registered items, renders a shared alpha-threshold SVG surface and follows changing rectangles during transitions. It sleeps after settling, cleans up observers and animation frames on unmount, and switches to ordinary DOM when reduced motion is enabled.
 
 ```jsx
 import { FluidSurface, FluidItem } from './FluidSurface';
-
 <FluidSurface fill="var(--surface)" blur={6} contrast={18}>
   <FluidItem x={open ? -54 : 0} y={open ? -34 : 0}
-    transition={{ duration: 550, ease: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
-    <button aria-label="Add a file" tabIndex={open ? 0 : -1}
-      aria-hidden={!open} onClick={addFile}>…</button>
+    transition={{ duration: 550, ease: 'cubic-bezier(.34,1.56,.64,1)' }}>
+    <button aria-label="Add file" tabIndex={open ? 0 : -1}>…</button>
   </FluidItem>
 </FluidSurface>
 ```
 
-This is a fragment, not a full accessible menu. The application supplies positioning, a stationary trigger, action handlers, closed pointer-event gating, Escape and focus return. Keep the whole travel area within the group. Surface color and content contrast use the project's existing tokens. Engine options pass through unchanged; the adapter provides live reduced-motion static rendering.
+The fragment needs a stationary trigger, closed pointer gating, action handlers, Escape and focus return. Position the group to contain the whole travel region. Use one shared fill for a connected mass. Keep backgrounds in the visual layer and text in the unfiltered foreground.
 
-Families: `morph` merges/reshapes, `move` trails motion, `bend` flexes the moving body, `melt` blends exactly two images. See the installed version's README for supported options. CSS opacity/blur is appropriate when no surface joining is needed.
+Supported effects: `morph` follows joining/resizing geometry; `move` introduces a trailing body; `bend` curves the moving outline; `melt` draws two images with a displaced contact blend. These are Seenry implementations, not drop-in reproductions of another library's physics. Engine-specific advanced options from earlier examples are not supported.
 
-The live examples are in `site/src/FluidLab.jsx`. Nine contexts use this adapter or CSS blur. All are local demonstrations; connect actions to real application state before shipping. No backend operation is implied.
+Supported presentation: fill, blur, contrast and x/y/scale with duration/ease/delay. A resize is followed geometrically; it does not currently reproduce the previous engine's content cross-blur or shadow parsing. Browser verification for this version covers Chromium. Safari and Firefox remain unverified.
