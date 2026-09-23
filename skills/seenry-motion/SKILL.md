@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.12"
+  version: "2.0.1-dev.13"
 ---
 
 # Design movement around a meaningful change
@@ -38,6 +38,8 @@ Check recording coverage, duration, cadence, observed unique frames and warnings
 Use [implementation decisions](references/implementation-decisions.md) to choose timing, properties, interruption, hover gating and reduced-motion behavior. The guidance is bundled; reference links are optional research.
 
 For deeper recipes use the bundled [motion construction](../seenry/references/handbook/engineering/build-motion/GUIDE.md), [motion review](../seenry/references/handbook/engineering/motion-review/GUIDE.md) and [opportunity audit](../seenry/references/handbook/engineering/motion-opportunities/GUIDE.md) modules when Seenry core is installed. Follow their integration rules. The self-contained guidance below remains sufficient without that optional handbook.
+
+For reusable merge, trail, bend, image-blend and blur treatments across controls, read [surface effects](references/surface-effects.md). It includes the licensed adapter, shared-fill constraint, measured fan geometry and explicit fidelity limits.
 
 ## Choose the smallest capable mechanism
 

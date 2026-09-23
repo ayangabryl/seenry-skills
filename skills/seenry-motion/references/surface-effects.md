@@ -1,0 +1,42 @@
+# Reusable surface effects
+
+Use effects as a rendering layer, not as a replacement component library. Start with the existing button, disclosure, selection, card or image and retain its semantics, state and actions. Shared color, corner and depth tokens come from DESIGN.md. Effects do not establish a brand by themselves.
+
+## Choose from the actual change
+
+| Change | Mechanism | Applicable contexts | Avoid when |
+| --- | --- | --- | --- |
+| One mass separates or rejoins | Merge (`morph`) | Action fan, button→panel, joined controls | Surfaces must retain different colors; content is cramped |
+| A surface follows a value/selection | Trail (`move`) | Range thumb, selected pill, dragged object | Exact visual position is essential during manipulation |
+| A moving object flexes | Bend (`bend`) | Card, pill, compact toolbar | Content becomes difficult to read or positional precision matters |
+| Two images meet | Blend (`melt`) | Paired artwork, image transition | More than two bodies; imagery cannot be distorted |
+| A view resolves into focus | Blur | Label, detail, incoming image | Continuous blur affects readability or frame budget |
+
+These are choices, not a checklist to apply everywhere. Use plain opacity/translation or no animation when that better supports the task. A close/return transition is part of the same contract; do not design only opening.
+
+## Working implementation
+
+Install `liquid-gooey@0.2.2` for React 18+ and copy [FluidSurface.jsx](../assets/fluid/FluidSurface.jsx) together with [LICENSE.upstream](../assets/fluid/LICENSE.upstream). The wrapper uses the MIT engine; it does not claim original ownership of that implementation. Its public names are FluidSurface and FluidItem. The pinned dependency remains visible in package metadata. Do not rename provenance away.
+
+`FluidSurface` forwards `fill`, `blur`, `contrast`, `shadow`, `filterPadding` and normal group props. `FluidItem` forwards the engine's `effect`, geometry and options. The application owns open/closed state, conditional content, hit testing, tab order, Escape, outside interaction and focus restoration. The wrapper switches to static DOM on live reduced-motion preference changes. Test those semantics in every context you ship.
+
+One shared silhouette has **one fill**. Keep the trigger and revealed panel on the same semantic surface token for a continuous merge. Text/icons are a separate sharp foreground. A different-color button and panel can still have good motion, but use separate surfaces and an opacity/geometry handoff; do not promise a seamless single-color mass across incompatible fills. Theme changes must update both layers together.
+
+Keep a group large enough for full travel, overshoot and shadow. Do not filter the page or interactive text. Engine items can use display-contents wrappers: position the actual element explicitly instead of depending on one assumed wrapper depth. Avoid clipping intermediate necks and overshoot. Check the filter bounds at the smallest screen size.
+
+## Measured action fan recipe
+
+Public reference inspected September 24, 2026: Libraries.dev's `/gooey.html` preview. These numbers describe that action fan, not all its effects.
+
+- Four 40×40px circles. Trigger stays in place.
+- Final action offsets from trigger: (-54,-34), (0,-64), (+54,-34) CSS px.
+- Public code specifies 550ms `cubic-bezier(0.34,1.56,0.64,1)` and 40ms stagger. These are source-disclosed values, not a curve fitted from frames.
+- Public controls: blur 6px, contrast 18, waviness 0. Timing captures have nonuniform cadence, including gaps in the opening. Do not claim frame-perfect measured equivalence from those captures.
+- Keep closed actions mounted for surface merging, but remove their tab stops and pointer actions. The trigger owns the topmost hit area. On Escape or selection return focus to it.
+- Only the fan geometry/source configuration is matched here. Shape-panel, trail, bend, blend and blur examples are adaptations. They require their own comparison if a user requests exact replication.
+
+## Validate reuse
+
+Check at least two applicable contexts before calling an effect reusable. Inspect shape mid-transition and at rest; exercise open→close→open before settlement; confirm no stale close removes reopened content. Check keyboard and touch, a 390px layout, two fill themes, resize, image failure, reduced motion and unmount. Verify supported browsers directly; dependency claims are not your test results. Blend uses only two images, with usable static images under reduced motion.
+
+Copy prompts must contain the chosen family, context, exact dependency/adapter, parameters, shared-fill restriction, semantics, reduced-motion fallback and verification criteria. Do not call a showcase adaptation a replica.

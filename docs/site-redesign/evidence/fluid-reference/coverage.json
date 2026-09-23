@@ -1,0 +1,18 @@
+{
+  "open": {
+    "captured_frames": 51,
+    "retained_frames": 13,
+    "duration_ms": 1149.62,
+    "max_frame_gap_ms": 387.71,
+    "timing_origin": "capture start, not input event",
+    "limitation": "Irregular screencast cadence; no exact input timestamp. Opening has missing intermediate frames."
+  },
+  "close": {
+    "captured_frames": 187,
+    "retained_frames": 44,
+    "duration_ms": 791.52,
+    "max_frame_gap_ms": 45.04,
+    "timing_origin": "capture start, not input event",
+    "limitation": "Irregular screencast cadence; no exact input timestamp. Opening has missing intermediate frames."
+  }
+}

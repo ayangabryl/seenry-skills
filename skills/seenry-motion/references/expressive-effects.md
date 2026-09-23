@@ -4,6 +4,8 @@ Use this technical reference only after the interaction needs liquid continuity,
 
 The five pinned packages are optional MIT-licensed rendering tools. This guide is authored within Seenry from public documentation and inspected package surfaces; it does not import an external agent skill. No MCP or paid account is required. Source attribution and the scope of the study are recorded in **Provenance** below.
 
+For the reusable React adapter, shared-color rule and measured action-fan configuration, use [surface effects](surface-effects.md).
+
 ## Decide before selecting an engine
 
 State the change a person needs to understand: where an action is, whether work is actually running, which controls belong together, what material a brand evokes, or which image has arrived. Choose a stable reference point, the trigger, an informative settled state, an interruption rule and a motion-free equivalent. Inspect that moment in the real layout. Remove the effect if it competes with the content or obscures the change.
@@ -34,7 +36,7 @@ Avoid an always-active ornament in a paused player, ordinary form, or quiet read
 
 ## Liquid continuity
 
-Verified package surface: `liquid-gooey@0.2.1`, React/React DOM >=18 peers.
+Verified package surface: `liquid-gooey@0.2.2`, React/React DOM >=18 peers.
 
 `Liquid` owns merged fill, blur, contrast, shadow and filter bounds. `Liquid.Item` exposes `morph`, `move`, `melt` and `bend`, with `x`, `y`, `scale`, `transition` and per-effect tuning. `morph` connects or changes shapes; `move` adds trailing mass; `bend` deforms with velocity. `melt` combines image surfaces: its documented implementation is pairwise, so do not assume an arbitrary grid will blend correctly. Shape physics are not enabled merely by choosing `morph`; inspect `morph.shape` and its tuning.
 
@@ -78,7 +80,7 @@ Public-source study recorded 2026-09-11; skill availability and redistribution t
 | --- | --- | --- |
 | `border-beam@1.3.0` | [Boundary effect](https://libraries.dev/beam) | [Source](https://github.com/Jakubantalik/border-beam) |
 | `thinking-orbs@0.3.1` | [Process states](https://libraries.dev/orbs) | [Source](https://github.com/Jakubantalik/thinking-orbs) |
-| `liquid-gooey@0.2.1` | [Liquid effects](https://libraries.dev/gooey) | [Package source](https://github.com/Jakubantalik/Libraries.dev/tree/main/packages/liquid-gooey) |
+| `liquid-gooey@0.2.2` | [Liquid effects](https://libraries.dev/gooey) | [Package source](https://github.com/Jakubantalik/Libraries.dev/tree/main/packages/liquid-gooey) |
 | `metal-fx@2.0.10` | [Reflective effects](https://libraries.dev/metal) | [Source](https://github.com/Jakubantalik/metal-fx) |
 | `img-fx@0.5.1` | [Image effects](https://libraries.dev/image) | [Source](https://github.com/Jakubantalik/img-fx) |
 

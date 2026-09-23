@@ -18,4 +18,4 @@ Write down empty, editing, invalid, submitting, server failure, retry and confir
 
 Exercise empty submit, invalid address, one corrected field, valid submit, slow response, double submit, server rejection and retry. Check focus and screen-reader associations, keyboard submission, narrow layout and reduced motion. For a local showcase, say explicitly that no account is created and use a clearly labelled failure simulation rather than fabricating a real network error.
 
-Seenry's site has an authored example in `site/src/SignupExperience.jsx`. It demonstrates the frontend state contract, not a production authentication service.
+Apply this contract where a project actually needs a form. Do not add an unrelated signup demonstration to a skill showcase merely to advertise error handling.
