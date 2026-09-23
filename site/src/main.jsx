@@ -716,7 +716,7 @@ function MCPSection() {
           <div className="under-demo">
             <span>
               {mode === "Reference"
-                ? "Original motion reference · Kopp"
+                ? "Original motion reference"
                 : "Author-assisted reconstruction · Interactive demo"}
             </span>
             <a href="https://seenry.design/demos/motion-studies/">

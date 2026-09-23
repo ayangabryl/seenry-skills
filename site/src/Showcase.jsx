@@ -652,14 +652,14 @@ export default function Showcase({
     {
       title: "Study a recording",
       cat: "Video",
-      desc: "Play and scrub the original Kopp reference to inspect its behavior.",
+      desc: "Play and scrub the original reference to inspect its behavior.",
       el: <VideoDemo />,
       dark: true,
     },
     {
       title: "Reference reconstruction",
       cat: "MCP",
-      desc: "Our author-assisted Kopp study. Open either menu and try the hover.",
+      desc: "Our reference reconstruction. Open either menu and try the hover.",
       el: <Reconstruction />,
       dark: true,
     },

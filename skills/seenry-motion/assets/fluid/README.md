@@ -19,3 +19,7 @@ The fragment needs a stationary trigger, closed pointer gating, action handlers,
 Supported effects: `morph` follows joining/resizing geometry; `move` introduces a trailing body; `bend` curves the moving outline; `melt` draws two images with a displaced contact blend. These are Seenry implementations, not drop-in reproductions of another library's physics. Engine-specific advanced options from earlier examples are not supported.
 
 Supported presentation: fill, blur, contrast and x/y/scale with duration/ease/delay. A resize is followed geometrically; it does not currently reproduce the previous engine's content cross-blur or shadow parsing. Browser verification for this version covers Chromium. Safari and Firefox remain unverified.
+
+## Focus search
+
+Copy `FluidSearch.jsx`, `fluid-search.css` and `FluidSurface.jsx` into the project. Import FluidSearch and provide the controlled `value` and `onChange`. Focus separates the field and close circle; Close/Escape clears and merges them. The bundled implementation uses React and browser primitives, with no additional package installation.

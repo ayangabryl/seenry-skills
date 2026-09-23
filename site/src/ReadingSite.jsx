@@ -596,7 +596,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                     <VideoDemo />
                   </div>
                   <figcaption>
-                    <span>Original · Kopp</span>
+                    <span>Original reference</span>
                     <span>Recording</span>
                   </figcaption>
                 </figure>

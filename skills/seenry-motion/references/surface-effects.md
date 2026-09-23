@@ -26,7 +26,7 @@ Keep a group large enough for full travel, overshoot and shadow. Do not filter t
 
 ## Measured action fan recipe
 
-Public reference inspected September 24, 2026: Libraries.dev's `/gooey.html` preview. These numbers describe that action fan, not all its effects. They are reference configuration, not proof that the new renderer matches its physics.
+Action fan study; provenance is retained in the research evidence record. These numbers describe that action fan, not all its effects. They are reference configuration, not proof that the new renderer matches its physics.
 
 - Four 40×40px circles. Trigger stays in place.
 - Final action offsets from trigger: (-54,-34), (0,-64), (+54,-34) CSS px.
@@ -45,11 +45,11 @@ Copy prompts must contain the chosen family, context, exact dependency/adapter, 
 
 Group a motion library by effect family, then by applicable context. Keep a representative playground on the main skill page and move the long recipe catalog to a dedicated route. Do not duplicate the same effect catalog and number demo on both surfaces. Every group has a direct URL; prompts must describe the selected effect/context and its actual settings, not inherit the default fan recipe.
 
-A search disclosure can use ordinary geometry animation without a liquid filter: keep a 52px field, reveal a 36px close action on focus or nonempty input, and animate width/opacity/scale over 220ms with cubic-bezier(.22,1,.36,1). Preserve focus while moving to close. Escape clears and focuses the stable search wrapper; blur with empty input removes the close button. Under reduced motion, switch immediately. This is a smooth layout transition, not evidence of a filtered liquid merge.
+Use the bundled [FluidSearch.jsx](../assets/fluid/FluidSearch.jsx) and its CSS for focus-driven search. A stationary 52px wrapper contains a pill and a 52px circle. On focus the pill shrinks by 64px and the circle separates to a 12px final gap over 460ms cubic-bezier(.22,1,.36,1). Filter only their shared-color silhouettes; keep content sharp. Close/Escape clears and returns focus to the wrapper as both silhouettes merge. Outside blur preserves a nonempty query. Closed close controls must be untabbable and noninteractive. Rapid reversal starts from current CSS geometry; live reduced motion removes transitions and filtering. No package installation is needed beyond the project's React runtime.
 
 For blurred numbers, reserve digit columns with tabular numerals. Animate only changed glyphs, with a single semantic current value; blank leading slots instead of showing unwanted zeros. Test carry and borrow (99↔100) and rapid retargeting. Blur is temporary during change, never the resting state. Keep numbers and their units readable and stationary once settled.
 
 
 ## Number cross-blur correction
 
-The inspected Transitions.dev Number pop-in uses simultaneous incoming/outgoing glyphs, 8px travel, 2px blur, 500ms cubic-bezier(.34,1.45,.64,1), and 70ms stagger at the inspected desktop viewport. This replaces the former 70% travel / 160ms wait-mode example. Keep two reusable layers per column, cancel old animations on a new value, and use the visible incoming layer as the next outgoing start. Under reduced motion switch to the latest value immediately. Keep original research attribution in the evidence record; do not claim independent invention of the reference behavior.
+The number pop-in treatment uses simultaneous incoming/outgoing glyphs, 8px travel, 2px blur, 500ms cubic-bezier(.34,1.45,.64,1), and 70ms stagger at the inspected desktop viewport. This replaces the former 70% travel / 160ms wait-mode example. Keep two reusable layers per column, cancel old animations on a new value, and use the visible incoming layer as the next outgoing start. Under reduced motion switch to the latest value immediately. Keep original research attribution in the evidence record; do not claim independent invention of the reference behavior.
