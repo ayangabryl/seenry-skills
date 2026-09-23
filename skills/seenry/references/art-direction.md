@@ -20,6 +20,8 @@ Name the asset or content dependency that could invalidate each direction. If th
 
 Keep quality criteria stable while allowing their visual expression to vary: subject fit, hierarchy, material quality, coherent identity and usable behavior. Do not borrow a reference's type scale, density, palette or effects merely to make the result resemble a highly rated screen. A quiet service opening and an expressive cultural opening can both succeed on these criteria.
 
+For interactive concepts, use [interface exploration](interface-exploration.md) to develop the promise → material → operation → consequence chain and test the decisive state. A static opening remains appropriate when interaction adds no understanding.
+
 ## Develop three different arguments with the same facts
 
 Change the organising idea, not only colors, fonts or corner shapes. For example, a sound studio could demonstrate the difference before explaining it, organise work by listening situations, or expose a spatial mixing process. All must still state the service and offer a normal path without sound. These are possible directions, not a mandatory audio interaction.
