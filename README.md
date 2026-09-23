@@ -1,6 +1,6 @@
 # Seenry skills
 
-The current local development candidate is **2.0.1-dev.10**. It adds optional shared selection and anchored-surface runtimes, product motion continuity, and asset/deck finish checks. It strengthens recreation versus adaptation routing, independent hover inspection and multi-track carousel reconstruction. It retains the dedicated replication route and 25 selectively loaded motion mechanisms. The published development release is 2.0.1-dev.8. The stable release remains 2.0.0. This development release has package and author-assisted reconstruction checks, not a new unassisted benchmark or a guarantee of reference fidelity.
+The published development release is **2.0.1-dev.18**. It includes interface exploration, consistent project brand rules, geometry review, motion implementation guides, and truthful pricing communication. The stable release remains 2.0.0. Package validation and author-assisted product checks do not establish unassisted design quality or guarantee reference fidelity.
 
 A design workflow that connects reference research to actual layouts, visual decisions, complete interactions and rendered review. Seenry consolidates the former Design Judgment process and Web Atlas skills into one package.
 

@@ -34,3 +34,9 @@ A specimen or screenshot teaser is insufficient when visitors need to judge a co
 - Does a dense mobile view retain the example, its meaning and the next action?
 
 Counterexample: an urgent repair service may need availability and contact before any gallery. A documentation index can legitimately be a ruled list. This correction targets weak evidence and misplaced information, not all lists, borders or prose. Keep exact color, font and layout choices project-specific. Test on a fresh brief before claiming transferable improvement.
+
+## Price comparisons and launch offers
+
+Show the amount charged and billing interval beside any monthly equivalent. A lifetime offer can be emphasized through hierarchy, a factual comparison and a real closing date. Distinguish an annualized comparison from an annual plan: “$60 per year on quarterly billing” does not mean an annual subscription exists. Do not invent a former price, remaining stock, popularity or a resettable deadline. Explain the operating-lifetime definition and any recurring usage allowance.
+
+An unavailable checkout still needs readable text and an explanation. Do not lower the opacity of an entire light button until its label disappears. Separate loading, configuration unavailable, expired offer and active checkout states; never imply that payment is possible merely because the offer looks ready.

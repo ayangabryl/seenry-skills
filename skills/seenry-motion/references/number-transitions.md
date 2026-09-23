@@ -33,3 +33,11 @@ The accessible text changes immediately and is separate from hidden decorative d
 Exercise 9→10, 99→100, a decrease, negative/positive transitions and decimal precision appropriate to the task. Rapidly reverse direction before settling; the latest real value must win. Inspect ordinary speed and intermediate frames, the fixed unit/colon, keyboard input, font loading and live reduced-motion changes. Test disposal during movement and retain truthful output if the module fails to load. Do not infer a smooth experience from a changing label or from a dependency name.
 
 Sources: [NumberFlow vanilla API and limitations](https://number-flow.barvian.me/vanilla), [source and MIT license](https://github.com/barvian/number-flow), [esm-env export conditions](https://github.com/benmccann/esm-env). The reservation, accessible-text ownership and lifecycle wrapper are Seenry integration decisions; timing remains a project hypothesis to inspect.
+
+## Pricing and billing switches
+
+A request for rolling or flipping prices requires digit-level motion. Remounting a whole price with a fade or translate is a text entrance, not a number transition. Use the existing number helper when appropriate; the presence of a helper in the skill does not prove that the product integrates it.
+
+Keep the currency edge, decimal separator and billing unit anchored. Choose a deliberate precision such as 5.00 → 7.99 when fixed decimal columns aid comparison. Reserve the widest formatted value in the actual font before finalizing the card. Do not animate the billed total into a monthly equivalent without updating the billing explanation immediately. If a third-party reference is named, inspect its live interaction; describe a different engine or trajectory as an adaptation.
+
+Exercise the actual billing switch with the pointer, arrow keys and rapid reversal. Check the final accessible amount, settled digits, unit coordinates, reduced motion changed during playback, font loading and unmount. Keep checkout state independent of visual price animation.

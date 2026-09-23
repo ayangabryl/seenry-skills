@@ -4,7 +4,7 @@ description: "Research, design, refine or faithfully reconstruct websites and in
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.17"
+  version: "2.0.1-dev.18"
 ---
 
 # Seenry

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1-dev.18 · 2026-09-24
+
+- Publishes the accumulated interface exploration, brand continuity, asset, motion and layout review guidance.
+- Adds pricing-number transition checks for anchored units, rapid reversal and reduced motion, plus honest billing and offer copy.
+- Synchronizes the public MCP tool contract with the current server.
+- Package checks and authored product reviews are not an unassisted quality benchmark.
+
 ## Unreleased: 2.0.1-dev.10 · 2026-09-23
 
 - Adds optional authored selection-surface and anchored-surface helpers with required styling, semantic ownership, reversal, cleanup and reduced-motion guidance. Explicit helper selection includes source and resource hashes; a replication pattern does not silently opt into a proposed trajectory.

@@ -1,6 +1,6 @@
 # Controls: emphasis follows the action
 
-Use for unclear actions, heavy containment, unstable button states or inconsistent icons. Keep the existing control system unless redesign is requested.
+Use for unclear actions, heavy containment, unstable states or inconsistent icons. Preserve the existing system unless redesign is requested.
 
 ## Execute
 
@@ -26,7 +26,7 @@ For a short set of changing labels, compare their actual rendered widths and giv
 
 Keep a dependent setting next to the thing it modifies. A permission dropdown revealed alone below unrelated actions loses its context. Group through proximity, alignment and semantics first; a layout wrapper does not need a visible border or fill. Inspect every disclosure state: a group enclosing just one already outlined control may add no information. Add a shared boundary only when it distinguishes a useful compound operation. Reflow dependent controls together and preserve useful anchors without imposing a detached second row just to pass a geometry check.
 
-Give the setting one visible name and let its control express the current value. Adjacent helper text should explain a consequence, limitation or recovery, not repeat that value as another heading. For example, an access selector can show “Only invited people” while supporting text explains who can open the file. A separate read-only summary can be justified when the editor is elsewhere or the consequence needs an explicit review; check that context before removing it. Semantic labels and descriptions remain available to assistive technology.
+Give each setting one visible name; its control expresses the value. Supporting text explains consequences or recovery. Keep a separate summary only when the editor is elsewhere or explicit review is needed. Preserve accessible labels and descriptions.
 
 ## Focus is a designed state
 

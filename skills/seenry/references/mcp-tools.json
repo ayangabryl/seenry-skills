@@ -1,7 +1,40 @@
 {
-  "version": "2.3.0",
+  "version": "2.4.0",
   "endpoint": "https://mcp.seenry.design",
   "tools": [
+    {
+      "name": "get_design_research",
+      "title": "Research design decisions",
+      "description": "Retrieve MCP-only sourced guidance, counterexamples, reference research routes and verification checks. Choose a topic; use overview to discover topics. Guidance is not proof of conversion or automatic design quality.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "topic": {
+            "default": "overview",
+            "type": "string",
+            "enum": [
+              "overview",
+              "direction",
+              "color",
+              "layout",
+              "behavior",
+              "marketing",
+              "platform",
+              "motion",
+              "synthesis"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
     {
       "name": "get_library_guide",
       "title": "Choose a research workflow",
