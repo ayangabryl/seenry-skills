@@ -1,0 +1,14 @@
+# Seenry Skills site
+Audience: designers and developers using coding agents. Task: understand the five open-source skills, inspect live examples, install, optionally connect paid Seenry MCP.
+Facts: five canonical skills; video sourcing belongs to assets and motion analysis to motion. Authored examples are not controlled model benchmarks. No guaranteed replication or conversion claims.
+System: Open Runde from lauridskern/open-runde (OFL); white, gray, charcoal; color reserved for demo material. Primary buttons have restrained depth; utilities remain flat.
+Evidence inspected 2026-09-23: jakub.kr/skills screenshot (narrow editorial column, immediately adjacent interactive before/after), transitions.dev screenshot (repeated live playgrounds, clear category controls), emilkowal.ski/skill screenshot (simple command and direct explanation). Borrow evidence-first clarity, not their compositions or source code.
+Three structural studies in docs/studies.jsx: A workbench, B editorial sequence, C gallery. A foregrounds transformation at readable scale; B delays breadth; C makes comparisons too small. Select A opening, separate large demonstrations below.
+Transition plan: reversible shared-layout selection, spring disclosure, exit/entry crossfade, pointer hover, reduced-motion alternatives. No scroll trapping or forced autoplay.
+Visitor path: try before/after → motion + asset + brand + deck examples → real MCP reference demo → install command. Public site has no account or checkout.
+Main website corrections: remove broad shadows on every button; keep accessible focus but eliminate double input frame; equal search/tab/result alignment; preserve search keyboard flow.
+
+## Render review
+Rendered all three study structures before the product build. Selected comparison workbench with full-width example beneath concise opening. Compared finished slice with inspected reference screens: larger product evidence than Emil's text-first page; preserves Jakub's direct evidence/action relationship without copying its narrow article layout. Desktop and 390px tested: no horizontal overflow; stacked example keeps artwork and copy readable. The mobile embed is an overview with a full-study link.
+Exercises: before/after, open/export/close/Escape/focus-return, artwork swap, brand palette, slide endpoints, real reference video playback (10.133333s), local reconstruction opening, install copy confirmed against clipboard. Main search inspected at 390px and desktop; FAQ double raised surface removed. Main regression suite 176 passed.
+Limits: demonstrations are authored examples, not controlled performance claims. Reconstruction source fonts/icons remain approximate per its NOTICE. Original video is remotely hosted on Seenry CDN and has an unavailable state. No claim of universal reference fidelity.
