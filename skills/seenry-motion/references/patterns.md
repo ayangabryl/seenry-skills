@@ -18,3 +18,7 @@ Set `motion_patterns` in the project packet to one or more applicable identifier
 Example: `{"scope":"component","intent":"replicate","media":"none","motion":"signature","motion_patterns":["fluid-menu"],"research_source":"local"}`. Run the ordinary packet helper with that project JSON. Only request a helper when its mechanism fits: the disclosure helper cannot generate a liquid silhouette.
 
 Keep one owner for each animated property. Audit actual input, interruption, current-state reversal, keyboard/focus, resize and live reduced motion. Compare the observed transition at the source dimensions, including its intermediate frames. Counting effects, importing a library or passing functional tests does not establish reference fidelity.
+
+## Coverage is not fidelity
+
+Use [variant coverage](variant-coverage.md) to route a requested treatment to its mechanism and identify the implementation work still required. A listed family is guidance, not a bundled third-party snippet or a visually certified result.

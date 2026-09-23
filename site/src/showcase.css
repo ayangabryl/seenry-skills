@@ -81,7 +81,7 @@
   gap: 3px;
 }
 .showcase-tools .selection {
-  background: #e5e5e3;
+  background: #e5e5e5;
   box-shadow: none;
 }
 .showcase-tools .switch button {
@@ -135,7 +135,7 @@
 }
 .example-stage {
   height: 300px;
-  background: #eeedeb;
+  background: #eeeeee;
   border-radius: 19px;
   overflow: hidden;
   display: grid;
@@ -278,7 +278,7 @@
   background: #fff;
 }
 .dark-demo .example-stage {
-  background: #10100e;
+  background: #101010;
 }
 .example-stage .video-demo {
   width: 100%;
@@ -425,7 +425,7 @@
   width: 45px;
   height: 55px;
   border-radius: 6px;
-  background: linear-gradient(35deg, #9ba490, #dedacb);
+  background: linear-gradient(35deg, #a0a0a0, #dedede);
   margin-right: 5px;
 }
 .collection-row > svg {
@@ -440,7 +440,7 @@
   width: 30px;
   height: 32px;
   border-radius: 5px;
-  background: #dadbd4;
+  background: #dadada;
 }
 .number-example {
   text-align: center;
@@ -581,7 +581,7 @@
 .toggle-example > button {
   width: 64px;
   height: 38px;
-  background: #d2d2ce;
+  background: #d2d2d2;
   border-radius: 999px;
   padding: 4px;
   display: flex;
@@ -679,7 +679,7 @@
 }
 .crop-art {
   overflow: hidden;
-  background: #dadbd5;
+  background: #dadada;
   border-radius: 10px;
   display: grid;
   place-items: center;
@@ -695,7 +695,7 @@
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 40px;
-  border-top: 1px solid #e5e5e3;
+  border-top: 1px solid #e5e5e5;
 }
 .mcp-notes h2,
 .showcase-install h2 {
@@ -858,4 +858,322 @@
   .hover-example button > span {
     transform: none !important;
   }
+}
+/* Stable stages: decorative movement never changes the gallery or its controls. */
+.showcase-intro h1 {
+  font-size: 36px;
+  letter-spacing: -1.4px;
+  line-height: 1.15;
+  max-width: none;
+}
+.showcase-intro p {
+  max-width: 390px;
+}
+.number-display {
+  width: 240px;
+  justify-content: flex-start;
+  letter-spacing: -1.8px;
+  overflow: visible;
+}
+.number-display > span {
+  width: 135px;
+  text-align: right;
+  flex: none;
+}
+.number-display small {
+  width: 80px;
+  flex: none;
+  margin-left: 12px;
+}
+.number-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+.number-actions > button:not(.demo-action) {
+  display: grid;
+  place-items: center;
+  background: white;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+}
+.number-actions > button:disabled {
+  opacity: 0.35;
+}
+.notice-example {
+  display: block;
+  position: relative;
+  padding: 0;
+}
+.notice-stack {
+  position: absolute;
+  top: 24px;
+  bottom: 82px;
+  left: 24px;
+  right: 24px;
+  width: auto;
+  max-width: none;
+  min-height: 0;
+  display: block;
+}
+.notice-stack > div {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 54px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 3px 8px #00000008;
+}
+.notice-stack strong,
+.notice-stack small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.notice-stack small {
+  font-size: 10px;
+  color: #777;
+}
+.notice-stack button {
+  width: 26px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.notice-example > .demo-action {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.notice-example > .demo-action:hover {
+  transform: translateX(-50%) translateY(-1px);
+}
+.collection-preview {
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.fan-cards {
+  position: relative;
+  width: 100%;
+  height: 166px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.fan-cards button {
+  position: absolute;
+  width: 106px;
+  height: 142px;
+  padding: 7px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px #00000010;
+  border: 1px solid #ddd;
+  transform-origin: 50% 100%;
+  font-size: 9px;
+  text-align: left;
+}
+.fan-cards button > span:last-child {
+  display: block;
+  padding: 8px 3px;
+}
+.fan-art {
+  display: flex;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  background: #e5e5e5;
+  gap: 3px;
+  border-radius: 6px;
+}
+.fan-art-0 i {
+  width: 22px;
+  height: 80px;
+  transform: rotate(25deg);
+  background: linear-gradient(90deg, #aaa, #fff);
+  border-radius: 14px;
+}
+.fan-art-1 i {
+  width: 29px;
+  height: 65px;
+  background: linear-gradient(90deg, #333, #888);
+  border-radius: 50%;
+  transform: rotate(-25deg);
+}
+.fan-art-2:after {
+  content: "Aa";
+  font-size: 45px;
+  letter-spacing: -5px;
+  color: #333;
+}
+.collection-caption {
+  text-align: center;
+  padding-top: 18px;
+  height: 58px;
+}
+.collection-caption strong,
+.collection-caption span {
+  display: block;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.collection-caption span {
+  color: #888;
+  font-size: 10px;
+}
+.anatomy-example {
+  padding: 24px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.anatomy-toggle {
+  font-size: 11px;
+  padding: 8px 11px;
+  background: white;
+  border-radius: 99px;
+  margin-bottom: 24px;
+}
+.anatomy-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 16px;
+  align-items: end;
+  position: relative;
+}
+.anatomy-picture {
+  height: 130px;
+  background: linear-gradient(145deg, #ccc, #fafafa);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.anatomy-picture span {
+  font-size: 52px;
+  letter-spacing: -5px;
+  transform: rotate(-12deg);
+  color: #555;
+}
+.anatomy-copy {
+  position: relative;
+}
+.anatomy-copy small {
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+.anatomy-copy h3 {
+  font-size: 19px;
+  line-height: 1.15;
+  margin: 8px 0;
+}
+.anatomy-copy p {
+  font-size: 9px;
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+.anatomy-copy > span {
+  font-size: 10px;
+}
+.anatomy-note {
+  font-size: 10px !important;
+  color: #777;
+  margin: 18px 0 0 !important;
+}
+.has-guides .anatomy-layout {
+  outline: 1px dashed #888;
+  outline-offset: 8px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 7px,
+    #00000008 7px 8px
+  );
+}
+.has-guides .anatomy-copy:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -12px;
+  bottom: -12px;
+  border-left: 1px dashed #666;
+}
+.has-guides .anatomy-picture {
+  outline: 1px solid #777;
+  outline-offset: 2px;
+}
+@media (max-width: 600px) {
+  .showcase-intro h1 {
+    font-size: 30px;
+  }
+  .notice-stack {
+    left: 20px;
+    right: 20px;
+  }
+}
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.scroll-objects > div:nth-child(1) {
+  background: #dedede;
+}
+.scroll-objects > div:nth-child(2) {
+  background: #aaa;
+}
+.scroll-objects > div:nth-child(3) {
+  background: #e5e5e5;
+}
+.fan-cards button {
+  position: relative;
+  width: 33.333%;
+  height: 154px;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  padding: 0;
+  flex: none;
+}
+.fan-surface {
+  position: absolute;
+  display: block;
+  top: 6px;
+  left: 3%;
+  width: 94%;
+  height: 142px;
+  padding: 7px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px #00000010;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+}
+.fan-cards button > .fan-surface:last-child {
+  padding: 7px;
+}
+.fan-name {
+  display: block;
+  font-size: 9px;
+  padding: 8px 2px;
 }

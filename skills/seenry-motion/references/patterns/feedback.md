@@ -10,6 +10,8 @@ Use for notification badges, success checks, error shakes, toast/banners, toggle
 
 **Toast and banner stacking.** Give every notification a persistent identity. Animate the entering/removing item and measured movement of neighbors, not a rebuilt list. Pause auto-dismiss while hovered/focused; actionable or important failure messages need enough time or persistence. A banner in document flow moves content deliberately; an overlay does not. Live regions announce new information once. A toast should not steal focus from the task.
 
+For bounded exit layers, rapid-event tests and stable controls, follow [interaction anatomy](../interaction-anatomy.md#repeated-events-bound-both-state-and-presentation). A data cap alone does not cap outgoing animation nodes.
+
 **Counterexample:** beginning a success check on click before clipboard/network success, then hiding the error behind it.
 
 **Check:** operation failure, two rapid operations, undo, same-message repeat, keyboard focus during dismissal, long localized text, removal while another item enters. Capture the full state sequence; a working click animation is not proof that the operation worked.

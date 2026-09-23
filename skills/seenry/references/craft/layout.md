@@ -2,6 +2,8 @@
 
 Use when groups compete, a component feels oversized, or the narrow layout breaks the reading order. Inherit the host's density and spacing tokens. Do not begin by making every gap equal.
 
+For disputed hierarchy, alignment or generic opening structure, use [layout anatomy](layout-anatomy.md) before adding decoration.
+
 ## Execute
 
 Write the task and intended footprint first. Group the title with its explanation, each label with its control, and the commitment action with its consequence. Establish a few alignment anchors. Space within a group should normally feel closer than space between unrelated groups; compare perceived grouping rather than enforcing one multiplier.

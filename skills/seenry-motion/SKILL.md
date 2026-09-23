@@ -47,6 +47,8 @@ For other transition families, select a pattern from the [motion index](referenc
 
 For motion across multiple pages or shared controls, use [system choreography](references/system-choreography.md). Implement the shared behavior in the product, then verify representative contexts.
 
+For named benchmarks, repeated-event components or rejected motion, use [interaction anatomy](references/interaction-anatomy.md). It distinguishes numeric mechanisms, bounds outgoing layers under rapid input, and separates available guidance from verified fidelity.
+
 ## Exercise the meaningful transition
 
 Test initial and settled states, rapid input, reversal, keyboard/touch, resize and live reduced motion. Inspect normal-speed playback and relevant intermediate geometry; endpoints alone cannot prove continuity. Check cancellation, stale async completion and cleanup for the chosen behavior. Keep failed or unavailable checks explicit, and report the actual browser/device coverage.

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowRight,
@@ -13,6 +13,7 @@ import {
   Type,
   Layers,
 } from "lucide-react";
+import { createNumberTransition } from "../../skills/seenry-motion/assets/number-transition.mjs";
 const spring = { type: "spring", stiffness: 420, damping: 32 };
 function Disclosure() {
   const [open, set] = useState(false);
@@ -87,98 +88,217 @@ function PageTransition() {
   );
 }
 function Numbers() {
-  const [n, set] = useState(24);
+  const [n, set] = useState(99);
+  const slot = useRef(null);
+  const renderer = useRef(null);
+  useEffect(() => {
+    renderer.current = createNumberTransition({
+      slot: slot.current,
+      value: 99,
+      reserveValues: [0, 99, 100, 999],
+      duration: 480,
+      align: "end",
+    });
+    return () => renderer.current?.destroy();
+  }, []);
+  useEffect(() => renderer.current?.update(n), [n]);
   return (
     <div className="number-example">
-      <div
-        className="number-display"
-        aria-live="polite"
-        aria-label={`${n} references`}
-      >
-        <AnimatePresence mode="popLayout" initial={false}>
-          {String(n)
-            .split("")
-            .map((d, i) => (
-              <motion.span
-                key={i + "-" + d}
-                initial={{ y: 30, opacity: 0, filter: "blur(3px)" }}
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                exit={{ y: -30, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {d}
-              </motion.span>
-            ))}
-        </AnimatePresence>
+      <div className="number-display">
+        <span ref={slot}>99</span>
         <small>references</small>
       </div>
-      <button className="demo-action" onClick={() => set(n === 24 ? 128 : 24)}>
-        Change value <ArrowRight size={15} />
-      </button>
+      <div className="number-actions">
+        <button
+          aria-label="Decrease references"
+          disabled={n === 0}
+          onClick={() => set((v) => Math.max(0, v - 1))}
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <button
+          className="demo-action"
+          onClick={() => set((v) => (v === 99 ? 100 : 99))}
+        >
+          99 ↔ 100
+        </button>
+        <button
+          aria-label="Increase references"
+          disabled={n === 999}
+          onClick={() => set((v) => Math.min(999, v + 1))}
+        >
+          <Plus size={16} />
+        </button>
+      </div>
+      <span className="sr-only" role="status">
+        {n} references
+      </span>
     </div>
   );
 }
 function Notifications() {
-  const [items, set] = useState([]);
+  const [state, set] = useState({ items: [], leaving: null });
+  const serial = useRef(0);
+  const trigger = useRef();
+  const [message, announce] = useState("");
+  function add() {
+    const id = ++serial.current;
+    set((s) => ({
+      items: [id, ...s.items].slice(0, 3),
+      leaving: s.items.length === 3 ? { id: s.items[2], index: 2 } : s.leaving,
+    }));
+    announce(`Reference ${id} added to collection`);
+  }
+  function dismiss(id) {
+    trigger.current?.focus();
+    set((s) => ({
+      items: s.items.filter((x) => x !== id),
+      leaving: { id, index: s.items.indexOf(id) },
+    }));
+  }
+  const row = (id, index, leaving = false) => (
+    <motion.div
+      key={(leaving ? "exit-" : "") + id}
+      aria-hidden={leaving || undefined}
+      style={{
+        zIndex: leaving ? 0 : 4 - index,
+        pointerEvents: leaving ? "none" : undefined,
+      }}
+      initial={
+        leaving
+          ? { opacity: 1, y: -index * 62, scale: 1 }
+          : { opacity: 0, y: 36, scale: 0.94 }
+      }
+      animate={
+        leaving
+          ? { opacity: 0, y: -index * 62, x: 36, scale: 0.96 }
+          : { opacity: 1, y: -index * 62, scale: 1 }
+      }
+      transition={
+        leaving
+          ? { duration: 0.18 }
+          : { type: "spring", stiffness: 460, damping: 38 }
+      }
+      onAnimationComplete={() => {
+        if (leaving)
+          set((s) => (s.leaving?.id === id ? { ...s, leaving: null } : s));
+      }}
+    >
+      <Check size={16} />
+      <span>
+        <strong>Reference saved</strong>
+        <small>Added to Collection · {id}</small>
+      </span>
+      {!leaving && (
+        <button
+          aria-label={`Dismiss notification ${id}`}
+          onClick={() => dismiss(id)}
+        >
+          <X size={14} />
+        </button>
+      )}
+    </motion.div>
+  );
   return (
     <div className="notice-example">
-      <div className="notice-stack" aria-live="polite">
-        <AnimatePresence initial={false}>
-          {items.map((i) => (
-            <motion.div
-              layout
-              key={i}
-              initial={{ opacity: 0, y: 25, scale: 0.92 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 30, scale: 0.95 }}
-              transition={spring}
-            >
-              <Check size={16} />
-              <span>Example notification {i}</span>
-              <button
-                aria-label={`Dismiss notification ${i}`}
-                onClick={() => set((a) => a.filter((x) => x !== i))}
-              >
-                <X size={14} />
-              </button>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      <div className="notice-stack">
+        {state.leaving && row(state.leaving.id, state.leaving.index, true)}
+        {state.items.map((id, index) => row(id, index))}
       </div>
-      <button
-        className="demo-action"
-        onClick={() => set((a) => [...a.slice(-2), (a.at(-1) || 0) + 1])}
-      >
+      <button ref={trigger} className="demo-action" onClick={add}>
         Show notification <Plus size={15} />
       </button>
+      <span className="sr-only" role="status">
+        {message}
+      </span>
     </div>
   );
 }
 function Hover() {
-  const [active, set] = useState(null);
+  const [open, set] = useState(false),
+    [selected, select] = useState(0);
+  const names = ["Architecture", "Objects", "Typography"];
   return (
-    <div className="hover-example" onMouseLeave={() => set(null)}>
-      {["Layout", "Typography", "Motion"].map((x, i) => (
-        <button
-          key={x}
-          onMouseEnter={() => set(i)}
-          onFocus={() => set(i)}
-          onBlur={() => set(null)}
-          onClick={() => set(i)}
-        >
-          <motion.span
-            animate={{
-              y: active === i ? -14 : 0,
-              rotate: active === i ? (i - 1) * 5 : 0,
-              scale: active === i ? 1.06 : 1,
+    <div
+      className="collection-preview"
+      onPointerEnter={() => set(true)}
+      onPointerLeave={() => set(false)}
+      onFocus={() => set(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) set(false);
+      }}
+    >
+      <div className="fan-cards">
+        {names.map((name, i) => (
+          <button
+            key={name}
+            aria-label={`Preview ${name}`}
+            aria-pressed={selected === i}
+            onClick={() => {
+              select(i);
+              set(true);
             }}
-            transition={spring}
           >
-            <span>{["Aa", "↗", "◎"][i]}</span>
-            <small>{x}</small>
-          </motion.span>
-        </button>
-      ))}
+            <motion.span
+              className="fan-surface"
+              animate={{
+                x: open ? 0 : -(i - 1) * 78,
+                y: open && selected === i ? -12 : Math.abs(i - 1) * 4,
+                rotate: (i - 1) * (open ? 6 : 9),
+                scale: open && selected === i ? 1.04 : 1,
+              }}
+              transition={spring}
+              style={{ zIndex: open ? i + 1 : 3 - i }}
+            >
+              <span className={"fan-art fan-art-" + i}>
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="fan-name">{name}</span>
+            </motion.span>
+          </button>
+        ))}
+      </div>
+      <div className="collection-caption">
+        <strong>{open ? names[selected] : "Studio collection"}</strong>
+        <span>
+          {open ? "Select a card to preview" : "Hover or focus to browse"}
+        </span>
+      </div>
+    </div>
+  );
+}
+function Anatomy() {
+  const [guides, set] = useState(false);
+  return (
+    <div className={"anatomy-example " + (guides ? "has-guides" : "")}>
+      <button
+        className="anatomy-toggle"
+        aria-pressed={guides}
+        onClick={() => set(!guides)}
+      >
+        {guides ? "Hide guides" : "Show layout guides"}
+      </button>
+      <div className="anatomy-layout">
+        <div className="anatomy-picture">
+          <span>01</span>
+        </div>
+        <div className="anatomy-copy">
+          <small>OBJECT STUDY</small>
+          <h3>Form follows function.</h3>
+          <p>
+            One image, one reading edge. Detail stays close to the thing it
+            describes.
+          </p>
+          <span>View study ↗</span>
+        </div>
+      </div>
+      <p className="anatomy-note">
+        {guides
+          ? "24px inset · 16px gutter · shared text edge"
+          : "A two-column composition with a shared baseline."}
+      </p>
     </div>
   );
 }
@@ -205,7 +325,7 @@ function Scroll() {
                 key={i}
                 style={{
                   transform: `translate(${(i - 1) * (76 - 48 * p)}px,${-p * 25 + Math.abs(i - 1) * 15}px) rotate(${(i - 1) * (24 - 20 * p)}deg)`,
-                  background: ["#d0cec5", "#a5ada2", "#e4e0d6"][i],
+                  background: ["#d0d0d0", "#aaaaaa", "#e4e4e4"][i],
                 }}
               >
                 <Layers size={26} />
@@ -394,6 +514,12 @@ export default function Showcase({
   ];
   const demos = [
     {
+      title: "Layout anatomy",
+      cat: "Design",
+      desc: "Inspect the composition: columns, inset, gutter and reading edge.",
+      el: <Anatomy />,
+    },
+    {
       title: "Anchored popover",
       cat: "Motion",
       desc: "Open, switch and close. The trigger stays in place.",
@@ -412,21 +538,21 @@ export default function Showcase({
       el: <Disclosure />,
     },
     {
-      title: "Changing numbers",
+      title: "Rolling numbers",
       cat: "Motion",
-      desc: "Digits move. The label and controls stay anchored.",
+      desc: "Place-value rolls with stable units. Try 99 → 100 and reverse mid-roll.",
       el: <Numbers />,
     },
     {
       title: "Notification stack",
       cat: "Motion",
-      desc: "Add and dismiss messages. The stack makes room.",
+      desc: "Three visible messages. Rapid additions keep the control and frame still.",
       el: <Notifications />,
     },
     {
-      title: "Hover & focus",
+      title: "Collection preview",
       cat: "Motion",
-      desc: "Pointer, keyboard and touch share the same response.",
+      desc: "Open a card fan, then choose a reference. Keyboard and touch work too.",
       el: <Hover />,
     },
     {
@@ -510,16 +636,10 @@ export default function Showcase({
     <>
       <section className="showcase-intro">
         <div>
-          <span className="kicker">SEENRY SKILLS / INTERACTIVE EXAMPLES</span>
-          <h1>
-            Design skills.
-            <br />
-            Try them here.
-          </h1>
+          <h1>The Seenry workshop</h1>
           <p>
-            Interfaces, transitions, images, video, branding and decks.
-            <br />
-            Explore what the skills help your coding agent build.
+            Working studies in layout, motion and visual design. Open an example
+            and try changing it.
           </p>
         </div>
         <div className="quick-install">
