@@ -4,7 +4,7 @@ description: "Research identity systems and create or maintain project brand gui
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.10"
+  version: "2.0.1-dev.11"
 ---
 
 For original identity authorship, follow the main Seenry workflow and its art-direction guide before researching examples here. Define relationships across wordmark, type, imagery, palette, language and motion; test them in both expressive and dense applications. Researching a brand guide is not itself a new identity design. Preserve a supplied identity unless the user requests rebranding.
@@ -28,3 +28,5 @@ For the user's own identity work, explain which principles transfer to their aud
 When inspiration keeps producing the same look, use the optional [identity transfer study](references/identity-transfer.md): observed relationships, a new application and a countercase. Keep ordinary task controls familiar while making the offering's evidence, composition and expressive moments specific. Study recordings through **seenry-motion** when motion affects the decision; a poster or contact sheet alone cannot establish choreography.
 
 Deliver either a focused comparison with source links, or the requested brand artifact with the observed/declared/inferred distinctions retained. Do not expand a narrow palette or typography request into an unrequested rebrand.
+
+For an example of identity across expressive and working screens, use the [Wise study](references/wise-study.md). It distinguishes inspected pixels, official statements and transfer hypotheses.

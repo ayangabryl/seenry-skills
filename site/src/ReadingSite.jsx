@@ -492,10 +492,17 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                 </>
               }
             >
-              <SolComparison />
+              <details className="e-archived-run">
+                <summary>Earlier Sol comparison</summary>
+                <p className="r-footnote">
+                  This run exposed weaknesses in the skill’s composition and
+                  wording. The original outputs are kept here for review.
+                </p>
+                <SolComparison />
+              </details>
               <p className="r-between">
-                Color is part of the skill too. Change the palette below and try
-                the reservation state.
+                Compare color combinations on the same content, then adjust the
+                action color.
               </p>
               <ColorStudy />
             </Section>

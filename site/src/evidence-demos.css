@@ -700,3 +700,49 @@
 .e-video-controls input {
   border-radius: 999px;
 }
+
+.e-wise-image {
+  overflow: hidden;
+  border-radius: 24px;
+  background: #eef0ed;
+  margin: auto;
+}
+.e-wise-image.focused {
+  max-width: 360px;
+}
+.e-wise-image img {
+  display: block;
+  max-width: none;
+  height: auto;
+}
+.e-wise-note {
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 20px 0 12px;
+  color: #444;
+  min-height: 75px;
+}
+.e-color > .e-controls {
+  margin-bottom: 20px;
+}
+@media (max-width: 540px) {
+  .e-controls {
+    flex-wrap: wrap;
+  }
+  .e-wise-note {
+    min-height: 125px;
+  }
+}
+
+.e-archived-run {
+  margin-bottom: 32px;
+}
+.e-archived-run > summary {
+  cursor: pointer;
+  font-size: 15px;
+  color: #555;
+  padding: 10px 0;
+}
+.e-archived-run[open] > summary {
+  margin-bottom: 12px;
+}

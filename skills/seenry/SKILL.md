@@ -4,7 +4,7 @@ description: "Research, design, refine or faithfully reconstruct websites and in
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.10"
+  version: "2.0.1-dev.11"
 ---
 
 # Seenry
@@ -25,6 +25,8 @@ For a product or tool marketing page, also use [marketing evidence](references/m
 For hero screenshots, verify the complete section using [hero capture checks](references/research.md#verify-a-complete-hero). A first-screen image or a library item labeled Hero may omit the lower visual; do not present it as the full hero without inspecting its boundaries.
 
 When the user asks to try Jev or supplies an authorized TypeSafe integration, use [optional Jev decisions](references/jev-decisions.md). It can select among prepared text-described alternatives; retain the normal design and browser review workflow. It is not required for ordinary Seenry work. A text-selection experiment cannot satisfy a requested visual improvement; spend the implementation and review effort on the rendered design.
+
+For new websites and rejected generic directions, read [anti-default decisions](references/anti-defaults.md) before styling. For marketing or interface wording, read [copy decisions](references/copy-decisions.md); for a new palette, read [color combinations](references/color-combinations.md). Carry the user’s rejected treatments into the next slice, not just the final review.
 
 ## Create, then finish
 

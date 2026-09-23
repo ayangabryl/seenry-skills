@@ -2,6 +2,8 @@
 
 Use when palette, contrast or competing emphasis is unresolved. Preserve the project's notation and semantic tokens. MCP is optional: the component, brief and local comparison are sufficient to test a color decision.
 
+For palette authorship or a combination study, read [color combinations](../color-combinations.md). A hue slider alone does not demonstrate a system.
+
 ## Execute
 
 Name canvas, surface, text, secondary text, action, focus and only the states actually used. Give each value a purpose instead of borrowing a separator token for text because it happens to match. Different visual roles may share a hue when context remains unambiguous. Do not invent a universal hue-to-emotion rule.

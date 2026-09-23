@@ -191,16 +191,36 @@ export function paletteColor(L, C, H) {
   };
 }
 export function ColorStudy() {
-  const [h, setH] = useState(255),
+  const [preset, setPreset] = useState(0),
+    [h, setH] = useState(260),
     [L, setL] = useState(0.46),
     [reserved, setReserved] = useState(false),
     [copied, setCopied] = useState(false);
   const timer = useRef();
   useEffect(() => () => clearTimeout(timer.current), []);
   const c = paletteColor(L, 0.14, h),
-    surface = paletteColor(0.96, 0.02, h);
+    surface = paletteColor(0.94, 0.045, [55, 300, 100][preset]);
   return (
     <div className="e-color">
+      <div className="e-controls" role="group" aria-label="Color combination">
+        {[
+          ["Blue + peach", 260, 0.46],
+          ["Plum + lilac", 330, 0.4],
+          ["Forest + citron", 145, 0.38],
+        ].map(([name, hue, light], i) => (
+          <button
+            key={name}
+            aria-pressed={preset === i}
+            onClick={() => {
+              setPreset(i);
+              setH(hue);
+              setL(light);
+            }}
+          >
+            {name}
+          </button>
+        ))}
+      </div>
       <div
         className="e-color-example"
         style={{
@@ -213,8 +233,8 @@ export function ColorStudy() {
           <span>Tide</span>
           <span>Reading room</span>
         </div>
-        <h3>Saturday, at your pace.</h3>
-        <p>Bring a book. We’ll keep a seat for you.</p>
+        <h3>Read with us on Saturday.</h3>
+        <p>Bring a book to the reading room. No set reading list.</p>
         <div className="e-color-action">
           <span>Saturday · 10:00–12:00</span>
           <button
@@ -275,136 +295,65 @@ export function ColorStudy() {
         <span>Button contrast {c.contrast}:1</span>
       </div>
       <p className="r-footnote">
-        OKLCH controls hue and lightness. Text switches between black and white
-        to preserve contrast. Chroma is reduced when needed to fit sRGB; the
-        ratio measures the final button colors only.
+        Each preset pairs a different surface and action color. The sliders
+        adjust the action in OKLCH. Text switches between black and white to
+        preserve contrast. Chroma is reduced when needed to fit sRGB; the ratio
+        measures the final button colors only.
       </p>
     </div>
   );
 }
+const wiseImage =
+  "https://cdn.sanity.io/images/vf63fv1z/production/22314f0fe1315be5a2d9626e113917fe5c2e43a6-1200x630.jpg?auto=format&fit=max&q=80&w=1600";
 export function BrandSystem() {
-  const [application, setApplication] = useState("Poster");
+  const [view, setView] = useState(0);
+  const views = ["Full study", "Entry", "Card", "Confirmation"];
+  const notes = [
+    "The same identity, with different levels of emphasis. Artwork and display type lead the entry and confirmation; balance and controls lead the card screen.",
+    "The opening uses a globe, currency artwork and heavy display type. A short description and clear action keep the offer understandable.",
+    "The balance and card come first. Green connects the card and controls, while ordinary labels stay small and readable.",
+    "Expressive type and artwork return after the task. The supporting sentence names the completed result; the action closes the moment.",
+  ];
   return (
-    <div className="e-brand">
-      <div className="e-controls" role="group" aria-label="Brand application">
-        {["Poster", "Invitation", "Signage"].map((x) => (
+    <div className="e-wise">
+      <div className="e-controls" role="group" aria-label="Wise reference view">
+        {views.map((name, i) => (
           <button
-            key={x}
-            aria-pressed={application === x}
-            onClick={() => setApplication(x)}
+            key={name}
+            aria-pressed={view === i}
+            onClick={() => setView(i)}
           >
-            {x}
+            {name}
           </button>
         ))}
       </div>
-      <div className={"e-brand-stage " + application.toLowerCase()}>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={application}
-            className="e-brand-art"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.22 }}
-          >
-            {application === "Poster" ? (
-              <>
-                <span className="e-tide-logo">
-                  Tide<span>∿</span>
-                </span>
-                <h3>
-                  A reading room
-                  <br />
-                  by the sea.
-                </h3>
-                <div className="e-tide-waves" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-                <div className="e-brand-bottom">
-                  <span>
-                    Books. Coast walks.
-                    <br />
-                    Open conversations.
-                  </span>
-                  <span>
-                    Saturday
-                    <br />
-                    10:00–18:00
-                  </span>
-                </div>
-              </>
-            ) : application === "Invitation" ? (
-              <>
-                <div className="e-invitation">
-                  <span className="e-tide-logo">
-                    Tide<span>∿</span>
-                  </span>
-                  <h3>You’re invited.</h3>
-                  <p>
-                    An afternoon of reading,
-                    <br />
-                    with the windows open.
-                  </p>
-                  <span>
-                    Saturday, 14:00
-                    <br />
-                    The reading room
-                  </span>
-                </div>
-                <div className="e-ticket">
-                  <strong>Tide ∿</strong>
-                  <span>Admit one</span>
-                  <span>Reading room</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="e-sign">
-                  <span>Tide ∿</span>
-                  <strong>Reading room</strong>
-                  <ArrowRight size={64} />
-                </div>
-                <div className="e-door">
-                  <span>
-                    Come in.
-                    <br />
-                    Take your time.
-                  </span>
-                  <small>
-                    Open Saturday
-                    <br />
-                    10:00–18:00
-                  </small>
-                </div>
-              </>
-            )}
-          </motion.div>
-        </AnimatePresence>
+      <div className={"e-wise-image " + (view ? "focused" : "")}>
+        <motion.img
+          src={wiseImage}
+          alt={
+            view
+              ? `Wise ${views[view].toLowerCase()} screen from its rebrand presentation`
+              : "Wise rebrand: entry, card management and confirmation screens"
+          }
+          loading="lazy"
+          animate={{ x: view ? `${(-(view - 1) * 100) / 3}%` : "0%" }}
+          style={{ width: view ? "300%" : "100%" }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        />
       </div>
-      <div className="e-brand-palette">
-        <span>
-          <i style={{ background: "#672b3b" }} />
-          Mulberry
-        </span>
-        <span>
-          <i style={{ background: "#f1b4a5" }} />
-          Coral
-        </span>
-        <span>
-          <i style={{ background: "#f5f5f5" }} />
-          Paper
-        </span>
-      </div>
+      <p className="e-wise-note" aria-live="polite">
+        {notes[view]}
+      </p>
       <p className="r-footnote">
-        Original identity concept: one wordmark, a repeatable wave shape, and
-        consistent type across print and space.{" "}
-        <a href="https://seenry.design/design/ca0266da5775d462027809d002b39f7b">
-          Reference study: Cadmus
+        Wise rebrand study. Reference artwork belongs to Wise; shown for design
+        analysis.{" "}
+        <a href="https://seenry.design/design/bbf1181a77472aeb22423e4229b6e755">
+          View in Seenry ↗
         </a>{" "}
-        informed the relationship between expressive type and everyday
-        applications—not the logo or artwork.
+        ·{" "}
+        <a href="https://wise.com/gb/blog/a-brand-for-everywhere-wise-unveils-bold-new-look">
+          Wise’s brand announcement ↗
+        </a>
       </p>
     </div>
   );
@@ -583,7 +532,7 @@ export function SolComparison() {
         />
       </div>
       <div className="e-media-caption">
-        <span>GPT-5.6 Sol · same brief</span>
+        <span>Earlier Sol runs · before this skill revision</span>
         <a
           href={"/demos/sol-comparison/" + mode + "/index.html"}
           target="_blank"
@@ -595,11 +544,14 @@ export function SolComparison() {
       <details className="e-method">
         <summary>Brief and comparison method</summary>
         <p>
-          Two fresh Sol runs, high reasoning. Same fictional architecture
-          studio, content, font access, SVG-only artwork and functional
-          requirements. The second run uses Seenry’s workflow. No baseline
-          instructions to make poor work. The runs share a brief, not an
-          identical time or token budget; this is one example, not a ranking.
+          Recorded before the latest copy, palette and anti-default guidance.
+          The user rejected aspects of the skill-assisted result; these
+          originals remain unchanged for comparison. Two fresh Sol runs, high
+          reasoning. Same fictional architecture studio, content, font access,
+          SVG-only artwork and functional requirements. The second run uses
+          Seenry’s workflow. No baseline instructions to make poor work. The
+          runs share a brief, not an identical time or token budget; this is one
+          example, not a ranking.
         </p>
         <a href="/demos/sol-comparison/baseline/manifest.md">
           Baseline record ↗
