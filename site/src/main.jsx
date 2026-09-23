@@ -655,7 +655,7 @@ function Reconstruction() {
       <iframe
         title="Interactive popover reconstruction"
         src="/demos/liquid-popover/index.html"
-        loading="lazy"
+        loading="eager"
         style={{
           width: 1154,
           height: 720,

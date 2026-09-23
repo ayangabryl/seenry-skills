@@ -10,6 +10,18 @@ import {
   ArrowLeft,
   Mail,
   RotateCcw,
+  Search,
+  Camera,
+  Image,
+  Heart,
+  Bookmark,
+  Globe,
+  Settings,
+  User,
+  Download,
+  Folder,
+  Play,
+  X,
 } from "lucide-react";
 import { createNumberTransition } from "../../skills/seenry-motion/assets/number-transition.mjs";
 import { BrandApplications, DeckNarrative } from "./CapabilityDemos";
@@ -90,12 +102,10 @@ function InterfaceStudy() {
       <div className={"r-collection " + (after ? "refined" : "default")}>
         <div className="r-collection-top">
           <span>seenry.</span>
-          <span>Collection / 03 references</span>
         </div>
         <div className="r-collection-title">
           <div>
-            <h3>Type worth saving.</h3>
-            <p>Three studies in scale, rhythm and contrast.</p>
+            <h3>Typography</h3>
           </div>
           <button
             aria-label={saved ? "Unsave collection" : "Save collection"}
@@ -108,33 +118,20 @@ function InterfaceStudy() {
         <div className="r-reference-samples">
           <div>
             <div className="r-cover r-cover-editorial">
-              <span>01 / Editorial</span>
               <strong>
                 Aa<span>—</span>
               </strong>
-              <small>Form follows reading.</small>
             </div>
             <h4>Editorial</h4>
-            <p>Scale & hierarchy</p>
           </div>
           <div>
             <div className="r-cover r-cover-poster">
-              <span>02 / Poster</span>
-              <strong>
-                TYPE
-                <br />
-                IN
-                <br />
-                FORM.
-              </strong>
-              <small>A study in contrast</small>
+              <strong>Form.</strong>
             </div>
             <h4>Poster</h4>
-            <p>Weight & contrast</p>
           </div>
           <div>
             <div className="r-cover r-cover-index">
-              <span>03 / Index</span>
               <strong>
                 abc
                 <br />
@@ -142,17 +139,12 @@ function InterfaceStudy() {
                 <br />
                 ghi<span>↗</span>
               </strong>
-              <small>Letters in a grid</small>
             </div>
             <h4>Index</h4>
-            <p>Rhythm & alignment</p>
           </div>
         </div>
         <div className="r-collection-footer">
-          <span>Original type studies</span>
-          <span role="status">
-            {saved ? "Saved to your collection" : "Curated in Seenry"}
-          </span>
+          <span role="status">{saved ? "Saved to your collection" : ""}</span>
         </div>
       </div>
       <figcaption>
@@ -172,7 +164,6 @@ function TypographyStudy() {
         label="A type specimen"
       />
       <div className={"r-type-study " + (after ? "refined" : "default")}>
-        <span>TYPE NOTES / 001</span>
         <h3>
           Open Runde<span className="r-type-period">.</span>
         </h3>
@@ -374,38 +365,118 @@ function NumberStudy() {
     </figure>
   );
 }
-function AssetStudy({ Art }) {
-  const [type, setType] = useState(1),
-    [crop, setCrop] = useState(false);
+const assetIcons = [
+  ["Search", Search, "find magnify"],
+  ["Camera", Camera, "photo photography"],
+  ["Image", Image, "photo picture"],
+  ["Heart", Heart, "favorite love"],
+  ["Bookmark", Bookmark, "save collection"],
+  ["Globe", Globe, "web world"],
+  ["Settings", Settings, "preferences gear"],
+  ["User", User, "profile account"],
+  ["Download", Download, "save file"],
+  ["Folder", Folder, "files collection"],
+  ["Play", Play, "video media"],
+  ["Mail", Mail, "email message"],
+];
+function AssetStudy() {
+  const [query, setQuery] = useState("");
+  const [kind, setKind] = useState("Icons");
+  const found = assetIcons.filter(([name, , tags]) =>
+    (name + " " + tags).toLowerCase().includes(query.toLowerCase().trim()),
+  );
   return (
-    <figure className="r-demo">
-      <div className="r-asset-stage">
-        <div className={"r-art-window " + (crop ? "portrait" : "")}>
-          <Art type={type} />
-        </div>
-        <div className="r-asset-tools">
-          <span>Original artwork</span>
-          <div role="group" aria-label="Artwork selection">
-            {["Fold", "Orbit", "Letter"].map((s, i) => (
-              <button
-                key={s}
-                aria-pressed={type === i}
-                onClick={() => setType(i)}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="r-real-assets">
+      <div className="r-asset-kinds" role="group" aria-label="Asset type">
+        {["Icons", "Photography"].map((name) => (
+          <button
+            key={name}
+            aria-pressed={kind === name}
+            onClick={() => {
+              setKind(name);
+              setQuery("");
+            }}
+          >
+            {name}
+          </button>
+        ))}
       </div>
-      <figcaption>
-        <span>Choose the material, then test its framing.</span>
-        <button aria-pressed={crop} onClick={() => setCrop(!crop)}>
-          {crop ? "Portrait" : "Square"}
-          <RotateCcw size={14} />
-        </button>
-      </figcaption>
-    </figure>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (kind === "Photography" && query.trim())
+            window.location.assign(
+              "https://unsplash.com/s/photos/" +
+                encodeURIComponent(query.trim()),
+            );
+        }}
+      >
+        <label className="r-asset-search">
+          <Search size={19} />
+          <input
+            aria-label={
+              kind === "Icons" ? "Search icons" : "Search photography"
+            }
+            placeholder={
+              kind === "Icons"
+                ? "Try camera, save, or video"
+                : "What photography do you need?"
+            }
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <button
+              type="button"
+              aria-label="Clear search"
+              onClick={() => setQuery("")}
+            >
+              <X size={16} />
+            </button>
+          )}
+        </label>
+        {kind === "Photography" && (
+          <button className="r-primary" type="submit" disabled={!query.trim()}>
+            Search Unsplash <ArrowUpRight size={16} />
+          </button>
+        )}
+      </form>
+      {kind === "Icons" ? (
+        <>
+          <div className="r-icon-results">
+            {found.map(([name, Icon]) => (
+              <a
+                key={name}
+                href={"https://lucide.dev/icons/" + name.toLowerCase()}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Icon size={25} />
+                <span>{name}</span>
+              </a>
+            ))}
+            {!found.length && (
+              <p>
+                No matches in this selection.{" "}
+                <a href="https://lucide.dev/icons/">
+                  Search all Lucide icons ↗
+                </a>
+              </p>
+            )}
+          </div>
+          <p className="r-asset-credit">
+            A searchable selection from{" "}
+            <a href="https://lucide.dev/icons/">Lucide</a>. Open an icon to get
+            its SVG. <a href="https://lucide.dev/license">ISC license ↗</a>
+          </p>
+        </>
+      ) : (
+        <p className="r-asset-credit">
+          Opens real photography results on Unsplash. Check the selected photo’s
+          license before using it.
+        </p>
+      )}
+    </div>
   );
 }
 export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
@@ -425,15 +496,20 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
         </header>
         <main id="main">
           <div className="r-intro">
-            <h1>
-              Skills for building
-              <br />
-              better interfaces.
-            </h1>
+            <h1>Design with Seenry.</h1>
             <p>
-              A collection of open-source skills for your coding agent. From
-              layout and typography to motion, imagery and visual identity.
+              Give your coding agent a process for layout, motion and real
+              assets. Explore the examples, then use the skills in your own
+              project.
             </p>
+            <div className="r-hero-actions">
+              <a className="r-primary" href="#install-guide">
+                Get the skills <ArrowRight size={17} />
+              </a>
+              <a href="#seenry">
+                Explore examples <span aria-hidden="true">↓</span>
+              </a>
+            </div>
             <div className="r-install" id="install">
               <code>{command}</code>
               <CopyInstall />
@@ -504,12 +580,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                 </>
               }
             >
-              <AssetStudy Art={Art} />
-              <p className="r-footnote">
-                The artwork above is an original SVG study. Image generation is
-                another option—not a requirement. Existing assets keep their
-                source and license information.
-              </p>
+              <AssetStudy />
               <div className="r-resource-links">
                 <a href="https://unsplash.com">
                   Photography <ArrowUpRight size={13} />
@@ -599,7 +670,9 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                     <Reconstruction />
                   </div>
                   <figcaption>
-                    <span>Reconstruction</span>
+                    <span>
+                      Interactive reconstruction · open Actions or Share
+                    </span>
                     <a href="/demos/liquid-popover/index.html">
                       Try at full size <ArrowUpRight size={13} />
                     </a>
@@ -616,7 +689,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
               </p>
             </section>
           </div>
-          <section className="r-closing">
+          <section className="r-closing" id="install-guide">
             <h2>Use the skills in your project.</h2>
             <p>
               Install the collection, then ask your agent to use the relevant

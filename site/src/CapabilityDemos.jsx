@@ -394,7 +394,7 @@ export function BrandApplications() {
   return (
     <div className={"brand-applications " + (ink ? "inverted" : "")}>
       <div className="brand-app-head">
-        <span>FIELDNOTES / IDENTITY STUDY</span>
+        <span>Fieldnotes</span>
         <button aria-pressed={ink} onClick={() => setInk((v) => !v)}>
           {ink ? "Light edition" : "Dark edition"} <RotateCcw size={12} />
         </button>
@@ -410,16 +410,16 @@ export function BrandApplications() {
             Make.
           </strong>
           <small>
-            INDEPENDENT PRACTICE
+            Independent practice
             <br />
-            EDITION 001 — 2026
+            2026
           </small>
         </div>
         <div className="brand-stationery">
           <div className="brand-card">
             <strong>Fieldnotes.</strong>
             <small>
-              DESIGN & RESEARCH
+              Design & research
               <br />
               An independent practice.
             </small>
@@ -428,7 +428,7 @@ export function BrandApplications() {
           <div className="brand-label">
             <span>F/N</span>
             <div>
-              Ideas, in good company.<small>FIELDNOTES / STUDIO JOURNAL</small>
+              Ideas, in good company.<small>Studio journal</small>
             </div>
           </div>
         </div>
@@ -485,7 +485,7 @@ export function DeckNarrative() {
           exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.2, ease }}
         >
-          <span>INDEX / PRODUCT CONCEPT</span>
+          <span>Index</span>
           <h4>{s.title}</h4>
           <p>{s.body}</p>
           <strong>{s.stat}</strong>
