@@ -1266,3 +1266,5 @@ footer > small {
   max-width: none;
   border: 0;
 }
+/* Artwork dimensions must not leak into the small toolbar icon. */
+.asset-top svg{width:18px;height:18px;flex:none}

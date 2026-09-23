@@ -741,6 +741,7 @@ function Install() {
   );
 }
 function App() {
+  useEffect(() => { const id = window.location.hash.slice(1); if (id) document.getElementById(id)?.scrollIntoView({behavior:"instant"}); }, []);
   return (
     <MotionConfig reducedMotion="user">
       <a className="skip" href="#main">
