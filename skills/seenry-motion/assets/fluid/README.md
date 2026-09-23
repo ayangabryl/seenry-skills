@@ -16,7 +16,7 @@ import { FluidSurface, FluidItem } from './FluidSurface';
 
 The fragment needs a stationary trigger, closed pointer gating, action handlers, Escape and focus return. Position the group to contain the whole travel region. Use one shared fill for a connected mass. Keep backgrounds in the visual layer and text in the unfiltered foreground.
 
-Supported effects: `morph` follows joining/resizing geometry; `move` introduces a trailing body; `bend` curves the moving outline; `melt` draws two images with a displaced contact blend. These are Seenry implementations, not drop-in reproductions of another library's physics. Engine-specific advanced options from earlier examples are not supported.
+Supported effects: `merge` (default) tracks already-animated DOM geometry directly; `morph` smooths resizing geometry; `move` anchors the leading edge to the target and stretches a bounded trailing body; `bend` curves both axes using filtered target velocity and settles after stopping; `melt` draws two images with a displaced contact blend. These are Seenry implementations, not drop-in reproductions of another library's physics. Engine-specific advanced options from earlier examples are not supported.
 
 Supported presentation: fill, blur, contrast and x/y/scale with duration/ease/delay. A resize is followed geometrically; it does not currently reproduce the previous engine's content cross-blur or shadow parsing. Browser verification for this version covers Chromium. Safari and Firefox remain unverified.
 

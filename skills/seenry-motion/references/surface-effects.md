@@ -52,4 +52,12 @@ For blurred numbers, reserve digit columns with tabular numerals. Animate only c
 
 ## Number cross-blur correction
 
-The number pop-in treatment uses simultaneous incoming/outgoing glyphs, 8px travel, 2px blur, 500ms cubic-bezier(.34,1.45,.64,1), and 70ms stagger at the inspected desktop viewport. This replaces the former 70% travel / 160ms wait-mode example. Keep two reusable layers per column, cancel old animations on a new value, and use the visible incoming layer as the next outgoing start. Under reduced motion switch to the latest value immediately. Keep original research attribution in the evidence record; do not claim independent invention of the reference behavior.
+The number pop-in treatment uses simultaneous incoming/outgoing glyphs, 8px travel, 2px blur, 500ms cubic-bezier(.34,1.45,.64,1), and 70ms stagger at the inspected desktop viewport. This replaces the former 70% travel / 160ms wait-mode example. Keep two reusable layers per column, cancel old animations on a new value, and use the more visible of incoming/outgoing glyphs as the next outgoing start. On an interruption within 640ms, remove the stagger and resolve over 300ms; skip unchanged digits. Under reduced motion switch to the latest value immediately. Keep original research attribution in the evidence record; do not claim independent invention of the reference behavior.
+
+## Retargeting quality gate
+
+- Merge: if the DOM already animates position, the silhouette tracks it directly. A second position smoother separates the icon from its surface. Hide closed action glyphs while leaving silhouettes available to merge.
+- Trail: update the authoritative target immediately. Stretch only the trailing boundary toward a damped previous position, cap horizontal stretch at 70% of width, and let it relax after stopping. Do not lag the entire thumb behind the pointer or use a rigid trailing dot.
+- Bend: use target velocity in both axes, filter its deformation and relax to zero after input stops. Keep text and pointer targets unwarped.
+- Keyboard focus outlines appear for keyboard interaction, not simply because a pointer drag focused the range.
+- Record intermediate silhouettes and rapid reversals. A matching final frame does not establish matching movement.
