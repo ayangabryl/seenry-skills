@@ -556,10 +556,11 @@ function VideoDemo() {
       <video
         ref={v}
         playsInline
-        preload="metadata"
+        preload="none"
         poster="https://cdn.seenry.design/designs/24ebbdf6910e69ca125cfae5350b4d01/poster.webp"
         muted
-        onPlay={() => set(true)}
+        onLoadedData={() => fail(false)}
+        onPlay={() => { fail(false); set(true); }}
         onPause={() => set(false)}
         onEnded={() => set(false)}
         onTimeUpdate={() =>
@@ -571,7 +572,8 @@ function VideoDemo() {
       />
       {error ? (
         <p>
-          Video unavailable.{" "}
+          Video couldn’t load. {" "}
+          <button onClick={() => { fail(false); v.current.load(); v.current.play().catch(() => fail(true)); }}>Try again</button>{" "}
           <a href="https://seenry.design/demos/motion-studies/">
             Open the motion study ↗
           </a>

@@ -1268,3 +1268,5 @@ footer > small {
 }
 /* Artwork dimensions must not leak into the small toolbar icon. */
 .asset-top svg{width:18px;height:18px;flex:none}
+
+.video-demo>p{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#10100eee;margin:0}.video-demo>p button{background:white;color:#222;border-radius:999px;padding:10px 20px}
