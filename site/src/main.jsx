@@ -22,6 +22,8 @@ import {
   Maximize,
 } from "lucide-react";
 import "./style.css";
+import Showcase from "./Showcase.jsx";
+import "./showcase.css";
 const repo = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
 function CopyButton({
@@ -560,7 +562,10 @@ function VideoDemo() {
         poster="https://cdn.seenry.design/designs/24ebbdf6910e69ca125cfae5350b4d01/poster.webp"
         muted
         onLoadedData={() => fail(false)}
-        onPlay={() => { fail(false); set(true); }}
+        onPlay={() => {
+          fail(false);
+          set(true);
+        }}
         onPause={() => set(false)}
         onEnded={() => set(false)}
         onTimeUpdate={() =>
@@ -572,8 +577,16 @@ function VideoDemo() {
       />
       {error ? (
         <p>
-          Video couldn’t load. {" "}
-          <button onClick={() => { fail(false); v.current.load(); v.current.play().catch(() => fail(true)); }}>Try again</button>{" "}
+          Video couldn’t load.{" "}
+          <button
+            onClick={() => {
+              fail(false);
+              v.current.load();
+              v.current.play().catch(() => fail(true));
+            }}
+          >
+            Try again
+          </button>{" "}
           <a href="https://seenry.design/demos/motion-studies/">
             Open the motion study ↗
           </a>
@@ -743,7 +756,11 @@ function Install() {
   );
 }
 function App() {
-  useEffect(() => { const id = window.location.hash.slice(1); if (id) document.getElementById(id)?.scrollIntoView({behavior:"instant"}); }, []);
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (id)
+      document.getElementById(id)?.scrollIntoView({ behavior: "instant" });
+  }, []);
   return (
     <MotionConfig reducedMotion="user">
       <a className="skip" href="#main">
@@ -762,31 +779,27 @@ function App() {
         </nav>
       </header>
       <main id="main">
-        <Hero />
-        <div className="intro-line">
-          <h2>
-            Less explaining.
-            <br />
-            More showing.
-          </h2>
-          <p>
-            Explore the details Seenry helps your agent think through. Every
-            example below is yours to try.
-          </p>
-        </div>
-        <MotionSection />
-        <AssetSection />
-        <BrandSection />
-        <DeckSection />
-        <MCPSection />
-        <Install />
+        <Showcase
+          {...{
+            MotionDemo,
+            AssetSection,
+            BrandSection,
+            DeckSection,
+            VideoDemo,
+            Reconstruction,
+            DesignPreview,
+            Switch,
+            Art,
+            CopyButton,
+          }}
+        />
       </main>
       <footer>
         <div>
           <a className="wordmark" href="https://seenry.design">
             seenry.
           </a>
-          <p>Made for people who care how it feels.</p>
+          <p>Open-source design guidance. Working examples.</p>
         </div>
         <div>
           <a href="https://seenry.design">
