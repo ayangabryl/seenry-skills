@@ -259,197 +259,6 @@ svg {
   white-space: nowrap;
   font-size: 11px;
 }
-.r-interface-stage {
-  padding: 44px 34px;
-  min-height: 330px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.r-project {
-  width: 100%;
-  max-width: 490px;
-  background: #fff;
-  padding: 25px;
-  border: 1px solid #e4e4e4;
-  border-radius: 11px;
-  box-shadow: 0 3px 7px #00000005;
-}
-.r-project-heading {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-.r-project-symbol {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  background: #eee;
-  border-radius: 9px;
-  font-weight: 500;
-}
-.r-project-heading > div > span {
-  font-size: 10px;
-  color: #999;
-}
-.r-project h3 {
-  font-size: 17px;
-  letter-spacing: -0.3px;
-  margin: 2px 0 0;
-  font-weight: 500;
-}
-.r-status {
-  margin-left: auto;
-  font-size: 10px;
-  color: #777;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.r-status i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #888;
-}
-.r-project > p {
-  font-size: 12px;
-  color: #888;
-  margin: 18px 0 24px;
-  line-height: 1.6;
-}
-.r-project-facts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.r-project-facts span,
-.r-project-facts strong {
-  display: block;
-  font-size: 10px;
-}
-.r-project-facts span {
-  color: #999;
-  margin-bottom: 6px;
-}
-.r-project-facts strong {
-  font-weight: 400;
-  color: #444;
-  font-size: 11px;
-}
-.r-progress-track {
-  height: 4px;
-  background: #eee;
-  border-radius: 99px;
-  margin: 20px 0;
-}
-.r-progress-track span {
-  display: block;
-  width: 66%;
-  height: 100%;
-  background: #666;
-  border-radius: 99px;
-}
-.r-project-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 10px;
-  color: #999;
-}
-.r-project-bottom button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #444;
-  padding: 8px 10px;
-  border: 1px solid #e5e5e5;
-  border-radius: 7px;
-  font-size: 11px;
-}
-.r-project.default .r-project-heading {
-  gap: 22px;
-  align-items: flex-start;
-}
-.r-project.default h3 {
-  font-size: 14px;
-  font-weight: 700;
-  margin-top: 12px;
-}
-.r-project.default .r-status {
-  font-size: 13px;
-}
-.r-project.default > p {
-  font-size: 14px;
-  margin: 9px 0 16px;
-}
-.r-project.default .r-project-facts {
-  gap: 28px;
-  text-align: center;
-}
-.r-project.default .r-project-facts span {
-  font-size: 12px;
-  color: #333;
-}
-.r-project.default .r-project-facts strong {
-  font-size: 10px;
-  color: #999;
-}
-.r-project.default .r-project-bottom button {
-  background: #ddd;
-  border-radius: 1px;
-  padding: 4px;
-}
-.r-type-study {
-  padding: 42px 48px;
-  min-height: 330px;
-  background: #fff;
-}
-.r-type-study > span:first-child {
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: #888;
-}
-.r-type-study h3 {
-  font-size: 37px;
-  font-weight: 500;
-  letter-spacing: -1.1px;
-  line-height: 1.13;
-  margin: 24px 0 15px;
-}
-.r-type-study > p {
-  font-size: 14px;
-  line-height: 1.65;
-  max-width: 320px;
-  color: #777;
-  margin: 0 0 22px;
-}
-.r-type-link {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 12px;
-  color: #444;
-}
-.r-type-study.default > span:first-child {
-  font-size: 14px;
-  letter-spacing: 0;
-  color: #444;
-}
-.r-type-study.default h3 {
-  font-size: 28px;
-  line-height: 1.45;
-  letter-spacing: 0;
-  margin: 15px 0;
-  font-weight: 700;
-}
-.r-type-study.default > p {
-  max-width: none;
-  font-size: 14px;
-  line-height: 1.3;
-  color: #333;
-}
 .r-motion-stage {
   min-height: 350px;
   display: flex;
@@ -942,4 +751,366 @@ svg {
 .r-reference-stage .video-demo > p a {
   color: white;
   text-decoration: underline;
+}
+
+/* Shared shape roles from Seenry's main site: 24px panels, 12px media, pill actions. */
+:root {
+  --r-panel: 24px;
+  --r-media: 12px;
+  --r-pill: 999px;
+}
+.r-demo,
+.r-install,
+.r-invite {
+  border-radius: var(--r-panel);
+}
+.r-install > button,
+.r-source,
+.r-primary,
+.r-invite-actions > button,
+.r-asset-tools button {
+  border-radius: var(--r-pill);
+}
+.r-comparison-tools {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fafafa;
+  font-size: 12px;
+  color: #777;
+}
+.r-comparison-tools > div {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.r-comparison-tools button {
+  padding: 9px 12px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  transition:
+    background 0.18s,
+    color 0.18s;
+  white-space: nowrap;
+}
+.r-comparison-tools button[aria-pressed="true"] {
+  background: #171717;
+  color: white;
+}
+.r-comparison-tools button[aria-pressed="false"]:hover {
+  background: #e9e9e9;
+  color: #171717;
+}
+.r-collection {
+  padding: 28px;
+  background: #fff;
+  min-height: 390px;
+}
+.r-collection-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: #888;
+}
+.r-collection-top > span:first-child {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -1px;
+  color: #171717;
+}
+.r-collection-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 28px 0 24px;
+  gap: 16px;
+}
+.r-collection-title h3 {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  margin: 0 0 8px;
+  color: #171717;
+}
+.r-collection-title p {
+  font-size: 12px;
+  color: #777;
+  margin: 0;
+  line-height: 1.6;
+}
+.r-collection-title button {
+  background: #171717;
+  color: white;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+.r-collection-title button:hover {
+  transform: translateY(-2px);
+  background: #383838;
+}
+.r-reference-samples {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.r-cover {
+  aspect-ratio: 3/4;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.r-cover > span,
+.r-cover small {
+  font-size: 8px;
+  line-height: 1.4;
+}
+.r-cover strong {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+.r-cover-editorial {
+  background: #e9e9e9;
+  color: #292929;
+}
+.r-cover-editorial strong {
+  font-family: Georgia, serif;
+  font-size: 57px;
+  letter-spacing: -5px;
+  position: relative;
+}
+.r-cover-editorial strong span {
+  position: absolute;
+  bottom: 12px;
+  right: 0;
+  font-size: 30px;
+}
+.r-cover-poster {
+  background: #232323;
+  color: #f5f5f5;
+}
+.r-cover-poster strong {
+  font-size: 28px;
+  line-height: 0.95;
+  letter-spacing: -1.6px;
+  font-weight: 700;
+}
+.r-cover-index {
+  background: #ededed;
+  color: #343434;
+}
+.r-cover-index strong {
+  font-size: 35px;
+  line-height: 1;
+  letter-spacing: 4px;
+  position: relative;
+}
+.r-cover-index strong span {
+  font-size: 18px;
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+}
+.r-reference-samples h4 {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 10px 0 4px;
+}
+.r-reference-samples p {
+  font-size: 10px;
+  color: #888;
+  margin: 0;
+}
+.r-collection-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  font-size: 10px;
+  color: #888;
+}
+.r-collection.default .r-reference-samples {
+  gap: 4px;
+}
+.r-collection.default .r-cover {
+  border-radius: 0;
+}
+.r-collection.default .r-collection-title {
+  margin: 14px 0 28px;
+  text-align: center;
+}
+.r-collection.default .r-collection-title h3 {
+  font-size: 18px;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+.r-collection.default .r-reference-samples h4 {
+  font-size: 16px;
+  text-align: center;
+}
+.r-collection.default .r-reference-samples p {
+  text-align: center;
+  color: #333;
+}
+.r-collection.default .r-cover strong {
+  font-size: 23px;
+  letter-spacing: 0;
+}
+.r-type-study {
+  padding: 36px;
+  background: white;
+  min-height: 320px;
+}
+.r-type-study > span {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #888;
+}
+.r-type-study h3 {
+  font-size: 46px;
+  line-height: 1.15;
+  letter-spacing: -2px;
+  font-weight: 500;
+  margin: 24px 0 16px;
+  color: #171717;
+}
+.r-type-period {
+  color: #999;
+}
+.r-type-study > p {
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 410px;
+  color: #777;
+  margin: 0;
+}
+.r-type-weights {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+  font-size: 12px;
+}
+.r-type-weights span:nth-child(2) {
+  font-weight: 500;
+}
+.r-type-weights span:nth-child(3) {
+  font-weight: 600;
+}
+.r-type-weights span:nth-child(4) {
+  font-weight: 700;
+}
+.r-type-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #333;
+}
+.r-type-study.default h3 {
+  font-size: 24px;
+  letter-spacing: 0;
+  text-align: center;
+  margin: 12px 0;
+  font-weight: 700;
+}
+.r-type-study.default > p {
+  max-width: none;
+  line-height: 1.3;
+  color: #333;
+}
+.r-type-study.default .r-type-weights {
+  justify-content: space-between;
+  margin: 40px 0;
+}
+@media (max-width: 600px) {
+  .r-comparison-tools {
+    padding: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .r-comparison-tools > span {
+    width: 100%;
+  }
+  .r-collection {
+    padding: 20px 16px;
+  }
+  .r-collection-title h3 {
+    font-size: 24px;
+  }
+  .r-reference-samples {
+    gap: 8px;
+  }
+  .r-cover {
+    padding: 9px;
+  }
+  .r-cover > span,
+  .r-cover small {
+    font-size: 6px;
+  }
+  .r-cover-editorial strong {
+    font-size: 34px;
+    letter-spacing: -3px;
+  }
+  .r-cover-poster strong {
+    font-size: 19px;
+    letter-spacing: -1px;
+  }
+  .r-cover-index strong {
+    font-size: 23px;
+    letter-spacing: 1px;
+  }
+  .r-collection-footer {
+    font-size: 9px;
+  }
+  .r-type-study {
+    padding: 28px 22px;
+  }
+  .r-type-study h3 {
+    font-size: 36px;
+  }
+  .r-type-weights {
+    gap: 13px;
+  }
+}
+
+.r-collection-title {
+  min-height: 64px;
+}
+.r-collection.default .r-collection-title {
+  margin: 28px 0 24px;
+}
+.r-reference-samples h4 {
+  min-height: 20px;
+}
+.r-type-study {
+  min-height: 350px;
+}
+.r-collection h3,
+.r-reference-samples h4,
+.r-cover {
+  transition:
+    font-size 180ms ease,
+    letter-spacing 180ms ease,
+    border-radius 180ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .r-collection h3,
+  .r-reference-samples h4,
+  .r-cover {
+    transition: none;
+  }
 }

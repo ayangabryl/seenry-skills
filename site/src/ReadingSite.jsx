@@ -62,63 +62,102 @@ function Section({ id, title, children, description }) {
     </section>
   );
 }
-function InterfaceStudy() {
-  const [after, setAfter] = useState(true),
-    [saved, setSaved] = useState(false);
+function ComparisonChoice({ after, setAfter, label }) {
   return (
-    <figure className="r-demo">
-      <div className="r-interface-stage">
-        <div className={"r-project " + (after ? "refined" : "default")}>
-          <div className="r-project-heading">
-            <div className="r-project-symbol" aria-hidden="true">
-              S
-            </div>
-            <div>
-              <span>Workspace</span>
-              <h3>Studio website</h3>
-            </div>
-            <span className="r-status">
-              <i />
-              In progress
-            </span>
+    <div className="r-comparison-tools">
+      <span>{label}</span>
+      <div role="group" aria-label={label + " version"}>
+        <button aria-pressed={!after} onClick={() => setAfter(false)}>
+          Starting point
+        </button>
+        <button aria-pressed={after} onClick={() => setAfter(true)}>
+          With Seenry
+        </button>
+      </div>
+    </div>
+  );
+}
+function InterfaceStudy() {
+  const [after, setAfter] = useState(true);
+  const [saved, setSaved] = useState(false);
+  return (
+    <figure className="r-demo r-comparison">
+      <ComparisonChoice
+        after={after}
+        setAfter={setAfter}
+        label="A saved collection"
+      />
+      <div className={"r-collection " + (after ? "refined" : "default")}>
+        <div className="r-collection-top">
+          <span>seenry.</span>
+          <span>Collection / 03 references</span>
+        </div>
+        <div className="r-collection-title">
+          <div>
+            <h3>Type worth saving.</h3>
+            <p>Three studies in scale, rhythm and contrast.</p>
           </div>
-          <p>A home for the studio’s work, people and ideas.</p>
-          <div className="r-project-facts">
-            <div>
-              <span>Owner</span>
-              <strong>Alex Morgan</strong>
+          <button
+            aria-label={saved ? "Unsave collection" : "Save collection"}
+            aria-pressed={saved}
+            onClick={() => setSaved(!saved)}
+          >
+            {saved ? <Check size={18} /> : <Plus size={18} />}
+          </button>
+        </div>
+        <div className="r-reference-samples">
+          <div>
+            <div className="r-cover r-cover-editorial">
+              <span>01 / Editorial</span>
+              <strong>
+                Aa<span>—</span>
+              </strong>
+              <small>Form follows reading.</small>
             </div>
-            <div>
-              <span>Due date</span>
-              <strong>October 12</strong>
+            <h4>Editorial</h4>
+            <p>Scale & hierarchy</p>
+          </div>
+          <div>
+            <div className="r-cover r-cover-poster">
+              <span>02 / Poster</span>
+              <strong>
+                TYPE
+                <br />
+                IN
+                <br />
+                FORM.
+              </strong>
+              <small>A study in contrast</small>
             </div>
-            <div>
-              <span>Progress</span>
-              <strong>8 of 12 tasks</strong>
+            <h4>Poster</h4>
+            <p>Weight & contrast</p>
+          </div>
+          <div>
+            <div className="r-cover r-cover-index">
+              <span>03 / Index</span>
+              <strong>
+                abc
+                <br />
+                def
+                <br />
+                ghi<span>↗</span>
+              </strong>
+              <small>Letters in a grid</small>
             </div>
+            <h4>Index</h4>
+            <p>Rhythm & alignment</p>
           </div>
-          <div className="r-progress-track">
-            <span />
-          </div>
-          <div className="r-project-bottom">
-            <span>Updated just now</span>
-            <button onClick={() => setSaved((v) => !v)} aria-pressed={saved}>
-              {saved ? <Check size={15} /> : <Plus size={15} />}{" "}
-              {saved ? "Following" : "Follow project"}
-            </button>
-          </div>
+        </div>
+        <div className="r-collection-footer">
+          <span>Original type studies</span>
+          <span role="status">
+            {saved ? "Saved to your collection" : "Curated in Seenry"}
+          </span>
         </div>
       </div>
       <figcaption>
-        <span>
-          {after
-            ? "Related details grouped. One clear reading order."
-            : "Same content with competing spacing and emphasis."}
-        </span>
-        <button aria-pressed={after} onClick={() => setAfter((v) => !v)}>
-          {after ? "After" : "Before"} <RotateCcw size={14} />
-          <span className="r-sr">Show {after ? "before" : "after"}</span>
-        </button>
+        Same studies and controls. Compare the grouping, proportions and reading
+        order.
       </figcaption>
     </figure>
   );
@@ -126,29 +165,37 @@ function InterfaceStudy() {
 function TypographyStudy() {
   const [after, setAfter] = useState(true);
   return (
-    <figure className="r-demo">
+    <figure className="r-demo r-comparison">
+      <ComparisonChoice
+        after={after}
+        setAfter={setAfter}
+        label="A type specimen"
+      />
       <div className={"r-type-study " + (after ? "refined" : "default")}>
-        <span>FIELDNOTES / JOURNAL 004</span>
+        <span>TYPE NOTES / 001</span>
         <h3>
-          A place for
-          <br />
-          unfinished ideas.
+          Open Runde<span className="r-type-period">.</span>
         </h3>
         <p>
-          Notes, sketches and small discoveries from an independent design
-          practice.
+          A rounded sans serif by Laurids Kern. Soft terminals, open counters,
+          and four weights for interfaces that need to read clearly.
         </p>
-        <span className="r-type-link">
-          Read the journal <ArrowRight size={14} />
-        </span>
+        <div className="r-type-weights">
+          <span>Regular</span>
+          <span>Medium</span>
+          <span>Semibold</span>
+          <span>Bold</span>
+        </div>
+        <a
+          className="r-type-link"
+          href="https://github.com/lauridskern/open-runde"
+        >
+          Explore the typeface <ArrowUpRight size={14} />
+        </a>
       </div>
       <figcaption>
-        <span>Type scale, line length and the space between them.</span>
-        <button onClick={() => setAfter(!after)} aria-pressed={after}>
-          {after ? "After" : "Before"}
-          <RotateCcw size={14} />
-          <span className="r-sr">Switch typography comparison</span>
-        </button>
+        One typeface. A deliberate scale, readable line length and useful
+        contrast.
       </figcaption>
     </figure>
   );
