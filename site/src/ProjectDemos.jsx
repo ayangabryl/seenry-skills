@@ -25,10 +25,10 @@ export function WebsiteRedesign() {
     </div>
     <iframe key={url} src={url} title={version.title} loading="lazy" />
     <p className="r-footnote">{version.note}</p>
-    {selected === 2 && <details className="p-research-results"><summary>Research results — what changed?</summary><div>
+    {selected === 2 && <details className="p-research-results"><summary>Research decisions — why this direction?</summary><div>
       <p><strong>Before.</strong> Luna’s preserved version uses a bold graphic palette and abstract illustrations. It introduces the studio, but says less about the spaces it designs.</p>
       <p><strong>Seenry Skill.</strong> Shared typography, spacing and controls make the page easier to scan. SVG studies stay sharp at every size and give precise control over color and shape. They suit diagrams; they cannot convey material texture or daylight like a rendered interior.</p>
-      <p><strong>Skill + MCP.</strong> Storey’s architectural image scale and SSA’s project captions informed a project-first layout. Copy sits outside the image, the caption identifies the study, and each project opens for closer inspection. Matching generated imagery communicates the studio’s domestic scale, light and materials.</p>
+      <p><strong>Skill + MCP.</strong> Storey’s architectural image scale and SSA’s project captions informed a project-first layout. Copy sits outside the image, the caption identifies the study, and each project opens for closer inspection. Matching generated imagery communicates the studio’s domestic scale, light and materials. The reasoning: let visitors inspect the work first, keep captions close enough to identify it, and keep reading off detailed photography. These are design hypotheses, not measured conversion results.</p>
       <p>MCP supplied reference evidence; imagegen supplied original concept images. The improvement comes from applying both to the brief, not from the file format alone. These are authored design judgments, not measured customer outcomes or a controlled model benchmark.</p>
       <a href="/demos/fieldwork-mcp/DESIGN.md">References, decisions and image prompts ↗</a>
     </div></details>}

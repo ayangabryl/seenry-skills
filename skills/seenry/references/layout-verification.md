@@ -17,3 +17,6 @@ Record viewport sizes, measured shared edges, radius roles, overflow result and 
 
 ## Visible-surface gate
 Do not conclude alignment or corner consistency from section bounds or an ancestor's computed radius alone. Identify the first painted descendant (image, iframe, white card, canvas) and measure its visible edge against adjacent toolbar, caption and action edges. Inspect padding, transparent gutters, child backgrounds and clipping at every intervening wrapper. A rounded transparent ancestor with an inset square child can still look square. Check actual screenshot corners at readable scale in every relevant tab/viewport state. A deliberately centered device preview is a documented exception to edge alignment, not an exception to its surface-radius rule. Report which painted surfaces were inspected; uninspected states remain unverified.
+
+## Included source
+Use the bundled [layout-guide source and integration contract](../assets/layout-guides/README.md) rather than describing an overlay without implementing it. Adapt selectors and tokens to the host. This source is React; other frameworks retain the same measurements, toggle and cleanup contract. The geometry and optical completion gates above remain required.
