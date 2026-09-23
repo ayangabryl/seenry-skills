@@ -277,34 +277,53 @@ function Hover() {
   );
 }
 function Anatomy() {
-  const [guides, set] = useState(false);
+  const [aligned, setAligned] = useState(true);
+  const [added, setAdded] = useState(false);
   return (
-    <div className={"anatomy-example " + (guides ? "has-guides" : "")}>
-      <button
-        className="anatomy-toggle"
-        aria-pressed={guides}
-        onClick={() => set(!guides)}
+    <div className="layout-study">
+      <div
+        className="layout-study-switch"
+        role="group"
+        aria-label="Layout comparison"
       >
-        {guides ? "Hide guides" : "Show layout guides"}
-      </button>
-      <div className="anatomy-layout">
-        <div className="anatomy-picture">
-          <span>01</span>
+        <button aria-pressed={!aligned} onClick={() => setAligned(false)}>
+          Ungrouped
+        </button>
+        <button aria-pressed={aligned} onClick={() => setAligned(true)}>
+          Refined
+        </button>
+      </div>
+      <div className={"session-card " + (aligned ? "refined" : "ungrouped")}>
+        <div className="session-art" aria-hidden="true">
+          <span>Aa</span>
+          <small>STUDIO SESSIONS / 01</small>
         </div>
-        <div className="anatomy-copy">
-          <small>OBJECT STUDY</small>
-          <h3>Form follows function.</h3>
+        <div className="session-copy">
+          <span className="session-category">Live workshop</span>
+          <h4>Designing with type</h4>
           <p>
-            One image, one reading edge. Detail stays close to the thing it
-            describes.
+            Hierarchy, rhythm and the details that make text easier to read.
           </p>
-          <span>View study ↗</span>
+          <dl>
+            <div>
+              <dt>When</dt>
+              <dd>Thursday, 14:00</dd>
+            </div>
+            <div>
+              <dt>Format</dt>
+              <dd>45 minutes · Online</dd>
+            </div>
+          </dl>
+          <button onClick={() => setAdded(!added)} aria-pressed={added}>
+            {added ? "Added to demo calendar" : "Add to calendar"}{" "}
+            <ArrowUpRight size={14} />
+          </button>
         </div>
       </div>
-      <p className="anatomy-note">
-        {guides
-          ? "24px inset · 16px gutter · shared text edge"
-          : "A two-column composition with a shared baseline."}
+      <p className="layout-study-note">
+        {aligned
+          ? "One reading edge. Related details together. A clear next action."
+          : "Same content, competing alignments and disconnected details."}
       </p>
     </div>
   );
@@ -546,9 +565,9 @@ export default function Showcase({
       el: <DeckNarrative />,
     },
     {
-      title: "Layout anatomy",
+      title: "Spacing & hierarchy",
       cat: "Design",
-      desc: "Inspect the composition: columns, inset, gutter and reading edge.",
+      desc: "Compare the same content with scattered and deliberate grouping. The difference is in the relationships.",
       el: <Anatomy />,
     },
     {
@@ -734,11 +753,16 @@ export default function Showcase({
     <>
       <section className="showcase-intro">
         <div>
-          <span className="intro-label">
-            Open-source · For your coding agent
-          </span>
-          <h1>Seenry Skills</h1>
-          <p>Design interfaces, refine motion and work with real references.</p>
+          <span className="intro-label">Seenry Skills · Open source</span>
+          <h1>
+            Design skills for
+            <br className="intro-break" /> coding agents.
+          </h1>
+          <p>
+            Give your agent a design workflow: study references, build the
+            interface, refine the details. Five skills cover websites, motion,
+            assets, branding and presentations.
+          </p>
         </div>
         <div className="quick-install">
           <code>npx skills add ayangabryl/seenry-skills</code>
@@ -787,19 +811,17 @@ export default function Showcase({
               <div className="chapter-heading">
                 <span className="chapter-number">0{chapterIndex + 1}</span>
                 <h2>{c.name}</h2>
-                <span className="chapter-example-count">
-                  {examples.length} interactive examples
-                </span>
+
                 <p>
                   {c.id === "seenry"
-                    ? "Layout, typography and responsive interfaces. Compare the decisions behind a design."
+                    ? "The core design skill. It helps your agent turn a brief into an interface: choose a layout, establish type and spacing, then build and check responsive states."
                     : c.id === "motion"
-                      ? "Menus, navigation, numbers and feedback. Try the transitions, including their return states."
+                      ? "Make interactions feel connected. The motion skill guides timing, easing, hover, scrolling and transitions—including what happens when you change your mind halfway through."
                       : c.id === "assets"
-                        ? "Find photography and fonts, create artwork, and make the crop work."
+                        ? "Find the material a design needs. Search for photography, select fonts and icons, generate original artwork when useful, and integrate images or video with the right crop."
                         : c.id === "branding"
-                          ? "Turn type, color and imagery into a consistent visual identity."
-                          : "Give every slide a role. Build a sequence with a clear beginning and end."}
+                          ? "Build a visual identity that holds together. Research references and define how type, color, imagery and components work across a project."
+                          : "Shape a presentation around its story. Study reference decks, give each slide a role, and carry a consistent visual system through the sequence."}
                 </p>
                 <div
                   className="example-picker"
@@ -838,6 +860,20 @@ export default function Showcase({
                 >
                   {card(example)}
                 </motion.div>
+                <div className="skill-prompt">
+                  <span>Try it with your agent</span>
+                  <p>
+                    {c.id === "seenry"
+                      ? "Use Seenry to redesign this page. Compare layouts, refine the typography, and check it on mobile."
+                      : c.id === "motion"
+                        ? "Use Seenry Motion to refine these interactions. Keep controls stable and test rapid clicks, keyboard use and reduced motion."
+                        : c.id === "assets"
+                          ? "Use Seenry Assets to find images and type for this project. Keep their sources and licenses, and test the crops."
+                          : c.id === "branding"
+                            ? "Use Seenry Branding to define a visual identity for this project, with usable rules for type, color and imagery."
+                            : "Use Seenry Decks to research a presentation structure for this brief. Explain each slide’s role before building the sequence."}
+                  </p>
+                </div>
               </div>
             </section>
           );

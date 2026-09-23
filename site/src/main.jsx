@@ -772,6 +772,7 @@ function Install() {
     </section>
   );
 }
+import "./editorial.css";
 function App() {
   useEffect(() => {
     const id = window.location.hash.slice(1);
