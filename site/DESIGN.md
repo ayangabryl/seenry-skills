@@ -76,3 +76,9 @@ Sol comparison: two isolated fresh GPT-5.6 Sol high-reasoning agents receive the
 ## Copy, combination and Wise revision — 2026-09-23
 
 The rejected Fieldwork eyebrow revealed a failure to carry the user's constraints into the actual result. Preserve the original experiment but collapse and label it as historical. Replace the fictional branding example with an attributed Wise reference study: full composition and three readable crops. The shell remains gray/white/charcoal; the color lab compares blue/peach, plum/lilac and forest/citron on identical content. New source-backed skill guidance is linked before composition rather than only during final review. See `../docs/site-redesign/evidence/skill-research-20260923.md` for inspected sources and validation limits.
+
+## Working branding and redesign examples — 2026-09-23
+
+Replace the screenshot-only Wise branding presentation with Library/Saved views that share implementation and a downloadable project guideline. Canonical example rules: [BRAND.md](public/demos/brand-system/BRAND.md), linked by its own DESIGN.md. Wise stays as a research reference in the skill, not the visible branding deliverable.
+
+Remove the earlier Sol comparison section and the standalone color lab from the page. The new before/after uses the unchanged no-skill Sol website and an explicitly authored Seenry-guided refinement. It preserves content, original SVGs and form/filter behavior, while replacing ornamental typography, cream surfaces, redundant copy and scattered control styling. See [revision record](public/demos/fieldwork-redesign/DESIGN.md). It is not a new independent model experiment.

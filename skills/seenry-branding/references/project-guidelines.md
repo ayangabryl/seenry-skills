@@ -2,6 +2,10 @@
 
 Use when creating or codifying brand guidelines or maintaining a substantial project. MCP is optional; supplied decisions, implementation and local assets suffice. Unresolved identity choices remain provisional.
 
+## Completion boundary
+
+A branding implementation is complete only when the project can point to its canonical rule file, the source owners for shared values/components, and representative uses checked against them. A moodboard, competitor screenshot or narrative about consistency is research evidence, not that output. If no implementation is requested, deliver the guideline and label its rules as proposed until tested.
+
 ## Establish one source of truth
 
 Inspect existing brand docs, tokens, font/asset manifests and shared components. Preserve their naming and format. If no guideline exists, create `BRAND.md` linked from `DESIGN.md`; the [authoring outline](../assets/BRAND.example.md) is optional. Do not create a second token store or rebrand a working product while documenting it.

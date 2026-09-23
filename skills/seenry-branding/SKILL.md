@@ -4,12 +4,18 @@ description: "Research identity systems and create or maintain project brand gui
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.11"
+  version: "2.0.1-dev.12"
 ---
 
 For original identity authorship, follow the main Seenry workflow and its art-direction guide before researching examples here. Define relationships across wordmark, type, imagery, palette, language and motion; test them in both expressive and dense applications. Researching a brand guide is not itself a new identity design. Preserve a supplied identity unless the user requests rebranding.
 
 For creating, codifying or updating a project's guidelines, use [project guidelines](references/project-guidelines.md). Reuse existing brand documentation and implementation sources; otherwise create a compact `BRAND.md` linked from `DESIGN.md`. A research-only request ends with its findings. A small UI change inherits applicable rules without generating a new manual.
+
+## Deliver project continuity
+
+For a request to create or maintain project branding, the deliverable is a usable guideline tied to implementation—not a reference screenshot or palette board. Read the project's DESIGN.md and linked brand rules before editing. Keep one canonical guideline: use an existing DESIGN.md brand section, or BRAND.md linked from DESIGN.md. State which file later agents must read.
+
+Define shared token/component owners and demonstrate the rules in at least two relevant existing surfaces or states when the project has them. Verify that the same components, terminology and state behavior carry across. Record scoped exceptions and update shared sources with the guideline; do not invent a second per-page identity. Research through MCP informs the rules but does not replace their authorship or verification. A small change should reuse the rules without expanding into a brand manual.
 
 # Read branding as a system
 

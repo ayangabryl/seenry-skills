@@ -26,13 +26,8 @@ import {
 import { createNumberTransition } from "../../skills/seenry-motion/assets/number-transition.mjs";
 import { BrandApplications, DeckNarrative } from "./CapabilityDemos";
 import "./reading-site.css";
-import {
-  SourcedMedia,
-  ColorStudy,
-  BrandSystem,
-  DeckStudy,
-  SolComparison,
-} from "./EvidenceDemos";
+import { SourcedMedia, DeckStudy } from "./EvidenceDemos";
+import { WebsiteRedesign, BrandGuidelineDemo } from "./ProjectDemos";
 const repository = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
 function CopyInstall() {
@@ -492,19 +487,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                 </>
               }
             >
-              <details className="e-archived-run">
-                <summary>Earlier Sol comparison</summary>
-                <p className="r-footnote">
-                  This run exposed weaknesses in the skill’s composition and
-                  wording. The original outputs are kept here for review.
-                </p>
-                <SolComparison />
-              </details>
-              <p className="r-between">
-                Compare color combinations on the same content, then adjust the
-                action color.
-              </p>
-              <ColorStudy />
+              <WebsiteRedesign />
             </Section>
             <Section
               id="seenry-motion"
@@ -560,13 +543,16 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
               title="Seenry Branding"
               description={
                 <>
-                  Turns references and decisions into a usable identity. Defines{" "}
-                  <strong>type, color, imagery and component rules</strong> so
-                  the same brand holds together across different applications.
+                  Creates the project’s brand guidelines and links them from
+                  DESIGN.md. Defines{" "}
+                  <strong>
+                    shared tokens, components, language and motion
+                  </strong>{" "}
+                  so future screens follow the same rules.
                 </>
               }
             >
-              <BrandSystem />
+              <BrandGuidelineDemo />
             </Section>
             <Section
               id="seenry-decks"
