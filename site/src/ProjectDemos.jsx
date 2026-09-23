@@ -10,13 +10,12 @@ import {
 import "./project-demos.css";
 
 const versions = [
-  {label: "Before", path: "fieldwork-generic", title: "Deliberately generic Fieldwork website", note: "An authored example of generic AI-style design—not the original Sol output or a benchmark result."},
-  {label: "Seenry", path: "fieldwork-redesign", title: "Fieldwork redesigned with Seenry", note: "Core Seenry: clearer reading order, shorter copy and consistent controls."},
-  {label: "+ Skill stack", path: "fieldwork-stack", title: "Fieldwork with the Seenry skill stack", note: "Seenry + Branding, Assets and Motion: a project catalog with category filters, saved ideas and an inquiry prefilled from your shortlist."},
-  {label: "+ MCP", path: "fieldwork-mcp", title: "Fieldwork with skills and MCP", note: "Inspected architecture references informed an image-led editorial direction. Open a project for its design intent. Photography is credited as a mood reference."},
+  {label: "Before", path: "fieldwork-luna", title: "Fieldwork baseline by Luna without design skills", note: "Luna’s standalone attempt without design skills or reference research. Preserved as generated."},
+  {label: "Seenry Skill", path: "fieldwork-redesign", title: "Fieldwork redesigned with Seenry", note: "Seenry workflow: a consistent brand, clear reading order, original illustrations and checked interactions."},
+  {label: "Skill + MCP", path: "fieldwork-mcp", title: "Fieldwork with Seenry and MCP research", note: "Inspected architecture references informed the image-first opening and project exploration. Photography is a credited mood reference."},
 ];
 export function WebsiteRedesign() {
-  const [selected, setSelected] = useState(3);
+  const [selected, setSelected] = useState(1);
   const version = versions[selected];
   const url = `/demos/${version.path}/index.html`;
   return <div className="p-comparison">
@@ -26,7 +25,7 @@ export function WebsiteRedesign() {
     </div>
     <iframe key={url} src={url} title={version.title} loading="lazy" />
     <p className="r-footnote">{version.note}</p>
-    <p className="r-footnote">Illustrative before/after comparison; the MCP version also adds credited photography. All four versions are authored demonstrations, not independent model tests. <a href={`/demos/${version.path}/${selected ? "DESIGN.md" : "manifest.md"}`}>Read the record ↗</a></p>
+    <p className="r-footnote">One brief, three approaches. The redesigns are guided demonstrations; this is not a controlled model benchmark. <a href={`/demos/${version.path}/${selected ? "DESIGN.md" : "README.md"}`}>Read the record ↗</a></p>
   </div>;
 }
 const examples = [

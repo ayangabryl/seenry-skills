@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fieldwork — spaces with a pulse</title>
+  <meta name="description" content="Fieldwork is a fictional architecture and interiors studio in Lisbon.">
+  <style>
+    :root { --ink:#132228; --muted:#607077; --paper:#f5f2ea; --card:#fffdf8; --lime:#d8f26b; --coral:#fa715a; --blue:#a6d9ec; --line:rgba(19,34,40,.16); }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:var(--ink); background:var(--paper); }
+    button, input, textarea { font:inherit; }
+    button { cursor:pointer; }
+    .shell { width:min(1220px, calc(100% - 48px)); margin:auto; }
+    header { min-height:76px; display:flex; align-items:center; justify-content:space-between; gap:24px; border-bottom:1px solid var(--line); }
+    .brand { font-size:1.16rem; font-weight:900; letter-spacing:-.05em; display:flex; align-items:center; gap:10px; }
+    .brand-mark { width:25px; height:25px; display:grid; place-items:center; color:var(--ink); background:var(--lime); border-radius:7px; font-size:.8rem; }
+    nav { display:flex; gap:26px; align-items:center; font-size:.86rem; font-weight:700; }
+    nav a { color:inherit; text-decoration:none; }
+    .nav-cta, .primary { border:0; border-radius:999px; background:var(--ink); color:white; padding:12px 18px; font-weight:800; }
+    .hero { padding:88px 0 72px; display:grid; grid-template-columns:1.2fr .8fr; gap:50px; align-items:end; }
+    .eyebrow { color:#557078; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; font-weight:900; }
+    h1 { font-size:clamp(3.3rem, 8vw, 7.4rem); line-height:.86; letter-spacing:-.09em; max-width:760px; margin:16px 0 24px; }
+    .hero-copy { max-width:330px; color:var(--muted); line-height:1.55; margin:0 0 8px; }
+    .hero-graphic { min-height:330px; border-radius:28px; overflow:hidden; position:relative; background:linear-gradient(135deg,#f8b58c,#eb6960 50%,#523c67); box-shadow:16px 20px 0 rgba(19,34,40,.08); }
+    .hero-graphic:before { content:""; position:absolute; width:210px; height:210px; border-radius:50%; right:14%; top:13%; background:var(--lime); mix-blend-mode:screen; }
+    .hero-graphic:after { content:"FIELD / WORK"; position:absolute; left:22px; bottom:20px; font-size:.72rem; letter-spacing:.16em; font-weight:900; color:white; }
+    .sun { position:absolute; width:98px; height:98px; background:#ffdf87; border-radius:50%; left:14%; top:17%; }
+    .block { position:absolute; bottom:-10px; right:5%; width:56%; height:62%; background:#f5f2ea; clip-path:polygon(20% 15%,100% 0,100% 100%,0 100%,0 28%); }
+    .block:after { content:""; position:absolute; right:17%; top:26%; width:36%; height:44%; border:12px solid var(--coral); border-left-width:22px; }
+    .section { padding:32px 0 108px; }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:20px; border-top:1px solid var(--line); padding-top:22px; margin-bottom:24px; }
+    h2 { margin:0; font-size:clamp(1.8rem,4vw,3.5rem); letter-spacing:-.065em; }
+    .filters { display:flex; gap:8px; flex-wrap:wrap; }
+    .filter { background:transparent; color:var(--ink); border:1px solid var(--line); border-radius:999px; padding:8px 13px; font-weight:700; font-size:.78rem; }
+    .filter.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:18px; }
+    .project { background:var(--card); border:1px solid var(--line); border-radius:22px; overflow:hidden; grid-column:span 6; transition:transform .2s ease, box-shadow .2s ease; }
+    .project:hover { transform:translateY(-5px); box-shadow:0 14px 28px rgba(19,34,40,.12); }
+    .project.hidden { display:none; }
+    .project-art { aspect-ratio:1.45; position:relative; overflow:hidden; }
+    .project-art svg { width:100%; height:100%; display:block; }
+    .project-info { padding:19px 20px 21px; display:flex; justify-content:space-between; gap:16px; align-items:end; }
+    .project-info h3 { margin:0 0 5px; font-size:1.24rem; letter-spacing:-.04em; }
+    .project-info p { margin:0; color:var(--muted); font-size:.8rem; }
+    .open { border:0; background:var(--lime); width:38px; height:38px; border-radius:50%; font-size:1.2rem; font-weight:900; flex:none; }
+    .project:nth-child(3) { grid-column:3 / span 8; }
+    .studio { background:var(--ink); color:white; border-radius:28px; padding:48px clamp(24px,5vw,72px); display:grid; grid-template-columns:1fr .8fr; gap:50px; align-items:center; }
+    .studio h2 { color:var(--lime); }
+    .studio p { color:#c4d0d2; line-height:1.65; max-width:390px; }
+    .studio a { color:var(--lime); font-weight:800; text-decoration:none; }
+    footer { display:flex; justify-content:space-between; gap:20px; padding:24px 0 36px; color:var(--muted); font-size:.75rem; border-top:1px solid var(--line); }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(19,34,40,.64); display:grid; place-items:center; padding:20px; z-index:5; }
+    .modal-backdrop[hidden] { display:none; }
+    .modal { max-width:620px; width:100%; max-height:90vh; overflow:auto; background:var(--paper); border-radius:25px; padding:30px; position:relative; }
+    .close { position:absolute; top:18px; right:18px; border:0; background:transparent; font-size:1.5rem; color:var(--muted); }
+    .modal h2 { margin:4px 42px 8px 0; font-size:2.3rem; }
+    .modal p { color:var(--muted); line-height:1.5; }
+    .detail-tag { display:inline-block; background:var(--lime); border-radius:999px; padding:6px 10px; font-size:.72rem; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+    .form { display:grid; gap:13px; margin-top:20px; }
+    label { font-weight:800; font-size:.8rem; display:grid; gap:6px; }
+    input, textarea { width:100%; border:1px solid var(--line); border-radius:12px; background:white; padding:12px; color:var(--ink); }
+    textarea { min-height:100px; resize:vertical; }
+    .error { color:#ba4135; font-size:.8rem; min-height:18px; }
+    .success { color:#246745; background:#dcf4dd; border-radius:12px; padding:13px; font-weight:700; }
+    @media (max-width:760px) { .shell { width:min(100% - 30px, 1220px); } header { min-height:64px; } nav a { display:none; } .hero { padding:58px 0 52px; display:block; } .hero-copy { margin-bottom:32px; } .hero-graphic { min-height:250px; } .project, .project:nth-child(3) { grid-column:span 12; } .studio { display:block; padding:34px 24px; } .studio p { margin-bottom:28px; } footer { display:block; } footer span { display:block; margin-top:8px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header><a class="brand" href="#top" aria-label="Fieldwork home"><span class="brand-mark">+</span> fieldwork</a><nav><a href="#work">Work</a><a href="#studio">Studio</a><button class="nav-cta" data-inquiry>Start a conversation</button></nav></header>
+    <main id="top">
+      <section class="hero"><div><div class="eyebrow">Architecture + interiors · Lisbon</div><h1>Make room<br>for wonder.</h1><p class="hero-copy">Fieldwork shapes warm, curious spaces for the way people actually live. Small studio, big attention to detail.</p></div><div class="hero-graphic" aria-label="Abstract illustration of a sunlit house"><span class="sun"></span><span class="block"></span></div></section>
+      <section class="section" id="work"><div class="section-head"><h2>Selected work</h2><div class="filters" aria-label="Filter projects"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="houses">Houses</button><button class="filter" data-filter="interiors">Interiors</button></div></div>
+        <div class="grid">
+          <article class="project" data-type="houses" data-title="Courtyard House" data-place="Lisbon · 2024" data-description="A calm family home built around a pocket of sky. Textured limewash, soft oak and a planted central court bring daylight through the plan."><div class="project-art"><svg viewBox="0 0 700 480" role="img" aria-label="Abstract courtyard house illustration"><rect width="700" height="480" fill="#d9f0e4"/><circle cx="530" cy="110" r="65" fill="#f8cc76"/><rect y="325" width="700" height="155" fill="#e89d79"/><path d="M110 380V180h170v200M280 380V125h310v255" fill="#f5f2ea" stroke="#132228" stroke-width="12"/><path d="M170 260h70M340 205h64M430 205h64" stroke="#fa715a" stroke-width="20"/><path d="M360 380V285h155v95" fill="#a6d9ec" stroke="#132228" stroke-width="10"/><path d="M65 380c25-68 74-74 92 0m-46 0c20-43 50-48 71 0" fill="none" stroke="#507f65" stroke-width="13"/></svg></div><div class="project-info"><div><h3>Courtyard House</h3><p>Lisbon · 2024</p></div><button class="open" aria-label="Open Courtyard House details">↗</button></div></article>
+          <article class="project" data-type="interiors" data-title="Hill Apartment" data-place="Porto · 2025" data-description="An apartment refresh with cobalt joinery and low, generous seating. The palette follows the changing blue of the city beyond the windows."><div class="project-art"><svg viewBox="0 0 700 480" role="img" aria-label="Abstract apartment interior illustration"><rect width="700" height="480" fill="#a9d9ed"/><rect y="330" width="700" height="150" fill="#f4d9ad"/><rect x="90" y="80" width="520" height="300" rx="8" fill="#fffdf8" stroke="#132228" stroke-width="12"/><rect x="120" y="115" width="190" height="180" fill="#ec816a"/><rect x="345" y="115" width="230" height="180" fill="#bfdde2"/><path d="M142 330h290v60H142z" fill="#315888"/><path d="M480 315h105v75H480z" fill="#d8f26b"/><circle cx="540" cy="105" r="38" fill="#fa715a"/></svg></div><div class="project-info"><div><h3>Hill Apartment</h3><p>Porto · 2025</p></div><button class="open" aria-label="Open Hill Apartment details">↗</button></div></article>
+          <article class="project" data-type="houses" data-title="Garden Room" data-place="Cascais · 2025" data-description="A garden annex that makes a little go a long way. A sliding wall opens the studio to rosemary, breeze and afternoon light."><div class="project-art"><svg viewBox="0 0 700 480" role="img" aria-label="Abstract garden room illustration"><rect width="700" height="480" fill="#d8f26b"/><rect y="337" width="700" height="143" fill="#669178"/><circle cx="105" cy="95" r="70" fill="#f8cc76"/><path d="M168 375V145h380v230" fill="#fa715a" stroke="#132228" stroke-width="13"/><path d="M215 375V190h285v185" fill="#a6d9ec" stroke="#132228" stroke-width="12"/><path d="M355 185v190" stroke="#132228" stroke-width="10"/><path d="M55 430c20-118 65-126 88 0m8 0c13-84 52-94 73 0m365 0c17-105 60-108 81 0" fill="none" stroke="#285844" stroke-width="17"/></svg></div><div class="project-info"><div><h3>Garden Room</h3><p>Cascais · 2025</p></div><button class="open" aria-label="Open Garden Room details">↗</button></div></article>
+        </div>
+      </section>
+      <section class="section" id="studio"><div class="studio"><div><div class="eyebrow" style="color:#a6d9ec">The studio</div><h2>Good spaces<br>feel obvious.</h2></div><div><p>We are a small, collaborative practice working across architecture, interiors and the in-between. Tell us what you are imagining, and we will find the shape of it together.</p><a href="#" data-inquiry>Tell us about your project →</a></div></div></section>
+    </main>
+    <footer><span>© 2025 Fieldwork Studio</span><span>Lisbon · Portugal</span></footer>
+  </div>
+  <div class="modal-backdrop" id="detail-modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="detail-title"><button class="close" data-close aria-label="Close">×</button><span class="detail-tag">Project note</span><h2 id="detail-title"></h2><p id="detail-place"></p><p id="detail-description"></p><button class="primary" data-inquiry>Ask about a similar project</button></div></div>
+  <div class="modal-backdrop" id="inquiry-modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="inquiry-title"><button class="close" data-close aria-label="Close">×</button><span class="detail-tag">Hello there</span><h2 id="inquiry-title">Start a conversation.</h2><p>Share a few details and we’ll imagine the first move together.</p><form class="form" id="inquiry-form"><label>Name<input name="name" autocomplete="name" required></label><label>Email<input name="email" type="email" autocomplete="email" required></label><label>Project notes<textarea name="notes" required></textarea></label><div class="error" id="form-error" role="alert"></div><button class="primary" type="submit">Send inquiry</button></form><div class="success" id="form-success" hidden>Thanks — this demo captured your note locally. In a real studio, we’d reply by email.</div></div></div>
+  <script>
+    const detailModal=document.querySelector('#detail-modal'), inquiryModal=document.querySelector('#inquiry-modal');
+    const closeAll=()=>document.querySelectorAll('.modal-backdrop').forEach(m=>m.hidden=true);
+    document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',closeAll));
+    document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.hidden=true;}));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll();});
+    document.querySelectorAll('[data-inquiry]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault(); closeAll(); inquiryModal.hidden=false; inquiryModal.querySelector('input').focus();}));
+    document.querySelectorAll('.open').forEach(b=>b.addEventListener('click',()=>{const card=b.closest('.project'); document.querySelector('#detail-title').textContent=card.dataset.title; document.querySelector('#detail-place').textContent=card.dataset.place; document.querySelector('#detail-description').textContent=card.dataset.description; closeAll(); detailModal.hidden=false;}));
+    document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));btn.classList.add('active'); const filter=btn.dataset.filter; document.querySelectorAll('.project').forEach(card=>card.classList.toggle('hidden',filter!=='all'&&card.dataset.type!==filter));}));
+    document.querySelector('#inquiry-form').addEventListener('submit',e=>{e.preventDefault(); const form=e.currentTarget; const error=document.querySelector('#form-error'); if(!form.checkValidity()){error.textContent='Please complete all fields, including a valid email.'; return;} error.textContent=''; form.hidden=true; document.querySelector('#form-success').hidden=false;});
+  </script>
+</body>
+</html>

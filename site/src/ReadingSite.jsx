@@ -611,7 +611,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
               <CopyInstall />
             </div>
             <small>
-              Examples include authored studies and independent Sol runs.
+              Examples include authored studies and a Luna baseline.
               Results vary with the brief and agent.
             </small>
           </section>

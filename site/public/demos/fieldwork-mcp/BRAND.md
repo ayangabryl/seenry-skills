@@ -15,3 +15,5 @@ Project illustrations open in a native dialog with Close and Escape. The photo h
 
 ## Continuity
 Read this file before changing a screen. Update shared styles rather than inventing another button or palette. Record exceptions in DESIGN.md.
+
+Current opening: neutral shell and white type over a darkened architecture photograph; readable fixed navigation above. Project illustrations retain color as studies. Hero imagery is mood evidence with attribution. No generic animated headline or autoplay. Project detail dialog keeps the same control/spacing roles as inquiry. Reduced motion settles immediately.
