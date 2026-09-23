@@ -1,3 +1,4 @@
+import { fitInteraction } from "../../skills/seenry-motion/assets/fit-interaction.mjs";
 import React, { useState, useRef, useId, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -631,12 +632,24 @@ function VideoDemo() {
 }
 function Reconstruction() {
   const host = useRef();
-  const [width, set] = useState(560);
+  const [frame, set] = useState({ width: 560, height: 560 });
   useEffect(() => {
-    const obs = new ResizeObserver(([e]) => set(e.contentRect.width));
+    const obs = new ResizeObserver(([e]) =>
+      set({ width: e.contentRect.width, height: e.contentRect.height }),
+    );
     obs.observe(host.current);
     return () => obs.disconnect();
   }, []);
+  const fit = fitInteraction({
+    states: [
+      { x: 289, y: 47, width: 311, height: 304 },
+      { x: 603, y: 333, width: 307, height: 307 },
+    ],
+    width: Math.max(100, frame.width),
+    height: Math.max(100, frame.height),
+    padding: 16,
+    maxScale: 1,
+  });
   return (
     <div ref={host} className="reconstruction">
       <iframe
@@ -646,7 +659,11 @@ function Reconstruction() {
         style={{
           width: 1154,
           height: 720,
-          transform: `scale(${width / 680})`,
+          left: 0,
+          top: 0,
+          marginTop: 0,
+          transformOrigin: "0 0",
+          transform: `translate(${fit.x}px, ${fit.y}px) scale(${fit.scale})`,
         }}
       />
     </div>

@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {fitInteraction} from './fit-interaction.mjs';
+const states=[{x:309,y:67,width:271,height:264},{x:623,y:430,width:267,height:190}];
+test('opposite opening directions fit desktop and narrow frames',()=>{for(const width of [320,350,548,900]){const f=fitInteraction({states,width,height:width});for(const r of states){assert.ok(r.x*f.scale+f.x>=19.99);assert.ok(r.y*f.scale+f.y>=19.99);assert.ok((r.x+r.width)*f.scale+f.x<=width-19.99);assert.ok((r.y+r.height)*f.scale+f.y<=width-19.99)}}});
+test('does not enlarge beyond policy and rejects impossible frames',()=>{assert.equal(fitInteraction({states,width:2000,height:2000}).scale,1);assert.throws(()=>fitInteraction({states,width:30,height:30}));assert.throws(()=>fitInteraction({states:[],width:300,height:300}));});

@@ -1,4 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import {
+  createNotificationState,
+  notificationEvent,
+} from "../../skills/seenry-motion/assets/notification-state.mjs";
+import React, { useState, useRef, useEffect, useReducer } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowRight,
@@ -137,24 +141,18 @@ function Numbers() {
   );
 }
 function Notifications() {
-  const [state, set] = useState({ items: [], leaving: null });
-  const serial = useRef(0);
+  const [state, dispatch] = useReducer(
+    notificationEvent,
+    3,
+    createNotificationState,
+  );
   const trigger = useRef();
-  const [message, announce] = useState("");
   function add() {
-    const id = ++serial.current;
-    set((s) => ({
-      items: [id, ...s.items].slice(0, 3),
-      leaving: s.items.length === 3 ? { id: s.items[2], index: 2 } : s.leaving,
-    }));
-    announce(`Reference ${id} added to collection`);
+    dispatch({ type: "add", content: "Reference saved" });
   }
   function dismiss(id) {
     trigger.current?.focus();
-    set((s) => ({
-      items: s.items.filter((x) => x !== id),
-      leaving: { id, index: s.items.indexOf(id) },
-    }));
+    dispatch({ type: "dismiss", id });
   }
   const row = (id, index, leaving = false) => (
     <motion.div
@@ -180,8 +178,7 @@ function Notifications() {
           : { type: "spring", stiffness: 460, damping: 38 }
       }
       onAnimationComplete={() => {
-        if (leaving)
-          set((s) => (s.leaving?.id === id ? { ...s, leaving: null } : s));
+        if (leaving) dispatch({ type: "exit-finished", id });
       }}
     >
       <Check size={16} />
@@ -203,13 +200,15 @@ function Notifications() {
     <div className="notice-example">
       <div className="notice-stack">
         {state.leaving && row(state.leaving.id, state.leaving.index, true)}
-        {state.items.map((id, index) => row(id, index))}
+        {state.items.map((item, index) => row(item.id, index))}
       </div>
       <button ref={trigger} className="demo-action" onClick={add}>
         Show notification <Plus size={15} />
       </button>
       <span className="sr-only" role="status">
-        {message}
+        {state.sequence
+          ? `Reference ${state.sequence} added to collection`
+          : ""}
       </span>
     </div>
   );

@@ -27,3 +27,9 @@ A demo called “hover” says nothing about what it enables. Prefer collection 
 ## Evidence gate
 
 Maintain three separate statuses: guidance available; implementation exercised; inspected reference match. Do not upgrade one based on another. A useful original adaptation can pass its own task without being a replica. An unavailable third-party implementation is a research gap, not permission to claim that it is bundled.
+
+## Reusable primitives
+
+[Notification state](../assets/notification-state.mjs) exports `createNotificationState(limit)` and pure `notificationEvent(state,event)`. Events are `add` (with content), `dismiss` (id), `exit-finished` (id) and `clear`. It bounds live items and one replaceable exit; stale exit completion cannot remove a newer layer. IDs remain monotonic after clearing. It does not run timers, claim network success or impose presentation. Render each active item by its ID and the departing item in a separate absolute layer. Keep content, announcement, focus recovery and measured variable heights in the application.
+
+[Interaction framing](../assets/fit-interaction.mjs) fits a set of source-space rectangles into an actual host. Supply all reachable menu/panel bounds, including intended shadow/focus padding. It returns scale and translation; apply them to a single source coordinate plane. Recompute on host resize. The math establishes containment, not legibility: if resulting controls are too small, enlarge the stage, use a responsive implementation or offer a full-size view. Test both opposite opening directions, not just the first state.

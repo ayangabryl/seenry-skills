@@ -13,3 +13,14 @@ An optional anatomy view uses actual implementation measurements and is explicit
 For a neutral palette request, compare actual computed RGB values: near-white with unequal channels is tinted. Preserve purposeful colors in source media separately from interface surfaces. This is a project constraint, not a universal ban on warm palettes.
 
 Before handoff, record the specific rejected treatment, the replacement and what changed in rendered evidence. A cleaner heading is a copy repair, not proof of comprehensive layout competence.
+
+## Choose structure from the question the reader is answering
+
+Before styling, write one question and the evidence needed to answer it. Compare structures using the same facts:
+
+- “What does each skill do?” needs ordered skill sections with scope and relevant examples. A global filter removes the explanation and is insufficient on its own.
+- “Which reference should I inspect?” benefits from a browsable collection, previews and filters; repeating introductory chapters between results interrupts comparison.
+- “Which plan should I buy?” needs comparable entitlements, full billing terms and purchase actions near prices. A changing monthly equivalent cannot replace the actual billed amount.
+- “How does this interaction work?” needs a readable stage, meaningful controls and source/result context. A cropped poster or hidden popup is not a working demonstration.
+
+These are content relationships, not mandatory templates. If the user asks for a different narrative, preserve that intent. Keep a rejected option with its specific task cost rather than judging with labels like “premium” or “slop.” Test the chosen structure with the most demanding content and state before extending it: longest title, visible error, focused input, both menu branches and the narrow layout.
