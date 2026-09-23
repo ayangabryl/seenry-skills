@@ -9,50 +9,25 @@ import {
 } from "lucide-react";
 import "./project-demos.css";
 
+const versions = [
+  {label: "Before", path: "sol-comparison/baseline", title: "Original AI-generated Fieldwork website", note: "GPT Sol, without a skill. The original output is unchanged."},
+  {label: "Seenry", path: "fieldwork-redesign", title: "Fieldwork redesigned with Seenry", note: "Core Seenry: clearer reading order, shorter copy and consistent controls."},
+  {label: "+ Skill stack", path: "fieldwork-stack", title: "Fieldwork with the Seenry skill stack", note: "Seenry + Branding, Assets and Motion: project brand rules, original artwork and an interactive project viewer."},
+  {label: "+ MCP", path: "fieldwork-mcp", title: "Fieldwork with skills and MCP", note: "The skill stack + an inspected Arc Projects reference: an image-led opening and varied project composition."},
+];
 export function WebsiteRedesign() {
-  const [after, setAfter] = useState(true);
-  const url = after
-    ? "/demos/fieldwork-redesign/index.html"
-    : "/demos/sol-comparison/baseline/index.html";
-  return (
-    <div className="p-comparison">
-      <div
-        className="p-tools"
-        role="group"
-        aria-label="Website redesign comparison"
-      >
-        <button aria-pressed={!after} onClick={() => setAfter(false)}>
-          Before
-        </button>
-        <button aria-pressed={after} onClick={() => setAfter(true)}>
-          With Seenry
-        </button>
-        <a href={url} target="_blank" rel="noreferrer">
-          Open website <ArrowUpRight size={15} />
-        </a>
-      </div>
-      <iframe
-        key={url}
-        src={url}
-        title={
-          after
-            ? "Fieldwork redesigned with Seenry"
-            : "Original AI-generated Fieldwork website"
-        }
-        loading="lazy"
-      />
-      <p className="r-footnote">
-        {after
-          ? "A Seenry-guided revision: the work appears sooner, copy is shorter, and controls follow one set of rules."
-          : "The original GPT Sol output, without a skill. Its content and illustrations are preserved in the redesign."}
-      </p>
-      <p className="r-footnote">
-        Same website, content and artwork. The revision was made in this project
-        with Seenry guidance, not a separate blind model run.{" "}
-        <a href="/demos/fieldwork-redesign/DESIGN.md">Design record ↗</a>
-      </p>
+  const [selected, setSelected] = useState(3);
+  const version = versions[selected];
+  const url = `/demos/${version.path}/index.html`;
+  return <div className="p-comparison">
+    <div className="p-tools" role="group" aria-label="Website redesign comparison">
+      {versions.map((v, i) => <button key={v.path} aria-pressed={i === selected} onClick={() => setSelected(i)}>{v.label}</button>)}
+      <a href={url} target="_blank" rel="noreferrer">Open website <ArrowUpRight size={15} /></a>
     </div>
-  );
+    <iframe key={url} src={url} title={version.title} loading="lazy" />
+    <p className="r-footnote">{version.note}</p>
+    <p className="r-footnote">Same brief and original artwork. The three revisions are authored demonstrations, not independent model tests. <a href={`/demos/${version.path}/${selected ? "DESIGN.md" : "manifest.md"}`}>Read the record ↗</a></p>
+  </div>;
 }
 const examples = [
   {

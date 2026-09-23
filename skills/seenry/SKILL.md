@@ -4,7 +4,7 @@ description: "Research, design, refine or faithfully reconstruct websites and in
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.12"
+  version: "2.0.1-dev.13"
 ---
 
 # Seenry
@@ -32,7 +32,9 @@ For new websites and rejected generic directions, read [anti-default decisions](
 
 This workflow is for new design and deliberate adaptation. Replication uses source locking, measurement and comparison, without three redesigned alternatives. Record `intent: "replicate"` in project packets and update stale example/copy-prompt modes when the user changes intent.
 
-1. **Understand.** In a compact DESIGN.md record audience, task, facts, constraints and states using the [design record](references/design-record.md) or [component record](references/component-record.md). Resolve what deserves attention, what recedes, where brand expression belongs, and what imagery or motion must prove. Use one relevant [decision study](references/studies/decision-studies.md) when the choice is unclear.
+1. **Understand.** Establish a project brand before building: reuse the canonical guidelines, or create a compact Brand section in DESIGN.md for a new project. Record audience and voice, color roles, type, spacing/corners, control states, asset direction and motion rules, linked to their implementation owners. Mark inferred choices provisional; do not invent user approval. Use seenry-branding when the identity needs deeper work. Every subsequent surface inherits these rules; small fixes reuse them rather than starting a new manual.
+
+    In a compact DESIGN.md record audience, task, facts, constraints and states using the [design record](references/design-record.md) or [component record](references/component-record.md). Resolve what deserves attention, what recedes, where brand expression belongs, and what imagery or motion must prove. Use one relevant [decision study](references/studies/decision-studies.md) when the choice is unclear.
 2. **Study what matters.** Inspect relevant pixels or recordings through supplied material, ordinary browsing or optional MCP. With Seenry MCP, follow [media retrieval](../seenry-assets/references/seenry-media.md) for actual CDN media, selective inspection and asset use. Without MCP use [local and web research](references/without-mcp.md). Record the inspected visual artifact and the relationship it informs; product documentation, asset provenance and self-authored wireframes do not establish an external craft reference. Mark missing visual evidence explicitly. Establish suitable imagery before selecting an image-dependent idea. Stop broad research when it supports the unresolved decision. Ratings and captions do not replace inspection.
 3. **Plan before product code.** Sketch three different structural or interaction ideas with identical facts. Define reading order, groups, alignment, narrow behavior and provisional visual relationships. Build small wireframes of their decisive moments, not three complete websites. Compare subject fit and user effort as well as geometry. Keep the source and reasons for selection; a finished grid overlay is not earlier planning evidence. Missing required prototype renders mean this stage is incomplete.
 4. **Finish one slice.** Resolve actual copy, imagery, type, color and the meaningful transition together. For components, apply the [finish comparison](references/component-finish.md). Use the module for the uncertain choice below. Compare alternatives on the same content. Inspect at ordinary and narrow sizes before expanding. When the brief names a visual reference standard, perform the [reference comparison](references/visual-review.md) here, while changing direction is still cheap: show the finished slice beside the relevant reference at comparable readable scale and record remaining gaps. Without that comparison, keep the direction provisional. A clean composition with irrelevant material still needs repair.
