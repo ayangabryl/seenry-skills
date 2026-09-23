@@ -29,6 +29,7 @@ import "./reading-site.css";
 import { SourcedMedia, DeckStudy } from "./EvidenceDemos";
 import { WebsiteRedesign, BrandGuidelineDemo } from "./ProjectDemos";
 import MotionLibrary from "./MotionLibrary";
+import SignupExperience from "./SignupExperience";
 const repository = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
 function CopyInstall() {
@@ -489,6 +490,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
               }
             >
               <WebsiteRedesign />
+              <SignupExperience />
             </Section>
             <Section
               id="seenry-motion"

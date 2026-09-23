@@ -17,3 +17,10 @@ The opening now pairs a compact studio introduction with a large artwork viewer 
 ## Flow revision, September 24
 Inspected Goa Architecture hero through Seenry MCP (37a16c6aacd04154b94aade3e3323eab): large material-first image, typographic introduction and concise supporting description. Combined its material/intro relationship with Arc's varied project scale; not a replica. Replaced the cramped split project selector with introduction, credited atmosphere photography, project studies, services, process, contact. Project illustrations expand in a native dialog with Close/Escape. Original source art is not reused.
 Photo: Joel Filipe, https://unsplash.com/photos/white-modern-cement-building-under-blue-sky-RFDP7_80v5A ; license https://unsplash.com/license previously inspected. Remote Unsplash image, reserved dimensions and gray fallback. Mood reference, explicitly not completed client work.
+
+
+## September 24: distinct output and behavior
+
+The opening now leads with the studio wordmark and a photographic spread; supporting information is compact. This applies previously inspected Arc Projects image-first sequencing and Goa Architecture scale relationships, with original typography and structure. Project dialogs now explain the design intent of each original illustration. The Unsplash photograph remains a credited mood reference, not a claimed commission. No motion was inferred from those static reference images.
+
+These are frontend demonstrations. Inquiry delivery and production backend services are not implemented.

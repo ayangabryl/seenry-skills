@@ -12,8 +12,8 @@ import "./project-demos.css";
 const versions = [
   {label: "Before", path: "fieldwork-generic", title: "Deliberately generic Fieldwork website", note: "An authored example of generic AI-style design—not the original Sol output or a benchmark result."},
   {label: "Seenry", path: "fieldwork-redesign", title: "Fieldwork redesigned with Seenry", note: "Core Seenry: clearer reading order, shorter copy and consistent controls."},
-  {label: "+ Skill stack", path: "fieldwork-stack", title: "Fieldwork with the Seenry skill stack", note: "Seenry + Branding, Assets and Motion: project brand rules, original artwork and an interactive project viewer."},
-  {label: "+ MCP", path: "fieldwork-mcp", title: "Fieldwork with skills and MCP", note: "MCP research informed a photographic opening, varied project studies and an expanded artwork viewer. Photography is credited as a mood reference."},
+  {label: "+ Skill stack", path: "fieldwork-stack", title: "Fieldwork with the Seenry skill stack", note: "Seenry + Branding, Assets and Motion: a project catalog with category filters, saved ideas and an inquiry prefilled from your shortlist."},
+  {label: "+ MCP", path: "fieldwork-mcp", title: "Fieldwork with skills and MCP", note: "Inspected architecture references informed an image-led editorial direction. Open a project for its design intent. Photography is credited as a mood reference."},
 ];
 export function WebsiteRedesign() {
   const [selected, setSelected] = useState(3);

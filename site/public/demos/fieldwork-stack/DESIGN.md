@@ -10,3 +10,10 @@ Changes: selectable project viewer, neutral brand roles, stable navigation and c
 
 ## Checks
 Site production build and skill validator passed. Browser: project next/previous selection, MCP inquiry opening/Escape; stack viewed at 390×844 with no horizontal overflow (375px content width). Existing baseline form validation is preserved. Full source animation fidelity is not claimed.
+
+
+## September 24: distinct output and behavior
+
+The feature carousel is replaced by a browse-and-shortlist workflow. Category filtering preserves saved selections. Save buttons expose pressed state and the shortlist announces changes. Discuss these ideas prefills the local inquiry. No data is transmitted or persisted.
+
+These are frontend demonstrations. Inquiry delivery and production backend services are not implemented.

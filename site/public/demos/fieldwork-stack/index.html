@@ -169,6 +169,8 @@ nav{height:84px}.brand{font-size:26px}.hero{padding-block:42px 36px;min-height:0
 .feature{padding-bottom:64px}.feature-stage{position:relative;border-radius:24px;overflow:hidden;background:#ddd;aspect-ratio:2/1}.feature-stage svg{width:100%;height:100%;display:block;object-fit:cover}.feature-caption{display:flex;justify-content:space-between;align-items:center;gap:24px;padding-top:18px}.feature-caption h2{font-size:22px;margin:0;font-weight:600}.feature-caption p{margin:4px 0 0;color:#666;font-size:14px}.feature-controls{display:flex;gap:8px}.feature-controls button{border:0;border-radius:50%;width:46px;height:46px;background:#fff;box-shadow:0 2px 2px #0001;cursor:pointer}.feature-controls button:hover{background:#252525;color:#fff}.feature-note{font-size:12px;color:#666;margin:14px 0 0}.project-grid{gap:24px}.project .art{border-radius:24px}.project-meta h3{font-size:19px}.project .art svg{transition:transform 420ms cubic-bezier(.2,.8,.2,1)}.project:hover .art svg{transform:scale(1.025)}.services{background:white;border-radius:24px;margin:0 var(--pad)}.services-grid{padding-block:40px}.step .number{display:none}.steps{gap:32px}.step h3{font-size:24px}.step{padding:20px 0}.process{padding-block:64px}.projects{padding-bottom:64px}.section-head h2,.process h2,.services h2{font-size:30px;letter-spacing:-.035em}.footer-main h2{font-size:clamp(32px,5vw,60px)}dialog[open]{animation:dialog-in 260ms cubic-bezier(.2,.8,.2,1)}@keyframes dialog-in{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
 @media(max-width:700px){nav{height:76px}.nav-links>a{display:none}.hero{display:block;padding-block:28px}.hero h1{font-size:42px;max-width:13ch}.hero-aside{padding-top:24px}.hero-aside p{max-width:34ch}.feature-stage{aspect-ratio:1.1}.feature-caption{gap:12px}.feature-caption h2{font-size:18px}.feature-controls button{width:42px;height:42px}.services{margin-inline:16px}.feature{padding-bottom:44px}}
 @media(prefers-reduced-motion:reduce){dialog[open]{animation:none}.project .art svg{transition:none}.project:hover .art svg{transform:none}}
+</style><style>
+.catalog-intro{padding-block:64px 36px;display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:end}.catalog-intro h1{font-size:clamp(34px,5vw,64px);font-weight:400;letter-spacing:-.045em;line-height:1.08;margin:0}.catalog-intro p{font-size:15px;color:#666;max-width:30ch}.project-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.project .art,.project:nth-child(2) .art{aspect-ratio:4/5}.save-project{border:0;padding:12px 18px;border-radius:999px;background:white;color:#222;margin-top:16px;font:inherit;font-size:13px;cursor:pointer;transition:background .2s,color .2s}.save-project[aria-pressed=true]{background:#222;color:white}.shortlist{margin:0 auto 64px;width:calc(100% - 2 * var(--pad));padding:24px;border-radius:24px;background:#e7e7e7;display:flex;align-items:center;justify-content:space-between;gap:24px}.shortlist strong{font-size:17px;font-weight:500}.shortlist p{font-size:13px;color:#555;margin:7px 0 0;min-height:20px}.shortlist .button{flex-shrink:0}.project[hidden]{display:none}@media(max-width:700px){.catalog-intro{grid-template-columns:1fr;padding-top:36px;gap:14px}.project-grid{grid-template-columns:1fr}.project .art{aspect-ratio:4/3}.shortlist{width:calc(100% - 40px);flex-direction:column;align-items:stretch}.shortlist .button{justify-content:space-between}}
 </style></head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -183,19 +185,7 @@ nav{height:84px}.brand{font-size:26px}.hero{padding-block:42px 36px;min-height:0
   </header>
 
   <main id="main">
-    <section class="hero shell" aria-labelledby="hero-title">
-      <div>
-        
-        <h1 id="hero-title">Homes shaped <span>around everyday life.</span></h1>
-      </div>
-      <div class="hero-aside">
-        <p>Residential renovation, interiors and feasibility studies. Based in Lisbon.</p>
-        <button class="button js-open" type="button">Discuss a project <span class="arrow" aria-hidden="true">↗</span></button>
-        
-      </div>
-    </section>
-
-<section class="feature shell" aria-label="Project viewer"><div class="feature-stage"><svg viewBox="0 0 800 600" aria-hidden="true"><rect width="800" height="600" fill="#c99b78"/><rect x="90" y="90" width="620" height="440" fill="#e9dfd0"/><rect x="250" y="155" width="300" height="310" fill="#bdc8a0"/><path d="M250 155L90 90M550 155L710 90M550 465L710 530M250 465L90 530" fill="none" stroke="#263128" stroke-width="4"/><rect x="328" y="252" width="144" height="213" fill="#72918c" stroke="#263128" stroke-width="4"/><circle cx="400" cy="213" r="34" fill="#e4b081"/></svg></div><div class="feature-caption"><div aria-live="polite"><h2 id="featured-name">Courtyard House</h2><p id="featured-place">Lisbon · 2024</p></div><div class="feature-controls"><button data-previous aria-label="Previous project">←</button><button data-next aria-label="Next project">→</button></div></div><p class="feature-note">Illustrative studies for a fictional studio.</p></section>
+<section class="catalog-intro shell"><h1>Find a starting point<br>for your home.</h1><p>Explore three illustrative projects. Save the ideas you’d like to discuss.</p></section>
     <section class="projects shell" id="projects" aria-labelledby="projects-title">
       <div class="section-head">
         <div><h2 id="projects-title">Project studies</h2></div>
@@ -272,7 +262,7 @@ nav{height:84px}.brand{font-size:26px}.hero{padding-block:42px 36px;min-height:0
     const successView = document.querySelector('#success-view');
     document.querySelector('#year').textContent = new Date().getFullYear();
     document.querySelectorAll('.js-open').forEach(button => button.addEventListener('click', () => {
-      form.reset(); clearErrors(); formView.hidden = false; successView.hidden = true;
+      if (!successView.hidden) { form.reset(); clearErrors(); } formView.hidden = false; successView.hidden = true;
       dialog.showModal(); document.body.classList.add('modal-open');
     }));
     document.querySelectorAll('.js-close').forEach(button => button.addEventListener('click', () => dialog.close()));
@@ -281,9 +271,9 @@ nav{height:84px}.brand{font-size:26px}.hero{padding-block:42px 36px;min-height:0
 
     const fields = [...form.querySelectorAll('input, textarea')];
     function messageFor(field) {
-      if (field.validity.valueMissing) return `${field.labels[0].textContent} is required.`;
+      if (!field.value.trim()) return `${field.labels[0].textContent} is required.`;
       if (field.validity.typeMismatch) return 'Enter a valid email address.';
-      if (field.validity.tooShort) return `Please add at least ${field.minLength} characters.`;
+      if (field.minLength > 0 && field.value.trim().length < field.minLength) return `Please add at least ${field.minLength} characters.`;
       return '';
     }
     function showError(field) {
@@ -297,7 +287,7 @@ nav{height:84px}.brand{font-size:26px}.hero{padding-block:42px 36px;min-height:0
     form.addEventListener('submit', event => {
       event.preventDefault();
       const valid = fields.map(showError).every(Boolean);
-      if (!valid) { fields.find(field => !field.validity.valid).focus(); return; }
+      if (!valid) { fields.find(field => messageFor(field)).focus(); return; }
       formView.hidden = true; successView.hidden = false; successView.querySelector('button').focus();
     });
 
@@ -313,10 +303,16 @@ nav{height:84px}.brand{font-size:26px}.hero{padding-block:42px 36px;min-height:0
     }));
   </script>
 <script>
-const studies=[...document.querySelectorAll('.project')].map(p=>({art:p.querySelector('.art').innerHTML,name:p.querySelector('h3').textContent,place:p.querySelector('.project-meta p').textContent}));
-let selected=0;let running;
-const stage=document.querySelector('.feature-stage');const nameNode=document.querySelector('#featured-name');const placeNode=document.querySelector('#featured-place');
-function selectStudy(delta){selected=(selected+delta+studies.length)%studies.length;const s=studies[selected];running?.cancel();stage.innerHTML=s.art;nameNode.textContent=s.name;placeNode.textContent=s.place;if(!matchMedia('(prefers-reduced-motion: reduce)').matches)running=stage.animate([{opacity:.55,transform:'scale(.99)'},{opacity:1,transform:'scale(1)'}],{duration:360,easing:'cubic-bezier(.2,.8,.2,1)'});}
-document.querySelector('[data-previous]').addEventListener('click',()=>selectStudy(-1));document.querySelector('[data-next]').addEventListener('click',()=>selectStudy(1));
-</script></body>
-</html>
+const saved = new Set();
+const tray = document.createElement('aside');
+tray.className='shortlist'; tray.setAttribute('aria-label','Project shortlist');
+tray.innerHTML='<div><strong>Your shortlist</strong><p role="status">Choose a project to get started.</p></div><button class="button" type="button">Discuss these ideas ↗</button>';
+document.querySelector('#projects').after(tray);
+tray.querySelector('button').addEventListener('click',()=>{document.querySelector('.js-open').click();document.querySelector('#description').value=saved.size ? 'I’d like to discuss ideas from '+[...saved].join(', ')+'.' : '';});
+document.querySelectorAll('.project').forEach(project=>{
+ const name=project.querySelector('h3').textContent;
+ const button=document.createElement('button');button.type='button';button.className='save-project';button.textContent='Save idea +';button.setAttribute('aria-label','Save '+name);button.setAttribute('aria-pressed','false');
+ button.addEventListener('click',()=>{if(saved.has(name))saved.delete(name);else saved.add(name);button.setAttribute('aria-pressed',String(saved.has(name)));button.textContent=saved.has(name)?'Saved ✓':'Save idea +';button.setAttribute('aria-label',(saved.has(name)?'Remove ':'Save ')+name);tray.querySelector('p').textContent=saved.size?[...saved].join(' · '):'Choose a project to get started.';});
+ project.append(button);
+});
+</script></body></html>
