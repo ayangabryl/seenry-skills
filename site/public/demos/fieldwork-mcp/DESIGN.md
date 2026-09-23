@@ -43,3 +43,7 @@ Asset: courtyard-concept.webp; built-in imagegen, optimized WebP. Prompt: Use ca
 
 ## Complete generated project imagery
 Hill Apartment and Garden Room now use built-in imagegen architectural concepts instead of the remaining SVG project illustrations. All three images have explicit generated-concept provenance. See [the comparison rationale and full generation prompts](IMAGE-PROMPTS.md). The Skill + MCP tab now exposes this rationale in an expandable research-results note; it distinguishes the SVG's diagram strengths from the rendered images' material and lighting detail, and avoids claiming an isolated MCP quality effect.
+
+## Whole-page completion — September 24
+The earlier review over-weighted the opening. Services needed useful scope/output, process needed subject-specific visual material, and the footer needed navigation beyond a contact CTA. Revised the process into a material-study spread and three concrete decisions; added footer destinations and provenance; removed the fictional email link. Existing generated project images remain labeled concept work.
+Research: https://www.nngroup.com/articles/footers/ supports footer utility/navigation; https://find-an-architect.architecture.com/william-tozer-associates-limited/london/case-study-villa illustrates project explanation tied to spatial decisions and photography attribution. These inform information roles, not replicated visual styling. The new process composition is authored. No claim of measured conversion gains.
