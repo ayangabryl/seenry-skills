@@ -22,9 +22,9 @@ import {
   Scan,
   Maximize,
 } from "lucide-react";
-import "./style.css";
-import Showcase from "./Showcase.jsx";
-import "./showcase.css";
+
+import ReadingSite from "./ReadingSite.jsx";
+
 const repo = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
 function CopyButton({
@@ -772,69 +772,16 @@ function Install() {
     </section>
   );
 }
-import "./editorial.css";
+
 function App() {
   useEffect(() => {
     const id = window.location.hash.slice(1);
     if (id)
       document.getElementById(id)?.scrollIntoView({ behavior: "instant" });
   }, []);
-  return (
-    <MotionConfig reducedMotion="user">
-      <a className="skip" href="#main">
-        Skip to content
-      </a>
-      <header>
-        <a className="wordmark" href="/">
-          seenry.<span>skills</span>
-        </a>
-        <nav aria-label="Main navigation">
-          <a href="#playground">The skills</a>
-          <a href="#mcp">Skills + MCP</a>
-          <a href="#install" className="nav-install">
-            Install <ArrowDown />
-          </a>
-        </nav>
-      </header>
-      <main id="main">
-        <Showcase
-          {...{
-            MotionDemo,
-            AssetSection,
-            BrandSection,
-            DeckSection,
-            VideoDemo,
-            Reconstruction,
-            DesignPreview,
-            Switch,
-            Art,
-            CopyButton,
-          }}
-        />
-      </main>
-      <footer>
-        <div>
-          <a className="wordmark" href="https://seenry.design">
-            seenry.
-          </a>
-          <p>Open-source design guidance. Working examples.</p>
-        </div>
-        <div>
-          <a href="https://seenry.design">
-            Design library <ArrowUpRight size={15} />
-          </a>
-          <a href={repo}>
-            Source code <ArrowUpRight size={15} />
-          </a>
-          <a href="mailto:support@seenry.design">Contact</a>
-        </div>
-        <small>
-          © {new Date().getFullYear()} Seenry. Skills licensed under MIT.
-        </small>
-      </footer>
-    </MotionConfig>
-  );
+  return <ReadingSite {...{ Art, VideoDemo, Reconstruction }} />;
 }
+
 function ArrowDown() {
   return <span aria-hidden="true">↓</span>;
 }
