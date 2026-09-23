@@ -8,5 +8,7 @@
 .is-open>.sfs-field{width:calc(100% - 64px)}.sfs-field>svg{flex-shrink:0;color:#666}
 .sfs-field input{width:100%;min-width:0;border:0!important;outline:none!important;background:transparent!important;box-shadow:none!important;padding:0!important;font:inherit;font-size:14px;color:#222}
 .sfs-close{position:absolute;z-index:2;right:0;top:0;width:52px;height:52px;display:grid;place-items:center;border:0!important;border-radius:50%;background:transparent!important;box-shadow:none!important;color:#222;cursor:pointer;opacity:0;transform:translateX(-28px) scale(.8);pointer-events:none;transition:transform 460ms var(--search-ease),opacity 140ms ease}
-.is-open>.sfs-close{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}.sfs-field:has(input:focus-visible),.sfs-close:focus-visible{outline:2px solid #888;outline-offset:3px}
+.is-open>.sfs-close{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}.seenry-fluid-search[data-keyboard=true] .sfs-field:has(input:focus-visible),.seenry-fluid-search[data-keyboard=true] .sfs-close:focus-visible{outline:2px solid #888;outline-offset:3px}
 .seenry-fluid-search[data-reduced=true] *{transition:none!important}
+
+.seenry-fluid-search .sfs-close:focus{outline:none}.seenry-fluid-search[data-keyboard=true] .sfs-close:focus-visible{outline:2px solid #888;outline-offset:3px}

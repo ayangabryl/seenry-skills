@@ -61,3 +61,11 @@ The number pop-in treatment uses simultaneous incoming/outgoing glyphs, 8px trav
 - Bend: use target velocity in both axes, filter its deformation and relax to zero after input stops. Keep text and pointer targets unwarped.
 - Keyboard focus outlines appear for keyboard interaction, not simply because a pointer drag focused the range.
 - Record intermediate silhouettes and rapid reversals. A matching final frame does not establish matching movement.
+
+## Panel, search and image continuity
+
+A resizing panel uses one shell with explicit open/closed width and height. Keep children mounted through exit, inert when closed, and clipped to the shell. Never jump the content layout while a separate background lags behind it. Reverse the current geometry when toggled mid-transition.
+
+Search focus has two distinct treatments: pointer focus activates the split silhouette without an extra ring; keyboard Tab adds a visible focus indicator. Do not depend on input `:focus-visible` alone to distinguish pointer entry because text inputs may match it after clicking.
+
+For image joining, blend the image colors and their shared alpha boundary, not a noisy rectangle drawn above an overlap. In the bundled renderer a 24px proximity range ramps color blur to 10px and alpha contrast to 18 on contact. Separated images remain sharp. The precise transfer function is an authored approximation, not a measured source shader.

@@ -3,3 +3,10 @@
 .ex-carry{display:block;border:0;background:transparent;color:#777;font:inherit;font-size:12px;margin:15px auto 0;cursor:pointer}
 .nb-number{display:inline-flex;font-size:54px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.2;white-space:pre}.nb-column{display:block;position:relative;width:.65em;height:1.2em;overflow:visible}.nb-column>span{position:absolute;inset:0;display:block}.ex-number .nb-number{display:inline-flex!important}.ex-number>div:first-child{min-height:65px}
 .fl-fan>div{display:block!important}
+
+.fl-panel-host{position:relative;width:240px;height:220px;display:block}
+.fl-panel{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:112px;height:48px;transition:width 420ms cubic-bezier(.22,1,.36,1),height 420ms cubic-bezier(.22,1,.36,1)}
+.fl-panel.is-open{width:224px;height:196px}.fl-panel-trigger{height:48px;white-space:nowrap}.fl-panel-trigger svg{flex-shrink:0;transition:transform 280ms ease}
+.fl-panel-items{width:224px;box-sizing:border-box;opacity:0;transform:translateY(8px);transition:opacity 120ms ease,transform 220ms ease;pointer-events:none}
+.fl-panel.is-open .fl-panel-items{opacity:1;transform:translateY(0);transition:opacity 220ms ease 80ms,transform 320ms cubic-bezier(.22,1,.36,1) 80ms;pointer-events:auto}
+@media(prefers-reduced-motion:reduce){.fl-panel,.fl-panel-items,.fl-panel-trigger svg{transition:none!important}}
