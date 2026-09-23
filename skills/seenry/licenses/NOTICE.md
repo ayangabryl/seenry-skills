@@ -17,3 +17,7 @@ Research: [Impeccable colorize](https://github.com/pbakaus/impeccable/blob/main/
 
 Studied on 2026-09-23: [Corey Haines copywriting](https://github.com/coreyhaines31/marketingskills/tree/main/skills/copywriting), [copy-editing](https://github.com/coreyhaines31/marketingskills/tree/main/skills/copy-editing), and [Impeccable clarify](https://github.com/pbakaus/impeccable/blob/main/skill/reference/clarify.md). Useful principles: audience/offer context, distinct editing passes, meaningful state messages. This guide is original synthesis. It does not adopt headline formulas, universal CTA bans, unsupported uplift figures or simulated-review scores as proof.
 
+
+## Complete public collection handbook
+
+The references/handbook modules adapt all 24 public skill entrypoints and their supporting Markdown documents from jakubkrehel/skills (267330e1adfc66a718fb65fa6918c1f06d0a689e) and emilkowalski/skill (85e8e2363b713506e1d5b6e07a0eb2da66be1bc3). Copyright (c) 2026 Jakub Krehel; Copyright (c) 2026 Emil Kowalski. Both MIT license texts are retained beside this notice. See handbook-sources.json for the full file inventory. Entrypoints were renamed, promotional greetings removed, local paths updated and project-dependent overrides added. Supporting upstream examples remain adapted licensed material.

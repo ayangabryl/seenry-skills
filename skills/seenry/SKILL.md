@@ -4,7 +4,7 @@ description: "Research, design, refine or faithfully reconstruct websites and in
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.14"
+  version: "2.0.1-dev.15"
 ---
 
 # Seenry
@@ -44,6 +44,8 @@ This workflow is for new design and deliberate adaptation. Replication uses sour
 Reserve time for a finished slice and verification; process artifacts do not compensate for an unfinished interface. Keep construction diagrams outside visitor-facing UI.
 
 For combined layout, type, control and wording polish, use [interface implementation](references/interface-implementation.md). It includes the implementation rules locally; no external skill install is needed.
+
+The [craft handbook](references/handbook/INDEX.md) includes detailed local modules for UI polish, optical alignment, color, type, accessibility, layout, writing, reviews, stress tests, prototypes and web/native motion. Read its integration rules and only the relevant module. Native and Swift modules apply only to native projects.
 
 ## Load only the current decision
 

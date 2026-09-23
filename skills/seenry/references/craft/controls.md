@@ -55,3 +55,9 @@ For compact media controls or unstable disclosure, use the scoped [media and con
 For a scaled or clipped interactive embed, frame the union of every reachable open state, not just its trigger or first menu. Menus can open in opposite directions. Measure transformed bounds against the host at desktop and mobile sizes, then open each branch with pointer and keyboard. Provide a full-size view when fitting the whole interaction makes its controls too small. A focus rule in guidance is not evidence that the final CSS cascade implements it; inspect the focused pixels in the delivered product.
 
 For implementation across related controls and content, use [interface implementation](../interface-implementation.md).
+
+## Optical alignment in implementation
+
+Inspect the actual glyph at its final size, not just its SVG box. A play triangle may need a small inline shift toward its point; a lopsided icon/label pair may need asymmetric inner padding. Keep the button bounds and hit target fixed. Tune stroke to the adjacent type's optical weight while preserving the icon family's construction. Check the correction on light/dark surfaces, selected/disabled states and supported RTL direction. Do not mirror physical symbols or brand marks indiscriminately.
+
+Detailed local examples: [surfaces and optical centering](../handbook/interface/control-craft/surfaces.md), [icon sizing and stroke](../handbook/interface/control-craft/icons.md). Apply the handbook's integration rules before copying numerical recipes.
