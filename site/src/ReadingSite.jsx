@@ -1,3 +1,4 @@
+import SkillHero from "./SkillHero";
 import React, { useState, useRef, useEffect, useId } from "react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import {
@@ -448,32 +449,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
           </a>
         </header>
         <main id="main">
-          <div className="r-intro">
-            <h1>Design with Seenry.</h1>
-            <p>
-              Give your coding agent a process for layout, motion and real
-              assets. Explore the examples, then use the skills in your own
-              project.
-            </p>
-            <div className="r-hero-actions">
-              <a className="r-primary" href="#install-guide">
-                Get the skills <ArrowRight size={17} />
-              </a>
-              <a href="#seenry">
-                Explore examples <span aria-hidden="true">↓</span>
-              </a>
-            </div>
-            <div className="r-install" id="install">
-              <code>{command}</code>
-              <CopyInstall />
-            </div>
-            <div className="r-install-notes">
-              <span>For agents that support skills</span>
-              <a href={repository + "#readme"}>
-                Installation guide <ArrowUpRight size={13} />
-              </a>
-            </div>
-          </div>
+          <SkillHero />
           <div id="playground">
             <Section
               id="seenry"
