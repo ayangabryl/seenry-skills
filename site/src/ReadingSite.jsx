@@ -26,6 +26,13 @@ import {
 import { createNumberTransition } from "../../skills/seenry-motion/assets/number-transition.mjs";
 import { BrandApplications, DeckNarrative } from "./CapabilityDemos";
 import "./reading-site.css";
+import {
+  SourcedMedia,
+  ColorStudy,
+  BrandSystem,
+  DeckStudy,
+  SolComparison,
+} from "./EvidenceDemos";
 const repository = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
 function CopyInstall() {
@@ -381,101 +388,49 @@ const assetIcons = [
 ];
 function AssetStudy() {
   const [query, setQuery] = useState("");
-  const [kind, setKind] = useState("Icons");
   const found = assetIcons.filter(([name, , tags]) =>
     (name + " " + tags).toLowerCase().includes(query.toLowerCase().trim()),
   );
   return (
     <div className="r-real-assets">
-      <div className="r-asset-kinds" role="group" aria-label="Asset type">
-        {["Icons", "Photography"].map((name) => (
-          <button
-            key={name}
-            aria-pressed={kind === name}
-            onClick={() => {
-              setKind(name);
-              setQuery("");
-            }}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (kind === "Photography" && query.trim())
-            window.location.assign(
-              "https://unsplash.com/s/photos/" +
-                encodeURIComponent(query.trim()),
-            );
-        }}
-      >
-        <label className="r-asset-search">
-          <Search size={19} />
-          <input
-            aria-label={
-              kind === "Icons" ? "Search icons" : "Search photography"
-            }
-            placeholder={
-              kind === "Icons"
-                ? "Try camera, save, or video"
-                : "What photography do you need?"
-            }
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          {query && (
-            <button
-              type="button"
-              aria-label="Clear search"
-              onClick={() => setQuery("")}
-            >
-              <X size={16} />
-            </button>
-          )}
-        </label>
-        {kind === "Photography" && (
-          <button className="r-primary" type="submit" disabled={!query.trim()}>
-            Search Unsplash <ArrowUpRight size={16} />
+      <label className="r-asset-search">
+        <Search size={19} />
+        <input
+          aria-label="Search icons"
+          placeholder="Find an icon: camera, save, video…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        {query && (
+          <button aria-label="Clear icon search" onClick={() => setQuery("")}>
+            <X size={16} />
           </button>
         )}
-      </form>
-      {kind === "Icons" ? (
-        <>
-          <div className="r-icon-results">
-            {found.map(([name, Icon]) => (
-              <a
-                key={name}
-                href={"https://lucide.dev/icons/" + name.toLowerCase()}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Icon size={25} />
-                <span>{name}</span>
-              </a>
-            ))}
-            {!found.length && (
-              <p>
-                No matches in this selection.{" "}
-                <a href="https://lucide.dev/icons/">
-                  Search all Lucide icons ↗
-                </a>
-              </p>
-            )}
-          </div>
-          <p className="r-asset-credit">
-            A searchable selection from{" "}
-            <a href="https://lucide.dev/icons/">Lucide</a>. Open an icon to get
-            its SVG. <a href="https://lucide.dev/license">ISC license ↗</a>
+      </label>
+      <div className="r-icon-results">
+        {found.map(([name, Icon]) => (
+          <a
+            key={name}
+            href={"https://lucide.dev/icons/" + name.toLowerCase()}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Icon size={25} />
+            <span>{name}</span>
+          </a>
+        ))}
+        {!found.length && (
+          <p>
+            No matches in this selection.{" "}
+            <a href="https://lucide.dev/icons/">Search all Lucide icons ↗</a>
           </p>
-        </>
-      ) : (
-        <p className="r-asset-credit">
-          Opens real photography results on Unsplash. Check the selected photo’s
-          license before using it.
-        </p>
-      )}
+        )}
+      </div>
+      <p className="r-asset-credit">
+        A searchable selection from{" "}
+        <a href="https://lucide.dev/icons/">Lucide</a>. Open an icon to get its
+        SVG. <a href="https://lucide.dev/license">ISC license ↗</a>
+      </p>
     </div>
   );
 }
@@ -537,13 +492,12 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                 </>
               }
             >
-              <InterfaceStudy />
+              <SolComparison />
               <p className="r-between">
-                The same content can feel very different when its hierarchy is
-                deliberate. Type size, line length and spacing should support
-                the reading order.
+                Color is part of the skill too. Change the palette below and try
+                the reservation state.
               </p>
-              <TypographyStudy />
+              <ColorStudy />
             </Section>
             <Section
               id="seenry-motion"
@@ -580,6 +534,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                 </>
               }
             >
+              <SourcedMedia />
               <AssetStudy />
               <div className="r-resource-links">
                 <a href="https://unsplash.com">
@@ -604,15 +559,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                 </>
               }
             >
-              <figure className="r-demo">
-                <div className="r-brand-stage">
-                  <BrandApplications />
-                </div>
-                <figcaption>
-                  <span>One identity across a poster, card and label.</span>
-                  <span className="r-caption-tag">Original study</span>
-                </figcaption>
-              </figure>
+              <BrandSystem />
             </Section>
             <Section
               id="seenry-decks"
@@ -626,15 +573,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
                 </>
               }
             >
-              <figure className="r-demo">
-                <div className="r-deck-stage">
-                  <DeckNarrative />
-                </div>
-                <figcaption>
-                  <span>Choose a slide to see its role in the story.</span>
-                  <span className="r-caption-tag">Original study</span>
-                </figcaption>
-              </figure>
+              <DeckStudy />
             </Section>
             <section className="r-section" id="mcp">
               <h2>
@@ -700,8 +639,8 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
               <CopyInstall />
             </div>
             <small>
-              These authored examples demonstrate techniques, not guaranteed
-              model output.
+              Examples include authored studies and independent Sol runs.
+              Results vary with the brief and agent.
             </small>
           </section>
         </main>

@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Fieldwork is a fictional independent architecture studio in Lisbon focused on homes shaped around everyday life.">
+  <title>Fieldwork — Architecture for everyday life</title>
+  <style>
+    @font-face{font-family:"Open Runde";src:url("/fonts/OpenRunde-Regular.woff2") format("woff2");font-style:normal;font-weight:400;font-display:swap}
+    @font-face{font-family:"Open Runde";src:url("/fonts/OpenRunde-Semibold.woff2") format("woff2");font-style:normal;font-weight:600;font-display:swap}
+    :root{
+      --canvas:#f1efe8;--paper:#faf8f1;--ink:#20251f;--muted:#686b63;--line:#b9b8af;
+      --clay:#b64b31;--clay-dark:#8f3522;--sage:#c9d0bd;--moss:#485646;--white:#fffdf7;
+      --gutter:clamp(1.25rem,4vw,4.75rem);--radius:2px;--ease:cubic-bezier(.22,1,.36,1)
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--canvas)}
+    body{margin:0;color:var(--ink);background:var(--canvas);font-family:"Open Runde",ui-rounded,"SF Pro Rounded",system-ui,sans-serif;font-size:1rem;line-height:1.45;text-rendering:optimizeLegibility}
+    body.modal-open{overflow:hidden}
+    button,input,textarea{font:inherit}
+    button,a{-webkit-tap-highlight-color:transparent}
+    a{color:inherit}
+    img,svg{display:block;max-width:100%}
+    .skip-link{position:fixed;top:.75rem;left:.75rem;z-index:100;background:var(--ink);color:var(--white);padding:.65rem 1rem;transform:translateY(-160%);transition:transform .15s}
+    .skip-link:focus{transform:translateY(0)}
+    :focus-visible{outline:3px solid var(--clay);outline-offset:4px}
+    header{height:84px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--gutter);border-bottom:1px solid color-mix(in srgb,var(--line) 68%,transparent);position:relative;z-index:5}
+    .brand{display:inline-flex;align-items:center;gap:.7rem;text-decoration:none;font-weight:600;font-size:1.12rem;letter-spacing:-.02em}
+    .brand-mark{width:25px;height:25px;border:1.5px solid currentColor;position:relative}
+    .brand-mark::before,.brand-mark::after{content:"";position:absolute;background:currentColor}
+    .brand-mark::before{width:1.5px;height:70%;left:8px;top:0}.brand-mark::after{height:1.5px;width:60%;right:0;bottom:7px}
+    nav{display:flex;align-items:center;gap:clamp(1rem,2.8vw,2.6rem)}
+    nav>a:not(.button){text-decoration:none;font-size:.9rem;color:var(--muted);position:relative}
+    nav>a:not(.button)::after{content:"";position:absolute;left:0;right:100%;bottom:-.28rem;height:1px;background:currentColor;transition:right .22s var(--ease)}
+    nav>a:not(.button):hover::after,nav>a:not(.button):focus-visible::after{right:0}
+    .button{min-height:46px;padding:.72rem 1.1rem;border:1px solid var(--ink);background:transparent;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:.7rem;text-decoration:none;border-radius:99px;cursor:pointer;white-space:nowrap;font-weight:600;font-size:.9rem;transition:background .18s,color .18s,border-color .18s}
+    .button svg{width:16px;height:16px;flex:none;transition:transform .2s var(--ease)}
+    .button:hover{background:var(--ink);color:var(--white)}
+    .button:hover svg{transform:translate(2px,-2px)}
+    .button--primary{background:var(--clay);border-color:var(--clay);color:var(--white)}
+    .button--primary:hover{background:var(--clay-dark);border-color:var(--clay-dark)}
+    main{overflow:hidden}
+    .hero{min-height:calc(100svh - 84px);padding:clamp(3rem,7vw,7.5rem) var(--gutter) clamp(4rem,8vw,7.5rem);display:grid;grid-template-columns:minmax(0,.82fr) minmax(420px,1.18fr);gap:clamp(2.5rem,6vw,7.5rem);align-items:center}
+    .hero-copy{align-self:start;max-width:700px}
+    .eyebrow{display:flex;align-items:center;gap:.75rem;margin:0 0 clamp(2rem,6vw,5.5rem);font-size:.78rem;color:var(--muted)}
+    .eyebrow::before{content:"";display:block;width:2rem;height:1px;background:currentColor}
+    h1{font-size:clamp(3.35rem,7.15vw,8rem);line-height:.91;letter-spacing:-.067em;font-weight:400;margin:0;max-width:9.2ch}
+    .hero-intro{max-width:35rem;margin:clamp(2rem,4vw,3.5rem) 0 0;display:grid;grid-template-columns:1fr auto;align-items:end;gap:2rem}
+    .hero-intro p{font-size:clamp(1.05rem,1.45vw,1.35rem);line-height:1.45;margin:0;color:#41463f;max-width:26rem}
+    .hero-art{position:relative;align-self:stretch;min-height:600px;display:flex;align-items:center;justify-content:center}
+    .drawing-sheet{width:min(100%,820px);aspect-ratio:4/5;background:var(--paper);position:relative;box-shadow:0 18px 55px rgba(38,38,29,.08);transform:rotate(.6deg);overflow:hidden}
+    .drawing-sheet::before{content:"Spatial study 01";position:absolute;top:1.3rem;left:1.4rem;z-index:2;color:var(--muted);font-size:.69rem;letter-spacing:.05em}
+    .drawing-sheet::after{content:"Lisbon · everyday thresholds";position:absolute;right:1.4rem;bottom:1.2rem;z-index:2;color:var(--muted);font-size:.69rem}
+    .hero-plan{width:100%;height:100%}
+    .plan-line{fill:none;stroke:var(--ink);stroke-width:1.7;vector-effect:non-scaling-stroke}
+    .plan-thin{fill:none;stroke:#777a72;stroke-width:.75;vector-effect:non-scaling-stroke}
+    .plan-soft{fill:var(--sage);stroke:none}.plan-clay{fill:#d79a84;stroke:none}.plan-paper{fill:var(--paper)}
+    .plan-label{font:400 13px "Open Runde",sans-serif;fill:var(--ink);letter-spacing:.01em}
+    .plan-note{font:400 9px "Open Runde",sans-serif;fill:#71736c;letter-spacing:.04em}
+    .hero .reveal{opacity:0;transform:translateY(20px);animation:reveal .85s var(--ease) forwards}
+    .hero .reveal:nth-child(2){animation-delay:.1s}.hero .reveal:nth-child(3){animation-delay:.2s}
+    .drawing-sheet{opacity:0;transform:translateY(24px) rotate(.6deg);animation:sheet-in 1s .12s var(--ease) forwards}
+    @keyframes reveal{to{opacity:1;transform:none}}@keyframes sheet-in{to{opacity:1;transform:rotate(.6deg)}}
+    .plan-path{stroke-dasharray:700;stroke-dashoffset:700;animation:draw 1.4s .45s var(--ease) forwards}
+    @keyframes draw{to{stroke-dashoffset:0}}
+    .section{padding:clamp(4.5rem,10vw,10rem) var(--gutter)}
+    .section-head{display:grid;grid-template-columns:minmax(8rem,.65fr) minmax(0,1.35fr);gap:2rem;align-items:start;margin-bottom:clamp(3rem,6vw,6rem)}
+    .kicker{font-size:.78rem;color:var(--muted);display:flex;gap:.7rem;align-items:center;margin:0;padding-top:.55rem}
+    .kicker span{font-variant-numeric:tabular-nums;color:var(--clay)}
+    h2{font-size:clamp(2.45rem,5.2vw,6.2rem);line-height:.98;letter-spacing:-.055em;font-weight:400;margin:0;max-width:12ch}
+    .work{background:var(--ink);color:var(--white)}
+    .work .kicker{color:#aaaDA5}.work h2{color:var(--white)}
+    .filters{display:flex;align-items:center;gap:.25rem;flex-wrap:wrap;margin:0 0 clamp(2rem,4vw,4rem);padding:0;list-style:none}
+    .filter-button{border:1px solid #62665f;background:transparent;color:#c8cbc4;border-radius:99px;min-height:42px;padding:.55rem 1rem;cursor:pointer;transition:background .16s,color .16s,border-color .16s}
+    .filter-button[aria-pressed="true"]{background:var(--white);color:var(--ink);border-color:var(--white);font-weight:600}
+    .filter-button:hover{border-color:var(--white);color:var(--white)}
+    .filter-button[aria-pressed="true"]:hover{color:var(--ink)}
+    .filter-button:focus-visible{outline-color:#f08a6e}
+    .project-list{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(2.5rem,6vw,7rem) clamp(1rem,3vw,3rem)}
+    .project{transition:opacity .22s ease,transform .22s var(--ease)}
+    .project.is-leaving{opacity:0;transform:translateY(10px)}
+    .project.is-hidden{display:none}
+    .project:nth-child(1){grid-column:1/10}.project:nth-child(2){grid-column:3/8}.project:nth-child(3){grid-column:8/13;margin-top:10rem}
+    .project-visual{background:#e8e4d9;aspect-ratio:16/10;overflow:hidden;position:relative}
+    .project:nth-child(2) .project-visual,.project:nth-child(3) .project-visual{aspect-ratio:4/5}
+    .project-visual svg{width:100%;height:100%;transition:transform .7s var(--ease)}
+    .project:hover .project-visual svg{transform:scale(1.018)}
+    .project-caption{display:grid;grid-template-columns:1fr auto;gap:1rem;margin-top:1rem;padding-top:.9rem;border-top:1px solid #565a53}
+    .project-title{font-size:clamp(1.15rem,1.8vw,1.6rem);letter-spacing:-.025em}
+    .project-meta{font-size:.82rem;color:#aaaDA5;text-align:right}
+    .project-type{display:block;font-size:.72rem;color:#8e918a;margin-top:.25rem}
+    .services{background:var(--paper)}
+    .service-list{grid-column:2;list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+    .service-list li{display:grid;grid-template-columns:4rem minmax(0,.8fr) minmax(18rem,1.2fr);gap:1rem;padding:1.65rem 0;border-bottom:1px solid var(--line);align-items:baseline}
+    .service-list .number{font-size:.75rem;color:var(--clay);font-variant-numeric:tabular-nums}
+    .service-list h3{font-size:clamp(1.35rem,2.2vw,2rem);font-weight:400;letter-spacing:-.035em;margin:0}
+    .service-list p{margin:0;color:var(--muted);max-width:34rem}
+    .process{background:var(--sage);padding-bottom:clamp(5rem,9vw,8rem)}
+    .process-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #8f9787}
+    .step{padding:1.5rem clamp(1rem,2vw,2rem) 0 0;min-height:245px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid #8f9787}
+    .step+ .step{padding-left:clamp(1rem,2vw,2rem)}.step:last-child{border-right:0}
+    .step-no{font-size:.75rem;color:var(--moss)}
+    .step h3{font-size:clamp(2rem,4vw,4.5rem);line-height:1;margin:0;font-weight:400;letter-spacing:-.05em}
+    .step p{margin:1rem 0 0;color:#4e584b;max-width:22rem}
+    .contact{background:var(--clay);color:var(--white);padding-top:clamp(5rem,10vw,9rem);padding-bottom:3rem}
+    .contact .section-head{margin-bottom:clamp(4rem,8vw,8rem)}.contact .kicker{color:#f4c8bb}.contact .kicker span{color:var(--white)}
+    .contact h2{max-width:13ch}
+    .contact-actions{display:flex;align-items:center;justify-content:space-between;gap:2rem;border-top:1px solid rgba(255,255,255,.45);padding-top:1.25rem}
+    .contact-email{font-size:clamp(1.1rem,2.2vw,2rem);text-decoration-thickness:1px;text-underline-offset:.2em}
+    .contact .button{color:var(--white);border-color:var(--white)}.contact .button:hover{background:var(--white);color:var(--clay)}
+    footer{background:var(--clay);color:#f2c6b9;padding:0 var(--gutter) 2rem;display:flex;justify-content:space-between;font-size:.76rem}
+    dialog{width:min(660px,calc(100% - 2rem));max-height:calc(100svh - 2rem);border:0;padding:0;background:var(--paper);color:var(--ink);box-shadow:0 28px 80px rgba(16,18,14,.28);opacity:0;transform:translateY(18px);transition:opacity .22s ease,transform .25s var(--ease),overlay .22s allow-discrete,display .22s allow-discrete}
+    dialog[open]{opacity:1;transform:none}@starting-style{dialog[open]{opacity:0;transform:translateY(18px)}}
+    dialog::backdrop{background:rgba(20,24,19,.64);backdrop-filter:blur(3px);opacity:0;transition:opacity .22s ease,overlay .22s allow-discrete,display .22s allow-discrete}
+    dialog[open]::backdrop{opacity:1}@starting-style{dialog[open]::backdrop{opacity:0}}
+    .dialog-inner{padding:clamp(1.4rem,4vw,3rem)}
+    .dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:2rem;margin-bottom:2.5rem}
+    .dialog-head h2{font-size:clamp(2.4rem,6vw,4.6rem);max-width:8ch}.dialog-head p{margin:.8rem 0 0;color:var(--muted);max-width:31rem}
+    .icon-button{width:46px;height:46px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--ink);cursor:pointer;flex:none;transition:background .15s,color .15s}
+    .icon-button:hover{background:var(--ink);color:var(--white)}.icon-button svg{width:18px;height:18px}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem}.field--wide{grid-column:1/-1}
+    label{display:block;font-size:.82rem;margin-bottom:.5rem;color:#454942}
+    input,textarea{width:100%;border:1px solid #999b93;background:var(--white);color:var(--ink);border-radius:0;padding:.82rem .9rem;outline:none;transition:border-color .15s,box-shadow .15s}
+    input{min-height:49px}textarea{min-height:140px;resize:vertical}
+    input:focus,textarea:focus{border-color:var(--clay);box-shadow:0 0 0 2px var(--clay)}
+    [aria-invalid="true"]{border-color:var(--clay);box-shadow:0 0 0 1px var(--clay)}
+    .error{min-height:1.25rem;margin:.35rem 0 0;color:var(--clay-dark);font-size:.78rem}
+    .form-actions{display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.3rem}
+    .form-note{margin:1.5rem 0 0;color:var(--muted);font-size:.78rem;border-top:1px solid var(--line);padding-top:1rem}
+    .success{display:none;min-height:360px;align-content:space-between}.success.is-visible{display:grid}
+    .success-mark{width:72px;height:72px;border-radius:50%;background:var(--sage);display:grid;place-items:center;margin-bottom:2rem}.success-mark svg{width:30px;height:30px}
+    .success h2{font-size:clamp(2.5rem,7vw,5.5rem);max-width:9ch}.success p{font-size:1.1rem;color:var(--muted);max-width:32rem}
+    .success .button{justify-self:start;margin-top:2rem}
+    .noscript{padding:1rem var(--gutter);background:#fff0d6;color:#513f25}
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr;min-height:0}.hero-copy{max-width:none}.hero-art{min-height:0}.drawing-sheet{width:min(100%,680px)}
+      .section-head{grid-template-columns:1fr}.service-list{grid-column:1}.service-list li{grid-template-columns:3rem 1fr}.service-list p{grid-column:2}
+      .project:nth-child(1){grid-column:1/-1}.project:nth-child(2){grid-column:1/7}.project:nth-child(3){grid-column:7/13;margin-top:5rem}
+    }
+    @media(max-width:650px){
+      header{height:72px}.nav-link{display:none}.button{min-height:44px;padding:.64rem .9rem}.header-cta svg{display:none}
+      .hero{padding-top:3rem}.hero-intro{grid-template-columns:1fr;align-items:start}.hero-intro .button{justify-self:start}.hero-art{margin-top:.5rem}.drawing-sheet{aspect-ratio:4/5}
+      .section{padding-top:5.5rem;padding-bottom:5.5rem}.section-head{margin-bottom:3rem}
+      .project-list{display:block}.project{margin:0 0 3.5rem}.project:nth-child(2),.project:nth-child(3){margin:0 0 3.5rem}.project:nth-child(2) .project-visual,.project:nth-child(3) .project-visual{aspect-ratio:5/6}
+      .project-caption{grid-template-columns:1fr}.project-meta{text-align:left}.service-list li{grid-template-columns:2rem 1fr}.service-list p{grid-column:1/-1;padding-left:3rem}
+      .process-grid{grid-template-columns:1fr;border-top:0}.step,.step+ .step{min-height:190px;padding:1.2rem 0;border-right:0;border-top:1px solid #8f9787}.step h3{margin-top:3rem}
+      .contact-actions{align-items:flex-start;flex-direction:column}.contact-actions .button{width:100%}footer{gap:1rem;flex-direction:column}
+      .fields{grid-template-columns:1fr}.field--wide{grid-column:auto}.form-actions{flex-direction:column-reverse}.form-actions .button{width:100%}
+      .dialog-inner{padding:1.25rem}.dialog-head{margin-bottom:1.5rem}.dialog-head p{font-size:.9rem}
+    }
+    @media(max-width:380px){.header-cta{font-size:.82rem}.brand{font-size:1rem}.brand-mark{width:21px;height:21px}h1{font-size:3rem}}
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.plan-path{stroke-dashoffset:0}.hero .reveal,.drawing-sheet{opacity:1;transform:none}
+    }
+    @media(forced-colors:active){.button,.filter-button,.icon-button{forced-color-adjust:auto}.project-visual{border:1px solid CanvasText}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header>
+    <a class="brand" href="#top" aria-label="Fieldwork, back to top"><span class="brand-mark" aria-hidden="true"></span>Fieldwork</a>
+    <nav aria-label="Primary navigation">
+      <a class="nav-link" href="#work">Selected work</a>
+      <a class="nav-link" href="#services">Services</a>
+      <a class="nav-link" href="#process">Process</a>
+      <button class="button button--primary header-cta" type="button" data-open-inquiry>Discuss a project
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M4 16 16 4M7 4h9v9" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow reveal">Independent architecture studio · Lisbon</p>
+        <h1 class="reveal" id="hero-title">Homes shaped around everyday life.</h1>
+        <div class="hero-intro reveal">
+          <p>We work with the life already inside a home—its morning light, shared tables and quiet corners—to give renovation a clear spatial purpose.</p>
+          <a class="button" href="#work">View projects
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M4 16 16 4M7 4h9v9" stroke="currentColor" stroke-width="1.6"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="hero-art" aria-label="Illustrated house plan showing spaces for cooking, gathering, resting and growing">
+        <div class="drawing-sheet">
+          <svg class="hero-plan" role="img" aria-labelledby="hero-plan-title" viewBox="0 0 640 800">
+            <title id="hero-plan-title">An original architectural plan study organized around a planted courtyard</title>
+            <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#a8aa9f" stroke-width="1"/></pattern></defs>
+            <rect class="plan-paper" width="640" height="800"/>
+            <rect x="195" y="235" width="220" height="220" rx="110" class="plan-soft"/>
+            <path d="M94 112H470V174H545V676H94V112ZM220 236V455H415V236H220Z" fill="url(#hatch)" fill-rule="evenodd" opacity=".42"/>
+            <path class="plan-line plan-path" d="M94 112H470V174H545V676H94V112ZM220 236V455H415V236H220ZM94 330h126M415 330h130M310 112v124M94 540h451M310 455v221"/>
+            <path class="plan-thin" d="M109 127h186v93H109zM430 190h100v124H430zM109 345h96v180h-96zM109 555h186v106H109zM325 555h205v106H325z"/>
+            <path class="plan-thin" d="M132 150h70v34h-70zm121 33a24 24 0 1 1-48 0 24 24 0 0 1 48 0Zm207 40h42v58h-42zM125 385h64v108h-64zM135 580h117v56H135zM366 578h125v58H366z"/>
+            <path class="plan-thin" d="M220 285c24-16 42-25 72-12m123 104c-25 18-45 24-76 12M276 455c18-26 22-48 10-78m98-140c-15 22-17 43-7 68"/>
+            <circle cx="284" cy="335" r="35" class="plan-clay" opacity=".72"/><circle cx="346" cy="369" r="52" fill="#b3c0a5" opacity=".75"/><circle cx="300" cy="408" r="25" fill="#6d8069" opacity=".82"/>
+            <text x="124" y="102" class="plan-label">cook + gather</text><text x="424" y="164" class="plan-label">morning light</text><text x="114" y="321" class="plan-label">arrive</text><text x="115" y="532" class="plan-label">rest</text><text x="326" y="532" class="plan-label">work + read</text><text x="273" y="346" class="plan-label">grow</text>
+            <text x="93" y="710" class="plan-note">0</text><path class="plan-thin" d="M104 707h118m-59-6v12"/><text x="226" y="710" class="plan-note">5 m</text>
+            <path class="plan-thin" d="M514 105v-38m-7 10 7-10 7 10"/><text x="509" y="58" class="plan-note">N</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section work" id="work" aria-labelledby="work-title">
+      <div class="section-head">
+        <p class="kicker"><span>01</span> Selected work</p>
+        <h2 id="work-title">Three studies in making room.</h2>
+      </div>
+      <ul class="filters" aria-label="Filter projects">
+        <li><button class="filter-button" type="button" data-filter="all" aria-pressed="true">All <span aria-hidden="true">3</span></button></li>
+        <li><button class="filter-button" type="button" data-filter="houses" aria-pressed="false">Houses <span aria-hidden="true">2</span></button></li>
+        <li><button class="filter-button" type="button" data-filter="interiors" aria-pressed="false">Interiors <span aria-hidden="true">1</span></button></li>
+      </ul>
+      <div class="project-list" aria-live="polite">
+        <article class="project" data-category="houses">
+          <div class="project-visual">
+            <svg role="img" aria-labelledby="project-1-title" viewBox="0 0 1000 620">
+              <title id="project-1-title">Original courtyard house plan illustration</title>
+              <rect width="1000" height="620" fill="#d9d3c3"/><rect x="75" y="80" width="850" height="460" fill="#f4f0e5"/>
+              <rect x="394" y="194" width="230" height="230" fill="#b8c5ab"/><circle cx="467" cy="278" r="39" fill="#71846a"/><circle cx="548" cy="330" r="63" fill="#91a186"/><circle cx="487" cy="373" r="27" fill="#b64b31" opacity=".72"/>
+              <path d="M75 80h850v460H75V80Zm319 114v230h230V194H394ZM75 276h319m230 0h301M283 80v196m0 148v116m341-116v116" fill="none" stroke="#20251f" stroke-width="4"/>
+              <path d="M99 104h160v146H99zm0 196h160v216H99zm208-196h64v146h-64zm0 344h64v68h-64zm341-344h253v146H648zm0 196h253v216H648z" fill="none" stroke="#85877e" stroke-width="1.5"/>
+              <path d="M424 231h170v156H424zM131 141h94v51h-94zm0 230h92v103h-92zm561-133h163v-82H692zm9 150h154v72H701z" fill="none" stroke="#85877e" stroke-width="1.3"/>
+              <text x="98" y="575" fill="#4f554e" font-family="Open Runde" font-size="14">A home gathered around a planted room</text>
+            </svg>
+          </div>
+          <div class="project-caption"><div><span class="project-title">Courtyard House</span><span class="project-type">House</span></div><div class="project-meta">Lisbon<br>2024</div></div>
+        </article>
+        <article class="project" data-category="interiors">
+          <div class="project-visual">
+            <svg role="img" aria-labelledby="project-2-title" viewBox="0 0 620 780">
+              <title id="project-2-title">Original apartment interior section illustration</title>
+              <rect width="620" height="780" fill="#e4d5c8"/><path d="M69 89h482v604H69z" fill="#f6f1e8"/>
+              <path d="M69 590h482M69 419h482M220 89v501M400 89v501" fill="none" stroke="#232820" stroke-width="4"/>
+              <rect x="234" y="435" width="152" height="139" fill="#cbd1bd"/><path d="M240 574v-78h140v78M261 496v-37h99v37M96 531h95v43m-87-43v-70h76v70M426 483h97v91m-86-91v-34h73v34" fill="none" stroke="#6d7068" stroke-width="2"/>
+              <path d="M247 140h126v213H247z" fill="#bf5c42" opacity=".73"/><path d="M268 161v171h84V161z" fill="#f7efe3"/>
+              <path d="M109 120h67v247h-67zm322 0h79v247h-79z" fill="none" stroke="#85877e" stroke-width="1.4"/>
+              <circle cx="144" cy="637" r="21" fill="#889781"/><path d="M144 616v-74m-32 34 32-34 31 35" fill="none" stroke="#687563" stroke-width="2"/>
+              <text x="94" y="730" fill="#4f554e" font-family="Open Runde" font-size="14">New openings carry light across the plan</text>
+            </svg>
+          </div>
+          <div class="project-caption"><div><span class="project-title">Hill Apartment</span><span class="project-type">Interior</span></div><div class="project-meta">Porto<br>2025</div></div>
+        </article>
+        <article class="project" data-category="houses">
+          <div class="project-visual">
+            <svg role="img" aria-labelledby="project-3-title" viewBox="0 0 620 780">
+              <title id="project-3-title">Original garden room elevation illustration</title>
+              <rect width="620" height="780" fill="#cbd1bd"/><rect y="592" width="620" height="188" fill="#8d9e84"/>
+              <path d="M61 594h498V273L444 151H177L61 273v321Z" fill="#f3eee2"/>
+              <path d="m61 273 116-122h267l115 122M61 594V273h498v321" fill="none" stroke="#20251f" stroke-width="4"/>
+              <path d="M106 322h408v272H106z" fill="#cc775f" opacity=".68"/><path d="M130 347h360v247H130z" fill="#e7e2d7"/>
+              <path d="M220 347v247m180-247v247" fill="none" stroke="#20251f" stroke-width="3"/><path d="M310 347v247" fill="none" stroke="#20251f" stroke-width="1.4"/>
+              <path d="M0 618c62-25 93 17 150 0 61-18 92 30 152 0 63-31 107 24 159 1 60-27 90 10 159-2" fill="none" stroke="#687762" stroke-width="3"/>
+              <circle cx="116" cy="575" r="50" fill="#6f806a"/><circle cx="520" cy="558" r="68" fill="#7b8e73"/><circle cx="56" cy="568" r="37" fill="#9fae96"/>
+              <text x="72" y="714" fill="#3f493c" font-family="Open Runde" font-size="14">One more room, with the garden held close</text>
+            </svg>
+          </div>
+          <div class="project-caption"><div><span class="project-title">Garden Room</span><span class="project-type">House</span></div><div class="project-meta">Cascais<br>2025</div></div>
+        </article>
+      </div>
+      <p id="filter-status" class="visually-hidden" aria-live="polite"></p>
+    </section>
+
+    <section class="section services" id="services" aria-labelledby="services-title">
+      <div class="section-head">
+        <p class="kicker"><span>02</span> Services</p>
+        <h2 id="services-title">From first question to a buildable home.</h2>
+        <ol class="service-list">
+          <li><span class="number">01</span><h3>Residential renovation</h3><p>Reworking the structure and flow of an existing home, with each decision traced back to how you want to live.</p></li>
+          <li><span class="number">02</span><h3>Interiors</h3><p>Rooms, materials and fixed elements considered together, from a single space to a complete home.</p></li>
+          <li><span class="number">03</span><h3>Feasibility studies</h3><p>An early spatial review that helps clarify potential, constraints and the questions a project needs to answer.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section process" id="process" aria-labelledby="process-title">
+      <div class="section-head">
+        <p class="kicker"><span>03</span> Process</p>
+        <h2 id="process-title">A clear way through renovation.</h2>
+      </div>
+      <div class="process-grid">
+        <article class="step"><span class="step-no">01</span><div><h3>Listen</h3><p>We begin with your routines, the existing home and what needs to change.</p></div></article>
+        <article class="step"><span class="step-no">02</span><div><h3>Design</h3><p>Ideas become drawings, materials and decisions you can understand and discuss.</p></div></article>
+        <article class="step"><span class="step-no">03</span><div><h3>Build</h3><p>The design is carried into a coordinated, buildable set of information.</p></div></article>
+      </div>
+    </section>
+
+    <section class="section contact" id="contact" aria-labelledby="contact-title">
+      <div class="section-head">
+        <p class="kicker"><span>04</span> Start a conversation</p>
+        <h2 id="contact-title">Tell us what home could make possible.</h2>
+      </div>
+      <div class="contact-actions">
+        <a class="contact-email" href="mailto:hello@fieldwork.example">hello@fieldwork.example</a>
+        <button class="button" type="button" data-open-inquiry>Discuss a project
+          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M4 16 16 4M7 4h9v9" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+      </div>
+    </section>
+  </main>
+  <footer><span>Fieldwork · Independent architecture studio</span><span>Lisbon, Portugal</span></footer>
+
+  <dialog id="inquiry-dialog" aria-labelledby="inquiry-title" aria-describedby="inquiry-intro">
+    <div class="dialog-inner" id="form-view">
+      <div class="dialog-head">
+        <div><h2 id="inquiry-title">Discuss a project.</h2><p id="inquiry-intro">Tell us a little about your home and what you are considering. This is a local website demo; submitting it will not send a message.</p></div>
+        <button class="icon-button" type="button" data-close-inquiry aria-label="Close inquiry form"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="m4 4 12 12M16 4 4 16" stroke="currentColor" stroke-width="1.6"/></svg></button>
+      </div>
+      <form id="inquiry-form" novalidate>
+        <div class="fields">
+          <div class="field"><label for="name">Name</label><input id="name" name="name" autocomplete="name" required aria-describedby="name-error"><p class="error" id="name-error"></p></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required aria-describedby="email-error"><p class="error" id="email-error"></p></div>
+          <div class="field field--wide"><label for="description">Project description</label><textarea id="description" name="description" required minlength="12" aria-describedby="description-hint description-error" placeholder="A few details about your home and what you would like to change"></textarea><p class="error" id="description-error"></p></div>
+        </div>
+        <div class="form-actions"><button class="button" type="button" data-close-inquiry>Cancel</button><button class="button button--primary" type="submit">Complete demo inquiry</button></div>
+        <p class="form-note" id="description-hint">Demo only — no details entered here are sent or saved.</p>
+      </form>
+    </div>
+    <div class="dialog-inner success" id="success-view" role="status" aria-live="polite">
+      <div><div class="success-mark"><svg aria-hidden="true" viewBox="0 0 32 32" fill="none"><path d="m7 17 6 6L26 9" stroke="currentColor" stroke-width="2"/></svg></div><h2 id="success-title">Demo complete.</h2><p>No message was sent and none of the details were saved. In a real inquiry, this would be the point where the studio confirms receipt.</p></div>
+      <button class="button" type="button" id="success-close">Return to Fieldwork</button>
+    </div>
+  </dialog>
+  <noscript><p class="noscript">JavaScript is needed for project filtering and the demo inquiry form. You can still email <a href="mailto:hello@fieldwork.example">hello@fieldwork.example</a>.</p></noscript>
+  <script>
+    (()=>{
+      const filterButtons=[...document.querySelectorAll('[data-filter]')];
+      const projects=[...document.querySelectorAll('.project')];
+      const filterStatus=document.getElementById('filter-status');
+      let filterTimer;
+      filterButtons.forEach(button=>button.addEventListener('click',()=>{
+        const value=button.dataset.filter;
+        filterButtons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+        window.clearTimeout(filterTimer);
+        projects.forEach(project=>project.classList.add('is-leaving'));
+        const update=()=>{
+          let count=0;
+          projects.forEach(project=>{
+            const visible=value==='all'||project.dataset.category===value;
+            project.classList.toggle('is-hidden',!visible);
+            project.classList.remove('is-leaving');
+            if(visible)count++;
+          });
+          filterStatus.textContent=`${count} project${count===1?'':'s'} shown`;
+        };
+        if(matchMedia('(prefers-reduced-motion: reduce)').matches)update();
+        else filterTimer=window.setTimeout(update,170);
+      }));
+
+      const dialog=document.getElementById('inquiry-dialog');
+      const form=document.getElementById('inquiry-form');
+      const formView=document.getElementById('form-view');
+      const successView=document.getElementById('success-view');
+      const successClose=document.getElementById('success-close');
+      let opener=null;
+      const fields=[
+        {input:document.getElementById('name'),error:document.getElementById('name-error'),message:'Please enter your name.'},
+        {input:document.getElementById('email'),error:document.getElementById('email-error'),message:'Please enter a valid email address.'},
+        {input:document.getElementById('description'),error:document.getElementById('description-error'),message:'Please describe your project in at least 12 characters.'}
+      ];
+      const resetDialog=()=>{
+        form.reset();formView.hidden=false;successView.classList.remove('is-visible');
+        dialog.setAttribute('aria-labelledby','inquiry-title');dialog.setAttribute('aria-describedby','inquiry-intro');
+        fields.forEach(({input,error})=>{input.removeAttribute('aria-invalid');error.textContent=''});
+      };
+      document.querySelectorAll('[data-open-inquiry]').forEach(button=>button.addEventListener('click',()=>{
+        opener=button;resetDialog();dialog.showModal();document.body.classList.add('modal-open');
+      }));
+      document.querySelectorAll('[data-close-inquiry]').forEach(button=>button.addEventListener('click',()=>dialog.close()));
+      successClose.addEventListener('click',()=>dialog.close());
+      dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
+      dialog.addEventListener('close',()=>{document.body.classList.remove('modal-open');if(opener)opener.focus()});
+      fields.forEach(({input,error})=>input.addEventListener('input',()=>{
+        if(input.validity.valid){input.removeAttribute('aria-invalid');error.textContent=''}
+      }));
+      form.addEventListener('submit',event=>{
+        event.preventDefault();let firstInvalid=null;
+        fields.forEach(({input,error,message})=>{
+          const valid=input.validity.valid;
+          input.setAttribute('aria-invalid',String(!valid));error.textContent=valid?'':message;
+          if(!valid&&!firstInvalid)firstInvalid=input;
+        });
+        if(firstInvalid){firstInvalid.focus();return}
+        formView.hidden=true;successView.classList.add('is-visible');dialog.setAttribute('aria-labelledby','success-title');dialog.removeAttribute('aria-describedby');successClose.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

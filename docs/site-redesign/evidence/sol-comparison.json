@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-23",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "runs": "Two fresh agent contexts with the same functional/content brief and asset constraints. Skill run uses Seenry; baseline instructed not to use skills.",
+  "limitations": [
+    "Single example, not a statistical evaluation.",
+    "Time and token budgets are not matched.",
+    "Root authored the comparison host but did not restyle either website."
+  ],
+  "outputs": {
+    "baseline": "bee4c9a884057b913a239f0b0f5f95e90792878333e91d1adaf53cfa61efce5c",
+    "with-skill": "0afdbc07f90fa9a1a038a7ba11ca0feae5bc6a3b747b230df818c2d1ff955d40"
+  }
+}

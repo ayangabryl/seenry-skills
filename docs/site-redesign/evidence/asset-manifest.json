@@ -1,0 +1,11 @@
+{
+  "reviewed": "2026-09-23",
+  "assets": [
+    {"name":"White apartment building","author":"Joel Filipe","source":"https://unsplash.com/photos/white-modern-cement-building-under-blue-sky-RFDP7_80v5A","license":"https://unsplash.com/license","url":"https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?auto=format&fit=crop&w=1400&q=85","use":"Sourcing/crop demonstration and explicitly conceptual deck mood image","delivery":"Remote Unsplash image, no API used","modification":"Responsive object-fit crops only","review":"Source page explicitly free under Unsplash License; inspected original pixels and author. Not represented as client project."},
+    {"name":"Drone shot of ocean waves","author":"Nino Souza","source":"https://www.pexels.com/video/drone-shot-of-ocean-waves-at-the-seashore-4193133/","license":"https://www.pexels.com/license/","url":"https://videos.pexels.com/video-files/4193133/4193133-uhd_2562_1440_24fps.mp4","poster":"https://images.pexels.com/videos/4193133/pexels-photo-4193133.jpeg?auto=compress&cs=tinysrgb&h=627&fit=crop&w=1200","use":"User-controlled sourced video demonstration","delivery":"Remote video, preload none, muted, no autoplay","review":"Source marked Free, author and duration inspected. Playback verified in shipped component with readyState4 and advancing time."}
+  ],
+  "referenceOnly":[
+    {"id":"ca0266da5775d462027809d002b39f7b","name":"Cadmus Rebrand Intro","inspected":"Image asset index1","transfer":"Expressive type/palette used across multiple everyday applications","limits":"Static image only; no claimed motion inspection or official guideline values. No source artwork shipped."},
+    {"id":"743acf1986f891a2ab9da2725170d43a","name":"SPACE10 Exhibition Catalogue","inspected":"Slides3,4,5 in sequence","transfer":"Vary image-led context, explanation and visual process; retain consistent identity","limits":"19 assets imported, only targeted sequence inspected. No source slides shipped."}
+  ]
+}
