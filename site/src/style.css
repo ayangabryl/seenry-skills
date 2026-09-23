@@ -24,7 +24,7 @@
 }
 :root {
   font-family: Runde, Arial, sans-serif;
-  color: #262626;
+  color: #383838;
   background: #f8f8f7;
   font-synthesis: none;
   --muted: #737373;
@@ -142,9 +142,9 @@ nav .nav-install {
   align-items: center;
   justify-content: center;
   gap: 18px;
-  background: linear-gradient(#373737, #242424);
+  background: linear-gradient(170deg, #505050 0%, #383838 48%, #2c2c2c 100%);
   color: white;
-  border: 1px solid #222;
+  border: 1px solid #363636;
   border-radius: 999px;
   padding: 15px 24px;
   font-size: 14px;
