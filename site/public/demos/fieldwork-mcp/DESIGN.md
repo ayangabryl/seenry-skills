@@ -10,3 +10,6 @@ Changes: selectable project viewer, neutral brand roles, stable navigation and c
 
 ## Checks
 Site production build and skill validator passed. Browser: project next/previous selection, MCP inquiry opening/Escape; stack viewed at 390×844 with no horizontal overflow (375px content width). Existing baseline form validation is preserved. Full source animation fidelity is not claimed.
+
+## Distinct browsing direction
+The opening now pairs a compact studio introduction with a large artwork viewer and directly selectable project list. The skill-stack variant retains its headline-first opening and previous/next carousel. The project list interaction is authored, not attributed to Arc Projects.
