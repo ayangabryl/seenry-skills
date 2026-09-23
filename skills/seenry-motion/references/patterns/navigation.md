@@ -15,3 +15,5 @@ Use for selected tabs, tooltips, directional hints and page/panel swaps. Choose 
 **Check:** rapid left/right switching; unequal labels; font-loading width change; target near the viewport edge; back/forward; touch without hover. Compare anchor, direction and phase, not only the destination.
 
 Use ordinary CSS transforms for a fixed slot. For measured shell changes, see [surface guidance](surfaces.md). For scroll-linked navigation read [scroll choreography](../scroll-choreography.md); elapsed-time transitions cannot substitute for scroll progress.
+
+For a bundled moving selection or anchored shell implementation, read [system choreography](../system-choreography.md). Preserve host keyboard and state ownership.

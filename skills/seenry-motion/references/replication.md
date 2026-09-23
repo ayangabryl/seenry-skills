@@ -24,11 +24,14 @@ Store measurements and estimates separately. A fitted curve is an approximation 
 
 Inspect pointer entry, held hover, exit and reentry before settlement. Record the affected layer, delay, trajectory and return timing; distinguish hover from pressed, focus and persistent selected/open states. A pointer in a recording does not prove which event triggered a change. For a replica, preserve the observed color, shape, icon or position response instead of adding a default lift or bounce. If the clip never shows hover, mark it unobserved and label any necessary behavior as proposed. Keep hit areas stable, test movement from trigger to revealed content, and provide keyboard/touch access without requiring hover.
 
+Follow the highlight boundary while the pointer crosses rows. A single traveling pill needs one persistent surface with measured position, size, radius and retargeting; independent row background switches do not reproduce it. Compare row-to-row travel and exit separately from menu opening. Do not mark hover unobserved merely because the opening was the only interval studied.
+
 ## Choose the mechanism from the evidence
 
 - A panel appearing near a trigger is not necessarily a button-to-panel morph. Follow the **same boundary** through the clip. If it continuously changes shape, animate that surface or a shared background; do not leave a second trigger underneath unless observed.
 - A rounded rectangle changing width/height needs geometry and radius control. Scaling the whole subtree also scales text and strokes; use a shell plus a separately positioned content layer when the source preserves glyph size.
 - A shared highlight should move between measured targets instead of being recreated separately in each target. A dissolving label needs outgoing and incoming layers with one semantic current value.
+- A carousel can rotate order, translate neighbors and replace content while changing size. Match those tracks separately; an expanding flex item alone is insufficient. Inspect departing text, full-card imagery, incoming masks and connected boundaries before choosing a mechanism.
 - A soft fluid join may require SVG filtering, masking or multiple overlapping surfaces. First prove its silhouette and clipping at native size. Blur alone on a rectangular menu does not establish that effect. Render-filter bounds must include overshoot without bleeding onto unrelated text.
 - Scroll-driven movement follows progress, not elapsed time. Preserve the source's holds and overlap. Never synthesize scroll hijacking from a video that merely depicts scrolling.
 

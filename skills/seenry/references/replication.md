@@ -4,7 +4,7 @@ Use for faithful recreation or a complaint that a reconstruction differs from it
 
 ## Lock the target before implementation
 
-Record a short source contract in DESIGN.md: exact media/URL or local file, version/hash when available, crop/section, viewport, media dimensions, pixel density if known, observed states and requested exceptions. A screenshot's physical pixels are not automatically CSS pixels. Keep the same coordinate system throughout measurement and review; do not independently resize each comparison to make it look similar.
+Record a short source contract in DESIGN.md: current requested intent, exact media/URL or local file, version/hash when available, crop/section, viewport, media dimensions, pixel density if known, observed states and requested exceptions. The latest request overrides an older demo configuration or copied prompt. Check each example's implementation scope, button prompt and label against that intent. A screenshot's physical pixels are not automatically CSS pixels. Keep one coordinate system through measurement and review.
 
 Inspect the real source. A title, caption, extracted CSS, poster or MCP rating cannot establish the pixels or behavior. Use the original page for inspectable behavior, a recording for observed motion, and supplied mobile media for responsive structure. Missing mobile evidence means the narrow layout is proposed. Do not infer a carousel, looping entrance or hidden modal from a still.
 
@@ -17,11 +17,11 @@ For the decisive region record:
 - **Material:** sampled flat colors, border/opacity, shadows only where observed, icon silhouette/stroke and asset crop. Keep unknowns marked. Generated art is an approximation, not the original asset. It cannot certify an exact match; use permitted originals when available and disclose substitutions.
 - **Behavior:** idle, hover, pressed, focus, closed/open/selected/error states, triggering action, hit areas and return path. A recording establishes only the interactions it shows. Implement necessary unseen accessibility and recovery behavior, label it as proposed, and do not change the observed layout to accommodate it silently.
 
-Do not replace an observed dark compact menu with a white illustrated collection, rounded rectangles with pills, or a morphing surface with an unrelated fade simply because both perform the same action. Source-specific details are requirements for this task, not new global design defaults.
+Preserve the interaction's identity: item count and order, actual content/assets, active and neighboring geometry, moving surfaces and reveal sequence. Related mechanisms with different identities are adaptations. Keep adaptation available only when requested, with deliberate departures recorded; do not use it to satisfy a replica. Source-specific details are task requirements, not global design defaults.
 
 ## Reconstruct motion as a score
 
-Read [motion reconstruction](../../seenry-motion/references/replication.md) when movement defines the reference. Play at normal speed, then sample the uncertain interval. Record the input time, first response, intermediate shape/position, content appearance, overshoot if observed and settled state. Measure opening and closing independently. Separate the surface's deformation from the text/icons so a shell morph does not accidentally stretch glyphs.
+Read [motion reconstruction](../../seenry-motion/references/replication.md) when movement defines the reference. Inventory every visible transition, including pointer movement within an open component. Add each to the required-state ledger; a matched opening does not cover row hover or content replacement. Record input, first response, intermediate geometry, content appearance and settlement. Measure opening and closing independently. Separate the surface's deformation from text/icons so a shell morph does not stretch glyphs.
 
 Match the observed track with the smallest mechanism that can reproduce it. A generic recipe is a starting implementation, not replacement evidence. The same duration with a different trajectory, origin, delay, blur or overlap is a different transition. Name estimated values and uncertainty; do not call a guessed easing curve measured.
 

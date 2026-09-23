@@ -17,3 +17,5 @@ Dialogs need an inert background, focus containment, initial focus and return fo
 **Check:** endpoints, attachment coordinate and at least two intermediate bounds; immediate reversal; opening near an edge; focus before settlement; live reduced motion; no stale exit callback. A settled endpoint passing does not prove the trajectory matches.
 
 Working geometry source: [disclosure helper](../../assets/geometry-transition.mjs). It handles height, not fluid silhouettes, dialog semantics or arbitrary rectangle morphs. Implement those layers explicitly rather than claiming the helper supplies them.
+
+For a bundled moving selection or anchored shell implementation, read [system choreography](../system-choreography.md). Preserve host keyboard and state ownership.

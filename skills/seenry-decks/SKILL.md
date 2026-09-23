@@ -4,7 +4,7 @@ description: "Research presentation decks in Seenry, preserving slide order, nar
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.8"
+  version: "2.0.1-dev.10"
 ---
 
 # Study both the story and the slide
@@ -22,3 +22,5 @@ For narrative research, inspect the sequence around each slide you recommend. De
 For visual research, compare information density, grid, typography hierarchy, image treatment, data presentation and transitions between slide types. Separate values explicitly written in the deck from estimates made from images. Source media does not expose website CSS variables.
 
 Adapt the useful structure to the user's actual facts and audience. If building a deck, preserve supplied claims and identify missing facts instead of inventing metrics. Use the available presentation tooling and inspect the rendered pages in order for clipping, legibility and consistency. Return the requested artifact or a focused reference comparison, with attribution and completeness limitations.
+
+When building or refining the presentation, use [deck craft](references/deck-craft.md) for sequence, rendered review and format-appropriate continuity. Research-only requests remain scoped to research.

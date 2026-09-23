@@ -4,7 +4,7 @@ description: "Research, design, refine or faithfully reconstruct websites and in
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.8"
+  version: "2.0.1-dev.10"
 ---
 
 # Seenry
@@ -28,7 +28,7 @@ When the user asks to try Jev or supplies an authorized TypeSafe integration, us
 
 ## Create, then finish
 
-This workflow is for new design and deliberate adaptation. Replication follows its own source-lock, measurement and comparison workflow; it does not need three redesigned alternatives. Record `intent: "replicate"` in project packets to retain that distinction through handoffs.
+This workflow is for new design and deliberate adaptation. Replication uses source locking, measurement and comparison, without three redesigned alternatives. Record `intent: "replicate"` in project packets and update stale example/copy-prompt modes when the user changes intent.
 
 1. **Understand.** In a compact DESIGN.md record audience, task, facts, constraints and states using the [design record](references/design-record.md) or [component record](references/component-record.md). Resolve what deserves attention, what recedes, where brand expression belongs, and what imagery or motion must prove. Use one relevant [decision study](references/studies/decision-studies.md) when the choice is unclear.
 2. **Study what matters.** Inspect relevant pixels or recordings through supplied material, ordinary browsing or optional MCP. With Seenry MCP, follow [media retrieval](../seenry-assets/references/seenry-media.md) for actual CDN media, selective inspection and asset use. Without MCP use [local and web research](references/without-mcp.md). Record the inspected visual artifact and the relationship it informs; product documentation, asset provenance and self-authored wireframes do not establish an external craft reference. Mark missing visual evidence explicitly. Establish suitable imagery before selecting an image-dependent idea. Stop broad research when it supports the unresolved decision. Ratings and captions do not replace inspection.

@@ -15,3 +15,5 @@ For a filled icon family, `createMorphIcon` also accepts `paint: "fill"` and its
 ## Measured disclosure geometry
 
 `assets/geometry-transition.mjs` exports `createDisclosure(panel, options)`. Supply a panel with one natural-height content wrapper; keep wrapper padding inside it. The controller measures the current visual height before cancellation, animates geometry without scaling live text, makes collapsed descendants inert and respects reduced motion. Use `controller.setOpen(next)` from the owning component. Keep the trigger's `aria-expanded` in that component, with `aria-controls` referencing the panel. Before collapsing from inside, move focus to the trigger. Call `destroy()` on unmount. This adapter owns presentation, not your product's selected state or input data.
+
+For selection-surface and anchored-surface helpers, read [system choreography](system-choreography.md) for DOM, styling, semantic ownership and cleanup requirements.

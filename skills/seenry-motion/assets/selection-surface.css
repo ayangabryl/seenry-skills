@@ -1,0 +1,15 @@
+:root{--motion-feedback:130ms;--motion-surface:240ms;--motion-exit:150ms;--motion-ease:cubic-bezier(.2,.8,.2,1)}
+.motion-rail{position:relative;isolation:isolate;--surface-selected:#e8e8e8;--surface-hover:#eeeeec}
+.motion-rail[data-tone=ink]{--surface-selected:#242424;--surface-hover:#f0f0ee}
+.motion-rail[data-tone=none]{--surface-selected:transparent}
+.motion-rail[data-tone=paper]{--surface-selected:#fff;--surface-hover:#ffffff70}
+.motion-rail>.motion-rail-selected,.motion-rail>.motion-rail-hover{position:absolute;left:0;top:0;z-index:-1;border-radius:999px;pointer-events:none;opacity:0;transition:opacity var(--motion-feedback),transform var(--motion-surface) var(--motion-ease),width var(--motion-surface) var(--motion-ease),height var(--motion-surface) var(--motion-ease)}
+.motion-rail>.motion-rail-selected{background:var(--surface-selected)}
+.motion-rail>.motion-rail-hover{background:var(--surface-hover)}
+.motion-rail[data-shape=row]>.motion-rail-hover,.motion-rail[data-shape=row]>.motion-rail-selected{border-radius:14px}
+.motion-rail>[data-visible=true]{opacity:1}
+.motion-rail>[data-moving=false]{transition:none}
+.motion-rail[data-surface-ready]>:is(a,button){background:transparent!important;box-shadow:none!important;position:relative}
+.motion-rail[data-surface-ready]>:is(a,button):hover{background:transparent!important}
+@media(prefers-reduced-motion:reduce){.motion-rail>.motion-rail-selected,.motion-rail>.motion-rail-hover{transition:none!important}}
+@media(forced-colors:active){.motion-rail>.motion-rail-selected{border:1px solid Highlight}.motion-rail>.motion-rail-hover{border:1px solid ButtonText}}

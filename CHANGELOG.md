@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased: 2.0.1-dev.10 · 2026-09-23
+
+- Adds optional authored selection-surface and anchored-surface helpers with required styling, semantic ownership, reversal, cleanup and reduced-motion guidance. Explicit helper selection includes source and resource hashes; a replication pattern does not silently opt into a proposed trajectory.
+- Applies these mechanics to the companion website player, navigation and shared selection controls. Adds motion-aware asset review, deck sequence/format checks and cross-surface brand guidance.
+- Product browser checks and package checks do not establish unassisted design quality or exact source replication.
+
+## Unreleased: 2.0.1-dev.9 · 2026-09-22
+
+- Carries the current requested recreation intent through implementation, showcase labels and copied prompts, even when an older example was an adaptation. A related mechanism with different content, assets or item order remains an adaptation.
+- Requires coverage of every visible interaction, including motion within an open component. Adds persistent traveling-hover guidance and separate geometry, order, content, image-aperture and connection tracks for carousel replication.
+- Preserves the rejected library-picker adaptation and previous popover baseline in history. The companion website now contains an author-assisted five-story Calendly reconstruction and a measured popover hover repair, with source attribution and unavailable-font limitations.
+- These are controlled repairs, not a fresh unassisted skill benchmark or a guarantee of exact replication.
+
 ## 2.0.1-dev.8 · 2026-09-22
 
 - Explicitly separates hover entry/hold/exit/reentry, pressed and focus states from click/open transitions during reference replication. Unobserved hover remains a disclosed proposed behavior.

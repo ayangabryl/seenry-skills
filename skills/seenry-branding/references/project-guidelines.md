@@ -37,3 +37,7 @@ When a visual guideline is requested, build an inspectable page using the existi
 Give later agents the guide path/version, relevant rule content, component APIs and selected captures. A restricted context needs the excerpt itself. Preserve unrelated rules during local changes. Record exceptions and scope; update shared sources and the guide together when a brand decision changes. Recheck affected representative uses with [design continuity](../../seenry/references/design-continuity.md), font loading, state contrast and interaction evidence. Report authored, implemented and verified coverage separately.
 
 For reference-study examples, read [guideline observations](guideline-observations.md) only when comparing documentation or resolving a rule. No library connection is needed to apply the method.
+
+## Motion as part of the identity
+
+Record motion by relationship: selection, feedback, contextual surfaces and expressive scenes. Name shared implementation owners and reduced-motion equivalents. Verify the same rules in a dense utility view and an expressive page; a showcase alone cannot establish product consistency. Link the motion skill’s system choreography only when implementing these behaviors.

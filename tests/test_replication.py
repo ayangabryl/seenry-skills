@@ -14,6 +14,14 @@ class Replication(unittest.TestCase):
    self.assertIn('seenry-motion/references/patterns/surfaces.md',paths)
    self.assertFalse(any(x.endswith(('art-direction.md','component-design.md','.html','worked-scores.md')) for x in paths))
    self.assertLess(p['guidance_size']['words'],2500)
+ def test_explicit_product_helpers_include_required_runtime_and_usage(self):
+  p=packet.compile_packet('build',project={'scope':'component','media':'none','motion':'feedback','motion_helpers':['selection-surface','anchored-surface']},research_source='local')
+  paths=[r['path'] for r in p['resources']]
+  self.assertIn('seenry-motion/references/system-choreography.md',paths)
+  runtime={r['path']:r['sha256'] for r in p['runtime_files']}
+  for name in ['selection-surface.mjs','selection-surface.css','anchored-surface.mjs']:
+   path='seenry-motion/assets/'+name
+   self.assertEqual(runtime[path],hashlib.sha256((ROOT/'skills'/path).read_bytes()).hexdigest())
  def test_selector_conflicts_and_bad_intent(self):
   for project in [{'intent':'copy'},{'motion_patterns':['unknown']},{'motion_patterns':['dialog','dialog']},{'motion_patterns':'dialog'},{'motion':'none','motion_patterns':['dialog']}]:
    with self.assertRaises(ValueError):packet.compile_packet('plan',project=project)

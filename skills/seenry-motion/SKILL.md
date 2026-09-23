@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry website record
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.8"
+  version: "2.0.1-dev.10"
 ---
 
 # Design movement around a meaningful change
@@ -44,6 +44,8 @@ Read [expressive effects](references/expressive-effects.md) only for a selected 
 For everyday dropdowns, contextual settings and copy feedback, use the original [product transition recipes](references/product-transitions.md). Select their runtime helpers explicitly so focused handoffs include usable implementation, not just a motion intention.
 
 For other transition families, select a pattern from the [motion index](references/patterns.md). Load its focused guide and required helpers, not every effect. These are original Seenry recipes. A project's separately licensed third-party snippets can be used within that project; they are not bundled or relabeled as Seenry's library.
+
+For motion across multiple pages or shared controls, use [system choreography](references/system-choreography.md). Implement the shared behavior in the product, then verify representative contexts.
 
 ## Exercise the meaningful transition
 

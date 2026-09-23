@@ -8,3 +8,7 @@ Inspect actual material at its rendered size, on ordinary and narrow views. Deci
 - **Loading and fallback:** intrinsic dimensions prevent avoidable movement. Missing or delayed media leaves readable content and usable controls. Posters are distinct from verified moving media.
 
 Record the visible issue, task consequence and smallest useful correction. Missing crop, provenance or playback evidence requires inspection, not a speculative redesign. A static capture cannot establish video, Lottie or shader quality in motion; use the motion contract and actual behavior evidence. Keep material findings separate from overall visual acceptance.
+
+## Assets during movement
+
+Inspect the asset inside its actual transition, not only at rest. Reserve intrinsic dimensions before loading. Check alpha edges against both neighboring surfaces, focal visibility during crop changes, real font metrics before and after load, and video poster-to-first-frame continuity. Inspect loop seams and the settled reduced-motion poster. A set should share intentional crop, lighting or illustration relationships without forcing identical compositions. Do not ship research screenshots as product artwork or infer redistribution permission from CDN access.

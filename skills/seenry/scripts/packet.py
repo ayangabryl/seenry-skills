@@ -24,6 +24,8 @@ SOURCES = {
     'local': 'Do not use MCP or network. Use supplied local material and bundled guides. Record unverified current facts.',
 }
 MOTION_HELPERS = {
+    'selection-surface': ['selection-surface.mjs', 'selection-surface.css'],
+    'anchored-surface': ['anchored-surface.mjs'],
     'geometry': ['geometry-transition.mjs'],
     'icon-swap': ['icon-swap.mjs'],
     'morph-icon': ['morph-icon.mjs'],
@@ -114,6 +116,8 @@ def selected_motion_files(root, project):
     paths, runtime = pattern_paths, []
     motion_root = root.parent / 'seenry-motion'
     if helpers: paths.append(motion_root / 'references/adapters.md')
+    if any(h in ('selection-surface', 'anchored-surface') for h in helpers):
+        paths.append(motion_root / 'references/system-choreography.md')
     if any(h in ('geometry', 'icon-swap', 'morph-icon', 'number') for h in helpers):
         paths.append(motion_root / 'references/product-transitions.md')
     for helper in helpers:
