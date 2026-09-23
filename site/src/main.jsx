@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 import ReadingSite from "./ReadingSite.jsx";
+import MotionPage from "./MotionPage.jsx";
 
 const repo = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
@@ -785,4 +786,4 @@ function App() {
 function ArrowDown() {
   return <span aria-hidden="true">↓</span>;
 }
-createRoot(document.getElementById("root")).render(<App />);
+createRoot(document.getElementById("root")).render(location.pathname === "/motion" || location.pathname.startsWith("/motion/") ? <MotionPage /> : <App />);

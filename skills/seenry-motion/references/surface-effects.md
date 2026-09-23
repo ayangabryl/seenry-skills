@@ -40,3 +40,11 @@ Public reference inspected September 24, 2026: Libraries.dev's `/gooey.html` pre
 Check at least two applicable contexts before calling an effect reusable. Inspect shape mid-transition and at rest; exercise open→close→open before settlement; confirm no stale close removes reopened content. Check keyboard and touch, a 390px layout, two fill themes, resize, image failure, reduced motion and unmount. Verify supported browsers directly; dependency claims are not your test results. Blend uses only two images, with usable static images under reduced motion.
 
 Copy prompts must contain the chosen family, context, exact dependency/adapter, parameters, shared-fill restriction, semantics, reduced-motion fallback and verification criteria. Do not call a showcase adaptation a replica.
+
+## Consistent exploration and handoff
+
+Group a motion library by effect family, then by applicable context. Keep a representative playground on the main skill page and move the long recipe catalog to a dedicated route. Do not duplicate the same effect catalog and number demo on both surfaces. Every group has a direct URL; prompts must describe the selected effect/context and its actual settings, not inherit the default fan recipe.
+
+A search disclosure can use ordinary geometry animation without a liquid filter: keep a 52px field, reveal a 36px close action on focus or nonempty input, and animate width/opacity/scale over 220ms with cubic-bezier(.22,1,.36,1). Preserve focus while moving to close. Escape clears and focuses the stable search wrapper; blur with empty input removes the close button. Under reduced motion, switch immediately. This is a smooth layout transition, not evidence of a filtered liquid merge.
+
+For blurred numbers, reserve digit columns with tabular numerals. Animate only changed glyphs, with a single semantic current value; blank leading slots instead of showing unwanted zeros. Test carry and borrow (99↔100) and rapid retargeting. Blur is temporary during change, never the resting state. Keep numbers and their units readable and stationary once settled.

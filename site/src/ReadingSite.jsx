@@ -30,6 +30,7 @@ import { SourcedMedia, DeckStudy } from "./EvidenceDemos";
 import { WebsiteRedesign, BrandGuidelineDemo } from "./ProjectDemos";
 import MotionLibrary from "./MotionLibrary";
 import FluidLab from "./FluidLab";
+import "./motion-page.css";
 const repository = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
 function CopyInstall() {
@@ -506,8 +507,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
               }
             >
               <FluidLab />
-              <MotionLibrary />
-              <NumberStudy />
+              <a className="r-motion-link" href="/motion">Explore the motion library <ArrowUpRight size={17}/></a>
               <p className="r-footnote">
                 These are interactive examples. Motion choices should suit the
                 interface, rather than applying the same spring everywhere.
