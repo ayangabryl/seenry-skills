@@ -1,3 +1,4 @@
+import { DesignRange } from './DesignRange.jsx';
 import SkillHero from "./SkillHero";
 import React, { useState, useRef, useEffect, useId } from "react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -467,6 +468,7 @@ export default function ReadingSite({ Art, VideoDemo, Reconstruction }) {
               }
             >
               <WebsiteRedesign />
+              <DesignRange />
             </Section>
             <Section
               id="seenry-motion"

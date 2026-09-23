@@ -1,0 +1,16 @@
+import React,{useState} from 'react';
+import {ArrowUpRight,Plus,Minus,Check} from 'lucide-react';
+import './design-range.css';
+
+export function DesignRange(){
+ const [kind,setKind]=useState('shop'),[quantity,setQuantity]=useState(1),[added,setAdded]=useState(false),[period,setPeriod]=useState('Week');
+ const bars=period==='Week'?[34,58,43,76,62,92,71]:[48,35,65,55,88,74,96];
+ return <div className="design-range">
+  <div className="p-tools" role="group" aria-label="More interface examples"><span>Different briefs. Different decisions.</span>{[['shop','Product shop'],['workspace','Work app']].map(([id,label])=><button key={id} aria-pressed={kind===id} onClick={()=>setKind(id)}>{label}</button>)}</div>
+  {kind==='shop'?<div className="range-shop">
+   <div className="range-object" aria-label="Original CSS illustration of an orange portable lamp"><div className="range-lamp"><i/><b/><span/></div><span>nook / objects for everyday</span></div>
+   <div className="range-product"><span>Portable light · Clay</span><h3>A little warmth.<br/>Anywhere.</h3><p>A cordless table lamp for late dinners, bedside reading and the places between.</p><strong>$84 <small>Demo product</small></strong><div className="range-buy"><div><button aria-label="Decrease quantity" disabled={quantity===1} onClick={()=>{setQuantity(q=>q-1);setAdded(false)}}><Minus size={15}/></button><output aria-label="Quantity">{quantity}</output><button aria-label="Increase quantity" disabled={quantity===9} onClick={()=>{setQuantity(q=>q+1);setAdded(false)}}><Plus size={15}/></button></div><button onClick={()=>setAdded(true)}>{added?<><Check size={17}/> Added {quantity}</>:<>Add to bag <ArrowUpRight size={17}/></>}</button></div><p role="status" className="range-status">{added?'Added to this demo bag. No checkout or payment.':'Rechargeable · Three light levels · Indoor use'}</p></div>
+  </div>:<div className="range-workspace"><aside><strong>tempo</strong><span className="range-active">Overview</span><span>Projects</span><span>Reports</span><small>Demo workspace</small></aside><div className="range-work-content"><header><div><span>Your studio at a glance</span><h3>A good week so far.</h3></div><div role="group" aria-label="Report period">{['Week','Month'].map(p=><button key={p} aria-pressed={period===p} onClick={()=>setPeriod(p)}>{p}</button>)}</div></header><div className="range-metric"><strong>{period==='Week'?'26.5':'112'}<small>hours</small></strong><span>Time on focused work</span></div><div className="range-chart" aria-label={`${period} focus hours chart`}>{bars.map((v,i)=><div key={i}><i style={{height:v+'%'}}/><span>{['M','T','W','T','F','S','S'][i]}</span></div>)}</div><div className="range-tasks">{[['Website refresh','Design review','6.5 h'],['Summer collection','Art direction','12 h'],['Studio admin','Operations','8 h']].map(([name,role,time])=><div key={name}><strong>{name}</strong><span>{role}</span><span>{time}</span></div>)}</div></div></div>}
+  <p className="r-footnote">Authored interface studies: a warm product story and a compact working view. Try the quantity controls or switch the report period. These illustrate design range, not live services or measured model results.</p>
+ </div>
+}
