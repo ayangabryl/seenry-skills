@@ -20,7 +20,7 @@ Design for the actual task, content and brand. Before editing an established pro
 
 Brand guideline creation uses **seenry-branding**; presentation research uses **seenry-decks**. Ask only when an unknown changes the direction; otherwise state a reasonable assumption.
 
-For a product or tool marketing page, also use [marketing evidence](references/marketing-evidence.md). With packets, select `guide_topics: ["marketing-evidence"]` for the relevant website stages.
+For a product or tool marketing page, also use [marketing evidence](references/marketing-evidence.md): establish the visitor-question sequence and visible proof before section headings; verify the page tells one coherent story instead of repeating claims. With packets, select `guide_topics: ["marketing-evidence"]` for the relevant website stages.
 
 For hero screenshots, verify the complete section using [hero capture checks](references/research.md#verify-a-complete-hero). A first-screen image or a library item labeled Hero may omit the lower visual; do not present it as the full hero without inspecting its boundaries.
 

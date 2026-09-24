@@ -40,3 +40,21 @@ Counterexample: an urgent repair service may need availability and contact befor
 Show the amount charged and billing interval beside any monthly equivalent. A lifetime offer can be emphasized through hierarchy, a factual comparison and a real closing date. Distinguish an annualized comparison from an annual plan: “$60 per year on quarterly billing” does not mean an annual subscription exists. Do not invent a former price, remaining stock, popularity or a resettable deadline. Explain the operating-lifetime definition and any recurring usage allowance.
 
 An unavailable checkout still needs readable text and an explanation. Do not lower the opacity of an entire light button until its label disappears. Separate loading, configuration unavailable, expired offer and active checkout states; never imply that payment is possible merely because the offer looks ready.
+
+## Build a story, then its sections
+
+Before writing headings, make a short sequence in DESIGN.md: visitor question → concrete answer → visible proof → next action. Read it as one argument. Every section should change what the visitor understands or can do. If two sections answer the same question, combine them or give the second a distinct job. Technical setup usually follows proof of usefulness; returning users still need direct navigation to the product.
+
+For example, a reference library can move from finding useful material, to inspecting its detail, to applying it in a project. This is an example of progressive understanding, not a required three-section template. A service may instead need problem fit, representative work, engagement process and contact. A product whose buyers already understand its value may lead with availability or pricing. Preserve the audience's actual decision path.
+
+Write headings and supporting copy after this sequence is coherent. A heading names the section's real contribution; the supporting line adds information instead of paraphrasing it. Remove interchangeable promises such as “unlock possibilities” and process narration that visitors do not need. Read only the headings in order, then only the visible evidence: both should form a coherent account of the offering. Do not claim conversion or psychological superiority without measured evidence.
+
+## Compose the proof, including its pending state
+
+Choose a media treatment per format. Wide brand artwork and slide covers need an intentional wide frame; app screens need readable phone proportions. Do not force all formats into one tall fixed-height container with empty letterboxing. Use cover cropping only when the important subject remains visible; otherwise compose a deliberate background around contained content. Check the actual crop at mobile, ordinary desktop and wide sizes before expanding the pattern.
+
+Reserve the same geometry during loading as after loading, including identity rows and captions. Tie readiness to actual data or media events. Unknown duration is unknown, not a measured zero; a paused video is not necessarily buffering. Preserve usable posters while video prepares, offer recovery on failure and never present simulated progress as network progress.
+
+For media galleries, hover captions can reduce repeated text when the content itself carries the grid. Retain names for keyboard and touch users; use focus as well as hover and keep a visible caption when hover is unavailable. If previews start automatically, keep them muted, bounded to visible items, pausable, and disabled by reduced-motion/data-saving preferences. Do not equate more simultaneous motion with a stronger demonstration.
+
+Acceptance check: inspect opening, middle and closing together. Verify shared edges and corner roles, read each cover at its actual displayed size, exercise loading/failure and alternate categories, and remove any section whose absence does not remove useful information or evidence. This is supported by a user-accepted library landing revision; it is scoped guidance, not proof of improvement on every brief.
