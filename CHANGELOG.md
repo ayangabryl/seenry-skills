@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.25
+
+- Reports closed-panel and offscreen focus candidates in browser evidence, and clarifies that `aria-hidden` alone does not remove controls from the Tab order.
+- Adds a limited offline contrast audit for root text tokens on the body background. A fresh Luna build ran it; independent browser review still found a nested-text contrast failure and mobile overflow.
+
 ## 2.0.1-dev.24
 
 - Adds a small React adapter for the original signal field and verifies it in a built React app.

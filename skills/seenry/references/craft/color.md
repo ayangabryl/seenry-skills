@@ -10,7 +10,7 @@ Name canvas, surface, text, secondary text, action, focus and only the states ac
 
 Sketch large occupied areas before picking tiny swatches. Compare two plausible treatments on the same composition with identical copy. Include a neutral treatment for an unbranded utility when appropriate; do not turn that comparison into a default neutral-only identity. Rich color can belong to artwork, categories or a large brand field without tinting every control.
 
-Measure foreground against its actual rendered background, including supporting text on each surface. For opaque hex pairs when a browser scan is unavailable, use `python3 scripts/contrast_check.py --pair "Muted on paper" '#647267' '#F5F1E7' 4.5`; its nonzero exit flags a failure. Account for transparency, gradients and imagery; an opaque token-pair calculation does not validate a photograph overlay. Never invent ratios. Color remains insufficient as the sole indication of selection or failure.
+Measure foreground against its actual rendered background, including supporting text on each surface. For a new root-hex palette without a browser, run [token contrast](../../scripts/token_contrast.py) on the page HTML or CSS before expanding; it flags likely body and muted-text failures with a nonzero exit. For other named opaque pairs use `python3 scripts/contrast_check.py --pair "Muted on paper" '#647267' '#F5F1E7' 4.5`. Neither check resolves nested surfaces, transparency, gradients or images. Never invent ratios. Color alone cannot indicate selection or failure.
 
 ## Working example
 

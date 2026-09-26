@@ -42,6 +42,24 @@ try{
           const style=getComputedStyle(element),rect=element.getBoundingClientRect();
           return style.display!=='none'&&style.visibility!=='hidden'&&rect.width>0&&rect.height>0&&rect.right>innerWidth+1;
         }).slice(0,16).map(element=>({tag:element.tagName.toLowerCase(),id:element.id||null,className:typeof element.className==='string'?element.className:null,right:Math.round(element.getBoundingClientRect().right),text:element.textContent?.trim().slice(0,70)||''})):[],
+        hiddenFocusable:[...document.querySelectorAll('[aria-hidden="true"]')].filter(region=>!region.closest('[inert],[hidden]')).map(region=>{
+          const selector='a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+          const controls=[...region.querySelectorAll(selector)].filter(element=>{
+            if(element.closest('[inert],[hidden]'))return false;
+            const style=getComputedStyle(element),rect=element.getBoundingClientRect();
+            return style.display!=='none'&&style.visibility!=='hidden'&&rect.width>0&&rect.height>0;
+          });
+          return {tag:region.tagName.toLowerCase(),id:region.id||null,controls:controls.length,examples:controls.slice(0,3).map(element=>element.id||element.getAttribute('aria-label')||element.textContent?.trim().slice(0,40)||element.tagName.toLowerCase())};
+        }).filter(region=>region.controls>0).slice(0,12),
+        offscreenFocusable:[...document.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(element=>{
+          if(element.closest('[inert],[hidden]'))return false;
+          const style=getComputedStyle(element),rect=element.getBoundingClientRect();
+          if(style.display==='none'||style.visibility==='hidden'||rect.width<=0||rect.height<=0)return false;
+          if(rect.right<0||rect.left>innerWidth)return true;
+          if(rect.bottom>=0&&rect.top<=innerHeight)return false;
+          for(let parent=element;parent;parent=parent.parentElement)if(getComputedStyle(parent).position==='fixed')return true;
+          return false;
+        }).slice(0,16).map(element=>({tag:element.tagName.toLowerCase(),id:element.id||null,text:element.textContent?.trim().slice(0,40)||'',left:Math.round(element.getBoundingClientRect().left),top:Math.round(element.getBoundingClientRect().top)})),
         images:[...document.images].map(i=>({src:i.currentSrc,loaded:i.complete&&i.naturalWidth>0,width:i.naturalWidth,height:i.naturalHeight})),
         headings:[...document.querySelectorAll('h1,h2,h3')].map(e=>({level:e.tagName,text:e.textContent.trim()})),
         animations:document.getAnimations().map(a=>({state:a.playState,iterations:a.effect?.getTiming().iterations})),
