@@ -4,7 +4,7 @@ Use for a complete interface. Select checks by actual scope; a static hero has n
 
 **Content and state:** all navigation reaches a useful destination; every CTA has a truthful result; incorrect and empty values are handled; input survives recoverable failure; repeated actions do not duplicate effects. An email link is often a better prototype action than an elaborate fake inquiry system. Do not require visitor-facing JSON, downloads or implementation explanations unless they help the task.
 
-**Responsive and accessible:** inspect wide, narrow and reflow renders, including whether sticky/fixed content hides choices, focus or actions. If the current browser cannot resize, use another available browser method or mark narrow layout unverified. Check keyboard order, focus, Escape/return, labels, errors, text spacing and zoom. Viewport emulation does not verify screen readers or physical devices. Use realistic long content, names, numerals and supported scripts.
+**Responsive and accessible:** inspect wide, narrow and reflow renders. Check sticky/fixed occlusion and whether stacked regions preserve task dependencies, DOM order and keyboard order; required choices precede dependent forms and actions. If browser resizing fails, try another method or mark narrow layout unverified. Check focus, Escape/return, labels, errors, text spacing and zoom. Emulation does not verify screen readers or devices. Test long content and scripts.
 
 **Retained direction:** compare actual type and important relationships with the selected study using [design continuity](design-continuity.md). Keep intended revisions and accidental drift distinct. A computed font declaration alone does not prove font loading.
 

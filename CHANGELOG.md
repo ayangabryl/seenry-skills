@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1-dev.22
+
+- Tightens form recovery for multi-option groups with a compact markup example: keep the error visible beside the first invalid choice after focus moves at narrow widths.
+- Checks that responsive stacking preserves prerequisite order and agrees with keyboard order.
+- Adds an offline opaque-color pair check for cases where browser contrast scans are unavailable; rendered and composited colors still need inspection.
+
 ## 2.0.1-dev.21
 
 - Adds an original status text transition with stable width for known labels, immediate accessible state, interruption handling, reduced-motion support, a demo and browser checks.
