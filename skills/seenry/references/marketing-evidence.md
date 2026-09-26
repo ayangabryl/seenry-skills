@@ -58,3 +58,11 @@ Reserve the same geometry during loading as after loading, including identity ro
 For media galleries, hover captions can reduce repeated text when the content itself carries the grid. Retain names for keyboard and touch users; use focus as well as hover and keep a visible caption when hover is unavailable. If previews start automatically, keep them muted, bounded to visible items, pausable, and disabled by reduced-motion/data-saving preferences. Do not equate more simultaneous motion with a stronger demonstration.
 
 Acceptance check: inspect opening, middle and closing together. Verify shared edges and corner roles, read each cover at its actual displayed size, exercise loading/failure and alternate categories, and remove any section whose absence does not remove useful information or evidence. This is supported by a user-accepted library landing revision; it is scoped guidance, not proof of improvement on every brief.
+
+## Catalog and subscription landing pages
+
+Show the product before repeating its promise: actual browsable examples, representative recognizable identities, then depth, workflow and the paid boundary. For a broad reference library, a substantial identity display can communicate variety; choose the number from actual coverage and available space, not a mandatory logo count. Identify these as products in the library, never customers or endorsements without evidence. Use real licensed/authorized assets and provenance.
+
+Keep live inventory units explicit: apps, websites, screens and pages are different quantities. Do not add overlapping counts. Show remaining locked content only when its scope and count are known. Free previews should lead to one clear upgrade action; paid users must retain normal navigation and continuation. Wholly free categories keep pagination. Never send protected originals merely to blur them in CSS.
+
+Affordability claims need current, comparable evidence. Display annual billing totals alongside monthly equivalents. Do not say cheapest, largest or best without a defensible scope and comparison. A coherent story answers what this is, why these examples matter, how it works, what access includes and how to start. Do not turn every section into another generic feature claim.

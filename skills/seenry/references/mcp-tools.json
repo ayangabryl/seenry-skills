@@ -1,5 +1,5 @@
 {
-  "version": "2.4.0",
+  "version": "2.5.0",
   "endpoint": "https://mcp.seenry.design",
   "tools": [
     {
@@ -29,6 +29,50 @@
               "platform",
               "motion",
               "synthesis"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "discover_references",
+      "title": "Explore across the library",
+      "description": "Start an open-ended brief with a small, diverse shortlist of websites, sections, apps, branding, decks and motion. Optional q uses observed names and keywords, not semantic similarity. Follow each group with its search tool and inspect pixels.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "limit_per_family": {
+            "default": 2,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "viewport": {
+            "default": "desktop",
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ]
+          },
+          "theme": {
+            "default": "light",
+            "type": "string",
+            "enum": [
+              "light",
+              "dark"
             ]
           }
         },
@@ -206,6 +250,15 @@
           "site": {
             "type": "string",
             "maxLength": 300
+          },
+          "sort": {
+            "default": "relevance",
+            "type": "string",
+            "enum": [
+              "relevance",
+              "newest",
+              "title"
+            ]
           },
           "viewport": {
             "default": "desktop",
@@ -620,7 +673,7 @@
     {
       "name": "get_design_taxonomy",
       "title": "Discover reference tags",
-      "description": "List observed component, interaction, style, platform and category vocabulary with counts. Ratings are explicit curator input, not automatic beauty scores.",
+      "description": "List observed component, interaction, page type, font, style, platform and category vocabulary with counts. Ratings are explicit curator input, not automatic beauty scores.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -664,6 +717,14 @@
             ]
           },
           "category": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "page_type": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "font": {
             "type": "string",
             "maxLength": 300
           },
@@ -743,7 +804,7 @@
     {
       "name": "search_app_screens",
       "title": "Find app screens with pixels",
-      "description": "Search observed screen titles, flow names and element labels. Returns a bounded inline visual shortlist with source links; not semantic similarity.",
+      "description": "Search observed screen titles, flow names, UI elements, design patterns and fonts. Returns a bounded inline visual shortlist with source links; not semantic similarity.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,

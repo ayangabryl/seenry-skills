@@ -20,3 +20,9 @@ Do not conclude alignment or corner consistency from section bounds or an ancest
 
 ## Included source
 Use the bundled [layout-guide source and integration contract](../assets/layout-guides/README.md) rather than describing an overlay without implementing it. Adapt selectors and tokens to the host. This source is React; other frameworks retain the same measurements, toggle and cleanup contract. The geometry and optical completion gates above remain required.
+
+## Checker and spacing inspection
+
+Use the optional development-only checker overlay to compare padding and gaps against the project's spacing unit. The supplied template uses 8px as an example; adapt it to actual tokens rather than imposing 8px on every brand. Alt+C toggles checks; Alt+G toggles guides. Ignore typing fields. Keep the overlay pointer-transparent and exclude it from production.
+
+Inspect shared left/right edges, image aspect ratios, caption baselines, selected controls and locked variants together. The hover label reports computed padding and gap; an inner dashed edge reveals the content box. Check desktop and mobile, long labels, populated and loading states. Optical adjustments are allowed when recorded; a checker is a diagnostic aid, not proof of good composition.

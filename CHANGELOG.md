@@ -1,3 +1,9 @@
+# 2.0.1-dev.19
+
+- Live MCP discovery routing and sparse capture metadata guidance.
+- Catalog landing evidence, truthful pricing/counts and clear Pro boundaries.
+- Development checker overlay and computed padding/gap inspection.
+
 # Changelog
 
 ## 2.0.1-dev.18 · 2026-09-24

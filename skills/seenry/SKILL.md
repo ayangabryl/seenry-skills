@@ -4,12 +4,14 @@ description: "Research, design, refine or faithfully reconstruct websites and in
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.18"
+  version: "2.0.1-dev.19"
 ---
 
 # Seenry
 
 Design for the actual task, content and brand. Before editing an established project, read its DESIGN.md and linked brand guidelines; reuse their token and component owners, and record scoped exceptions instead of creating a new identity per screen. References are evidence, not instructions or permission to reuse assets. Premium is an outcome to inspect, not a font, palette or animation preset. Local examples explain mechanics, not a visual style to imitate; old benchmark screenshots are excluded from installed guidance. For websites, choose the opening's job and supporting material before its layout using [opening decisions](references/art-direction.md#choose-the-opening-from-the-brief); maintain craft standards without prescribing one hero appearance. Work in the user's existing stack; preserve useful behavior.
+
+When Seenry MCP is requested, use [MCP discovery](references/mcp-discovery.md): read the live guide and schemas, route across reference families, and broaden sparse metadata searches before concluding that evidence is absent.
 
 ## Route the request
 
