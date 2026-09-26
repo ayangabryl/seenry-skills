@@ -8,7 +8,7 @@ Use for a complete interface. Select checks by actual scope; a static hero has n
 
 **Retained direction:** compare actual type and important relationships with the selected study using [design continuity](design-continuity.md). Keep intended revisions and accidental drift distinct. A computed font declaration alone does not prove font loading.
 
-**Geometry:** compare alignment anchors before/after overlays, overflow, value changes and font load. Reserve scrollbar space only where classic scrollbars can cause a measured shift. Prefer `scrollbar-gutter: stable` on the actual scrolling element when appropriate; do not paint decorative rails, force `both-edges` globally or double-compensate body padding. Overlay scrollbars and nonoverflowing pages need no artificial gap. Inspect mobile navigation with its real CTA labels and localized text.
+**Geometry:** compare anchors after overlays, value changes and font load. At 320px, compare `document.documentElement.scrollWidth` with `innerWidth`; if wider, find the culprit before suppressing overflow. Browser evidence lists likely culprits in `horizontalOverflow`. Add `scrollbar-gutter: stable` only to a scrolling element with measured classic-scrollbar shift. Inspect mobile navigation using real labels and localized text.
 
 **Media:** verify every selected asset loads, has correct aspect and alt treatment, fits both desktop and mobile crops, and has a usable fallback. Use `picture` for a different crop and `srcset` for resolution alternatives. Set intrinsic dimensions; avoid lazy-loading the likely opening/LCP image. Check transferred bytes and slower network behavior. A remote preview board is not a deployment-ready asset manifest. Respect API hotlinking requirements where applicable.
 

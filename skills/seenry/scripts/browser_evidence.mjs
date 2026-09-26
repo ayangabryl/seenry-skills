@@ -38,6 +38,10 @@ try{
       await page.screenshot({path:path.join(folder,'opening.png')});
       await page.screenshot({path:path.join(folder,'page.png'),fullPage:true});
       const measurements=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+        horizontalOverflow:document.documentElement.scrollWidth>innerWidth+1?[...document.querySelectorAll('body *')].filter(element=>{
+          const style=getComputedStyle(element),rect=element.getBoundingClientRect();
+          return style.display!=='none'&&style.visibility!=='hidden'&&rect.width>0&&rect.height>0&&rect.right>innerWidth+1;
+        }).slice(0,16).map(element=>({tag:element.tagName.toLowerCase(),id:element.id||null,className:typeof element.className==='string'?element.className:null,right:Math.round(element.getBoundingClientRect().right),text:element.textContent?.trim().slice(0,70)||''})):[],
         images:[...document.images].map(i=>({src:i.currentSrc,loaded:i.complete&&i.naturalWidth>0,width:i.naturalWidth,height:i.naturalHeight})),
         headings:[...document.querySelectorAll('h1,h2,h3')].map(e=>({level:e.tagName,text:e.textContent.trim()})),
         animations:document.getAnimations().map(a=>({state:a.playState,iterations:a.effect?.getTiming().iterations})),

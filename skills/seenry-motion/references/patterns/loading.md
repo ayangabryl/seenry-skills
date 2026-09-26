@@ -6,6 +6,8 @@ Reserve final geometry before loading begins. Retain useful previous content dur
 
 A shimmer is a moving highlight clipped to the intended material or text. Keep its contrast quiet enough for the content role. Never run multiple large filtered layers just to fill an empty panel. A matrix loader or organic orb is suitable for an expressive process, not a precise progress percentage. Provide a static readable status and stop the loop on pause, cancellation, invisibility and reduced motion.
 
+For a compact, original process visualization, the [signal field](../../assets/signal-field/README.md) supplies a canvas controller with idle, working, success and error states. Pair it with DOM status text and update both from the same application state; it neither measures progress nor decides completion.
+
 A generation placeholder reveals an already available image; it does not generate it or report backend completion. Keep the previous image until the new image decodes. If the asset fails, retain usable content and show recovery. Do not let a decorative reveal delay access to a finished result. See [expressive effects](../expressive-effects.md) only when a shader or material treatment is required.
 
 Working baseline: CSS opacity on a pseudo-element shimmer, enabled only inside `prefers-reduced-motion: no-preference`; business state removes it on success or failure. Use stable `aspect-ratio` for images. Do not use `transition: all` on the loaded container, since intrinsic size changes may animate accidentally.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.23
+
+- Adds an original, dependency-free signal field for real process states, with a runnable demo and browser checks for offscreen pause, live reduced motion, keyboard use and cleanup.
+- Makes narrow-page overflow reports identify the element extending past the viewport, based on a fresh Luna dashboard failure.
+
 ## 2.0.1-dev.22
 
 - Tightens form recovery for multi-option groups with a compact markup example: keep the error visible beside the first invalid choice after focus moves at narrow widths.
