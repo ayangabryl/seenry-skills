@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry recordings, cr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.20"
+  version: "2.0.1-dev.21"
 ---
 
 # Design movement around a meaningful change
@@ -47,7 +47,7 @@ Use CSS, SVG or Web Animations when sufficient. Existing Lottie, GSAP, Anime.js,
 
 Read [expressive effects](references/expressive-effects.md) only for a selected liquid, material, process, boundary or image treatment. Read [adapter usage](references/adapters.md) when adopting the bundled geometry, icon, number, Lottie or scroll helpers. Libraries own presentation; the application owns truth and recovery. Preserve source licenses for copied runtime assets.
 
-For everyday dropdowns, contextual settings and copy feedback, use the original [product transition recipes](references/product-transitions.md). For a short action menu, the [runnable action-menu asset](assets/action-menu/README.md) includes its controller, CSS and demo. Select runtime helpers explicitly so focused handoffs include usable implementation, not just a motion intention.
+For everyday dropdowns, contextual settings and copy feedback, use the original [product transition recipes](references/product-transitions.md). The runnable [action menu](assets/action-menu/README.md) and [status switch](assets/status-switch/README.md) include controllers, CSS and demos for their stated uses. Select runtime helpers explicitly so focused handoffs include usable implementation, not just a motion intention.
 
 For other transition families, select a pattern from the [motion index](references/patterns.md). Load its focused guide and required helpers, not every effect. These are original Seenry recipes. A project's separately licensed third-party snippets can be used within that project; they are not bundled or relabeled as Seenry's library.
 

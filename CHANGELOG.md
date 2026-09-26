@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1-dev.21
+
+- Adds an original status text transition with stable width for known labels, immediate accessible state, interruption handling, reduced-motion support, a demo and browser checks.
+
 ## 2.0.1-dev.20
 
 - Adds an original, runnable action menu with keyboard behavior, interruptible presentation, reduced-motion handling, a demo and browser checks.
