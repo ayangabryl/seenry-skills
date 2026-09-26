@@ -6,7 +6,7 @@ Use when the component's appeal or utility depends on how it responds: a draggab
 
 Inspect the supplied reference in motion when possible. Record the trigger, object, input path, immediate response, release or commit, settled result and reset. A still image cannot establish drag resistance, timing, interruption or keyboard behavior. Separate observed behavior from an inferred implementation. For an original component, choose one clear response that belongs to its object; an effect name or animation library is not a concept.
 
-For a close component recreation or a high-craft interaction benchmark, use [the interaction study and local component code](../../seenry-motion/references/interaction-reference.md) for concrete mechanisms and rights, then inspect the supplied live reference. Decide whether the request is a recreation of that component or an original component held to its craft standard. The study is an entry point, not a substitute for comparing the actual output.
+For a close component recreation, use [motion reconstruction](../../seenry-motion/references/replication.md) and [interaction anatomy](../../seenry-motion/references/interaction-anatomy.md), then inspect the supplied live reference. Decide whether the request is a recreation or an original component held to its craft standard. The mechanism guide cannot substitute for comparing the actual output.
 
 Choose the closest family, then prototype its decisive moment in the actual host size. Families can overlap; load only the mechanics that matter.
 

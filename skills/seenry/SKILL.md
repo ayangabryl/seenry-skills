@@ -49,7 +49,7 @@ Reserve time for a finished slice and verification; process artifacts do not com
 
 For combined layout, type, control and wording polish, use [interface implementation](references/interface-implementation.md). It includes the implementation rules locally; no external skill install is needed.
 
-The [craft handbook](references/handbook/INDEX.md) includes detailed local modules for UI polish, optical alignment, color, type, accessibility, layout, writing, reviews, stress tests, prototypes and web/native motion. Read its integration rules and only the relevant module. Native and Swift modules apply only to native projects.
+For detailed craft decisions, use the focused modules below. Read only the module that addresses the current uncertainty, then verify it in the running interface.
 
 For signup, authentication and submission interactions, apply [form recovery](references/form-recovery.md), including the failure and retry states—not just the valid form. For MCP-informed builds and comparisons, apply [MCP output evidence](references/mcp-output-evidence.md).
 

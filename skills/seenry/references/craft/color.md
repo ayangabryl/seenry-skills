@@ -28,4 +28,4 @@ Inspect occupied area, competing actions, focus, selection and error states at w
 
 Start with semantic canvas, surface, text, muted text, border, action and status roles. Preserve exact supplied brand colors; if one fails as an action fill, choose another functional role rather than silently altering the mark. Generate ramps in a perceptual space, check gamut and measure actual foreground/background pairs. Equal OKLCH lightness or chroma values do not establish equal contrast across hues or backgrounds. Tune status colors alongside the accent at the same usage size and area. Dark mode needs its own role assignments and pair checks, not a reversed light ramp.
 
-Detailed local modules: [palette structure](../handbook/interface/color-system/palette-structure.md), [generation](../handbook/interface/color-system/palette-generation.md), [contrast](../handbook/interface/color-system/contrast.md), [semantic tokens](../handbook/interface/color-system/token-naming.md).
+For broader palette decisions and measured pairs, use [color decisions](../color-decisions.md) and [color combinations](../color-combinations.md). Keep the selected roles in the project's own tokens.

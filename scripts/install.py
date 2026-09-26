@@ -1,4 +1,4 @@
-"""Install Seenry with shared agent links and an explicit, reversible legacy migration.
+"""Install Seenry with shared agent links and reversible upgrades.
 Default is a dry run. No network, credentials or MCP configuration changes.
 """
 import argparse
@@ -13,9 +13,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NAMES = ('seenry', 'seenry-motion', 'seenry-assets', 'seenry-branding', 'seenry-decks')
 AGENTS = ('agents', 'codex', 'claude', 'cursor', 'antigravity')
-LEGACY = ('design-judgment', 'design-motion', 'design-assets', 'design-video',
-          'web-atlas-usage', 'web-atlas-web-design', 'web-atlas-motion',
-          'web-atlas-branding', 'web-atlas-decks', 'seenry-usage', 'seenry-web-design')
 
 def exists(path):
     return path.exists() or path.is_symlink()
@@ -55,7 +52,7 @@ def save(manifest, path):
     temporary.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
     temporary.replace(path)
 
-def plan(home, source=ROOT, migrate=False, replace=False, link_mode='symlink'):
+def plan(home, source=ROOT, replace=False, link_mode='symlink'):
     home, source = Path(home).absolute(), Path(source).resolve()
     new, old = [], []
     for name in NAMES:
@@ -68,12 +65,6 @@ def plan(home, source=ROOT, migrate=False, replace=False, link_mode='symlink'):
             wanted = signature(origin) if agent == 'agents' or link_mode == 'copy' else link_signature(canonical)
             new.append({'path': str(target), 'source': str(origin), 'canonical': str(canonical),
                         'kind': 'copy' if agent == 'agents' or link_mode == 'copy' else 'symlink', 'signature': wanted})
-    if migrate:
-        for agent in AGENTS:
-            for name in LEGACY:
-                target = home / f'.{agent}/skills' / name
-                if exists(target):
-                    old.append({'path': str(target), 'backup': f'entries/{agent}/{name}'})
     unchanged = not old and all(exists(Path(x['path'])) and signature(Path(x['path'])) == x['signature'] for x in new)
     if not unchanged:
         for item in new:
@@ -83,7 +74,7 @@ def plan(home, source=ROOT, migrate=False, replace=False, link_mode='symlink'):
                     raise ValueError(f'Existing Seenry install at {target}; use --replace to archive and upgrade it.')
                 old.append({'path': str(target), 'backup': f'entries/{target.parents[1].name[1:]}/{target.name}'})
     return {'schema': 1, 'home': str(home), 'source': str(source), 'link_mode': link_mode,
-            'status': 'unchanged' if unchanged else 'planned', 'retired': migrate,
+            'status': 'unchanged' if unchanged else 'planned',
             'new': new, 'old': old, 'installed': [], 'moved': []}
 
 def undo(manifest, folder, check_edits=True):
@@ -111,7 +102,7 @@ def undo(manifest, folder, check_edits=True):
 def apply(manifest):
     if manifest['status'] == 'unchanged':
         return None
-    folder = Path(manifest['home']) / '.local/share/seenry/migrations' / (
+    folder = Path(manifest['home']) / '.local/share/seenry/installs' / (
         datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8])
     folder.mkdir(parents=True)
     journal = folder / 'manifest.json'
@@ -149,11 +140,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--home', type=Path, default=Path.home())
     parser.add_argument('--source', type=Path, default=ROOT)
-    parser.add_argument('--migrate', action='store_true', help='Archive only the named legacy design/atlas skills.')
     parser.add_argument('--replace', action='store_true', help='Archive an existing Seenry install before upgrading.')
     parser.add_argument('--link-mode', choices=['symlink', 'copy'], default='symlink')
     parser.add_argument('--apply', action='store_true')
-    parser.add_argument('--rollback', type=Path, help='Restore one trusted local migration manifest; no --apply needed.')
+    parser.add_argument('--rollback', type=Path, help='Restore one trusted local install manifest; no --apply needed.')
     args = parser.parse_args()
     try:
         if args.rollback:
@@ -164,7 +154,7 @@ def main():
             undo(manifest, file.parent)
             print(json.dumps({'status': 'rolled-back', 'manifest': str(file)}))
             return
-        result = plan(args.home, args.source, args.migrate, args.replace, args.link_mode)
+        result = plan(args.home, args.source, args.replace, args.link_mode)
         if args.apply:
             manifest = apply(result)
             print(json.dumps({'status': result['status'], 'manifest': str(manifest) if manifest else None}, indent=2))

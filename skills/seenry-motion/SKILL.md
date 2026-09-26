@@ -37,7 +37,7 @@ Check recording coverage, duration, cadence, observed unique frames and warnings
 
 Use [implementation decisions](references/implementation-decisions.md) to choose timing, properties, interruption, hover gating and reduced-motion behavior. The guidance is bundled; reference links are optional research.
 
-For deeper recipes use the bundled [motion construction](../seenry/references/handbook/engineering/build-motion/GUIDE.md), [motion review](../seenry/references/handbook/engineering/motion-review/GUIDE.md) and [opportunity audit](../seenry/references/handbook/engineering/motion-opportunities/GUIDE.md) modules when Seenry core is installed. Follow their integration rules. The self-contained guidance below remains sufficient without that optional handbook.
+For deeper implementation, use [motion craft](references/motion-craft.md), the [mechanism index](references/patterns.md) and [interaction anatomy](references/interaction-anatomy.md). Choose only the guide that addresses the current transition.
 
 For reusable merge, trail, bend, image-blend and blur treatments across controls, read [surface effects](references/surface-effects.md). Use the bundled FluidSearch for a focus-triggered search pill and close circle that separate and merge. Copy prompts must specify the behavior, geometry, timing, interruption and accessibility directly; do not name external designers or skills as implementation instructions. Keep required licensing and research provenance in their dedicated records. It includes the original renderer, shared-fill constraint, measured fan geometry and explicit fidelity limits.
 
@@ -55,7 +55,7 @@ For motion across multiple pages or shared controls, use [system choreography](r
 
 For named benchmarks, repeated-event components or rejected motion, use [interaction anatomy](references/interaction-anatomy.md). It distinguishes numeric mechanisms, bounds outgoing layers under rapid input, and separates available guidance from verified fidelity.
 
-For an interaction-led component or a close reconstruction of a supplied example, read the [interaction component reference](references/interaction-reference.md). It links to a local third-party source collection of 190 components and identifies the behavior of representative examples. Inspect the specific live reference and compare rendered behavior before claiming a match; shared CSS alone does not reproduce its interaction.
+For an interaction-led component or a close reconstruction of a supplied example, read [interaction anatomy](references/interaction-anatomy.md) and the relevant mechanism guide. Inspect the specific live reference and compare rendered behavior before claiming a match; shared CSS alone does not reproduce its interaction.
 
 ## Exercise the meaningful transition
 

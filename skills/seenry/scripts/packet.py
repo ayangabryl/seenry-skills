@@ -33,7 +33,6 @@ MOTION_HELPERS = {
     'scroll': ['scroll-scene.mjs'],
     'number': ['number-transition.mjs'],
 }
-MOTION_LIBRARIES = ('border-beam', 'thinking-orbs', 'liquid-gooey', 'metal-fx', 'img-fx')
 GUIDE_TOPICS = ('subject-fit', 'convergence', 'brand-guidelines', 'marketing-evidence')
 FOCUSED_STAGES = {
     'understand': ['design-record.md'],
@@ -196,7 +195,7 @@ def compile_replication(stage, decision, root, research_source, project, profile
     if project.get('media') not in ('needed','none','undecided') or project.get('motion') not in ('signature','feedback','none','undecided'):
         raise ValueError('Project requires explicit media and motion needs')
     # Creative case studies and art direction propose substitutions and must not be silently mixed in.
-    if project.get('decision_study') or project.get('guide_topics') or project.get('motion_libraries'):
+    if project.get('decision_study') or project.get('guide_topics'):
         raise ValueError('Replication uses source measurements; omit creative studies/topics/libraries and choose a motion_patterns mechanism')
     if decision == 'motion' and project['motion'] == 'none': raise ValueError('Motion decision conflicts with motion: none')
     paths = [root / 'references/working-contract.md', root / 'references/replication.md']
@@ -250,11 +249,6 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     if not isinstance(guide_topics, list) or any(not isinstance(t, str) for t in guide_topics) or len(set(guide_topics)) != len(guide_topics) or any(t not in GUIDE_TOPICS for t in guide_topics):
         raise ValueError('guide_topics must name distinct supported topics: ' + ', '.join(GUIDE_TOPICS))
     helpers = project.get('motion_helpers', []) if project else []
-    libraries = project.get('motion_libraries', []) if project else []
-    if not isinstance(libraries, list) or any(not isinstance(n, str) for n in libraries) or len(set(libraries)) != len(libraries) or any(n not in MOTION_LIBRARIES for n in libraries):
-        raise ValueError('motion_libraries must name distinct supported libraries: ' + ', '.join(MOTION_LIBRARIES))
-    if libraries and project.get('motion') == 'none':
-        raise ValueError('Selected motion libraries conflict with motion: none')
     if not isinstance(helpers, list) or any(not isinstance(h, str) for h in helpers) or len(set(helpers)) != len(helpers) or any(h not in MOTION_HELPERS for h in helpers):
         raise ValueError('motion_helpers must name distinct supported helpers: ' + ', '.join(MOTION_HELPERS))
     if helpers and project.get('motion') == 'none':
@@ -283,9 +277,6 @@ def compile_packet(stage, motion=False, assets=False, root=ROOT, research_source
     if 'brand-guidelines' in guide_topics and stage in ('plan', 'type', 'prototype', 'surface', 'build', 'review', 'refine'):
         paths += [root.parent / 'seenry-branding/references/project-guidelines.md']
         decisions.append('Selected project brand guideline guidance; preserve the supplied shared decisions and use the template only when needed')
-    if libraries and stage not in ('understand', 'type'):
-        paths += [root.parent / 'seenry-motion/references/expressive-effects.md']
-        decisions.append('Optional motion library study supplied for: ' + ', '.join(libraries) + '; installation and integration remain unverified')
     if component and stage == 'plan':
         paths += [root / 'references/component-record.md']
         if not focused:

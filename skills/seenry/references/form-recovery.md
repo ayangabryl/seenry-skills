@@ -1,6 +1,6 @@
 # Forms that survive mistakes
 
-Read the local [form implementation guide](handbook/interface/accessibility/forms.md) when building signup, sign-in, checkout or any consequential submission. The happy state is only one part of the component.
+Use this guide when building signup, sign-in, checkout or any consequential submission. The happy state is only one part of the component.
 
 ## Required state contract
 

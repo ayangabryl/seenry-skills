@@ -25,42 +25,29 @@ class Installation(unittest.TestCase):
         self.home.mkdir()
     def tearDown(self):
         self.temp.cleanup()
-    def legacy(self):
-        old = self.home / '.codex/skills/design-judgment'
-        old.mkdir(parents=True)
-        (old / 'SKILL.md').write_text('old entrypoint')
-        (old / 'runtime.py').write_text('preserve this tool')
-        alias = self.home / '.agents/skills/design-judgment'
-        alias.parent.mkdir(parents=True)
-        alias.symlink_to(old, target_is_directory=True)
-        return old, alias
-    def test_dry_run_never_moves_legacy(self):
-        old, alias = self.legacy()
-        before = installer.signature(old)
-        plan = installer.plan(self.home, migrate=True)
-        self.assertEqual(before, installer.signature(old))
-        self.assertTrue(alias.is_symlink())
-        self.assertEqual(len(plan['old']), 2)
-    def test_shared_install_archive_idempotence_and_rollback(self):
-        old, alias = self.legacy()
+    def test_dry_run_keeps_unrelated_skills(self):
         unrelated = self.home / '.codex/skills/unrelated'
-        unrelated.mkdir()
+        unrelated.mkdir(parents=True)
         (unrelated / 'SKILL.md').write_text('keep me')
-        plan = installer.plan(self.home, migrate=True)
+        plan = installer.plan(self.home)
+        self.assertEqual(plan['status'], 'planned')
+        self.assertEqual(plan['old'], [])
+        self.assertEqual((unrelated / 'SKILL.md').read_text(), 'keep me')
+        self.assertFalse((self.home / '.agents/skills/seenry').exists())
+    def test_shared_install_idempotence_and_rollback(self):
+        unrelated = self.home / '.codex/skills/unrelated'
+        unrelated.mkdir(parents=True)
+        (unrelated / 'SKILL.md').write_text('keep me')
+        plan = installer.plan(self.home)
         manifest = installer.apply(plan)
-        self.assertFalse(installer.exists(old))
-        self.assertFalse(installer.exists(alias))
-        backup = manifest.parent / 'entries/codex/design-judgment'
-        self.assertEqual((backup / 'runtime.py').read_text(encoding='utf-8'), 'preserve this tool')
         for name in installer.NAMES:
             canonical = self.home / '.agents/skills' / name
             for agent in installer.AGENTS[1:]:
                 self.assertEqual((self.home / f'.{agent}/skills' / name).resolve(), canonical.resolve())
-        self.assertEqual(installer.plan(self.home, migrate=True)['status'], 'unchanged')
+        self.assertEqual(installer.plan(self.home)['status'], 'unchanged')
         installer.undo(plan, manifest.parent)
-        self.assertTrue(alias.is_symlink())
-        self.assertEqual((old / 'SKILL.md').read_text(encoding='utf-8'), 'old entrypoint')
-        self.assertEqual((unrelated / 'SKILL.md').read_text(encoding='utf-8'), 'keep me')
+        self.assertFalse((self.home / '.agents/skills/seenry').exists())
+        self.assertEqual((unrelated / 'SKILL.md').read_text(), 'keep me')
     def test_copy_mode_and_upgrade_rollback(self):
         first = installer.plan(self.home, link_mode='copy')
         installer.apply(first)
@@ -91,55 +78,30 @@ class Installation(unittest.TestCase):
         self.assertEqual(installer.plan(self.home,source=source)['status'],'unchanged')
         installer.undo(plan,manifest.parent)
         self.assertFalse((self.home/'.agents/skills/seenry').exists())
-    def test_failed_symlink_creation_restores_all_old_content(self):
-        old, alias = self.legacy()
-        plan = installer.plan(self.home, migrate=True)
+    def test_failed_symlink_creation_rolls_back_partial_install(self):
+        plan = installer.plan(self.home)
         with patch.object(Path, 'symlink_to', side_effect=OSError('no symlink privilege')):
             with self.assertRaises(OSError):
                 installer.apply(plan)
-        self.assertEqual((old / 'runtime.py').read_text(encoding='utf-8'), 'preserve this tool')
-        self.assertTrue(alias.is_symlink())
         self.assertFalse((self.home / '.agents/skills/seenry').exists())
-    def test_missing_source_rejected_before_migration(self):
-        old, _ = self.legacy()
+    def test_missing_source_rejected_before_install(self):
         with self.assertRaises(ValueError):
-            installer.plan(self.home, source=self.home, migrate=True)
-        self.assertTrue((old / 'SKILL.md').exists())
-    def test_rollback_collision_is_all_or_nothing(self):
-        old, _ = self.legacy()
-        plan = installer.plan(self.home, migrate=True)
-        manifest = installer.apply(plan)
-        old.mkdir()
-        (old / 'user.txt').write_text('new work')
-        with self.assertRaisesRegex(ValueError, 'collision'):
-            installer.undo(plan, manifest.parent)
-        self.assertTrue((self.home / '.codex/skills/seenry').is_symlink())
+            installer.plan(self.home, source=self.home)
+        self.assertFalse((self.home / '.agents/skills/seenry').exists())
+    def test_missing_backup_stops_rollback_before_removing_install(self):
+        first = installer.plan(self.home)
+        installer.apply(first)
+        source = self.home / 'updated'
+        shutil.copytree(ROOT / 'skills', source / 'skills')
+        (source / 'skills/seenry/SKILL.md').write_text('updated skill')
+        second = installer.plan(self.home, source=source, replace=True)
+        manifest = installer.apply(second)
+        shutil.rmtree(manifest.parent / 'entries/agents/seenry')
+        with self.assertRaisesRegex(ValueError, 'Missing archive'):
+            installer.undo(second, manifest.parent)
+        self.assertEqual((self.home / '.agents/skills/seenry/SKILL.md').read_text(), 'updated skill')
 
 class Packets(unittest.TestCase):
-    def test_optional_motion_study_is_scoped_hashed_and_relocatable(self):
-        project = {'media': 'none', 'motion': 'signature', 'motion_libraries': ['liquid-gooey', 'metal-fx']}
-        with tempfile.TemporaryDirectory() as temporary:
-            destination = Path(temporary) / 'skills'
-            shutil.copytree(ROOT / 'skills', destination)
-            for stage in ('plan', 'wireframe', 'surface', 'compare', 'review'):
-                result = packet.compile_packet(stage, project=project, profile='focused', root=destination / 'seenry', research_source='local')
-                study = [r for r in result['resources'] if r['path'].endswith('/expressive-effects.md')]
-                self.assertEqual(len(study), 1)
-                self.assertEqual(len(study[0]['sha256']), 64)
-                self.assertIn('paused', study[0]['content'])
-            (destination / 'seenry-motion/references/expressive-effects.md').unlink()
-            with self.assertRaises(FileNotFoundError):
-                packet.compile_packet('plan', project=project, root=destination / 'seenry')
-        ordinary = packet.compile_packet('plan', project={'media': 'none', 'motion': 'feedback'}, profile='focused')
-        self.assertFalse(any(r['path'].endswith('/expressive-effects.md') for r in ordinary['resources']))
-
-    def test_optional_motion_library_selection_rejects_invalid_or_conflicting_input(self):
-        for libraries in ('liquid-gooey', ['unknown'], ['metal-fx', 'metal-fx'], [None], [{}]):
-            with self.assertRaises(ValueError):
-                packet.compile_packet('plan', project={'media': 'none', 'motion': 'signature', 'motion_libraries': libraries})
-        with self.assertRaises(ValueError):
-            packet.compile_packet('plan', project={'media': 'none', 'motion': 'none', 'motion_libraries': ['border-beam']})
-
     def test_no_mcp_packet_works_without_server_contract_or_lookup_guide(self):
         with tempfile.TemporaryDirectory() as temporary:
             destination = Path(temporary) / 'skills'

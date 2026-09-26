@@ -1,10 +1,8 @@
-# Adaptation record
+# Retained adaptation scope
 
-Seenry's guidance was consolidated locally, with attribution and MIT license texts in this directory. The table records how selected source ideas informed the current references; it is provenance, not an external installation route.
+| Local guide | Credited author | Scope |
+| --- | --- | --- |
+| [Interface implementation](../references/interface-implementation.md) | Jakub Krehel | Layout, type, wording and control decisions reworked for Seenry's project-first workflow. |
+| [Motion implementation](../../seenry-motion/references/implementation-decisions.md) | Emil Kowalski | Conditional timing, interruption and reduced-motion decisions. |
 
-| Credited author | Local adaptation |
-| --- | --- |
-| Jakub Krehel | Optical alignment, concentric corners, state feedback, semantic color roles, typography, layout and product writing. Exact aesthetic prescriptions were not made universal. |
-| Emil Kowalski | Working structural alternatives, contextual motion, interruption behavior and scoped animation review. Example values remain conditional. |
-
-The [source inventory](handbook-sources.json) maps the bundled handbook modules to pinned revisions. Original Seenry examples and project-dependent rules are identified in their own references. Copyright notices remain in [jakub-LICENSE](jakub-LICENSE) and [emil-LICENSE](emil-LICENSE).
+The local guides stand on their own. The accompanying MIT notices preserve attribution for the retained adaptations.

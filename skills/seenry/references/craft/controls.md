@@ -60,4 +60,4 @@ For implementation across related controls and content, use [interface implement
 
 Inspect the actual glyph at its final size, not just its SVG box. A play triangle may need a small inline shift toward its point; a lopsided icon/label pair may need asymmetric inner padding. Keep the button bounds and hit target fixed. Tune stroke to the adjacent type's optical weight while preserving the icon family's construction. Check the correction on light/dark surfaces, selected/disabled states and supported RTL direction. Do not mirror physical symbols or brand marks indiscriminately.
 
-Detailed local examples: [surfaces and optical centering](../handbook/interface/control-craft/surfaces.md), [icon sizing and stroke](../handbook/interface/control-craft/icons.md). Apply the handbook's integration rules before copying numerical recipes.
+Use the optical correction only after inspecting the icon in the actual control and state; the local example above is a starting point, not a universal offset.
