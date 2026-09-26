@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.26
+
+- Adds an original, dependency-free digit pop for small counters, with a runnable demo and browser checks for 9→10, rapid updates, stable unit spacing, reduced motion and teardown.
+- Distinguishes a digit transition from a whole-value text entrance in the number guidance. A focused Luna request produced per-digit motion; broader wording still selected a whole-value entrance, so automatic selection remains unproven.
+
 ## 2.0.1-dev.25
 
 - Reports closed-panel and offscreen focus candidates in browser evidence, and clarifies that `aria-hidden` alone does not remove controls from the Tab order.

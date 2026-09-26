@@ -4,6 +4,25 @@ Animate a number when seeing its change helps someone follow the result of an ac
 
 Before implementation decide the supported range and format, the fixed reading edge, the units, and what happens when input arrives again. Keep units and punctuation outside a changing-width number when their position matters. For a timer, reserve separate digit columns and fixed colons. Do not animate a whole time string as a decimal number. Announce the meaningful completed action through the owning control or status; do not announce every visual frame.
 
+When the counter itself is one of the requested transitions, choose place-value motion (pop or roll) or a deliberate immediate update. Moving or fading the whole string is a text entrance; do not present it as a digit transition. At 9→10, check both the visible digits and the neighboring unit: reserve only the needed width, align the digits to the chosen reading edge inside it, and avoid a wide empty gap on either side. If those relationships cannot be verified, keep the number static and report the motion as unverified.
+
+## Small integer counts without a runtime dependency
+
+For a bounded count that needs a brief entrance rather than a rolling reel, copy the original [count pop module](../assets/count-pop.mjs) and [its CSS](../assets/count-pop.css). Keep the initial number as real text in the host; import the CSS and create the controller once. `update(value)` replaces changed digit places in one DOM commit and animates only those places; `set(value)` settles immediately; `destroy()` leaves the latest plain text. The host keeps its existing live-region policy. Nonnegative integers are animated; other strings remain static. This is an entrance, not a spinning counter or a faithful substitute for a measured reference.
+
+```html
+<link rel="stylesheet" href="./count-pop.css">
+<strong id="count">0</strong><small>total</small>
+<script type="module">
+  import {createCountPop} from './count-pop.mjs';
+  const count = createCountPop(document.querySelector('#count'), {reserveDigits:2});
+  // After the application's actual successful operation: count.update(nextCount);
+  // On teardown: count.destroy();
+</script>
+```
+
+The reserved slot end-aligns digits so a neighboring unit can remain close. Pick `reserveDigits` from the actual supported range; test the empty side of the slot at one digit and the full slot at 9→10 in the real typeface. Do not announce both the count and an equivalent status message if the application already provides one clear announcement.
+
 ## Local optional runtime
 
 `assets/number-transition.mjs` exports `createNumberTransition({slot,value,locales,format,duration,reserveValues,align})`. The text-only `slot` should contain the usable initial value before enhancement. Keep its unit and control labels in the application. `align` defaults to `inherit`; use `start`, `end` or `center` only for the chosen reading edge inside the reserved width. `update(value)` retargets from the current visual state; `set(value)` settles immediately; `destroy()` stops enhancement and leaves the latest formatted text. Values must be finite. The adapter exposes `value` and `animationSupported`; these are not evidence of visual quality.

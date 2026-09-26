@@ -1,0 +1,19 @@
+.seenry-count-pop {
+  display: inline-flex;
+  justify-content: flex-end;
+  min-width: var(--seenry-count-reserve, auto);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.seenry-count-digit { display: inline-block; }
+.seenry-count-digit.is-entering {
+  animation: seenry-count-enter 300ms cubic-bezier(.2,.8,.25,1) both;
+  animation-delay: var(--seenry-count-delay, 0ms);
+}
+@keyframes seenry-count-enter {
+  from { opacity: .25; transform: translateY(.18em); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .seenry-count-digit.is-entering { animation: none; }
+}
