@@ -10,7 +10,7 @@ Focused packets previously returned before resolving selected motion helpers. Th
 
 ## Research boundary
 
-The public [Transitions.dev catalog](https://transitions.dev/) and [skill page](https://transitions.dev/skill.html) demonstrate categories such as menu, card, icon and text transitions. This investigation inspected their public descriptions, not playback-derived timing measurements or paid resources. No implementation or skill text was copied. The proposed timing values are Seenry starting recipes to test in context. Existing original helpers remain the runtime.
+A public motion catalog informed the category audit for menu, card, icon and text transitions. The investigation inspected public descriptions, not playback-derived timing measurements or paid resources. No implementation text or snippets were copied. The proposed timing values are Seenry starting recipes to test in context. Existing original helpers remain the runtime, with the local guidance in [product transitions](../skills/seenry-motion/references/product-transitions.md).
 
 Focus guidance uses [WCAG Focus Visible](https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html), [Focus Appearance](https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html), [MDN focus-visible](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:focus-visible) and the [APG menu-button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/). Focus Visible is AA. The stronger area and change-contrast criterion is AAA. A CSS outline recipe alone certifies neither.
 

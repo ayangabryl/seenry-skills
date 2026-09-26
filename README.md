@@ -96,7 +96,7 @@ For multi-screen applications, the [system design guide](skills/seenry/reference
 
 ### Optional motion capability lab
 
-The [expressive-motion guide](skills/seenry-motion/references/expressive-effects.md) covers five public effect families and when to avoid them. The [runnable lab](examples/libraries-motion-lab/README.md) uses pinned free packages, explicit pause/reduced-motion policy and browser checks. These runtimes are optional; installing Seenry does not add React, WebGL or MCP requirements.
+The [expressive-motion guide](skills/seenry-motion/references/expressive-effects.md) covers five public effect families and when to avoid them. The [runnable lab](examples/effect-integration-lab/README.md) uses pinned free packages, explicit pause/reduced-motion policy and browser checks. These runtimes are optional; installing Seenry does not add React, WebGL or MCP requirements.
 
 ## Interactive website example
 

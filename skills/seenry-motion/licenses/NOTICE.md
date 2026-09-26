@@ -1,2 +1,3 @@
+# Motion guidance attribution
 
-Motion implementation decisions adapt animate/SKILL.md from Emil Kowalski, MIT, commit 85e8e2363b713506e1d5b6e07a0eb2da66be1bc3, https://github.com/emilkowalski/skill . Copyright and permission notice: emil-LICENSE. No endorsement is implied. Adapted on September 24, 2026; project-specific constraints override numerical starting points.
+The bundled motion implementation decisions adapt MIT-licensed material by Emil Kowalski at revision `85e8e2363b713506e1d5b6e07a0eb2da66be1bc3`. The original copyright and permission notice is retained in [emil-LICENSE](emil-LICENSE). No endorsement is implied. Seenry's project-specific constraints govern the use of numerical starting points.

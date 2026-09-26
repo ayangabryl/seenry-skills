@@ -1,0 +1,54 @@
+{
+  "packages": [
+    {
+      "name": "border-beam",
+      "version": "1.3.0",
+      "archive": "border-beam-1.3.0.tgz",
+      "sha256": "c18e7bfbde57b6a28eb50d4595b32077c0dea1c93f2195dc3ef544fc93850ee8",
+      "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0"
+      }
+    },
+    {
+      "name": "img-fx",
+      "version": "0.5.1",
+      "archive": "img-fx-0.5.1.tgz",
+      "sha256": "402fff314be742294372c411a06d2cb8c756f3a711e49b875c548d26ef0a88bb",
+      "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0",
+        "three": ">=0.149.0"
+      }
+    },
+    {
+      "name": "liquid-gooey",
+      "version": "0.2.2",
+      "archive": "liquid-gooey-0.2.2.tgz",
+      "sha256": "8f5947a5c9194ee1a8bcf5cc204758cfdef8efedff6ba7ab272c8f4c6b7a1279",
+      "peerDependencies": {
+        "react": ">=18",
+        "react-dom": ">=18"
+      }
+    },
+    {
+      "name": "metal-fx",
+      "version": "2.0.10",
+      "archive": "metal-fx-2.0.10.tgz",
+      "sha256": "173676cb85862175c155bf192a6f21edc0f130b858f18a6cbc05957dafc542fb",
+      "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0"
+      }
+    },
+    {
+      "name": "thinking-orbs",
+      "version": "0.3.1",
+      "archive": "thinking-orbs-0.3.1.tgz",
+      "sha256": "f561ab192d0f80a367c2cf56d9fd409f3dc0570521c08300c3bbf232ede79296",
+      "peerDependencies": {
+        "react": ">=18.0.0"
+      }
+    }
+  ]
+}

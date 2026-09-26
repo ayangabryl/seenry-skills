@@ -1,6 +1,6 @@
 ---
 name: seenry-motion
-description: "Research or implement web interactions using Seenry website recordings and creator motion references. Use for entrances, hover states, scrolling, transitions and component animation; distinguish observed motion from static screenshots."
+description: "Research or implement web interactions using Seenry recordings, creator references, and source studies. Use for hover, drag and gesture controls, scrolling, transitions, and component animation; distinguish observed motion from static screenshots."
 license: MIT
 metadata:
   author: Seenry
@@ -54,6 +54,8 @@ For other transition families, select a pattern from the [motion index](referenc
 For motion across multiple pages or shared controls, use [system choreography](references/system-choreography.md). Implement the shared behavior in the product, then verify representative contexts.
 
 For named benchmarks, repeated-event components or rejected motion, use [interaction anatomy](references/interaction-anatomy.md). It distinguishes numeric mechanisms, bounds outgoing layers under rapid input, and separates available guidance from verified fidelity.
+
+For an interaction-led component or a close reconstruction of a supplied example, read the [interaction component reference](references/interaction-reference.md). It links to a local third-party source collection of 190 components and identifies the behavior of representative examples. Inspect the specific live reference and compare rendered behavior before claiming a match; shared CSS alone does not reproduce its interaction.
 
 ## Exercise the meaningful transition
 

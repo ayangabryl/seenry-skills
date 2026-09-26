@@ -2,7 +2,7 @@
 
 Use this technical reference only after the interaction needs liquid continuity, material reflection, process presence, boundary emphasis or image reveal. Start with [the motion contract](motion-contract.md). Select the relevant family below; do not load or install the full catalog for an ordinary control.
 
-The five pinned packages are optional MIT-licensed rendering tools. This guide is authored within Seenry from public documentation and inspected package surfaces; it does not import an external agent skill. No MCP or paid account is required. Source attribution and the scope of the study are recorded in **Provenance** below.
+Five pinned MIT-licensed rendering engines are available as [local archives](../assets/optional-effects/INDEX.md). This guide contains the decision and integration notes locally. No MCP, paid account or external skill is required. Read only the engine relevant to the selected treatment.
 
 The current Seenry fluid implementation is original and does not install liquid-gooey. For its React renderer, shared-color rule and measured action-fan configuration, use [surface effects](surface-effects.md).
 
@@ -12,7 +12,7 @@ State the change a person needs to understand: where an action is, whether work 
 
 Use one owning runtime per animated property. Do not let GSAP, React state, a spring and a CSS transition simultaneously write the same transform. Scroll can drive an explicitly supported parameter; a looping shader is not a scroll narrative. For page choreography use [worked scores](worked-scores.md) and [scroll choreography](scroll-choreography.md), with reading holds, reverse travel and a static sequence. None of these five packages provides the complete page score.
 
-For staged runs, explicitly declare `motion_libraries`, for example `["liquid-gooey"]`, in the project JSON alongside `media` and `motion`. The packet compiler can supply this guide to the relevant stage when the selected mechanism needs it. This declares an option to investigate, not permission to assume it is installed or compatible. The installed version, license and API must be checked before importing it. Leave the field empty for ordinary CSS/SVG/WAAPI motion.
+For staged runs, explicitly declare `motion_libraries`, for example `["liquid-gooey"]`, in the project JSON alongside `media` and `motion`. The packet compiler can supply this guide to the relevant stage when the selected mechanism needs it. This declares an option to investigate, not permission to assume it is installed or compatible. The selected local archive's version, license, peer dependencies and API must be checked before importing it. Leave the field empty for ordinary CSS/SVG/WAAPI motion.
 
 ## Boundary emphasis
 
@@ -68,22 +68,12 @@ Use automatic reveal only for a genuine demonstration or an explicitly desired s
 
 The package manifests and distributed types above were inspected at pinned versions. Catalog-wide accessibility claims remain vendor statements until exercised in the chosen integration. API availability, source inspection, local rendered behavior, cross-browser verification and human visual acceptance are distinct evidence levels.
 
-The repository includes a runnable `examples/libraries-motion-lab/` with pinned packages and browser checks. Its capability study exercised a selected configuration of each library in Chromium with a software GPU. It is not proof of all presets, Safari/Firefox behavior, native mobile ports, hardware smoothness or design quality. Native React Native/SwiftUI offerings need their own build and device evidence; a 390px browser capture is mobile emulation.
+The repository includes a runnable integration lab with pinned packages and browser checks. Its capability study exercised a selected configuration of each engine in Chromium with a software GPU. It is not proof of all presets, Safari/Firefox behavior, native mobile ports, hardware smoothness or design quality; a 390px browser capture is mobile emulation.
 
 For adoption, record the exact version, installed source/license, trigger, state ownership, interruption, pause/reduced-motion policy, fallback and a short real recording. Test: repeated input, reversal, offscreen return, resize, keyboard, touch, unmount and recovery. An effect that is attractive in isolation can still fail its content, layout or frame budget. Select it only after comparing the task with and without the treatment.
 
-## Provenance
+## Local source and limits
 
-Public-source study recorded 2026-09-11; skill availability and redistribution terms checked 2026-09-12. The table identifies the documentation and source used for the pinned APIs. Newer upstream versions can differ.
+The [local archive index](../assets/optional-effects/INDEX.md) and [manifest](../assets/optional-effects/manifest.json) record exact versions, hashes, peer dependencies and license notices for the five selected engines. Their archives contain the published runtime and types, so a compatible project can use one without opening an external catalog. Newer releases may differ. The earlier integration lab uses an older liquid package version; check the archive selected for the target project.
 
-| Package | Public documentation | Public source |
-| --- | --- | --- |
-| `border-beam@1.3.0` | [Boundary effect](https://libraries.dev/beam) | [Source](https://github.com/Jakubantalik/border-beam) |
-| `thinking-orbs@0.3.1` | [Process states](https://libraries.dev/orbs) | [Source](https://github.com/Jakubantalik/thinking-orbs) |
-| `liquid-gooey@0.2.2` | [Liquid effects](https://libraries.dev/gooey) | [Package source](https://github.com/Jakubantalik/Libraries.dev/tree/main/packages/liquid-gooey) |
-| `metal-fx@2.0.10` | [Reflective effects](https://libraries.dev/metal) | [Source](https://github.com/Jakubantalik/metal-fx) |
-| `img-fx@0.5.1` | [Image effects](https://libraries.dev/image) | [Source](https://github.com/Jakubantalik/img-fx) |
-
-The public [catalog](https://libraries.dev/) and [accessibility statements](https://libraries.dev/accessibility) provide vendor context, not independent validation. The repository's `examples/libraries-motion-lab/package-study.json` records exact package versions, package integrity, inspected type hashes and declared MIT licenses. Its recorded verification is limited to selected configurations, not every preset or browser.
-
-The [public source license](https://github.com/Jakubantalik/Libraries.dev/blob/main/LICENSE) permits reuse with its copyright and license notice retained for copied or substantially adapted material; inspect each copied package's own LICENSE as well. Keep generated runtime license notices when distributing a bundle. The [separately offered agent skill](https://libraries.dev/pro) is Pro content under [different redistribution terms](https://libraries.dev/terms). No Pro skill, private preset or paid recipe is bundled here. Seenry's behavior decisions and integration guidance are original; source attribution does not make the vendor a required dependency.
+The package code is third-party MIT material. Preserve its local copyright, license and any notice file when distributing copies or substantial adaptations. No paid presets or private recipes are bundled. Seenry's behavior decisions and integration guidance are authored locally. Package source availability and selected browser checks do not prove a finished effect's accessibility or visual match.

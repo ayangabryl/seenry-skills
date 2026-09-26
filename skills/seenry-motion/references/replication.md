@@ -6,6 +6,8 @@ Replication matches an observed trajectory; creative motion proposes one. Choose
 
 Watch the actual clip at normal speed. Mark one opening and one closing interval and identify the trigger. Use [video study](video-study.md) for short, timestamped frame extraction. Keep source attribution, dimensions and actual decoded timestamps. Normal playback is still required after frame inspection. A video can duplicate frames; encoded FPS does not prove temporal resolution.
 
+When public source permits reuse, inspect component code, tokens and hooks. Adapting them in a compatible stack can preserve visual details; retain notices for copied material. Code shows intended mechanics; the rendered reference shows actual behavior.
+
 Measure in a fixed source coordinate system. Record host size, trigger position, shell rectangle and corner radius at rest; then displacement, bounds, opacity and content appearance at the start, roughly quarter/half/three-quarter progress and settlement. For a fast event, inspect the actual intermediate frames rather than assuming evenly spaced progress. Keep screen-space position and local geometry distinct: centered hosts can move the whole object during expansion.
 
 A useful score has tracks:

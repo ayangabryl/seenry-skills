@@ -1,22 +1,11 @@
 # Motion coverage research, 22 September 2026
 
-Sources inspected: https://transitions.dev/, https://transitions.dev/skill.html,
-https://transitions.dev/terms.html and the public repository
-https://github.com/Jakubantalik/transitions.dev at commit
-`e2d5551656e4d3274e075d1cbd9a95af50f53225`.
+A public transition collection was inspected to identify gaps in Seenry's own motion guidance. The collection's terms permit transition snippets in products but restrict republishing the library or a substantial competing collection. No external transition snippets, paid recipes, media or agent-skill files are included in Seenry. The guides and packet routing are independently authored. Existing bundled third-party runtimes retain separate manifests and licenses.
 
-Terms distinguish the MIT developer tooling from the transitions library. Snippets may
-be used in products; redistribution of the collection or a substantial competing
-collection is prohibited. No upstream transition snippets, paid recipes, media or
-skill files are included in Seenry. Public-source inspection informed a gap audit.
-The guides and packet routing added here are independently authored. Existing bundled
-third-party runtimes retain their own separate manifests and licenses.
-
-This file is maintainer evidence and is not loaded in ordinary agent packets.
-
+This is maintainer evidence and is not loaded in ordinary agent packets.
 ## Coverage boundary
 
-The public skill's 32 named patterns were reviewed against these mechanism families.
+The public collection's 32 named patterns were reviewed against these mechanism families.
 This table reports **guidance coverage**, not 32 tested, drop-in implementations.
 
 | Public pattern group | Seenry guidance | Executable support |
@@ -34,7 +23,7 @@ drag physics, organic shimmer, image opening, spinner/check, gradient and
 image-generation materials) map to surfaces, feedback, loading and expressive
 guidance. A Pro catalog entry establishes neither snippet access nor local runtime
 coverage. Existing `expressive-effects.md` records independently licensed optional
-engines; it is not a copy of this catalog.
+engines; it is not a copy of that catalog.
 
 The focused selector exposes 25 mechanism identifiers in six families. Replication
 uses source measurements before recipes. An available guide or imported helper is
