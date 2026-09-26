@@ -35,6 +35,9 @@ try {
   await page.getByRole('button', { name: 'Working' }).click();
   await page.waitForFunction(() => window.signalField.isAnimating());
   assert.equal(await page.locator('#status').textContent(), 'Processing…');
+  const movingFrame = await page.locator('#field').evaluate(canvas => canvas.toDataURL());
+  await page.waitForTimeout(250);
+  assert.notEqual(await page.locator('#field').evaluate(canvas => canvas.toDataURL()), movingFrame);
   await page.getByRole('button', { name: 'Success' }).click();
   assert.equal(await page.evaluate(() => window.signalField.getState()), 'success');
   assert.equal(await page.evaluate(() => window.signalField.isAnimating()), false);
@@ -44,6 +47,9 @@ try {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.waitForFunction(() => !window.signalField.isAnimating());
   assert.equal(await page.locator('#status').textContent(), 'Processing…');
+  const settledFrame = await page.locator('#field').evaluate(canvas => canvas.toDataURL());
+  await page.waitForTimeout(250);
+  assert.equal(await page.locator('#field').evaluate(canvas => canvas.toDataURL()), settledFrame);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.waitForFunction(() => window.signalField.isAnimating());
   await page.evaluate(() => { document.querySelector('main').style.marginTop = '1800px'; });

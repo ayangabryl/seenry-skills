@@ -4,7 +4,7 @@ description: "Create, implement, refine, review or faithfully reproduce web inte
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.23"
+  version: "2.0.1-dev.24"
 ---
 
 # Seenry

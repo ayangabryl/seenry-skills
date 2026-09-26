@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1-dev.24
+
+- Adds a small React adapter for the original signal field and verifies it in a built React app.
+- Gives the field fixed receiver geometry with a traveling working emphasis, clearer state-preview copy and a less enclosed demo.
+- Verifies that active frames change and reduced-motion frames stay still in browser checks.
+
 ## 2.0.1-dev.23
 
 - Adds an original, dependency-free signal field for real process states, with a runnable demo and browser checks for offscreen pause, live reduced motion, keyboard use and cleanup.

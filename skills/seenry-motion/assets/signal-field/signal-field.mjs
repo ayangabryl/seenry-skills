@@ -81,6 +81,23 @@ export function createSignalField(canvas, options = {}) {
       }
     }
 
+    // Fixed receivers make the moving emphasis read as a signal travelling through a field.
+    for (let index = 0; index < 12; index++) {
+      const angle = index * TAU / 12 - Math.PI / 2;
+      const inner = unit * 0.47;
+      const outer = unit * 0.64;
+      const travel = (phase * 2.2) % 12;
+      const distance = Math.min(Math.abs(index - travel), 12 - Math.abs(index - travel));
+      const emphasis = moving ? Math.max(0, 1 - distance / 2.1) : 0;
+      context.globalAlpha = 0.12 + emphasis * 0.35;
+      context.lineWidth = 1;
+      context.beginPath();
+      context.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
+      context.lineTo(Math.cos(angle) * outer, Math.sin(angle) * outer);
+      context.stroke();
+      dot(angle, outer, 1.25 + emphasis * 1.4, 0.36 + emphasis * 0.6);
+    }
+
     // A central compass-like trace changes only when the application changes state.
     context.globalAlpha = 1;
     context.lineWidth = 2.8;
