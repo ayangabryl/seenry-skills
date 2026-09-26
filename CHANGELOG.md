@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1-dev.27
+
+- Routes requested count motion to per-place number guidance and checks that every requested transition is actually implemented before handoff.
+- Makes the notification overflow invariant explicit: remove an item from the active set before its exit animation; exercise the fourth event in a three-item stack.
+- Clarifies valid naming and announcement ownership for toast regions. A fresh Luna build passed the focused browser sequence, including five events, 9→10 digit motion, reduced motion and initial axe checks; wider reliability remains unproven.
+
 ## 2.0.1-dev.26
 
 - Adds an original, dependency-free digit pop for small counters, with a runnable demo and browser checks for 9→10, rapid updates, stable unit spacing, reduced motion and teardown.

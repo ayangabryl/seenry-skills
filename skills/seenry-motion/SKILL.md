@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry recordings, cr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.26"
+  version: "2.0.1-dev.27"
 ---
 
 # Design movement around a meaningful change
@@ -21,7 +21,7 @@ Choose the treatment by what changes:
 
 - **Acknowledge an action:** preserve the control's hit area; show completion only after the operation succeeds.
 - **Expand or navigate:** preserve the relationship to the triggering item and a clear return path.
-- **Compare values or views:** anchor units, framing and controls; direct manipulation should follow input immediately.
+- **Compare values or views:** anchor units, framing and controls; direct manipulation should follow input immediately. When a changing count is itself a requested transition, use [number transitions](references/number-transitions.md) to choose per-place motion or an intentional immediate update; a whole-string fade is only a text entrance.
 - **Explain through scrolling:** give the scene a learning sequence, reading holds and a readable static equivalent.
 - **Reveal or combine material:** use a visual effect only when the content or brand gives it a useful role.
 
@@ -55,9 +55,13 @@ For motion across multiple pages or shared controls, use [system choreography](r
 
 For named benchmarks, repeated-event components or rejected motion, use [interaction anatomy](references/interaction-anatomy.md). It distinguishes numeric mechanisms, bounds outgoing layers under rapid input, and separates available guidance from verified fidelity.
 
+For a toast or banner stack, read [feedback patterns](references/patterns/feedback.md) and keep active items separate from the one leaving item. The bundled [notification state reducer](assets/notification-state.mjs) provides that bound; if implementing without it, remove overflow from active state immediately before animating its exit. Exercise at least four rapid additions to a three-item stack—three additions cannot expose an overflow loop.
+
 For an interaction-led component or a close reconstruction of a supplied example, read [interaction anatomy](references/interaction-anatomy.md) and the relevant mechanism guide. Inspect the specific live reference and compare rendered behavior before claiming a match; shared CSS alone does not reproduce its interaction.
 
 ## Exercise the meaningful transition
+
+Before handoff, account for every transition the user requested: name its trigger, moving element/property, settled state, and reduced-motion result. A reserved slot or immediate value update is a useful static state, but does not fulfill a requested number animation. Repair any missing transition or report that part incomplete.
 
 Test initial and settled states, rapid input, reversal, keyboard/touch, resize and live reduced motion. Inspect normal-speed playback and relevant intermediate geometry; endpoints alone cannot prove continuity. Check cancellation, stale async completion and cleanup for the chosen behavior. Keep failed or unavailable checks explicit, and report the actual browser/device coverage.
 

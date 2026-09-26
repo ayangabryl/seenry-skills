@@ -16,6 +16,8 @@ Choose the type after inspecting the requested reference. Engine choice is not f
 
 A three-item data limit does not limit outgoing presence-animation nodes. Rapid additions can retain many departing items. Use absolute layers inside a reserved stage for overlay stacks; keep the trigger in a separate fixed region. Choose a bounded exit policy: one replaceable departing layer, or cancel the oldest exit when a documented budget is reached. Do not let outgoing items take part in normal-flow layout. Persistent IDs must never be recycled after dismissing all messages.
 
+On overflow, remove the oldest item from the active collection synchronously and then start its visual exit. A capacity `while` loop whose `dismiss` waits for `animationend` to shrink that same collection never terminates on the fourth addition. The [notification state reducer](../assets/notification-state.mjs) separates active and leaving items; if using local DOM state, maintain the same invariant and cancel a superseded exit. Probe the fourth addition before considering a three-item stack complete.
+
 Animate remaining items from their current positions. Update accessible status once per real event; hide decorative exit copies. If a dismissed item owns focus, return focus to a stable appropriate control. Keep actual long-message content readable; fixed-height teaching examples are not a general toast sizing policy.
 
 Replay 20 additions, alternating add/remove and removing a middle item. Compare the trigger and stage coordinates relative to the document, not viewport coordinates after auto-scroll. Check both peak and settled node counts. A screenshot after everything settles cannot reveal a rapid-input failure.
