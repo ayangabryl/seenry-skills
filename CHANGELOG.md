@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1-dev.20
+
+- Adds an original, runnable action menu with keyboard behavior, interruptible presentation, reduced-motion handling, a demo and browser checks.
+- Clarifies when the core skill applies to new web product UI without a supplied reference.
+- Adds a narrow-screen occlusion check after a fresh Luna build exposed a sticky summary covering comparison choices; retains the failed render as diagnostic evidence.
+
 ## 2.0.1-dev.19
 
 - Keeps five focused skills for interface design, motion, assets, branding and decks.
