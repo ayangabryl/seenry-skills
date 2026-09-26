@@ -51,6 +51,8 @@ For combined layout, type, control and wording polish, use [interface implementa
 
 For detailed craft decisions, use the focused modules below. Read only the module that addresses the current uncertainty, then verify it in the running interface.
 
+When a task already includes expressive artwork, consider whether it can acknowledge the user's real activity: editing, waiting, completion or recovery. Keep the controls stationary and the signal restrained; a small change in existing motion can connect the scene to the task without adding another indicator. See the state-linked artwork guidance in [form recovery](references/form-recovery.md). This is an option to evaluate, not a requirement to animate every form.
+
 For signup, authentication and submission interactions, apply [form recovery](references/form-recovery.md), including the failure and retry states—not just the valid form. For MCP-informed builds and comparisons, apply [MCP output evidence](references/mcp-output-evidence.md).
 
 ## Load only the current decision

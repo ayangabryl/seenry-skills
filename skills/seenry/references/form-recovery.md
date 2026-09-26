@@ -29,6 +29,16 @@ For a long choice group, place the error immediately after its legend, before th
 
 On an invalid submit, set specific error text and focus the first choice. Clear the error when a valid choice is made. The example shows placement and association; use the project's own content, styling and form state.
 
+## State-linked artwork
+
+When a form already has a carousel, illustration or ambient scene, consider connecting it to the task instead of leaving it as unrelated decoration. For example, typing can briefly lift the existing motion's speed, while the actual pending request sustains a modest increase. Keep the feedback peripheral and the field, caret, labels and submit control stationary. A quiet utility form may be better with no ambient response.
+
+- Pass only an activity pulse and the authoritative pending state into the artwork. Never pass field contents, password length, validity or character identity to an animation or telemetry layer.
+- Repeated input renews a bounded response; it must not accumulate speed. Include paste, deletion and composition through the form's normal edit events. Do not map every keystroke to an abrupt jump.
+- Ease into the changed pace and back out after inactivity, failure or completion. Loading reflects the real promise lifecycle, not an animation timer. Do not delay navigation to finish a flourish or use speed as a percentage-complete claim.
+- Use a smaller response for compact artwork near mobile inputs. Respect reduced motion, manual interaction and hidden/offscreen suspension. Keep text feedback as the accessible source of status.
+- Verify typing, a pause, repeated edits, delayed submission, rejection and retry. Observe the actual artwork through those transitions; geometry tests alone do not establish its feel. Use an explicitly labelled local state simulation when testing pending/error behavior without creating an account or submitting credentials.
+
 ## Verify the result
 
 Exercise empty submit, invalid address, one corrected field, valid submit, slow response, double submit, server rejection and retry. Check focus and screen-reader associations, keyboard submission, narrow layout and reduced motion. At the narrow viewport, inspect the initial task order and actual focus order, then submit an empty form and inspect what is visible after focus moves: the recovery message must be near the first invalid control, not merely somewhere in the DOM. For a local showcase, say explicitly that no account is created and use a clearly labelled failure simulation rather than fabricating a real network error.
