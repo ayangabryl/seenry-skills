@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.32
+
+- Adds an original, dependency-free decoded image reveal with an interruptible canvas treatment, real image fallback, error recovery, live reduced-motion behavior, a demo and browser checks.
+- Routes image-led loading work to the asset without implying that decorative motion measures generation progress or creates image content.
+
 ## 2.0.1-dev.31
 
 - Shortens the Seenry entrypoint by routing detailed design decisions to their focused references and placing rendered review and the offline text-contrast check in the main creation path.

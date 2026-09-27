@@ -21,7 +21,7 @@ Route specific requests here when the family name is too broad. These are origin
 | Checkbox, switch, favorite burst | Checked state updates immediately. Bounce is decoration; rejection rolls the real state back. | [Feedback](patterns/feedback.md) |
 | Skeleton/content | Reserve the final geometry; crossfade only after readiness; failure exits loading. | [Loading](patterns/loading.md) |
 | Text shimmer, organic shimmer, dot matrix | Bound contrast and frame cost; pause offscreen; provide static status, not fictional progress. | [Loading](patterns/loading.md) |
-| Generated-image placeholder | Reveal a decoded result; a placeholder is not an image-generation capability. | [Loading](patterns/loading.md) |
+| Generated-image placeholder | Reveal a decoded result; a placeholder is not an image-generation capability. A runnable canvas treatment is available for image-led surfaces. | [Loading](patterns/loading.md) |
 | Avatar neighbors, card fan | Stable identities and distance falloff; keyboard selection remains readable. | [Expressive](patterns/expressive.md) |
 | Drag/drop physics | Direct pointer tracking, measured release velocity, cancellation and keyboard alternative. | [Expressive](patterns/expressive.md) |
 | Pointer tilt, image expansion | Clamp tilt; preserve readable text plane and source/destination crop. | [Expressive](patterns/expressive.md) |

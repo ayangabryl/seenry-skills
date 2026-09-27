@@ -8,7 +8,7 @@ A shimmer is a moving highlight clipped to the intended material or text. Keep i
 
 For a compact, original process visualization, the [signal field](../../assets/signal-field/README.md) supplies a canvas controller with idle, working, success and error states. Pair it with DOM status text and update both from the same application state; it neither measures progress nor decides completion.
 
-A generation placeholder reveals an already available image; it does not generate it or report backend completion. Keep the previous image until the new image decodes. If the asset fails, retain usable content and show recovery. Do not let a decorative reveal delay access to a finished result. See [expressive effects](../expressive-effects.md) only when a shader or material treatment is required.
+A generation placeholder reveals an already available image; it does not generate it or report backend completion. Keep the previous image until the new image decodes. If the asset fails, retain usable content and show recovery. The original [image reveal](../../assets/image-reveal/README.md) supplies a small canvas treatment with those boundaries; use a plain image swap when that is enough. Do not let a decorative reveal delay access to a finished result. See [expressive effects](../expressive-effects.md) only when a shader or material treatment is required.
 
 Working baseline: CSS opacity on a pseudo-element shimmer, enabled only inside `prefers-reduced-motion: no-preference`; business state removes it on success or failure. Use stable `aspect-ratio` for images. Do not use `transition: all` on the loaded container, since intrinsic size changes may animate accidentally.
 

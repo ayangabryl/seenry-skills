@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seenry image reveal</title>
+<link rel="stylesheet" href="image-reveal.css">
+<style>
+  :root { color-scheme: dark; font-family: ui-sans-serif,system-ui,sans-serif; background: #14201f; color: #f5efdf; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main { width: min(100% - 32px, 820px); margin: 44px auto; }
+  p { color: #c5cec6; line-height: 1.5; }
+  h1 { font-size: clamp(2rem,6vw,3.5rem); line-height: 1; letter-spacing: -.045em; margin: 0 0 14px; }
+  .seenry-image-reveal { width: 100%; aspect-ratio: 900/650; border-radius: 20px; background: #243b37; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0 12px; }
+  button { border: 1px solid #8dada1; background: #263c37; color: #fff6df; border-radius: 9px; padding: 12px 17px; min-height: 44px; font: inherit; cursor: pointer; }
+  button:hover { background: #345950; }
+  button:focus-visible { outline: 3px solid #ffc56e; outline-offset: 3px; }
+  #status { min-height: 1.5em; }
+</style>
+<main>
+  <h1>Exposure studies</h1>
+  <p>Swap two locally stored images. A new image appears only after its pixels are ready; the old image remains useful while loading.</p>
+  <div class="seenry-image-reveal"><img id="artwork" src="study-a.svg" alt="Amber sun over layered blue landscape"></div>
+  <div class="controls">
+    <button id="a" type="button">Blue landscape</button>
+    <button id="b" type="button">Green landscape</button>
+    <button id="missing" type="button">Try unavailable image</button>
+  </div>
+  <p id="status" role="status" aria-live="polite">Blue landscape shown.</p>
+</main>
+<script type="module">
+  import { createImageReveal } from './image-reveal.mjs';
+  const status = document.querySelector('#status');
+  const reveal = createImageReveal(document.querySelector('.seenry-image-reveal img'));
+  const studies = {
+    a: ['study-a.svg', 'Amber sun over layered blue landscape', 'Blue landscape'],
+    b: ['study-b.svg', 'Cream sun over layered green landscape', 'Green landscape'],
+    missing: ['missing.svg', '', 'Unavailable image'],
+  };
+  for (const [id, [src, alt, name]] of Object.entries(studies)) {
+    document.querySelector(`#${id}`).addEventListener('click', async () => {
+      status.textContent = `Loading ${name.toLowerCase()}…`;
+      const result = await reveal.show(src, alt);
+      if (result === 'shown') status.textContent = `${name} shown.`;
+      if (result === 'error') status.textContent = `${name} could not load. The previous image is still shown.`;
+    });
+  }
+  window.imageRevealDemo = reveal;
+</script>
+</html>
