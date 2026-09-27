@@ -17,6 +17,9 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r requirements-dev.txt
       - run: python scripts/validate.py
+      - name: Typecheck macOS text comparison helper
+        if: runner.os == 'macOS'
+        run: swiftc -typecheck skills/seenry/scripts/text_compare.swift
       - run: python -m unittest discover -s tests -v
       - uses: actions/setup-node@v4
         with:

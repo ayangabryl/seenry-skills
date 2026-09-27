@@ -13,7 +13,7 @@ Design for the actual task, content and brand. Preserve the user's stack and use
 
 ## Route the request
 
-- **Replicate:** faithfully match a supplied interface. Read [reference reconstruction](references/replication.md); measure observed content, geometry and behavior. An adaptation is not a replica.
+- **Replicate:** faithfully match a supplied interface. Read [reference reconstruction](references/replication.md); measure observed content, geometry and behavior. For local, text-heavy screenshots on macOS, use [text comparison](scripts/text_compare.swift) on named labels before claiming their typography matches. An adaptation is not a replica.
 - **Create:** design a new component, page or connected screen. Components use [component design](references/component-design.md); interaction-led ones add [interactive component construction](references/interaction-components.md). Websites use [art direction](references/art-direction.md); connected screens use [system design](references/system-design.md).
 - **Refine:** inspect the named defect and state, make a bounded repair, then verify it. Keep the existing identity unless change is requested.
 - **Review:** report observed issues through [visual review](references/visual-review.md) and [quality diagnosis](references/quality-diagnosis.md). Separate missing evidence from a proven defect.
