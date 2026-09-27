@@ -1,10 +1,12 @@
 # Reconstruct the reference, not a related idea
 
-Use for faithful recreation or a complaint that a reconstruction differs from its source. The source is the visual specification. Better usability or a preferred style does not authorize a different composition. Keep a separate list of user-requested changes. If the task asks for original content or a new brand, preserve the named relationships and label those changes as adaptation.
+For faithful recreation, treat the source as the visual specification. Record requested exceptions separately. Changes for a new brand or original content are adaptations; do not call them matches.
 
 ## Lock the target before implementation
 
-Record a short source contract in DESIGN.md: current requested intent, exact media/URL or local file, version/hash when available, crop/section, viewport, media dimensions, pixel density if known, observed states and requested exceptions. The latest request overrides an older demo configuration or copied prompt. Check each example's implementation scope, button prompt and label against that intent. A screenshot's physical pixels are not automatically CSS pixels. Keep one coordinate system through measurement and review.
+Record a source contract in DESIGN.md: current intent, media/URL and available hash, crop, viewport, physical dimensions, pixel density, observed states and exceptions. The latest request overrides older demo settings. Check example scope and labels against it. Physical pixels are not automatically CSS pixels; measure in one coordinate system.
+
+Classify pixels as product UI, platform chrome or archive overlay. If a served image differs from an original, record both. Specify whether the target includes capture marks; never infer product branding or design intent from them. Measure at physical resolution and stated density, then revisit targets after an equal-scale source/output comparison.
 
 Inspect the real source. A title, caption, extracted CSS, poster or MCP rating cannot establish the pixels or behavior. Use the original page for inspectable behavior, a recording for observed motion, and supplied mobile media for responsive structure. Missing mobile evidence means the narrow layout is proposed. Do not infer a carousel, looping entrance or hidden modal from a still.
 

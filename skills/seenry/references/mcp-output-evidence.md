@@ -6,6 +6,7 @@ For a reference-informed output, keep a compact evidence chain in DESIGN.md:
 
 1. The actual problem: content hierarchy, project browsing, a transition, density, or another concrete decision.
 2. Reference identifier and inspected screenshot/crop or recording timestamps. A search hit and description alone are not inspection. Reject irrelevant hits; avoid searching indefinitely.
+   Distinguish catalog watermarks, annotations and platform chrome from the referenced product before explaining why its interface looks that way. A capture mark is provenance, not evidence of the product's identity.
 3. Observed relationship and its application: e.g. image leads, project information follows; explain how this serves the project's actual content. Distinguish static composition from observed animation.
 4. What is original, adapted, licensed or only a placeholder. A photo used as a mood reference is not evidence that a fictional business completed the pictured project.
 5. Implemented behavior and checks: real destinations, empty/loading/error/recovery states, accessible controls, responsive crops, asset fallback, keyboard, interruption and reduced motion.
