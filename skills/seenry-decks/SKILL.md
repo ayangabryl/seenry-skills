@@ -4,7 +4,7 @@ description: "Research presentation decks in Seenry, preserving slide order, nar
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.27"
+  version: "2.0.1-dev.28"
 ---
 
 # Study both the story and the slide

@@ -4,7 +4,7 @@ Use this guide when a real interaction calls for a luminous boundary, visible pr
 
 ## Boundary light
 
-A traveling rim can draw attention to one temporarily active surface. Keep the border geometry tied to the element's radius and render the light in a pseudo-element or clipped SVG layer so it cannot obscure text or focus. Use a static border or modest opacity change for reduced motion. A moving rim is not a progress indicator unless its position is actually driven by progress. Check clipping at the corners and contrast at both bright and dark points.
+A traveling rim can draw attention to one temporarily active surface. Keep the border geometry tied to the element's radius and render the light in a pseudo-element or clipped SVG layer so it cannot obscure text or focus. The original [boundary trace](../assets/boundary-trace/README.md) measures one uniformly rounded host and pauses offscreen; use it when a real working state warrants a rim. Use a static border or modest opacity change for reduced motion. A moving rim is not a progress indicator unless its position is actually driven by progress. Check clipping at the corners and contrast at both bright and dark points.
 
 ## Process presence
 
