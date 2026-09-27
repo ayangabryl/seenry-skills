@@ -1,12 +1,12 @@
 # Reconstruct the reference, not a related idea
 
-For faithful recreation, treat the source as the specification. Record requested exceptions. Brand or content changes are adaptations.
+For faithful recreation, treat the source as specification. Record exceptions; brand or content changes are adaptations.
 
 ## Lock the target before implementation
 
 Record a source contract in DESIGN.md: current intent, media/URL and available hash, crop, viewport, physical dimensions, pixel density, observed states and exceptions. The latest request overrides older demo settings. Check example scope and labels against it. Physical pixels are not automatically CSS pixels; measure in one coordinate system.
 
-Classify pixels as product UI, platform chrome or archive overlay. If a served image differs from an original, record both. Specify whether the target includes capture marks; never infer product branding or design intent from them. Measure at physical resolution and stated density, then revisit targets after an equal-scale source/output comparison.
+Classify pixels as product UI, platform chrome or archive overlay. If a served image differs from an original, record both. Specify whether the target includes capture marks; never infer product branding or design intent from them. Measure at stated density, then revisit targets after equal-scale comparison.
 
 Inspect the real source. A title, caption, extracted CSS, poster or MCP rating cannot establish the pixels or behavior. Use the original page for inspectable behavior, a recording for observed motion, and supplied mobile media for responsive structure. Missing mobile evidence means the narrow layout is proposed. Do not infer a carousel, looping entrance or hidden modal from a still.
 
@@ -20,6 +20,8 @@ For the decisive region record:
 - **Behavior:** idle, hover, pressed, focus, closed/open/selected/error states, triggering action, hit areas and return path. A recording establishes only the interactions it shows. Implement necessary unseen accessibility and recovery behavior, label it as proposed, and do not change the observed layout to accommodate it silently. If a captured action depends on an unavailable service, preserve its observed idle appearance; a preview response may explain the limitation, but do not invent a connected, selected or successful state.
 
 Preserve item count/order, content/assets, active geometry, moving surfaces and reveal sequence. Different behavior is adaptation, not a replica. Record requested departures. Source details are task requirements, not global defaults.
+
+For screenshot-only controls, read [link fidelity](link-fidelity.md) before handoff.
 
 ## Reconstruct motion as a score
 
