@@ -31,6 +31,22 @@ class TokenContrast(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertTrue(all(item['pass'] for item in report['checks']))
 
+    def test_direct_small_text_uses_root_background_and_local_action_fill(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'styles.css'
+            page.write_text(':root{--paper:#f3f2ee;--action:#315b48;background:var(--paper)}'
+                            '.hint{color:#989d93;font-size:10px}'
+                            '.action{background:var(--action);color:#ffffff}')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        self.assertEqual(run.returncode, 2)
+        by_selector = {item['selector']: item for item in report['directChecks']}
+        self.assertFalse(by_selector['.hint']['pass'])
+        self.assertEqual(by_selector['.hint']['backgroundScope'], 'page background approximation')
+        self.assertTrue(by_selector['.action']['pass'])
+        self.assertEqual(by_selector['.action']['backgroundScope'], 'same rule')
+
 
 if __name__ == '__main__':
     unittest.main()
