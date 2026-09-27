@@ -1,0 +1,26 @@
+.seenry-directional-stage {
+  --stage-duration: 460ms;
+  --stage-ease: cubic-bezier(.22, 1, .36, 1);
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  transition: height var(--stage-duration) var(--stage-ease);
+}
+.seenry-directional-stage > [data-view] {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  transition: transform var(--stage-duration) var(--stage-ease), opacity 240ms ease;
+  will-change: transform;
+}
+.seenry-directional-stage:not([data-stage-state]) > [data-view]:first-child { position: relative; }
+.seenry-directional-stage:not([data-stage-state]) > [data-view]:not(:first-child) { display: none; }
+.seenry-directional-stage[data-stage-state='initial'],
+.seenry-directional-stage[data-stage-state='initial'] > [data-view] {
+  transition: none;
+}
+.seenry-directional-stage > [data-view][aria-hidden='true'] { pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .seenry-directional-stage,
+  .seenry-directional-stage > [data-view] { transition: none; }
+}
