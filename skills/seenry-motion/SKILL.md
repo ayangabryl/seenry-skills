@@ -4,67 +4,41 @@ description: "Research or implement web interactions using Seenry recordings, cr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.33"
+  version: "2.0.1-dev.34"
 ---
 
-# Design movement around a meaningful change
+# Design movement around a real change
 
-Motion should help people follow an action, relationship or change of state. Start from the task and the existing interface; retain the project's working behavior and runtime. MCP, paid accounts and another design skill are not required.
+Start with the user's task and the existing product. Keep its working behavior, content, brand and runtime. Motion should explain an action, relationship or change of state. MCP, paid accounts and another design skill are not required.
+
+**For a whole page or product screen:** apply the sibling [Seenry design workflow](../seenry/SKILL.md) before code: establish the facts and visual system, choose a direction, finish one real slice, then review wide and narrow renders. Motion craft does not replace typography, layout, copy or contrast. A focused component added to an existing page can stay here.
 
 ## Define the interaction
 
-For a faithful recreation, use [motion reconstruction](references/replication.md) before selecting a recipe. Preserve observed geometry, trajectories, timing and content. An adapted animation must not be reported as a replica.
+Use [the motion contract](references/motion-contract.md) to name the trigger, real state owner, stationary anchor, feedback, settled result and interruption. Choose one owner for each animated property. Keep controls and authoritative values stable through loading, success, error and recovery. For a faithful recreation, read [motion reconstruction](references/replication.md), preserve observed geometry and timing, and label unmeasured behavior as proposed. An adapted animation is not a replica.
 
-Read [the motion contract](references/motion-contract.md) when planning or changing an interaction. Record its trigger, real state owner, stationary anchor, feedback, settled result and interruption behavior. A simple button needs a few lines; an expressive scene may need a score. Make this decision before committing the layout to moving or overlapping content.
+Choose the smallest capable mechanism. CSS, SVG or Web Animations are enough for many transitions; use an existing Lottie, GSAP, Anime.js, Motion or Three.js runtime only for a demonstrated need and verify its installed API. Read [implementation decisions](references/implementation-decisions.md) for easing, interruption, hover gating and reduced motion. For deeper mechanics use [motion craft](references/motion-craft.md) and [interaction anatomy](references/interaction-anatomy.md).
 
-Choose the treatment by what changes:
+| Requested change | Focused route |
+| --- | --- |
+| Action menu or short status label | Original [action menu](assets/action-menu/README.md), [status switch](assets/status-switch/README.md) and [product transitions](references/product-transitions.md). If a status transition is requested, move the text in a reserved slot; a plain text replacement or dot-color change alone is incomplete. The application owns the real action. |
+| In-flow disclosure or changing geometry | Original [expanding card](assets/expanding-card/README.md), [geometry helper](references/adapters.md) and [surface patterns](references/patterns/surfaces.md). Preserve focus and retarget from current geometry. |
+| Changing number or icon | [Number transitions](references/number-transitions.md) and [adapters](references/adapters.md). For a small integer count, prefer the original count-pop helper over rebuilding digit semantics. Keep one real accessible value; do not hide every digit and put `aria-label` on a plain `<strong>`. A digit transition needs per-place motion; keep units anchored. |
+| Loading or process presence | Original [signal field](assets/signal-field/README.md), [boundary trace](assets/boundary-trace/README.md) and [loading patterns](references/patterns/loading.md). Animation time is not progress. |
+| Decoded image or expressive material | Original [image reveal](assets/image-reveal/README.md), [surface effects](references/surface-effects.md) and [expressive effects](references/expressive-effects.md). Keep useful content while a replacement loads. |
+| Toast or banner stack | [Feedback patterns](references/patterns/feedback.md) and original [notification reducer](assets/notification-state.mjs). Remove overflow from active state before its exit; test the fourth event in a three-item stack. |
+| Scroll, navigation or a coordinated system | [Scroll choreography](references/scroll-choreography.md), [worked scores](references/worked-scores.md), [system choreography](references/system-choreography.md) and the [motion index](references/patterns.md). |
 
-- **Acknowledge an action:** preserve the control's hit area; show completion only after the operation succeeds.
-- **Expand or navigate:** preserve the relationship to the triggering item and a clear return path.
-- **Compare values or views:** anchor units, framing and controls; direct manipulation should follow input immediately. When a changing count is itself a requested transition, use [number transitions](references/number-transitions.md) to choose per-place motion or an intentional immediate update; a whole-string fade is only a text entrance.
-- **Explain through scrolling:** give the scene a learning sequence, reading holds and a readable static equivalent.
-- **Reveal or combine material:** use a visual effect only when the content or brand gives it a useful role.
+Select only the guide and helper needed for this change. The bundled original assets are reusable starting points, not default visual styles or proof of fidelity to another component. Keep licenses with any copied third-party runtime; the original Seenry assets use the repository's MIT license.
 
-For implementation details read [motion craft](references/motion-craft.md). For an expressive page read [worked scores](references/worked-scores.md); add [scroll choreography](references/scroll-choreography.md) when actual scroll progress drives the scene. These original exercises demonstrate mechanics, not a default visual template.
+## Research the observed behavior
 
-## Research only what the decision needs
+When matching a supplied reference, inspect playback at normal speed and useful intermediate frames, not only endpoints. [Motion research](references/research-route.md) explains recordings, Seenry MCP, creator studies and source limits; load it only when research is needed. A static image cannot establish timing, interruption or keyboard behavior. Without playback, implement a proposed treatment and test it locally.
 
-Use supplied recordings or available public evidence when reconstructing or comparing a treatment. Follow [video study](references/video-study.md) for normal playback and bounded local frame/contact-sheet extraction with actual timestamps and provenance. A poster cannot establish timing, easing, keyboard behavior or interruption. Without playback, label timing as proposed and test it locally.
+## Finish the interface and transition
 
-If Seenry MCP is connected, `search_references(motion=true,site=...)` and `get_page_motion(id,viewport)` find website journeys. For creator studies use `get_design_taxonomy`, `search_designs(family="motion",...)` and `get_design_video`; collections may expose clips through `get_design_reference` and `get_reference_asset`. `search_curated_references` supports `motion` and `walkthroughs` families. Read review reasons, then inspect the clip. Ratings do not prove suitability.
+Account for every requested transition: trigger, moving element and property, settled state, and reduced-motion result. Test normal speed, rapid input, reversal, keyboard/touch, resize, live reduced motion, unmount and failure where applicable. Inspect actual intermediate geometry; a reserved slot or immediate update does not fulfill a requested number animation. Report unavailable checks rather than inferring a pass.
 
-Check recording coverage, duration, cadence, observed unique frames and warnings. Do not confuse encoded frame rate with capture fidelity or a partial journey with a complete one. Distinguish observed behavior from inferred implementation. For research deliverables include source, clip interval, applicable behavior and limitations. An offline task can proceed using the bundled behavior guides.
+**Whole-page text check:** inspect text contrast on actual wide and narrow renders. If the page uses opaque CSS colors, run the sibling offline audit on the delivered files: `python3 <seenry-skill-dir>/scripts/token_contrast.py index.html [styles.css ...]`, replacing the placeholder with the real path. Repair failed small-text pairs and rerun. The source audit approximates page backgrounds; transparent, image and nested surfaces still need rendered review. Do not report contrast as checked when this step was skipped.
 
-Use [implementation decisions](references/implementation-decisions.md) to choose timing, properties, interruption, hover gating and reduced-motion behavior. The guidance is bundled; reference links are optional research.
-
-For deeper implementation, use [motion craft](references/motion-craft.md), the [mechanism index](references/patterns.md) and [interaction anatomy](references/interaction-anatomy.md). Choose only the guide that addresses the current transition.
-
-For reusable merge, trail, bend, image-blend and blur treatments across controls, read [surface effects](references/surface-effects.md). Use the bundled FluidSearch for a focus-triggered search pill and close circle that separate and merge. Copy prompts must specify the behavior, geometry, timing, interruption and accessibility directly; do not name external designers or skills as implementation instructions. Keep required licensing and research provenance in their dedicated records. It includes the original renderer, shared-fill constraint, measured fan geometry and explicit fidelity limits.
-
-## Choose the smallest capable mechanism
-
-Use CSS, SVG or Web Animations when sufficient. Existing Lottie, GSAP, Anime.js, Motion or Three.js can serve a demonstrated need; verify the installed API. Give each animated property one owner. Prototype a complex central effect and its usable fallback before building around it.
-
-Read [expressive effects](references/expressive-effects.md) only for a selected liquid, material, process, boundary or image treatment. For one temporarily active rounded surface, the original [boundary trace](assets/boundary-trace/README.md) supplies a small runnable rim; connect it to real application state. For a decoded image arriving after an actual request, the original [image reveal](assets/image-reveal/README.md) keeps the previous image until the new one is ready, then briefly resolves a mosaic into it. That asset is original Seenry MIT code; third-party notices elsewhere in this skill do not apply to it. Read [adapter usage](references/adapters.md) when adopting the bundled geometry, icon, number, Lottie or scroll helpers. Libraries own presentation; the application owns truth and recovery. Preserve source licenses for copied runtime assets.
-
-For everyday dropdowns, contextual settings and copy feedback, use the original [product transition recipes](references/product-transitions.md). The runnable [action menu](assets/action-menu/README.md) and [status switch](assets/status-switch/README.md) include controllers, CSS and demos for their stated uses. For a live process with a distinct visual presence, use the original [signal field](assets/signal-field/README.md) around real DOM status text. Select runtime helpers explicitly so focused handoffs include usable implementation, not just a motion intention.
-
-For an in-flow card disclosure, use the original [expanding card](assets/expanding-card/README.md) when the whole card must grow around its content. Its controller handles focus, ARIA, interruption, content resize and reduced motion; the application supplies the actual content. Copy the controller, CSS and geometry helper together.
-
-For other transition families, select a pattern from the [motion index](references/patterns.md). Load its focused guide and required helpers, not every effect. These are original Seenry recipes. A project's separately licensed third-party snippets can be used within that project; they are not bundled or relabeled as Seenry's library.
-
-For motion across multiple pages or shared controls, use [system choreography](references/system-choreography.md). Implement the shared behavior in the product, then verify representative contexts.
-
-For named benchmarks, repeated-event components or rejected motion, use [interaction anatomy](references/interaction-anatomy.md). It distinguishes numeric mechanisms, bounds outgoing layers under rapid input, and separates available guidance from verified fidelity.
-
-For a toast or banner stack, read [feedback patterns](references/patterns/feedback.md) and keep active items separate from the one leaving item. The bundled [notification state reducer](assets/notification-state.mjs) provides that bound; if implementing without it, remove overflow from active state immediately before animating its exit. Exercise at least four rapid additions to a three-item stack—three additions cannot expose an overflow loop.
-
-For an interaction-led component or a close reconstruction of a supplied example, read [interaction anatomy](references/interaction-anatomy.md) and the relevant mechanism guide. Inspect the specific live reference and compare rendered behavior before claiming a match; shared CSS alone does not reproduce its interaction.
-
-## Exercise the meaningful transition
-
-Before handoff, account for every transition the user requested: name its trigger, moving element/property, settled state, and reduced-motion result. A reserved slot or immediate value update is a useful static state, but does not fulfill a requested number animation. Repair any missing transition or report that part incomplete.
-
-Test initial and settled states, rapid input, reversal, keyboard/touch, resize and live reduced motion. Inspect normal-speed playback and relevant intermediate geometry; endpoints alone cannot prove continuity. Check cancellation, stale async completion and cleanup for the chosen behavior. Keep failed or unavailable checks explicit, and report the actual browser/device coverage.
-
-Use **seenry-assets** when sourcing media or licensed icon data and **seenry** for overall interface direction. Neither reference research nor a successful capability lab establishes the visual quality of the finished product.
+Use **seenry-assets** for sourced media and **seenry** for overall interface direction. Neither a working helper nor a capability lab proves the quality of the finished product.
