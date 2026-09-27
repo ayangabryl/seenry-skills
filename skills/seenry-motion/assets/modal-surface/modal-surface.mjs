@@ -26,11 +26,9 @@ export function createModalSurface(trigger, dialog, { onClose = () => {} } = {})
   let disposed = false;
   let desiredOpen = false;
   let closeTimer = 0;
-  let frame = 0;
 
   function finishClose({ returnFocus = true } = {}) {
     clearTimeout(closeTimer);
-    cancelAnimationFrame(frame);
     if (dialog.open) dialog.close();
     dialog.dataset.state = 'closed';
     trigger.setAttribute('aria-expanded', 'false');
@@ -43,7 +41,6 @@ export function createModalSurface(trigger, dialog, { onClose = () => {} } = {})
     if (next === desiredOpen && dialog.dataset.state !== 'closing') return;
     desiredOpen = next;
     clearTimeout(closeTimer);
-    cancelAnimationFrame(frame);
     trigger.setAttribute('aria-expanded', String(next));
     if (next) {
       if (!dialog.open) {
@@ -53,7 +50,7 @@ export function createModalSurface(trigger, dialog, { onClose = () => {} } = {})
       // Keep the dialog in the top layer during a reversal; CSS starts from its
       // current interpolated values instead of replaying the entrance.
       dialog.getBoundingClientRect();
-      frame = requestAnimationFrame(() => { if (desiredOpen) dialog.dataset.state = 'open'; });
+      dialog.dataset.state = 'open';
       return;
     }
     if (media.matches) {
@@ -82,7 +79,6 @@ export function createModalSurface(trigger, dialog, { onClose = () => {} } = {})
     if (!desiredOpen || dialog.open) return;
     desiredOpen = false;
     clearTimeout(closeTimer);
-    cancelAnimationFrame(frame);
     dialog.dataset.state = 'closed';
     trigger.setAttribute('aria-expanded', 'false');
     if (trigger.isConnected) trigger.focus();
