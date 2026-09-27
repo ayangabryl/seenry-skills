@@ -4,6 +4,8 @@ This is Seenry implementation guidance. Select the current mechanism after inspe
 
 For faithful reproduction first read [motion reconstruction](replication.md). Source geometry and trajectory override starting recipes. For ordinary product work use [local transitions](product-transitions.md). For scroll use [scroll choreography](scroll-choreography.md).
 
+For a directly reusable card expansion, use the [expanding card asset](../assets/expanding-card/README.md) with its dependency. This is an in-flow disclosure, not a generic modal or a measured reference match.
+
 Set `motion_patterns` in the project packet to one or more applicable identifiers below. The packet includes the selected family and required helper/runtime dependencies, not the whole index. `motion: "none"` conflicts with a pattern selection. The index is intentionally grouped by mechanism so related variants share one explanation.
 
 | Mechanism family | Packet identifiers | Guidance |

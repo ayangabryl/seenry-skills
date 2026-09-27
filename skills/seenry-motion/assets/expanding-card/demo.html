@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seenry expanding card study</title>
+<link rel="stylesheet" href="./expanding-card.css">
+<style>
+  :root { font-family: system-ui, sans-serif; color: #172033; background: #edf1f6; }
+  body { box-sizing: border-box; min-height: 100vh; margin: 0; padding: 1rem; display: grid; place-items: center; }
+  main { width: min(100%, 27rem); }
+  h1 { margin: 0 0 1.25rem; font-size: 1.5rem; }
+  .eyebrow { color: #536176; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .seenry-expanding-card { box-shadow: 0 15px 35px #27354412; }
+  .seenry-expanding-card__content a { color: #174eaa; }
+</style>
+<main>
+  <p class="eyebrow">Project settings</p>
+  <h1>Review access</h1>
+  <section class="seenry-expanding-card" aria-label="Reviewer access">
+    <button id="review-trigger" type="button">
+      <span><strong>Who can review?</strong><br><small>Only invited collaborators</small></span>
+      <span class="seenry-expanding-card__chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div id="review-panel"><div class="seenry-expanding-card__content">
+      <p>Invite teammates to comment on this project. They cannot edit your files.</p>
+      <a href="#invite">Manage invitations</a>
+    </div></div>
+  </section>
+</main>
+<script type="module">
+  import { createExpandingCard } from './expanding-card.mjs';
+  window.study = createExpandingCard(document.querySelector('#review-trigger'), document.querySelector('#review-panel'));
+</script>
+</html>

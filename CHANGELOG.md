@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.30
+
+- Adds an original, copyable expanding card with an in-flow geometry transition, keyboard and focus behavior, live content resize, rapid reversal, reduced-motion support, a demo and cross-platform browser checks.
+- Makes the reusable card recipe explicit in motion routing. It is a general disclosure pattern, not a measured recreation of a named component.
+
 ## 2.0.1-dev.29
 
 - Extends the offline text-contrast audit to direct hex text colors and root backgrounds, exposing weak small labels that token-only checks miss. The result remains a source heuristic; rendered backgrounds and large-type exceptions need review.
