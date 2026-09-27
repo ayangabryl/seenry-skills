@@ -1,7 +1,24 @@
 {
-  "version": "2.5.0",
+  "version": "2.6.0",
   "endpoint": "https://mcp.seenry.design",
   "tools": [
+    {
+      "name": "get_credits",
+      "title": "Check MCP usage",
+      "description": "Read this account’s monthly allowance, remaining credits, UTC reset date and per-tool breakdown. Always free, including when the allowance is exhausted. All keys share one balance. Accepted research calls cost 1 credit, individual assets 2, videos and app flows 5.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
     {
       "name": "get_design_research",
       "title": "Research design decisions",
