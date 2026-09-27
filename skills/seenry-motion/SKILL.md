@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry recordings, cr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.38"
+  version: "2.0.1-dev.39"
 ---
 
 # Design movement around a real change
@@ -23,6 +23,7 @@ Choose the smallest capable mechanism. CSS, SVG or Web Animations are enough for
 | --- | --- |
 | Action menu or short status label | Original [action menu](assets/action-menu/README.md), [status switch](assets/status-switch/README.md) and [product transitions](references/product-transitions.md). If a status transition is requested, move the text in a reserved slot; a plain text replacement or dot-color change alone is incomplete. The application owns the real action. |
 | In-flow disclosure or changing geometry | Original [expanding card](assets/expanding-card/README.md), [geometry helper](references/adapters.md) and [surface patterns](references/patterns/surfaces.md). Preserve focus and retarget from current geometry. |
+| Focused modal task | Original [modal surface](assets/modal-surface/README.md) and [surface patterns](references/patterns/surfaces.md). Use a native dialog for top-layer and focus behavior; allow the exit to finish before closing, and make reversal cancel the pending close. |
 | Changing number or icon | [Number transitions](references/number-transitions.md) and [adapters](references/adapters.md). For a small integer count, prefer the original count-pop helper over rebuilding digit semantics. Keep one real accessible value; do not hide every digit and put `aria-label` on a plain `<strong>`. A digit transition needs per-place motion; keep units anchored. |
 | Loading or process presence | Original [signal field](assets/signal-field/README.md), [boundary trace](assets/boundary-trace/README.md) and [loading patterns](references/patterns/loading.md). Animation time is not progress. |
 | Decoded image or expressive material | Original [image reveal](assets/image-reveal/README.md), [reflective surface](assets/reflective-surface/README.md), [surface effects](references/surface-effects.md) and [expressive effects](references/expressive-effects.md). Keep useful content while a replacement loads; use reflection only where the material has a purpose. |
