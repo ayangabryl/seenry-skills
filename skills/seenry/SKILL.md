@@ -31,6 +31,8 @@ For requested Seenry MCP research, use [MCP discovery](references/mcp-discovery.
 
 **HTML semantics check:** Run `python3 scripts/semantic_names.py <page.html>` on delivered HTML. A generic `div` or `span` cannot take an accessible name without an appropriate role; meaningful art needs image semantics, decorative art can be hidden. This narrow check does not replace a browser audit.
 
+**Reference text check:** On macOS, after the first equal-size source/output screenshot pair, run `swift <seenry-skill-dir>/scripts/text_compare.swift <source-image> <output-image>` for text-heavy replicas, replacing the placeholders with actual paths. Its automatic OCR inventory is diagnostic, never a pass: inspect unmatched lines and large x/y/width/height deltas, repair visible text, then use a named labels JSON with justified tolerances before claiming type geometry matches. On other systems, perform an equivalent text-aware comparison when available or report that text geometry remains unverified.
+
 Keep construction diagrams out of visitor-facing UI. Process records cannot substitute for a finished, exercised interface. Use [evidence support](references/review-evidence.md) to distinguish inspection, comparison and repair; label self-review and report unresolved work.
 
 ## Load the module for the current decision
