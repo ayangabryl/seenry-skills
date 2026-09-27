@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.36
+
+- Adds an original reflective-surface controller with a WebGL2 material layer, CSS fallback, three palettes, a semantic-control demo, and browser checks for keyboard use, reduced motion, offscreen pause, context recovery and unavailable WebGL.
+- Routes reflective material requests to the reusable asset. A separate Luna page adopted the helper, but host browser review found crowding at 320 px; the trial supports reuse, not whole-page quality or component-catalog parity.
+
 ## 2.0.1-dev.35
 
 - Adds a fact-and-action integrity route for supplied facts, permitted examples, real CTA destinations, and missing booking or registration hookups. The page shows supported information while the handoff names unavailable integrations.

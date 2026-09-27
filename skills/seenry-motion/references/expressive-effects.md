@@ -16,7 +16,7 @@ A connected silhouette can explain that nearby actions belong to one control. Th
 
 ## Reflective material
 
-Use reflection for an object whose material matters, such as an instrument or distinctive brand mark. Start with a static high-contrast face and one restrained light layer. Pointer response can change a gradient, mask or shader parameter, but the action and label must work without it. Keep text, focus and semantic state outside the distorted layer. If WebGL is used, check capability, context loss, multiple visible instances and GPU cost with the actual dimensions. Pause when the object is hidden; reduced motion keeps the state without continuous movement.
+Use reflection for an object whose material matters, such as an instrument or distinctive brand mark. Start with a static high-contrast face and one restrained light layer. The original [reflective surface](../assets/reflective-surface/README.md) provides an optional WebGL2 layer behind a semantic control, with a CSS fallback. Pointer response can change a gradient, mask or shader parameter, but the action and label must work without it. Keep text, focus and semantic state outside the distorted layer. If WebGL is used, check capability, context loss, multiple visible instances and GPU cost with the actual dimensions. Pause when the object is hidden; reduced motion keeps the state without continuous movement.
 
 ## Image reveal
 
