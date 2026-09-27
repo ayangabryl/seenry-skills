@@ -1,10 +1,10 @@
 """Audit likely small-text pairs from opaque CSS colors without a browser.
 
 Usage: python3 token_contrast.py index.html [styles.css ...]
-This checks text tokens and direct hex `color` declarations against an explicit
-rule background or the page's root background. It is a conservative source
-review, not a DOM audit; nested surfaces, alpha, gradients and themes need a
-rendered check.
+This checks text tokens, direct hex colors and variable text on resolvable
+same-rule fills against an explicit rule or page background. It is a
+conservative source review, not a DOM audit; nested surfaces, alpha,
+gradients and themes need a rendered check.
 """
 import argparse
 from html.parser import HTMLParser
@@ -43,6 +43,16 @@ def source_css(path):
     return '\n'.join(parser.blocks)
 
 
+def opaque_hex(value, values):
+    reference = re.fullmatch(r'var\(\s*(--[\w-]+)\s*\)', value.strip(), flags=re.I)
+    if reference:
+        value = values.get(reference.group(1).lower(), '')
+    try:
+        return color(value)
+    except ValueError:
+        return None
+
+
 def token_roles(css):
     css = re.sub(r'/\*.*?\*/', '', css, flags=re.S)
     roots = re.findall(r':root\s*\{([^{}]*)\}', css, flags=re.I)
@@ -62,7 +72,15 @@ def token_roles(css):
             reference = re.fullmatch(r'var\(\s*(--[\w-]+)\s*\)', value)
             background = (reference.group(1).lower(), values.get(reference.group(1).lower())) if reference else ('body' if rule is body else ':root', value)
             break
-    used = set(re.findall(r'(?:^|[;{])\s*color\s*:\s*var\(\s*(--[\w-]+)\s*\)', css, flags=re.I))
+    used = set()
+    for selector, declarations in re.findall(r'([^{}]+)\{([^{}]*)\}', css):
+        foreground = re.search(r'(?:^|;)\s*color\s*:\s*var\(\s*(--[\w-]+)\s*\)', declarations, flags=re.I)
+        if not foreground:
+            continue
+        local = re.search(r'(?:^|;)\s*background(?:-color)?\s*:\s*([^;{}]+)', declarations, flags=re.I)
+        page_rule = bool(re.search(r'\b(?:html|body)\b|:root', selector, flags=re.I))
+        if page_rule or not local or opaque_hex(local.group(1), values) is None:
+            used.add(foreground.group(1))
     text_roles = {'ink', 'text', 'muted', 'secondary', 'subtle', 'caption', 'label',
                   'body-text', 'copy-text', 'text-primary', 'text-secondary',
                   'text-muted', 'text-subtle', 'text-caption', 'text-label'}
@@ -79,24 +97,24 @@ def direct_colors(css, background, values):
         foreground = re.search(r'(?:^|;)\s*color\s*:\s*([^;{}]+)', declarations, flags=re.I)
         if not foreground:
             continue
-        try:
-            fg = color(foreground.group(1).strip())
-        except ValueError:
+        raw_foreground = foreground.group(1).strip()
+        foreground_reference = re.fullmatch(r'var\(\s*(--[\w-]+)\s*\)', raw_foreground, flags=re.I)
+        fg = opaque_hex(raw_foreground, values)
+        if fg is None:
             continue
         local = re.search(r'(?:^|;)\s*background(?:-color)?\s*:\s*([^;{}]+)', declarations, flags=re.I)
         chosen = background
         scope = 'page background approximation'
         if local:
             value = local.group(1).strip()
-            reference = re.fullmatch(r'var\(\s*(--[\w-]+)\s*\)', value)
-            if reference:
-                value = values.get(reference.group(1).lower())
-            try:
-                color(value)
-                chosen = ('same rule', value)
+            resolved = opaque_hex(value, values)
+            if resolved is not None:
+                chosen = ('same rule', resolved)
                 scope = 'same rule'
-            except (TypeError, ValueError):
-                pass
+        # Variable text on an unknown surface needs its actual background;
+        # page-background guessing would misclassify action text tokens.
+        if foreground_reference and scope != 'same rule':
+            continue
         try:
             bg = color(chosen[1])
         except (TypeError, ValueError):

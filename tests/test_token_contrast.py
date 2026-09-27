@@ -47,6 +47,21 @@ class TokenContrast(unittest.TestCase):
         self.assertTrue(by_selector['.action']['pass'])
         self.assertEqual(by_selector['.action']['backgroundScope'], 'same rule')
 
+    def test_variable_button_ink_uses_its_local_fill(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'index.html'
+            page.write_text('<style>:root{--ink:#10100f;--paper:#f4f2eb;--acid:#d5fb6b}'
+                            'body{background:var(--ink);color:var(--paper)}'
+                            '.button{background:var(--acid);color:var(--ink)}</style>')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(report['checks'], [])
+        self.assertEqual([(item['selector'], item['backgroundScope'], item['pass'])
+                          for item in report['directChecks']],
+                         [('body', 'same rule', True), ('.button', 'same rule', True)])
+
 
 if __name__ == '__main__':
     unittest.main()
