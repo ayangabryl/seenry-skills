@@ -1,0 +1,52 @@
+.seenry-expanding-card {
+  --card-surface: #fff;
+  --card-ink: #172033;
+  --card-muted: #536176;
+  --card-border: #d6dce5;
+  color: var(--card-ink);
+  background: var(--card-surface);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+}
+.seenry-expanding-card > button {
+  display: flex;
+  width: 100%;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 1.3rem;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.seenry-expanding-card > button:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: -3px;
+}
+.seenry-expanding-card > button[aria-expanded='true'] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.seenry-expanding-card__chevron {
+  display: inline-block;
+  flex: none;
+  transition: transform 240ms cubic-bezier(.2,.7,.2,1);
+}
+.seenry-expanding-card > button[aria-expanded='true'] .seenry-expanding-card__chevron {
+  transform: rotate(180deg);
+}
+.seenry-expanding-card__content {
+  padding: 0 1.3rem 1.3rem;
+  color: var(--card-muted);
+  line-height: 1.5;
+}
+.seenry-expanding-card__content > :first-child { margin-top: 0; }
+.seenry-expanding-card__content > :last-child { margin-bottom: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .seenry-expanding-card__chevron { transition: none; }
+}
