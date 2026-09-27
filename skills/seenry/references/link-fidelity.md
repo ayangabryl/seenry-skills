@@ -1,0 +1,5 @@
+# Link fidelity in screenshot reconstructions
+
+Visible link labels do not reveal destinations. Inspect the original page or supplied route facts when possible. If a destination is still unknown, retain its visible styling on a `<button type="button">` with a truthful local preview response. Do not leave an invented `href` behind an event handler that calls `preventDefault`: the URL remains false and can still open from the context menu or when JavaScript fails. Do not invent an email address, route, hash target, connected state or successful action.
+
+Run `python3 scripts/link_targets.py <reconstructed.html>` from the Seenry skill directory, or use its absolute path. Pass `--known '<exact href>'` only for destinations verified from source behavior or supplied facts. A screenshot-only prototype should leave this check with zero findings; do not waive findings because a click handler intercepts them. The checker cannot inspect JavaScript handlers or certify that an allowed link matches original behavior. Test the visible control in the browser too.
