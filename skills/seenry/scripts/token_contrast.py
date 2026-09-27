@@ -2,9 +2,9 @@
 
 Usage: python3 token_contrast.py index.html [styles.css ...]
 This checks text tokens, direct hex colors and variable text on resolvable
-same-rule fills against an explicit rule or page background. It is a
-conservative source review, not a DOM audit; nested surfaces, alpha,
-gradients and themes need a rendered check.
+same-rule or simple selector-ancestor fills against an explicit rule or page
+background. It is a conservative source review, not a DOM audit; inherited
+surfaces, alpha, gradients and themes need a rendered check.
 """
 import argparse
 from html.parser import HTMLParser
@@ -32,6 +32,89 @@ class Styles(HTMLParser):
     def handle_data(self, data):
         if self.inside:
             self.blocks.append(data)
+
+
+class Elements(HTMLParser):
+    """Keep just enough ancestry to identify simple opaque CSS surfaces."""
+
+    void = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+            'link', 'meta', 'param', 'source', 'track', 'wbr'}
+
+    def __init__(self):
+        super().__init__()
+        self.nodes = []
+        self.stack = []
+
+    def handle_starttag(self, tag, attrs):
+        node = {'tag': tag, 'attrs': dict(attrs),
+                'parent': self.stack[-1] if self.stack else None}
+        self.nodes.append(node)
+        if tag not in self.void:
+            self.stack.append(node)
+
+    def handle_startendtag(self, tag, attrs):
+        node = {'tag': tag, 'attrs': dict(attrs),
+                'parent': self.stack[-1] if self.stack else None}
+        self.nodes.append(node)
+
+    def handle_endtag(self, tag):
+        for index in range(len(self.stack)-1, -1, -1):
+            if self.stack[index]['tag'] == tag:
+                del self.stack[index:]
+                return
+
+
+def matches_selector(node, selector):
+    """Match type, class, ID and descendant selectors; reject complex CSS."""
+    if any(mark in selector for mark in (',', '>', '+', '~', '[', ':')):
+        return False
+    parts = selector.split()
+    if not parts:
+        return False
+
+    def matches_token(element, token):
+        pieces = re.findall(r'[#.]?[\w-]+', token)
+        if not pieces or ''.join(pieces) != token:
+            return False
+        classes = set((element['attrs'].get('class') or '').split())
+        for piece in pieces:
+            if piece.startswith('.') and piece[1:] not in classes:
+                return False
+            if piece.startswith('#') and piece[1:] != element['attrs'].get('id'):
+                return False
+            if not piece.startswith(('.', '#')) and piece.lower() != element['tag']:
+                return False
+        return True
+
+    if not matches_token(node, parts[-1]):
+        return False
+    current = node['parent']
+    for part in reversed(parts[:-1]):
+        while current and not matches_token(current, part):
+            current = current['parent']
+        if current is None:
+            return False
+        current = current['parent']
+    return True
+
+
+def dom_background(selector, nodes, fills):
+    matched = [node for node in nodes if matches_selector(node, selector)]
+    if not matched:
+        return None
+    surfaces = set()
+    for node in matched:
+        current = node
+        while current:
+            fill = next((value for rule, value in reversed(list(fills.items()))
+                         if matches_selector(current, rule)), None)
+            if fill:
+                surfaces.add(fill)
+                break
+            current = current['parent']
+        else:
+            return None
+    return next(iter(surfaces)) if len(surfaces) == 1 else None
 
 
 def source_css(path):
@@ -90,11 +173,20 @@ def token_roles(css):
     return background, foregrounds, values
 
 
-def direct_colors(css, background, values):
-    """Flag literal text colors with a measurable local or page background."""
+def direct_colors(css, background, values, nodes=None):
+    """Flag resolvable text colors with a measurable local or likely background."""
     css = re.sub(r'/\*.*?\*/', '', css, flags=re.S)
     checks = []
-    for selector, declarations in re.findall(r'([^{}]+)\{([^{}]*)\}', css):
+    rules = [(selector.strip(), declarations) for selector, declarations
+             in re.findall(r'([^{}]+)\{([^{}]*)\}', css)]
+    fills = {}
+    for selector, declarations in rules:
+        local = re.search(r'(?:^|;)\s*background(?:-color)?\s*:\s*([^;{}]+)', declarations, flags=re.I)
+        if local:
+            resolved = opaque_hex(local.group(1).strip(), values)
+            if resolved is not None:
+                fills[selector] = resolved
+    for selector, declarations in rules:
         foreground = re.search(r'(?:^|;)\s*color\s*:\s*([^;{}]+)', declarations, flags=re.I)
         if not foreground:
             continue
@@ -112,9 +204,22 @@ def direct_colors(css, background, values):
             if resolved is not None:
                 chosen = ('same rule', resolved)
                 scope = 'same rule'
-        # Variable text on an unknown surface needs its actual background;
-        # page-background guessing would misclassify action text tokens.
-        if foreground_reference and scope != 'same rule':
+        if scope != 'same rule':
+            parts = selector.split()
+            for length in range(len(parts)-1, 0, -1):
+                ancestor = ' '.join(parts[:length])
+                if ancestor in fills:
+                    chosen = (ancestor, fills[ancestor])
+                    scope = 'selector ancestor approximation'
+                    break
+        if scope == 'page background approximation' and nodes:
+            resolved = dom_background(selector, nodes, fills)
+            if resolved is not None:
+                chosen = ('DOM ancestor', resolved)
+                scope = 'DOM ancestor approximation'
+        # --on-* tokens usually belong to a surface expressed elsewhere;
+        # guessing the page canvas for them creates distracting false alarms.
+        if foreground_reference and foreground_reference.group(1).lower().startswith('--on-') and scope == 'page background approximation':
             continue
         try:
             bg = color(chosen[1])
@@ -133,6 +238,11 @@ def audit(paths):
     limitations = []
     for path in paths:
         css = source_css(path)
+        elements = None
+        if path.suffix.lower() in ('.html', '.htm'):
+            parser = Elements()
+            parser.feed(path.read_text(encoding='utf-8'))
+            elements = parser.nodes
         background, foregrounds, values = token_roles(css)
         if not background:
             limitations.append(f'{path}: page background not found')
@@ -152,9 +262,9 @@ def audit(paths):
             checks.append({'file': str(path), 'textToken': name, 'backgroundToken': background[0],
                            'foreground': fg, 'background': bg, 'ratio': round(ratio, 3),
                            'minimum': 4.5, 'pass': ratio >= 4.5})
-        for item in direct_colors(css, background, values):
+        for item in direct_colors(css, background, values, elements):
             direct_checks.append({'file': str(path), **item})
-    return {'scope': 'Likely small-text token and direct-hex pairs; nested surfaces and typography need rendered review',
+    return {'scope': 'Likely small-text token, variable and direct-hex pairs; unresolved surfaces and typography need rendered review',
             'checks': checks, 'directChecks': direct_checks, 'limitations': limitations}
 
 

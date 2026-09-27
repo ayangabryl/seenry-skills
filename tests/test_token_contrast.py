@@ -76,6 +76,42 @@ class TokenContrast(unittest.TestCase):
         self.assertFalse(next(item for item in report['checks'] if item['textToken'] == '--muted')['pass'])
         self.assertFalse(next(item for item in report['directChecks'] if item['selector'] == '.caption')['pass'])
 
+    def test_variable_accent_and_simple_ancestor_surface_are_checked(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'index.html'
+            page.write_text('<style>:root{--paper:#f1eee5;--accent:#bd593d;--deep:#315b50}'
+                            'body{background:var(--paper)}'
+                            '.kicker{color:var(--accent)}'
+                            '.make{background:var(--deep)}'
+                            '.make .kicker{color:#f2c7ae}'
+                            '.closing{background:#e1e2d7}'
+                            '.closing p{color:#5b685e}</style>')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        self.assertEqual(run.returncode, 2)
+        by_selector = {item['selector']: item for item in report['directChecks']}
+        self.assertFalse(by_selector['.kicker']['pass'])
+        self.assertEqual(by_selector['.kicker']['backgroundScope'], 'page background approximation')
+        self.assertTrue(by_selector['.make .kicker']['pass'])
+        self.assertEqual(by_selector['.make .kicker']['backgroundScope'], 'selector ancestor approximation')
+        self.assertFalse(by_selector['.closing p']['pass'])
+        self.assertEqual(by_selector['.closing p']['backgroundScope'], 'selector ancestor approximation')
+
+    def test_caption_uses_nearest_html_ancestor_surface(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'index.html'
+            page.write_text('<style>body{background:#f4efe5}'
+                            '.art{background:#e6d7c3}.caption{color:#765b47}'
+                            '</style><div class="art"><span class="caption">Clay study</span></div>')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        caption = next(item for item in report['directChecks'] if item['selector'] == '.caption')
+        self.assertEqual(caption['background'], '#E6D7C3')
+        self.assertEqual(caption['backgroundScope'], 'DOM ancestor approximation')
+        self.assertFalse(caption['pass'])
+
 
 if __name__ == '__main__':
     unittest.main()
