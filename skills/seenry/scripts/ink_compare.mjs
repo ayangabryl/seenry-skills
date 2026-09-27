@@ -1,5 +1,5 @@
-// Measure visible dark ink in named image regions at one physical-pixel scale.
-// Regions JSON: {"regions":[{"name":"heading","box":[x,y,width,height],"threshold":160,"tolerancePx":6}]}.
+// Measure visible dark or light ink in named image regions at one physical-pixel scale.
+// Regions JSON: {"regions":[{"name":"heading","box":[x,y,width,height],"polarity":"light","threshold":160,"tolerancePx":6}]}.
 // Use tight flat-background text crops. This checks geometry, not font identity or overall visual quality.
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
@@ -20,6 +20,7 @@ const [source,output,config]=await Promise.all([imageData(flags.source),imageDat
 if(!Array.isArray(config.regions)||!config.regions.length)throw new Error('regions JSON must contain a nonempty regions array');
 for(const region of config.regions){
   if(typeof region.name!=='string'||!region.name.trim()||!Array.isArray(region.box)||region.box.length!==4||!region.box.every(Number.isInteger)||region.box.some((n,i)=>n<0||(i>1&&n===0)))throw new Error('Each region needs a name and [x,y,width,height] integer box');
+  if(region.polarity!==undefined&&!['dark','light'].includes(region.polarity))throw new Error('polarity must be dark or light');
   if(region.threshold!==undefined&&(!Number.isFinite(region.threshold)||region.threshold<0||region.threshold>255))throw new Error('threshold must be 0–255');
   if(region.tolerancePx!==undefined&&(!Number.isFinite(region.tolerancePx)||region.tolerancePx<0))throw new Error('tolerancePx must be nonnegative');
 }
@@ -42,12 +43,13 @@ try{
       const limit=region.threshold??160;let left=Infinity,top=Infinity,right=-1,bottom=-1,count=0;
       for(let row=y;row<y+height;row++)for(let col=x;col<x+width;col++){
         const i=(row*image.width+col)*4,d=image.data;
-        if(d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722>limit)continue;
+        const luminance=d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722;
+        if(region.polarity==='light'?luminance<limit:luminance>limit)continue;
         left=Math.min(left,col);top=Math.min(top,row);right=Math.max(right,col);bottom=Math.max(bottom,row);count++;
       }
       return count?{x:left,y:top,width:right-left+1,height:bottom-top+1,inkPixels:count}:null;
     }
-    return {width:a.width,height:a.height,regions:regions.map(region=>({name:region.name,box:region.box,threshold:region.threshold??160,tolerancePx:region.tolerancePx??null,source:bounds(a,region),output:bounds(b,region)}))};
+    return {width:a.width,height:a.height,regions:regions.map(region=>({name:region.name,box:region.box,polarity:region.polarity??'dark',threshold:region.threshold??160,tolerancePx:region.tolerancePx??null,source:bounds(a,region),output:bounds(b,region)}))};
   },{sourceUrl:source.url,outputUrl:output.url,regions:config.regions});
   const regions=measured.regions.map(region=>{
     const delta=region.source&&region.output?Object.fromEntries(['x','y','width','height'].map(key=>[key,region.output[key]-region.source[key]])):null;
