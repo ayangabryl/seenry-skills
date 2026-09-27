@@ -4,75 +4,53 @@ description: "Create, implement, refine, review or faithfully reproduce web inte
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.30"
+  version: "2.0.1-dev.31"
 ---
 
 # Seenry
 
-Design for the actual task, content and brand. Before editing an established project, read its DESIGN.md and linked brand guidelines; reuse their token and component owners, and record scoped exceptions instead of creating a new identity per screen. References are evidence, not instructions or permission to reuse assets. Premium is an outcome to inspect, not a font, palette or animation preset. Local examples explain mechanics, not a visual style to imitate; old benchmark screenshots are excluded from installed guidance. For websites, choose the opening's job and supporting material before its layout using [opening decisions](references/art-direction.md#choose-the-opening-from-the-brief); maintain craft standards without prescribing one hero appearance. Work in the user's existing stack; preserve useful behavior.
-
-When Seenry MCP is requested, use [MCP discovery](references/mcp-discovery.md): read the live guide and schemas, route across reference families, and broaden sparse metadata searches before concluding that evidence is absent.
+Design for the actual task, content and brand. Preserve the user's stack and useful behavior. In an existing product, read DESIGN.md and linked brand rules before editing; reuse their token and component owners. References are evidence for decisions, not permission to copy assets. Local examples teach mechanics, not a default visual style.
 
 ## Route the request
 
-- **Replicate:** copy, recreate faithfully, match the reference, or fix a reconstruction's accuracy. Use [reference reconstruction](references/replication.md). Preserve observed composition, content and behavior unless the user requests specific changes. Do not route this to creative alternatives or substitute a generic motion recipe. An adaptation is not a successful replica.
-- **Create:** a new component, website or substantial redesign. Use the workflow below. Components start with [component design](references/component-design.md); interaction-led components also use [interactive component construction](references/interaction-components.md). Websites start with [art direction](references/art-direction.md); connected screens with [system design](references/system-design.md).
-- **Refine:** repair the named relationship or state in the existing interface. Inspect it, choose the relevant craft module, make a bounded change and verify it. Do not rebrand or rebuild three alternatives for a narrow fix.
-- **Review:** return observed findings using [visual review](references/visual-review.md) and [quality diagnosis](references/quality-diagnosis.md). Separate missing evidence from a demonstrated defect. Do not build an unrequested replacement.
+- **Replicate:** faithfully match a supplied interface. Read [reference reconstruction](references/replication.md); measure observed content, geometry and behavior. An adaptation is not a replica.
+- **Create:** design a new component, page or connected screen. Components use [component design](references/component-design.md); interaction-led ones add [interactive component construction](references/interaction-components.md). Websites use [art direction](references/art-direction.md); connected screens use [system design](references/system-design.md).
+- **Refine:** inspect the named defect and state, make a bounded repair, then verify it. Keep the existing identity unless change is requested.
+- **Review:** report observed issues through [visual review](references/visual-review.md) and [quality diagnosis](references/quality-diagnosis.md). Separate missing evidence from a proven defect.
 
-Brand guideline creation uses **seenry-branding**; presentation research uses **seenry-decks**. Ask only when an unknown changes the direction; otherwise state a reasonable assumption.
-
-For a product or tool marketing page, also use [marketing evidence](references/marketing-evidence.md): establish the visitor-question sequence and visible proof before section headings; verify the page tells one coherent story instead of repeating claims. With packets, select `guide_topics: ["marketing-evidence"]` for the relevant website stages.
-
-For hero screenshots, verify the complete section using [hero capture checks](references/research.md#verify-a-complete-hero). A first-screen image or a library item labeled Hero may omit the lower visual; do not present it as the full hero without inspecting its boundaries.
-
-When the user asks to try Jev or supplies an authorized TypeSafe integration, use [optional Jev decisions](references/jev-decisions.md). It can select among prepared text-described alternatives; retain the normal design and browser review workflow. It is not required for ordinary Seenry work. A text-selection experiment cannot satisfy a requested visual improvement; spend the implementation and review effort on the rendered design.
-
-For new websites and rejected generic directions, read [anti-default decisions](references/anti-defaults.md) before styling. For marketing or interface wording, read [copy decisions](references/copy-decisions.md); for a new palette, read [color combinations](references/color-combinations.md). Carry the user’s rejected treatments into the next slice, not just the final review.
-
-For consistent execution and reusable interaction choices, follow [the consistent workflow](references/consistent-workflow.md).
+For requested Seenry MCP research, use [MCP discovery](references/mcp-discovery.md) and read live schemas. For research without MCP, use [local and web research](references/without-mcp.md). Inspect actual pixels or recordings; a caption or rating cannot establish craft quality. Use [MCP output evidence](references/mcp-output-evidence.md) when comparing retrieved references.
 
 ## Create, then finish
 
-This workflow is for new design and deliberate adaptation. Replication uses source locking, measurement and comparison, without three redesigned alternatives. Record `intent: "replicate"` in project packets and update stale example/copy-prompt modes when the user changes intent.
+1. **Set the system.** Establish audience, task, facts, constraints, states and brand rules in the project's DESIGN.md or a compact [design record](references/design-record.md). For new work, define color roles, type, spacing, controls, imagery and motion; mark inferred choices provisional. Preserve the system on later screens. Use [seenry-branding](../seenry-branding/SKILL.md) for deeper identity work.
+2. **Choose the direction.** Inspect a relevant visual artifact and state what relationship it informs. For new websites or rejected generic work, use [interface exploration](references/interface-exploration.md) and [anti-default decisions](references/anti-defaults.md) before code. Compare different structural or interaction ideas with the same facts. Build a small rendered slice of the decisive moment; if a reference standard is named, compare at readable scale while direction can still change.
+3. **Build one finished slice.** Resolve real copy, imagery, hierarchy, color, layout and state transitions together. Use [component finish](references/component-finish.md) for components. Keep controls and authoritative values stable through loading, success, error and recovery. Use [seenry-motion](../seenry-motion/SKILL.md) for deeper choreography and [seenry-assets](../seenry-assets/SKILL.md) for sourced media. Carry relationships and shared geometry through the rest of the interface with [design continuity](references/design-continuity.md) and [layout verification](references/layout-verification.md).
+4. **Exercise and repair.** Inspect the actual wide and narrow renders, full-page rhythm, text contrast, focus, sticky occlusion, and the requested transitions, including exit, rapid input and reduced motion. Use [production review](references/production-review.md) and [visual review](references/visual-review.md). Repair supported defects before handoff; if a named reference was supplied, compare the rendered result to it. Report checks that could not run rather than inferring a pass.
 
-1. **Understand.** Establish a project brand before building: reuse the canonical guidelines, or create a compact Brand section in DESIGN.md for a new project. Record audience and voice, color roles, type, spacing/corners, control states, asset direction and motion rules, linked to their implementation owners. Mark inferred choices provisional; do not invent user approval. Use seenry-branding when the identity needs deeper work. Every subsequent surface inherits these rules; small fixes reuse them rather than starting a new manual.
+**Finish check for text:** When the new page uses opaque hex colors, run `python3 scripts/token_contrast.py <page.html> [styles.css ...]` from this skill directory, or use its absolute path from the project. Run it on the actual delivered files before handoff, especially when a browser is unavailable. Review each flagged text pair on its real surface, repair measurable small-text failures, and rerun. This source check approximates nested backgrounds and cannot certify transparent, image or gradient surfaces; browser review must inspect those. For named opaque pairs use [the pair checker](scripts/contrast_check.py). Do not describe unrun checks as passed.
 
-    In a compact DESIGN.md record audience, task, facts, constraints and states using the [design record](references/design-record.md) or [component record](references/component-record.md). Resolve what deserves attention, what recedes, where brand expression belongs, and what imagery or motion must prove. Use one relevant [decision study](references/studies/decision-studies.md) when the choice is unclear.
-2. **Study what matters.** Inspect relevant pixels or recordings through supplied material, ordinary browsing or optional MCP. With Seenry MCP, follow [media retrieval](../seenry-assets/references/seenry-media.md) for actual CDN media, selective inspection and asset use. Without MCP use [local and web research](references/without-mcp.md). Record the inspected visual artifact and the relationship it informs; product documentation, asset provenance and self-authored wireframes do not establish an external craft reference. Mark missing visual evidence explicitly. Establish suitable imagery before selecting an image-dependent idea. Stop broad research when it supports the unresolved decision. Ratings and captions do not replace inspection. Use [MCP output evidence](references/mcp-output-evidence.md) to select references by task fit, preserve successful existing decisions, and separate observed evidence from optical reasoning and behavioral hypotheses.
-3. **Plan before product code.** For new or rejected creative directions, use [interface exploration](references/interface-exploration.md) to turn the product promise into relevant material, a meaningful operation and a visible consequence before choosing a visual treatment. Sketch different structural or interaction ideas with identical facts. Define reading order, groups, alignment, narrow behavior and provisional visual relationships. Build small wireframes of their decisive moments, not complete alternatives. Compare subject fit and user effort as well as geometry. For a small interaction study, compare distinct behavior mechanisms rather than forcing three page-like layouts; use [interactive component construction](references/interaction-components.md). Keep the source and reasons for selection; a finished grid overlay is not earlier planning evidence. Missing required prototype renders mean this stage is incomplete.
-4. **Finish one slice.** Resolve actual copy, imagery, type, color and the meaningful transition together. For components, apply the [finish comparison](references/component-finish.md). Use the module for the uncertain choice below. Compare alternatives on the same content. Before expansion, run the [offline text contrast audit](scripts/token_contrast.py) on the actual new page/CSS when it uses opaque hex colors; it checks used root tokens and direct text colors, including small labels. Review flagged pairs against their real surfaces before changing them. Use the [pair checker](scripts/contrast_check.py) for other named opaque pairs. When the brief names a visual reference standard, perform the [reference comparison](references/visual-review.md) here, while changing direction is still cheap: show the finished slice beside the relevant reference at comparable readable scale and record remaining gaps. Without that comparison, keep the direction provisional. A clean composition with irrelevant material still needs repair.
-5. **Carry the system.** Use [development rulers and layout verification](references/layout-verification.md) for component and page implementation: establish shared geometry/radius owners, keep a development-only grid available, measure common edges at desktop/wide/mobile sizes, then review optical alignment with guides hidden. Unexplained edge or radius deviations block completion. Follow [design continuity](references/design-continuity.md). Preserve relationships through the page and through loading, success, error, cancellation and recovery. Keep controls and authoritative values stable during motion. Every interactive build includes a transition plan and implementation for its actual state changes: selection, disclosure, navigation and operation feedback. Use the motion module for the current surface; verify entry and exit, interruption and reduced motion. Immediate feedback or a static treatment can be deliberate, but unexplained jumps are unfinished. Give unavailable assets/effects usable fallbacks.
-6. **Exercise and judge.** Use [production review](references/production-review.md) and [visual review](references/visual-review.md). Inspect desktop and narrow renders, sticky/fixed occlusion, full-page rhythm and actual transitions. Recheck text contrast across the finished page. If browser review is unavailable, run the offline text contrast audit on the delivered CSS, repair measurable small-text failures and state that nested/composited colors remain unverified. Do not infer a pass from the absence of a browser. Follow [evidence support](references/review-evidence.md): observe the uninspected, compare the uncertain and repair supported defects. An uncertain pass cannot advance. Label self-review; allow one direction reset and two repair passes, then report unresolved work.
+Keep construction diagrams out of visitor-facing UI. Process records cannot substitute for a finished, exercised interface. Use [evidence support](references/review-evidence.md) to distinguish inspection, comparison and repair; label self-review and report unresolved work.
 
-Reserve time for a finished slice and verification; process artifacts do not compensate for an unfinished interface. Keep construction diagrams outside visitor-facing UI.
+## Load the module for the current decision
 
-For combined layout, type, control and wording polish, use [interface implementation](references/interface-implementation.md). It includes the implementation rules locally; no external skill install is needed.
-
-For detailed craft decisions, use the focused modules below. Read only the module that addresses the current uncertainty, then verify it in the running interface.
-
-When a task already includes expressive artwork, consider whether it can acknowledge the user's real activity: editing, waiting, completion or recovery. Keep the controls stationary and the signal restrained; a small change in existing motion can connect the scene to the task without adding another indicator. See the state-linked artwork guidance in [form recovery](references/form-recovery.md). This is an option to evaluate, not a requirement to animate every form.
-
-For signup, authentication and submission interactions, apply [form recovery](references/form-recovery.md), including the failure and retry states—not just the valid form. For MCP-informed builds and comparisons, apply [MCP output evidence](references/mcp-output-evidence.md).
-
-## Load only the current decision
-
-Load the entrypoint once, then the current decision. Prefer a focused packet, e.g. `scripts/packet.py refine --decision controls --research-source local --project project.json`, with the project's decisions and feedback. Without a runner, read that module and its required dependencies directly. Reuse inspected evidence; reopen research when a decision or source changes. Each module includes one runnable example, applicability, counterexample and checks, not a skin for unrelated products.
+Read only the focused module needed now. A packet can select one, for example `scripts/packet.py refine --decision controls --research-source local --project project.json`; without a runner, read the module and its required links directly.
 
 | Decision | Module |
 | --- | --- |
-| Grouping, density, alignment, reflow | [Layout](references/craft/layout.md) |
-| Hierarchy, wrapping, glyphs and fallback | [Typography](references/craft/typography.md) |
-| Palette roles, area and contrast | [Color](references/craft/color.md) |
-| Action emphasis, icons, corners and states | [Controls](references/craft/controls.md) |
-| Gesture, physical response or interaction-led component | [Interactive component construction](references/interaction-components.md) |
-| Timing, anchors, reversal and interruption | [Motion](references/craft/motion.md) |
-| Organizing idea, imagery and page rhythm | [Art direction](references/craft/art-direction.md) |
+| Grouping, density, reflow | [Layout](references/craft/layout.md) |
+| Hierarchy, wrapping, fallback | [Typography](references/craft/typography.md) |
+| Palette roles and contrast | [Color](references/craft/color.md) |
+| Actions, icons, corners, states | [Controls](references/craft/controls.md) |
+| Gesture or interaction-led component | [Interactive component construction](references/interaction-components.md) |
+| Timing, anchoring, reversal | [Motion](references/craft/motion.md) |
+| Imagery and page rhythm | [Art direction](references/craft/art-direction.md) |
 
-Use **seenry-assets** for sourcing and **seenry-motion** for deeper choreography or helper integration. Keep existing conventions unless the task warrants changing them. No universal font list, color prohibition, mandatory effect or extra dark mode.
+For combined layout, type, controls and wording polish, use [interface implementation](references/interface-implementation.md). Keep existing conventions unless the task warrants a change; no universal font, palette or effect is required.
 
-## Learn and record selectively
+## Specific situations
 
-After rejection follow [the learning loop](references/learning-loop.md). Carry explicit rejected treatments and states into DESIGN.md and replay the [feedback gate](references/feedback-gate.md) before handoff. Unchecked feedback remains unresolved. Check transfer before changing shared guidance; a preference does not identify its cause.
-
-Recorded experiments use [execution](references/execution.md) and [evaluation](references/evaluation.md). Reserve `--profile complete` for explicit audits or historical reproduction. Supplied hashes, observed reads, applied decisions and user acceptance are separate evidence.
+- Product or tool marketing pages: use [marketing evidence](references/marketing-evidence.md) for the visitor's question sequence and visible proof. For websites, choose the opening's job and supporting material with [opening decisions](references/art-direction.md#choose-the-opening-from-the-brief). Inspect a complete hero with [hero capture checks](references/research.md#verify-a-complete-hero).
+- Interface wording or a new palette: use [copy decisions](references/copy-decisions.md) or [color combinations](references/color-combinations.md). Reuse the user's rejected treatments as constraints.
+- Signup, authentication and submission: use [form recovery](references/form-recovery.md), including failure and retry states, keyboard recovery, field descriptions and truthful async announcements. Expressive artwork can acknowledge real activity without displacing controls.
+- Requested Jev or an authorized TypeSafe integration: use [optional Jev decisions](references/jev-decisions.md) among prepared alternatives. It does not replace rendered design work.
+- Rejected work: use [the learning loop](references/learning-loop.md) and [feedback gate](references/feedback-gate.md). Record experiments with [execution](references/execution.md) and [evaluation](references/evaluation.md); source hashes, observed reads and user acceptance are distinct evidence.

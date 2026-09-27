@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1-dev.31
+
+- Shortens the Seenry entrypoint by routing detailed design decisions to their focused references and placing rendered review and the offline text-contrast check in the main creation path.
+- Keeps replication, creation, refinement and review separate while preserving optional MCP, marketing, brand, form, motion and learning routes.
+- Checks variable text colors against resolvable same-rule fills in the offline audit, so action text on a local background is not misreported against the page canvas.
+
 ## 2.0.1-dev.30
 
 - Adds an original, copyable expanding card with an in-flow geometry transition, keyboard and focus behavior, live content resize, rapid reversal, reduced-motion support, a demo and cross-platform browser checks.
