@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1-dev.34
+
+- Routes whole-page motion work through the core Seenry design and contrast workflow, while keeping focused component work in Seenry Motion.
+- Shortens the motion entrypoint and moves detailed research instructions into a focused reference. Makes runnable asset selection, accessible count semantics, status motion and four-event toast checks easier to find.
+- In isolated Luna trials, the shorter entrypoint led to core skill reading and a contrast repair on an image-led page. A revised batch transition trial passed browser checks for status, count, five sequential toasts, reduced motion, stable 9→10 geometry and initial axe checks. These trials establish task-specific behavior, not parity with a full component library.
+
 ## 2.0.1-dev.33
 
 - Checks text against an opaque `html` canvas background when `body` has no fill, so the offline contrast audit catches muted labels in this common CSS layout.
