@@ -1,5 +1,6 @@
 // Optional macOS text geometry check for equal-scale reference screenshots.
-// Usage: swift text_compare.swift source.png output.png labels.json
+// Diagnostic: swift text_compare.swift source.png output.png
+// Named tolerance check: swift text_compare.swift source.png output.png labels.json
 // labels.json: {"labels":[{"name":"headline","text":"Create Music","tolerancePx":9}]}
 import AppKit
 import CryptoKit
@@ -44,26 +45,30 @@ struct Report: Encodable {
     let output: ImageRecord
     let comparisons: [Comparison]
 }
+struct InventoryLine: Encodable {
+    let text: String
+    let source: Observation?
+    let output: Observation?
+    let delta: Box?
+    let status: String
+}
+struct InventoryReport: Encodable {
+    let mode = "diagnostic"
+    let verdict = "unverified"
+    let source: ImageRecord
+    let output: ImageRecord
+    let lines: [InventoryLine]
+}
 
 func fail(_ message: String) -> Never {
     FileHandle.standardError.write(Data((message + "\n").utf8))
     exit(2)
 }
-guard CommandLine.arguments.count == 4 else {
-    fail("Usage: swift text_compare.swift SOURCE OUTPUT LABELS.json")
+guard CommandLine.arguments.count == 3 || CommandLine.arguments.count == 4 else {
+    fail("Usage: swift text_compare.swift SOURCE OUTPUT [LABELS.json]")
 }
 let sourceURL = URL(fileURLWithPath: CommandLine.arguments[1]).standardizedFileURL
 let outputURL = URL(fileURLWithPath: CommandLine.arguments[2]).standardizedFileURL
-let configURL = URL(fileURLWithPath: CommandLine.arguments[3]).standardizedFileURL
-let config: Configuration
-do { config = try JSONDecoder().decode(Configuration.self, from: Data(contentsOf: configURL)) }
-catch { fail("Invalid labels JSON: \(error)") }
-guard !config.labels.isEmpty,
-      config.labels.allSatisfy({ !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                               !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                               $0.tolerancePx.isFinite && $0.tolerancePx >= 0 }) else {
-    fail("Each label needs a name, expected text and nonnegative tolerancePx")
-}
 
 func inspect(_ url: URL) -> (ImageRecord, [Observation]) {
     guard let data = try? Data(contentsOf: url),
@@ -98,6 +103,55 @@ let (outputRecord, outputObservations) = inspect(outputURL)
 guard sourceRecord.width == outputRecord.width, sourceRecord.height == outputRecord.height else {
     fail("Images must have identical physical dimensions")
 }
+func delta(_ source: Observation, _ output: Observation) -> Box {
+    Box(x: output.box.x - source.box.x, y: output.box.y - source.box.y,
+        width: output.box.width - source.box.width,
+        height: output.box.height - source.box.height)
+}
+func emit<T: Encodable>(_ report: T) {
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+    do {
+        FileHandle.standardOutput.write(try encoder.encode(report))
+        FileHandle.standardOutput.write(Data("\n".utf8))
+    } catch { fail("Cannot encode report: \(error)") }
+}
+if CommandLine.arguments.count == 3 {
+    let sourceGroups = Dictionary(grouping: sourceObservations, by: { normalized($0.text) })
+    let outputGroups = Dictionary(grouping: outputObservations, by: { normalized($0.text) })
+    var seen = Set<String>()
+    var lines: [InventoryLine] = []
+    for observation in sourceObservations {
+        let key = normalized(observation.text)
+        guard seen.insert(key).inserted else { continue }
+        let sources = sourceGroups[key] ?? []
+        let outputs = outputGroups[key] ?? []
+        let source = sources.count == 1 ? sources[0] : nil
+        let output = outputs.count == 1 ? outputs[0] : nil
+        let status = sources.count != 1 || outputs.count > 1 ? "ambiguous" :
+                     outputs.isEmpty ? "not-recognized-in-output" : "matched-text"
+        lines.append(InventoryLine(text: observation.text, source: source, output: output,
+                                   delta: source.flatMap { a in output.map { b in delta(a, b) } }, status: status))
+    }
+    for observation in outputObservations where sourceGroups[normalized(observation.text)] == nil {
+        let key = normalized(observation.text)
+        guard seen.insert(key).inserted else { continue }
+        lines.append(InventoryLine(text: observation.text, source: nil, output: observation,
+                                   delta: nil, status: "not-recognized-in-source"))
+    }
+    emit(InventoryReport(source: sourceRecord, output: outputRecord, lines: lines))
+    exit(0) // Diagnostic inventory cannot certify fidelity.
+}
+let configURL = URL(fileURLWithPath: CommandLine.arguments[3]).standardizedFileURL
+let config: Configuration
+do { config = try JSONDecoder().decode(Configuration.self, from: Data(contentsOf: configURL)) }
+catch { fail("Invalid labels JSON: \(error)") }
+guard !config.labels.isEmpty,
+      config.labels.allSatisfy({ !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                               !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                               $0.tolerancePx.isFinite && $0.tolerancePx >= 0 }) else {
+    fail("Each label needs a name, expected text and nonnegative tolerancePx")
+}
 let comparisons = config.labels.map { label -> Comparison in
     let expected = normalized(label.text)
     let sourceMatches = sourceObservations.filter { normalized($0.text) == expected }
@@ -108,24 +162,14 @@ let comparisons = config.labels.map { label -> Comparison in
     else { reason = nil }
     let source = sourceMatches.count == 1 ? sourceMatches[0] : nil
     let output = outputMatches.count == 1 ? outputMatches[0] : nil
-    let delta: Box? = if let source, let output {
-        Box(x: output.box.x - source.box.x, y: output.box.y - source.box.y,
-            width: output.box.width - source.box.width,
-            height: output.box.height - source.box.height)
-    } else { nil }
-    let withinTolerance = reason == nil && delta.map {
+    let measuredDelta: Box? = if let source, let output { delta(source, output) } else { nil }
+    let withinTolerance = reason == nil && measuredDelta.map {
         [$0.x, $0.y, $0.width, $0.height].allSatisfy { abs(Double($0)) <= label.tolerancePx }
     } == true
     return Comparison(name: label.name, expectedText: label.text, tolerancePx: label.tolerancePx,
-                      source: source, output: output, delta: delta,
+                      source: source, output: output, delta: measuredDelta,
                       invalidReason: reason, withinTolerance: withinTolerance)
 }
 let report = Report(source: sourceRecord, output: outputRecord, comparisons: comparisons)
-let encoder = JSONEncoder()
-encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-do {
-    let bytes = try encoder.encode(report)
-    FileHandle.standardOutput.write(bytes)
-    FileHandle.standardOutput.write(Data("\n".utf8))
-} catch { fail("Cannot encode report: \(error)") }
+emit(report)
 if comparisons.contains(where: { !$0.withinTolerance }) { exit(1) }
