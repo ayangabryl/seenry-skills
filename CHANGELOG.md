@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.29
+
+- Extends the offline text-contrast audit to direct hex text colors and root backgrounds, exposing weak small labels that token-only checks miss. The result remains a source heuristic; rendered backgrounds and large-type exceptions need review.
+- Routes browser-unavailable design work to that audit before handoff instead of treating source inspection as a visual pass.
+
 ## 2.0.1-dev.28
 
 - Adds an original, dependency-free boundary trace for one active rounded surface, with a runnable demo and browser checks for motion, resize, visibility pause, live reduced motion, keyboard use and cleanup. It is a decorative state signal, not measured progress or a replica of another effect.
