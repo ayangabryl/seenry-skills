@@ -25,7 +25,7 @@ Preserve item count/order, content/assets, active geometry, moving surfaces and 
 
 Read [motion reconstruction](../../seenry-motion/references/replication.md) when movement defines the reference. Inventory every visible transition, including pointer movement within an open component. Add each to the required-state ledger; a matched opening does not cover row hover or content replacement. Record input, first response, intermediate geometry, content appearance and settlement. Measure opening and closing independently. Separate the surface's deformation from text/icons so a shell morph does not stretch glyphs.
 
-Match the observed track with the smallest mechanism that can reproduce it. A generic recipe is a starting implementation, not replacement evidence. The same duration with a different trajectory, origin, delay, blur or overlap is a different transition. Name estimated values and uncertainty; do not call a guessed easing curve measured.
+Use the smallest mechanism matching the observed trajectory, origin, delay, blur and overlap. Mark estimated values; do not call guessed easing measured.
 
 ## Build and compare
 
