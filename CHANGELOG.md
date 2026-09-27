@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1-dev.28
+
+- Adds an original, dependency-free boundary trace for one active rounded surface, with a runnable demo and browser checks for motion, resize, visibility pause, live reduced motion, keyboard use and cleanup. It is a decorative state signal, not measured progress or a replica of another effect.
+
 ## 2.0.1-dev.27
 
 - Routes requested count motion to per-place number guidance and checks that every requested transition is actually implemented before handoff.
