@@ -4,7 +4,7 @@ description: "Research or implement web interactions using Seenry recordings, cr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.0.1-dev.31"
+  version: "2.0.1-dev.32"
 ---
 
 # Design movement around a meaningful change
@@ -45,7 +45,7 @@ For reusable merge, trail, bend, image-blend and blur treatments across controls
 
 Use CSS, SVG or Web Animations when sufficient. Existing Lottie, GSAP, Anime.js, Motion or Three.js can serve a demonstrated need; verify the installed API. Give each animated property one owner. Prototype a complex central effect and its usable fallback before building around it.
 
-Read [expressive effects](references/expressive-effects.md) only for a selected liquid, material, process, boundary or image treatment. For one temporarily active rounded surface, the original [boundary trace](assets/boundary-trace/README.md) supplies a small runnable rim; connect it to real application state. Read [adapter usage](references/adapters.md) when adopting the bundled geometry, icon, number, Lottie or scroll helpers. Libraries own presentation; the application owns truth and recovery. Preserve source licenses for copied runtime assets.
+Read [expressive effects](references/expressive-effects.md) only for a selected liquid, material, process, boundary or image treatment. For one temporarily active rounded surface, the original [boundary trace](assets/boundary-trace/README.md) supplies a small runnable rim; connect it to real application state. For a decoded image arriving after an actual request, the original [image reveal](assets/image-reveal/README.md) keeps the previous image until the new one is ready, then briefly resolves a mosaic into it. That asset is original Seenry MIT code; third-party notices elsewhere in this skill do not apply to it. Read [adapter usage](references/adapters.md) when adopting the bundled geometry, icon, number, Lottie or scroll helpers. Libraries own presentation; the application owns truth and recovery. Preserve source licenses for copied runtime assets.
 
 For everyday dropdowns, contextual settings and copy feedback, use the original [product transition recipes](references/product-transitions.md). The runnable [action menu](assets/action-menu/README.md) and [status switch](assets/status-switch/README.md) include controllers, CSS and demos for their stated uses. For a live process with a distinct visual presence, use the original [signal field](assets/signal-field/README.md) around real DOM status text. Select runtime helpers explicitly so focused handoffs include usable implementation, not just a motion intention.
 

@@ -20,7 +20,7 @@ Use reflection for an object whose material matters, such as an instrument or di
 
 ## Image reveal
 
-Reveal an image only after the actual new resource has decoded or the user's requested sequence reaches it. Keep the previous useful image visible while a replacement loads. A CSS mask or opacity transition is often enough; Canvas or WebGL is justified only when the image material itself is the subject. Give the image stable dimensions and meaningful alternative text. An automatic visual cycle is a demonstration, not evidence that backend generation is progressing. Failure and retry belong to application state, not the reveal animation.
+Reveal an image only after the actual new resource has decoded or the user's requested sequence reaches it. Keep the previous useful image visible while a replacement loads. A CSS mask or opacity transition is often enough; Canvas or WebGL is justified only when the image material itself is the subject. The original [decoded image reveal](../assets/image-reveal/README.md) is a canvas option for an image-led surface and includes interruption, failure and reduced-motion behavior. Give the image stable dimensions and meaningful alternative text. An automatic visual cycle is a demonstration, not evidence that backend generation is progressing. Failure and retry belong to application state, not the reveal animation.
 
 ## Verify the chosen effect
 
