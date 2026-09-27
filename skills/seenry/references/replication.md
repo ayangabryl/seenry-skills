@@ -17,9 +17,9 @@ For the decisive region record:
 - **Geometry:** shell and content bounds, padding, gaps, alignment, anchor coordinates, clipping, overlap, corner radii and border widths. Identify which dimensions change between states.
 - **Type:** actual wording, line breaks, family if verifiable, weight, size, line height, letter spacing, text block width and baseline. Keep visible labels intact. A similar font at the same size can have different widths; check the rendered specimen.
 - **Material:** sampled flat colors, border/opacity, shadows only where observed, icon silhouette/stroke and asset crop. Keep unknowns marked. Generated art is an approximation, not the original asset. It cannot certify an exact match; use permitted originals when available and disclose substitutions.
-- **Behavior:** idle, hover, pressed, focus, closed/open/selected/error states, triggering action, hit areas and return path. A recording establishes only the interactions it shows. Implement necessary unseen accessibility and recovery behavior, label it as proposed, and do not change the observed layout to accommodate it silently.
+- **Behavior:** idle, hover, pressed, focus, closed/open/selected/error states, triggering action, hit areas and return path. A recording establishes only the interactions it shows. Implement necessary unseen accessibility and recovery behavior, label it as proposed, and do not change the observed layout to accommodate it silently. If a captured action depends on an unavailable service, preserve its observed idle appearance; a preview response may explain the limitation, but do not invent a connected, selected or successful state.
 
-Preserve the interaction's identity: item count and order, actual content/assets, active and neighboring geometry, moving surfaces and reveal sequence. Related mechanisms with different identities are adaptations. Keep adaptation available only when requested, with deliberate departures recorded; do not use it to satisfy a replica. Source-specific details are task requirements, not global design defaults.
+Preserve item count/order, content/assets, active geometry, moving surfaces and reveal sequence. Different behavior is adaptation, not a replica. Record requested departures. Source details are task requirements, not global defaults.
 
 ## Reconstruct motion as a score
 
@@ -35,7 +35,7 @@ Match the observed track with the smallest mechanism that can reproduce it. A ge
 4. List concrete mismatches by severity: wrong composition or behavior, wrong trajectory, proportion/type/spacing, then finishing differences. Repair the largest discrepancy first and replay both entry and exit. Preserve comparison evidence before and after the repair.
 5. Exercise interruption, repeated input, keyboard, narrow layout and reduced motion. These checks establish usable behavior; they do not establish visual matching.
 
-For a precise task, use a compact measurement ledger with target and actual values and a tolerance justified by source resolution. Include at least a shell measurement, a type/spacing measurement and motion checkpoints when applicable. The optional `scripts/replication_gate.py` checks a JSON ledger for unresolved measurements and evidence gaps; it does not inspect images or grant approval.
+For precise work, record target/actual measurements and source-justified tolerances: shell, type/spacing and applicable motion checkpoints. `scripts/replication_gate.py` checks the JSON ledger for unresolved evidence; it cannot inspect images or grant approval.
 
 ## Report the scope of fidelity
 
