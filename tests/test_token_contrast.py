@@ -62,6 +62,20 @@ class TokenContrast(unittest.TestCase):
                           for item in report['directChecks']],
                          [('body', 'same rule', True), ('.button', 'same rule', True)])
 
+    def test_html_canvas_background_is_used_when_body_has_no_fill(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'styles.css'
+            page.write_text(':root{--paper:#f3f0e8;--ink:#21251f;--muted:#77796f}'
+                            'html{background:var(--paper)}body{color:var(--ink)}'
+                            '.edition{color:var(--muted)}.caption{color:#818278}')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        self.assertEqual(run.returncode, 2)
+        self.assertEqual(report['checks'][0]['backgroundToken'], '--paper')
+        self.assertFalse(next(item for item in report['checks'] if item['textToken'] == '--muted')['pass'])
+        self.assertFalse(next(item for item in report['directChecks'] if item['selector'] == '.caption')['pass'])
+
 
 if __name__ == '__main__':
     unittest.main()

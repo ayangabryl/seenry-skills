@@ -62,15 +62,16 @@ def token_roles(css):
             values.setdefault(name.lower(), value.strip())
     background = None
     body = re.search(r'\bbody\s*\{([^{}]*)\}', css, flags=re.I)
+    html = re.search(r'\bhtml\s*\{([^{}]*)\}', css, flags=re.I)
     root = re.search(r':root\s*\{([^{}]*)\}', css, flags=re.I)
-    for rule in (body, root):
+    for rule in (body, html, root):
         if not rule:
             continue
         declaration = re.search(r'(?:^|;)\s*background(?:-color)?\s*:\s*([^;{}]+)', rule.group(1), flags=re.I)
         if declaration:
             value = declaration.group(1).strip()
             reference = re.fullmatch(r'var\(\s*(--[\w-]+)\s*\)', value)
-            background = (reference.group(1).lower(), values.get(reference.group(1).lower())) if reference else ('body' if rule is body else ':root', value)
+            background = (reference.group(1).lower(), values.get(reference.group(1).lower())) if reference else ('body' if rule is body else 'html' if rule is html else ':root', value)
             break
     used = set()
     for selector, declarations in re.findall(r'([^{}]+)\{([^{}]*)\}', css):
@@ -134,12 +135,12 @@ def audit(paths):
         css = source_css(path)
         background, foregrounds, values = token_roles(css)
         if not background:
-            limitations.append(f'{path}: body background not found')
+            limitations.append(f'{path}: page background not found')
             continue
         try:
             bg = color(background[1])
         except ValueError:
-            limitations.append(f'{path}: body background {background[0]} is not opaque hex')
+            limitations.append(f'{path}: page background {background[0]} is not opaque hex')
             continue
         for name, value in sorted(foregrounds.items()):
             try:
