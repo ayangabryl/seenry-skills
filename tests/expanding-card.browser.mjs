@@ -36,7 +36,7 @@ try {
   await page.keyboard.press('Enter');
   assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
   assert.equal(await panel.evaluate(element => element.inert), false);
-  await page.waitForTimeout(300);
+  await page.waitForFunction(() => document.querySelector('#review-panel').style.height === 'auto');
   assert.equal(await panel.evaluate(element => element.style.height), 'auto');
   if (axePath) {
     await page.addScriptTag({ path: axePath });
@@ -51,8 +51,7 @@ try {
     note.textContent = 'More information appeared after loading.';
     element.firstElementChild.append(note);
   });
-  await page.waitForTimeout(350);
-  assert.equal(await panel.evaluate(element => element.getBoundingClientRect().height) >= firstHeight, true);
+  await page.waitForFunction(previous => document.querySelector('#review-panel').getBoundingClientRect().height > previous + 10, firstHeight);
 
   await page.locator('#review-panel a').focus();
   await page.keyboard.press('Escape');
@@ -64,7 +63,7 @@ try {
   await trigger.click();
   await page.waitForTimeout(70);
   await trigger.click();
-  await page.waitForTimeout(320);
+  await page.waitForFunction(() => document.querySelector('#review-panel').style.height === 'auto');
   assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
   assert.equal(await panel.evaluate(element => element.style.height), 'auto');
 
