@@ -47,7 +47,12 @@ try {
 
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('#specimen').getAttribute('data-state'), 'closing');
-  await page.evaluate(() => window.study.setOpen(true));
+  await page.evaluate(() => {
+    const scheduleFrame = window.requestAnimationFrame;
+    window.requestAnimationFrame = () => 0;
+    try { window.study.setOpen(true); }
+    finally { window.requestAnimationFrame = scheduleFrame; }
+  });
   await page.waitForTimeout(400);
   assert.equal(await page.locator('#specimen').evaluate(el => el.open), true, 'reopen must cancel the old close');
   assert.equal(await page.locator('#specimen').getAttribute('data-state'), 'open');
