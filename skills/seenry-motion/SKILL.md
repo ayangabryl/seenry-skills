@@ -28,7 +28,8 @@ Choose the smallest capable mechanism. CSS, SVG or Web Animations are enough for
 | Loading or process presence | Original [signal field](assets/signal-field/README.md), [boundary trace](assets/boundary-trace/README.md) and [loading patterns](references/patterns/loading.md). Animation time is not progress. |
 | Decoded image or expressive material | Original [image reveal](assets/image-reveal/README.md), [reflective surface](assets/reflective-surface/README.md), [surface effects](references/surface-effects.md) and [expressive effects](references/expressive-effects.md). Keep useful content while a replacement loads; use reflection only where the material has a purpose. |
 | Toast or banner stack | [Feedback patterns](references/patterns/feedback.md) and original [notification reducer](assets/notification-state.mjs). Remove overflow from active state before its exit; test the fourth event in a three-item stack. |
-| Scroll, navigation or a coordinated system | [Scroll choreography](references/scroll-choreography.md), [worked scores](references/worked-scores.md), [system choreography](references/system-choreography.md) and the [motion index](references/patterns.md). |
+| Ordered page or view change | Original [directional stage](assets/directional-stage/README.md) for related views; the application owns the route and history. Use [navigation patterns](references/patterns/navigation.md) for other structures. |
+| Scroll or a coordinated system | [Scroll choreography](references/scroll-choreography.md), [worked scores](references/worked-scores.md), [system choreography](references/system-choreography.md) and the [motion index](references/patterns.md). |
 
 Select only the guide and helper needed for this change. The bundled original assets are reusable starting points, not default visual styles or proof of fidelity to another component. Keep licenses with any copied third-party runtime; the original Seenry assets use the repository's MIT license.
 
