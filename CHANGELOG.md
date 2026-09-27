@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1-dev.38
+
+- Gives reference-led adaptations a primary route: compare the decisive rendered slice with actual source pixels before expanding the page, preserve the visual relationship with original subject material, and report surviving gaps rather than inferring parity from working controls.
+- In a private Blue Hour Lab Luna trial against inspected Seenry desktop and mobile captures, the revised route improved image scale, framing, type overlap and mobile order over the dev.37 baseline in a blind image review. The reviewer judged both below the reference's material quality; this is a scoped improvement, not a broad quality or component-catalog claim.
+- Refreshes the optional local MCP tool schema fallback to the current 2.6.0, 21-tool contract for distribution through Seenry's website.
+
 ## 2.0.1-dev.37
 
 - Adds browser evidence for rendered text crossing another label or a separate painted element. These are review candidates tied to screenshots, not automatic design verdicts.
