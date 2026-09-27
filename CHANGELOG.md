@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.33
+
+- Checks text against an opaque `html` canvas background when `body` has no fill, so the offline contrast audit catches muted labels in this common CSS layout.
+- Lists the current runnable motion assets in the repository guide.
+
 ## 2.0.1-dev.32
 
 - Adds an original, dependency-free decoded image reveal with an interruptible canvas treatment, real image fallback, error recovery, live reduced-motion behavior, a demo and browser checks.
