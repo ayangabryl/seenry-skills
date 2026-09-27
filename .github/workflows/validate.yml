@@ -29,6 +29,7 @@ jobs:
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check examples/seenry-site/app.js
       - run: node --check examples/seenry-site/studies/held/app.js
+      - run: node --check skills/seenry-motion/assets/confirmation-burst/confirmation-burst.mjs
       - name: Install the pinned browser test runtime
         run: npm install --no-save --package-lock=false playwright@1.63.0
       - name: Install Chromium and host dependencies
@@ -38,6 +39,7 @@ jobs:
           node tests/geometry-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/expanding-card.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/modal-surface.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/confirmation-burst.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/ink-compare.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/directional-stage.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/image-reveal.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
