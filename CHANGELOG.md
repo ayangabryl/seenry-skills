@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1-dev.35
+
+- Adds a fact-and-action integrity route for supplied facts, permitted examples, real CTA destinations, and missing booking or registration hookups. The page shows supported information while the handoff names unavailable integrations.
+- Extends the offline text audit to inspect variable colors and simple HTML ancestor surfaces, exposing weak accent labels and captions that page-background checks missed. Its inferred surfaces still require review on complex CSS.
+- Adds a narrow dependency-free HTML check for accessible names on generic `div` and `span` elements; browser accessibility review remains necessary.
+- In isolated Luna trials, a revised event page used truthful details links, and a separate workshop page passed the offline checks plus host browser initial axe and width checks at 320 and 1440 pixels. These samples support the repairs, not a broad design-quality or library-parity claim.
+
 ## 2.0.1-dev.34
 
 - Routes whole-page motion work through the core Seenry design and contrast workflow, while keeping focused component work in Seenry Motion.
