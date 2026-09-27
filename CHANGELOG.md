@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1-dev.37
+
+- Adds browser evidence for rendered text crossing another label or a separate painted element. These are review candidates tied to screenshots, not automatic design verdicts.
+- A Luna page had no horizontal overflow but placed its mobile standby caption across a meter bar. The new probe found it at 390 and 320 pixels. A separate Luna refinement moved the meter, and host browser review found the collision gone with controls still working; Luna’s own browser was blocked by its CLI sandbox.
+
 ## 2.0.1-dev.36
 
 - Adds an original reflective-surface controller with a WebGL2 material layer, CSS fallback, three palettes, a semantic-control demo, and browser checks for keyboard use, reduced motion, offscreen pause, context recovery and unavailable WebGL.

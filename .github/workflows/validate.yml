@@ -36,6 +36,7 @@ jobs:
           node tests/expanding-card.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/image-reveal.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/reflective-surface.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/text-collisions.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/morph-icon.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/number-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/interaction-probe.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
