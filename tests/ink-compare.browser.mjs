@@ -10,7 +10,7 @@ if(!modulePath||modulePath.startsWith('--'))throw new Error('Pass --playwright /
 const directory=await mkdtemp(path.join(tmpdir(),'seenry-ink-'));
 const script=path.resolve('skills/seenry/scripts/ink_compare.mjs');
 const source=path.join(directory,'source.svg'),output=path.join(directory,'output.svg'),regions=path.join(directory,'regions.json');
-const svg=(x,y,width)=>`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="100" height="60" fill="white"/><rect x="${x}" y="${y}" width="${width}" height="10" fill="black"/></svg>`;
+const svg=(x,y,width,polarity='dark')=>`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="100" height="60" fill="${polarity==='light'?'black':'white'}"/><rect x="${x}" y="${y}" width="${width}" height="10" fill="${polarity==='light'?'white':'black'}"/></svg>`;
 const chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const args=['--source',source,'--output',output,'--regions',regions,'--playwright',modulePath,...(existsSync(chrome)?['--executable-path',chrome]:[])];
 try{
@@ -26,5 +26,12 @@ try{
   catch(error){failed=error;}
   assert.equal(failed?.status,1);
   assert.equal(JSON.parse(failed.stdout).regions[0].withinTolerance,false);
-  console.log('Ink comparison: physical-pixel bounds and tolerance failure passed.');
+  await Promise.all([writeFile(source,svg(10,10,20,'light')),writeFile(output,svg(12,9,24,'light'))]);
+  await writeFile(regions,JSON.stringify({regions:[{name:'heading',box:[0,0,100,60],polarity:'light',threshold:160,tolerancePx:4}]}));
+  const light=JSON.parse(execFileSync(process.execPath,[script,...args],{encoding:'utf8'}));
+  assert.equal(light.regions[0].polarity,'light');
+  assert.deepEqual(light.regions[0].source,{x:10,y:10,width:20,height:10,inkPixels:200});
+  assert.deepEqual(light.regions[0].delta,{x:2,y:-1,width:4,height:0});
+  assert.equal(light.regions[0].withinTolerance,true);
+  console.log('Ink comparison: dark and light physical-pixel bounds and tolerance failure passed.');
 }finally{await rm(directory,{recursive:true,force:true});}
