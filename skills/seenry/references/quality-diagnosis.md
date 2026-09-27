@@ -5,6 +5,7 @@ Use on real renders and interaction evidence. This is not an AI-authorship detec
 | Suspected weakness | Inspect | Controlled comparison |
 | --- | --- | --- |
 | Interchangeable identity | Does the image, composition or behavior express this offering? | Swap only brand/name between unrelated briefs; document what loses meaning. |
+| Clean but below the requested target | At comparable scale, does the dominant material and its treatment carry as much useful visual substance as the chosen craft target? | Identify whether the gap is argument, material or execution using [reference transfer](reference-transfer.md); repair that cause before extending the layout. |
 | Empty proof | Is “work” a diagram of implementation rather than convincing work or product evidence? | Replace one pseudo-project with a relevant, truthfully labeled image/mockup. |
 | Wireframe residue | Did diagnostic borders, placeholder blocks or process labels survive into the finished surface without a useful role? | Keep the geometry and behavior; remove those study marks before comparing surface treatments. |
 | Decorative bureaucracy | Does an ordinal, slash, pill or dot help someone locate, choose or understand a state? | Remove just that decoration; retain content and layout. |
