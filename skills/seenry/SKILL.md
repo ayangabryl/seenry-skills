@@ -34,6 +34,8 @@ For requested Seenry MCP research, use [MCP discovery](references/mcp-discovery.
 
 **Reference text check:** On macOS, after the first equal-size source/output screenshot pair, run `swift <seenry-skill-dir>/scripts/text_compare.swift <source-image> <output-image>` for text-heavy replicas, replacing the placeholders with actual paths. Its automatic OCR inventory is diagnostic, never a pass: inspect unmatched lines and large x/y/width/height deltas, repair visible text, then use a named labels JSON with justified tolerances before claiming type geometry matches. On other systems, perform an equivalent text-aware comparison when available or report that text geometry remains unverified.
 
+**Reference material check:** When a dominant shape is an isolated color family on a quiet surface, read [material field evidence](references/material-field-evidence.md) before editing the generator. Trace several measured inner and outer contour anchors from the source; choose geometry that can pass through them. A generic ellipse can flatten an irregular sweep. Compare source, output, masks and density previews at equal scale, then compare anonymized before/after renders without metrics. If the new render is not visibly closer, restore the prior version instead of reporting a repair. A close text match does not settle a visibly wrong material.
+
 Keep construction diagrams out of visitor-facing UI. Process records cannot substitute for a finished, exercised interface. Use [evidence support](references/review-evidence.md) to distinguish inspection, comparison and repair; label self-review and report unresolved work.
 
 ## Load the module for the current decision
