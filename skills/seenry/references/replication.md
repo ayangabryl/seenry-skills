@@ -32,6 +32,7 @@ Match the observed track with the smallest mechanism that can reproduce it. A ge
 1. Build one static closed/open pair at the reference dimensions. Compare typography and geometry before animation. Do not generate three new layouts.
 2. Implement the defining transition using measured landmarks. Keep business state and hit testing separate from its presentation.
 3. Put source and reconstruction beside each other at equal readable scale. Compare endpoint crops and matching phase frames. Use an overlay/difference view when it helps localize a discrepancy. Cursor, compression, antialiasing and missing fonts can affect image differences; raw pixel error is not a fidelity percentage.
+   For flat-background labels, compare rendered [ink bounds](../scripts/ink_compare.mjs) at equal physical scale; element boxes can hide font mismatches.
 4. List concrete mismatches by severity: wrong composition or behavior, wrong trajectory, proportion/type/spacing, then finishing differences. Repair the largest discrepancy first and replay both entry and exit. Preserve comparison evidence before and after the repair.
 5. Exercise interruption, repeated input, keyboard, narrow layout and reduced motion. These checks establish usable behavior; they do not establish visual matching.
 
