@@ -1,6 +1,7 @@
 // Measure visible dark or light ink in named image regions at one physical-pixel scale.
 // Regions JSON: {"regions":[{"name":"heading","box":[x,y,width,height],"polarity":"light","threshold":160,"tolerancePx":6}]}.
-// Use tight flat-background text crops. This checks geometry, not font identity or overall visual quality.
+// Use flat-background crops containing one verified label; edge contact invalidates a crop.
+// This checks geometry, not label identity, font identity or overall visual quality.
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
@@ -49,13 +50,18 @@ try{
       }
       return count?{x:left,y:top,width:right-left+1,height:bottom-top+1,inkPixels:count}:null;
     }
-    return {width:a.width,height:a.height,regions:regions.map(region=>({name:region.name,box:region.box,polarity:region.polarity??'dark',threshold:region.threshold??160,tolerancePx:region.tolerancePx??null,source:bounds(a,region),output:bounds(b,region)}))};
+    return {width:a.width,height:a.height,regions:regions.map(region=>{
+      const source= bounds(a,region),output=bounds(b,region),[x,y,width,height]=region.box;
+      const edgeContact=b=>!!b&&(b.x<=x||b.y<=y||b.x+b.width>=x+width||b.y+b.height>=y+height);
+      return {name:region.name,box:region.box,polarity:region.polarity??'dark',threshold:region.threshold??160,tolerancePx:region.tolerancePx??null,source,output,sourceEdgeContact:edgeContact(source),outputEdgeContact:edgeContact(output)};
+    })};
   },{sourceUrl:source.url,outputUrl:output.url,regions:config.regions});
   const regions=measured.regions.map(region=>{
     const delta=region.source&&region.output?Object.fromEntries(['x','y','width','height'].map(key=>[key,region.output[key]-region.source[key]])):null;
-    const withinTolerance=region.tolerancePx===null?null:delta!==null&&Object.values(delta).every(value=>Math.abs(value)<=region.tolerancePx);
-    return {...region,delta,withinTolerance};
+    const invalidReason=!region.source||!region.output?'no ink in source or output region':region.sourceEdgeContact||region.outputEdgeContact?'ink touches region edge; widen or reposition crop':null;
+    const withinTolerance=region.tolerancePx===null?null:invalidReason===null&&delta!==null&&Object.values(delta).every(value=>Math.abs(value)<=region.tolerancePx);
+    return {...region,delta,invalidReason,withinTolerance};
   });
   console.log(JSON.stringify({source:{path:source.path,sha256:source.sha256},output:{path:output.path,sha256:output.sha256},image:{width:measured.width,height:measured.height},regions},null,2));
-  if(regions.some(region=>region.withinTolerance===false))process.exitCode=1;
+  if(regions.some(region=>region.invalidReason!==null||region.withinTolerance===false))process.exitCode=1;
 }finally{await browser.close();}

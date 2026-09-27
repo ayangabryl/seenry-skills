@@ -33,5 +33,14 @@ try{
   assert.deepEqual(light.regions[0].source,{x:10,y:10,width:20,height:10,inkPixels:200});
   assert.deepEqual(light.regions[0].delta,{x:2,y:-1,width:4,height:0});
   assert.equal(light.regions[0].withinTolerance,true);
-  console.log('Ink comparison: dark and light physical-pixel bounds and tolerance failure passed.');
+  await writeFile(regions,JSON.stringify({regions:[{name:'clipped',box:[10,0,40,60],polarity:'light',tolerancePx:10}]}));
+  let clipped;
+  try{execFileSync(process.execPath,[script,...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']});}
+  catch(error){clipped=error;}
+  assert.equal(clipped?.status,1);
+  const invalid=JSON.parse(clipped.stdout).regions[0];
+  assert.equal(invalid.sourceEdgeContact,true);
+  assert.match(invalid.invalidReason,/touches region edge/);
+  assert.equal(invalid.withinTolerance,false);
+  console.log('Ink comparison: dark and light bounds, tolerance, and invalid crop detection passed.');
 }finally{await rm(directory,{recursive:true,force:true});}
