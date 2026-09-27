@@ -1,6 +1,6 @@
 # Reconstruct the reference, not a related idea
 
-For faithful recreation, treat the source as the visual specification. Record requested exceptions separately. Changes for a new brand or original content are adaptations; do not call them matches.
+For faithful recreation, treat the source as the specification. Record requested exceptions. Brand or content changes are adaptations.
 
 ## Lock the target before implementation
 
@@ -32,8 +32,8 @@ Use the smallest mechanism matching the observed trajectory, origin, delay, blur
 1. Build one static closed/open pair at the reference dimensions. Compare typography and geometry before animation. Do not generate three new layouts.
 2. Implement the defining transition using measured landmarks. Keep business state and hit testing separate from its presentation.
 3. Put source and reconstruction beside each other at equal readable scale. Compare endpoint crops and matching phase frames. Use an overlay/difference view when it helps localize a discrepancy. Cursor, compression, antialiasing and missing fonts can affect image differences; raw pixel error is not a fidelity percentage.
-   For flat-background labels, compare rendered [ink bounds](../scripts/ink_compare.mjs) at equal physical scale; set each region's `polarity` to `light` for bright text on a dark surface (the default is `dark`). Keep the crop inside a uniform surface so other bright or dark pixels do not enter the measurement. Verify that each crop contains the named label; the ink checker cannot identify text and may measure a different control. Element boxes can hide font mismatches.
-   On macOS, [text comparison](../scripts/text_compare.swift) can identify named lines with Vision OCR and compare their physical-pixel bounds without hand-selected crops: `swift <skill-root>/scripts/text_compare.swift source.png output.png labels.json`. Use `{"labels":[{"name":"headline line 1","text":"Exact visible wording","tolerancePx":9}]}`. It requires equal-size local images, reports source/output hashes and exits nonzero for missing, duplicate or out-of-tolerance text. Read the recognized wording and bounds; OCR may miss stylized text or return an imperfect box. On other systems, use an available OCR tool or visually verify crop identity before interpreting ink bounds. Neither check establishes font identity or overall screen fidelity.
+   For flat-background labels, compare rendered [ink bounds](../scripts/ink_compare.mjs) at equal physical scale; set `polarity` to `light` for bright text (default `dark`). Keep each crop on a uniform surface and verify it contains the named label. The ink checker cannot identify text or fonts.
+   On macOS, [text comparison](../scripts/text_compare.swift) identifies named lines without crops. Inspect OCR output; it cannot establish font identity or overall fidelity.
 4. List concrete mismatches by severity: wrong composition or behavior, wrong trajectory, proportion/type/spacing, then finishing differences. Repair the largest discrepancy first and replay both entry and exit. Preserve comparison evidence before and after the repair.
 5. Exercise interruption, repeated input, keyboard, narrow layout and reduced motion. These checks establish usable behavior; they do not establish visual matching.
 
