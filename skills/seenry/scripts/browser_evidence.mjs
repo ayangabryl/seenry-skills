@@ -6,6 +6,7 @@ import {collectScrollEvidence} from './scroll_evidence.mjs';
 import {captureTransition} from './transition_evidence.mjs';
 import {probeInteractions,validateProbe} from './interaction_probe.mjs';
 import decisionChecks from './decision_check.cjs';
+import {collectTextCollisions} from './text_collisions.mjs';
 async function performAction(page,action){
   const locator=action.selector?page.locator(action.selector):null;
   if(action.type==='click')await locator.click({timeout:4000});
@@ -75,6 +76,7 @@ try{
             limit:'Opening viewport signals for contextual review; none is automatically a design failure or AI-authorship evidence.'
           };
         })()}));
+      measurements.textCollisions=await page.evaluate(collectTextCollisions);
       const traversal=scenario.traverse===false?{status:'skipped',reason:'Explicit scenario choice'}:await collectScrollEvidence(page,{capture:async step=>{
         await page.screenshot({path:path.join(folder,`scroll-${step.index}.png`)});
       }});
@@ -92,7 +94,7 @@ try{
             await writeFile(path.join(folder,`decision-${index}.json`),JSON.stringify(checked,null,2));
             if(checked.status!=='matched-decisions')throw new Error(`Project decisions ${checked.status}; inspect decision-${index}.json`);
           }else await performAction(page,action);
-          steps.push({index,action,executed:true,...(transition?{transitionArtifact:`transition-${index}.json`,transitionSummary:transition.summary,transitionActions:transition.actions}:{})});
+          steps.push({index,action,executed:true,textCollisions:await page.evaluate(collectTextCollisions),...(transition?{transitionArtifact:`transition-${index}.json`,transitionSummary:transition.summary,transitionActions:transition.actions}:{})});
           await page.screenshot({path:path.join(folder,`step-${index}.png`)});
         }catch(error){steps.push({index,action,executed:false,error:String(error)});}
       }
@@ -106,5 +108,5 @@ try{
   }
 }finally{await browser.close();}
 await writeFile(path.join(out,'report.json'),JSON.stringify({schema:3,url:flags.url,results,
-  limitations:['Browser emulation only; videos recorded but not automatically watched.','Executed actions are not assertions of correct business results.','No visual-quality, screen-reader or field-performance certification.']},null,2));
+  limitations:['Browser emulation only; videos recorded but not automatically watched.','Text intersection candidates need screenshot review; they are not defect verdicts.','Executed actions are not assertions of correct business results.','No visual-quality, screen-reader or field-performance certification.']},null,2));
 console.log(JSON.stringify({out,viewports:results.length,actionFailures:results.flatMap(r=>r.steps||[]).filter(x=>!x.executed).length}));
