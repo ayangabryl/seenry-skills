@@ -59,7 +59,10 @@ The checks cover resources and behavior of included tools. They do not certify t
 
 For an original website with a high craft bar, [the optional Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs a focused typography review and a whole-screen review of the opening in separate fresh contexts. After the page is built, `--scope full-page` reviews complete wide and narrow captures for issues outside that opening. Give each run a brief, captures, and a new output directory; it exits with a blocking result until its reviewers return Keep. It requires a local `codex` executable and the full Seenry installation. The saved JSON reports and input hashes make the disposition inspectable; the gate does not replace a human design decision or interaction testing.
 
+When the main design question is still open, [the optional direction study gate](skills/seenry/scripts/direction_study_gate.py) compares two small rendered answers at wide and narrow sizes. Name the decision explicitly; changing only surrounding layout will not clear a question about the subject or preview. This gate checks early visual choices, while the opening and full-page gates check the built interface.
+
 ```sh
+python3 skills/seenry/scripts/direction_study_gate.py --brief BRIEF.md --decision "How should both proofs remain judgeable in the opening comparison?" --a-desktop a-wide.png --a-mobile a-narrow.png --b-desktop b-wide.png --b-mobile b-narrow.png --out study-review-1
 python3 skills/seenry/scripts/independent_review_gate.py --brief BRIEF.md --desktop desktop.png --mobile mobile.png --out review-1
 python3 skills/seenry/scripts/independent_review_gate.py --scope full-page --brief BRIEF.md --desktop desktop-full.png --mobile mobile-full.png --out review-final
 ```

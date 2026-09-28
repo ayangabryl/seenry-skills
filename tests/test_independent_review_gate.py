@@ -1,4 +1,9 @@
+import json
+import subprocess
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 from test_package import module, ROOT
 
@@ -45,6 +50,35 @@ class IndependentReviewGate(unittest.TestCase):
                        ['a=/tmp/a.png'] * 5):
             with self.subTest(values=values), self.assertRaises(ValueError):
                 gate.parse_states(values)
+
+    def test_reviewers_run_on_staged_inputs_outside_the_project(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            folder = Path(temporary)
+            (folder / 'brief.md').write_text('Review the opening.\n')
+            for name in ('desktop', 'mobile'):
+                (folder / f'{name}.png').write_bytes(name.encode())
+            fake_cli = folder / 'codex-stub'
+            fake_cli.write_text(
+                '#!/usr/bin/env python3\n'
+                'import json, pathlib, sys\n'
+                'path = pathlib.Path(sys.argv[sys.argv.index("-o") + 1])\n'
+                '(path.parent / "cwd.txt").write_text(str(pathlib.Path.cwd()))\n'
+                'json.dump({"verdict":"Keep","findings":[],"limits":[]}, path.open("w"))\n'
+            )
+            fake_cli.chmod(0o755)
+            output = folder / 'review-output'
+            result = subprocess.run([
+                sys.executable, str(ROOT / 'skills/seenry/scripts/independent_review_gate.py'),
+                '--brief', 'brief.md', '--desktop', 'desktop.png', '--mobile', 'mobile.png',
+                '--out', str(output), '--codex-bin', str(fake_cli),
+            ], cwd=folder, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            summary = json.loads((output / 'summary.json').read_text())
+            self.assertEqual(summary['status'], 'Keep')
+            for kind, review in summary['reviews'].items():
+                self.assertTrue(Path(review['log']).is_file())
+                self.assertTrue(Path(review['report']).is_file())
+                self.assertFalse((output / kind / 'cwd.txt').read_text().startswith(str(folder)))
 
 
 if __name__ == '__main__':

@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -101,8 +102,8 @@ def review_prompt(kind, scope, state_names=()):
     )
 
 
-def run_review(kind, args, staged, executable):
-    folder = args.out / kind
+def run_review(kind, args, staged, executable, review_root):
+    folder = review_root / kind
     folder.mkdir(parents=True, exist_ok=True)
     report = folder / 'review.json'
     log = folder / 'codex.log'
@@ -169,28 +170,35 @@ def main():
         parser.error(f'Output path is not a directory: {args.out}')
     if args.out.exists() and any(args.out.iterdir()):
         parser.error(f'Output directory must be empty to preserve earlier reviews: {args.out}')
-    args.out.mkdir(parents=True, exist_ok=True)
     inputs = {'brief': args.brief, 'desktop': args.desktop, 'mobile': args.mobile}
     if args.reference:
         inputs['reference'] = args.reference
     for name, path in args.states.items():
         inputs[f'state.{name}'] = path
-    staged = {}
-    try:
-        for name, path in inputs.items():
-            suffix = path.suffix or '.txt'
-            safe_name = 'brief.md' if name == 'brief' else name.replace('.', '-') + suffix
-            staged[name] = stage_input(path.resolve(), args.out, safe_name)
-    except ValueError as exc:
-        parser.error(str(exc))
-    results = {kind: run_review(kind, args, staged, executable) for kind in SCOPES[args.scope]}
-    summary = {
-        'scope': args.scope,
-        'input_sha256': {name: digest(path) for name, path in staged.items()},
-        'skill_sha256': {kind: digest(SKILLS[kind]) for kind in SCOPES[args.scope]},
-        'reviews': results,
-        'status': disposition(results, args.scope),
-    }
+    with tempfile.TemporaryDirectory(prefix='seenry-web-review-') as temporary:
+        review_root = Path(temporary)
+        staged = {}
+        try:
+            for name, path in inputs.items():
+                suffix = path.suffix or '.txt'
+                safe_name = 'brief.md' if name == 'brief' else name.replace('.', '-') + suffix
+                staged[name] = stage_input(path.resolve(), review_root, safe_name)
+        except ValueError as exc:
+            parser.error(str(exc))
+        results = {kind: run_review(kind, args, staged, executable, review_root)
+                   for kind in SCOPES[args.scope]}
+        summary = {
+            'scope': args.scope,
+            'input_sha256': {name: digest(path) for name, path in staged.items()},
+            'skill_sha256': {kind: digest(SKILLS[kind]) for kind in SCOPES[args.scope]},
+            'reviews': results,
+            'status': disposition(results, args.scope),
+        }
+        shutil.copytree(review_root, args.out, dirs_exist_ok=True)
+    for kind, result in summary['reviews'].items():
+        for key in ('log', 'report'):
+            if key in result:
+                result[key] = str(args.out / kind / Path(result[key]).name)
     (args.out / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n', encoding='utf-8')
     print(json.dumps({'status': summary['status'], 'verdicts': {kind: item['verdict'] for kind, item in results.items()},
                       'summary': str(args.out / 'summary.json')}))
