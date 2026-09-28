@@ -38,7 +38,7 @@ The local installer previews changes by default. Use `--replace --apply` to arch
 
 ## Work with Seenry
 
-For a new interface, cross-check the brief's facts, name the decisive region and its states, then finish one slice with real content at wide and narrow sizes. Inspect only references that inform the current decision. Try another structure when the first leaves a meaningful question unresolved. Review the rendered states and interactions before expanding. Keep decisions and remaining uncertainty in a short project DESIGN.md. [The workflow map](ARCHITECTURE.md) explains when to use the focused guides.
+For a new interface, cross-check the brief's facts, name the decisive region and its states, then finish one slice with real content at wide and narrow sizes. Inspect only references that inform the current decision. Try another structure when the first leaves a meaningful question unresolved. Review the rendered states and interactions before expanding; a default split, crop or closed view cannot stand in for complete material. Keep decisions and remaining uncertainty in a short project DESIGN.md. [The workflow map](ARCHITECTURE.md) explains when to use the focused guides.
 
 For a supplied interface to match, use [reference reconstruction](skills/seenry/references/replication.md). Measure the source's composition and behavior, implement it in the existing product, and compare the result at equivalent sizes and states. Treat unobserved motion as a proposal. A related effect is not proof of a faithful match.
 

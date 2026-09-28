@@ -8,6 +8,7 @@ scope returns Keep.
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -24,6 +25,8 @@ SCOPES = {
     'first-screen': ('typography', 'whole-screen'),
     'full-page': ('whole-screen',),
 }
+STATE_NAME = re.compile(r'[a-z0-9][a-z0-9_-]*\Z')
+IMAGE_SUFFIXES = {'.png', '.jpg', '.jpeg', '.webp'}
 
 
 def digest(path):
@@ -57,7 +60,24 @@ def disposition(results, scope='first-screen'):
     ) else 'Revise'
 
 
-def review_prompt(kind, scope):
+def parse_states(values):
+    states = {}
+    if len(values) > 4:
+        raise ValueError('At most four alternate-state images are supported')
+    for value in values:
+        name, separator, raw_path = value.partition('=')
+        if not separator or not STATE_NAME.fullmatch(name) or not raw_path:
+            raise ValueError(f'Expected --state name=path with a lowercase, safe name: {value}')
+        if name in states:
+            raise ValueError(f'Duplicate state name: {name}')
+        path = Path(raw_path)
+        if path.suffix.lower() not in IMAGE_SUFFIXES:
+            raise ValueError(f'Alternate state must be a PNG, JPEG or WebP image: {path}')
+        states[name] = path
+    return states
+
+
+def review_prompt(kind, scope, state_names=()):
     if scope == 'full-page':
         task = ('Independently review the complete page from the supplied wide and narrow full-page captures. '
                 'Judge its task sequence, final visual quality, typography, copy, content and action hierarchy, '
@@ -68,8 +88,12 @@ def review_prompt(kind, scope):
                 + ('Judge the complete visitor task, visual quality, copy, states visible in the captures, '
                    'and the reference relationship if provided. ' if kind == 'whole-screen' else
                    'Judge type voice, combined type signature, hierarchy, reading path, and any genre-default treatment. '))
+    states = (f' Inspect the attached alternate states ({", ".join(state_names)}) at readable size too; '
+              'judge what each reveals about the material, decision and result. '
+              if state_names else '')
     return (
         f'{task}Use {SKILLS[kind]}. Read ../brief.md and inspect both attached images at their actual size. '
+        + states +
         'Give Keep only if this scope has no finding that needs a design repair. '
         'Use Revise for a supported repair, Reset for a failed direction, and Unverified when the images cannot support a verdict. '
         'Do not edit the design or invent interaction evidence. Return only the JSON object required by the output schema. '
@@ -82,7 +106,7 @@ def run_review(kind, args, staged, executable):
     folder.mkdir(parents=True, exist_ok=True)
     report = folder / 'review.json'
     log = folder / 'codex.log'
-    prompt = review_prompt(kind, args.scope)
+    prompt = review_prompt(kind, args.scope, args.states)
     cmd = [executable, 'exec', '--ephemeral', '--ignore-user-config', '--skip-git-repo-check',
            '-s', 'workspace-write', '-c', 'approval_policy=never', '-C', str(folder),
            '--output-schema', str(SCHEMA), '-o', str(report)]
@@ -91,6 +115,8 @@ def run_review(kind, args, staged, executable):
     if args.effort:
         cmd.extend(['-c', f'model_reasoning_effort={args.effort}'])
     cmd.extend(['-i', str(staged['desktop']), '-i', str(staged['mobile'])])
+    for name in args.states:
+        cmd.extend(['-i', str(staged[f'state.{name}'])])
     if staged.get('reference') and kind == 'whole-screen':
         cmd.extend(['-i', str(staged['reference'])])
     cmd.append('-')
@@ -116,6 +142,8 @@ def main():
     parser.add_argument('--desktop', type=Path, required=True)
     parser.add_argument('--mobile', type=Path, required=True)
     parser.add_argument('--reference', type=Path)
+    parser.add_argument('--state', action='append', default=[], metavar='NAME=IMAGE',
+                        help='Up to four named captures of complete material or connected states')
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--scope', choices=tuple(SCOPES), default='first-screen')
     parser.add_argument('--codex-bin', default='codex')
@@ -132,6 +160,10 @@ def main():
             parser.error(f'Review skill unavailable: {skill}')
     if args.timeout < 1:
         parser.error('--timeout must be positive')
+    try:
+        args.states = parse_states(args.state)
+    except ValueError as exc:
+        parser.error(str(exc))
     args.out = args.out.resolve()
     if args.out.exists() and not args.out.is_dir():
         parser.error(f'Output path is not a directory: {args.out}')
@@ -141,11 +173,14 @@ def main():
     inputs = {'brief': args.brief, 'desktop': args.desktop, 'mobile': args.mobile}
     if args.reference:
         inputs['reference'] = args.reference
+    for name, path in args.states.items():
+        inputs[f'state.{name}'] = path
     staged = {}
     try:
         for name, path in inputs.items():
             suffix = path.suffix or '.txt'
-            staged[name] = stage_input(path.resolve(), args.out, 'brief.md' if name == 'brief' else name + suffix)
+            safe_name = 'brief.md' if name == 'brief' else name.replace('.', '-') + suffix
+            staged[name] = stage_input(path.resolve(), args.out, safe_name)
     except ValueError as exc:
         parser.error(str(exc))
     results = {kind: run_review(kind, args, staged, executable) for kind in SCOPES[args.scope]}

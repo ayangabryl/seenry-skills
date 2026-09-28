@@ -35,6 +35,17 @@ class IndependentReviewGate(unittest.TestCase):
         self.assertIn('responsive reflow', prompt)
         self.assertNotIn('first-screen captures', prompt)
 
+    def test_named_states_are_bounded_and_included_in_review(self):
+        states = gate.parse_states(['proof-a=/tmp/a.png', 'saved-b=/tmp/b.webp'])
+        self.assertEqual(list(states), ['proof-a', 'saved-b'])
+        prompt = gate.review_prompt('whole-screen', 'first-screen', states)
+        self.assertIn('proof-a, saved-b', prompt)
+        self.assertIn('material, decision and result', prompt)
+        for values in (['Proof A=/tmp/a.png'], ['a=/tmp/a.svg'], ['a=/tmp/a.png', 'a=/tmp/b.png'],
+                       ['a=/tmp/a.png'] * 5):
+            with self.subTest(values=values), self.assertRaises(ValueError):
+                gate.parse_states(values)
+
 
 if __name__ == '__main__':
     unittest.main()
