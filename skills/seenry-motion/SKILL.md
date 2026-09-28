@@ -17,7 +17,7 @@ Start with the user's task and the existing product. Keep its working behavior, 
 
 Use [the motion contract](references/motion-contract.md) to name the trigger, real state owner, stationary anchor, feedback, settled result and interruption. Choose one owner for each animated property. Keep controls and authoritative values stable through loading, success, error and recovery. For a faithful recreation, read [motion reconstruction](references/replication.md), preserve observed geometry and timing, and label unmeasured behavior as proposed. An adapted animation is not a replica.
 
-Choose the smallest capable mechanism. CSS, SVG or Web Animations are enough for many transitions; use an existing Lottie, GSAP, Anime.js, Motion or Three.js runtime only for a demonstrated need and verify its installed API. Read [implementation decisions](references/implementation-decisions.md) for easing, interruption, hover gating and reduced motion. For deeper mechanics use [motion craft](references/motion-craft.md) and [interaction anatomy](references/interaction-anatomy.md).
+Before implementing a named effect from a live library or component, check [existing implementation routing](references/existing-implementations.md). Use its maintained package or CLI when the license, stack and behavior fit; do not hand-draw a weaker stand-in to avoid checking. For original work choose the smallest capable mechanism. CSS, SVG or Web Animations are enough for many transitions; use an existing Lottie, GSAP, Anime.js, Motion or Three.js runtime only for a demonstrated need and verify its installed API. Read [implementation decisions](references/implementation-decisions.md) for easing, interruption, hover gating and reduced motion. For deeper mechanics use [motion craft](references/motion-craft.md) and [interaction anatomy](references/interaction-anatomy.md).
 
 | Requested change | Focused route |
 | --- | --- |
@@ -32,7 +32,7 @@ Choose the smallest capable mechanism. CSS, SVG or Web Animations are enough for
 | Selected tabs or ordered page change | Original [selection surface](assets/selection-surface-demo.html) for a shared highlight and [directional stage](assets/directional-stage/README.md) for related views; the application owns selection, panels, route and history. Use [navigation patterns](references/patterns/navigation.md) for other structures. |
 | Scroll or a coordinated system | [Scroll choreography](references/scroll-choreography.md), [worked scores](references/worked-scores.md), [system choreography](references/system-choreography.md) and the [motion index](references/patterns.md). |
 
-Select only the guide and helper needed for this change. The bundled original assets are reusable starting points, not default visual styles or proof of fidelity to another component. Keep licenses with any copied third-party runtime; the original Seenry assets use the repository's MIT license.
+Select only the guide and helper needed for this change. The bundled original assets are reusable starting points, not automatic substitutes for a named source component or proof of fidelity to it. Keep licenses with any copied third-party runtime; the original Seenry assets use the repository's MIT license.
 
 ## Research the observed behavior
 
