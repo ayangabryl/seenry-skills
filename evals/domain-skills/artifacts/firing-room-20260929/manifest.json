@@ -1,0 +1,119 @@
+{
+  "brief": "brief.md",
+  "capture_note": "Builder browser exports labeled narrow are 305 px wide. Final evidence was recaptured with a 320 px Playwright viewport; all final states had 16 px left and right content gutters and no horizontal overflow.",
+  "builder_final_source_sha256_before_parent_semantic_repair": {
+    "index.html": "4dd0c9afd816a9cd082e05b3489d2e8c186ade03ca1ea7a06d399f6e948e2f45",
+    "styles.css": "97e7ee1a7a2bf301902e6b42b7a0df039fdfc7b8b3c5d2dc523899c13398eea9",
+    "app.js": "e93c5ea71786a599c25df8ca902ff93f603029e79316a83fb5041fa16299d58e"
+  },
+  "independent_reviews": [
+    {
+      "stage": "direction",
+      "result": "Keep",
+      "selected": "B",
+      "report_sha256": "53e05e090cd5e05e097ae8c15ef34f63756c40c0294b766caf2fc1fb1f1ab7c6"
+    },
+    {
+      "stage": "first-full",
+      "result": "Revise",
+      "finding": "Empty painted detail bands under unselected mobile rows",
+      "report_sha256": "86d42da66a5f62bd58d3aed5b27d6fb33c8007ae6e413259116474098c9f06ff"
+    },
+    {
+      "stage": "final-default",
+      "result": "Keep",
+      "report_sha256": "f1a9e1ce96242d151316a7bcd9759ec5632a3fa3e050ea66c038ed454e14e5ec"
+    },
+    {
+      "stage": "final-with-states-corrected-320-capture",
+      "result": "Keep",
+      "report_sha256": "a5c95ae926a3350e37cfe7dcf9dca519c299bda812211c9a54f07d0e4c472369"
+    }
+  ],
+  "files": [
+    {
+      "name": "brief.md",
+      "sha256": "0ca72b6df109ae65165c1563cb1326ba3344ff77cad711b4f773208e06a7a17a"
+    },
+    {
+      "name": "final-held-320.png",
+      "sha256": "5016a1500a37d503ed9dec036f9d851cef52312608acd738f15fc8de06965fa9",
+      "pixels": [
+        320,
+        1101
+      ]
+    },
+    {
+      "name": "final-narrow-320.png",
+      "sha256": "6e3bd02cc8b8c70f08d1aed92ae9f915c73e90d4777a137a111e558b223c7560",
+      "pixels": [
+        320,
+        1091
+      ]
+    },
+    {
+      "name": "final-running-320.png",
+      "sha256": "bd9fa90019092696929dc7c120e219835e307fe81339c90637837577d37a4bd4",
+      "pixels": [
+        320,
+        914
+      ]
+    },
+    {
+      "name": "final-wide-1440.png",
+      "sha256": "3c5ddcaa99c0fa7e10bdc955c3809bbb8de53ab748c718f3d2d5ea8d77705cae",
+      "pixels": [
+        1440,
+        925
+      ]
+    },
+    {
+      "name": "first-narrow-305.png",
+      "sha256": "f6601333aef7fefb420be126cce419090f147c2ae7e13bebde326137c24edbae",
+      "pixels": [
+        305,
+        1252
+      ]
+    },
+    {
+      "name": "first-wide.png",
+      "sha256": "470f7cf6858e466d54bb58a1c5be5695a1f4a4dd10a351b4d6e8fc9f4b0776c2",
+      "pixels": [
+        1425,
+        925
+      ]
+    },
+    {
+      "name": "study-a-narrow-305.png",
+      "sha256": "a850925c8af38f86443099a21110f1f144e39f5d0b36ab6850773a82b4ac2b69",
+      "pixels": [
+        305,
+        1084
+      ]
+    },
+    {
+      "name": "study-a-wide.png",
+      "sha256": "1154dc1fe2efc7332ae5199658c8bd6307b7129e0873fd5d706851e25cd3778c",
+      "pixels": [
+        1425,
+        917
+      ]
+    },
+    {
+      "name": "study-b-narrow-320.png",
+      "sha256": "ddd1e7e04ebdc441fd5fcf6052862f78f3f86374556b2cd378e3b8a81b8a955c",
+      "pixels": [
+        320,
+        900
+      ]
+    },
+    {
+      "name": "study-b-wide.png",
+      "sha256": "9862c8666db1a92d2c0c8d6f2cbb3fd3d43786b1594e0b86986bbe4155fbae79",
+      "pixels": [
+        1440,
+        900
+      ]
+    }
+  ]
+}

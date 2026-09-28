@@ -13,7 +13,7 @@ Audit the actual task path and rendered states. Preserve a project's applicable 
 
 ## Follow the task twice
 
-Complete the flow by keyboard alone: Tab order, visible focus, Enter and Space activation, Escape and focus return, disclosure, dialog, error recovery and any pointer-only gesture. Then inspect names, roles, values and state announcements using a screen reader when available. If that second walk cannot run, report it as unverified. Native buttons, links, inputs and disclosures usually give a stronger base than rebuilt div controls. Add ARIA only for behavior the native element does not express.
+Complete the flow by keyboard alone: Tab order, visible focus, Enter and Space activation, Escape and focus return, disclosure, dialog, error recovery and any pointer-only gesture. Then inspect names, roles, values and state announcements using a screen reader when available. If that second walk cannot run, report it as unverified. Native buttons, links, inputs and disclosures usually give a stronger base than rebuilt div controls. Add ARIA only for behavior the native element does not express. For responsive master-detail or disclosure UI, check the actual visible controlled region at every breakpoint: an expanded control must not point only to a detail node hidden at that width. Use a truthful selected state when the relationship is selection rather than disclosure.
 
 ## Test the visual alternatives
 
