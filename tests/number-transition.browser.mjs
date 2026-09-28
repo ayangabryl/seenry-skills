@@ -15,7 +15,8 @@ try {
  await page.setContent('<style>body{font:32px Arial}.line{display:flex;gap:8px;align-items:baseline;width:400px}button{width:44px;height:44px}</style><div class="line"><span id="amount">9</span><span id="unit">items</span><button id="increase">+</button></div><span id="fallback">1</span>');
  await page.evaluate(async base=>{
   const module=await import(base+'/skills/seenry-motion/assets/number-transition.mjs');window.createNumberTransition=module.createNumberTransition;
-  window.amount=createNumberTransition({slot:document.querySelector('#amount'),value:9,duration:600,reserveValues:[-888.88,888.88],format:{minimumFractionDigits:2,maximumFractionDigits:2}});
+  // Leave enough time for the first frame probe after CI's keyboard and DOM round trips.
+  window.amount=createNumberTransition({slot:document.querySelector('#amount'),value:9,duration:5000,reserveValues:[-888.88,888.88],format:{minimumFractionDigits:2,maximumFractionDigits:2}});
   document.querySelector('#increase').onclick=()=>amount.update(amount.value+1);
  },base);
  assert.equal(await page.evaluate(()=>amount.animationSupported),true);
