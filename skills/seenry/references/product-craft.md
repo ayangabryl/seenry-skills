@@ -32,6 +32,8 @@ Keep data consistent between states. Counts must agree with rows, a changed stat
 
 Inspect repeated-row labels, quantities and live state at ordinary display size on both wide and narrow screens. A dense layout does not justify tiny, faint time, progress or category cues when those values drive the choice. Review the visible selected or playing state as well as the resting row.
 
+Before expanding a comparison slice, render its deciding row and any diagram at desktop, the intended phone width and 320px. When responsive layout removes column headings, give each decision-critical number a visible local label; proximity alone may not tell a return deadline from a departure time. Mark the selected option with a persistent non-color cue distinct from its status and hover treatment. Keep counters together, and move a status badge to another row before it squeezes the object's title. Keep first and last chart-axis labels inside the plotted bounds. Measure `document.documentElement.scrollWidth <= innerWidth` at each phone width and inspect edge text in the screenshot; an overflowing tick label invalidates the slice even when the underlying values update correctly.
+
 Treat large headings, KPI cards, promotional copy and empty decorative panels as decisions to justify. They can be appropriate, but if they draw attention away from the current task, reduce or remove them. Match useful information density, not the total number of boxes. Quiet space can separate roles; it need not be filled.
 
 ## Calibrate and carry the system

@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "brief": "brief.md",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "ce0c01af924c8d589ced11484fcd4e96d27667caaa05e4435a4f0418e8bd4450"
+    },
+    {
+      "path": "brief.md",
+      "sha256": "cd058ac4361ba9266f16df5795482280f5ed024081c9e6bfbfcac3b54fb449a6"
+    },
+    {
+      "path": "final2-1440.png",
+      "sha256": "d8bafa805bd73480dd198101ff3bcb36436fe073fcc627f2c97b59e8882407f1",
+      "pixels": [
+        1440,
+        1873
+      ]
+    },
+    {
+      "path": "final2-320.png",
+      "sha256": "af5641e1ee7858feb429861f4abb28cffb62fba8e319664bc551ec6b6336e698",
+      "pixels": [
+        320,
+        2277
+      ]
+    },
+    {
+      "path": "final2-390.png",
+      "sha256": "daf0c7e9a49f91e76c1f13c569b878ffa4f570cd05553ca27d5fe4764b759f54",
+      "pixels": [
+        390,
+        2191
+      ]
+    },
+    {
+      "path": "final2-outer-320.png",
+      "sha256": "ecc76670b594df0a644c1f45507460a6f3fced3bc820770aee701672302205b0",
+      "pixels": [
+        320,
+        2277
+      ]
+    },
+    {
+      "path": "first-narrow.png",
+      "sha256": "215bf36f31e63528a7f6a187d3528d84a3b21fb3987d6852837686662d114d3f",
+      "pixels": [
+        388,
+        2174
+      ]
+    },
+    {
+      "path": "first-wide.png",
+      "sha256": "719ab31032d5f3957b4477a0aea0a31630fc9422c29d0b88838523f90e35230e",
+      "pixels": [
+        1425,
+        1871
+      ]
+    },
+    {
+      "path": "prototype/index.html",
+      "sha256": "3f3e596bbc9341e4122b4f64a0d9aa5622924820b046281aa2a57b2164658e71"
+    },
+    {
+      "path": "prototype/script.js",
+      "sha256": "940ec45bc03dc34856a00df9a1abf0e8b532ee662857405dd931edd2147ffa8c"
+    },
+    {
+      "path": "prototype/style.css",
+      "sha256": "efef65696c36020c8960fa14183bddf2236f1b668d5a460e0d5d96ef1730c022"
+    },
+    {
+      "path": "study-a-narrow.png",
+      "sha256": "10724c01962f5ddcf2778d6f3189dc89c2582d1f4431a623369df257e4af7732",
+      "pixels": [
+        375,
+        939
+      ]
+    },
+    {
+      "path": "study-a-wide.png",
+      "sha256": "c3fc1a770618409130535a1e58f9ae474da12e5c0d75fac46025f748f9c8c07a",
+      "pixels": [
+        1440,
+        900
+      ]
+    },
+    {
+      "path": "study-b-narrow.png",
+      "sha256": "0a7905b50abbf954d67712e1f3972633d64fc8cc05b0d9197214331f6eb3df2c",
+      "pixels": [
+        375,
+        980
+      ]
+    },
+    {
+      "path": "study-b-wide.png",
+      "sha256": "3b04d23de33a16c073918f5b5579712eaddecd628da7c228ebe02b3c347def1b",
+      "pixels": [
+        1425,
+        938
+      ]
+    }
+  ],
+  "independent_reviews": [
+    {
+      "stage": "direction",
+      "verdict": "Revise",
+      "summary_sha256": "2694a9caa5529dd16bdc689f6a8aa4617254a7946da58f2bcd3c7cbf305bc0e1",
+      "findings": [
+        "B mobile removes the column headings, leaving 10:15, 09:45 and 11:15 without return-time labels.",
+        "B distinguishes North Pier with a pale background fill but provides no explicit selected marker."
+      ]
+    },
+    {
+      "stage": "first-full",
+      "verdict": "Revise",
+      "summary_sha256": "65758e9d48588eecc920465cbf40b892be246c532b0cac9b834ed6af53f98b47",
+      "findings": [
+        "The narrow capture clips the timeline\u2019s rightmost \u201c12:00\u201d label at the screen edge.",
+        "North Pier\u2019s highlighted comparison row matches the detailed forecast, but its only distinct selection cue is the background color."
+      ]
+    },
+    {
+      "stage": "repair1-full",
+      "verdict": "Revise",
+      "summary_sha256": "7895c7b1f9c8a489b6f74888c0c5bf1e49730f8984d11aa79ac12389c552c9c2",
+      "findings": [
+        "Both narrow layouts remove the comparison\u2019s \u201cBest window\u201d column heading without adding an equivalent label beside each time range.",
+        "At 320 px, the forecast counter breaks after \u201c01 /\u201d, placing \u201c03\u201d beneath \u201cSample forecast\u201d; the harbor title also becomes cramped beside the status badge."
+      ]
+    },
+    {
+      "stage": "final2-full",
+      "verdict": "Keep",
+      "summary_sha256": "67a27281a93573d56b05df9fab89d903208326cad601d334f0212929ed7088c3",
+      "findings": []
+    }
+  ],
+  "browser_first_overflow_px": {
+    "390": 403,
+    "320": 337
+  },
+  "browser_final_scroll_width_px": {
+    "1440": 1440,
+    "390": 390,
+    "320": 320
+  },
+  "limits": [
+    "Final source is parent-assisted after first builder repair.",
+    "Static Keep does not verify interactions, screen reader, zoom, contrast or broad first-pass consistency."
+  ]
+}
