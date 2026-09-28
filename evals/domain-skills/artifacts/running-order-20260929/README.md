@@ -1,0 +1,11 @@
+# Running order motion trial
+
+This isolated consumer trial asked the published Seenry Motion skill to build an original three-item agenda reorder component. The builder inspected playback of Seenry reference `f97afc7b44ced5530ba27d573fc7318f` (Bento, via Design Spells) and recorded observed lift, vacant slot, neighbor movement and return to the grid in `first-source/DESIGN.md`. It did not copy the source media or visual layout. The third-party video is not bundled here.
+
+The builder preserved its first complete source before repair. Its sandbox could not bind a localhost server, and the browser disallowed direct `file:` navigation, so the first captures were made later by the parent from that preserved source through a local HTTP server. The initial desktop, 390px, 320px, held-drag and immediate-release images are in `captures/`. The immediate-release image caught the row while its 260ms return animation was still running. Treat its apparent footer overlap as capture timing, not the settled layout.
+
+Independent first-screen typography and whole-screen reviews both returned **Revise**. The first wrapper used a large serif editorial introduction that delayed the agenda on phone; the duration and type labels collided at 320px, and the prospective slot cue was too faint. The original builder also found low-contrast small labels by source audit. Parent repair made the component the first subject, separated mobile metadata, constrained drag to the vertical task axis, and made the drop cue visible. A second review returned **Revise** because “Reset order” became icon-only at 320px. After restoring its visible label, fresh reviewers both returned **Keep** on desktop, 390px, 320px, held and settled captures.
+
+External browser checks confirmed mouse and touch reorder, recalculated 18:00/18:10/18:25 start times, keyboard Home/End with focus retained, reset, rapid reversal, Escape cancellation, no 320px document overflow, and reduced-motion styles. Release animation samples showed the held row move toward its settled top at 0/100/200ms and finish by about 300ms. These checks do not establish screen-reader quality or broad first-pass reliability. The new motion-skill wording was added after this trial; its prevention effect remains untested.
+
+`manifest.json` records file hashes and image dimensions.

@@ -1,0 +1,155 @@
+{
+  "trial": "running-order-20260929",
+  "files": [
+    {
+      "file": "README.md",
+      "sha256": "d03ff933d91cf2783f11ba59e5daa4a279ab411949e2b23e71065dd8b2ba101e",
+      "bytes": 2332
+    },
+    {
+      "file": "RESULTS.md",
+      "sha256": "e5b0bbcfedb64eaaaaa269115a3b5e2be68a718d8fed81f79156c411ba0dcede",
+      "bytes": 2209
+    },
+    {
+      "file": "brief.md",
+      "sha256": "bca425c47e4da7c605a35e64c3afff61fbae56ebd67e75663fc43a3c49b4cbba",
+      "bytes": 2056
+    },
+    {
+      "file": "captures/final-320.png",
+      "sha256": "79097b5d4dff36f8514c705e173da21da4e15998b9dd721fa984c232a3f0d6a1",
+      "bytes": 72105,
+      "pixels": [
+        320,
+        802
+      ]
+    },
+    {
+      "file": "captures/final-drag.png",
+      "sha256": "4fe3017873e2822de2cb7d58549d54930770eca1c27be9e159afb9de915ef0f0",
+      "bytes": 141035,
+      "pixels": [
+        1440,
+        900
+      ]
+    },
+    {
+      "file": "captures/final-phone.png",
+      "sha256": "5fbaf0c361137e7f153a18100767a96335fc8d7542ffcf97e20de9d734d5912e",
+      "bytes": 75231,
+      "pixels": [
+        390,
+        844
+      ]
+    },
+    {
+      "file": "captures/final-reordered.png",
+      "sha256": "77aca2f4f071d3feb9a3d0862c77ab8c5b31dd7c02a0096f0970704d6ac6161d",
+      "bytes": 120735,
+      "pixels": [
+        1440,
+        900
+      ]
+    },
+    {
+      "file": "captures/final-wide.png",
+      "sha256": "4d54d52c864cbf38fdd1786a3a12f7ce0b14fffc47fb2609c68ba96dfd77cb5b",
+      "bytes": 121143,
+      "pixels": [
+        1440,
+        900
+      ]
+    },
+    {
+      "file": "captures/first-320.png",
+      "sha256": "6104a4047d1e4de83ef62177ee05432e50b9ead8a43428533a21ebba8c6cd42d",
+      "bytes": 89266,
+      "pixels": [
+        320,
+        966
+      ]
+    },
+    {
+      "file": "captures/first-drag.png",
+      "sha256": "65cb0ff09ab84f1e922a0f61b48c72934dde68dbb7e0789bc81b643f28570c7a",
+      "bytes": 164282,
+      "pixels": [
+        1440,
+        900
+      ]
+    },
+    {
+      "file": "captures/first-phone.png",
+      "sha256": "7d32278fed26c9483e9d46697a1db13c031286c87de8707dcd65365d94da4aa8",
+      "bytes": 94680,
+      "pixels": [
+        390,
+        962
+      ]
+    },
+    {
+      "file": "captures/first-reordered-immediate.png",
+      "sha256": "d2ecc2dc32f3d0c1c7f6282a6148ff3cf5320d2b74a6b9bcefb685a10b13a758",
+      "bytes": 164173,
+      "pixels": [
+        1440,
+        988
+      ]
+    },
+    {
+      "file": "captures/first-wide.png",
+      "sha256": "0075d2eb2c13b2d341b2c24e142d0d6d3999ba49fd3f631ac2d84a852bce803d",
+      "bytes": 151971,
+      "pixels": [
+        1440,
+        988
+      ]
+    },
+    {
+      "file": "final-review-summary.json",
+      "sha256": "7751c935ac615489f90726def0dcb10b930662ec557926ba1a8d2195423ad2ad",
+      "bytes": 3116
+    },
+    {
+      "file": "first-review-summary.json",
+      "sha256": "8b3a537609d313a349fb9e6af2d21fa01dbf9b81dc405f1e033bec572aaab837",
+      "bytes": 4859
+    },
+    {
+      "file": "first-source/DESIGN.md",
+      "sha256": "93ecebdb37df7d3ab6e464f5d86ded0436660739da89cb62e59b249af65f9ce0",
+      "bytes": 3556
+    },
+    {
+      "file": "first-source/index.html",
+      "sha256": "999ff2819317a999f1b00a1bc8960dd1ad674a1f5ce947ff5e7a9eaf1b4ffdcb",
+      "bytes": 4388
+    },
+    {
+      "file": "first-source/script.js",
+      "sha256": "2def521d34704d484431ec2603ba8c9d6e81abd2db75b278fcc66e8117e9cfc0",
+      "bytes": 8472
+    },
+    {
+      "file": "first-source/styles.css",
+      "sha256": "22910da4977cfca88cbdd7d7c71925659da654ed21a4ae0397ef127d0db4e65c",
+      "bytes": 7950
+    },
+    {
+      "file": "repaired-source/index.html",
+      "sha256": "f174486eb83446d0536662b218aea8e9bf1986451baa3aff5dce4eed8a9ff5e8",
+      "bytes": 4255
+    },
+    {
+      "file": "repaired-source/script.js",
+      "sha256": "b435275d2697bd01007feb7b699674ec8de27dd7d64b60e0c0aada128544be62",
+      "bytes": 8782
+    },
+    {
+      "file": "repaired-source/styles.css",
+      "sha256": "11b93f678e835bf5b63dec0729b5b145f05ac09b2d481fbab1fd9f3842f94cd8",
+      "bytes": 10033
+    }
+  ]
+}

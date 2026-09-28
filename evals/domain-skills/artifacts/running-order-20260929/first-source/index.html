@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Running order — event draft</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="workspace">
+    <header class="masthead">
+      <div class="masthead-left"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span class="brand-name">STAGE NOTES</span></div>
+      <span class="draft-label"><span class="draft-dot" aria-hidden="true"></span> SAMPLE DRAFT</span>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">PUBLIC TALK <span class="eyebrow-divider">/</span> RUN OF SHOW</p>
+        <h1 id="page-title">Running order<span class="title-period">.</span></h1>
+        <p class="intro-copy">Arrange the three parts of the evening. Start times follow the order you set.</p>
+      </div>
+      <div class="event-clock" aria-label="Event from 18:00 to 18:50">
+        <div class="clock-caption">EVENT WINDOW</div>
+        <div class="clock-range"><time datetime="18:00">18:00</time><span aria-hidden="true">—</span><time datetime="18:50">18:50</time></div>
+        <div class="clock-foot">50 MIN TOTAL</div>
+      </div>
+    </section>
+
+    <section class="schedule" aria-labelledby="schedule-heading">
+      <div class="schedule-toolbar">
+        <div class="schedule-toolbar-title"><span class="section-index" aria-hidden="true">01</span><h2 id="schedule-heading">Evening agenda</h2><span class="item-count">3 ITEMS</span></div>
+        <button id="reset" class="reset-button" type="button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 11a8 8 0 1 1 2.4 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M4 5v6h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Reset order</button>
+      </div>
+
+      <ol id="agenda" class="agenda" aria-label="Agenda items in running order">
+        <li class="agenda-item" data-id="doors">
+          <div class="time-cell"><span class="row-index">01</span><time class="start-time" datetime="18:00">18:00</time></div>
+          <div class="item-body"><h3>Doors and welcome</h3><span class="item-type">OPENING</span></div>
+          <span class="duration">10 <span>MIN</span></span>
+          <button class="grip" type="button" aria-label="Move Doors and welcome" aria-describedby="sort-help" aria-keyshortcuts="ArrowUp ArrowDown Home End"><span class="grip-dots" aria-hidden="true"></span></button>
+        </li>
+        <li class="agenda-item" data-id="notes">
+          <div class="time-cell"><span class="row-index">02</span><time class="start-time" datetime="18:10">18:10</time></div>
+          <div class="item-body"><h3>Field notes</h3><span class="item-type">TALK</span></div>
+          <span class="duration">25 <span>MIN</span></span>
+          <button class="grip" type="button" aria-label="Move Field notes" aria-describedby="sort-help" aria-keyshortcuts="ArrowUp ArrowDown Home End"><span class="grip-dots" aria-hidden="true"></span></button>
+        </li>
+        <li class="agenda-item" data-id="questions">
+          <div class="time-cell"><span class="row-index">03</span><time class="start-time" datetime="18:35">18:35</time></div>
+          <div class="item-body"><h3>Audience questions</h3><span class="item-type">Q&amp;A</span></div>
+          <span class="duration">15 <span>MIN</span></span>
+          <button class="grip" type="button" aria-label="Move Audience questions" aria-describedby="sort-help" aria-keyshortcuts="ArrowUp ArrowDown Home End"><span class="grip-dots" aria-hidden="true"></span></button>
+        </li>
+      </ol>
+
+      <div class="schedule-footer"><div class="end-marker"><span class="end-marker-dot" aria-hidden="true"></span><span>END OF PROGRAMME</span><strong>18:50</strong></div><p id="sort-help">Drag a grip, or focus one and use ↑ / ↓ to move. Home / End moves to an edge.</p></div>
+    </section>
+
+    <p id="status" class="status" role="status" aria-live="polite"><span class="status-icon" aria-hidden="true">✓</span><span class="status-text">Ready to arrange · Sample data, local to this page.</span></p>
+  </main>
+</body>
+</html>
