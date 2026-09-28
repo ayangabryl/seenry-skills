@@ -1,0 +1,59 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "c90ea80167c2a6cb6068a5439361572c9218b84e3aad7ce2070669f8570656be",
+    "desktop": "fce8d3583b6b4e84b997d4e74a41f0e031a341d60416d38d1b3679d3947b2e52",
+    "mobile": "897f1ff52ca6acabca2b616bc33721ae2eebb4a535791410480b58bffd594da3",
+    "state.review": "30f63bb4af756af2dba6c71a6381823a40860b8f3ae60a38bae8afda26613d4c",
+    "state.confirmation": "780488cf6e52215533254b799f266aee874f9de599a74f21196ad827550b93c5"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The disabled \u201cReview demo choice\u201d label is faint against its peach button in both first-screen captures.",
+          "impact": "The next step is difficult to read before a service and time are selected.",
+          "repair": "Keep the disabled state distinct while giving its text enough contrast to remain legible."
+        },
+        {
+          "observation": "In the confirmation capture, the persistent \u201cBicycle repair. Inner east Portland.\u201d headline remains more prominent than \u201cYour demo choice,\u201d which does not clearly name the result.",
+          "impact": "The reader must use the body copy to work out that the demo selection is complete and no booking was made.",
+          "repair": "Give the result a clear heading such as \u201cDemo selection complete,\u201d make it the primary heading in that state, and retain the prominent no-booking explanation."
+        }
+      ],
+      "strengths": [
+        "The first-screen type leads from the shop\u2019s purpose and location to service names, prices, dates, and times without a long promotional introduction.",
+        "Service prices align for scanning, and the review state separates service, time, and price into clear decision fields.",
+        "The review and confirmation copy explicitly distinguishes the demo from a real appointment."
+      ],
+      "limits": [
+        "The captures show fixed states only; they do not establish interaction behavior, zoom behavior, or font implementation."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass3/gate-first/typography/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass3/gate-first/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "Desktop and mobile captures clearly present the repair services, prices, service area, hours, and available demo times.",
+        "The review state shows the selected service, price, and time, with a way to change the choice.",
+        "The final state repeats the choice and explicitly says no real booking was made.",
+        "The restrained palette, spoke logo, clear type hierarchy, and mobile layout form a coherent visual design."
+      ],
+      "limits": [
+        "Static captures cannot verify selection feedback, button behavior, keyboard access, or touch behavior.",
+        "Review and confirmation states are shown only at mobile width.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass3/gate-first/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass3/gate-first/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

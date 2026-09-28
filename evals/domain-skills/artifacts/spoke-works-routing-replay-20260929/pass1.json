@@ -1,0 +1,65 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "c90ea80167c2a6cb6068a5439361572c9218b84e3aad7ce2070669f8570656be",
+    "desktop": "d349adb29abe6e083c4390ed9a20330fbad59d8673b015159bf762049f647724",
+    "mobile": "40e6845c7586866ef5cbd4ac8d49d78eb32c797f53fe9123e08458f82244ccf4",
+    "state.selected-wide": "e218988050a2ba3634f92eba710d60c4b590c8dfe507a895af9c72035f5ca3bc",
+    "state.selected-phone": "79013c96176c842bfacd104343906ff5151f3b38a3544043d10a6fe104404158",
+    "state.review-phone": "a22c3d71988cafa026eb310fd5667acc8be3654bfbbb2c5ebcb372ac3827bd5d",
+    "state.confirmation-phone": "3fb4889dd4d0774a9c31e5f49cbcef2aba684c23032ba81df9ce2fd9000684af"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "On mobile, the hero, supporting sentence, hours, service link, selection heading, demo explanation and numbered question precede the first service at roughly 580px. Two consecutive headings introduce the same selection task.",
+          "impact": "Introductory typography delays the service-and-price material; available times begin around 900px down the page.",
+          "repair": "Consolidate the selection introduction and first-step heading, retain the demo disclosure, and compress the opening so service prices and availability enter the reading path sooner."
+        },
+        {
+          "observation": "The neighborhood section combines a tracked uppercase eyebrow with an oversized statement repeating the hero\u2019s location, then repeats that location under \u201cService area.\u201d On mobile this statement is larger than the opening headline.",
+          "impact": "A secondary information section gains disproportionate emphasis through a familiar promotional type stack, while the useful area and hours receive less attention.",
+          "repair": "Replace the repeated neighborhood statement and eyebrow with a compact section heading, giving the actual service area and hours the primary typographic emphasis."
+        }
+      ],
+      "strengths": [
+        "The heavy, tightly spaced sans-serif establishes a direct, approachable voice. Its pairing with serif weekday labels gives the calendar a distinct scanning role without imposing an editorial treatment on the whole page.",
+        "Service names, descriptions and aligned prices form a clear comparison hierarchy at both supplied widths.",
+        "Selected captures preserve readable labels and summarize service, price, date and time beside the next action; the chosen slot also has a visible checkmark.",
+        "The review capture separates service, time and price into clearly labeled values, with an unmistakable primary confirmation action.",
+        "The confirmation capture explicitly names the demo result and prominently explains that no booking was made or sent."
+      ],
+      "limits": [
+        "Reviewed all six supplied captures at original size. Static images support visual hierarchy and wording judgments, but cannot establish interaction behavior, focus order, semantic markup, font loading or zoom resilience."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-pass1/typography/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-pass1/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The offering, Portland service area, opening hours, three service prices and four demo slots match the brief and are easy to find.",
+        "Desktop and phone layouts preserve clear reading order, readable text and coherent grouping without visible clipping. The wheel mark, sturdy typography and restrained green, cream and orange palette suit the neighborhood repair shop.",
+        "Selected states show a radio dot and slot checkmark beyond color alone, repeat the complete choice beside the review action, and visibly distinguish the enabled action.",
+        "The phone review clearly separates service, date, time and price, with distinct confirmation and change-selection actions.",
+        "The confirmation preserves the chosen details and explicitly states that no real booking was made or sent to the shop. The captures cover the central decision through its visible result."
+      ],
+      "limits": [
+        "Static captures do not verify pointer, keyboard or touch operation, focus management, selection persistence after changing a choice, or actual state transitions.",
+        "Screen-reader semantics, measured contrast, zoom, reduced motion and widths beyond the supplied desktop and phone captures remain unverified.",
+        "Review and confirmation are shown only on phone; their desktop layouts are unverified.",
+        "No visual reference was supplied; assessment is against the brief."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-pass1/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-pass1/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

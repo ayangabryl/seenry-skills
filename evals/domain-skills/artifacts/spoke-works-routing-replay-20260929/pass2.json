@@ -1,0 +1,61 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "c90ea80167c2a6cb6068a5439361572c9218b84e3aad7ce2070669f8570656be",
+    "desktop": "fce8d3583b6b4e84b997d4e74a41f0e031a341d60416d38d1b3679d3947b2e52",
+    "mobile": "897f1ff52ca6acabca2b616bc33721ae2eebb4a535791410480b58bffd594da3",
+    "state.selected-wide": "a2508fde86b0f594465c9e8dbc207d5a5042d1ec73dff2eb35dd70e44c6f9090",
+    "state.selected-phone": "ce5820af7341a3961ca29ac6406343265050a9f809d7db674ce5f8ade148e16f",
+    "state.review-phone": "039077aec37b731e8d39b03a352502dbf211c4fd026f68355424e0134c5ac693",
+    "state.confirmation-phone": "878f1121f73c939a96f055f1d32ed80a0509b05fbe38ae022ad0fe683be54e11"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The phone review stacks \u201cREVIEW YOUR CHOICE,\u201d \u201cLooking right?\u201d and a repeated demo disclaimer before the selected service. Confirmation similarly stacks a checkmark, \u201cDEMO CONFIRMATION\u201d and \u201cDemo choice confirmed.\u201d",
+          "impact": "These repeated introductions give generic status framing more prominence than the decision details. In review, the service first appears roughly 600 pixels down the capture.",
+          "repair": "Use one clear heading per state. In review, place the service, date, time and price immediately beneath it, with one demo disclaimer near confirmation. In the result, remove the redundant eyebrow while preserving the explicit no-booking explanation."
+        }
+      ],
+      "strengths": [
+        "The substantial sans-serif headline identifies the actual service and location immediately; its two-line arrangement remains clear on desktop and phone.",
+        "The combined signature is primarily functional: bold service names, aligned prices, numbered steps and restrained serif weekday headings support comparison without imposing a decorative editorial template.",
+        "Service descriptions remain subordinate, while dates and time labels stay readable at the supplied phone size.",
+        "Both selected captures retain the hierarchy and provide a compact summary of service, price and appointment time before the review action.",
+        "The review separates decision details into labeled rows. Confirmation clearly names the result and emphasizes that no real booking occurred."
+      ],
+      "limits": [
+        "Reviewed all six supplied captures at native size against the brief. Static images do not establish interaction behavior, semantic structure, font loading, zoom resilience or focus handling."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-pass2/typography/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-pass2/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The offering, service area, hours, three prices and four demo slots match the brief and are easy to locate.",
+        "Desktop columns become a clear sequential phone layout without visible clipping. Strong headings, restrained rules and consistent spacing make the choices readable.",
+        "The wheel mark, sturdy typography and green, cream and orange palette form a coherent neighborhood repair identity. Serif day labels help distinguish the calendar choices.",
+        "Selected captures show a radio dot, a time-slot checkmark and a complete choice summary; selection is communicated beyond color alone.",
+        "The phone review exposes service, date, time and price together, with clear confirm and change actions.",
+        "The confirmation preserves the chosen details and explicitly states that no real booking was made or sent to Spoke Works."
+      ],
+      "limits": [
+        "Static captures establish visible states, not working pointer, keyboard or touch interactions, focus management, selection persistence or change-action behavior.",
+        "Screen-reader semantics, measured contrast, zoom and layouts beyond the supplied widths remain unverified.",
+        "Desktop review and confirmation states were not supplied; those states were assessed on phone.",
+        "No visual reference was supplied, so reference fidelity was not assessed."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-pass2/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-pass2/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

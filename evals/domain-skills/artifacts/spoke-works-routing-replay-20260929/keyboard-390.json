@@ -1,0 +1,9 @@
+{
+  "selected": {
+    "service": "true",
+    "slot": "true",
+    "enabled": true
+  },
+  "reviewText": "Review demo choice\nSERVICE\nStandard tune\nDEMO TIME\nThu 1 Oct 2026 · 10:30\nSERVICE PRICE\n$95\n\nDemo only. No appointment is reserved.\n\nChange selection\nConfirm demo selection →",
+  "focused": "Change selection"
+}

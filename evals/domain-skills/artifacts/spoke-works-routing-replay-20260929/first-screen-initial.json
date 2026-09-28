@@ -1,0 +1,64 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "c90ea80167c2a6cb6068a5439361572c9218b84e3aad7ce2070669f8570656be",
+    "desktop": "2315f42400ca12f3a44c0ae05f025c7b3cf34a01247899c0fe618000581e5084",
+    "mobile": "2927666927aa51f65c869bc65e5e9c79d4d55994eeeba3193cc5c9a77d224694",
+    "state.review-wide": "204e6f7d35c97279aa132f48b10758002a9b690c2ff564e5bbc3eb15f6b9833c",
+    "state.review-phone": "0f815f96bc58470f3dee62c9c34ea52c105c9243e17498b30b67aedef50d89f4",
+    "state.confirmation-wide": "416853eccb89dce7c0a1ac5edd44ac3a2ff252813b23ce65de73546c34486cec",
+    "state.confirmation-phone": "4384e5246e76c2a6a32ca9ac1fb48ed4a223474a9378d5aea4d3eda1acf03363"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The opening combines a tracked uppercase location kicker, oversized heavy sans headline, peach italic serif phrase, underlined action and small wheel caption. Together these form a familiar editorial signature; the brief supplies no established identity supporting it.",
+          "impact": "The type emphasizes a generic lifestyle promise while the distinctive repair material\u2014services, prices and availability\u2014remains secondary.",
+          "repair": "Recompose the opening around repair information and the selection task. Reduce the decorative type roles and compare a materially different arrangement using actual services and prices, rather than merely replacing the fonts."
+        },
+        {
+          "observation": "On the 390px phone capture, the first service begins around 756px down after the hero, 'YOUR NEXT STEP,' a second large two-line heading, explanatory copy and the step heading. Review and confirmation retain the same large selection introduction above their smaller state titles.",
+          "impact": "Repeated introductions delay the first decision and leave the current decision or result subordinate to an instruction from the initial state.",
+          "repair": "Compress the selection introduction, retain a concise demo explanation, and bring the service rows upward. In review and confirmation, make the current state title the governing heading instead of retaining the oversized 'Choose the work. Choose the time.' introduction."
+        }
+      ],
+      "strengths": [
+        "Service names, aligned prices and subordinate descriptions create a clear comparison hierarchy; dates and time labels remain readable on the phone.",
+        "Review captures clearly separate service, demo time and price, with bold values and an identifiable confirmation action.",
+        "Confirmation captures distinguish the saved choice from a real booking through a clear result title and prominent demo disclaimer.",
+        "Body text has comfortable measures, and the supplied states show no clipped labels or overflowing headings."
+      ],
+      "limits": [
+        "Inspected all six supplied captures at original size. Screenshots support visual hierarchy and wrapping judgments, but cannot verify interactions, semantic headings, font loading, zoom behavior or focus handling."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-initial/typography/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-initial/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The offering, Portland service area, hours, three service prices, and four demo slots match the brief and remain readable at desktop and phone sizes.",
+        "The numbered service and time groups make the decision clear. The initial instruction explains why review is unavailable.",
+        "Both review captures clearly summarize the chosen service, date, time, and price, with distinct confirm and change actions.",
+        "Both confirmation captures preserve the chosen details and explicitly state that no real booking was made or sent to Spoke Works.",
+        "The wheel illustration and matching logo give the identity a bicycle-specific anchor. Consistent colors, strong typography, restrained borders, and clean mobile stacking carry through all supplied states."
+      ],
+      "limits": [
+        "Static captures do not verify pointer, keyboard, touch, focus management, screen-reader announcements, or actual state transitions and persistence.",
+        "Selected controls before review, partial selections, and the return-to-edit state are not shown; their visual feedback remains unverified. The central decision and its confirmation are shown.",
+        "Zoom, intermediate viewport widths, and measured contrast compliance were not tested.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-initial/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/gates/first-screen-initial/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}
