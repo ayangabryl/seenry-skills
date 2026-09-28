@@ -4,6 +4,8 @@ Use the [content model](content-model.md) to resolve visible information, image 
 
 Establish what the person handles: an image, track, appointment, list or comparison. Record the containing size, inherited identity and surrounding information. Without a supplied host, use a quiet preview canvas and state the assumed width. An embedded component does not need navigation, a promotional introduction or a page footer; a requested standalone tool can legitimately need a larger frame.
 
+For a component demo, show only the needed host. Tabs, filters, menus, pagination and usage figures promise functionality; implement or omit them. Label sample records.
+
 Name the task once. Show metadata that affects a choice and group controls by their effect. Keep preview explanations, provenance and test controls outside the product. Resolve the actual footprint and narrow behavior rather than filling a desktop screenshot.
 
 ## Compare before committing

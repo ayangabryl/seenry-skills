@@ -8,7 +8,7 @@ Make a small private ledger with three columns: supplied and verified facts; fic
 
 When a requested section needs details the brief does not supply, present plausible examples as possibilities rather than confirmed promises. A beginner workshop may show example forms someone could make; it should not promise a specific project, technique, material or take-home result without support. Keep such examples visibly framed as examples and record the assumption in the handoff.
 
-In a product concept or local demo, do not present invented document counts, recent items, saved states or named people as existing user data. Mark sample content as sample, or derive it from working local state. Verify attributed quotations against a primary source before presenting them as verbatim; paraphrase without quotation marks and attribution when verification is unavailable.
+In a product concept or local demo, do not present invented document counts, recent items, saved states, storage quotas or named people as existing user data. Mark samples as samples, or derive values from working local state. A changing row count does not establish gigabytes stored. Verify attributed quotations against a primary source before presenting them as verbatim; paraphrase without quotation marks and attribution when verification is unavailable.
 
 For each prominent action, write `visible label → actual target → result`. A target is a real page, supplied URL, working local section, functioning operation or valid contact address. `href="#"`, an empty handler and a simulated success screen are not targets. Keep the same destination meaning when a CTA repeats in the hero, body and closing section.
 
@@ -18,7 +18,7 @@ If the brief requests booking, registration or payment but supplies no usable en
 
 ## After implementation
 
-1. Inspect every prominent link, button and form submit in the **delivered** files. Follow its `href` or event handler and compare the settled result with its label. Check all repetitions, including sticky and footer CTAs.
+1. Inventory visible actions in the **delivered** files, including secondary navigation, tabs, filters, row controls and pagination. Trace label → target → result. Remove unsupported controls; a demo toast does not make a feature button work. Check repeated actions, including sticky and footer CTAs.
 2. Search the rendered copy for dates, times, prices, counts, addresses, percentages, testimonials, availability and guarantees. Match each factual claim **and its meaning** to the ledger. Check numeric details in metadata and alt text too. If the brief allowed fiction, keep it visibly within that scope.
 3. Activate the main action with keyboard and pointer when a browser is available. Test a failure or missing destination instead of showing false success. If browser execution is unavailable, inspect source targets and report the behavioral limit.
 4. Fix contradictory labels or unsupported details before handoff. State any necessary missing hookup once in the report; do not turn implementation uncertainty into decorative visitor copy.
