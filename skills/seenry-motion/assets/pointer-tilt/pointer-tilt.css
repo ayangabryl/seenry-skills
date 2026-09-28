@@ -1,0 +1,4 @@
+.tilt-host { position: relative; perspective: 950px; isolation: isolate; }
+.tilt-plane { position: relative; transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); transform-style: preserve-3d; transition: transform 280ms cubic-bezier(.18,.75,.25,1); will-change: transform; }
+.tilt-glare { position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none; opacity: 0; background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), #ffffff75 0, #ffffff2c 16%, transparent 55%); mix-blend-mode: screen; transition: opacity 180ms; }
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) { .tilt-plane { transform: none !important; transition: none; will-change: auto; } .tilt-glare { opacity: 0 !important; } }
