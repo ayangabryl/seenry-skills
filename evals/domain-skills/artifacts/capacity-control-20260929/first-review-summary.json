@@ -1,0 +1,46 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "bd073152e9233ce873998d0f038297030fa79ee49ae1e0cbac5b39519ed0c1f9",
+    "desktop": "710247ecdedaa64393c5cc25b06f1c66446ca4008ea1f5ca25bace17629234e9",
+    "mobile": "c293043dd0cf3dd649ff55defd29079c3e67bc19dcdfb6d5464d3cba79b51391",
+    "state.small": "79be08ba3a1fa0f44ac93730a54b5a734d6277173f5668c9c2518c20162456a6"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The type has a clear product voice: a restrained sans-serif system led by the capacity value, with supporting labels that stay subordinate.",
+        "The reading path moves from the setting and current value to its consequences, then to the seat preview. The repeated numbers help connect the summary cards to the marks below.",
+        "At the narrow size, longer labels wrap but remain readable, and the main value retains its prominence. The combined treatment serves the capacity decision without relying on a decorative genre preset."
+      ],
+      "limits": [
+        "These captures show only the 16-seat state. Typography during value changes, longer values, and interaction behavior cannot be judged from them."
+      ],
+      "log": "/private/tmp/seenry-motion-capacity-trial-20260929/first-review/typography/codex.log",
+      "report": "/private/tmp/seenry-motion-capacity-trial-20260929/first-review/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The current capacity, open seats, and waitlist fit are clear and consistent with 16 confirmed guests at the minimum capacity.",
+        "The seat preview makes the confirmed group and possible additional seats easy to compare. The copy clarifies that changing capacity does not admit anyone from the waitlist.",
+        "The layout remains readable in the desktop, 390 px, and narrow captures without visible clipping or overlap."
+      ],
+      "limits": [
+        "All captures show the capacity at 16. They cannot verify how counts and marks respond at higher values or during rapid reversal.",
+        "Static images cannot verify drag, touch, keyboard, reset, focus, or reduced motion behavior.",
+        "No reference design was provided."
+      ],
+      "log": "/private/tmp/seenry-motion-capacity-trial-20260929/first-review/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-motion-capacity-trial-20260929/first-review/whole-screen/review.json"
+    }
+  },
+  "status": "Keep"
+}
