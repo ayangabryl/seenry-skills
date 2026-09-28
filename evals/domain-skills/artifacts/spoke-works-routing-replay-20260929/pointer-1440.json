@@ -1,0 +1,11 @@
+{
+  "initial": {
+    "overflow": false,
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  "review": "Review demo choice\nSERVICE\nBrake adjustment\nDEMO TIME\nFri 2 Oct 2026 · 14:00\nSERVICE PRICE\n$38\n\nDemo only. No appointment is reserved.\n\nChange selection\nConfirm demo selection →",
+  "confirmation": "Demo selection complete\n\nBrake adjustment ($38) · Fri 2 Oct 2026 · 14:00\n\nThis is a demonstration only. No real booking was made, and this choice is not sent to Spoke Works.\n\nChange selection",
+  "recovery": true,
+  "errors": []
+}

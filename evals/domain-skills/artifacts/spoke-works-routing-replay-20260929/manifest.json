@@ -1,0 +1,8 @@
+{
+  "brief": "Spoke Works fixed service and demo booking brief",
+  "baseline_skill_commit": "11fbe900a17d77c9f72e42c7be3984e2ea1da9d6",
+  "baseline_skill_sha256": "a8e75e7ea04f6cc87795f7a597d03d5fb1b344048d0f3f3f7423fd60403b8dd6",
+  "trial": "Independent replay from the revised #51 skill; first source captured before critique",
+  "repaired": "Parent-led continuation after two agent repair passes; not an untouched model run",
+  "status": "Pass 4 first-screen typography and whole-screen Keep; full-page whole-screen Keep"
+}

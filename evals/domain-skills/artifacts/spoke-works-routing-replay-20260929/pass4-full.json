@@ -1,0 +1,33 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "c90ea80167c2a6cb6068a5439361572c9218b84e3aad7ce2070669f8570656be",
+    "desktop": "43b074537d254348d8433e0c451f001071b074af97135c97b6ea6124ea760380",
+    "mobile": "3bb3a1fd3061cea28ca0fe7da8f6fa88397452fd5fee531bd856779011f0b4ef",
+    "state.review": "5e014f05201e1b254fff107198086713e1b12905d06a8ae1d71df18cfd69cbc7",
+    "state.confirmation": "dc1c745362cbfe0db3fda6be2d7ba065665192757e17dd03e3ae74c363977cea"
+  },
+  "skill_sha256": {
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The page makes the service, area, hours, prices, and next step clear at both widths.",
+        "The mobile layout preserves the service-then-time sequence without crowding.",
+        "The review shows the selected service, time, and price. The confirmation clearly states that no real booking was made.",
+        "Typography, contrast, spacing, and action hierarchy remain consistent across the supplied states."
+      ],
+      "limits": [
+        "The captures do not show how selected service and time options appear before review.",
+        "Static images cannot verify pointer, keyboard, touch, focus, or action behavior.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass4/gate-full/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass4/gate-full/whole-screen/review.json"
+    }
+  },
+  "status": "Keep"
+}

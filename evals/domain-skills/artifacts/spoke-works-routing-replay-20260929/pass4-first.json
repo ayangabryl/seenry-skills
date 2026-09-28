@@ -1,0 +1,46 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "c90ea80167c2a6cb6068a5439361572c9218b84e3aad7ce2070669f8570656be",
+    "desktop": "43b074537d254348d8433e0c451f001071b074af97135c97b6ea6124ea760380",
+    "mobile": "3bb3a1fd3061cea28ca0fe7da8f6fa88397452fd5fee531bd856779011f0b4ef",
+    "state.review": "5e014f05201e1b254fff107198086713e1b12905d06a8ae1d71df18cfd69cbc7",
+    "state.confirmation": "dc1c745362cbfe0db3fda6be2d7ba065665192757e17dd03e3ae74c363977cea"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The bold sans serif headline gives the page a direct repair shop voice. Numbered steps, aligned prices, and prominent dates and times make the choice easy to scan on desktop and mobile.",
+        "The large serif weekday labels help distinguish the two slot groups without turning the page into a generic editorial layout. The first service is visible early on the phone.",
+        "The review state separates service, time, and price clearly. The confirmation state gives the result priority and explicitly says no real booking was made."
+      ],
+      "limits": [
+        "Static captures cannot verify font loading, zoom behavior, or interaction states."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass4/gate-first/typography/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass4/gate-first/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The desktop and mobile layouts make the services, prices, demo times, service area, and hours easy to scan.",
+        "The review state shows the chosen service, price, and time. The confirmation repeats the choice and clearly says no real booking was made.",
+        "The visual style is consistent across the selection, review, and confirmation screens."
+      ],
+      "limits": [
+        "Static captures cannot verify that selection, change, and confirmation controls work, or establish keyboard, touch, focus, and selected-state behavior.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass4/gate-first/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-replay-20260929/passes/pass4/gate-first/whole-screen/review.json"
+    }
+  },
+  "status": "Keep"
+}
