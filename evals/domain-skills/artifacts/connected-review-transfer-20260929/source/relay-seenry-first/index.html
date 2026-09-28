@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101e27">
+  <title>Relay — find the time everyone can make</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Relay, top of page"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>relay<span class="brand-stop">.</span></a>
+    <a class="header-link" href="#demo">Try the schedule <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="top">
+    <section class="intro shell" aria-labelledby="page-title">
+      <div class="intro-copy">
+        <p class="overline">A clearer way to meet</p>
+        <h1 id="page-title">Four time zones.<br><span>One good time.</span></h1>
+        <p class="intro-description">Find the overlap before the back-and-forth begins. Compare three possible times for a 30-minute team review.</p>
+        <a class="intro-link" href="#demo">Compare the times <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="orbit" aria-hidden="true">
+        <div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div>
+        <div class="orbit-center">30<span>MIN</span></div>
+        <div class="orbit-label l1"><b>Ada</b><small>Portland · PT</small></div>
+        <div class="orbit-label l2"><b>Priya</b><small>London · BST</small></div>
+        <div class="orbit-label l3"><b>Kenji</b><small>Tokyo · JST</small></div>
+        <div class="orbit-label l4"><b>Mae</b><small>New York · ET</small></div>
+      </div>
+    </section>
+
+    <section class="demo-section" id="demo" aria-labelledby="demo-title">
+      <div class="shell">
+        <div class="section-heading"><div><p class="overline">Try it here</p><h2 id="demo-title">Choose a time for the review.</h2></div><p>Sample availability · all times UTC</p></div>
+        <div class="schedule" aria-label="Compare candidate times">
+          <div class="schedule-heading" aria-hidden="true"><span>Candidate</span><span>Ada <small>PT</small></span><span>Priya <small>BST</small></span><span>Kenji <small>JST</small></span><span>Mae <small>ET</small></span><span>Overlap</span></div>
+          <div class="slot-list" id="slot-list">
+            <button class="slot" type="button" data-slot="tuesday" aria-pressed="false"><span class="slot-time"><strong>Tuesday</strong><small>16:00 UTC</small></span><span class="person yes"><span class="person-name">Ada</span><span>Available</span></span><span class="person no"><span class="person-name">Priya</span><span>Unavailable</span></span><span class="person no"><span class="person-name">Kenji</span><span>Unavailable</span></span><span class="person yes"><span class="person-name">Mae</span><span>Available</span></span><span class="overlap"><b>2 of 4</b><small>can make it</small></span></button>
+            <button class="slot" type="button" data-slot="wednesday" aria-pressed="false"><span class="slot-time"><strong>Wednesday</strong><small>08:00 UTC</small></span><span class="person no"><span class="person-name">Ada</span><span>Unavailable</span></span><span class="person yes"><span class="person-name">Priya</span><span>Available</span></span><span class="person yes"><span class="person-name">Kenji</span><span>Available</span></span><span class="person no"><span class="person-name">Mae</span><span>Unavailable</span></span><span class="overlap"><b>2 of 4</b><small>can make it</small></span></button>
+            <button class="slot" type="button" data-slot="thursday" aria-pressed="false"><span class="slot-time"><strong>Thursday</strong><small>15:00 UTC</small></span><span class="person yes"><span class="person-name">Ada</span><span>Available</span></span><span class="person yes"><span class="person-name">Priya</span><span>Available</span></span><span class="person yes"><span class="person-name">Kenji</span><span>Available</span></span><span class="person yes"><span class="person-name">Mae</span><span>Available</span></span><span class="overlap full"><b>4 of 4</b><small>can make it</small></span></button>
+          </div>
+        </div>
+        <div class="decision" id="decision" aria-live="polite"><div><p class="decision-label">Your selection</p><p class="decision-copy" id="decision-copy">Select a candidate to see the team’s availability.</p></div><button class="confirm" id="confirm" type="button" disabled>Use this time <span aria-hidden="true">→</span></button></div>
+        <p class="demo-note">This is a local demo using the sample availability above. It does not connect to calendars or send invitations.</p>
+      </div>
+    </section>
+
+    <section class="closing shell" aria-labelledby="closing-title"><p class="overline">Less coordination, more clarity</p><h2 id="closing-title">The answer is in the overlap.</h2><p>Relay brings each person’s availability into one view, so the next step is clear.</p><a href="#demo">Return to the demo <span aria-hidden="true">↑</span></a></section>
+  </main>
+  <footer class="site-footer shell"><span class="brand footer-brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>relay<span class="brand-stop">.</span></span><p>Sample scheduling experience · No calendars connected</p></footer>
+  <script src="app.js"></script>
+</body>
+</html>

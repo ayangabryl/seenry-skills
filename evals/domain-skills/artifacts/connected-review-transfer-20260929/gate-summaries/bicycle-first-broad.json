@@ -1,0 +1,46 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "ace768c4635c60c0732a5888cdf2af28d0355259c8691efe5519d055ef0ac190",
+    "desktop": "ad7f0cde03477c4bb145c134af69d4893acd7723a99f833b766ac0391fbf5156",
+    "mobile": "4dc4d7eda19a6279b03efe593a37bb62a99b54a16d986c5730d77834686d1c85",
+    "state.selected": "12750ff0e61e5664117f47a46b8526ada03cb40ec6057b841fd16ca466499c4f",
+    "state.review": "3a4e5fe7aa33323116e13552bb2bbbcc5ebcb8e2616e59aaf850ccca3ce99943",
+    "state.confirmation": "d1973bd83274fa025682c74bfe50d477fefe866a319ab2a59503633e0ea92ee4"
+  },
+  "skill_sha256": {
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "whole-screen": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The enabled orange primary buttons use white text at approximately 3.74:1 contrast, below 4.5:1 for their small bold labels.",
+          "impact": "The central review and confirmation actions are harder to read.",
+          "repair": "Darken the orange until white labels reach 4.5:1; recheck both enabled actions in the selected and review captures."
+        },
+        {
+          "observation": "The selected 10:30 slot changes fill and border color but has no checkmark or explicit selected label. The selected service does have a checkmark.",
+          "impact": "Time selection is less explicit than service selection and relies on color treatment to communicate state.",
+          "repair": "Add a persistent checkmark or selected label to the chosen time, retaining its time text. Recheck the narrow two-column time grid."
+        }
+      ],
+      "strengths": [
+        "Service names, prices, dates and times support a clear choose\u2013review\u2013confirm sequence.",
+        "The review state makes the selected service, price and time easy to inspect, with a clearly subordinate change action.",
+        "Confirmation explicitly says nothing was booked and no request was sent, and provides a restart action.",
+        "The wide paired panels reflow into an orderly narrow sequence without visible clipping. Typography, spacing and the restrained green palette remain coherent through the footer."
+      ],
+      "limits": [
+        "Static captures do not verify pointer, keyboard, touch, focus, screen-reader announcements, reset behavior or actual state persistence.",
+        "Selected and review captures show flat repair on Thursday at 10:30; confirmation shows brake adjustment on Friday at 14:00. Both states are visible, but continuity of one choice through completion is unverified.",
+        "Alternate states are supplied only at narrow width; other widths and zoom are unverified.",
+        "No reference pixels were supplied, so reference fidelity cannot be assessed."
+      ],
+      "log": "/private/tmp/seenry-bicycle-fresh-after-route-20260929/evidence/full-review-first/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-fresh-after-route-20260929/evidence/full-review-first/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

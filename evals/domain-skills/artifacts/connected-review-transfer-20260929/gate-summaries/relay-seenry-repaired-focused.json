@@ -1,0 +1,54 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "88ba6c83a7be2e097fa237d9cd66aba66a24d9d3a2e4fd175a8cbeb388c22a0a",
+    "desktop": "3e14b4d71ed36f35ab6c0f7ccee37214242fa36319933a4c5801fb67749ebd7f",
+    "mobile": "54f6560524c202b39d37e6e16fe649ff3c19583f3b250e3574199f7ca13599e8",
+    "state.selected": "96bafe38828c828c6fd3a59accb96a4fed5fa5c2ba0e7c9a0de470d068517e76",
+    "state.confirmed": "0418fb3fcc35fdb264fe93963af59c84a8d26219a05b92b797abaaf48e404f85"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The bold, tightly set sans-serif gives Relay a direct, practical voice. Its combined signature\u2014plain question, prominent weekdays, restrained metadata and explicit availability\u2014supports scheduling rather than relying on a decorative genre preset.",
+        "Hierarchy makes the evidence scannable: weekday first, UTC time next, then named participants and written statuses. Availability totals and conflict summaries make the decision clear without requiring readers to count.",
+        "At phone size, the opening includes the complete first candidate and its action. The headline retains emphasis without delaying the useful material beyond the viewport.",
+        "Desktop alignment supports comparison across all three candidates. On mobile, consistent participant order and repeated type roles preserve a predictable reading path.",
+        "The selected state keeps Thursday\u2019s availability evidence visible and restates the chosen time beside the confirmation action. The confirmed state explicitly says the choice was recorded on this page only and no invitations were sent.",
+        "The lower section maintains the same type voice; its larger heading remains separate from the candidate evidence and result."
+      ],
+      "limits": [
+        "Reviewed the supplied desktop, mobile, selected and confirmed captures at original image dimensions. Static images establish visible presentation, not interaction behavior.",
+        "Font identity, heading semantics, fallback rendering, zoom behavior and other viewport sizes were not verified."
+      ],
+      "log": "/private/tmp/seenry-scheduler-transfer-20260929/evidence/first-screen-gate-repaired/typography/codex.log",
+      "report": "/private/tmp/seenry-scheduler-transfer-20260929/evidence/first-screen-gate-repaired/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "All supplied availability, participant locations, candidate times and meeting duration are represented accurately. Thursday is explicitly identified as the only all-four option.",
+        "Desktop alignment supports comparison across candidates. At phone width, the first complete candidate fits in the opening viewport, and consistent participant placement makes subsequent cards easy to scan.",
+        "Clear typography, restrained surfaces and purposeful green emphasis keep the schedule data central. Availability is written explicitly rather than communicated through color alone.",
+        "The selected state adds a border, checkmark and \u201cThursday selected\u201d label, plus a preview naming the time and the confirmation action.",
+        "The confirmed state states exactly what happened: the choice was recorded on this page only and no invitations were sent.",
+        "The design uses the supplied schedule as its organizing material; no external reference relationship requires verification."
+      ],
+      "limits": [
+        "Static captures do not verify pointer, keyboard or touch operation, focus management, screen-reader announcements or persistence.",
+        "Only Thursday\u2019s selected and confirmed states are supplied; changing a choice and other candidate outcomes are unverified.",
+        "Desktop content below the opening viewport, additional viewport sizes, zoom behavior and measured contrast are unverified."
+      ],
+      "log": "/private/tmp/seenry-scheduler-transfer-20260929/evidence/first-screen-gate-repaired/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-scheduler-transfer-20260929/evidence/first-screen-gate-repaired/whole-screen/review.json"
+    }
+  },
+  "status": "Keep"
+}

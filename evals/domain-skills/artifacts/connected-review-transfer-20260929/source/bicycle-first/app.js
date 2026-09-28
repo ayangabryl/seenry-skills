@@ -1,0 +1,11 @@
+const services={flat:{name:'Flat repair',price:'$24'},brake:{name:'Brake adjustment',price:'$38'},tune:{name:'Standard tune',price:'$95'}};
+const slots={thu1030:'Thursday 1 Oct 2026 · 10:30',thu1500:'Thursday 1 Oct 2026 · 15:00',fri0930:'Friday 2 Oct 2026 · 09:30',fri1400:'Friday 2 Oct 2026 · 14:00'};
+const choice=document.getElementById('choice-view'),review=document.getElementById('review-view'),confirmation=document.getElementById('confirmation-view');
+const reviewButton=document.getElementById('review-button'),confirmButton=document.getElementById('confirm-button'),editButton=document.getElementById('edit-button'),resetButton=document.getElementById('reset-button');
+function selected(name){return document.querySelector(`input[name="${name}"]:checked`)?.value}
+function update(){reviewButton.disabled=!(selected('service')&&selected('slot'))}
+document.querySelectorAll('input[name="service"],input[name="slot"]').forEach(input=>input.addEventListener('change',update));
+reviewButton.addEventListener('click',()=>{const service=services[selected('service')],slot=slots[selected('slot')];if(!service||!slot)return;document.getElementById('review-service').textContent=service.name;document.getElementById('review-price').textContent=service.price;document.getElementById('review-slot').textContent=slot;choice.hidden=true;review.hidden=false;confirmation.hidden=true;review.scrollIntoView({block:'nearest'});confirmButton.focus()});
+editButton.addEventListener('click',()=>{review.hidden=true;choice.hidden=false;document.querySelector('input[name="service"]:checked')?.focus()});
+confirmButton.addEventListener('click',()=>{const service=services[selected('service')],slot=slots[selected('slot')];if(!service||!slot)return;document.getElementById('confirmed-detail').textContent=`${service.name} · ${service.price} · ${slot}`;review.hidden=true;confirmation.hidden=false;confirmation.scrollIntoView({block:'nearest'});resetButton.focus()});
+resetButton.addEventListener('click',()=>{document.querySelectorAll('input[name="service"],input[name="slot"]').forEach(input=>input.checked=false);update();confirmation.hidden=true;choice.hidden=false;choice.scrollIntoView({block:'nearest'});document.querySelector('input[name="service"]').focus()});

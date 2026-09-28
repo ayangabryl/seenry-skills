@@ -1,0 +1,36 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "ace768c4635c60c0732a5888cdf2af28d0355259c8691efe5519d055ef0ac190",
+    "desktop": "a65780380845526476f425316f3e2b893eb9fd61aa942dba67e8b266fe1db529",
+    "mobile": "41b9382875327edd9de24b84820ace86b441327eb927a1b28f5d15bf04074390",
+    "state.selected": "9d364e2d1b9d0793e86e81f30af5f9930518a5cdd96be7a4916f3658ae68a9f3",
+    "state.review": "d7d89bd8a1feeba2ecfda4b49d0289d17339c5eb1c4d818cc27fc62d3df75898",
+    "state.confirmation": "f322c6b708f4a689bcf0f1703505ed7945df6cf225aea6dc281da6ced95c1056"
+  },
+  "skill_sha256": {
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The task sequence is clear: compare three priced services, choose a dated time, review, then see an explicitly local demo result.",
+        "Selected service and time retain their labels and add checkmarks, providing visible cues beyond color. The emphasized review action clearly follows those choices.",
+        "Review and confirmation preserve Flat repair, $24, and Thursday 1 Oct 2026 at 10:30. Change and restart actions are visible, and the result unmistakably says nothing was booked.",
+        "The wide service/time arrangement reflows into a coherent numbered sequence on mobile. Text, prices, controls, review details, and footer remain readable without visible clipping.",
+        "Strong sans-serif typography, a wheel identity, restrained green surfaces, and rust-colored primary actions form a cohesive repair-shop presentation. Spacing and alignment remain consistent through the alternate states.",
+        "The complete page respects the supplied facts and fictional scope. The lower section and footer clearly communicate locality, hours, and demo status without inventing operational evidence."
+      ],
+      "limits": [
+        "Static captures establish visible states, not working transitions, change/reset behavior, pointer or touch mechanics, keyboard access, focus management, or screen-reader announcements.",
+        "Only the supplied desktop and mobile widths are verified; desktop alternate states, zoom, intermediate widths, and measured contrast remain unverified.",
+        "No reference pixels were supplied. The brief describes an authored direction and a footer-only research reference, so visual fidelity to that reference cannot be assessed."
+      ],
+      "log": "/private/tmp/seenry-bicycle-fresh-after-route-20260929/evidence/full-review-final-v2/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-fresh-after-route-20260929/evidence/full-review-final-v2/whole-screen/review.json"
+    }
+  },
+  "status": "Keep"
+}

@@ -1,0 +1,58 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "aeb549d7176e9740d8eb410f60469fd0b0a2f8476885f809891901a23b126b61",
+    "desktop": "ad7f0cde03477c4bb145c134af69d4893acd7723a99f833b766ac0391fbf5156",
+    "mobile": "4dc4d7eda19a6279b03efe593a37bb62a99b54a16d986c5730d77834686d1c85",
+    "state.selected": "420aa8a8c3d74af4ed912c3fd8236259254e895d1bdefdcac878ecd969293493",
+    "state.review": "3a4e5fe7aa33323116e13552bb2bbbcc5ebcb8e2616e59aaf850ccca3ce99943",
+    "state.confirmation": "88a3df4c4a91d301889d35659c91f027cb05a684e2333d79d3b68d8cdd25cdcb"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "On the 390px captures, the large promise, explanatory text, and \u201cPlan a shop visit\u201d introduction repeat in every state. In review and confirmation, the chosen details or result begin more than 550px down the page.",
+          "impact": "The reading path keeps returning to the opening pitch after the visitor has made a choice. The decision and its result arrive late.",
+          "repair": "Keep the full introduction for the initial choice screen. In later states, compress it so the selected service, time, and result lead the page."
+        },
+        {
+          "observation": "At actual phone size, service descriptions and demo notices are very small, and the \u201cINTERACTIVE DEMO\u201d badge wraps into two tiny lines.",
+          "impact": "Text that explains the services and the demo\u2019s limits is harder to read than the surrounding controls.",
+          "repair": "Increase the size of decision and demo text, and give the demo label enough room to read clearly."
+        }
+      ],
+      "strengths": [
+        "The sturdy sans-serif voice suits a practical repair task, and the service names, prices, dates, and times scan clearly.",
+        "The selected state makes the chosen service and time distinct. The review state presents the exact choice, and the confirmation headline prominently says \u201cNothing booked.\u201d",
+        "The page avoids a decorative editorial type preset; its strongest type hierarchy is tied to the service choices."
+      ],
+      "limits": [
+        "The captures show rendered states only; they do not establish font identity, semantic structure, zoom behavior, or interaction behavior."
+      ],
+      "log": "/private/tmp/seenry-bicycle-fresh-after-route-20260929/root-first-screen-gate/typography/codex.log",
+      "report": "/private/tmp/seenry-bicycle-fresh-after-route-20260929/root-first-screen-gate/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The service area, hours, services, prices, and sample times are clear at desktop and mobile sizes.",
+        "The selected state visibly marks both choices. The review repeats the service, price, time, and area, and offers a way to change the choice.",
+        "The final state states plainly that nothing was booked. The wheel mark, practical typography, and restrained palette suit a neighborhood bike shop."
+      ],
+      "limits": [
+        "Static captures cannot verify pointer, keyboard, touch, focus, or screen-reader behavior.",
+        "Only one completed choice is shown; other service and time combinations and desktop review states are unverified."
+      ],
+      "log": "/private/tmp/seenry-bicycle-fresh-after-route-20260929/root-first-screen-gate/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-fresh-after-route-20260929/root-first-screen-gate/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}
