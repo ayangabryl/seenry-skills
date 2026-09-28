@@ -38,6 +38,8 @@ Select only the guide and helper needed for this change. The bundled original as
 
 When matching a supplied reference, inspect playback at normal speed and useful intermediate frames, not only endpoints. [Motion research](references/research-route.md) explains recordings, Seenry MCP, creator studies and source limits; load it only when research is needed. A static image cannot establish timing, interruption or keyboard behavior. Without playback, implement a proposed treatment and test it locally.
 
+**Recorded phase check:** Match source checkpoints to the running browser animation. State jumps verify endpoints, not timing. See [motion reconstruction](references/replication.md).
+
 ## Finish the interface and transition
 
 Account for every requested transition: trigger, moving element and property, settled state, and reduced-motion result. Test normal speed, rapid input, reversal, keyboard/touch, resize, live reduced motion, unmount and failure where applicable. Inspect actual intermediate geometry; a reserved slot or immediate update does not fulfill a requested number animation. Report unavailable checks rather than inferring a pass.
