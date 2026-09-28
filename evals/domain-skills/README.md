@@ -58,6 +58,8 @@ A ninth fresh trial used that component-first motion wording for a [workshop cap
 
 The whole-screen gate now asks reviewers to return `Unverified` when a brief's central choice or change has no resulting visible state among the supplied captures. On the frozen capacity evidence, a fresh default-only review returned `Unverified`; a review with the repaired focused endpoints returned `Keep`. This narrows one false-acceptance path. It does not validate browser mechanics or guarantee that callers supply the right states.
 
+A tenth fresh trial built a [fictional bicycle repair website](artifacts/spoke-works-20260929/README.md) after reading the published Seenry entrypoint and focused product references. Its first complete page worked across 1440/390/320px, but an independent direction gate rejected both early studies for weak selection affordance, and a focused typography reviewer rejected the completed phone opening for an unearned editorial headline stack that kept the first repair price below the fold. A whole-screen opening reviewer and separate full-page reviewer both returned `Keep`; those broader approvals do not clear the supported typography finding. The entrypoint now makes type-led routing and first useful phone content explicit. This trial predates that wording, so prevention remains unproven.
+
 For a reference target, inspect its relevant pixels or recording and state its coverage limits. The cases in [reference craft cases](../design-craft-cases.md) are prompts for comparison, not design templates or copied media. If an output shares a grid or palette but misses the source's material depth or task rationale, record that gap. A self-review is diagnostic; user acceptance and independent review are distinct.
 
 ## Release rule

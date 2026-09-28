@@ -1,0 +1,34 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "f4affc72e3ae1a101e67e43118358695372517268b222e7aeb8cd3e01af88bef",
+    "desktop": "75aa669434e96a63f79f96b19e0689ca15e33db637eaeacfc407d7542df851bf",
+    "mobile": "4201630c7434c0d4a75961b028c57e8df744f475b6ef0bd1830b477586efa66d",
+    "state.small": "008260ebaa23329a442dd50fb213ba3ce20014f2adc664caf5a745c668f80d60",
+    "state.review": "5682a4619cc030d01182b40d85ba4c2010ce1c23d7159cfba8377ada6d5040a5",
+    "state.confirmation": "20153745c707cd3a6ae66ac03a6f718cae250804df61a70fc7c032c7595e8107"
+  },
+  "skill_sha256": {
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The page moves clearly from the repair offer and prices to service and slot selection, review, and a clearly labeled demo confirmation.",
+        "The review and confirmation captures show the chosen brake adjustment, $38 price, and Friday 2 October at 14:00. Both make clear that no appointment is booked.",
+        "Typography, the bicycle illustration, and restrained colors form a coherent identity. The page reflows cleanly at 390px and 320px without visible clipping.",
+        "Service area and opening hours are stated plainly."
+      ],
+      "limits": [
+        "Static captures cannot verify pointer, keyboard, touch, focus, or screen reader behavior.",
+        "The dialogs cover the selected service and selection summary in the underlying form, so their selected-state styling is not fully visible.",
+        "No visual reference was provided for comparison."
+      ],
+      "log": "/private/tmp/seenry-bicycle-full-gate-20260929/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-bicycle-full-gate-20260929/whole-screen/review.json"
+    }
+  },
+  "status": "Keep"
+}

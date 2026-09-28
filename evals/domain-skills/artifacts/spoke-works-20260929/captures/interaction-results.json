@@ -1,0 +1,111 @@
+[
+  {
+    "width": 1440,
+    "initial": {
+      "viewport": 1440,
+      "scrollWidth": 1440,
+      "reviewDisabled": true,
+      "heading": "Good to go again."
+    },
+    "selected": {
+      "service": "Brake adjustment",
+      "slot": "Fri 2 Oct 2026 · 14:00",
+      "price": "$38",
+      "reviewDisabled": false
+    },
+    "review": {
+      "open": true,
+      "service": "Brake adjustment",
+      "slot": "Fri 2 Oct 2026 · 14:00",
+      "price": "$38"
+    },
+    "editClosed": true,
+    "confirmation": {
+      "open": true,
+      "title": "That’s the sample request.",
+      "details": "Brake adjustment ($38) · Fri 2 Oct 2026 · 14:00.",
+      "disclosure": "This is only a preview. No appointment was made, and nothing was sent to Spoke Works."
+    },
+    "reset": {
+      "reviewDisabled": true,
+      "service": "Not chosen",
+      "slot": "Not chosen",
+      "dialogOpen": false
+    },
+    "errors": []
+  },
+  {
+    "width": 390,
+    "initial": {
+      "viewport": 390,
+      "scrollWidth": 390,
+      "reviewDisabled": true,
+      "heading": "Good to go again."
+    },
+    "selected": {
+      "service": "Brake adjustment",
+      "slot": "Fri 2 Oct 2026 · 14:00",
+      "price": "$38",
+      "reviewDisabled": false
+    },
+    "review": {
+      "open": true,
+      "service": "Brake adjustment",
+      "slot": "Fri 2 Oct 2026 · 14:00",
+      "price": "$38"
+    },
+    "editClosed": true,
+    "confirmation": {
+      "open": true,
+      "title": "That’s the sample request.",
+      "details": "Brake adjustment ($38) · Fri 2 Oct 2026 · 14:00.",
+      "disclosure": "This is only a preview. No appointment was made, and nothing was sent to Spoke Works."
+    },
+    "reset": {
+      "reviewDisabled": true,
+      "service": "Not chosen",
+      "slot": "Not chosen",
+      "dialogOpen": false
+    },
+    "errors": []
+  },
+  {
+    "width": 320,
+    "initial": {
+      "viewport": 320,
+      "scrollWidth": 320,
+      "reviewDisabled": true,
+      "heading": "Good to go again."
+    },
+    "selected": {
+      "service": "Brake adjustment",
+      "slot": "Fri 2 Oct 2026 · 14:00",
+      "price": "$38",
+      "reviewDisabled": false
+    },
+    "review": {
+      "open": true,
+      "service": "Brake adjustment",
+      "slot": "Fri 2 Oct 2026 · 14:00",
+      "price": "$38"
+    },
+    "editClosed": true,
+    "confirmation": {
+      "open": true,
+      "title": "That’s the sample request.",
+      "details": "Brake adjustment ($38) · Fri 2 Oct 2026 · 14:00.",
+      "disclosure": "This is only a preview. No appointment was made, and nothing was sent to Spoke Works."
+    },
+    "reset": {
+      "reviewDisabled": true,
+      "service": "Not chosen",
+      "slot": "Not chosen",
+      "dialogOpen": false
+    },
+    "errors": []
+  },
+  {
+    "keyboardReview": true,
+    "keyboardEscape": true
+  }
+]
