@@ -1,0 +1,3 @@
+# Replication evidence ledger
+
+The `replication_gate.py` input has `schema: 1`, `required_states`, optional `motion_states`, `artifacts`, `measurements`, and `unresolved`. Each artifact has `role` (`source`/`output`), a ledger-relative `path` and `sha256`. Each measurement names its `state`, `kind` (`geometry`/`type-spacing`/`motion`), finite `target`, `actual`, nonnegative `tolerance`, measurement `basis`, `source_artifact` and `output_artifact`. Use consistent units. Every required state needs geometry and type/spacing evidence; motion states also need temporal evidence. Run `python scripts/replication_gate.py path/to/ledger.json`. Exit 1 means unresolved/mismatched evidence; exit 2 means invalid input.

@@ -10,6 +10,10 @@ Classify pixels as product UI, platform chrome or archive overlay. If a served i
 
 Inspect the real source. Captions, CSS and ratings cannot establish pixels or behavior. Use the original page for inspectable behavior, a recording for observed motion, and supplied mobile media for responsive structure. Missing mobile evidence means the narrow layout is proposed. Do not infer a carousel, looping entrance or hidden modal from a still.
 
+## Reuse source first
+
+Inspect dependencies, assets and publisher packages first. Use compatible source; record version, terms and configuration. Compare the actual render because defaults may differ. Rebuild only missing parts. For effects, follow [implementation routing](../../seenry-motion/references/existing-implementations.md). Never rebrand third-party code as Seenry's.
+
 ## Build a measured specification
 
 For the decisive region record:
@@ -49,4 +53,4 @@ Use `matched within recorded tolerances`, `needs revision` or `unverified` for e
 
 Packet handoff: set `intent: "replicate"`, reference IDs/paths, required states and explicit exceptions. Add `motion_patterns` only for the mechanism needed now; broad motion catalogs should not displace the measured specification.
 
-Ledger format: `schema: 1`, `required_states`, optional `motion_states`, `artifacts`, `measurements`, and `unresolved`. Each artifact has `role` (`source`/`output`), a ledger-relative `path` and `sha256`. Each measurement names its `state`, `kind` (`geometry`/`type-spacing`/`motion`), finite `target`, `actual`, nonnegative `tolerance`, measurement `basis`, `source_artifact` and `output_artifact`. Use consistent units. Every required state needs geometry and type/spacing evidence; motion states also need temporal evidence. Run `python scripts/replication_gate.py path/to/ledger.json`. Exit 1 means unresolved/mismatched evidence; exit 2 means invalid input.
+For the gate's exact JSON fields, read [replication ledger](replication-ledger.md) when preparing a machine-checked handoff.

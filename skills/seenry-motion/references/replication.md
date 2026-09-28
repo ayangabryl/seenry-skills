@@ -8,6 +8,8 @@ Watch at normal speed. Mark opening, closing and trigger. Use [video study](vide
 
 When public source permits reuse, inspect component code, tokens and hooks. Adapting them in a compatible stack can preserve visual details; retain notices for copied material. Code shows intended mechanics; the rendered reference shows actual behavior.
 
+Before fitting curves for a named demo, check [existing implementation routing](existing-implementations.md). Use a compatible published effect and compare its actual render; reconstruct only missing behavior.
+
 Measure in source coordinates: host, trigger, resting shell and radius; then displacement, bounds, opacity and content at start, quarter, midpoint, three-quarter and settlement. For fast events, inspect actual intermediate frames. Distinguish screen position from local geometry; centering can move the whole object.
 
 A useful score has tracks:
