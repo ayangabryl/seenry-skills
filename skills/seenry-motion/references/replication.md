@@ -1,14 +1,14 @@
 # Reconstruct an observed transition
 
-Replication matches an observed trajectory; creative motion proposes one. Choose explicitly. The standard recipes and semantic timing tokens are fallbacks for missing evidence, not authority to retime a supplied reference.
+Replication follows observed motion. Recipes and timing tokens fill gaps; they cannot retime a reference.
 
 ## Evidence and coordinates
 
-Watch the actual clip at normal speed. Mark one opening and one closing interval and identify the trigger. Use [video study](video-study.md) for short, timestamped frame extraction. Keep source attribution, dimensions and actual decoded timestamps. Normal playback is still required after frame inspection. A video can duplicate frames; encoded FPS does not prove temporal resolution.
+Watch at normal speed. Mark opening, closing and trigger. Use [video study](video-study.md) for timestamped frames. Keep source attribution, dimensions and decoded timestamps. Duplicate frames mean encoded FPS can overstate temporal resolution.
 
 When public source permits reuse, inspect component code, tokens and hooks. Adapting them in a compatible stack can preserve visual details; retain notices for copied material. Code shows intended mechanics; the rendered reference shows actual behavior.
 
-Measure in a fixed source coordinate system. Record host size, trigger position, shell rectangle and corner radius at rest; then displacement, bounds, opacity and content appearance at the start, roughly quarter/half/three-quarter progress and settlement. For a fast event, inspect the actual intermediate frames rather than assuming evenly spaced progress. Keep screen-space position and local geometry distinct: centered hosts can move the whole object during expansion.
+Measure in source coordinates: host, trigger, resting shell and radius; then displacement, bounds, opacity and content at start, quarter, midpoint, three-quarter and settlement. For fast events, inspect actual intermediate frames. Distinguish screen position from local geometry; centering can move the whole object.
 
 A useful score has tracks:
 
@@ -42,6 +42,8 @@ Use ordinary CSS or Web Animations when they reproduce the score. Adopt a spring
 ## Compare temporal evidence
 
 Compare at the same viewport and trigger-relative time, not arbitrary screenshots of both animations. First align their settled geometry and input frame. Inspect both at normal speed; then compare the shape, anchor, content and neighboring geometry at corresponding checkpoints. Record time uncertainty at least as large as the source's observed cadence. If only a poster is accessible, the motion result remains unverified.
+
+For autoplay, sample the source's **last unchanged**, **first changing**, **midpoint** and **first settled** frames. Distinguish overlay change from asset blend. Align viewport and trigger; capture the live browser animation at those times after assets and fonts load. A debug state jump checks endpoints only. Capture pre-onset and midpoint without it. Recheck live phase after the final timing edit. Report mismatch and cadence uncertainty.
 
 Run a second input before settlement, alternate opening and closing, resize the host and change reduced-motion preference while active. Preserve final information, immediate keyboard focus and usable pointer targets. These unseen-source behaviors are implementation requirements, not claims about how the source behaves.
 
