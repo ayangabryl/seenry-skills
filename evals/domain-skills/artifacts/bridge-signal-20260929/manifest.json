@@ -1,0 +1,124 @@
+{
+  "trial": "bridge-signal-20260929",
+  "files": [
+    {
+      "file": "DESIGN.md",
+      "sha256": "3311038cfe3a41f1eed241cca6d850524566c53c6b7f4224c9dc56132331a792",
+      "bytes": 3960
+    },
+    {
+      "file": "README.md",
+      "sha256": "a732675325452f160f686c9b73f9e89a5e9fe636c89a84c0e0600165a47e531a",
+      "bytes": 2141
+    },
+    {
+      "file": "RESULTS.md",
+      "sha256": "5879895f6ab60a56af190caf28c8d71553a7ae1577bc67a4c0e96681e6e8b3b1",
+      "bytes": 2470
+    },
+    {
+      "file": "ROUTE.md",
+      "sha256": "3739712d7a0879f4034a5e4afe2b90a5b12ba51b4d53ac964cdb4ca8452b1f18",
+      "bytes": 904
+    },
+    {
+      "file": "app.css",
+      "sha256": "b693a1b9c0aaf7c66e7ac0dca9c8170c01bdfa3f60446908fb36e6cc2f26425c",
+      "bytes": 7510
+    },
+    {
+      "file": "app.js",
+      "sha256": "31868d6e94643a837cfe245c7cf842f63904c3ab2f050f82a18adb8486c2743d",
+      "bytes": 1529
+    },
+    {
+      "file": "brief.md",
+      "sha256": "6f0186fc6c92428d2669975f71f55de1e65ef162443403afbde4cfa79938de4c",
+      "bytes": 2085
+    },
+    {
+      "file": "direction-summary.json",
+      "sha256": "824577ddda2d56cc1e21ab1fcafe4ad91f930de44afa21ab09fff4583fe67875",
+      "bytes": 2347
+    },
+    {
+      "file": "first-narrow.png",
+      "sha256": "98457e351455613a2801d15fcee42368029e2c4bd01b09e2d4a4f7fe58fe127c",
+      "bytes": 93241,
+      "pixels": [
+        65536,
+        4292542531
+      ]
+    },
+    {
+      "file": "first-wide.png",
+      "sha256": "ac2471c911b7d1d8303ca7001a71b26833a2ba76a8b392a6bbb31cd0fc2cfc58",
+      "bytes": 155866,
+      "pixels": [
+        65536,
+        4292542531
+      ]
+    },
+    {
+      "file": "full-review-summary.json",
+      "sha256": "b9444da30651c8bb3cbd55e112ff74e4f91d66ad3d22b467d76fe5cd1cda109b",
+      "bytes": 1767
+    },
+    {
+      "file": "index.html",
+      "sha256": "b97fc668683ce40213ebb25a8d5bb4d62687aa568088d2cba5ef054772cb14f7",
+      "bytes": 5587
+    },
+    {
+      "file": "studies.css",
+      "sha256": "ca3d593530d74326b889237f320dcb088853a8e0af6c6b7e2668b70a3df021b5",
+      "bytes": 7669
+    },
+    {
+      "file": "study-a-narrow.png",
+      "sha256": "0955a65563cb2172493821965e6cc650bd16096dd920e337f22a205b725a91a7",
+      "bytes": 32386,
+      "pixels": [
+        65536,
+        4292542531
+      ]
+    },
+    {
+      "file": "study-a-wide.png",
+      "sha256": "823e2d53d1018472499210cb0d03d8b0dcba8d427621e130ce04c6cb1446b403",
+      "bytes": 62353,
+      "pixels": [
+        65536,
+        4292542531
+      ]
+    },
+    {
+      "file": "study-a.html",
+      "sha256": "fefaa397430d89a1dffa32d84d90b79f57f4d048f9afa75af8d9ca92caf5bcb1",
+      "bytes": 1996
+    },
+    {
+      "file": "study-b-narrow.png",
+      "sha256": "4cd66e0ded6a1404e42ace3fd736e1457cdb1ab8d8f3029a974c3e06d6d7ceae",
+      "bytes": 33718,
+      "pixels": [
+        65536,
+        4292542531
+      ]
+    },
+    {
+      "file": "study-b-wide.png",
+      "sha256": "b8714850b5773350c20bc2fc4ac0916eaff4f2b13e9557eb268a56c81383250b",
+      "bytes": 69854,
+      "pixels": [
+        65536,
+        4292542531
+      ]
+    },
+    {
+      "file": "study-b.html",
+      "sha256": "33c9231ce1214256633fed11a50e17a802d1c5b98fdd28516834f31200527a61",
+      "bytes": 1995
+    }
+  ]
+}

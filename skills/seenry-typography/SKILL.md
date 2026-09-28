@@ -27,9 +27,17 @@ Do not treat a subject category as that evidence. “Calm plant studio,” “co
 
 A sans-serif page can repeat the same default structure. On task-led pages, inspect the combined space taken by an all-caps label, large two-tone promise, explanatory line and another section heading before the first useful item. If the phone opening only barely reaches the item, subtract or compress the repeated introductions and compare the reading path. Use the recovered space for the object's name, deciding metadata and action. Check small metadata and action labels at actual phone size; an accessible name cannot replace visible wording for a sighted reader.
 
+Before committing to a new landing-page type direction, make a small specimen in the actual page grid with the final headline, longest supporting sentence, first proof item and primary action. Render it at the intended desktop and phone widths. In the comparison, change at least one relationship among the type, subject material and action: type size alone or a different font on the same hero structure is not a second direction. State which rendering lets the reader reach the subject and act sooner. If neither has a task-specific advantage, make another study rather than selecting the tidier default.
+
 For an original comparison of how one set of facts supports different reading paths, inspect the [Pondline typography study](references/pondline-study.md). Borrow its decision method, not its surface treatment.
 
 For product UI, prioritize scanning, value alignment and stable state changes. Test the longest realistic value and translated text where supported. Use tabular numerals when values change in place. Verify the downloaded faces actually provide requested weights, styles and glyphs; set CSS through `font-weight`, `font-optical-sizing` and `font-variant-numeric` where those express the intent. Prefer compressed web font formats when supplying web assets. Never claim a font is licensed from a screenshot alone.
+
+## Implement the type system
+
+Define visible roles by job, then use a small number of sizes, weights and line heights consistently. Check the computed values in the browser rather than trusting class names. A heading may be visually large without forcing every section heading to grow with it; the reader should be able to see which heading governs which content. Use tighter leading for short display lines and more room when text wraps into several lines. Keep long-form measure comfortable, but do not impose article-width text on a dense control or data row.
+
+Load only the faces and weights the page uses. Check italic and bold glyphs in the actual downloaded font; browser synthesis can make a selected face look unlike its specimen. Keep a fallback stack that preserves the intended hierarchy. Use natural-case source copy and CSS for a visual uppercase treatment. Test labels that must remain together, values that may grow, links and identifiers that may break, and content that must never be silently truncated. If a responsive style hides a line break or swaps a text fragment, read the rendered phrase at that width; the remaining words still need a space. At phone width, inspect the first useful item and the main action in the same capture as the hero; a headline that looks good alone can still be too expensive in the page.
 
 ## Finish
 
