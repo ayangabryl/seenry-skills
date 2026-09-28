@@ -120,7 +120,12 @@ try {
   await capture('desktop-speaking');
   // Offscreen changes snap without scheduling work; returning uses latest input.
   await page.evaluate(() => { document.querySelector('.specimen').style.transform = 'translateY(2000px)'; });
-  await page.waitForTimeout(100);
+  await page.evaluate(() => new Promise(resolve => {
+    const observer = new IntersectionObserver(entries => {
+      if (!entries[0].isIntersecting) { observer.disconnect(); requestAnimationFrame(resolve); }
+    });
+    observer.observe(document.querySelector('#presence'));
+  }));
   await update({ level: .25 });
   assert.equal(await page.evaluate(() => window.voicePresenceDemo.presence.isAnimating), false);
   await page.evaluate(() => { document.querySelector('.specimen').style.transform = ''; });
