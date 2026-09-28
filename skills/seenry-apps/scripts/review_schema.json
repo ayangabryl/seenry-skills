@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "verdict": {"type": "string", "enum": ["Keep", "Revise", "Reset", "Unverified"]},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "observation": {"type": "string"},
+          "impact": {"type": "string"},
+          "repair": {"type": "string"}
+        },
+        "required": ["observation", "impact", "repair"],
+        "additionalProperties": false
+      }
+    },
+    "limits": {"type": "array", "items": {"type": "string"}}
+  },
+  "required": ["verdict", "findings", "limits"],
+  "additionalProperties": false
+}

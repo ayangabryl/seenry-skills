@@ -63,4 +63,10 @@ For an original website with a high craft bar, [the optional Codex CLI review ga
 python3 skills/seenry/scripts/independent_review_gate.py --brief BRIEF.md --desktop desktop.png --mobile mobile.png --out review-1
 ```
 
+For a connected native app flow, [the optional app gate](skills/seenry-apps/scripts/independent_flow_gate.py) reviews ordered, settled simulator captures in fresh visual and flow contexts. It records the exact images and blocks a cleared claim when either reviewer finds a supported repair. Exercise the flow on the device as well; screenshots cannot prove behavior.
+
+```sh
+python3 skills/seenry-apps/scripts/independent_flow_gate.py --brief BRIEF.md --capture empty.png --capture form.png --capture error.png --capture saved.png --capture correction.png --out app-review-1
+```
+
 Seenry is MIT licensed. A small number of adapted guides and bundled runtime helpers retain their authors' notices in [skill licenses](skills/seenry/licenses/NOTICE.md) and their asset directories. External references remain research sources; use their code and media only under their own terms.

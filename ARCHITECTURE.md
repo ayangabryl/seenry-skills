@@ -8,6 +8,8 @@ For an original page, `seenry` still owns the full result. It routes the opening
 
 The optional [Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs those two fresh contexts and saves structured findings with input and skill hashes. Its nonzero result stops a reviewable first slice from being labeled cleared; the builder must repair and recapture. It is available only where Codex CLI and the sibling specialist skills are installed. It does not force an agent to run it or make either review infallible, so independent artifact inspection and user acceptance remain separate.
 
+For a native app, `seenry-apps` owns the connected task and device verification. Its [optional flow gate](skills/seenry-apps/scripts/independent_flow_gate.py) sends ordered, settled captures to fresh visual and flow reviewers, with the brief, source observations and hashes. A static pass covers only the pictured states; the builder still exercises actions, calculations, correction and accessibility on the device.
+
 ## Create
 
 1. Establish the user task, actual content, constraints and existing project identity. Record decisions in DESIGN.md.

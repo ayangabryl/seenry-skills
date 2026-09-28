@@ -33,6 +33,12 @@ try {
   assert.equal(await page.locator('[data-view="process"]').evaluate(el => el.inert), true);
   if (output) { await mkdir(output, { recursive: true }); await page.screenshot({ path: path.join(output, 'desktop-object.png') }); }
 
+  await page.evaluate(() => {
+    window.__incomingTransitions = [];
+    document.querySelector('[data-view="process"]').addEventListener('transitionrun', event => {
+      window.__incomingTransitions.push(event.propertyName);
+    });
+  });
   await page.locator('.switches [data-go="process"]').click();
   assert.equal(await page.evaluate(() => study.stage.current), 'process');
   assert.equal(await page.locator('[data-view="object"]').evaluate(el => el.inert), true);
@@ -43,9 +49,11 @@ try {
     const incoming = document.querySelector('[data-view="process"]');
     const outgoing = document.querySelector('[data-view="object"]');
     return { incoming: incoming.getBoundingClientRect().left, direction: outgoing.style.transform,
+      transitionRuns: window.__incomingTransitions,
       stage: document.querySelector('#stage').getBoundingClientRect().left };
   });
-  assert.equal(forward.incoming > forward.stage, true, 'incoming view should still be travelling from the right');
+  assert.equal(forward.incoming > forward.stage || forward.transitionRuns.includes('transform'), true,
+    'incoming view should travel from the right even if CI samples after the transition ends');
   assert.equal(forward.direction.startsWith('translate3d(-100%,'), true, 'outgoing view should target the left');
   await page.waitForTimeout(500);
   assert.equal(await page.locator('#stage').getAttribute('data-stage-state'), 'settled');
