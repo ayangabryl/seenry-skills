@@ -76,6 +76,43 @@ try {
   assert.equal(await page.locator('#sample').getAttribute('data-reflective-mode'), null);
   await page.close();
 
+  const rim = await browser.newPage({ viewport: { width: 1100, height: 800 } });
+  await rim.goto(`http://127.0.0.1:${server.address().port}/skills/seenry-motion/assets/reflective-surface/rim-demo.html`);
+  await rim.waitForFunction(() => window.reflectiveRimDemo?.surface.mode === 'running');
+  assert.equal(await rim.locator('#ring').getAttribute('data-reflective-appearance'), 'rim');
+  assert.equal(await rim.locator('#neighbor canvas').count(), 1);
+  const reflection = await rim.locator('#neighbor canvas').evaluate(canvas => {
+    const { width, height } = canvas;
+    const pixels = canvas.getContext('2d').getImageData(0, 0, width, height).data;
+    const edge = x => {
+      let sum = 0;
+      for (let y = 0; y < height; y++) sum += pixels[(y * width + x) * 4 + 3];
+      return sum;
+    };
+    return { left: edge(2), right: edge(width - 3) };
+  });
+  assert.ok(reflection.right > reflection.left, `Linked reflection should favor the nearby edge: ${JSON.stringify(reflection)}`);
+  await rim.keyboard.press('Tab');
+  assert.equal(await rim.evaluate(() => document.activeElement.id), 'toggle');
+  assert.equal(await rim.locator('#toggle').evaluate(el => el.matches(':focus-visible')), true);
+  await rim.keyboard.press('Space');
+  assert.equal(await rim.locator('#result').textContent(), 'Reading focus is off');
+  assert.equal(await rim.locator('#neighbor-label').textContent(), 'Focus off');
+  assert.equal(await rim.locator('#neighbor canvas').evaluate(el => el.style.opacity), '0');
+  await rim.keyboard.press('Space');
+  assert.equal(await rim.locator('#result').textContent(), 'Reading focus is on');
+  await rim.emulateMedia({ reducedMotion: 'reduce' });
+  await rim.waitForFunction(() => window.reflectiveRimDemo.surface.mode === 'static');
+  await rim.emulateMedia({ reducedMotion: 'reduce', forcedColors: 'active' });
+  assert.equal(await rim.locator('#ring').evaluate(el => getComputedStyle(el).borderTopWidth), '1px');
+  await rim.emulateMedia({ reducedMotion: 'reduce', forcedColors: 'none' });
+  if (output) await rim.screenshot({ path: path.join(output, 'rim-desktop.png') });
+  await rim.evaluate(() => window.reflectiveRimDemo.surface.destroy());
+  assert.equal(await rim.locator('#neighbor canvas').count(), 0);
+  assert.equal(await rim.locator('#ring canvas').count(), 0);
+  assert.equal(await rim.locator('#ring').getAttribute('data-reflective-appearance'), null);
+  await rim.close();
+
   const mobile = await browser.newPage({ viewport: { width: 320, height: 700 } });
   await mobile.goto(url);
   await mobile.waitForFunction(() => Boolean(window.reflectiveSurfaceDemo));
@@ -85,6 +122,15 @@ try {
   assert.equal(await mobile.locator('#light').getAttribute('aria-pressed'), 'false');
   if (output) await mobile.screenshot({ path: path.join(output, 'mobile.png') });
   await mobile.close();
+
+  const rimMobile = await browser.newPage({ viewport: { width: 320, height: 700 } });
+  await rimMobile.goto(`http://127.0.0.1:${server.address().port}/skills/seenry-motion/assets/reflective-surface/rim-demo.html`);
+  await rimMobile.waitForFunction(() => Boolean(window.reflectiveRimDemo));
+  assert.equal(await rimMobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await rimMobile.locator('footer').scrollIntoViewIfNeeded();
+  assert.equal(await rimMobile.locator('footer').isVisible(), true);
+  if (output) await rimMobile.screenshot({ path: path.join(output, 'rim-mobile.png'), fullPage: true });
+  await rimMobile.close();
 
   const fallback = await browser.newPage();
   await fallback.addInitScript(() => {
@@ -100,7 +146,23 @@ try {
   assert.equal(await fallback.locator('#light').getAttribute('aria-pressed'), 'false');
   assert.equal(await fallback.locator('#status').textContent(), 'Reflection paused');
   await fallback.close();
-  console.log('Reflective surface: graphics, palette, keyboard, live reduced motion, visibility pause, accessibility, mobile layout and cleanup passed.');
+
+  const rimFallback = await browser.newPage({ viewport: { width: 1100, height: 800 } });
+  await rimFallback.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function(type, ...args) {
+      return type === 'webgl2' ? null : original.call(this, type, ...args);
+    };
+  });
+  await rimFallback.goto(`http://127.0.0.1:${server.address().port}/skills/seenry-motion/assets/reflective-surface/rim-demo.html`);
+  await rimFallback.waitForFunction(() => Boolean(window.reflectiveRimDemo));
+  assert.equal(await rimFallback.locator('#ring').getAttribute('data-reflective-mode'), 'fallback');
+  assert.equal(await rimFallback.locator('#neighbor canvas').evaluate(el => el.style.opacity), '0');
+  if (output) await rimFallback.screenshot({ path: path.join(output, 'rim-fallback.png') });
+  await rimFallback.locator('#toggle').click();
+  assert.equal(await rimFallback.locator('#result').textContent(), 'Reading focus is off');
+  await rimFallback.close();
+  console.log('Reflective surface: solid and rim material, linked reflection, keyboard, reduced motion, visibility pause, mobile layout and cleanup passed.');
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));

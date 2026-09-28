@@ -42,11 +42,11 @@ try {
   const forward = await page.evaluate(() => {
     const incoming = document.querySelector('[data-view="process"]');
     const outgoing = document.querySelector('[data-view="object"]');
-    return { incoming: incoming.getBoundingClientRect().left, outgoing: outgoing.getBoundingClientRect().left,
+    return { incoming: incoming.getBoundingClientRect().left, direction: outgoing.style.transform,
       stage: document.querySelector('#stage').getBoundingClientRect().left };
   });
   assert.equal(forward.incoming > forward.stage, true, 'incoming view should still be travelling from the right');
-  assert.equal(forward.outgoing < forward.stage, true, 'outgoing view should travel left');
+  assert.equal(forward.direction.startsWith('translate3d(-100%,'), true, 'outgoing view should target the left');
   await page.waitForTimeout(500);
   assert.equal(await page.locator('#stage').getAttribute('data-stage-state'), 'settled');
   if (output) await page.screenshot({ path: path.join(output, 'desktop-process.png') });
