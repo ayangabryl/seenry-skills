@@ -57,4 +57,10 @@ python3 -m unittest discover -s tests
 
 The checks cover resources and behavior of included tools. They do not certify the visual quality of an output; inspect the actual page, responsive states and interactions. [Domain skill evaluation](evals/domain-skills/README.md) separates routing, first render, repair and independent judgment. The repository includes a [portable website example](examples/seenry-site/README.md) and development evidence under `evals/`.
 
+For an original website with a high craft bar, [the optional Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs a focused typography review and a whole-screen review in separate fresh contexts. Give it a brief, desktop and mobile captures, and an output directory; it exits with a blocking result until both reviews return Keep. It requires a local `codex` executable and the full Seenry installation. The saved JSON reports and input hashes make the disposition inspectable; the gate does not replace a human design decision.
+
+```sh
+python3 skills/seenry/scripts/independent_review_gate.py --brief BRIEF.md --desktop desktop.png --mobile mobile.png --out review-1
+```
+
 Seenry is MIT licensed. A small number of adapted guides and bundled runtime helpers retain their authors' notices in [skill licenses](skills/seenry/licenses/NOTICE.md) and their asset directories. External references remain research sources; use their code and media only under their own terms.

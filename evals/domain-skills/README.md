@@ -12,6 +12,8 @@ For a build, fix the brief, source media, model, effort, time allowance and allo
 
 Run focused craft reviews as well as a holistic review when a specific failure matters. In the first Stillroom trial, a holistic review and an initial focused typography review both accepted a tracked-kicker/italic-phrase/caption combination. After the typography guide was changed to judge the combined signature, a fresh reviewer with the same screenshots and a blind prompt identified it and proposed a concrete subtraction. This supports detection on that case; it does not establish general prevention. Preserve before and after captures if applying the recommendation.
 
+A second fresh build read the revised skills and avoided that exact stack, but still chose a genre-default plant-studio treatment: a category label, large soft serif and colored phrase. An initial focused review accepted it; after the guide explicitly required brand or task evidence beyond a genre mood, a new blind review identified the default and proposed a task-led hierarchy. The builder's first output therefore remains a prevention failure. Do not turn a detection improvement into a consistency claim.
+
 For a reference target, inspect its relevant pixels or recording and state its coverage limits. The cases in [reference craft cases](../design-craft-cases.md) are prompts for comparison, not design templates or copied media. If an output shares a grid or palette but misses the source's material depth or task rationale, record that gap. A self-review is diagnostic; user acceptance and independent review are distinct.
 
 ## Release rule

@@ -6,6 +6,8 @@ The original five skills own deliverables: `seenry` builds web interfaces, `seen
 
 For an original page, `seenry` still owns the full result. It routes the opening through `seenry-typography` before styling, then sends the first rendered slice to a focused typography review and a broader `seenry-review`. The two reviews answer different questions: one checks the type signature and reading path, the other checks the complete task. Resolve blocking findings and recapture before expanding. Use fresh review contexts when available; otherwise label a builder's craft judgment provisional. The reviews compare real wide and narrow pixels; a checklist, font name, source rating or self-authored rationale cannot certify quality. A dedicated skill makes a domain discoverable, but does not guarantee that a model applies it. Tests must inspect the model's actual reads and final artifact.
 
+The optional [Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs those two fresh contexts and saves structured findings with input and skill hashes. Its nonzero result stops a reviewable first slice from being labeled cleared; the builder must repair and recapture. It is available only where Codex CLI and the sibling specialist skills are installed. It does not force an agent to run it or make either review infallible, so independent artifact inspection and user acceptance remain separate.
+
 ## Create
 
 1. Establish the user task, actual content, constraints and existing project identity. Record decisions in DESIGN.md.
