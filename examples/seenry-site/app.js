@@ -26,11 +26,10 @@ function choose(buttons,active){buttons.forEach(b=>b.setAttribute('aria-pressed'
 let compositionEffect;
 $$('[data-composition]').filter(b=>b.tagName==='BUTTON').forEach(button=>button.addEventListener('click',()=>{
  if(button.getAttribute('aria-pressed')==='true')return;
- const specimen=$('#composition-demo'),story=specimen.querySelector('.mini-story'),from=story.getBoundingClientRect();
+ const specimen=$('#composition-demo'),story=specimen.querySelector('.mini-story');
  compositionEffect?.cancel();specimen.dataset.composition=button.dataset.composition;
  choose($$('.demo-toolbar button[data-composition]'),button);
- const to=story.getBoundingClientRect();
- compositionEffect=animate(story,[{transform:`translate(${from.x-to.x}px,${from.y-to.y}px)`},{transform:'translate(0,0)'}],{duration:320,easing:'cubic-bezier(.22,.75,.2,1)'});
+ compositionEffect=animate(story,[{opacity:0},{opacity:1}],{duration:200,easing:'ease-out'});
 }));
 $('#guides').addEventListener('click',()=>{const next=$('#guides').getAttribute('aria-pressed')!=='true';$('#guides').setAttribute('aria-pressed',String(next));$('#guides').setAttribute('aria-label',next?'Hide layout guides':'Show layout guides');$('#composition-demo').classList.toggle('show-guides',next);});
 
