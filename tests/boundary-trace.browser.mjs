@@ -50,6 +50,22 @@ try {
   await page.waitForFunction(() => window.boundaryTraceDemo.trace.mode === 'static');
   assert.equal(await overlay.locator('rect').last().getAttribute('stroke-dasharray'), '100 0');
   assert.equal(await overlay.evaluate(node => node.getAnimations({ subtree: true }).length), 0);
+  const second = await page.evaluate(async () => {
+    const { createBoundaryTrace } = await import('/skills/seenry-motion/assets/boundary-trace/boundary-trace.mjs');
+    const host = document.createElement('div');
+    host.style.cssText = 'width:200px;height:80px;border-radius:12px';
+    document.body.append(host);
+    const trace = createBoundaryTrace(host, { active: true, colors: ['#a34', '#46a'], staticAppearance: 'segment', segment: 13 });
+    const gradientIds = [...document.querySelectorAll('.seenry-boundary-trace linearGradient')].map(node => node.id);
+    const dash = host.querySelector('.seenry-boundary-trace__line').getAttribute('stroke-dasharray');
+    const mode = trace.mode;
+    trace.destroy();
+    host.remove();
+    return { gradientIds, dash, mode };
+  });
+  assert.equal(new Set(second.gradientIds).size, 2);
+  assert.equal(second.dash, '13 87');
+  assert.equal(second.mode, 'static');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.waitForFunction(() => window.boundaryTraceDemo.trace.mode === 'running');
   await page.evaluate(() => { document.querySelector('main').style.marginTop = '1800px'; });

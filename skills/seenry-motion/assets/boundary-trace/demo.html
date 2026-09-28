@@ -54,7 +54,7 @@
     const sample = document.querySelector('#sample');
     const button = document.querySelector('#toggle');
     const status = document.querySelector('#status');
-    const trace = createBoundaryTrace(sample, { color: '#b73c75', cycle: 3000 });
+    const trace = createBoundaryTrace(sample, { colors: ['#b35a45', '#c75387', '#667db3'], glow: 0.55, cycle: 3000 });
     function setActive(active) {
       trace.setActive(active);
       button.setAttribute('aria-pressed', String(active));

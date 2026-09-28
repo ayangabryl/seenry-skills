@@ -11,14 +11,14 @@
 
 .seenry-boundary-trace rect {
   fill: none;
-  stroke: currentColor;
+  stroke: var(--seenry-trace-stroke, currentColor);
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
 }
 
 .seenry-boundary-trace__glow {
-  opacity: .26;
-  filter: blur(3px);
+  opacity: var(--seenry-trace-glow-opacity, .3);
+  filter: blur(var(--seenry-trace-glow-blur, 5px));
 }
 
 .seenry-boundary-trace__line { opacity: .95; }
