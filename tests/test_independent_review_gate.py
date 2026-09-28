@@ -13,7 +13,7 @@ gate = module('independent_review_gate', ROOT / 'skills/seenry/scripts/independe
 
 class IndependentReviewGate(unittest.TestCase):
     def test_only_two_clean_keep_verdicts_clear_the_gate(self):
-        clean = {'verdict': 'Keep', 'findings': [], 'limits': []}
+        clean = {'verdict': 'Keep', 'findings': [], 'strengths': [], 'limits': []}
         self.assertEqual(gate.disposition({}), 'Revise')
         self.assertEqual(gate.disposition({'typography': clean}), 'Revise')
         results = {'typography': clean, 'whole-screen': clean}
@@ -29,9 +29,15 @@ class IndependentReviewGate(unittest.TestCase):
     def test_incomplete_structured_review_cannot_clear_the_gate(self):
         with self.assertRaises(ValueError):
             gate.validate_result({'verdict': 'Keep', 'findings': [{'observation': 'Issue'}], 'limits': []})
+        with self.assertRaises(ValueError):
+            gate.validate_result({'verdict': 'Keep', 'findings': [], 'strengths': ['Good', 5], 'limits': []})
+        self.assertEqual(gate.disposition({'typography': {'verdict': 'Keep', 'findings': [],
+            'strengths': ['Visible artwork'], 'limits': []}, 'whole-screen':
+            {'verdict': 'Keep', 'findings': [], 'strengths': ['Clear action'], 'limits': []}}), 'Keep')
+        self.assertIn('findings: []', gate.review_prompt('typography', 'first-screen'))
 
     def test_full_page_scope_reviews_the_complete_task(self):
-        clean = {'verdict': 'Keep', 'findings': [], 'limits': ['Static captures do not prove behavior']}
+        clean = {'verdict': 'Keep', 'findings': [], 'strengths': [], 'limits': ['Static captures do not prove behavior']}
         self.assertEqual(gate.disposition({'whole-screen': clean}, 'full-page'), 'Keep')
         self.assertEqual(gate.disposition({'typography': clean}, 'full-page'), 'Revise')
         prompt = gate.review_prompt('whole-screen', 'full-page')
@@ -62,7 +68,7 @@ class IndependentReviewGate(unittest.TestCase):
                 'import json, pathlib, sys\n'
                 'path = pathlib.Path(sys.argv[sys.argv.index("-o") + 1])\n'
                 '(path.parent / "cwd.txt").write_text(sys.argv[sys.argv.index("-C") + 1])\n'
-                'json.dump({"verdict":"Keep","findings":[],"limits":[]}, path.open("w"))\n'
+                'json.dump({"verdict":"Keep","findings":[],"strengths":[],"limits":[]}, path.open("w"))\n'
             )
             if sys.platform == 'win32':
                 fake_cli = folder / 'codex-stub.cmd'

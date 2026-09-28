@@ -14,6 +14,8 @@ State the reader's task, the available content and the component's host or page 
 
 Group things that are read or operated together: label with control, evidence with claim, choice with consequence. Establish a few alignment anchors and a deliberate reading sequence. Space can carry grouping; add a rule, fill or box only when it makes a relationship clearer. Inspect border endpoints, nested corners and repeated enclosures at ordinary size.
 
+Give the page gutter and grid one owner, then inherit their content edges through header, main sections and footer. Measure those edges and each component's painted child with development rulers; a parent container can align while its inset image or control does not. Resolve unexplained differences at the shared token or component instead of adding per-section offsets. Turn the rulers off to judge optical balance and the subject itself. Use [layout verification](../seenry/references/layout-verification.md) for the measurements and a development-only overlay.
+
 For new work, compare structural alternatives with identical facts: for example evidence first versus choice first, a comparison surface versus a guided sequence, or open composition versus a contained object. A palette or corner swap is not a structural alternative. Identify what each structure helps the visitor understand, and what it costs in scrolling or scanning.
 
 ## Exercise the layout

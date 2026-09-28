@@ -15,8 +15,9 @@
         "additionalProperties": false
       }
     },
+    "strengths": {"type": "array", "items": {"type": "string"}},
     "limits": {"type": "array", "items": {"type": "string"}}
   },
-  "required": ["verdict", "findings", "limits"],
+  "required": ["verdict", "findings", "strengths", "limits"],
   "additionalProperties": false
 }

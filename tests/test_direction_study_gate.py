@@ -23,7 +23,7 @@ class DirectionStudyGate(unittest.TestCase):
                 'import json, pathlib, sys\n'
                 'path = sys.argv[sys.argv.index("-o") + 1]\n'
                 '(pathlib.Path(path).parent / "cwd.txt").write_text(sys.argv[sys.argv.index("-C") + 1])\n'
-                f'json.dump({{"verdict":"{verdict}","findings":[],"limits":[]}}, open(path,"w"))\n'
+                f'json.dump({{"verdict":"{verdict}","findings":[],"strengths":[],"limits":[]}}, open(path,"w"))\n'
             )
             if sys.platform == 'win32':
                 fake_cli = folder / 'codex-stub.cmd'
