@@ -1,0 +1,35 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "6f0186fc6c92428d2669975f71f55de1e65ef162443403afbde4cfa79938de4c",
+    "desktop": "ac2471c911b7d1d8303ca7001a71b26833a2ba76a8b392a6bbb31cd0fc2cfc58",
+    "mobile": "98457e351455613a2801d15fcee42368029e2c4bd01b09e2d4a4f7fe58fe127c"
+  },
+  "skill_sha256": {
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "whole-screen": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "In the narrow capture, the status label reads \u201cNext predictedrestriction\u201d with no visible space between the words.",
+          "impact": "A key decision point is harder to read at the size where space is tightest.",
+          "repair": "Add spacing or stack the label\u2019s words in the mobile layout, then recheck the 390 px view."
+        }
+      ],
+      "strengths": [
+        "The first screen shows the sample status, next predicted restriction, crossing advice, and forecast action.",
+        "The timeline and forecast table agree on the restriction window, and the page clearly labels the data as illustrative.",
+        "The condensed display type suits the civic signal concept; the wide and narrow layouts retain a clear hierarchy."
+      ],
+      "limits": [
+        "Static captures cannot verify the forecast action, sample-condition switching, keyboard access, or other interactive states.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-firstpass-type-trial-20260929/first-full-review/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-firstpass-type-trial-20260929/first-full-review/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

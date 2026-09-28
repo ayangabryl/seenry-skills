@@ -1,0 +1,40 @@
+{
+  "scope": "direction-study",
+  "input_sha256": {
+    "brief": "6f0186fc6c92428d2669975f71f55de1e65ef162443403afbde4cfa79938de4c",
+    "a-desktop": "823e2d53d1018472499210cb0d03d8b0dcba8d427621e130ce04c6cb1446b403",
+    "a-mobile": "0955a65563cb2172493821965e6cc650bd16096dd920e337f22a205b725a91a7",
+    "b-desktop": "b8714850b5773350c20bc2fc4ac0916eaff4f2b13e9557eb268a56c81383250b",
+    "b-mobile": "4cd66e0ded6a1404e42ace3fd736e1457cdb1ab8d8f3029a974c3e06d6d7ceae",
+    "decision": "13b3b2fbba53e567631ec73aedd89e11e5cb5f27af8987981c78e00483e8e73a"
+  },
+  "skill_sha256": {
+    "review": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2",
+    "art-direction": "1f3b198d9d50c8d133638838600b5410052a5e37cd96661ebd8ad4ab940df62d"
+  },
+  "review": {
+    "verdict": "Revise",
+    "findings": [
+      {
+        "observation": "In B\u2019s mobile capture, \u201cNext predicted restriction\u201d runs together beside 17:30.",
+        "impact": "The key time is visible, but its label is harder to read in the first-screen decision area.",
+        "repair": "Give the label and time enough space to wrap or stack cleanly at 390 px, then recapture."
+      },
+      {
+        "observation": "B\u2019s crossing-window segments do not match the durations marked below them; the 18:30\u201319:00 segment appears too wide.",
+        "impact": "The timeline gives a misleading impression of how long each condition lasts.",
+        "repair": "Scale the segments to the marked time intervals and recheck both widths."
+      }
+    ],
+    "strengths": [
+      "The studies materially differ: A presents a status board with a wind outlook, while B makes the crossing window the central decision material.",
+      "B brings open status, the 17:30 predicted restriction, and crossing advice together on desktop and mobile without the rejected editorial opening. Its signage-like type and labeled timeline have enough visual craft to develop."
+    ],
+    "limits": [
+      "Still captures cannot verify the forecast action, responsive behavior beyond these widths, or other interaction states."
+    ],
+    "log": "/private/tmp/seenry-firstpass-type-trial-20260929/direction-review-external/review/codex.log",
+    "report": "/private/tmp/seenry-firstpass-type-trial-20260929/direction-review-external/review/review.json"
+  },
+  "status": "Revise"
+}

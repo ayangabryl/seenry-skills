@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f1f0e9">
+  <title>Bridge Signal — sample crossing conditions</title>
+  <meta name="description" content="An illustrative footbridge wind restriction dashboard. See the sample status, next predicted restriction, and wind forecast.">
+  <link rel="stylesheet" href="studies.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="app.js" defer></script>
+</head>
+<body class="study-b app-page">
+  <div class="frame" id="top">
+    <header class="top">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Bridge Signal</span></div>
+      <span class="sample">Illustrative sample · 16:20</span>
+    </header>
+    <main>
+      <div class="b-heading"><span>Footbridge crossing</span><span class="b-now">Wind at selected time <b id="wind-current">24 km/h</b> / threshold 35 km/h</span></div>
+      <section class="b-state" aria-labelledby="status-title" aria-live="polite">
+        <div>
+          <p class="state-caption" id="state-caption">Sample status · 16:20</p>
+          <div class="b-status"><span class="state-dot" aria-hidden="true"></span><h1 id="status-title">OPEN NOW</h1></div>
+        </div>
+        <div class="b-next"><span id="next-label">Next predicted<br>restriction</span><strong id="next-time">17:30</strong></div>
+      </section>
+      <section class="b-window" aria-label="Illustrative crossing window">
+        <div class="window-title"><span>Predicted crossing window</span><span>16:20 → 19:00</span></div>
+        <div class="time-rail" role="img" aria-label="Wind below threshold from 16:20 to 17:30; above threshold from 17:30 to 18:30; below threshold again from 18:30 to 19:00">
+          <div class="time-open"><span>BELOW 35</span></div>
+          <div class="time-restrict"><span>ABOVE 35</span></div>
+          <div class="time-reopen"><span>BELOW 35</span></div>
+        </div>
+        <div class="time-labels" aria-hidden="true"><span>16:20</span><span>17:30</span><span>18:30</span><span>19:00</span></div>
+      </section>
+      <section class="b-advice" aria-labelledby="advice-title">
+        <div><h2 class="b-advice-key" id="advice-title">What to do</h2><p id="advice-text">Cross now if your walk can finish before 17:30.</p></div>
+        <a href="#full-forecast">See full forecast <span aria-hidden="true">↗</span></a>
+      </section>
+      <section class="sample-selector" aria-labelledby="sample-title">
+        <div class="selector-heading"><h2 id="sample-title">Explore sample conditions</h2><p>Choose a time to see how the crossing advice changes. These are illustrative predictions, not live bridge status.</p></div>
+        <div class="sample-options" role="group" aria-label="Sample condition time">
+          <button type="button" class="sample-option" data-sample="now" aria-pressed="true"><span>16:20</span><strong>Open now</strong><small>24 km/h</small></button>
+          <button type="button" class="sample-option" data-sample="restriction" aria-pressed="false"><span>17:30</span><strong>Above threshold</strong><small>36 km/h</small></button>
+          <button type="button" class="sample-option" data-sample="easing" aria-pressed="false"><span>18:30</span><strong>Below threshold</strong><small>32 km/h</small></button>
+        </div>
+      </section>
+      <section id="full-forecast" class="full-forecast" aria-labelledby="forecast-title">
+        <div class="forecast-heading"><div><h2 id="forecast-title">Full wind forecast</h2><p>Sample values in km/h. A restriction is predicted when wind reaches 35 km/h.</p></div><div class="threshold-key"><i aria-hidden="true"></i>35 km/h threshold</div></div>
+        <div class="forecast-table-wrap">
+          <table>
+            <caption class="sr-only">Illustrative wind values and predicted crossing condition</caption>
+            <thead><tr><th scope="col">Time</th><th scope="col">Wind</th><th scope="col">Predicted condition</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">16:20 <span class="row-meta">sample now</span></th><td><strong>24</strong> km/h</td><td><span class="condition ok">Below threshold</span></td></tr>
+              <tr><th scope="row">17:00</th><td><strong>29</strong> km/h</td><td><span class="condition ok">Below threshold</span></td></tr>
+              <tr class="forecast-alert"><th scope="row">17:30</th><td><strong>36</strong> km/h</td><td><span class="condition alert">Restriction predicted</span></td></tr>
+              <tr class="forecast-alert"><th scope="row">18:00</th><td><strong>38</strong> km/h</td><td><span class="condition alert">Restriction predicted</span></td></tr>
+              <tr><th scope="row">18:30</th><td><strong>32</strong> km/h</td><td><span class="condition ok">Below threshold</span></td></tr>
+              <tr><th scope="row">19:00</th><td><strong>25</strong> km/h</td><td><span class="condition ok">Below threshold</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="forecast-caveat">A forecast below the threshold does not confirm that the bridge has reopened. Check current bridge information before crossing.</p>
+      </section>
+    </main>
+    <footer class="site-footer"><div class="footer-brand">Bridge Signal <span aria-hidden="true">∩</span></div><p>Prototype with illustrative conditions only. No live sensor or bridge authority is connected.</p><a href="#top" id="back-to-top">Back to top ↑</a></footer>
+  </div>
+</body>
+</html>
