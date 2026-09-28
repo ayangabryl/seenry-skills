@@ -1,0 +1,22 @@
+/* Original Seenry asset. MIT. Set these inks for the host's actual surface. */
+.voice-presence {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  color: var(--vp-ink, #ffbf98);
+}
+.voice-presence .vp-shell { fill: currentColor; opacity: calc(var(--vp-energy, .4) * .55); }
+.voice-presence .vp-rib { fill: none; stroke: currentColor; stroke-width: .8; }
+.voice-presence .vp-right { color: var(--vp-highlight, #ffe6c8); }
+.voice-presence .vp-seam { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.voice-presence[data-state="idle"] { color: var(--vp-idle, #9b9b94); }
+.voice-presence[data-state="idle"] .vp-right { color: inherit; }
+.voice-presence[data-state="speaking"] { color: var(--vp-speaking, #ace0d3); }
+.voice-presence[data-state="speaking"] .vp-right { color: var(--vp-speaking-highlight, #def5ec); }
+.voice-presence[data-state="error"],
+.voice-presence[data-state="error"] .vp-right { color: var(--vp-error, #ffb5a9); }
+@media (forced-colors: active) {
+  .voice-presence, .voice-presence .vp-right { color: CanvasText; }
+}
