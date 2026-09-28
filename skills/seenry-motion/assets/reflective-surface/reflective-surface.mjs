@@ -34,8 +34,11 @@ void main() {
     vec2 pointerDirection = (uPointer - 0.5) * 2.0;
     float pointerAngle = atan(pointerDirection.y, pointerDirection.x);
     float angularDistance = atan(sin(angle - pointerAngle), cos(angle - pointerAngle));
-    float attention = exp(-pow(angularDistance / 0.55, 2.0)) * clamp(length(pointerDirection), 0.0, 1.0);
-    float edge = distanceToEdge + attention * 0.65;
+    float pointerStrength = smoothstep(0.12, 0.62, length(pointerDirection));
+    float attention = exp(-pow(angularDistance / 0.46, 2.0)) * pointerStrength;
+    float offsetDistance = atan(sin(angle - pointerAngle - 0.34), cos(angle - pointerAngle - 0.34));
+    float colorAccent = exp(-pow(offsetDistance / 0.19, 2.0)) * pointerStrength;
+    float edge = distanceToEdge + attention * 0.75;
     float outer = 1.0 - smoothstep(-0.6, 1.4, edge);
     float rim = smoothstep(-5.5, -3.3, edge) * outer;
     float innerLine = exp(-pow((edge + 5.7) / 1.15, 2.0));
@@ -44,10 +47,12 @@ void main() {
     float secondGlint = pow(max(sin(angle * 3.1 + uTime * 0.32 + 1.7), 0.0), 34.0);
     float grain = 0.07 * sin(angle * 5.2 + uTime * 0.13)
                 + 0.035 * sin(angle * 11.0 - uTime * 0.23);
-    float brightness = 0.22 + 0.28 * (0.5 + 0.5 * sin(angle * 1.8 - uTime * 0.24))
-                     + grain + 0.52 * glint + 0.25 * secondGlint + 0.25 * attention;
+    float brightness = 0.12 + 0.25 * (0.5 + 0.5 * sin(angle * 1.8 - uTime * 0.24))
+                     + grain + 0.58 * glint + 0.28 * secondGlint + 0.45 * attention;
     vec3 silver = mix(uBase, uLight, clamp(brightness, 0.0, 1.0));
-    vec3 spectral = vec3(0.18, 0.44, 1.0) * glint + vec3(1.0, 0.28, 0.30) * secondGlint;
+    vec3 spectral = vec3(0.18, 0.44, 1.0) * glint + vec3(1.0, 0.28, 0.30) * secondGlint
+                  + vec3(0.16, 0.54, 1.0) * attention * 0.52
+                  + vec3(1.0, 0.24, 0.32) * colorAccent * 0.42;
     vec3 color = clamp(silver + spectral * 0.60, 0.0, 1.0);
     color = mix(color, uDark, innerLine * 0.72);
     float opacity = clamp(rim + innerLine * 0.42, 0.0, 1.0);
