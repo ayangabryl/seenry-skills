@@ -57,10 +57,11 @@ python3 -m unittest discover -s tests
 
 The checks cover resources and behavior of included tools. They do not certify the visual quality of an output; inspect the actual page, responsive states and interactions. [Domain skill evaluation](evals/domain-skills/README.md) separates routing, first render, repair and independent judgment. The repository includes a [portable website example](examples/seenry-site/README.md) and development evidence under `evals/`.
 
-For an original website with a high craft bar, [the optional Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs a focused typography review and a whole-screen review in separate fresh contexts. Give it a brief, desktop and mobile captures, and an output directory; it exits with a blocking result until both reviews return Keep. It requires a local `codex` executable and the full Seenry installation. The saved JSON reports and input hashes make the disposition inspectable; the gate does not replace a human design decision.
+For an original website with a high craft bar, [the optional Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs a focused typography review and a whole-screen review of the opening in separate fresh contexts. After the page is built, `--scope full-page` reviews complete wide and narrow captures for issues outside that opening. Give each run a brief, captures, and a new output directory; it exits with a blocking result until its reviewers return Keep. It requires a local `codex` executable and the full Seenry installation. The saved JSON reports and input hashes make the disposition inspectable; the gate does not replace a human design decision or interaction testing.
 
 ```sh
 python3 skills/seenry/scripts/independent_review_gate.py --brief BRIEF.md --desktop desktop.png --mobile mobile.png --out review-1
+python3 skills/seenry/scripts/independent_review_gate.py --scope full-page --brief BRIEF.md --desktop desktop-full.png --mobile mobile-full.png --out review-final
 ```
 
 For a connected native app flow, [the optional app gate](skills/seenry-apps/scripts/independent_flow_gate.py) reviews ordered, settled simulator captures in fresh visual and flow contexts. It records the exact images and blocks a cleared claim when either reviewer finds a supported repair. Exercise the flow on the device as well; screenshots cannot prove behavior.

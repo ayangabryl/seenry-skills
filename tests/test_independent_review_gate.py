@@ -25,6 +25,16 @@ class IndependentReviewGate(unittest.TestCase):
         with self.assertRaises(ValueError):
             gate.validate_result({'verdict': 'Keep', 'findings': [{'observation': 'Issue'}], 'limits': []})
 
+    def test_full_page_scope_reviews_the_complete_task(self):
+        clean = {'verdict': 'Keep', 'findings': [], 'limits': ['Static captures do not prove behavior']}
+        self.assertEqual(gate.disposition({'whole-screen': clean}, 'full-page'), 'Keep')
+        self.assertEqual(gate.disposition({'typography': clean}, 'full-page'), 'Revise')
+        prompt = gate.review_prompt('whole-screen', 'full-page')
+        self.assertIn('complete page', prompt)
+        self.assertIn('full-page captures', prompt)
+        self.assertIn('responsive reflow', prompt)
+        self.assertNotIn('first-screen captures', prompt)
+
 
 if __name__ == '__main__':
     unittest.main()
