@@ -43,7 +43,7 @@ Use ordinary CSS or Web Animations when they reproduce the score. Adopt a spring
 
 Compare at the same viewport and trigger-relative time, not arbitrary screenshots of both animations. First align their settled geometry and input frame. Inspect both at normal speed; then compare the shape, anchor, content and neighboring geometry at corresponding checkpoints. Record time uncertainty at least as large as the source's observed cadence. If only a poster is accessible, the motion result remains unverified.
 
-For autoplay, sample the source's **last unchanged**, **first changing**, **midpoint** and **first settled** frames. Distinguish overlay change from asset blend. Align viewport and trigger; capture the live browser animation at those times after assets and fonts load. A debug state jump checks endpoints only. Capture pre-onset and midpoint without it. Report phase mismatch and cadence uncertainty.
+For autoplay, sample the source's **last unchanged**, **first changing**, **midpoint** and **first settled** frames. Distinguish overlay change from asset blend. Align viewport and trigger; capture the live browser animation at those times after assets and fonts load. A debug state jump checks endpoints only. Capture pre-onset and midpoint without it. Recheck live phase after the final timing edit. Report mismatch and cadence uncertainty.
 
 Run a second input before settlement, alternate opening and closing, resize the host and change reduced-motion preference while active. Preserve final information, immediate keyboard focus and usable pointer targets. These unseen-source behaviors are implementation requirements, not claims about how the source behaves.
 
