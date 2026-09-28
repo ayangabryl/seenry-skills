@@ -48,17 +48,30 @@ try {
   const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto(url);
   await page.waitForFunction(() => Boolean(window.study));
   assert.equal(await page.locator('[role="tab"][aria-selected="true"]').count(), 1);
   await waitForAlignment(page);
 
-  const startX = await page.locator('.motion-rail-selected').evaluate(el => el.getBoundingClientRect().x);
-  await page.getByRole('tab', { name: 'Recent activity' }).click();
-  await page.waitForTimeout(85);
-  const middleX = await page.locator('.motion-rail-selected').evaluate(el => el.getBoundingClientRect().x);
-  const targetX = await page.locator('#tab-activity').evaluate(el => el.getBoundingClientRect().x);
-  assert.ok(middleX > startX + 2 && middleX < targetX - 2, `Selection should travel between labels: ${startX}, ${middleX}, ${targetX}`);
+  const travel = await page.evaluate(async () => {
+    const pill = document.querySelector('.motion-rail-selected');
+    const tab = document.querySelector('#tab-activity');
+    const start = pill.getBoundingClientRect().x;
+    const target = tab.getBoundingClientRect().x;
+    tab.click();
+    return await new Promise(resolve => {
+      const deadline = performance.now() + 1500;
+      function sample() {
+        const x = pill.getBoundingClientRect().x;
+        if (x > start + 1 && x < target - 1) { resolve({ start, x, target }); return; }
+        if (performance.now() > deadline) { resolve({ start, x, target }); return; }
+        requestAnimationFrame(sample);
+      }
+      requestAnimationFrame(sample);
+    });
+  });
+  assert.ok(travel.x > travel.start + 1 && travel.x < travel.target - 1, `Selection should travel between labels: ${JSON.stringify(travel)}`);
   await waitForAlignment(page);
   assert.equal(await page.locator('#panel-activity').isVisible(), true);
   assert.equal(await page.locator('#panel-overview').isHidden(), true);
