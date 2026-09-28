@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eaece5">
+  <title>Northline — compare a sample departure forecast</title>
+  <meta name="description" content="Compare illustrative departure windows and conditions for three harbors.">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="Northline, back to top">
+        <span class="brand-symbol" aria-hidden="true"><span class="symbol-n">N</span><span class="symbol-slash"></span></span>
+        <span>NORTHLINE</span>
+      </a>
+      <span class="header-purpose">HARBOR DEPARTURE PLANNER</span>
+      <span class="header-date">TUE 29 SEP <span class="date-dot" aria-hidden="true"></span> LOCAL TIME</span>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="opening page-gutter" aria-labelledby="page-title">
+      <div class="opening-title">
+        <p class="serial">N / 001 <span>DEPARTURE COMPARISON</span></p>
+        <h1 id="page-title">Three harbors.<br>One morning.</h1>
+      </div>
+      <div class="opening-aside">
+        <p>Compare a possible departure window, conditions and return time across the sample harbors.</p>
+        <a class="text-action" href="#forecast-detail">Open sample forecast <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <section class="compare page-gutter" aria-labelledby="compare-title">
+      <div class="section-rail">
+        <h2 id="compare-title">Compare departures</h2>
+        <span>ILLUSTRATIVE CONDITIONS / LOCAL TIME</span>
+      </div>
+      <div class="ledger-head" aria-hidden="true">
+        <span>HARBOR</span><span>BEST WINDOW / TIDE</span><span>WIND / SWELL</span><span>RETURN BY</span><span>STATUS</span>
+      </div>
+      <div class="harbor-list" role="group" aria-label="Choose a harbor to inspect">
+        <button class="harbor-row is-selected" type="button" data-harbor="north" aria-pressed="true" aria-controls="forecast-detail">
+          <span class="harbor-name"><span class="row-number">01</span><strong>North Pier</strong><span class="selection-cue" aria-hidden="true">✓ SELECTED</span></span>
+          <span class="row-field"><small class="window-label">BEST WINDOW</small><strong>06:00–09:30</strong><small>HIGH TIDE 08:42</small></span>
+          <span class="row-field"><strong>8–11 kn NW</strong><small>0.6 m SWELL</small></span>
+          <span class="row-return"><strong>10:15</strong><small>RETURN BY</small></span>
+          <span class="row-status favorable"><span class="status-dot" aria-hidden="true"></span>Favorable<span class="status-arrow" aria-hidden="true">↗</span></span>
+        </button>
+        <button class="harbor-row" type="button" data-harbor="outer" aria-pressed="false" aria-controls="forecast-detail">
+          <span class="harbor-name"><span class="row-number">02</span><strong>Outer Point</strong><span class="selection-cue" aria-hidden="true">✓ SELECTED</span></span>
+          <span class="row-field"><small class="window-label">BEST WINDOW</small><strong>07:15–09:00</strong><small>HIGH TIDE 08:36</small></span>
+          <span class="row-field"><strong>12–16 kn W</strong><small>1.1 m SWELL</small></span>
+          <span class="row-return"><strong>09:45</strong><small>RETURN BY</small></span>
+          <span class="row-status caution"><span class="status-dot" aria-hidden="true"></span>Caution<span class="status-arrow" aria-hidden="true">↗</span></span>
+        </button>
+        <button class="harbor-row" type="button" data-harbor="south" aria-pressed="false" aria-controls="forecast-detail">
+          <span class="harbor-name"><span class="row-number">03</span><strong>South Reach</strong><span class="selection-cue" aria-hidden="true">✓ SELECTED</span></span>
+          <span class="row-field"><small class="window-label">BEST WINDOW</small><strong>06:30–10:30</strong><small>HIGH TIDE 08:55</small></span>
+          <span class="row-field"><strong>6–9 kn N</strong><small>0.4 m SWELL</small></span>
+          <span class="row-return"><strong>11:15</strong><small>RETURN BY</small></span>
+          <span class="row-status favorable"><span class="status-dot" aria-hidden="true"></span>Favorable<span class="status-arrow" aria-hidden="true">↗</span></span>
+        </button>
+      </div>
+      <p class="caveat">Illustrative conditions. Check an official forecast and local advice before departure.</p>
+    </section>
+
+    <section class="detail-band" id="forecast-detail" aria-labelledby="detail-title">
+      <div class="detail-inner page-gutter">
+        <div class="detail-heading">
+          <div>
+            <p class="detail-index">SAMPLE FORECAST <span>01 / 03</span></p>
+            <h2 id="detail-title"><span id="detail-harbor">North Pier</span><span class="detail-title-mark" aria-hidden="true">↘</span></h2>
+          </div>
+          <span class="detail-status favorable" id="detail-status"><span class="status-dot" aria-hidden="true"></span><span id="status-value">Favorable</span></span>
+        </div>
+
+        <div class="detail-content">
+          <div class="window-panel">
+            <p class="data-label">BEST WINDOW <span>/ LOCAL TIME</span></p>
+            <p class="window-value" id="window-value">06:00<span aria-hidden="true">—</span>09:30</p>
+            <p class="window-note">A window to investigate, with the return time shown separately.</p>
+          </div>
+          <div class="metric-panel">
+            <div class="metric"><span class="data-label">WIND</span><strong id="wind-value">8–11 kn NW</strong></div>
+            <div class="metric"><span class="data-label">SWELL</span><strong id="swell-value">0.6 m</strong></div>
+            <div class="metric"><span class="data-label">HIGH TIDE</span><strong id="tide-value">08:42</strong></div>
+            <div class="metric return-metric"><span class="data-label">RETURN BY</span><strong id="return-value">10:15</strong></div>
+          </div>
+        </div>
+
+        <div class="time-diagram" aria-label="Morning timeline for North Pier: best window 06:00 to 09:30, high tide 08:42, return by 10:15" id="time-diagram">
+          <div class="diagram-top"><span>MORNING / 06:00–12:00</span><span>TIME SCALE</span></div>
+          <div class="timeline" aria-hidden="true">
+            <div class="window-bar" id="window-bar"></div>
+            <div class="tide-line" id="tide-line"></div>
+            <div class="return-line" id="return-line"></div>
+          </div>
+          <div class="axis" aria-hidden="true"><span>06:00</span><span>08:00</span><span>10:00</span><span>12:00</span></div>
+          <div class="diagram-legend"><span><i class="legend-window"></i>Best window</span><span><i class="legend-tide"></i>High tide <b id="legend-tide-value">08:42</b></span><span><i class="legend-return"></i>Return by <b id="legend-return-value">10:15</b></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="explanation page-gutter" aria-labelledby="explanation-title">
+      <div class="explanation-code">N / METHOD</div>
+      <div>
+        <h2 id="explanation-title">A forecast organized around the departure decision.</h2>
+        <p>Northline puts the possible window, conditions, tide and return time in one reading order. Switch harbors above to compare the same measures in the same place.</p>
+      </div>
+      <a href="#compare-title" class="back-action">Compare harbors <span aria-hidden="true">↑</span></a>
+    </section>
+  </main>
+
+  <footer class="site-footer page-gutter"><span>NORTHLINE / CONCEPT PROTOTYPE</span><span>ILLUSTRATIVE DATA · TUE 29 SEP · LOCAL TIME</span></footer>
+  <span class="sr-only" id="selection-announcement" role="status" aria-live="polite"></span>
+</body>
+</html>
