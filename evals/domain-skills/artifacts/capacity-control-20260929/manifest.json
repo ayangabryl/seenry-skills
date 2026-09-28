@@ -3,8 +3,8 @@
   "files": [
     {
       "file": "README.md",
-      "sha256": "600a70d0e29579ef61d543f47ff240ee0cd7c761c267e69795d40d54fc5d702c",
-      "bytes": 2263
+      "sha256": "b1441bd58a82dc3bb30416059093011dda9fdf20da89696d9a71e53be27fde06",
+      "bytes": 2771
     },
     {
       "file": "RESULTS.md",
@@ -78,6 +78,16 @@
         1440,
         900
       ]
+    },
+    {
+      "file": "coverage-default-summary.json",
+      "sha256": "dd8b756febc868cc7c4e8299db518b2b0f6fd6b777bac5c94f37c4908153139f",
+      "bytes": 1529
+    },
+    {
+      "file": "coverage-repaired-summary.json",
+      "sha256": "508f2de8b260e2fa737fd4422cce61bb6184a990ebc4e182037ff70752f85dbb",
+      "bytes": 1642
     },
     {
       "file": "first-review-summary.json",

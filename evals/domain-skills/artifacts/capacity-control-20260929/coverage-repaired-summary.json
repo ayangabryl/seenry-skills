@@ -1,0 +1,31 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "bd073152e9233ce873998d0f038297030fa79ee49ae1e0cbac5b39519ed0c1f9",
+    "desktop": "710247ecdedaa64393c5cc25b06f1c66446ca4008ea1f5ca25bace17629234e9",
+    "mobile": "c293043dd0cf3dd649ff55defd29079c3e67bc19dcdfb6d5464d3cba79b51391",
+    "state.min": "b0cfa84a80c84aacc0d5ffe165cf5439b2d43425bf37944b0d0ae3ef7651e084",
+    "state.max": "edec18b9627570bb552c079b72d6e2476590d430e65863e68863668be6b9d894"
+  },
+  "skill_sha256": {
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The page makes the task clear: the host sees the capacity control, its 16\u201328 range, and the effect on confirmed guests and the waitlist.",
+        "The 28-seat state visibly updates the capacity, open seats, waitlist count, and seat preview. The copy makes clear that changing capacity does not admit anyone.",
+        "The layout remains readable in the wide, 390 px, and 320 px captures. At 320 px, the reset action moves below the heading without crowding the control."
+      ],
+      "limits": [
+        "Static captures cannot verify pointer, touch, or keyboard input; reset behavior; rapid reversal; reduced motion; or screen-reader output.",
+        "No visual reference was provided for comparison."
+      ],
+      "log": "/private/tmp/seenry-gate-central-state-repaired-20260929/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-gate-central-state-repaired-20260929/whole-screen/review.json"
+    }
+  },
+  "status": "Keep"
+}
