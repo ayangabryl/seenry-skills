@@ -21,6 +21,8 @@ For the decisive region record:
 
 Preserve item count/order, content/assets, active geometry, moving surfaces and reveal sequence. Different behavior is adaptation, not a replica. Record requested departures. Source details are task requirements, not global defaults.
 
+For an image-led screen, compare media candidates inside the measured crop **before** tuning the final overlay. Record the subject-to-frame scale, focal position, surrounding structure and quiet space for type; an attractive image can still move the subject or architecture far enough to cap fidelity. At equal aspect ratio, judge the live type/layout and the central image separately. If a substitute image keeps the overlay close but changes the dominant subject or scene, report a closer layout reconstruction with substitute media, not an accurate screen reconstruction. A mobile layout without source media remains a proposed adaptation; inspect whether its copy crosses the subject at narrow widths.
+
 For screenshot-only controls, read [link fidelity](link-fidelity.md) before handoff.
 
 ## Reconstruct motion as a score
