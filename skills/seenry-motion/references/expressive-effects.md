@@ -10,6 +10,10 @@ A traveling rim can draw attention to one temporarily active surface. Keep the b
 
 An orb or other continuous mark can support a truthful working state. Map idle, active, paused, completed and failed states from the real operation; decorative shape names are not product capabilities. Give the readable status its own DOM text and hide redundant artwork from assistive technology. Pause frame work when offscreen, hidden, or reduced motion is requested. Avoid a perpetual loop in ordinary reading surfaces or for an operation that has already finished.
 
+## Live voice activity
+
+The original [voice presence](../assets/voice-presence/README.md) opens paired SVG folds inside a 48 px control from a supplied audio level. Use it for real input or output activity, with application-owned idle/listening/speaking/error state and DOM status. It does not capture audio or recognize speech. Zero has no autonomous pulse; reduced motion fixes the geometry and varies the ink. Inspect the response at control size, and distinguish a labeled demo envelope from an actual microphone stream.
+
 ## Liquid continuity
 
 A connected silhouette can explain that nearby actions belong to one control. The original [FluidSurface renderer](../assets/fluid/README.md) measures two surfaces and draws shared SVG material while their text and hit targets remain unfiltered DOM. [Surface effects](surface-effects.md) covers merge, trail, bend and image contact. First match the silhouette and clipping at the component's real size; blur alone on a rectangular overlay does not create continuity. Collapsed actions must be inert, not merely transparent. Test immediate reversal, keyboard activation, touch and live reduced motion.

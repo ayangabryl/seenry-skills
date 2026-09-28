@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Voice presence · Seenry</title>
+  <link rel="stylesheet" href="./voice-presence.css">
+  <link rel="stylesheet" href="./demo.css">
+</head>
+<body>
+<main>
+  <header><a href="./README.md">SEENRY / MOTION</a><span>01 — Voice presence</span></header>
+  <section class="intro">
+    <p class="eyebrow">A SMALL SIGNAL, CLOSE TO THE ACTION</p>
+    <h1>Give voice a<br>visible presence.</h1>
+    <p>Two quiet folds open with the input level.<br>A place for sound, without taking over the conversation.</p>
+  </section>
+  <section class="specimen" aria-labelledby="specimen-title">
+    <div class="specimen-heading"><h2 id="specimen-title">Voice input</h2><span class="tag">SIGNAL DEMO</span></div>
+    <div class="voice-control">
+      <span id="presence" class="presence" aria-hidden="true"></span>
+      <div class="voice-copy"><p id="status" role="status">Demo idle</p><p id="detail">No microphone is connected</p></div>
+      <button id="toggle" type="button" disabled>Start demo</button>
+    </div>
+    <p class="specimen-note">Generated levels only. No recording, audio playback or speech recognition.</p>
+  </section>
+  <section class="controls" aria-labelledby="controls-title">
+    <h2 id="controls-title">Explore the response</h2>
+    <fieldset disabled id="settings">
+      <legend>Application state</legend>
+      <div class="states">
+        <label><input type="radio" name="state" value="idle" checked><span>Idle</span></label>
+        <label><input type="radio" name="state" value="listening"><span>Listening</span></label>
+        <label><input type="radio" name="state" value="speaking"><span>Speaking</span></label>
+        <label><input type="radio" name="state" value="error"><span>Error</span></label>
+      </div>
+      <div class="level-label"><label for="level">Demo input level</label><output id="value" for="level">0.00</output></div>
+      <input id="level" type="range" min="0" max="1" step="0.01" value="0" disabled>
+      <div class="scale"><span>Quiet</span><span>Full signal</span></div>
+      <label class="static-option"><input type="checkbox" id="static">Keep the folds still</label>
+    </fieldset>
+    <p id="motion-note">System reduced motion is respected automatically.</p>
+  </section>
+  <noscript><p>This preview needs JavaScript. The voice input is idle and no microphone is connected.</p></noscript>
+  <footer><span>48 px artwork · ordinary DOM controls</span><span>Original Seenry component</span></footer>
+</main>
+<script type="module" src="./demo.mjs"></script>
+</body>
+</html>
