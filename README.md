@@ -9,6 +9,18 @@ Seenry helps an agent research, design, build and review websites and interactiv
 | [seenry-assets](skills/seenry-assets/SKILL.md) | Images, fonts, icons, video and asset provenance |
 | [seenry-branding](skills/seenry-branding/SKILL.md) | Identity research and project brand guidelines |
 | [seenry-decks](skills/seenry-decks/SKILL.md) | Presentation research and slide narratives |
+| [seenry-apps](skills/seenry-apps/SKILL.md) | Connected mobile app screens and flows |
+| [seenry-typography](skills/seenry-typography/SKILL.md) | Font voice, type composition and rendered hierarchy |
+| [seenry-color](skills/seenry-color/SKILL.md) | Palette roles, area and measured contrast |
+| [seenry-layout](skills/seenry-layout/SKILL.md) | Grouping, responsive order and density |
+| [seenry-accessibility](skills/seenry-accessibility/SKILL.md) | Keyboard, semantics, zoom and recovery audits |
+| [seenry-writing](skills/seenry-writing/SKILL.md) | Product voice, marketing argument and state copy |
+| [seenry-polish](skills/seenry-polish/SKILL.md) | Controls, icons, borders and surface detail |
+| [seenry-review](skills/seenry-review/SKILL.md) | Independent review of a rendered screen or flow |
+| [seenry-change-review](skills/seenry-change-review/SKILL.md) | Review UI impact of a branch, commit or pull request |
+| [seenry-explain](skills/seenry-explain/SKILL.md) | Explain observed design and interaction mechanics |
+| [seenry-stress](skills/seenry-stress/SKILL.md) | Render one component in its reachable edge states |
+| [seenry-variants](skills/seenry-variants/SKILL.md) | Compare distinct solutions to one design decision |
 
 ## Install
 
@@ -16,13 +28,13 @@ Seenry helps an agent research, design, build and review websites and interactiv
 npx skills add ayangabryl/seenry-skills
 ```
 
-Or clone this repository and install all five skills locally:
+Or clone this repository and install the complete skill set locally:
 
 ```sh
 python3 scripts/install.py --apply
 ```
 
-The local installer previews changes by default. Use `--replace --apply` to archive and replace an existing Seenry installation; its printed manifest can be used with `--rollback`. It does not change MCP configuration. You can also copy individual folders from `skills/` into your agent's skills directory.
+The local installer previews changes by default. Use `--replace --apply` to archive and replace an existing Seenry installation; its printed manifest can be used with `--rollback`. It does not change MCP configuration. Each specialist skill contains its core instructions; links to deeper Seenry guides work when the full package is installed.
 
 ## Work with Seenry
 
@@ -43,6 +55,6 @@ python3 scripts/validate.py
 python3 -m unittest discover -s tests
 ```
 
-The checks cover resources and behavior of included tools. They do not certify the visual quality of an output; inspect the actual page, responsive states and interactions. The repository includes a [portable website example](examples/seenry-site/README.md) and development evidence under `evals/`.
+The checks cover resources and behavior of included tools. They do not certify the visual quality of an output; inspect the actual page, responsive states and interactions. [Domain skill evaluation](evals/domain-skills/README.md) separates routing, first render, repair and independent judgment. The repository includes a [portable website example](examples/seenry-site/README.md) and development evidence under `evals/`.
 
 Seenry is MIT licensed. A small number of adapted guides and bundled runtime helpers retain their authors' notices in [skill licenses](skills/seenry/licenses/NOTICE.md) and their asset directories. External references remain research sources; use their code and media only under their own terms.

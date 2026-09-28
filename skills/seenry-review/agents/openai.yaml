@@ -1,0 +1,3 @@
+interface:
+  display_name: "Seenry Review"
+  short_description: "Judge a rendered interface across design domains"

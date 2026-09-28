@@ -11,7 +11,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ('seenry', 'seenry-motion', 'seenry-assets', 'seenry-branding', 'seenry-decks')
+NAMES = (
+    'seenry', 'seenry-motion', 'seenry-assets', 'seenry-branding', 'seenry-decks', 'seenry-apps',
+    'seenry-typography', 'seenry-color', 'seenry-layout', 'seenry-accessibility',
+    'seenry-writing', 'seenry-polish', 'seenry-review', 'seenry-change-review',
+    'seenry-explain', 'seenry-stress', 'seenry-variants',
+)
 AGENTS = ('agents', 'codex', 'claude', 'cursor', 'antigravity')
 
 def exists(path):
