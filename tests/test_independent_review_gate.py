@@ -62,7 +62,7 @@ class IndependentReviewGate(unittest.TestCase):
                 '#!/usr/bin/env python3\n'
                 'import json, pathlib, sys\n'
                 'path = pathlib.Path(sys.argv[sys.argv.index("-o") + 1])\n'
-                '(path.parent / "cwd.txt").write_text(str(pathlib.Path.cwd()))\n'
+                '(path.parent / "cwd.txt").write_text(sys.argv[sys.argv.index("-C") + 1])\n'
                 'json.dump({"verdict":"Keep","findings":[],"limits":[]}, path.open("w"))\n'
             )
             fake_cli.chmod(0o755)
@@ -78,7 +78,7 @@ class IndependentReviewGate(unittest.TestCase):
             for kind, review in summary['reviews'].items():
                 self.assertTrue(Path(review['log']).is_file())
                 self.assertTrue(Path(review['report']).is_file())
-                self.assertFalse((output / kind / 'cwd.txt').read_text().startswith(str(folder)))
+                self.assertFalse(Path((output / kind / 'cwd.txt').read_text()).is_relative_to(folder))
 
 
 if __name__ == '__main__':

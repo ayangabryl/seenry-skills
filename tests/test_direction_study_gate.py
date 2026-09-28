@@ -23,7 +23,7 @@ class DirectionStudyGate(unittest.TestCase):
                 '#!/usr/bin/env python3\n'
                 'import json, pathlib, sys\n'
                 'path = sys.argv[sys.argv.index("-o") + 1]\n'
-                '(pathlib.Path(path).parent / "cwd.txt").write_text(str(pathlib.Path.cwd()))\n'
+                '(pathlib.Path(path).parent / "cwd.txt").write_text(sys.argv[sys.argv.index("-C") + 1])\n'
                 f'json.dump({{"verdict":"{verdict}","findings":[],"limits":[]}}, open(path,"w"))\n'
             )
             fake_cli.chmod(0o755)
@@ -34,7 +34,7 @@ class DirectionStudyGate(unittest.TestCase):
                 command.extend([f'--{name}', f'{name}.png'])
             result = subprocess.run(command, cwd=folder, text=True, capture_output=True)
             summary = json.loads((folder / 'review/summary.json').read_text())
-            self.assertFalse((folder / 'review/review/cwd.txt').read_text().startswith(str(folder)))
+            self.assertFalse(Path((folder / 'review/review/cwd.txt').read_text()).is_relative_to(folder))
             return result, summary
 
     def test_clean_independent_keep_clears_and_records_inputs(self):
