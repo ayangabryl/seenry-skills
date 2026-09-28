@@ -1,0 +1,36 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "bd073152e9233ce873998d0f038297030fa79ee49ae1e0cbac5b39519ed0c1f9",
+    "desktop": "710247ecdedaa64393c5cc25b06f1c66446ca4008ea1f5ca25bace17629234e9",
+    "mobile": "c293043dd0cf3dd649ff55defd29079c3e67bc19dcdfb6d5464d3cba79b51391",
+    "state.small": "79be08ba3a1fa0f44ac93730a54b5a734d6277173f5668c9c2518c20162456a6",
+    "state.max": "ca1d1756a79232082bbe942aae5c79cc9f0e137ea376ed5b15399a13cf41a015"
+  },
+  "skill_sha256": {
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "whole-screen": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "In the narrow maximum state, the slider\u2019s focus outline overlaps the \u201c16 minimum\u201d and \u201c28 maximum\u201d labels.",
+          "impact": "The range limits become hard to read while the host is adjusting capacity.",
+          "repair": "Add space between the slider and its endpoint labels, then recheck the focused slider at both limits at 320 px."
+        }
+      ],
+      "strengths": [
+        "The page leads from the capacity control to its consequences, then to a seat-by-seat preview.",
+        "The maximum state keeps 28 total seats, 12 seats beyond confirmed guests, and 8 of 8 waitlisted people consistent.",
+        "The reset action reflows below the introduction on the narrowest capture, and the copy makes clear that changing capacity does not admit anyone."
+      ],
+      "limits": [
+        "Static captures cannot verify drag, touch, keyboard input, rapid reversal, reduced motion, or screen-reader behavior. No reference design was supplied."
+      ],
+      "log": "/private/tmp/seenry-motion-capacity-trial-20260929/state-review/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-motion-capacity-trial-20260929/state-review/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

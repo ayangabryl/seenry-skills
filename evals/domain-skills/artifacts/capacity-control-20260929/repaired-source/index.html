@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f3ed">
+    <title>Workshop seat capacity</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./script.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <section class="capacity-card" aria-labelledby="capacity-title">
+        <div class="card-topline">
+          <span class="section-label">Workshop settings</span>
+          <span class="step-label">Capacity</span>
+        </div>
+
+        <div class="heading-row">
+          <div>
+            <h1 id="capacity-title">Set seat capacity</h1>
+            <p class="intro">Choose how many seats this workshop can hold.</p>
+          </div>
+          <button id="reset" class="reset-button" type="button" disabled>Reset to 16</button>
+        </div>
+
+        <div class="capacity-panel">
+          <div class="value-heading">
+            <span class="field-label" id="capacity-label">Total capacity</span>
+            <div class="value-line"><output id="capacity-value" for="capacity-range">16</output><span class="value-unit">seats</span></div>
+          </div>
+
+          <div class="range-wrap">
+            <input
+              id="capacity-range"
+              type="range"
+              min="16"
+              max="28"
+              step="1"
+              value="16"
+              aria-labelledby="capacity-label"
+              aria-describedby="range-help"
+            >
+            <div class="range-ends" aria-hidden="true"><span>16 minimum</span><span>28 maximum</span></div>
+          </div>
+          <p class="range-help" id="range-help">Drag the marker or use the arrow keys to adjust by one seat.</p>
+        </div>
+
+        <div class="summary" aria-label="Capacity preview">
+          <div class="summary-item">
+            <span class="summary-label">Seats open after confirmed guests</span>
+            <div class="summary-value"><output id="open-value">0</output><span>seats</span></div>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Waitlisted people who could fit</span>
+            <div class="summary-value"><output id="waitlist-value">0</output><span>of 8</span></div>
+          </div>
+        </div>
+
+        <div class="seat-preview" aria-label="Seat preview">
+          <div class="preview-heading">
+            <h2>Seat preview</h2>
+            <span>Each mark is one seat</span>
+          </div>
+          <div class="seat-row">
+            <div class="seat-row-label"><span class="legend-dot confirmed-dot"></span><span>Confirmed guests</span><strong>16</strong></div>
+            <div class="seat-marks confirmed-marks" id="confirmed-marks" aria-hidden="true"></div>
+          </div>
+          <div class="seat-row">
+            <div class="seat-row-label"><span class="legend-dot potential-dot"></span><span>Additional seats</span><strong id="additional-label">0 of 12</strong></div>
+            <div class="seat-marks additional-marks" id="additional-marks" aria-hidden="true"></div>
+          </div>
+          <div class="preview-key"><span><i class="key-mark potential-key"></i>Could fit waitlist</span><span><i class="key-mark extra-key"></i>Beyond waitlist</span></div>
+        </div>
+
+        <p class="note">This is a capacity preview. Changing it does not admit anyone from the waitlist.</p>
+      </section>
+    </main>
+  </body>
+</html>
