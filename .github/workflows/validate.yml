@@ -42,6 +42,7 @@ jobs:
           node tests/confirmation-burst.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/ink-compare.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/directional-stage.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          node tests/selection-surface.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/image-reveal.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/reflective-surface.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/text-collisions.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
