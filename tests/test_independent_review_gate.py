@@ -57,15 +57,20 @@ class IndependentReviewGate(unittest.TestCase):
             (folder / 'brief.md').write_text('Review the opening.\n')
             for name in ('desktop', 'mobile'):
                 (folder / f'{name}.png').write_bytes(name.encode())
-            fake_cli = folder / 'codex-stub'
-            fake_cli.write_text(
-                '#!/usr/bin/env python3\n'
+            stub = folder / 'codex-stub.py'
+            stub.write_text(
                 'import json, pathlib, sys\n'
                 'path = pathlib.Path(sys.argv[sys.argv.index("-o") + 1])\n'
                 '(path.parent / "cwd.txt").write_text(sys.argv[sys.argv.index("-C") + 1])\n'
                 'json.dump({"verdict":"Keep","findings":[],"limits":[]}, path.open("w"))\n'
             )
-            fake_cli.chmod(0o755)
+            if sys.platform == 'win32':
+                fake_cli = folder / 'codex-stub.cmd'
+                fake_cli.write_text(f'@echo off\r\n"{sys.executable}" "{stub}" %*\r\n')
+            else:
+                stub.write_text('#!/usr/bin/env python3\n' + stub.read_text())
+                stub.chmod(0o755)
+                fake_cli = stub
             output = folder / 'review-output'
             result = subprocess.run([
                 sys.executable, str(ROOT / 'skills/seenry/scripts/independent_review_gate.py'),

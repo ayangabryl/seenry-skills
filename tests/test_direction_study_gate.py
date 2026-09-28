@@ -18,21 +18,27 @@ class DirectionStudyGate(unittest.TestCase):
             (folder / 'brief.md').write_text('Compare two poster proofs.\n')
             for name in ('a-desktop', 'a-mobile', 'b-desktop', 'b-mobile'):
                 (folder / f'{name}.png').write_bytes(name.encode())
-            fake_cli = folder / 'codex-stub'
-            fake_cli.write_text(
-                '#!/usr/bin/env python3\n'
+            stub = folder / 'codex-stub.py'
+            stub.write_text(
                 'import json, pathlib, sys\n'
                 'path = sys.argv[sys.argv.index("-o") + 1]\n'
                 '(pathlib.Path(path).parent / "cwd.txt").write_text(sys.argv[sys.argv.index("-C") + 1])\n'
                 f'json.dump({{"verdict":"{verdict}","findings":[],"limits":[]}}, open(path,"w"))\n'
             )
-            fake_cli.chmod(0o755)
+            if sys.platform == 'win32':
+                fake_cli = folder / 'codex-stub.cmd'
+                fake_cli.write_text(f'@echo off\r\n"{sys.executable}" "{stub}" %*\r\n')
+            else:
+                stub.write_text('#!/usr/bin/env python3\n' + stub.read_text())
+                stub.chmod(0o755)
+                fake_cli = stub
             command = [sys.executable, str(SCRIPT), '--brief', 'brief.md',
                        '--decision', 'Keep both posters legible in the opening comparison',
                        '--out', 'review', '--codex-bin', str(fake_cli)]
             for name in ('a-desktop', 'a-mobile', 'b-desktop', 'b-mobile'):
                 command.extend([f'--{name}', f'{name}.png'])
             result = subprocess.run(command, cwd=folder, text=True, capture_output=True)
+            self.assertTrue((folder / 'review/summary.json').is_file(), result.stderr)
             summary = json.loads((folder / 'review/summary.json').read_text())
             self.assertFalse(Path((folder / 'review/review/cwd.txt').read_text()).is_relative_to(folder))
             return result, summary

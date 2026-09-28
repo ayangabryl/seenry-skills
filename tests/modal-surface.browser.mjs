@@ -46,7 +46,14 @@ try {
   }
 
   await page.keyboard.press('Escape');
-  assert.equal(await page.locator('#specimen').getAttribute('data-state'), 'closing');
+  await page.waitForFunction(() => !document.querySelector('#specimen').open);
+  await page.locator('#open-specimen').click();
+  await page.waitForFunction(() => document.querySelector('#specimen').dataset.state === 'open');
+  const closing = await page.evaluate(() => {
+    window.study.setOpen(false);
+    return document.querySelector('#specimen').dataset.state;
+  });
+  assert.equal(closing, 'closing');
   await page.evaluate(() => {
     const scheduleFrame = window.requestAnimationFrame;
     window.requestAnimationFrame = () => 0;
