@@ -16,7 +16,7 @@ Complete the flow by keyboard alone: Tab order, visible focus, Enter and Space a
 
 ## Test the visual alternatives
 
-Measure text and meaningful graphic contrast on their real surfaces. Inspect focus against adjacent colors, including imagery. At 320px, 200% zoom and enlarged text, check that content and actions remain reachable without two-dimensional scrolling except where the content genuinely requires it. Review forced-colors and reduced-motion behavior where supported. A reduced-motion state must preserve meaning, not merely remove animation. Information must not rely on color, location or motion alone.
+Measure text and meaningful graphic contrast on their real surfaces. Inspect focus against adjacent colors, including imagery. At 320px, 200% zoom and enlarged text, check that content and actions remain reachable without two-dimensional scrolling except where the content genuinely requires it. Inspect mobile tap areas in the rendered page, not just CSS minimums: make frequent actions and adjacent filters comfortably targetable (about 44 × 44px where space permits), with visible separation. Review forced-colors and reduced-motion behavior where supported. A reduced-motion state must preserve meaning, not merely remove animation. Information must not rely on color, location or motion alone.
 
 Check loading, empty, error, success, disabled and open states. A success message needs a real successful operation. An error needs a route to recovery. Image alternatives describe meaningful content; decoration stays out of the accessibility tree. For app screens, preserve platform navigation and control conventions rather than importing web ARIA patterns.
 

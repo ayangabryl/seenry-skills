@@ -28,6 +28,8 @@ Use concrete examples when numbers are unavailable. Do not turn “faster” int
 
 Render the final words at wide and narrow widths. Keep factual meaning when reducing line length. Verify the action does what its label says, and errors explain an available recovery. Keep editorial rationale in the design record, outside customer-facing UI.
 
+For prototype rights and licensing text, state which offered material the terms cover and what the visitor may do. Keep research provenance and comparisons with inspiration sources in the design record; mentioning an unseen reference site in visitor copy creates confusion about the rights being offered.
+
 ## Research basis
 
 For product-state messages and shared terminology, use [interface implementation](interface-implementation.md). Research provenance is retained in the distribution notices.
