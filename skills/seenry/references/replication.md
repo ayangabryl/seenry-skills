@@ -4,11 +4,11 @@ For faithful recreation, treat the source as specification. Record exceptions; b
 
 ## Lock the target before implementation
 
-Record a source contract in DESIGN.md: current intent, media/URL and available hash, crop, viewport, physical dimensions, pixel density, observed states and exceptions. The latest request overrides older demo settings. Check example scope and labels against it. Physical pixels are not automatically CSS pixels; measure in one coordinate system.
+Record a source contract in DESIGN.md: current intent, media/URL and available hash, crop, viewport, physical dimensions, pixel density, observed states and exceptions. Use the latest requested scope and labels. Measure physical and CSS pixels separately.
 
 Classify pixels as product UI, platform chrome or archive overlay. If a served image differs from an original, record both. Specify whether the target includes capture marks; never infer product branding or design intent from them. Measure at stated density, then revisit targets after equal-scale comparison.
 
-Inspect the real source. A title, caption, extracted CSS, poster or MCP rating cannot establish the pixels or behavior. Use the original page for inspectable behavior, a recording for observed motion, and supplied mobile media for responsive structure. Missing mobile evidence means the narrow layout is proposed. Do not infer a carousel, looping entrance or hidden modal from a still.
+Inspect the real source. Captions, CSS and ratings cannot establish pixels or behavior. Use the original page for inspectable behavior, a recording for observed motion, and supplied mobile media for responsive structure. Missing mobile evidence means the narrow layout is proposed. Do not infer a carousel, looping entrance or hidden modal from a still.
 
 ## Build a measured specification
 
@@ -21,7 +21,7 @@ For the decisive region record:
 
 Preserve item count/order, content/assets, active geometry, moving surfaces and reveal sequence. Different behavior is adaptation, not a replica. Record requested departures. Source details are task requirements, not global defaults.
 
-For an image-led screen, compare media candidates inside the measured crop **before** tuning the final overlay. Record the subject-to-frame scale, focal position, surrounding structure and quiet space for type; an attractive image can still move the subject or architecture far enough to cap fidelity. At equal aspect ratio, judge the live type/layout and the central image separately. If a substitute image keeps the overlay close but changes the dominant subject or scene, report a closer layout reconstruction with substitute media, not an accurate screen reconstruction. A mobile layout without source media remains a proposed adaptation; inspect whether its copy crosses the subject at narrow widths.
+For image-led screens, read [media fidelity](image-led-fidelity.md).
 
 For screenshot-only controls, read [link fidelity](link-fidelity.md) before handoff.
 
