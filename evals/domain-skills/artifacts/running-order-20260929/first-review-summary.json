@@ -1,0 +1,74 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "bca425c47e4da7c605a35e64c3afff61fbae56ebd67e75663fc43a3c49b4cbba",
+    "desktop": "0075d2eb2c13b2d341b2c24e142d0d6d3999ba49fd3f631ac2d84a852bce803d",
+    "mobile": "7d32278fed26c9483e9d46697a1db13c031286c87de8707dcd65365d94da4aa8",
+    "state.drag": "65cb0ff09ab84f1e922a0f61b48c72934dde68dbb7e0789bc81b643f28570c7a",
+    "state.reordered": "d2ecc2dc32f3d0c1c7f6282a6148ff3cf5320d2b74a6b9bcefb685a10b13a758"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The tracked uppercase labels, oversized serif \u201cRunning order.\u201d headline, colored period, and explanatory line form a familiar editorial opening. On the phone, the first agenda item begins around halfway down the capture.",
+          "impact": "The type gives more emphasis to the page introduction than to the order the producer needs to inspect and change.",
+          "repair": "Compress the repeated introduction and give the agenda and its start times more of the first screen."
+        },
+        {
+          "observation": "On the phone, each duration sits in small muted text directly beneath an equally small category label.",
+          "impact": "The duration is harder to distinguish from secondary metadata, although it explains the changing start times.",
+          "repair": "Give durations a clearer type role or place them consistently beside the corresponding time or item name."
+        },
+        {
+          "observation": "In the drag capture, \u201cRELEASE HERE\u201d is extremely faint and partly covered by the held row.",
+          "impact": "The text does little to identify the prospective slot while the producer is deciding where to drop the item.",
+          "repair": "Keep the slot label visible outside the held row and raise its contrast."
+        }
+      ],
+      "strengths": [
+        "The agenda rows pair prominent start times with clear item names, making the settled order easy to scan.",
+        "The reordered capture shows \u201cField notes\u201d at 18:25 and confirms the move and new time in plain language.",
+        "The serif time numerals give the schedule a distinct voice without obscuring the item names."
+      ],
+      "limits": [
+        "Still captures cannot verify motion, keyboard behavior, focus, or whether the apparent settled row is a transition frame.",
+        "Font files and computed type settings were not available from the captures."
+      ],
+      "log": "/private/tmp/seenry-motion-arranger-trial-20260929/first-review/typography/codex.log",
+      "report": "/private/tmp/seenry-motion-arranger-trial-20260929/first-review/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "In the reordered capture, the third row still sits partly over the footer, with a visible gap and guide lines above it.",
+          "impact": "The settled result looks unfinished, and the row obscures part of the programme end area.",
+          "repair": "Remove the drag placeholder and settle the third row inside the list before showing the completed state. Recheck the reordered capture at the same size."
+        },
+        {
+          "observation": "In the drag capture, the prospective slot\u2019s \u201cRELEASE HERE\u201d label is extremely faint and partly covered by the held row.",
+          "impact": "The producer cannot clearly tell where the item will land.",
+          "repair": "Place a high contrast target cue in the exposed part of the slot, then recheck it while the row is held over the final position."
+        }
+      ],
+      "strengths": [
+        "The default desktop and phone layouts make the agenda, start times, durations, reset action, and local sample status easy to find.",
+        "The reordered capture preserves item identities and durations and shows the expected start times: 18:00, 18:10, and 18:25. Its confirmation names the moved item and new time.",
+        "The restrained palette and clear type hierarchy suit a small event planning tool."
+      ],
+      "limits": [
+        "Static captures cannot verify touch or keyboard reordering, focus, reset behavior, cancelled or rapid drags, resize, or reduced motion.",
+        "No playback of the named motion reference was supplied, so fidelity to its movement cannot be judged."
+      ],
+      "log": "/private/tmp/seenry-motion-arranger-trial-20260929/first-review/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-motion-arranger-trial-20260929/first-review/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

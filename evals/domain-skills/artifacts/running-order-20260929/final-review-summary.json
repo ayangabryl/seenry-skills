@@ -1,0 +1,48 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "bca425c47e4da7c605a35e64c3afff61fbae56ebd67e75663fc43a3c49b4cbba",
+    "desktop": "4d54d52c864cbf38fdd1786a3a12f7ce0b14fffc47fb2609c68ba96dfd77cb5b",
+    "mobile": "5fbaf0c361137e7f153a18100767a96335fc8d7542ffcf97e20de9d734d5912e",
+    "state.small": "79097b5d4dff36f8514c705e173da21da4e15998b9dd721fa984c232a3f0d6a1",
+    "state.drag": "4fe3017873e2822de2cb7d58549d54930770eca1c27be9e159afb9de915ef0f0",
+    "state.reordered": "77aca2f4f071d3feb9a3d0862c77ab8c5b31dd7c02a0096f0970704d6ac6161d"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The bold sans title and item names pair with prominent serif start times to give the component a distinct, task-specific type voice. The tracked uppercase text serves metadata rather than forming a generic editorial opening.",
+        "The reading path reaches the first agenda item quickly on desktop and phone. Item names, start times, durations, and reset remain easy to locate.",
+        "At 320px, names wrap without losing their relationship to times and durations. The drag frame distinguishes the held item and proposed position; the reordered frame shows the new times and a clear confirmation."
+      ],
+      "limits": [
+        "The captures show individual states, so they cannot establish motion quality, keyboard behavior, or whether the times remain stable throughout a drag."
+      ],
+      "log": "/private/tmp/seenry-motion-arranger-trial-20260929/repair2-review/typography/codex.log",
+      "report": "/private/tmp/seenry-motion-arranger-trial-20260929/repair2-review/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The agenda makes the task clear: move items to update their start times. Reset and keyboard guidance are visible.",
+        "The default and reordered captures preserve item durations and show consistent start times; the programme still ends at 18:50. The reordered state confirms the move locally.",
+        "The drag capture distinguishes the held item and prospective slot while showing the nearby item move to make room.",
+        "The 390px and 320px layouts remain readable, with titles wrapping without collisions. The time-led hierarchy suits an event running order."
+      ],
+      "limits": [
+        "Static captures cannot verify touch or keyboard operation, focus behavior, cancelled drags, rapid reversal, resize behavior, or reduced motion.",
+        "The referenced motion playback was not supplied, so its relationship to this design cannot be judged."
+      ],
+      "log": "/private/tmp/seenry-motion-arranger-trial-20260929/repair2-review/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-motion-arranger-trial-20260929/repair2-review/whole-screen/review.json"
+    }
+  },
+  "status": "Keep"
+}
