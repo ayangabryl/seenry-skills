@@ -1,0 +1,3 @@
+interface:
+  display_name: "Seenry Explain"
+  short_description: "Explain observed design and interaction decisions"

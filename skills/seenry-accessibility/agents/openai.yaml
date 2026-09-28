@@ -1,0 +1,3 @@
+interface:
+  display_name: "Seenry Accessibility"
+  short_description: "Audit keyboard, semantics, zoom and recovery"

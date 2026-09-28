@@ -1,66 +1,26 @@
 # A compact project DESIGN.md
 
-Write it before product code; update it at decisions. Preserve existing conventions and keep it proportional to scope. Do not paste the entire skill into it. Facts, assumptions and evidence remain distinct.
+Write a decision record before substantial product code and update it when evidence changes. Keep it proportional to the task; a component may need only a few lines. Preserve an existing project's format and brand rules. The record is a tool for decisions, not proof of design quality.
 
 ```markdown
 # Design record
 
-## Brief and product truth
-Audience, task, supplied facts, assumptions, constraints, preserved behavior.
-Requested ambition, scoped preferences, appearance policy and reason.
-Explicit brand/appearance constraints fixed before alternatives; checkable role restrictions where applicable.
-Media need and motion ambition, with a reason when none; available host operations and actual gaps.
-Visitor offering and visible proof, separated from implementation constraints.
-Opening copy, dominant visual, next action and what can wait until later.
-Website opening: intended first understanding/impression/action, supporting material,
-asset dependency, and transition into the next section; why this fits the brief.
-Decision brief: discover / compare / perform / monitor / recover (combine if needed).
-Primary attention, supporting information that recedes, expression by region,
-material that proves the offer, and stable interaction anchor. Explain each choice.
-When unresolved, one decision study, its applicable relationship and countercase.
+## Task and truth
+Person, object, decision and actual action outcome. Supplied facts, allowed fiction,
+unknowns and any contradictions to resolve. Constraints and behavior to preserve.
 
-## Reference evidence
-Evidence route: MCP / public web / local; actual host capabilities and gaps.
-Source + Seenry ID/link when present; family, viewport/theme, coverage/date.
-Local authored hypotheses are labeled separately from inspected references.
-Current rating and saved reason (or no reason supplied).
-Observed relationship; our inference; transfer; where it would fail.
-Reference quality comparison: transferable craft relationship versus appearance specific to its source.
+## Decisive region
+What must be visible to compare, act or understand? Which conflict, success and
+return states prove it? For marketing: subject, proof and visitor's next action.
 
-## Alternatives before implementation
-A/B/C: distinct concept/mechanism, reading order, alignment anchors,
-content groups, narrow behavior, ordinary usable path and tradeoffs.
-Provisional type, color roles/area, spacing, corners and control emphasis.
-Copy density and section roles; open versus enclosed grouping; why any eyebrow/ordinal exists.
-Each section's visitor question, proof, visual load and transition; unresolved asset jobs and actual candidates.
+## Evidence and direction
+One or two inspected references: source, actual coverage, observed relationship,
+proposed transfer and its limit. Existing brand/component owner or provisional
+type, color and motion choices. A second structural idea only if a decision remains.
 
-## Construction history
-Each actual wireframe, typography and surface/interaction artifact.
-File/capture and observed change before advancing.
-Controlled palette comparison using the same layout and real content.
-
-## Selected system
-Chosen direction and evidence, rejected alternatives, specific signature.
-Every project has a canonical Brand section here or a linked BRAND.md. Record its
-path/version/status, voice, color roles, type, spacing/corners, control states, asset
-direction and motion rules. Link actual token and component owners. Reuse existing
-guidelines; keep new inferred choices provisional. Use seenry-branding for deeper
-identity work. Record scoped exceptions without silently forking the identity.
-Tokens/relationships across sections/screens, assets and provenance.
-Color direction and reason; actual foreground/background state pairs, coverage,
-supported appearances and why the rejected palette served this task less well.
-Action → transition → result → interruption/recovery; motion ownership.
-
-## Verification and disposition
-Tests run, visual observations, capture paths, unresolved issues.
-Repair history. Author review versus fresh review versus user acceptance.
-Cross-project convergence observations and controlled alternatives; temporary assets awaiting replacement.
-Status: draft / needs-revision / ready-for-review / accepted-by-user.
-Per-criterion visual verdicts; functional success cannot override unresolved visual failures.
-Per-criterion support: supported / uncertain / uninspected; evidence reason and
-smallest next check. An uncertain pass stays unresolved. No invented percentages.
+## Render and result
+Actual slice and capture paths at delivery size. Observed defects and repairs.
+Behavioral checks, visual review, unverified claims and next decision.
 ```
 
-If development anatomy is requested, derive safe areas, boxes, baselines and token labels from the real DOM and styles. Gate it from production and keep its controls out of normal flows. It explains current structure; it does not prove wireframing happened earlier.
-
-For a multi-screen product, follow [system design](system-design.md): link the authoritative shared decisions/version, relevant component APIs and neighboring journey states from each slice. Track planned/built/exercised/reviewed coverage by screen family and state. Keep system coverage distinct from any one run's completion.
+Link a larger system's shared record instead of repeating it on every screen. For a multi-screen product, [system design](system-design.md) tracks which screen families and states are planned, built, exercised and visually reviewed. Keep implementation tests, self-review, fresh review and user acceptance separate.

@@ -8,7 +8,7 @@ In the existing DESIGN.md, identify people/roles, objects, important tasks, entr
 
 List screen families and their jobs: browsing/comparison, focused editing, overview, detail, settings or a task-specific form. Derive navigation from those jobs. Dense comparable data may need a table; exploratory work may need a canvas; a consequential sequential task may benefit from a focused flow. A large application is not automatically a dashboard plus cards.
 
-Compare three alternatives for the important unresolved journey or shell, not three entire applications. Use the same facts and task. Build and inspect actual wireframes before deciding. Resolve a representative finished slice with real type, data, needed material, controls, narrow behavior and its decisive transition. Check a second contrasting screen family to learn whether the system transfers. An attractive isolated card cannot validate an entire product.
+When the important journey or shell is unresolved, compare two genuinely different structures with the same facts and task. Inspect quick wireframes or rendered slices rather than merely describing concepts. If one structure is already established or the task is a bounded repair, preserve it. Resolve a representative finished slice with real type, data, needed material, controls, narrow behavior and its decisive transition. Check a second contrasting screen family to learn whether the system transfers. An attractive isolated card cannot validate an entire product.
 
 ## Keep a shared decision record
 

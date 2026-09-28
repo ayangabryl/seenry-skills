@@ -9,6 +9,18 @@ Seenry helps an agent research, design, build and review websites and interactiv
 | [seenry-assets](skills/seenry-assets/SKILL.md) | Images, fonts, icons, video and asset provenance |
 | [seenry-branding](skills/seenry-branding/SKILL.md) | Identity research and project brand guidelines |
 | [seenry-decks](skills/seenry-decks/SKILL.md) | Presentation research and slide narratives |
+| [seenry-apps](skills/seenry-apps/SKILL.md) | Connected mobile app screens and flows |
+| [seenry-typography](skills/seenry-typography/SKILL.md) | Font voice, type composition and rendered hierarchy |
+| [seenry-color](skills/seenry-color/SKILL.md) | Palette roles, area and measured contrast |
+| [seenry-layout](skills/seenry-layout/SKILL.md) | Grouping, responsive order and density |
+| [seenry-accessibility](skills/seenry-accessibility/SKILL.md) | Keyboard, semantics, zoom and recovery audits |
+| [seenry-writing](skills/seenry-writing/SKILL.md) | Product voice, marketing argument and state copy |
+| [seenry-polish](skills/seenry-polish/SKILL.md) | Controls, icons, borders and surface detail |
+| [seenry-review](skills/seenry-review/SKILL.md) | Independent review of a rendered screen or flow |
+| [seenry-change-review](skills/seenry-change-review/SKILL.md) | Review UI impact of a branch, commit or pull request |
+| [seenry-explain](skills/seenry-explain/SKILL.md) | Explain observed design and interaction mechanics |
+| [seenry-stress](skills/seenry-stress/SKILL.md) | Render one component in its reachable edge states |
+| [seenry-variants](skills/seenry-variants/SKILL.md) | Compare distinct solutions to one design decision |
 
 ## Install
 
@@ -16,17 +28,17 @@ Seenry helps an agent research, design, build and review websites and interactiv
 npx skills add ayangabryl/seenry-skills
 ```
 
-Or clone this repository and install all five skills locally:
+Or clone this repository and install the complete skill set locally:
 
 ```sh
 python3 scripts/install.py --apply
 ```
 
-The local installer previews changes by default. Use `--replace --apply` to archive and replace an existing Seenry installation; its printed manifest can be used with `--rollback`. It does not change MCP configuration. You can also copy individual folders from `skills/` into your agent's skills directory.
+The local installer previews changes by default. Use `--replace --apply` to archive and replace an existing Seenry installation; its printed manifest can be used with `--rollback`. It does not change MCP configuration. Each specialist skill contains its core instructions; links to deeper Seenry guides work when the full package is installed.
 
 ## Work with Seenry
 
-For a new interface, start with the user's task and real content. Inspect only the references that inform the current decision, try structural directions as working slices, finish one direction in the product, then inspect its rendered states and interactions. Keep decisions and remaining uncertainty in the project's DESIGN.md. [The workflow map](ARCHITECTURE.md) explains when to use the focused guides.
+For a new interface, cross-check the brief's facts, name the decisive region and its states, then finish one slice with real content at wide and narrow sizes. Inspect only references that inform the current decision. Try another structure when the first leaves a meaningful question unresolved. Review the rendered states and interactions before expanding; a default split, crop or closed view cannot stand in for complete material. Keep decisions and remaining uncertainty in a short project DESIGN.md. [The workflow map](ARCHITECTURE.md) explains when to use the focused guides.
 
 For a supplied interface to match, use [reference reconstruction](skills/seenry/references/replication.md). Measure the source's composition and behavior, implement it in the existing product, and compare the result at equivalent sizes and states. Treat unobserved motion as a proposal. A related effect is not proof of a faithful match.
 
@@ -43,6 +55,22 @@ python3 scripts/validate.py
 python3 -m unittest discover -s tests
 ```
 
-The checks cover resources and behavior of included tools. They do not certify the visual quality of an output; inspect the actual page, responsive states and interactions. The repository includes a [portable website example](examples/seenry-site/README.md) and development evidence under `evals/`.
+The checks cover resources and behavior of included tools. They do not certify the visual quality of an output; inspect the actual page, responsive states and interactions. [Domain skill evaluation](evals/domain-skills/README.md) separates routing, first render, repair and independent judgment. The repository includes a [portable website example](examples/seenry-site/README.md) and development evidence under `evals/`.
+
+For an original website with a high craft bar, [the optional Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs a focused typography review and a whole-screen review of the opening in separate fresh contexts. After the page is built, `--scope full-page` reviews complete wide and narrow captures for issues outside that opening. Give each run a brief, captures, and a new output directory; it exits with a blocking result until its reviewers return Keep. It requires a local `codex` executable and the full Seenry installation. The saved JSON reports and input hashes make the disposition inspectable; the gate does not replace a human design decision or interaction testing.
+
+When the main design question is still open, [the optional direction study gate](skills/seenry/scripts/direction_study_gate.py) compares two small rendered answers at wide and narrow sizes. Name the decision explicitly; changing only surrounding layout will not clear a question about the subject or preview. This gate checks early visual choices, while the opening and full-page gates check the built interface.
+
+```sh
+python3 skills/seenry/scripts/direction_study_gate.py --brief BRIEF.md --decision "How should both proofs remain judgeable in the opening comparison?" --a-desktop a-wide.png --a-mobile a-narrow.png --b-desktop b-wide.png --b-mobile b-narrow.png --out study-review-1
+python3 skills/seenry/scripts/independent_review_gate.py --brief BRIEF.md --desktop desktop.png --mobile mobile.png --out review-1
+python3 skills/seenry/scripts/independent_review_gate.py --scope full-page --brief BRIEF.md --desktop desktop-full.png --mobile mobile-full.png --out review-final
+```
+
+For a connected native app flow, [the optional app gate](skills/seenry-apps/scripts/independent_flow_gate.py) reviews ordered, settled simulator captures in fresh visual and flow contexts. It records the exact images and blocks a cleared claim when either reviewer finds a supported repair. Exercise the flow on the device as well; screenshots cannot prove behavior.
+
+```sh
+python3 skills/seenry-apps/scripts/independent_flow_gate.py --brief BRIEF.md --capture empty.png --capture form.png --capture error.png --capture saved.png --capture correction.png --out app-review-1
+```
 
 Seenry is MIT licensed. A small number of adapted guides and bundled runtime helpers retain their authors' notices in [skill licenses](skills/seenry/licenses/NOTICE.md) and their asset directories. External references remain research sources; use their code and media only under their own terms.

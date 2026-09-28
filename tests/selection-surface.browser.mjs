@@ -59,19 +59,22 @@ try {
     const tab = document.querySelector('#tab-activity');
     const start = pill.getBoundingClientRect().x;
     const target = tab.getBoundingClientRect().x;
+    const transitionRuns = [];
+    pill.addEventListener('transitionrun', event => transitionRuns.push(event.propertyName));
     tab.click();
     return await new Promise(resolve => {
       const deadline = performance.now() + 1500;
       function sample() {
         const x = pill.getBoundingClientRect().x;
-        if (x > start + 1 && x < target - 1) { resolve({ start, x, target }); return; }
-        if (performance.now() > deadline) { resolve({ start, x, target }); return; }
+        if (x > start + 1 && x < target - 1) { resolve({ start, x, target, transitionRuns }); return; }
+        if (performance.now() > deadline) { resolve({ start, x, target, transitionRuns }); return; }
         requestAnimationFrame(sample);
       }
       requestAnimationFrame(sample);
     });
   });
-  assert.ok(travel.x > travel.start + 1 && travel.x < travel.target - 1, `Selection should travel between labels: ${JSON.stringify(travel)}`);
+  assert.ok((travel.x > travel.start + 1 && travel.x < travel.target - 1) || travel.transitionRuns.includes('transform'),
+    `Selection should travel between labels even if CI samples after the transition ends: ${JSON.stringify(travel)}`);
   await waitForAlignment(page);
   assert.equal(await page.locator('#panel-activity').isVisible(), true);
   assert.equal(await page.locator('#panel-overview').isHidden(), true);

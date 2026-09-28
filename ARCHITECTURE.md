@@ -1,14 +1,24 @@
 # Seenry workflow map
 
-The five skills have distinct jobs. `seenry` owns interface direction, construction and review. `seenry-motion` handles behavior that changes over time. `seenry-assets` handles media and provenance. `seenry-branding` records identity rules. `seenry-decks` handles presentation research. Load the skill and focused reference needed for the current decision, rather than every guide at once.
+The original five skills own deliverables: `seenry` builds web interfaces, `seenry-motion` handles behavior over time, `seenry-assets` handles media and provenance, `seenry-branding` records identity, and `seenry-decks` handles presentation research. `seenry-apps` handles connected mobile screens in the project's platform. Directly invokable craft skills own typography, color, layout, accessibility, writing and visual polish. They are useful for a narrow request without loading a full site-building workflow.
+
+`seenry-review` judges a rendered screen or flow; `seenry-change-review` judges the impact of a named diff. `seenry-variants` produces candidates, `seenry-stress` tests one component's reachable states, and `seenry-explain` studies an observed source. These are different operations. The entrypoints are deliberately specific so an agent can select one rather than loading every domain skill by default.
+
+For original work, `seenry` still owns the full result. It first identifies the design decision most likely to hide the task or produce a generic result, then compares two small rendered alternatives that differ on that decision. A type-led opening routes through `seenry-typography` and anti-default guidance. The selected first slice goes to a focused typography review and a broader `seenry-review`: one checks the type signature and reading path, the other checks the complete task. Resolve blocking findings and recapture before expanding. Use fresh review contexts when available; otherwise label a builder's craft judgment provisional. The reviews compare real wide and narrow pixels; a checklist, font name, source rating or self-authored rationale cannot certify quality. A dedicated skill makes a domain discoverable, but does not guarantee that a model applies it. Tests must inspect actual reads and artifacts.
+
+The [direction study gate](skills/seenry/scripts/direction_study_gate.py) reviews two wide/narrow study pairs against the named decision before full implementation whenever Codex CLI is available. It records input and skill hashes and blocks expansion if the studies miss the question or need repair. Without the CLI or captures, direction quality remains unverified. It assesses pictured alternatives, not interaction behavior or the finished page. Both web gates stage only their supplied inputs in temporary reviewer workspaces, then copy reports to the requested output path; this keeps sibling trial files and earlier verdicts out of the reviewer's working directory.
+
+The optional [Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs those two fresh contexts and saves structured findings with input and skill hashes. Up to four named `--state name=image.png` captures can show complete material or connected results hidden by the default frame. Its nonzero result stops a reviewable slice from being labeled cleared; the builder must repair and recapture. It is available only where Codex CLI and the sibling specialist skills are installed. It does not force an agent to run it or make either review infallible, so independent artifact inspection and user acceptance remain separate.
+
+For a native app, `seenry-apps` owns the connected task and device verification. Its [optional flow gate](skills/seenry-apps/scripts/independent_flow_gate.py) sends ordered, settled captures to fresh visual and flow reviewers, with the brief, source observations and hashes. A static pass covers only the pictured states; the builder still exercises actions, calculations, correction and accessibility on the device.
 
 ## Create
 
-1. Establish the user task, actual content, constraints and existing project identity. Record decisions in DESIGN.md.
-2. Inspect references that answer a specific open question. Separate observed pixels or behavior from an interpretation.
-3. Compare small working structural directions with the same facts. Finish one promising slice with real type, media, content and behavior.
-4. Carry its relationships through the whole interface and its loading, error, recovery and narrow states.
-5. Inspect the rendered result and normal-speed interactions. Repair observed defects and report remaining uncertainty.
+1. Lock the person, object, decision, supplied facts and real action outcome. Cross-check the facts for contradictions before rendering. Keep the decision record short and preserve existing project identity.
+2. Name the decisive region and states: what someone must see, compare or change, including conflict, success and return. Inspect one or two relevant references for transferable relationships, separating observed pixels or movement from interpretation.
+3. Compare two small rendered answers to the highest-risk visual decision, keeping facts and material fixed. A surrounding layout change does not answer a question about the material or preview. Then finish the selected slice with real material, type, controls and behavior at delivery size.
+4. Capture wide and narrow views and the decisive before/change/settled/reverse frames. Inspect normal-speed movement where it matters, repair the largest visible gap, then carry the system through the remaining page or screen families.
+5. Exercise actions, keyboard, recovery, narrow layout and reduced motion as applicable. Independently review the first slice and the complete result. Report what passed, what is provisional and what remains unverified.
 
 ## Replicate
 
@@ -16,8 +26,8 @@ Use the [replication guide](skills/seenry/references/replication.md). Lock the s
 
 ## Refine or review
 
-A narrow request starts with the affected state and its current implementation. Read one relevant [craft module](skills/seenry/SKILL.md#load-only-the-current-decision), change the smallest relationship that resolves the defect, and verify it. A review reports observed findings and missing evidence without building an unrequested replacement.
+A narrow request starts with the affected state and its current implementation. Invoke the relevant craft skill directly or read one [craft module](skills/seenry/SKILL.md#load-the-module-for-the-current-decision), change the smallest relationship that resolves the defect, and verify it. A review reports observed findings and missing evidence without building an unrequested replacement.
 
 ## Evidence and tooling
 
-MCP can supply references, but it is optional. The [offline route](skills/seenry/references/without-mcp.md) supports supplied screenshots, browser inspection and local prototypes. Optional [packets](skills/seenry/scripts/packet.py) bundle selected guides and resource hashes for staged work. A hash proves what was supplied, not what was understood or the quality of the final interface. The package validator and tests check structure and helpers; rendered review remains part of the workflow.
+MCP can supply references, but it is optional. The [offline route](skills/seenry/references/without-mcp.md) supports supplied screenshots, browser inspection and local prototypes. Optional [packets](skills/seenry/scripts/packet.py) bundle selected guides and resource hashes for staged work. A hash proves what was supplied, not what was understood or the quality of the final interface. The package validator and tests check structure and helpers; rendered review remains part of the workflow. For a reference study, inspect actual media and record source, viewport, observed relationship, adaptation and limits. Do not bundle source screenshots or signed media URLs into the skill.

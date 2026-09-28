@@ -1,0 +1,3 @@
+interface:
+  display_name: "Seenry Color"
+  short_description: "Build expressive color roles and verify contrast"

@@ -1,6 +1,6 @@
-# Product craft against a named target
+# Product craft for task-led interfaces
 
-Use when creating or substantially redesigning a working product surface against a named reference. Pair with [reference transfer](reference-transfer.md). This is not a dark-theme preset or a mandate to make every product dense.
+Use when creating or substantially redesigning a working product surface, including a searchable catalog or browse-and-download page. If a named reference is the craft target, pair with [reference transfer](reference-transfer.md). This is not a dark-theme preset or a mandate to make every product dense.
 
 ## Read the operating surface
 
@@ -24,9 +24,13 @@ Use measured values when pixels support them; otherwise record ranges or proport
 
 Build the task surface and its most consequential adjacent state together: a list and detail, an editor and inspector, or a form and recovery. Give it coherent subject-specific content and varied realistic lengths. If the user permits a fictional prototype, label illustrative metrics and local-only actions honestly; do not imply production evidence or an integration.
 
-Prove the central object with **working material from this domain**, at the scale where the user actually decides. A newsroom needs a story, source trail, reporting record or review evidence; a release tool needs changes, dependencies or verification results. A plausible title, status, generic activity feed and checklist alone can still read like a reskinned tracker. Make the content's relationships specific enough that changing the product name would leave visible work to redo. Keep this material readable in the first useful desktop view before filling secondary rails with chrome. Do not invent factual evidence for a real product; use supplied material or clearly marked illustrative content.
+Prove the central object with **working material from this domain**, at the scale where the user actually decides. A newsroom needs a story, source trail, reporting record or review evidence; a release tool needs changes, dependencies or verification results. A plausible title, status, generic activity feed and checklist alone can still read like a reskinned tracker. Make the content's relationships specific enough that changing the product name would leave visible work to redo. Keep this material readable in the first useful desktop and narrow view before filling space with chrome. For a catalog, expose one real item and its deciding action early, then give every repeated row the metadata promised by the brief. Do not invent factual evidence for a real product; use supplied material or clearly marked illustrative content.
+
+For comparison work, inspect each complete option as well as the shared preview. A split, crop or thumbnail can explain the difference but may hide the typography or detail needed to judge quality. Choose an opening preview that preserves the deciding evidence; if a split cuts through both subjects or headlines, change the preview or compositions rather than asking the visitor to infer the hidden work. When neither crop can show both defining compositions, put the complete options and choice first, then use the split as a detail comparison. Keep a readable full-size inspection route when phone thumbnails make supporting text too small. At narrow width, place that route and the choice near the compared material. Remove repeated introductions before shrinking the action into metadata.
 
 Keep data consistent between states. Counts must agree with rows, a changed status must propagate to its list, and a successful action must have a visible result. A screenshot with decorative buttons is weak evidence that the skill can design a product.
+
+Inspect repeated-row labels, quantities and live state at ordinary display size on both wide and narrow screens. A dense layout does not justify tiny, faint time, progress or category cues when those values drive the choice. Review the visible selected or playing state as well as the resting row.
 
 Treat large headings, KPI cards, promotional copy and empty decorative panels as decisions to justify. They can be appropriate, but if they draw attention away from the current task, reduce or remove them. Match useful information density, not the total number of boxes. Quiet space can separate roles; it need not be filled.
 
@@ -36,7 +40,7 @@ Compare the finished task slice with the relevant source region at comparable re
 
 Carry the repaired system into the adjacent state and a narrow view. Reflow secondary context deliberately. Do not silently remove decision-critical status just to make a table fit. Keep visible and accessible names, focus return, field geometry, loading and recovery coherent. Motion should explain the actual state transition; it cannot certify quality missing from settled frames.
 
-At narrow width, verify the selected object's full identifying label remains readable and the way back to the list/search is obvious. A horizontally scrollable queue can be useful, but a cropped first card plus a tiny search field is not a completed navigation pattern merely because the document has no horizontal overflow. Choose a deliberate list/detail switch, labeled queue control or properly sized strip; capture its default state and one neighboring selection. Inspect text next to the viewport edge as well as the page scroll width.
+At narrow width, verify the selected object's full identifying label remains readable and the way back to the list/search is obvious. A horizontally scrollable queue or filter can be useful, but a cut-off label with no scroll cue is not a completed navigation pattern merely because the document has no horizontal overflow. Choose a deliberate list/detail switch, labeled queue control, wrapping filters or a visibly scrollable strip; capture its default state and one neighboring selection. Keep actions visibly named when compacting rows; an accessible name alone does not tell a sighted visitor what an icon means. Inspect text next to the viewport edge as well as the page scroll width.
 
 A useful failure example: a release workspace shares a reference's dark palette, yet a giant metric card and sidebar slogan make it read like a sales demo. The repair is to restore emphasis to the task, turn the metric into supporting evidence, and remove the irrelevant slogan—not add more gradients or animation. Conversely, a product whose main task is metric monitoring may correctly make that same figure dominant.
 

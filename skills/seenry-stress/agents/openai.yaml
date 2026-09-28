@@ -1,0 +1,3 @@
+interface:
+  display_name: "Seenry Stress"
+  short_description: "Expose component failures across realistic states"
