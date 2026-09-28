@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5eb">
+  <title>Spoke Works — bicycle repair on Portland's inner east side</title>
+  <meta name="description" content="A demo booking experience for Spoke Works, a fictional bicycle repair shop serving Portland's inner east side.">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="logo" href="#top" aria-label="Spoke Works, back to top">
+        <span class="logo-mark" aria-hidden="true"><span></span></span>
+        <span>SPOKE<br>WORKS</span>
+      </a>
+      <nav aria-label="Main navigation"><a href="#services">Repairs</a><a href="#hours">Hours & area</a><a class="nav-book" href="#demo">Try the demo <span aria-hidden="true">↗</span></a></nav>
+    </div>
+  </header>
+  <main id="top">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="kicker"><span class="signal" aria-hidden="true"></span> PORTLAND · INNER EAST SIDE</div>
+        <h1 id="hero-title">Good to <em>go</em> again.</h1>
+        <p>Neighborhood bicycle repair for the everyday ride. See the service prices, choose a time, and walk through a sample request.</p>
+        <a class="hero-link" href="#demo">Explore repair times <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="hero-art" role="img" aria-label="Illustration of a bicycle with two large wheels and a repair stand">
+        <div class="art-label">SPOKE WORKS / REPAIR DESK</div>
+        <svg viewBox="0 0 640 430" aria-hidden="true">
+          <circle cx="160" cy="284" r="104" class="wheel"/>
+          <circle cx="492" cy="284" r="104" class="wheel"/>
+          <circle cx="160" cy="284" r="8" class="hub"/>
+          <circle cx="492" cy="284" r="8" class="hub"/>
+          <path d="M160 284 276 115 372 284 160 284 270 190 492 284 433 120 465 120 M261 112h58 M421 111h35 M272 190l-32 0" class="frame"/>
+          <path d="M433 120h-43 M276 115h42" class="dark-line"/>
+          <circle cx="372" cy="284" r="29" class="crank"/>
+          <path d="M372 284l37 35" class="dark-line"/>
+        </svg>
+        <div class="art-bottom"><span>ROLL IN READY</span><span>01 / 03</span></div>
+      </div>
+    </section>
+
+    <section id="services" class="service-section">
+      <div class="shell services-grid">
+        <div class="section-intro">
+          <div class="eyebrow">THE WORK</div>
+          <h2>Clear repairs.<br>Clear prices.</h2>
+          <p>Pick the repair that fits your ride. The sample schedule below uses these three services.</p>
+        </div>
+        <div class="price-list" aria-label="Repair prices">
+          <div class="price-row"><span class="row-no">01</span><span>Flat repair</span><strong>$24</strong></div>
+          <div class="price-row"><span class="row-no">02</span><span>Brake adjustment</span><strong>$38</strong></div>
+          <div class="price-row"><span class="row-no">03</span><span>Standard tune</span><strong>$95</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" class="demo-section">
+      <div class="shell">
+        <div class="demo-heading"><div><div class="eyebrow">TRY THE REQUEST FLOW</div><h2>Find your time.</h2></div><p class="demo-disclosure">Interactive demo · no real appointment is made</p></div>
+        <div class="booking-grid">
+          <form id="booking" class="booking-form">
+            <fieldset>
+              <legend><span class="step">01</span> Choose a service</legend>
+              <div class="option-stack" id="service-options">
+                <label class="option"><input type="radio" name="service" value="flat"><span class="option-indicator" aria-hidden="true"></span><span class="option-title">Flat repair</span><strong>$24</strong></label>
+                <label class="option"><input type="radio" name="service" value="brake"><span class="option-indicator" aria-hidden="true"></span><span class="option-title">Brake adjustment</span><strong>$38</strong></label>
+                <label class="option"><input type="radio" name="service" value="tune"><span class="option-indicator" aria-hidden="true"></span><span class="option-title">Standard tune</span><strong>$95</strong></label>
+              </div>
+            </fieldset>
+            <fieldset class="slot-fieldset">
+              <legend><span class="step">02</span> Choose a sample slot</legend>
+              <div class="slot-days">
+                <div class="slot-day"><div class="date-label"><strong>Thu 1 Oct</strong><span>2026</span></div><div class="slot-buttons"><label class="slot"><input type="radio" name="slot" value="thu1030"><span>10:30</span></label><label class="slot"><input type="radio" name="slot" value="thu1500"><span>15:00</span></label></div></div>
+                <div class="slot-day"><div class="date-label"><strong>Fri 2 Oct</strong><span>2026</span></div><div class="slot-buttons"><label class="slot"><input type="radio" name="slot" value="fri0930"><span>09:30</span></label><label class="slot"><input type="radio" name="slot" value="fri1400"><span>14:00</span></label></div></div>
+              </div>
+            </fieldset>
+            <button id="review-button" class="primary-button" type="submit" disabled>Review sample request <span aria-hidden="true">↗</span></button>
+          </form>
+          <aside class="selection-panel" aria-labelledby="selection-title">
+            <div class="panel-top"><span>YOUR SELECTION</span><span class="panel-asterisk" aria-hidden="true">✳</span></div>
+            <h3 id="selection-title">A ride back<br>in motion.</h3>
+            <p>Choose a repair and time to preview the request.</p>
+            <dl><div><dt>Service</dt><dd id="summary-service">Not chosen</dd></div><div><dt>Sample time</dt><dd id="summary-slot">Not chosen</dd></div><div><dt>Price</dt><dd id="summary-price">—</dd></div></dl>
+            <div class="panel-note">This is a demonstration. Your selection stays in this browser page and is not sent to a shop.</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="hours" class="info-section"><div class="shell info-grid"><div><div class="eyebrow">AROUND THE CORNER</div><h2>For the inner<br>east side.</h2></div><div class="info-details"><div><span>Service area</span><strong>Portland’s inner east side</strong></div><div><span>Shop hours</span><strong>Tuesday–Saturday<br>09:00–18:00</strong></div><p>Spoke Works is a fictional neighborhood shop created for this demo. No street address or contact route is provided.</p></div></div></section>
+  </main>
+  <footer><div class="shell footer-inner"><span class="footer-logo">SPOKE WORKS <span aria-hidden="true">✳</span></span><span>PORTLAND · INNER EAST SIDE</span><a href="#top">Back to top ↑</a></div></footer>
+  <dialog id="review-dialog" aria-labelledby="review-title"><div class="dialog-inner"><button class="close-button" type="button" id="close-review" aria-label="Close review">×</button><div class="eyebrow">CHECK YOUR CHOICE</div><h2 id="review-title">Sample request</h2><p>Review these details before seeing a demo confirmation.</p><dl><div><dt>Repair</dt><dd id="review-service"></dd></div><div><dt>Sample slot</dt><dd id="review-slot"></dd></div><div><dt>Price</dt><dd id="review-price"></dd></div></dl><div class="dialog-actions"><button type="button" class="secondary-button" id="edit-choice">Edit choice</button><button type="button" class="primary-button" id="confirm-demo">Show demo confirmation ↗</button></div><small>No appointment will be booked or sent.</small></div></dialog>
+  <dialog id="confirmation-dialog" aria-labelledby="confirmation-title"><div class="dialog-inner"><button class="close-button" type="button" id="close-confirmation" aria-label="Close confirmation">×</button><div class="confirmation-symbol" aria-hidden="true">✓</div><div class="eyebrow">DEMO CONFIRMATION</div><h2 id="confirmation-title">That’s the sample request.</h2><p id="confirmation-details"></p><div class="demo-alert">This is only a preview. No appointment was made, and nothing was sent to Spoke Works.</div><button type="button" class="primary-button" id="start-over">Start another sample ↗</button></div></dialog>
+</body>
+</html>

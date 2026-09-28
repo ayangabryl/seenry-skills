@@ -1,0 +1,163 @@
+{
+  "trial": "spoke-works-20260929",
+  "files": [
+    {
+      "file": "DESIGN.md",
+      "sha256": "76f90f006e13f7995ff1ba18a95db5d34e3271ed2b62d7c6c883c758c35126d8",
+      "bytes": 6750
+    },
+    {
+      "file": "README.md",
+      "sha256": "bd801594c36deb9cae487e25b3c865ff512d33a3e893ca26fc97bfa8f664e7aa",
+      "bytes": 2268
+    },
+    {
+      "file": "brief.md",
+      "sha256": "f4affc72e3ae1a101e67e43118358695372517268b222e7aeb8cd3e01af88bef",
+      "bytes": 665
+    },
+    {
+      "file": "captures/first-1440.png",
+      "sha256": "75aa669434e96a63f79f96b19e0689ca15e33db637eaeacfc407d7542df851bf",
+      "bytes": 256598,
+      "pixels": [
+        1440,
+        2755
+      ]
+    },
+    {
+      "file": "captures/first-320.png",
+      "sha256": "008260ebaa23329a442dd50fb213ba3ce20014f2adc664caf5a745c668f80d60",
+      "bytes": 184042,
+      "pixels": [
+        320,
+        3825
+      ]
+    },
+    {
+      "file": "captures/first-390.png",
+      "sha256": "4201630c7434c0d4a75961b028c57e8df744f475b6ef0bd1830b477586efa66d",
+      "bytes": 187548,
+      "pixels": [
+        390,
+        3562
+      ]
+    },
+    {
+      "file": "captures/first-confirmation-390.png",
+      "sha256": "20153745c707cd3a6ae66ac03a6f718cae250804df61a70fc7c032c7595e8107",
+      "bytes": 57514,
+      "pixels": [
+        390,
+        900
+      ]
+    },
+    {
+      "file": "captures/first-review-390.png",
+      "sha256": "5682a4619cc030d01182b40d85ba4c2010ce1c23d7159cfba8377ada6d5040a5",
+      "bytes": 59374,
+      "pixels": [
+        390,
+        900
+      ]
+    },
+    {
+      "file": "captures/interaction-results.json",
+      "sha256": "f6e2130351e924427e042e1632ad9a901e481fdee5292ffd718d5f494c33f72d",
+      "bytes": 2820
+    },
+    {
+      "file": "captures/opening-1440.png",
+      "sha256": "d8f749d3f15c0d1b205eb70ab7fbe2608b0611cb1d3b2f8de6ca97889a68daf3",
+      "bytes": 94681,
+      "pixels": [
+        1440,
+        900
+      ]
+    },
+    {
+      "file": "captures/opening-320.png",
+      "sha256": "7daed68a3a34a7f7d8697e8b997adbfcfaf36d1cd58c5723502e527e01606624",
+      "bytes": 47127,
+      "pixels": [
+        320,
+        900
+      ]
+    },
+    {
+      "file": "captures/opening-390.png",
+      "sha256": "5029f517f904989bb83d433dbce5c93d52583b8e43afc3d672dc2a195d49e12f",
+      "bytes": 50979,
+      "pixels": [
+        390,
+        900
+      ]
+    },
+    {
+      "file": "direction-review-summary.json",
+      "sha256": "1f20c02c731d8a585f77ae87775101f66642af3477409f712b09fd535ce55e07",
+      "bytes": 2426
+    },
+    {
+      "file": "first-source/index.html",
+      "sha256": "c87a2b6faf01a65fe3a1c2714f4aeee650ddd915c22abb25298ea049d43dd2c2",
+      "bytes": 8434
+    },
+    {
+      "file": "first-source/script.js",
+      "sha256": "1ceb02cb61adb3de83e844422960affe9216dad6680ca7a37ff740359459db09",
+      "bytes": 2398
+    },
+    {
+      "file": "first-source/style.css",
+      "sha256": "3be382a3fa14e73f95e3e6af4f1f1ebbb4849b5617ec5aff3e26a6afd4153e34",
+      "bytes": 11472
+    },
+    {
+      "file": "full-review-summary.json",
+      "sha256": "bfb99ab8c4a49540ccdc5fe590a33001c26ed81b62afa447721d8e5369ebd5c7",
+      "bytes": 1882
+    },
+    {
+      "file": "opening-review-summary.json",
+      "sha256": "1f9376a92b2c8ba309c94021100dcdc01985f70e2083f52d6bb7bdcab0f0a920",
+      "bytes": 3776
+    },
+    {
+      "file": "studies/a-1440.png",
+      "sha256": "fb8dc8d0615e097699b3393713b04482152e8cebf6e2df897a92067fdf9e0d50",
+      "bytes": 80064,
+      "pixels": [
+        1440,
+        953
+      ]
+    },
+    {
+      "file": "studies/a-390.png",
+      "sha256": "a992e3a1c86e5da1d76cc3a612389cd48d99ab10c62cac148658b4112c32e4f5",
+      "bytes": 57286,
+      "pixels": [
+        390,
+        1007
+      ]
+    },
+    {
+      "file": "studies/b-1440.png",
+      "sha256": "ea213a65e2a1c674f63735ddbc524c2bef637b4a4b3470e120e91ccec79394b4",
+      "bytes": 78644,
+      "pixels": [
+        1440,
+        900
+      ]
+    },
+    {
+      "file": "studies/b-390.png",
+      "sha256": "f4596861050b6246565c725a3e31bb38411204bd665b45fecd01e859a06d0f37",
+      "bytes": 55881,
+      "pixels": [
+        390,
+        997
+      ]
+    }
+  ]
+}
