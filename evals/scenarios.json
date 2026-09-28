@@ -421,6 +421,16 @@
     "calls": []
   },
   {
+    "id": "rejected-editorial-type",
+    "skills": [
+      "seenry",
+      "seenry-typography"
+    ],
+    "request": "Design a small product landing page. I already rejected the category label above a large soft-serif headline with a colored phrase; keep that entire look out of this project.",
+    "check": "Record the rejected composition in the brief before drawing. Compare rendered opening studies using the product's actual evidence and action. Do not keep the same type silhouette by swapping fonts, deleting only the colored phrase or praising its genre fit. Inspect the chosen phone and desktop captures before expansion.",
+    "calls": []
+  },
+  {
     "id": "color-positive-control",
     "skills": [
       "seenry"
