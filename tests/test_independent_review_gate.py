@@ -38,13 +38,17 @@ class IndependentReviewGate(unittest.TestCase):
 
     def test_full_page_scope_reviews_the_complete_task(self):
         clean = {'verdict': 'Keep', 'findings': [], 'strengths': [], 'limits': ['Static captures do not prove behavior']}
-        self.assertEqual(gate.disposition({'whole-screen': clean}, 'full-page'), 'Keep')
+        self.assertEqual(gate.disposition({'whole-screen': clean}, 'full-page'), 'Revise')
+        self.assertEqual(gate.disposition({'writing': clean, 'whole-screen': clean}, 'full-page'), 'Keep')
         self.assertEqual(gate.disposition({'typography': clean}, 'full-page'), 'Revise')
         prompt = gate.review_prompt('whole-screen', 'full-page')
         self.assertIn('complete page', prompt)
         self.assertIn('full-page captures', prompt)
         self.assertIn('responsive reflow', prompt)
         self.assertNotIn('first-screen captures', prompt)
+        writing_prompt = gate.review_prompt('writing', 'full-page')
+        self.assertIn('every later section', writing_prompt)
+        self.assertIn('new answer, evidence or action', writing_prompt)
 
     def test_named_states_are_bounded_and_included_in_review(self):
         states = gate.parse_states(['proof-a=/tmp/a.png', 'saved-b=/tmp/b.webp'])

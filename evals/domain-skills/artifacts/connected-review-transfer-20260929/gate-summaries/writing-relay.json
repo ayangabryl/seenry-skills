@@ -1,0 +1,64 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "059a943b6e5d980c4f948450735b0697dbe7f82309e55261cadc853156af5e5d",
+    "desktop": "a8ee5c299b1607439071c62de9330eae28400721c2b044b0c00e1fb2d1cb82a8",
+    "mobile": "589061e6f3ccfb32bbe6062173cee0ef4be1e7fdd149d7fd684f7764608675c7",
+    "state.selected": "96bafe38828c828c6fd3a59accb96a4fed5fa5c2ba0e7c9a0de470d068517e76",
+    "state.confirmed": "0418fb3fcc35fdb264fe93963af59c84a8d26219a05b92b797abaaf48e404f85"
+  },
+  "skill_sha256": {
+    "writing": "9368b25554eb77edaa235d8d83fc1664bbbfa275df364835609578cd922278c0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "writing": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The section after the choice panel, \u201cThe right time, seen together,\u201d repeats the opening\u2019s explanation and the comparison cards\u2019 conclusion. \u201cReview the candidates\u201d sends the visitor back to information already shown.",
+          "impact": "It lengthens both pages without adding evidence, a new answer, or a useful next step.",
+          "repair": "Remove the section, or replace it only if there is distinct, supported information the visitor needs after making a choice."
+        }
+      ],
+      "strengths": [
+        "The opening states the 30-minute scheduling task, and the cards make Thursday\u2019s four-person overlap clear at wide and narrow widths.",
+        "The selected state identifies the chosen slot; the confirmed state says the choice was recorded on this page only and that no invitations were sent, matching the brief."
+      ],
+      "limits": [
+        "The captures show wording and states, but cannot verify what the controls do when clicked or whether the choice persists."
+      ],
+      "log": "/private/tmp/seenry-writing-gate-probe-scheduler/writing/codex.log",
+      "report": "/private/tmp/seenry-writing-gate-probe-scheduler/writing/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The cards show UTC times and teammates\u2019 time zones, but no local times or day changes. Thursday 15:00 UTC is Friday 00:00 for Kenji in Tokyo.",
+          "impact": "The recommended slot appears straightforward even though one teammate would attend at midnight. That context matters to a cross-time-zone scheduling decision.",
+          "repair": "Show each person\u2019s local day and time beside their availability. Add dates so PT and ET conversions are unambiguous, then recheck the narrow cards."
+        },
+        {
+          "observation": "The closing \u201cThe right time, seen together\u201d section repeats the comparison\u2019s message and leaves a large empty area, especially on desktop.",
+          "impact": "The page loses momentum after the choice and result, and its final section adds little to the decision.",
+          "repair": "Condense or remove that section and bring the footer closer to the completed task."
+        }
+      ],
+      "strengths": [
+        "The cards make the three-way comparison easy to scan, and their availability matches the brief.",
+        "The selected Thursday state has a persistent label, checkmark, and outline; the result panel explains why it was chosen.",
+        "The confirmed state clearly says the choice was recorded on this page only and that no invitations were sent.",
+        "The card layout reflows cleanly from three columns to a narrow single-column sequence."
+      ],
+      "limits": [
+        "Static captures cannot verify pointer, keyboard, touch, focus, or screen-reader behavior.",
+        "Only Thursday\u2019s selected and confirmed states are shown, both at narrow width; other selections and wide result states are unverified.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-writing-gate-probe-scheduler/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-writing-gate-probe-scheduler/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

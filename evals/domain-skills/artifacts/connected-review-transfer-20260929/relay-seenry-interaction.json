@@ -1,0 +1,95 @@
+{
+  "runs": [
+    {
+      "width": 1440,
+      "overflows": false,
+      "tuesday": {
+        "copy": "Priya and Kenji are unavailable. Choose the shared time to include everyone.",
+        "confirmEnabled": false
+      },
+      "wednesday": {
+        "copy": "Ada and Mae are unavailable. Choose the shared time to include everyone.",
+        "confirmEnabled": false
+      },
+      "thursday": {
+        "copy": "All four teammates are available for the 30-minute review.",
+        "confirmEnabled": true,
+        "pressed": "true"
+      },
+      "confirmed": {
+        "copy": "This demo has recorded your choice on this page only. No invitations were sent.",
+        "confirmEnabled": false
+      },
+      "keyboard": {
+        "copy": "Priya and Kenji are unavailable. Choose the shared time to include everyone.",
+        "pressed": "true",
+        "buttonText": "Tuesday selected\n✓"
+      },
+      "rapidReversal": {
+        "copy": "All four teammates are available for the 30-minute review.",
+        "confirmEnabled": true
+      }
+    },
+    {
+      "width": 390,
+      "overflows": false,
+      "tuesday": {
+        "copy": "Priya and Kenji are unavailable. Choose the shared time to include everyone.",
+        "confirmEnabled": false
+      },
+      "wednesday": {
+        "copy": "Ada and Mae are unavailable. Choose the shared time to include everyone.",
+        "confirmEnabled": false
+      },
+      "thursday": {
+        "copy": "All four teammates are available for the 30-minute review.",
+        "confirmEnabled": true,
+        "pressed": "true"
+      },
+      "confirmed": {
+        "copy": "This demo has recorded your choice on this page only. No invitations were sent.",
+        "confirmEnabled": false
+      },
+      "keyboard": {
+        "copy": "Priya and Kenji are unavailable. Choose the shared time to include everyone.",
+        "pressed": "true",
+        "buttonText": "Tuesday selected\n✓"
+      },
+      "rapidReversal": {
+        "copy": "All four teammates are available for the 30-minute review.",
+        "confirmEnabled": true
+      }
+    },
+    {
+      "width": 320,
+      "overflows": false,
+      "tuesday": {
+        "copy": "Priya and Kenji are unavailable. Choose the shared time to include everyone.",
+        "confirmEnabled": false
+      },
+      "wednesday": {
+        "copy": "Ada and Mae are unavailable. Choose the shared time to include everyone.",
+        "confirmEnabled": false
+      },
+      "thursday": {
+        "copy": "All four teammates are available for the 30-minute review.",
+        "confirmEnabled": true,
+        "pressed": "true"
+      },
+      "confirmed": {
+        "copy": "This demo has recorded your choice on this page only. No invitations were sent.",
+        "confirmEnabled": false
+      },
+      "keyboard": {
+        "copy": "Priya and Kenji are unavailable. Choose the shared time to include everyone.",
+        "pressed": "true",
+        "buttonText": "Tuesday selected\n✓"
+      },
+      "rapidReversal": {
+        "copy": "All four teammates are available for the 30-minute review.",
+        "confirmEnabled": true
+      }
+    }
+  ],
+  "reducedMotion": "auto"
+}

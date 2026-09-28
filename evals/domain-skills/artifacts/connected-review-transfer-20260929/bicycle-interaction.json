@@ -1,0 +1,119 @@
+[
+  {
+    "name": "wide",
+    "width": 1440,
+    "errors": [],
+    "disabled": true,
+    "enabled": true,
+    "retained": true,
+    "keyboardChanged": true,
+    "reset": true,
+    "reviewText": "03Review your demo choice\n\nCheck the service and sample time before continuing.\n\nService\nFlat repair\nListed price\n$24\nSample time\nThursday 1 Oct 2026 · 10:30\nShop area\nPortland's inner east side\nShow demo confirmation\n→\nChange choice\n\nContinuing only displays a local demo confirmation. No appointment is sent to Spoke Works.",
+    "changedReview": "03Review your demo choice\n\nCheck the service and sample time before continuing.\n\nService\nBrake adjustment\nListed price\n$38\nSample time\nFriday 2 Oct 2026 · 14:00\nShop area\nPortland's inner east side\nShow demo confirmation\n→\nChange choice\n\nContinuing only displays a local demo confirmation. No appointment is sent to Spoke Works.",
+    "confirmationText": "✓\n\nDEMO CONFIRMATION\n\nChoice shown. Nothing booked.\n\nThis is a preview of your selection, not an appointment confirmation. No request has been sent.\n\nBrake adjustment · $38 · Friday 2 Oct 2026 · 14:00\nStart another demo choice",
+    "stages": [
+      {
+        "label": "default",
+        "file": "evidence/wide-default.png",
+        "scrollWidth": 1440,
+        "innerWidth": 1440
+      },
+      {
+        "label": "selected",
+        "file": "evidence/wide-selected.png",
+        "scrollWidth": 1440,
+        "innerWidth": 1440
+      },
+      {
+        "label": "review",
+        "file": "evidence/wide-review.png",
+        "scrollWidth": 1440,
+        "innerWidth": 1440
+      },
+      {
+        "label": "confirmation",
+        "file": "evidence/wide-confirmation.png",
+        "scrollWidth": 1440,
+        "innerWidth": 1440
+      }
+    ]
+  },
+  {
+    "name": "phone390",
+    "width": 390,
+    "errors": [],
+    "disabled": true,
+    "enabled": true,
+    "retained": true,
+    "keyboardChanged": true,
+    "reset": true,
+    "reviewText": "03Review your demo choice\n\nCheck the service and sample time before continuing.\n\nService\nFlat repair\nListed price\n$24\nSample time\nThursday 1 Oct 2026 · 10:30\nShop area\nPortland's inner east side\nShow demo confirmation\n→\nChange choice\n\nContinuing only displays a local demo confirmation. No appointment is sent to Spoke Works.",
+    "changedReview": "03Review your demo choice\n\nCheck the service and sample time before continuing.\n\nService\nBrake adjustment\nListed price\n$38\nSample time\nFriday 2 Oct 2026 · 14:00\nShop area\nPortland's inner east side\nShow demo confirmation\n→\nChange choice\n\nContinuing only displays a local demo confirmation. No appointment is sent to Spoke Works.",
+    "confirmationText": "✓\n\nDEMO CONFIRMATION\n\nChoice shown. Nothing booked.\n\nThis is a preview of your selection, not an appointment confirmation. No request has been sent.\n\nBrake adjustment · $38 · Friday 2 Oct 2026 · 14:00\nStart another demo choice",
+    "stages": [
+      {
+        "label": "default",
+        "file": "evidence/phone390-default.png",
+        "scrollWidth": 390,
+        "innerWidth": 390
+      },
+      {
+        "label": "selected",
+        "file": "evidence/phone390-selected.png",
+        "scrollWidth": 390,
+        "innerWidth": 390
+      },
+      {
+        "label": "review",
+        "file": "evidence/phone390-review.png",
+        "scrollWidth": 390,
+        "innerWidth": 390
+      },
+      {
+        "label": "confirmation",
+        "file": "evidence/phone390-confirmation.png",
+        "scrollWidth": 390,
+        "innerWidth": 390
+      }
+    ]
+  },
+  {
+    "name": "phone320",
+    "width": 320,
+    "errors": [],
+    "disabled": true,
+    "enabled": true,
+    "retained": true,
+    "keyboardChanged": true,
+    "reset": true,
+    "reviewText": "03Review your demo choice\n\nCheck the service and sample time before continuing.\n\nService\nFlat repair\nListed price\n$24\nSample time\nThursday 1 Oct 2026 · 10:30\nShop area\nPortland's inner east side\nShow demo confirmation\n→\nChange choice\n\nContinuing only displays a local demo confirmation. No appointment is sent to Spoke Works.",
+    "changedReview": "03Review your demo choice\n\nCheck the service and sample time before continuing.\n\nService\nBrake adjustment\nListed price\n$38\nSample time\nFriday 2 Oct 2026 · 14:00\nShop area\nPortland's inner east side\nShow demo confirmation\n→\nChange choice\n\nContinuing only displays a local demo confirmation. No appointment is sent to Spoke Works.",
+    "confirmationText": "✓\n\nDEMO CONFIRMATION\n\nChoice shown. Nothing booked.\n\nThis is a preview of your selection, not an appointment confirmation. No request has been sent.\n\nBrake adjustment · $38 · Friday 2 Oct 2026 · 14:00\nStart another demo choice",
+    "stages": [
+      {
+        "label": "default",
+        "file": "evidence/phone320-default.png",
+        "scrollWidth": 320,
+        "innerWidth": 320
+      },
+      {
+        "label": "selected",
+        "file": "evidence/phone320-selected.png",
+        "scrollWidth": 320,
+        "innerWidth": 320
+      },
+      {
+        "label": "review",
+        "file": "evidence/phone320-review.png",
+        "scrollWidth": 320,
+        "innerWidth": 320
+      },
+      {
+        "label": "confirmation",
+        "file": "evidence/phone320-confirmation.png",
+        "scrollWidth": 320,
+        "innerWidth": 320
+      }
+    ]
+  }
+]

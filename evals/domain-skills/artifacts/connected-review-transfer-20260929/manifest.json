@@ -1,0 +1,12 @@
+{
+  "skill_commit": "b5aaac14d1b2178d09c0c56fedc6b02b5ed653af",
+  "skill_sha256": "e30749ade9c992014be62de3645001996ae3f377fe1aad3eece4c339f40c9e60",
+  "conditions": [
+    "Spoke Works Seenry fresh forward test",
+    "Relay Seenry transfer test",
+    "Relay no-local-skill matched baseline",
+    "Relay trimmed writing-gate probe"
+  ],
+  "usage": "Model token and wall-clock usage were not available to the trial authors; do not infer relative efficiency",
+  "limits": "Independent model review is not user acceptance; Relay first-complete snapshots are not strictly matched stage artifacts between conditions"
+}

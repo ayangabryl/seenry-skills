@@ -1,0 +1,58 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "059a943b6e5d980c4f948450735b0697dbe7f82309e55261cadc853156af5e5d",
+    "desktop": "10de90116fda30ed7f8907c8e1e09b867722581cf9fd8070a39820eabfeeb763",
+    "mobile": "77ed58ccb46b72be39266e4e5d53fe05e9ed8149235b2081001824a4ca899bf9",
+    "state.selected": "8dfe4121801dea7753005fa82b6c36b505567ac09d28f00150bd03462582f2a0",
+    "state.confirmed": "b48182f26c991c058dd32d7f613d9444e17abbbf565917815b4add46b194dccc"
+  },
+  "skill_sha256": {
+    "writing": "9368b25554eb77edaa235d8d83fc1664bbbfa275df364835609578cd922278c0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "writing": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The opening states the scheduling question and explains the 30-minute sample without repeating a slogan.",
+        "Each candidate card gives a time, individual availability, and a concise consequence. Thursday\u2019s card makes the shared slot clear.",
+        "The selected state identifies the chosen time and offers a confirmation action. The confirmed state says the choice was recorded on this page only and that no invitations were sent.",
+        "The footer\u2019s local-demo disclosure supports the result claim without adding another marketing section."
+      ],
+      "limits": [
+        "The captures show the supplied states, but cannot verify click behavior or what happens if a visitor selects a slot that excludes teammates."
+      ],
+      "log": "/private/tmp/seenry-writing-gate-probe-trimmed2/writing/codex.log",
+      "report": "/private/tmp/seenry-writing-gate-probe-trimmed2/writing/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The cards identify each teammate\u2019s time zone but show only UTC times. The shared Thursday slot falls on Friday at 00:00 in Tokyo, a day change the page does not reveal.",
+          "impact": "The visitor can see who is marked available but cannot readily judge what the choice means locally for the four teammates.",
+          "repair": "Add a dated sample week and show each person\u2019s local time and day alongside availability. Recheck all three slots, especially the Tokyo day changes."
+        },
+        {
+          "observation": "\u201cCompare again\u201d appears in the choice panel before any choice has been made, while the comparison is already visible above it.",
+          "impact": "The secondary action has no clear purpose at that point and weakens the select \u2192 confirm sequence.",
+          "repair": "Remove it from the initial state. If it helps after confirmation, label its purpose clearly, such as \u201cChange choice.\u201d"
+        }
+      ],
+      "strengths": [
+        "The three candidates are easy to compare, and Thursday\u2019s four-of-four result has clear visual emphasis.",
+        "The narrow layout preserves readable availability details and a clear selection action for each card.",
+        "The selected state uses a checkmark and changed label as well as a border; the confirmed state explicitly says the choice was recorded only on this page and no invitations were sent."
+      ],
+      "limits": [
+        "Static captures cannot establish whether selection, confirmation, navigation, keyboard access, or focus behavior works.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-writing-gate-probe-trimmed2/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-writing-gate-probe-trimmed2/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

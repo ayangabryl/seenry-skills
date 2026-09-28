@@ -1,0 +1,65 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "aeb549d7176e9740d8eb410f60469fd0b0a2f8476885f809891901a23b126b61",
+    "desktop": "a65780380845526476f425316f3e2b893eb9fd61aa942dba67e8b266fe1db529",
+    "mobile": "41b9382875327edd9de24b84820ace86b441327eb927a1b28f5d15bf04074390",
+    "state.review": "d7d89bd8a1feeba2ecfda4b49d0289d17339c5eb1c4d818cc27fc62d3df75898",
+    "state.confirmation": "f322c6b708f4a689bcf0f1703505ed7945df6cf225aea6dc281da6ced95c1056"
+  },
+  "skill_sha256": {
+    "writing": "9368b25554eb77edaa235d8d83fc1664bbbfa275df364835609578cd922278c0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "writing": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The descriptions under all three services mostly restate their names, especially \u201cBrake adjustment\u201d followed by \u201cFor brakes that need adjustment.\u201d",
+          "impact": "They take up space without helping visitors choose a service.",
+          "repair": "Remove the descriptions unless verified details can distinguish what each service includes."
+        },
+        {
+          "observation": "The \u201cLocal to your everyday route\u201d section repeats the service area and demo explanation already given above, without adding an answer, evidence, or action.",
+          "impact": "It lengthens the page after the visitor has completed the choice flow.",
+          "repair": "Remove the section or give it a distinct purpose supported by the brief."
+        }
+      ],
+      "strengths": [
+        "The opening identifies bicycle repair, the service area, the choice task, and the demo limitation at both widths.",
+        "Service names, prices, hours, and sample times match the brief.",
+        "The review state shows the selected service, price, time, and area; its actions match their stated outcomes.",
+        "The final state clearly says that the choice was shown and nothing was booked."
+      ],
+      "limits": [
+        "The captures show the writing and supplied states, but cannot verify interaction behavior."
+      ],
+      "log": "/private/tmp/seenry-writing-gate-probe-bicycle/writing/codex.log",
+      "report": "/private/tmp/seenry-writing-gate-probe-bicycle/writing/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "The service descriptions largely repeat their labels. \u201cStandard tune\u201d does not say what the $95 service includes.",
+          "impact": "Visitors can see the prices but lack enough detail to choose confidently between repairs and a tune.",
+          "repair": "Give each service a brief, concrete description of its scope, especially what the standard tune includes."
+        }
+      ],
+      "strengths": [
+        "The desktop and mobile layouts make the service, time, review, and result sequence easy to follow.",
+        "The review state shows the chosen service, price, time, and area. The confirmation state clearly says nothing was booked.",
+        "Type, spacing, and color remain consistent across the full page and alternate states."
+      ],
+      "limits": [
+        "The captures do not show the selected controls before review or prove that choosing, changing, and continuing work.",
+        "Pointer, keyboard, touch, screen reader, and focus behavior cannot be judged from static images.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-writing-gate-probe-bicycle/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-writing-gate-probe-bicycle/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

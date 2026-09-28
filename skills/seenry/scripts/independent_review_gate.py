@@ -20,11 +20,12 @@ SKILL_DIR = Path(__file__).resolve().parents[1]
 SCHEMA = Path(__file__).with_name('independent_review_gate_schema.json')
 SKILLS = {
     'typography': SKILL_DIR.parent / 'seenry-typography/SKILL.md',
+    'writing': SKILL_DIR.parent / 'seenry-writing/SKILL.md',
     'whole-screen': SKILL_DIR.parent / 'seenry-review/SKILL.md',
 }
 SCOPES = {
     'first-screen': ('typography', 'whole-screen'),
-    'full-page': ('whole-screen',),
+    'full-page': ('writing', 'whole-screen'),
 }
 STATE_NAME = re.compile(r'[a-z0-9][a-z0-9_-]*\Z')
 IMAGE_SUFFIXES = {'.png', '.jpg', '.jpeg', '.webp'}
@@ -83,7 +84,14 @@ def parse_states(values):
 
 
 def review_prompt(kind, scope, state_names=()):
-    if scope == 'full-page':
+    if kind == 'writing':
+        task = ('Independently review the actual visible writing in the supplied wide and narrow full-page captures. '
+                'Read the complete opening, every later section, actions and supplied result states. '
+                'Judge whether each section adds a new answer, evidence or action for this visitor; '
+                'whether a slogan, eyebrow or helper line repeats the same idea; and whether actions and '
+                'outcome claims match the brief. A short page may need fewer sections. '
+                'Do not demand more marketing copy or ban expressive language when it has a task or brand role. ')
+    elif scope == 'full-page':
         task = ('Independently review the complete page from the supplied wide and narrow full-page captures. '
                 'Judge its task sequence, final visual quality, typography, copy, content and action hierarchy, '
                 'visible states, responsive reflow, and reference relationship if provided. '

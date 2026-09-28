@@ -1,0 +1,59 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "059a943b6e5d980c4f948450735b0697dbe7f82309e55261cadc853156af5e5d",
+    "desktop": "8a21efd4b14dccbe7d293e3877a682e45b9d18d96cbec2af9496f14a5ba89255",
+    "mobile": "ee6f62788ea18c053216976d1f6dfb01a219568dfa2933299233606921688043",
+    "state.selected": "13c78af932fe53154186106094c4485bd63ed782d32ab460296ba9389a1f0478",
+    "state.confirmed": "509da091f333211b6c349ad3add3ef2f650b0b8f9a45b414534223026d85c2db"
+  },
+  "skill_sha256": {
+    "writing": "9368b25554eb77edaa235d8d83fc1664bbbfa275df364835609578cd922278c0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "writing": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "After a slot is selected, the action says \u201cUse this time,\u201d while the result says the choice was recorded on this page only. The local-demo limit is clear in the result, but not beside the action.",
+          "impact": "A visitor could read the action as scheduling the meeting, even though no invitation is sent.",
+          "repair": "Label the action as a local confirmation, such as \u201cConfirm choice here,\u201d and keep the result explicit that no invitations were sent."
+        }
+      ],
+      "strengths": [
+        "The opening gives the visitor the task, meeting length, and sample context without unnecessary sections.",
+        "Each candidate shows who is available and names who cannot attend; Thursday\u2019s summary makes the shared slot clear.",
+        "The selected state identifies the chosen time, and the confirmed state accurately limits the outcome to this page."
+      ],
+      "limits": [
+        "The captures support a review of visible wording and states, but do not show what the controls do when used."
+      ],
+      "log": "/private/tmp/seenry-writing-gate-probe-trimmed/writing/codex.log",
+      "report": "/private/tmp/seenry-writing-gate-probe-trimmed/writing/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "On the narrow captures, the note explaining that the page is a local demo is very small and sits tightly above the footer.",
+          "impact": "A visitor may miss the qualification that calendars are not connected and invitations are not sent, especially after choosing a time.",
+          "repair": "Increase the note\u2019s mobile text size and spacing, then check its readability in the default, selected, and confirmed states."
+        }
+      ],
+      "strengths": [
+        "The page makes the comparison easy: each candidate shows the same four people, availability count, and a plain-language outcome.",
+        "Thursday is visibly the shared slot. The selected state adds a label and checkmark, and the confirmed state shows a truthful page-only result.",
+        "The three cards reflow cleanly from a wide row to a narrow stack, with clear action hierarchy."
+      ],
+      "limits": [
+        "Static captures cannot establish pointer, keyboard, touch, focus, or reset behavior.",
+        "Selected and confirmed states were supplied only at the narrow width.",
+        "No visual reference was supplied for comparison."
+      ],
+      "log": "/private/tmp/seenry-writing-gate-probe-trimmed/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-writing-gate-probe-trimmed/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}

@@ -1,0 +1,58 @@
+{
+  "scope": "first-screen",
+  "input_sha256": {
+    "brief": "88ba6c83a7be2e097fa237d9cd66aba66a24d9d3a2e4fd175a8cbeb388c22a0a",
+    "desktop": "3e14b4d71ed36f35ab6c0f7ccee37214242fa36319933a4c5801fb67749ebd7f",
+    "mobile": "daa7b11062defad83dfc5eb7e813ab4327abda69e25a39c7f1389e322ea02729",
+    "state.selected": "256b44a45b8c2ae7d1e360eb924ffa0529bba343c1f9ec39d2c78ca886f11e6e",
+    "state.confirmed": "1e68a4fa170c6712c643267acf8bee4f0fd7773860da644e41d90a51275905ef"
+  },
+  "skill_sha256": {
+    "typography": "27fb13c4ad22239d99221cd1f0d150480ce8c969fcc36a33daeb67388ba3a5b0",
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "typography": {
+      "verdict": "Revise",
+      "findings": [
+        {
+          "observation": "At actual phone size, participant locations and availability labels are approximately 10px. The availability evidence is substantially smaller than the candidate summary and action text.",
+          "impact": "Readers can identify the recommended slot quickly, but inspecting each teammate\u2019s supplied availability\u2014the core comparison material\u2014requires unnecessarily fine reading.",
+          "repair": "Increase participant metadata and availability labels to roughly 12\u201313px, allowing the participant rows to grow while preserving the consistent person order and explicit status wording."
+        }
+      ],
+      "strengths": [
+        "The bold, tightly spaced sans-serif headings give Relay a direct, practical voice. The combined signature connects the question, candidate days and result without relying on a decorative editorial preset.",
+        "Hierarchy moves from the scheduling question to candidate names, availability totals, participant evidence and selection actions. The phone opening includes the complete first candidate and its action.",
+        "Consistent participant placement supports comparison. Thursday\u2019s explicit all-four count and explanatory sentence make the decision evident without relying solely on green styling.",
+        "The selected state preserves the underlying evidence and repeats Thursday\u2019s time beside the confirmation action. The confirmed state explicitly says the choice was recorded on this page and no invitations were sent.",
+        "The lower section maintains the same typographic voice without introducing an unrelated display treatment."
+      ],
+      "limits": [
+        "Reviewed the supplied desktop, mobile, selected and confirmed captures at original size. Static images do not establish interaction behavior, semantic structure, font loading, or resilience under zoom and text expansion."
+      ],
+      "log": "/private/tmp/seenry-scheduler-transfer-20260929/evidence/first-screen-gate/typography/codex.log",
+      "report": "/private/tmp/seenry-scheduler-transfer-20260929/evidence/first-screen-gate/typography/review.json"
+    },
+    "whole-screen": {
+      "verdict": "Keep",
+      "findings": [],
+      "strengths": [
+        "The comparison accurately represents all supplied availability. Counts, explicit participant statuses and short summaries make Thursday\u2019s all-four overlap evident without relying on color or mental calculation.",
+        "Desktop aligns the candidates for comparison; mobile preserves participant grouping and shows the entire first candidate and its action in the opening viewport.",
+        "Typography, restrained color and consistent rules support the scheduling task. Thursday receives appropriate emphasis, while the other candidates remain readable.",
+        "The selected state identifies Thursday with an outline, a checkmark and the word \u201cSelected.\u201d The adjacent preview repeats the chosen time and 30-minute duration before confirmation.",
+        "The confirmed state explicitly says the choice was recorded on this page only and no invitations were sent. This fulfills the brief\u2019s local demo outcome without implying calendar integration.",
+        "The design is organized around the supplied schedule material. No external reference or established brand requires a fidelity comparison."
+      ],
+      "limits": [
+        "Reviewed the four supplied captures at native size: desktop opening, mobile opening, mobile selected state and mobile confirmed state.",
+        "Static captures do not verify pointer, keyboard or touch operation, focus management, screen-reader announcements, persistence or changing a confirmed choice.",
+        "Desktop result states, other viewport widths, zoom behavior and measured contrast remain unverified."
+      ],
+      "log": "/private/tmp/seenry-scheduler-transfer-20260929/evidence/first-screen-gate/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-scheduler-transfer-20260929/evidence/first-screen-gate/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}
