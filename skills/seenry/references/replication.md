@@ -40,10 +40,10 @@ Use the smallest mechanism matching the observed trajectory, origin, delay, blur
 1. Build one static closed/open pair at the reference dimensions. Compare typography and geometry before animation. Do not generate three new layouts.
 2. Implement the defining transition using measured landmarks. Keep business state and hit testing separate from its presentation.
 3. Put source and reconstruction beside each other at equal readable scale. Compare endpoint crops and matching phase frames. Use an overlay/difference view when it helps localize a discrepancy. Cursor, compression, antialiasing and missing fonts can affect image differences; raw pixel error is not a fidelity percentage.
-   For dominant type and quiet backdrops, use [comparison anchors](comparison-anchors.md).
+   Compare dominant text ink bounds and low-contrast backdrop patches independently; read [comparison anchors](comparison-anchors.md) for either.
    For flat-background labels, compare rendered [ink bounds](../scripts/ink_compare.mjs) at equal physical scale; set `polarity` to `light` for bright text (default `dark`). Keep each crop on a uniform surface and verify it contains the named label. The ink checker cannot identify text or fonts.
    On macOS, [text comparison](../scripts/text_compare.swift) inventories text: `swift text_compare.swift source.png output.png`. Add labels JSON for named checks. OCR cannot establish font identity or overall fidelity.
-4. List concrete mismatches by severity: wrong composition or behavior, wrong trajectory, proportion/type/spacing, then finishing differences. Repair the largest discrepancy first and replay both entry and exit. Preserve comparison evidence before and after the repair.
+4. Rank mismatches: composition or behavior, trajectory, proportion/type/spacing, then finishing differences. Repair the largest first and replay entry and exit. Preserve before/after evidence.
 5. Exercise interruption, repeated input, keyboard, narrow layout and reduced motion. These checks establish usable behavior; they do not establish visual matching.
 
 For precise work, record target/actual measurements and source-justified tolerances: shell, type/spacing and applicable motion checkpoints. `scripts/replication_gate.py` checks the JSON ledger for unresolved evidence; it cannot inspect images or grant approval.
