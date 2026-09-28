@@ -58,7 +58,8 @@ try {
   await page.waitForTimeout(180);
   assert.equal(await page.evaluate(() => window.voicePresenceDemo.presence.isAnimating), false, 'No perpetual signal');
   await level(0);
-  assert.deepEqual(await mark.screenshot(), zero, 'Zero settles back without an invented pulse');
+  assert.equal(await geometry(), closed, 'Zero returns to the resting geometry');
+  assert.equal(await page.evaluate(() => window.voicePresenceDemo.presence.isAnimating), false, 'Zero does not schedule a pulse');
 
   // A live preference change cancels in-flight movement, then keeps shape fixed.
   await update({ level: 1 });
