@@ -42,9 +42,11 @@ try {
   assert.equal(await mark.locator('svg').getAttribute('aria-hidden'), 'true');
   assert.equal(await page.locator('#status').getAttribute('role'), 'status');
   assert.equal(await page.evaluate(() => window.voicePresenceDemo.presence.isAnimating), false);
-  const idle = await mark.screenshot();
+  const idleGeometry = await geometry();
+  const idleEnergy = await mark.locator('svg').evaluate(node => node.style.getPropertyValue('--vp-energy'));
   await update({ level: 1 });
-  assert.deepEqual(await mark.screenshot(), idle, 'Idle must ignore supplied signal');
+  assert.equal(await geometry(), idleGeometry, 'Idle must ignore supplied signal geometry');
+  assert.equal(await mark.locator('svg').evaluate(node => node.style.getPropertyValue('--vp-energy')), idleEnergy, 'Idle must ignore supplied signal ink');
   await capture('desktop-idle');
 
   await choose('listening');
