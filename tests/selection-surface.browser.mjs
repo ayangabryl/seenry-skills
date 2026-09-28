@@ -35,6 +35,14 @@ async function checkAlignment(page) {
     assert.ok(Math.abs(bounds.tab[a] - bounds.pill[b]) < 1, `${a} mismatch ${JSON.stringify(bounds)}`);
   }
 }
+async function waitForAlignment(page) {
+  await page.waitForFunction(() => {
+    const tab = document.querySelector('[role="tab"][aria-selected="true"]')?.getBoundingClientRect();
+    const pill = document.querySelector('.motion-rail-selected')?.getBoundingClientRect();
+    return tab && pill && ['x', 'y', 'width', 'height'].every(key => Math.abs(tab[key] - pill[key]) < 1);
+  }, null, { timeout: 2500 });
+  await checkAlignment(page);
+}
 
 try {
   const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
@@ -43,7 +51,7 @@ try {
   await page.goto(url);
   await page.waitForFunction(() => Boolean(window.study));
   assert.equal(await page.locator('[role="tab"][aria-selected="true"]').count(), 1);
-  await checkAlignment(page);
+  await waitForAlignment(page);
 
   const startX = await page.locator('.motion-rail-selected').evaluate(el => el.getBoundingClientRect().x);
   await page.getByRole('tab', { name: 'Recent activity' }).click();
@@ -51,10 +59,9 @@ try {
   const middleX = await page.locator('.motion-rail-selected').evaluate(el => el.getBoundingClientRect().x);
   const targetX = await page.locator('#tab-activity').evaluate(el => el.getBoundingClientRect().x);
   assert.ok(middleX > startX + 2 && middleX < targetX - 2, `Selection should travel between labels: ${startX}, ${middleX}, ${targetX}`);
-  await page.waitForTimeout(300);
+  await waitForAlignment(page);
   assert.equal(await page.locator('#panel-activity').isVisible(), true);
   assert.equal(await page.locator('#panel-overview').isHidden(), true);
-  await checkAlignment(page);
 
   await page.getByRole('tab', { name: 'Notes' }).focus();
   await page.keyboard.press('ArrowRight');
@@ -64,8 +71,7 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-notes');
   await page.keyboard.press('Home');
   assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-overview');
-  await page.waitForTimeout(300);
-  await checkAlignment(page);
+  await waitForAlignment(page);
 
   // A changed label width and a rapid pair of selections must settle on the final tab.
   await page.evaluate(() => {
@@ -73,17 +79,15 @@ try {
     window.study.select(1);
     window.study.select(2);
   });
-  await page.waitForTimeout(320);
+  await waitForAlignment(page);
   assert.equal(await page.locator('[role="tab"][aria-selected="true"]').count(), 1);
   assert.equal(await page.locator('#panel-notes').isVisible(), true);
-  await checkAlignment(page);
   await page.setViewportSize({ width: 620, height: 700 });
-  await page.waitForTimeout(300);
-  await checkAlignment(page);
+  await waitForAlignment(page);
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('tab', { name: 'Overview' }).click();
-  await checkAlignment(page);
+  await waitForAlignment(page);
   assert.equal(await page.locator('.motion-rail-selected').evaluate(el => getComputedStyle(el).transitionDuration), '0s');
   if (axePath) {
     await page.addScriptTag({ path: axePath });
@@ -97,8 +101,7 @@ try {
   await mobile.goto(url);
   await mobile.waitForFunction(() => Boolean(window.study));
   await mobile.getByRole('tab', { name: 'Recent activity' }).click();
-  await mobile.waitForTimeout(300);
-  await checkAlignment(mobile);
+  await waitForAlignment(mobile);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   if (output) {
     await mkdir(output, { recursive: true });
