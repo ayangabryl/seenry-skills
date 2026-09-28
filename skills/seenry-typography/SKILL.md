@@ -28,4 +28,4 @@ For product UI, prioritize scanning, value alignment and stable state changes. T
 
 ## Finish
 
-Inspect the chosen treatment at 100% and 200% zoom, narrow width and with fallbacks. Check that actions remain readable, text can expand and no title overwhelms its subject. Record the rejected alternative and the visible reason. For deeper implementation mechanics in a full Seenry installation, use [the type guide](../seenry/references/craft/typography.md).
+Inspect the chosen treatment at 100% and 200% zoom, narrow width and with fallbacks. Check that actions remain readable, text can expand and no title overwhelms its subject. Inspect the next section too: removing a stock type treatment from the hero does not resolve it if the same treatment appears immediately below. Record the rejected alternative and the visible reason. For deeper implementation mechanics in a full Seenry installation, use [the type guide](../seenry/references/craft/typography.md).
