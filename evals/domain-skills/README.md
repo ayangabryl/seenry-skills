@@ -10,6 +10,8 @@ Use fresh contexts with realistic requests, such as: revise a rendered headline 
 
 For a build, fix the brief, source media, model, effort, time allowance and allowed assets **before** comparing versions. Save the first and final wide/narrow renders, source and output hashes, implementation, interaction checks, model trace and any repair. Review anonymously at ordinary display size. Judge task clarity, original type direction, subject material, working states, accessibility evidence and source fit separately. A type system with acceptable contrast can still be generic; a beautiful capture can still have inert controls.
 
+Run focused craft reviews as well as a holistic review when a specific failure matters. In the first Stillroom trial, a holistic review and an initial focused typography review both accepted a tracked-kicker/italic-phrase/caption combination. After the typography guide was changed to judge the combined signature, a fresh reviewer with the same screenshots and a blind prompt identified it and proposed a concrete subtraction. This supports detection on that case; it does not establish general prevention. Preserve before and after captures if applying the recommendation.
+
 For a reference target, inspect its relevant pixels or recording and state its coverage limits. The cases in [reference craft cases](../design-craft-cases.md) are prompts for comparison, not design templates or copied media. If an output shares a grid or palette but misses the source's material depth or task rationale, record that gap. A self-review is diagnostic; user acceptance and independent review are distinct.
 
 ## Release rule
