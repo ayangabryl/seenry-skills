@@ -12,11 +12,11 @@ For a native app, `seenry-apps` owns the connected task and device verification.
 
 ## Create
 
-1. Establish the user task, actual content, constraints and existing project identity. Record decisions in DESIGN.md.
-2. Inspect references that answer a specific open question. Separate observed pixels or behavior from an interpretation.
-3. Compare small working structural directions with the same facts. Finish one promising slice with real type, media, content and behavior. Inspect its type composition and remove unearned labels or decoration.
-4. Carry its relationships through the whole interface and its loading, error, recovery and narrow states.
-5. Independently inspect the first rendered slice and later the complete result at ordinary and narrow sizes. Exercise normal-speed interactions. Repair supported defects and report remaining uncertainty.
+1. Lock the person, object, decision, supplied facts and real action outcome. Cross-check the facts for contradictions before rendering. Keep the decision record short and preserve existing project identity.
+2. Name the decisive region and states: what someone must see, compare or change, including conflict, success and return. Inspect one or two relevant references for transferable relationships, separating observed pixels or movement from interpretation.
+3. Finish one slice with real material, type, controls and behavior at delivery size. Compare a second structure when the first leaves a meaningful decision unresolved; a prose concept quota does not improve the result.
+4. Capture wide and narrow views and the decisive before/change/settled/reverse frames. Inspect normal-speed movement where it matters, repair the largest visible gap, then carry the system through the remaining page or screen families.
+5. Exercise actions, keyboard, recovery, narrow layout and reduced motion as applicable. Independently review the first slice and the complete result. Report what passed, what is provisional and what remains unverified.
 
 ## Replicate
 
