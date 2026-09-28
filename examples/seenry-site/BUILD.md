@@ -17,7 +17,7 @@ From this directory, run `python3 -m http.server 8000 --bind 127.0.0.1`, then op
 
 ## Sources and licenses
 
-Page structure, copy and teaching examples are original. The restrained reference page at https://jakub.kr/skills informed the relationship between a capability and its demonstration; its code, examples and assets were not copied. Chair and workshop images are original AI-generated material from the fictional Held study, reused here. They are not photographs of client projects.
+Page structure, copy and teaching examples are original. Each capability is paired with its own working demonstration. Chair and workshop images are original AI-generated material from the fictional Held study, reused here. They are not photographs of client projects.
 
 Geist and Newsreader retain their SIL Open Font Licenses in assets. Lucide SVGs retain their license in assets/icons. Seenry runtime helpers retain the repository MIT license. The bundled NumberFlow runtime retains its own MIT licenses and manifest. The original motion wrappers and pinned engine are separate sources.
 
