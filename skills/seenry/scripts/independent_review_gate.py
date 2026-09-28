@@ -96,9 +96,16 @@ def review_prompt(kind, scope, state_names=()):
     states = (f' Inspect the attached alternate states ({", ".join(state_names)}) at readable size too; '
               'judge what each reveals about the material, decision and result. '
               if state_names else '')
+    coverage = (
+        'If the brief asks the visitor to choose, change or complete something and the captures do not show '
+        'the resulting visible state of that central decision, return Unverified and name the missing state '
+        'in limits. A polished default state does not clear the whole task. Do not require static images to '
+        'prove pointer, keyboard or touch mechanics; list those behavior limits separately. '
+        if kind == 'whole-screen' else ''
+    )
     return (
         f'{task}Use {SKILLS[kind]}. Read ../brief.md and inspect both attached images at their actual size. '
-        + states +
+        + states + coverage +
         'The findings array is only for supported defects requiring a repair. If you give Keep, '
         'return findings: [] and put positive observations in strengths instead; do not write '
         'a finding with repair "None". Give Keep only if this scope has no repair finding. '

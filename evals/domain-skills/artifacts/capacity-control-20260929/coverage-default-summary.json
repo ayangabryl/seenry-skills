@@ -1,0 +1,30 @@
+{
+  "scope": "full-page",
+  "input_sha256": {
+    "brief": "bd073152e9233ce873998d0f038297030fa79ee49ae1e0cbac5b39519ed0c1f9",
+    "desktop": "710247ecdedaa64393c5cc25b06f1c66446ca4008ea1f5ca25bace17629234e9",
+    "mobile": "c293043dd0cf3dd649ff55defd29079c3e67bc19dcdfb6d5464d3cba79b51391"
+  },
+  "skill_sha256": {
+    "whole-screen": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2"
+  },
+  "reviews": {
+    "whole-screen": {
+      "verdict": "Unverified",
+      "findings": [],
+      "strengths": [
+        "The default state has a clear sequence: choose capacity, read the resulting numbers, then inspect the seat preview.",
+        "Typography and spacing keep the key numbers readable in both supplied captures. The 390 px layout reflows without visible clipping.",
+        "The copy explains that changing capacity does not admit anyone from the waitlist."
+      ],
+      "limits": [
+        "Both captures show the default value of 16. A visible state after choosing a higher capacity is needed to verify the changing count, open seats, waitlist count, and preview\u2014the central decision in the brief.",
+        "No 320 px capture was supplied.",
+        "Static captures cannot establish drag, touch, keyboard, reset, rapid reversal, or reduced-motion behavior."
+      ],
+      "log": "/private/tmp/seenry-gate-central-state-default-20260929/whole-screen/codex.log",
+      "report": "/private/tmp/seenry-gate-central-state-default-20260929/whole-screen/review.json"
+    }
+  },
+  "status": "Revise"
+}
