@@ -92,6 +92,41 @@ try {
     return { left: edge(2), right: edge(width - 3) };
   });
   assert.ok(reflection.right > reflection.left, `Linked reflection should favor the nearby edge: ${JSON.stringify(reflection)}`);
+  const ringBounds = await rim.locator('#ring').boundingBox();
+  const rimBrightness = async () => {
+    const screenshot = await rim.locator('#ring').screenshot();
+    return rim.evaluate(async dataUrl => {
+      const bitmap = new Image();
+      bitmap.src = dataUrl;
+      await bitmap.decode();
+      const sample = document.createElement('canvas');
+      sample.width = bitmap.naturalWidth;
+      sample.height = bitmap.naturalHeight;
+      const context = sample.getContext('2d');
+      context.drawImage(bitmap, 0, 0);
+      const pixels = context.getImageData(0, 0, sample.width, sample.height).data;
+      const halves = [0, 0];
+      const counts = [0, 0];
+      for (let y = 0; y < sample.height; y++) for (let x = 0; x < sample.width; x++) {
+        const distance = Math.hypot(x - sample.width / 2, y - sample.height / 2);
+        if (distance < sample.width * 0.37 || distance > sample.width * 0.49) continue;
+        const half = x < sample.width / 2 ? 0 : 1;
+        const index = (y * sample.width + x) * 4;
+        halves[half] += (pixels[index] + pixels[index + 1] + pixels[index + 2]) / 3;
+        counts[half]++;
+      }
+      return halves.map((value, index) => value / counts[index]);
+    }, `data:image/png;base64,${screenshot.toString('base64')}`);
+  };
+  await rim.mouse.move(ringBounds.x + ringBounds.width * 0.2, ringBounds.y + ringBounds.height / 2);
+  await rim.waitForTimeout(130);
+  const pointerLeft = await rimBrightness();
+  await rim.mouse.move(ringBounds.x + ringBounds.width * 0.8, ringBounds.y + ringBounds.height / 2);
+  await rim.waitForTimeout(130);
+  const pointerRight = await rimBrightness();
+  assert.ok(pointerLeft[0] > pointerRight[0] + 3, `Left-side light should follow the pointer: ${pointerLeft} / ${pointerRight}`);
+  assert.ok(pointerRight[1] > pointerLeft[1] + 3, `Right-side light should follow the pointer: ${pointerLeft} / ${pointerRight}`);
+  await rim.mouse.move(0, 0);
   await rim.keyboard.press('Tab');
   assert.equal(await rim.evaluate(() => document.activeElement.id), 'toggle');
   assert.equal(await rim.locator('#toggle').evaluate(el => el.matches(':focus-visible')), true);
