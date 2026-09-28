@@ -4,6 +4,7 @@ description: "Build and compare genuinely different design variants for one inte
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Variants

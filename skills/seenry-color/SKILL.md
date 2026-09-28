@@ -4,6 +4,7 @@ description: "Create or repair an interface color system. Use for palette direct
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Color

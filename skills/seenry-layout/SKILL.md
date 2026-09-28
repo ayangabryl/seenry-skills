@@ -4,6 +4,7 @@ description: "Design or repair interface structure, grouping, density and respon
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Layout

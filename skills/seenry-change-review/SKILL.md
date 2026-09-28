@@ -4,6 +4,7 @@ description: "Review the interface impact of a branch, pull request, commit or u
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Change Review

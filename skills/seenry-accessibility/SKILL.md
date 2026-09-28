@@ -4,6 +4,7 @@ description: "Design and audit accessible web interfaces. Use for keyboard, focu
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Accessibility

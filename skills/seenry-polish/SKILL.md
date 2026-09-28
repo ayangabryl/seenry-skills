@@ -4,6 +4,7 @@ description: "Finish the visual and interaction details of an existing interface
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Polish

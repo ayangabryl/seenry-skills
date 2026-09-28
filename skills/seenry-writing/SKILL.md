@@ -4,6 +4,7 @@ description: "Write or repair interface and marketing copy. Use for positioning,
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Writing

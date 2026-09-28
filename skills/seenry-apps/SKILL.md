@@ -4,6 +4,7 @@ description: "Design, implement or refine connected mobile app screens and flows
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Apps

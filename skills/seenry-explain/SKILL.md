@@ -4,6 +4,7 @@ description: "Explain how an observed web or app interface, interaction or anima
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Explain

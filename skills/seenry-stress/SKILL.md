@@ -4,6 +4,7 @@ description: "Render and stress-test one existing UI component across realistic 
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Stress

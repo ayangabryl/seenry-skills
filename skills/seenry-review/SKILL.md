@@ -4,6 +4,7 @@ description: "Independently review a rendered website, app screen or connected f
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Review

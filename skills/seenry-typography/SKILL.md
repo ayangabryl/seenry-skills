@@ -4,6 +4,7 @@ description: "Design or repair typography in a web or app interface. Use for fon
 license: MIT
 metadata:
   author: Seenry
+  version: "2.1.0"
 ---
 
 # Seenry Typography
