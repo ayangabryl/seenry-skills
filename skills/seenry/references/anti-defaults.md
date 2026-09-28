@@ -12,6 +12,7 @@ Check the whole composition, not a blacklist of ingredients:
 - Can the brand name be swapped for an unrelated offering while everything else remains plausible? Replace the subject-independent evidence or structure, not merely the font.
 - Does the page repeatedly announce what the next section will already show? Remove duplicate introductions and let useful content begin.
 - Is an identity being expressed through the actual subject, or only through cream, a serif, a line and editorial numbering? Compare a composition using the subject's real material.
+- Do a tracked kicker, short rule, contrasting italic phrase and literary caption form one familiar editorial signature? A plausible explanation for each piece does not make the combination original. Remove the stack together and compare the same facts at the same size.
 - Does a diagram establish a useful relationship, or impersonate project evidence? Label conceptual work and source suitable material when the brief permits it.
 
 Uppercase, rules, cards and neutral palettes remain valid when they have a task or established identity role. The current Seenry showcase specifically rejects decorative eyebrows, slash labels and divider lines; preserve that local constraint without exporting it as a rule for every client's work.

@@ -18,7 +18,9 @@ Inspect the rendered page at ordinary desktop and narrow sizes. Read its actual 
 
 ## Choose and compare
 
-For an original page whose type carries the opening, render two materially different arrangements with the same copy and images. Change the relationship of type to material, scale or reading order, not only the font name. Compare both at delivery size. Use a serif, italic, uppercase or wide tracking only when the resulting voice fits this subject and audience. Do not reach automatically for a small tracked eyebrow above a huge serif headline, an italic keyword and a rule. If removal loses no information or identity, remove it.
+For an original page whose type carries the opening, render two materially different arrangements with the same copy and images. Change the relationship of type to material, scale or reading order, not only the font name. Compare both at delivery size. Use a serif, italic, uppercase or wide tracking only when the resulting voice fits this subject and audience. If one candidate fixes an image or layout problem by using a familiar editorial type treatment, repair the other candidate or make a third; a weak alternative does not make the trope distinctive.
+
+Judge the **combined signature**, not each text element in isolation. A tracked all-caps kicker with a short rule, a large headline with one contrasting italic serif phrase, and a small literary image caption form a recognizable editorial preset even when each piece can be given a plausible explanation. For an original site without established brand evidence for that treatment, mark the stack for revision. Remove or substantially recompose it and check whether the subject, task or identity loses anything specific. This is not a ban on serifs or italics; they can carry prose, records or an existing brand when their role is earned.
 
 For an original comparison of how one set of facts supports different reading paths, inspect the [Pondline typography study](references/pondline-study.md). Borrow its decision method, not its surface treatment.
 
