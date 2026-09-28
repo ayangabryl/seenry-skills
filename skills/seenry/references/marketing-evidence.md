@@ -2,6 +2,12 @@
 
 Use for a product or tool landing page whose visitor must understand what it does before adopting it. This is a candidate correction from a rejected Seenry showcase, not a proven recipe for higher conversion or a mandatory page layout.
 
+## Study the claim and its proof
+
+Two inspected homepage captures from 2026-09-22 show different ways to support an opening claim. In the [Linear capture](https://seenry.design/page/51936621b48340b3af54ddd41d9496c7), the headline identifies a product-development system for teams and agents; the large product view shows an issue, an agent's work and a draft PR. A visitor can connect the claim to a recognizable workflow. In the [Figma capture](https://seenry.design/page/c7a3888c937e4ffba1b5f24aa4f79c9d), a broad creative-canvas claim sits beside finished visual work and a direct start action. That material demonstrates the kind of output the visitor might seek. These are observations of dated captures, not proof of designer intent, product behavior, or conversion. Figma's live wording has since changed.
+
+Transfer the relationship, not either layout: write the claim, place the artifact that would let a visitor assess it, name the inference the artifact actually permits, then choose the next useful action. A workflow claim needs inspectable workflow evidence; a creative-output claim needs actual representative work. If the opening promises both, give each its own proof or narrow the copy. If the artifact is only a mockup, label its status rather than implying a live result. Check the finished opening at mobile and desktop size: the evidence must remain legible and connected to the claim. Do not infer performance from an attractive reference.
+
 ## Decide the evidence before the section
 
 In DESIGN.md, pair each important visitor question with one specific capability, its visible evidence and the next useful action. Distinguish a product demonstration, an authored teaching example, a real customer result and a measured comparison. They support different claims. Do not label a hand-authored before/after as the output of an untested model or skill.
