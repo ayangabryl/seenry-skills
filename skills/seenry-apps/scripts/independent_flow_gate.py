@@ -7,6 +7,7 @@ when both visual and flow reviews return Keep without findings.
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -19,10 +20,63 @@ SKILLS = {
     'flow': SKILL_DIR / 'SKILL.md',
 }
 SCHEMA = Path(__file__).with_name('review_schema.json')
+SOURCE_SUFFIXES = {'.swift', '.kt', '.kts', '.java', '.dart', '.m', '.mm', '.h',
+                   '.storyboard', '.xib', '.plist', '.xcassets', '.tsx', '.ts',
+                   '.jsx', '.js', '.json', '.html', '.css', '.scss', '.svg',
+                   '.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.heic',
+                   '.heif', '.pdf', '.icns', '.ttf', '.otf', '.woff', '.woff2',
+                   '.xml', '.yaml', '.yml', '.strings', '.stringsdict', '.xcstrings',
+                   '.arb'}
+EXCLUDED_DIRS = {'.git', 'node_modules', 'pods', 'build', 'dist', 'deriveddata',
+                 '.gradle', '.dart_tool', '.next', 'coverage', '__pycache__',
+                 'test-results', 'playwright-report', '.venv'}
+ROOT_EXCLUDED_DIRS = {'evidence', 'captures', 'reviews', 'reports', 'tests', 'test'}
+MAX_SOURCE_FILES = 8192
 
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def source_snapshot(root, output):
+    root, output = root.resolve(), output.resolve()
+    if not root.is_dir():
+        raise ValueError(f'Missing source root: {root}')
+    files = []
+    for current, directories, names in os.walk(root, followlinks=False):
+        current_path = Path(current)
+        directories[:] = sorted(name for name in directories
+                                if name.lower() not in EXCLUDED_DIRS
+                                and not (current_path == root and name.lower() in ROOT_EXCLUDED_DIRS)
+                                and not (current_path / name).is_symlink()
+                                and not (current_path / name).resolve().is_relative_to(output))
+        for name in sorted(names):
+            path = current_path / name
+            if path.is_symlink() or path.suffix.lower() not in SOURCE_SUFFIXES or path.resolve().is_relative_to(output):
+                continue
+            files.append({'path': path.relative_to(root).as_posix(), 'sha256': digest(path)})
+            if len(files) > MAX_SOURCE_FILES:
+                raise ValueError(f'Source scope exceeds {MAX_SOURCE_FILES} files; choose a narrower --source-root')
+    if not files:
+        raise ValueError(f'No app source files found under {root}')
+    return {'root': str(root), 'files': sorted(files, key=lambda item: item['path'])}
+
+
+def source_digest(snapshot):
+    return hashlib.sha256(json.dumps(snapshot, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def verify_source(summary):
+    source = summary.get('source')
+    if not source:
+        return 'Unverified', 'Review did not bind app source'
+    try:
+        current = source_snapshot(Path(source['root']), Path(summary['output']))
+        if source_digest(current) != source['sha256']:
+            return 'Stale', 'App source changed since review'
+    except (OSError, ValueError, KeyError) as exc:
+        return 'Stale', str(exc)
+    return summary['review_status'], ''
 
 
 def validate_result(value):
@@ -91,16 +145,27 @@ def run_review(kind, args, staged, executable):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--brief', type=Path, required=True)
-    parser.add_argument('--capture', type=Path, action='append', required=True,
+    parser.add_argument('--brief', type=Path)
+    parser.add_argument('--capture', type=Path, action='append',
                         help='Ordered rendered app state; repeat for the connected flow')
     parser.add_argument('--source-notes', type=Path)
-    parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--source-root', type=Path,
+                        help='Smallest tree containing the reviewed app UI source and local assets')
+    parser.add_argument('--verify-summary', type=Path,
+                        help='Recheck a prior review against its current app source')
+    parser.add_argument('--out', type=Path)
     parser.add_argument('--codex-bin', default='codex')
     parser.add_argument('--model')
     parser.add_argument('--effort', choices=('low', 'medium', 'high', 'xhigh', 'max', 'ultra'))
     parser.add_argument('--timeout', type=int, default=600, help='Seconds per reviewer')
     args = parser.parse_args()
+    if args.verify_summary:
+        summary = json.loads(args.verify_summary.read_text(encoding='utf-8'))
+        status, reason = verify_source(summary)
+        print(json.dumps({'status': status, 'reason': reason}))
+        return 0 if status == 'Keep' else 2
+    if not args.brief or not args.capture or not args.out:
+        parser.error('Provide --brief, at least two --capture values, and --out')
     executable = shutil.which(args.codex_bin)
     if not executable:
         parser.error(f'Codex CLI unavailable: {args.codex_bin}')
@@ -123,12 +188,21 @@ def main():
         if not path.is_file():
             parser.error(f'Missing input: {path}')
     args.out.mkdir(parents=True, exist_ok=True)
+    source_binding = None
+    if args.source_root:
+        try:
+            snapshot = source_snapshot(args.source_root, args.out)
+        except ValueError as exc:
+            parser.error(str(exc))
+        source_binding = {'root': snapshot['root'], 'sha256': source_digest(snapshot),
+                          'file_count': len(snapshot['files'])}
+        (args.out / 'source-manifest.json').write_text(json.dumps(snapshot, indent=2) + '\n', encoding='utf-8')
     staged = {'captures': []}
     staged_paths = {}
-    for name, source in sources.items():
+    for name, source_path in sources.items():
         target = args.out / ('brief.md' if name == 'brief' else 'source-notes.md' if name == 'source-notes'
-                             else name + (source.suffix or '.png'))
-        shutil.copy2(source, target)
+                             else name + (source_path.suffix or '.png'))
+        shutil.copy2(source_path, target)
         staged_paths[name] = target
         if name.startswith('capture-'):
             staged['captures'].append(target)
@@ -137,8 +211,15 @@ def main():
         'input_sha256': {name: digest(path) for name, path in staged_paths.items()},
         'skill_sha256': {kind: digest(path) for kind, path in SKILLS.items()},
         'reviews': results,
-        'status': disposition(results),
+        'review_status': disposition(results),
+        'source': source_binding,
+        'output': str(args.out),
     }
+    if source_binding:
+        summary['status'], summary['source_reason'] = verify_source(summary)
+    else:
+        summary['status'] = summary['review_status']
+        summary['source_reason'] = 'App source was not supplied; screenshot verdict only'
     (args.out / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n', encoding='utf-8')
     print(json.dumps({'status': summary['status'], 'verdicts': {kind: item['verdict'] for kind, item in results.items()},
                       'summary': str(args.out / 'summary.json')}))
