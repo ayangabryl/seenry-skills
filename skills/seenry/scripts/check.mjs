@@ -24,6 +24,12 @@ let refs = flag('refs');
 if (!refs && existsSync(join(dir, 'refs'))) refs = readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).slice(0, 3).map(f => join(dir, 'refs', f)).join(',');
 const history = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
 const round = history.length + 1;
+const stoppedAt = history.find(h => h.stop);
+if (stoppedAt) {
+  const best = history.filter(h => h.critic).sort((a, b) => b.critic.overall - a.critic.overall)[0];
+  console.log(`STOPPED at round ${stoppedAt.round}: ${stoppedAt.stop}. Do not run more rounds. Ship the best round (round ${best ? best.round : '?'}, critic ${best ? best.critic.overall : '?'}), restore it if a later round was worse, and report the trail.`);
+  process.exit(3);
+}
 
 const pw = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
 const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
@@ -48,9 +54,19 @@ history.push({round, blockers: 0, critic: verdict.scores});
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
 if (verdict.scores.overall >= goal) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}). Critic trail: ${trail}.`); process.exit(0); }
-const best = Math.max(...history.filter(h => h.critic).map(h => h.critic.overall));
-console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10, target ${goal}. Critic trail: ${trail}. Apply every fix listed above, most visible first, then run check.mjs again.`
-  + (history.filter(h => h.critic).length >= 2 && verdict.scores.overall <= best && best === history.filter(h => h.critic).slice(-2)[0].critic.overall
-    ? ' The score has stalled: change the weakest dimension at its root (type family and weights, palette, or imagery), not details.' : '')
-  + (round >= 6 ? ' Six rounds have run: ship the best-scoring round and report the trail.' : ''));
+const scored = history.filter(h => h.critic).map(h => h.critic.overall), best = Math.max(...scored);
+const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
+console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10, target ${goal}. Critic trail: ${trail}. Apply every fix listed above, most visible first, then run check.mjs again.`);
+if (stalled && !history.some(h => h.rootChange)) {
+  history[history.length - 1].rootChange = true;
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+  console.log(`LAST ROUND: the critic has not improved for two rounds (best ${best}). Make one root-level change to the weakest dimension (type scale and weights, palette, or imagery), then run check.mjs one final time.`);
+  process.exit(1);
+}
+if (stalled || round >= 6) {
+  history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : 'six rounds';
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+  console.log(`STOP: ${history[history.length - 1].stop}. Ship the best-scoring round (critic ${best}) and report the trail. check.mjs will not run further rounds.`);
+  process.exit(3);
+}
 process.exit(1);

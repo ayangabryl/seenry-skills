@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.1.0
+
+- Adds `assets/kits/motion.js`, a dependency-free classic script that works from disk: `SeenryMotion.number` rolls prices, totals and counts digit by digit with an accessible exact value, `swap` cross-fades filter, sort and tab changes with View Transitions, `pop` and `toast` give add-to-bag and save feedback. `SKILL.md` requires them for every in-place change.
+- `review_board.mjs` clicks the page's controls and blocks state changes that happen with no motion, blocks desktop text under 14px (paragraphs under 15px, short labels under 13px) and text contrast under 4.5:1.
+- The product kit moves to 15px body and 14px cells and meta.
+- `check.mjs` stops the loop itself: after two rounds without improvement it asks for one root-level change, then stops and refuses further rounds.
+
 ## 4.0.0
 
 - Rewrites `seenry` around one standard: clean, premium, no AI slop, at big-company level. The rules that decide quality (never-ship list, color, type and weights by role, radius and elevation, desktop scale, layout, imagery, copy, motion, phone) now live in `SKILL.md`, because agents were not opening the reference files that held them.

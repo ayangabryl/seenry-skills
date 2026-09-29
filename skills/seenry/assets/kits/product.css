@@ -4,7 +4,7 @@
  * Why it looks senior (reasons in references/premium.md, from Stripe, Linear, Attio, Mercury, Ramp, Vercel):
  * - Neutrals do the work. Four text greys and two surfaces make hierarchy without color, so the single accent and the
  *   status colors carry meaning when they appear. Borders are low-contrast hairlines so the grid is felt, not seen.
- * - Type is small, even and calm: 14px cells, 13px meta, 400/500/600 only. Weight marks role (500 = interactive,
+ * - Type is even and calm: 15px body, 14px cells and meta, 13px only for short labels, 400/500/600 only. Weight marks role (500 = interactive,
  *   600 = title or key figure), never emphasis inside a row. No uppercase eyebrows, no numbered labels.
  * - Radii are small (6 controls, 8–12 containers, 12 floating layers, as in Vercel Geist) because radius marks what a
  *   shape is; grids stay square-ish, tokens and controls round. Shadows only on layers that float.
@@ -52,12 +52,12 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--text); font: 400 14px/20px var(--font); font-feature-settings: var(--font-features); }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 15px/22px var(--font); font-feature-settings: var(--font-features); }
 button, input, select, textarea { font: inherit; color: inherit; }
 h1, h2, h3, p { margin: 0; }
 h1 { font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
 h2 { font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.005em; }
-.meta { font-size: 13px; line-height: 20px; color: var(--text-3); }
+.meta { font-size: 14px; line-height: 20px; color: var(--text-3); }
 .num { font-variant-numeric: proportional-nums; }
 .num-col { font-variant-numeric: tabular-nums; text-align: right; }
 .currency { color: var(--text-3); font-weight: 400; }
@@ -86,7 +86,7 @@ h2 { font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.00
 .figure + .figure { border-left: 1px solid var(--line); }
 .figure-label { font-size: 13px; line-height: 16px; color: var(--text-2); font-weight: 500; }
 .figure-value { margin-top: 6px; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: proportional-nums; }
-.figure-note { margin-top: 2px; font-size: 13px; color: var(--text-3); }
+.figure-note { margin-top: 2px; font-size: 14px; color: var(--text-3); }
 
 /* Filters and search */
 .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
@@ -101,8 +101,8 @@ h2 { font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.00
 /* Table */
 .table-wrap { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; }
 table { width: 100%; border-collapse: collapse; }
-th { height: 40px; padding: 0 16px; text-align: left; font-size: 12px; font-weight: 500; color: var(--text-3); background: var(--surface-2); border-bottom: 1px solid var(--line); white-space: nowrap; }
-td { height: var(--row-h); padding: 0 16px; border-bottom: 1px solid var(--line); color: var(--text-2); white-space: nowrap; }
+th { height: 40px; padding: 0 16px; text-align: left; font-size: 13px; font-weight: 500; color: var(--text-3); background: var(--surface-2); border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { height: var(--row-h); padding: 0 16px; border-bottom: 1px solid var(--line); color: var(--text-2); font-size: 14px; white-space: nowrap; }
 tr:last-child td { border-bottom: 0; }
 td.primary { color: var(--text); font-weight: 500; }
 td.money { text-align: right; color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
@@ -150,4 +150,4 @@ tbody tr:hover td { background: var(--hover); }
 .row:last-child { border-bottom: 0; }
 .row-title { font-weight: 500; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row-amount { font-size: 15px; font-weight: 600; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
-.row-meta { font-size: 13px; color: var(--text-3); }
+.row-meta { font-size: 14px; color: var(--text-3); }
