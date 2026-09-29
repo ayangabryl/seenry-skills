@@ -49,6 +49,10 @@ Use Dynamic Type text styles (iOS) and `sp` with font scale (Android) instead of
 - **Settings**: grouped inset lists, sections of 2–6 rows, icon tiles 28–29 with radius 6–7 in one style, values trailing in secondaryLabel, destructive actions last and separate.
 - **Empty and error states** inside the region, with one action that resolves them.
 
+## Alignment
+
+The same keyline, ink-level and optical rules apply natively ([alignment](../seenry/references/alignment.md), [optical](../seenry/references/optical.md)): align SF Symbols by their glyph (use `.imageScale` and baseline alignment with text, `alignmentGuide` for cap-height alignment), use `firstTextBaseline` alignment for icon + label rows, and check play/chevron glyph centering in circular buttons at 3x screenshots.
+
 ## Motion
 
 Navigation motion comes from the platform (push, sheet, zoom). Custom motion: springs (`response 0.35–0.5, dampingFraction 0.8–0.9`), interruptible, 150–300ms feel, with haptic feedback on commit (selection, success, warning). Respect Reduce Motion. For web-based apps, use `seenry-motion`.

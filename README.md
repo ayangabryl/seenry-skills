@@ -21,6 +21,7 @@ Agent skills that make an AI work like a design studio. Seenry fixes a strict fr
 - **Page shells and section archetypes** so every page shares gutters, widths, rhythm and heading patterns. [Pages](skills/seenry/references/pages.md).
 - **Measured, not imagined.** [Benchmarks](skills/seenry/references/benchmarks.md) from 24 leading sites (Linear, Stripe, Vercel, Notion, Figma, Raycast, Resend, GitHub and more): hero sizes, weights, tracking, radii, elevation. With Seenry MCP the agent re-measures any site and studies real sections, pages, app screens and recordings. [Research recipes](skills/seenry/references/research.md).
 - **A worked example.** The [player card](skills/seenry/assets/examples/player-card.html) was chosen from three explored compositions and documents its frame, anchors and asset licenses.
+- **Alignment you can measure on any project.** `node skills/seenry/scripts/audit_page.mjs <url> --widths 1440,390` checks ink-level alignment (cap heights, baselines, drawn glyphs, media edges) and optical alignment (asymmetric icons, label centering, side bearing) and prints the CSS nudge for each finding.
 - **An anti-slop pass** with fixes for every common AI tell, and a [system audit](skills/seenry/scripts/system_audit.mjs) that counts the sizes, weights, radii and colors a page actually renders and flags off-grid spacing and non-concentric corners.
 
 ## Install

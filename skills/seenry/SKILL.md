@@ -20,8 +20,8 @@ Work in the project's existing stack. If the project has tokens, components or a
 3. **Frame.** Write the system into `DESIGN.md`: tokens from [the system](references/system.md), the page shell from [pages](references/pages.md), and one spec card per component from [components](references/components.md). This is the frame every variant must fit.
 4. **Material.** Get real images, icons and fonts before composing: supplied assets, license-clear sources, or generated images when an image model is available. Use `seenry-assets`. No placeholder gradients, no emoji icons.
 5. **Explore.** For every hero, signature component or first screen, build 3 compositions that differ on 2–3 real axes (arrangement, media scale, anchor, density, detail layer) inside the same frame. Render them side by side at 1440 and 390 and critique in writing. Follow [structured exploration](references/exploration.md).
-6. **Refine.** Put the chosen variant on keylines and align ink, not boxes ([alignment](references/alignment.md)), then do the [craft pass](references/craft.md): optical corrections, every state, longest content, dark mode.
-7. **Verify on pixels.** Screenshot both widths, toggle the [grid overlay](assets/layout-guides/README.md), run the [system audit](scripts/system_audit.mjs) and the [anti-slop check](references/anti-slop.md). Fix everything before expanding to the next section. Use `seenry-review` for an independent verdict.
+6. **Refine.** Put the chosen variant on keylines and align ink, not boxes ([alignment](references/alignment.md)); then apply optical corrections for shapes the eye misjudges ([optical](references/optical.md)); then the [craft pass](references/craft.md): every state, longest content, dark mode.
+7. **Verify on pixels.** Run `node scripts/audit_page.mjs <dev-server-url or file> --widths 1440,390 --shots <dir>` on the real page. It works on any project and reports system drift, alignment and optical errors. Look at the screenshots with the [grid overlay](assets/layout-guides/README.md) on, and run the [anti-slop check](references/anti-slop.md). Fix everything before expanding to the next section. Use `seenry-review` for an independent verdict.
 
 For a small fix in an established system, skip exploration: inspect, repair on-system, verify.
 
@@ -93,6 +93,7 @@ The full list of AI tells and their fixes is in [anti-slop](references/anti-slop
 | Font choice by product type, scale, tracking, numerals | [typography](references/typography.md) |
 | Palette roles, dark mode, contrast | [color](references/color.md) |
 | Keylines, ink-level alignment, optical inset, proportion | [alignment](references/alignment.md) |
+| Optical centering, size compensation, side bearing, icon nudges | [optical](references/optical.md) |
 | Optical corrections, icons, hit areas, states | [craft](references/craft.md) |
 | Headlines, labels, errors, empty states | [writing](references/writing.md) |
 | Keyboard, semantics, zoom, reduced motion | [accessibility](references/accessibility.md) |
@@ -106,6 +107,8 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 
 ## Tools
 
+- [Page audit](scripts/audit_page.mjs): one command for any project (URL or HTML file) at several widths; runs the system and optical audits and prints fixable findings. Needs Playwright.
+- [Optical audit](scripts/optical_audit.mjs): rasterizes icons to measure ink; reports off-center icon buttons (including asymmetric shapes), icons missing their label's cap-height center, labels not centered in controls, unbalanced icon-side padding and headline side bearing, each with a CSS nudge.
 - [System audit](scripts/system_audit.mjs): counts rendered font sizes, weights, families, radii, shadows and colors; lists off-grid padding, gaps and margins; flags non-concentric corners, wrapped control labels and components over 3 sizes or weights; per component, measures ink-level alignment (cap tops, baselines, drawn glyphs, media edges): near-miss edges, media anchors and optical insets. Run it on every screenshot pass.
 - [Exploration sheet](assets/explore.html): renders variant files side by side at real widths for critique.
 - [Grid overlay](assets/layout-guides/README.md): development-only columns, gutter and 8px checks.

@@ -4,7 +4,8 @@
  *  component root measures alignment at ink level: text cap tops and baselines, drawn SVG glyph bounds and media
  *  boxes, reporting near-miss edges (1–6px apart), how text beside or below media sits against its edges, and the optical inset on each side.
  *  Options: base (grid unit, default 4), root (CSS selector, default 'body'),
- *  components (selector for component roots, default '[data-component]'), maxPerComponent (default 3), limit (default 40). */
+ *  components (selector for component roots, default '[data-component]'; when nothing matches, painted rounded
+ *  containers holding text plus media or controls are detected automatically), maxPerComponent (default 3), limit (default 40). */
 export function collectSystemAudit(options = {}) {
   const {base = 4, root = 'body', components = '[data-component]', maxPerComponent = 3, limit = 40} = options;
   const scope = document.querySelector(root);
@@ -80,7 +81,7 @@ export function collectSystemAudit(options = {}) {
     const {tolerance = 1, nearMiss = 6, limit = 30} = options;
     const hostBox = host.getBoundingClientRect();
     const round = v => Math.round(v * 10) / 10;
-    const visible = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && Number(s.opacity) !== 0; };
+    const visible = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el); return r.width > 1 && r.height > 1 && !/inset\(50%\)|rect\(0/.test(s.clipPath + ' ' + s.clip) && s.visibility !== 'hidden' && s.display !== 'none' && Number(s.opacity) !== 0; };
     const name = el => el.getAttribute('aria-label') || (el.textContent || '').trim().slice(0, 24) || (el.className && String(el.className).split(' ')[0]) || el.tagName.toLowerCase();
     const ctx = document.createElement('canvas').getContext('2d');
     const items = [];
@@ -98,7 +99,8 @@ export function collectSystemAudit(options = {}) {
       const half = (lh - (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent)) / 2;
       const lineTop = r => r.top - (lh - r.height) / 2;
       const base1 = lineTop(first) + half + m.fontBoundingBoxAscent, baseN = lineTop(last) + half + m.fontBoundingBoxAscent;
-      const left = Math.min(...lines.map(r => r.left)) + Math.max(0, -m.actualBoundingBoxLeft);
+      // Text aligns by its layout edge here; display-size side bearings are corrected by optical_audit.mjs.
+      const left = Math.min(...lines.map(r => r.left));
       const right = Math.max(...lines.map(r => r.right));
       const align = /right|end/.test(s.textAlign) ? 'right' : s.textAlign === 'center' ? 'center' : 'left';
       items.push({kind: 'text', align, label: name(el), left, right, top: base1 - cap, bottom: baseN, edges: {top: 'cap top', bottom: 'baseline'}});
@@ -130,7 +132,7 @@ export function collectSystemAudit(options = {}) {
     };
     compare('left', () => 'left'); compare('right', () => 'right');
     compare('top', x => x.edges ? x.edges.top : 'top'); compare('bottom', x => x.edges ? x.edges.bottom : 'bottom');
-    const inset = side => round(side === 'left' ? Math.min(...items.map(i => i.left)) - hostBox.left : side === 'right' ? hostBox.right - Math.max(...items.map(i => i.right)) : side === 'top' ? Math.min(...items.map(i => i.top)) - hostBox.top : hostBox.bottom - Math.max(...items.map(i => i.bottom)));
+    const inset = side => round(side === 'left' ? Math.min(...items.map(i => i.left)) - hostBox.left : side === 'right' ? hostBox.right - Math.max(...(items.filter(i => i.align !== 'left').length ? items.filter(i => i.align !== 'left') : items).map(i => i.right)) : side === 'top' ? Math.min(...items.map(i => i.top)) - hostBox.top : hostBox.bottom - Math.max(...items.map(i => i.bottom)));
     const anchors = [];
     for (const m of items.filter(i => i.kind === 'media')) {
       const beside = items.filter(i => i !== m && i.left >= m.right - 1 && i.top < m.bottom && i.bottom > m.top);
@@ -138,7 +140,8 @@ export function collectSystemAudit(options = {}) {
       if (beside.length) {
         const first = beside.reduce((a, b) => (a.top <= b.top ? a : b)), last = beside.reduce((a, b) => (a.bottom >= b.bottom ? a : b));
         anchors.push({media: m.label, relation: 'beside', topItem: `${first.kind} "${first.label}" ${first.edges ? first.edges.top : 'top'}`, topOffset: round(first.top - m.top),
-          bottomItem: `${last.kind} "${last.label}" ${last.edges ? last.edges.bottom : 'bottom'}`, bottomOffset: round(m.bottom - last.bottom)});
+          bottomItem: `${last.kind} "${last.label}" ${last.edges ? last.edges.bottom : 'bottom'}`, bottomOffset: round(m.bottom - last.bottom),
+          centerOffset: round((first.top + last.bottom) / 2 - (m.top + m.bottom) / 2)});
       }
       if (below.length) {
         const lead = below.reduce((a, b) => (a.left <= b.left ? a : b));
@@ -150,7 +153,21 @@ export function collectSystemAudit(options = {}) {
   }
 
   const perComponent = [];
-  for (const host of scope.querySelectorAll(components)) {
+  let hosts = [...scope.querySelectorAll(components)];
+  if (!hosts.length) {
+    // No marked components: treat painted, rounded containers that hold text plus media or controls as components.
+    const vw = innerWidth, vh = innerHeight;
+    hosts = els.filter(el => {
+      const cs = getComputedStyle(el), r = el.getBoundingClientRect();
+      const painted = (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent') || px(cs.borderTopWidth) > 0 || cs.boxShadow !== 'none';
+      if (!painted || px(cs.borderTopLeftRadius) < 4 || r.width < 120 || r.height < 48 || r.width > vw * 0.9 || r.height > vh * 1.5) return false;
+      const withText = [...el.querySelectorAll('*')].some(hasText);
+      const hasOther = el.querySelector('img,svg,video,canvas,button,a[href],input,[role="button"]') || [...el.querySelectorAll('*')].some(c => getComputedStyle(c).backgroundImage !== 'none');
+      return withText && hasOther;
+    });
+    hosts = hosts.slice(0, 24);
+  }
+  for (const host of hosts) {
     if (!visible(host)) continue;
     const s = new Set(), w = new Set(), f = new Set();
     for (const el of [host, ...host.querySelectorAll('*')]) {
@@ -166,6 +183,8 @@ export function collectSystemAudit(options = {}) {
   const wrappedControls = [];
   for (const el of scope.querySelectorAll('button,a[href],[role="button"],[role="tab"],label')) {
     if (skip(el) || !visible(el)) continue;
+    // Compact controls only: a card-sized link wrapping a heading and a paragraph is not a wrapped label.
+    if (el.getBoundingClientRect().height > 72 || el.querySelector('h1,h2,h3,h4,h5,h6,p,li,img,picture,video')) continue;
     const lines = new Set();
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     while (walker.nextNode()) {

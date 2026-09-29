@@ -50,6 +50,9 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 | Title beside an image aligned by its line box, so the capitals sit below the image top | `text-box: trim-both cap alphabetic`; cap top = image top ([alignment](alignment.md)) |
 | Edges 2–6px apart (icon glyph vs text edge, bar vs image edge) | Exact, or at least 8px apart |
 | Unequal accidental padding (12/16/20/12 to the ink) | Equal optical inset on all sides |
+| Play triangle, arrow or chevron centered by its box | Center on ink box + centroid midpoint ([optical](optical.md)) |
+| Label sitting low in a pill or button | `text-box: trim-both cap alphabetic`, equal padding-block |
+| Large headline starting right of the body text below | Pull back the side bearing (−0.02 to −0.06em) |
 | Card nested in a tinted panel with the same radius, or overflowing it | Concentric radii and inset, or drop the panel |
 | Everything the same size and weight | One dominant element, clear subordinates |
 | No fine detail anywhere | One detail layer: metadata, mono labels, live values |

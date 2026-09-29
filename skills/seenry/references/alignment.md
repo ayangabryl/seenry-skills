@@ -39,6 +39,10 @@ Mark each component root with `data-component` and run the [system audit](../scr
 
 Then look: overlay the keylines (the [grid overlay](../assets/layout-guides/README.md), or 1px fixed-position lines at the measured positions) and screenshot at 2x or 3x. Numbers find the errors; the overlay proves the fix to a human.
 
+## Then correct optically
+
+Geometric alignment is the first pass. Shapes the eye misjudges (triangles, circles, chevrons, large glyph side bearings, icon-side padding) need the corrections in [optical](optical.md).
+
 ## Sources
 
 Material Design's keylines and 4dp baseline grid, Apple's layout margins and readable content guides, Figma's vertical trim (cap height to baseline) and the CSS Inline Layout Module's `text-box` properties all encode the same idea: align what is drawn, not the box around it.
