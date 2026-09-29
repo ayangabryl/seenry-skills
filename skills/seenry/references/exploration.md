@@ -42,7 +42,7 @@ Build each as a separate file (`vA.html`, `vB.html`, `vC.html` or components beh
 Score each variant against these questions, in writing, one line each:
 
 1. **Read order:** what does the eye land on first, second, third? Is that the right order for the task?
-2. **Anchors:** does every element align to an edge or center line of another element (title top to media top, controls to media bottom, scrubber to media left edge)? List any element that floats.
+2. **Anchors:** does every element sit on a keyline, measured at ink (title cap top to media top, control glyph to text edge, scrubber to media left edge)? List any element that floats or misses by 2–6px.
 3. **Proportion:** is there one dominant element and clear subordinates, or does everything compete at the same size?
 4. **Material:** is the imagery real, well cropped and doing work? Is the accent derived from it?
 5. **Detail layer:** is there one level of fine detail (metadata, mono labels, live values) that rewards a closer look, without clutter?
@@ -62,4 +62,4 @@ Fix everything the critique found, then do a detail pass with [craft](craft.md):
 
 ## Worked example
 
-The Seenry player card was explored on three axes (arrangement, media scale, detail layer): A horizontal split with companion art, B a chrome shell with mono header and thumbnail art, C a vertical stack with hero art. All three passed the audit. A won for matching the task (quick control while browsing) and for its anchors; the refinement aligned the scrubber to the art's left edge and moved the transport row to the art's bottom edge. The result is in [assets/examples/player-card.html](../assets/examples/player-card.html).
+The Seenry player card was explored on three axes (arrangement, media scale, detail layer): A horizontal split with companion art, B a chrome shell with mono header and thumbnail art, C a vertical stack with hero art. All three passed the audit. A won for matching the task (quick control while browsing). Its first refinement still had box-level errors: the title's capitals sat 12px below the cover top, the scrubber started 4px right of the cover and the insets were 12/16/20/12. Rebuilt on keylines with ink-level alignment ([alignment](alignment.md)), the cover shrank from 34% to 24% of the width and the audit measures zero offsets. The result is in [assets/examples/player-card.html](../assets/examples/player-card.html).

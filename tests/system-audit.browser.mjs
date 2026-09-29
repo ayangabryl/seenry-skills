@@ -31,6 +31,20 @@ try {
   assert.ok(!audit.nestedRadius.some(x=>x.parent==='div.good'));
   assert.ok(audit.radii.some(x=>x.value==='24px'));
   assert.ok(audit.wrappedControls.some(x=>x.text==='Sign in now'&&x.lines>1));
+  await page.setContent(`<style>body{margin:0;font:15px/20px Arial}
+    .c{margin:24px;width:360px;padding:16px;border-radius:24px;background:#eee;display:grid;grid-template-columns:96px 1fr;gap:16px}
+    .m{width:96px;height:96px;border-radius:8px;background:linear-gradient(#999,#777)}.bar{grid-column:1/-1;height:4px;background:#333;margin-left:4px}
+    h3{margin:0;font:600 15px/20px Arial}.ok h3{text-box:trim-both cap alphabetic}.ok .bar{margin-left:0}
+  </style><div class="c" data-component="loose"><div class="m"></div><h3>Title</h3><div class="bar"></div></div>
+  <div class="c ok" data-component="tight"><div class="m"></div><h3>Title</h3><div class="bar"></div></div>`);
+  const aligned=await page.evaluate(collectSystemAudit,{base:4});
+  const loose=aligned.perComponent.find(x=>x.component==='loose').alignment, tight=aligned.perComponent.find(x=>x.component==='tight').alignment;
+  assert.ok(loose.anchors.find(a=>a.relation==='beside').topOffset>1);
+  assert.ok(loose.nearMisses.some(m=>m.side==='left'&&Math.abs(m.off-4)<0.2));
+  assert.ok(Math.abs(tight.anchors.find(a=>a.relation==='beside').topOffset)<=1);
+  assert.equal(tight.anchors.find(a=>a.relation==='below').leftOffset,0);
+  assert.equal(tight.nearMisses.length,0);
+  assert.equal(tight.insets.left,16);
   assert.equal(audit.horizontalOverflow,false);
   console.log('system audit: ok');
 } finally { await browser.close(); }

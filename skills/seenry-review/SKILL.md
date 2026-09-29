@@ -26,7 +26,7 @@ If you built the surface yourself, say so and treat the verdict as self-review. 
 ## Screen review
 
 1. **Render.** Open the page at 1440 and 390 (plus 320 for overflow). Screenshot each. Exercise the main action with pointer and keyboard.
-2. **Measure.** Run [the system audit](../seenry/scripts/system_audit.mjs) at both widths. Record totals: font sizes, weights, families, radii, shadows, off-grid values, nested radius violations, components over limit, horizontal overflow. Toggle the [grid overlay](../seenry/assets/layout-guides/README.md) to check shared edges.
+2. **Measure.** Run [the system audit](../seenry/scripts/system_audit.mjs) at both widths. Record totals: font sizes, weights, families, radii, shadows, off-grid values, nested radius violations, components over limit, horizontal overflow, and per component the alignment anchors, near-miss edges and optical insets ([alignment](../seenry/references/alignment.md)). Toggle the [grid overlay](../seenry/assets/layout-guides/README.md) to check shared edges.
 3. **Look in this order**, because earlier failures make later ones moot:
    - **Job and hierarchy.** Within 5 seconds, is it clear what this is, for whom, and what to do next? Is the primary action the most prominent control?
    - **Material and anchors.** Real images, icons and data, or placeholders? Does every element align to an edge or center line of another, or do some float? Is there one dominant element and one detail layer? Use the studio critique in [exploration](../seenry/references/exploration.md#4-critique-like-a-studio).

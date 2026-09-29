@@ -20,7 +20,7 @@ Work in the project's existing stack. If the project has tokens, components or a
 3. **Frame.** Write the system into `DESIGN.md`: tokens from [the system](references/system.md), the page shell from [pages](references/pages.md), and one spec card per component from [components](references/components.md). This is the frame every variant must fit.
 4. **Material.** Get real images, icons and fonts before composing: supplied assets, license-clear sources, or generated images when an image model is available. Use `seenry-assets`. No placeholder gradients, no emoji icons.
 5. **Explore.** For every hero, signature component or first screen, build 3 compositions that differ on 2–3 real axes (arrangement, media scale, anchor, density, detail layer) inside the same frame. Render them side by side at 1440 and 390 and critique in writing. Follow [structured exploration](references/exploration.md).
-6. **Refine.** Take the chosen variant through the [craft pass](references/craft.md): anchors, optical alignment, every state, longest content, dark mode.
+6. **Refine.** Put the chosen variant on keylines and align ink, not boxes ([alignment](references/alignment.md)), then do the [craft pass](references/craft.md): optical corrections, every state, longest content, dark mode.
 7. **Verify on pixels.** Screenshot both widths, toggle the [grid overlay](assets/layout-guides/README.md), run the [system audit](scripts/system_audit.mjs) and the [anti-slop check](references/anti-slop.md). Fix everything before expanding to the next section. Use `seenry-review` for an independent verdict.
 
 For a small fix in an established system, skip exploration: inspect, repair on-system, verify.
@@ -49,14 +49,15 @@ Every component is constructed in four layers on the frame, and specced before s
 
 1. **Grid**: base unit, outer radius, inset.
 2. **Safe space and areas**: padding box, named content areas (media, text stack, controls, meta) and on-grid gaps.
-3. **Structure**: hierarchy placed into the areas. **Every element anchors to an edge or center line of another**: title top to media top, controls to media bottom, scrubber to media left edge. Nothing floats.
+3. **Structure**: hierarchy placed into the areas on named keylines. **Align ink, not boxes**: a title's cap height (not its line box) meets the media's top edge, an icon's drawn glyph (not its button) sits on the text keyline, padding is measured to the letters. Edges are exact or at least 8px apart; 2–6px offsets are bugs. See [alignment](references/alignment.md).
 4. **Type and states**: real sizes and weights (≤3 each), then every state.
 
 ```
 Component: Player card
-Grid:   4px · radius 28 · inset 12 · cover r16 (28 − 12)
-Areas:  [cover 136] [text stack + transport, flex] / [scrubber + times, full width]
-Anchors: title top ≈ cover top + 8 · transport bottom = cover bottom · scrubber = cover left edge
+Grid:   4px · radius 28 · optical inset 16 all sides · cover 96 (24%) r12 (28 − 16)
+Areas:  [cover 96] [text stack + transport, flex] / [scrubber + times, full width]
+Keylines: V1 cover left · V2 cover right + 16 · V3 right inset
+Anchors: title cap top = cover top · play bottom = cover bottom · scrubber and times on V1–V3
 Type:   15/600 title · 13/400 artist · 11/500 mono times   (3 sizes, 3 weights)
 Color:  white card on warm neutral, ring border, accent sampled from the cover on progress only
 States: playing/paused, scrubbing (thumb + time tooltip), buffering, no artwork, long title
@@ -91,7 +92,8 @@ The full list of AI tells and their fixes is in [anti-slop](references/anti-slop
 | Page shells, section archetypes, page templates | [pages](references/pages.md) |
 | Font choice by product type, scale, tracking, numerals | [typography](references/typography.md) |
 | Palette roles, dark mode, contrast | [color](references/color.md) |
-| Anchors, optical alignment, icons, hit areas, states | [craft](references/craft.md) |
+| Keylines, ink-level alignment, optical inset, proportion | [alignment](references/alignment.md) |
+| Optical corrections, icons, hit areas, states | [craft](references/craft.md) |
 | Headlines, labels, errors, empty states | [writing](references/writing.md) |
 | Keyboard, semantics, zoom, reduced motion | [accessibility](references/accessibility.md) |
 | Choosing material; sourcing and generating it | [imagery](references/imagery.md) and `seenry-assets` |
@@ -104,7 +106,7 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 
 ## Tools
 
-- [System audit](scripts/system_audit.mjs): counts rendered font sizes, weights, families, radii, shadows and colors; lists off-grid padding, gaps and margins; flags non-concentric corners, wrapped control labels and components over 3 sizes or weights. Run it on every screenshot pass.
+- [System audit](scripts/system_audit.mjs): counts rendered font sizes, weights, families, radii, shadows and colors; lists off-grid padding, gaps and margins; flags non-concentric corners, wrapped control labels and components over 3 sizes or weights; per component, measures ink-level alignment (cap tops, baselines, drawn glyphs, media edges): near-miss edges, media anchors and optical insets. Run it on every screenshot pass.
 - [Exploration sheet](assets/explore.html): renders variant files side by side at real widths for critique.
 - [Grid overlay](assets/layout-guides/README.md): development-only columns, gutter and 8px checks.
 - [Starter tokens](assets/tokens.css) and [DESIGN.md template](assets/DESIGN.template.md).

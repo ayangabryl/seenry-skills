@@ -4,6 +4,8 @@ The details that separate a shipped product from a generated one. Apply after th
 
 ## Optical alignment
 
+Geometric alignment comes first and is covered in [alignment](alignment.md): keylines, cap-height and baseline alignment, glyph-level icon alignment and equal optical inset. The corrections below are applied on top.
+
 - **Icons next to text** align to the text's cap height center, not the line box. With 14px text and a 16px icon, nudge the icon 0–1px as needed; check at 2x zoom.
 - **Play / triangle icons** sit 1–2px right of geometric center inside circles.
 - **Round shapes look smaller** than squares of the same size: a circular avatar next to a square logo tile needs ~5–8% more size to match optically.

@@ -140,13 +140,13 @@ Measured defaults below match what leading product sites ship (see [benchmarks](
 
 ### Media player
 
-The finished reference is [assets/examples/player-card.html](../assets/examples/player-card.html).
+The finished reference is [assets/examples/player-card.html](../assets/examples/player-card.html); its keylines are explained in [alignment](alignment.md).
 
-- Card r28, inset 12 (16 at the bottom), ring border, no shadow unless it floats. Cover 136 square at r16 (`28 − 12`), real artwork.
-- Right column: title 15/600 and artist 13/400 text-2 at the top, starting about 8 below the cover's top edge; transport row (previous · 48 pause/play circle · next, icons 20) pinned so its bottom meets the cover's bottom edge.
-- Full-width scrubber under both columns, aligned to the cover's left edge: 4px track, accent fill sampled from the cover, 12px thumb with a ring; elapsed and remaining times in 11/500 mono tabular below.
+- Card r28, optical inset 16 on all four sides, ring border, no shadow unless it floats. Cover 96 square (about 24% of a 400 card) at r12 (`28 − 16`), real artwork.
+- Right column on keyline V2 (cover right + 16): title 15/600 trimmed to cap height so its capitals start exactly at the cover's top; artist 13/400 text-2 8px below; transport row (previous · 40 pause/play circle · next, glyphs 20) pulled left so the previous glyph's ink sits on V2, and the play circle's bottom meets the cover's bottom.
+- Scrubber 20 below the cover, from the cover's left edge to the right inset: 4px track, accent fill sampled from the cover, 12px thumb with a ring. Elapsed and remaining times 11/500 mono tabular, 12 below, baseline 16 from the card bottom.
 - 3 sizes (15, 13, 11), 3 weights, 2 families (sans + mono). Accent appears only on progress.
-- States: paused/playing swap in the same 48 circle, scrubbing shows a time tooltip above the thumb, buffering replaces the fill with a subtle shimmer, a missing cover shows surface-2 with a 24px music glyph, long titles truncate with ellipsis.
+- States: paused/playing swap in the same circle, scrubbing shows a time tooltip above the thumb, buffering replaces the fill with a subtle shimmer, a missing cover shows surface-2 with a 24px music glyph, long titles truncate with ellipsis.
 
 ## States checklist
 
