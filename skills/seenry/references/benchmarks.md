@@ -27,7 +27,7 @@ Measured from Seenry MCP captures of each site's home page (desktop 1440, phone 
 
 ## What the table says
 
-- **Family count:** every site uses one primary sans. The second family, when present, is a mono (Linear, Vercel, Figma, Raycast) or a serif for voice (Notion, Resend, Attio, Anthropic). None uses two sans families for different roles.
+- **Family count:** every site uses one primary sans. The second family, when present, is a mono (Linear, Vercel, Figma, Raycast) or, in four brands with an editorial voice (Notion, Resend, Attio, Anthropic), a serif used sparingly. In their product UIs the serif largely disappears; it is a marketing voice, not a UI default. None uses two sans families for different roles.
 - **Hero weight:** 14 of 18 heroes are 300–600. The four at 700 (Loom, Anthropic, Clerk, Airbnb) build their voice around a heavy weight; three of them use a proprietary face. Default to 400–600.
 - **Hero tracking:** negative almost everywhere, from −0.01em to −0.06em. Zero tracking on a 64px headline is a tell.
 - **Hero line height:** 0.95–1.15. The browser default 1.2 is too loose for display.

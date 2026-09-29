@@ -2,7 +2,10 @@
 
 ## 3.0.0
 
-- Consolidates seventeen skills into six: `seenry`, `seenry-review`, `seenry-motion`, `seenry-apps`, `seenry-branding`, `seenry-decks`. Typography, color, layout, polish, writing, accessibility and asset guidance become references of `seenry`; review, change review, stress and explain become modes of `seenry-review`. The installer archives the retired skills on `--replace`.
+- Consolidates seventeen skills into seven: `seenry`, `seenry-review`, `seenry-assets`, `seenry-motion`, `seenry-apps`, `seenry-branding`, `seenry-decks`. Typography, color, layout, polish, writing and accessibility guidance become references of `seenry`; review, change review, stress and explain become modes of `seenry-review`.
+- Reframes `seenry` as a studio process with structured exploration: a fixed frame, three compositions varied on real axes, written critique, refinement. Adds an exploration sheet and a worked player-card example.
+- Rewrites `seenry-assets` around real material: `assets.py` sources CC0/public-domain photos from Openverse and permissively licensed icons through Iconify, generates images through OpenAI or Gemini when a key is present, and records a license manifest and contact sheet.
+- Makes typography sans-first: one sans family chosen by product type (Inter, Geist, SF Pro, Open Runde, Nunito), mono for data, and display serifs treated as an AI tell outside editorial brands. The installer archives the retired skills on `--replace`.
 - Replaces the checkpoint pipeline (first-slice gates, CLI review gates, packets, lessons) with a concrete system: 4px grid and spacing scale, concentric radius rule, one-sans-plus-accent type with at most three sizes and weights per component, color roles with one accent, ring-first elevation, starter `tokens.css` and a `DESIGN.md` template.
 - Adds layered component construction (grid → safe space → structure → type and states) with spec cards and measured anatomies for common components, page shells and section archetypes for cross-page consistency, and an anti-slop list with fixes.
 - Adds benchmarks measured through Seenry MCP from 24 leading product sites, and concrete MCP research recipes.

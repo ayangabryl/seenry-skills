@@ -1,10 +1,11 @@
 # Seenry skills
 
-Agent skills for building interfaces that look like they came from a top product team. Seenry gives the agent a strict, small design system, a layered way to construct every component, one shared shell for every page, and measured evidence from real company screens through the optional Seenry MCP.
+Agent skills that make an AI work like a design studio. Seenry fixes a strict frame (pixel grid, columns, padding, safe space, type set), explores several compositions inside it, critiques them side by side and refines one with real material, using measured evidence from real company screens through the optional Seenry MCP.
 
 | Skill | Use it for |
 | --- | --- |
 | [seenry](skills/seenry/SKILL.md) | Building any web page or component: system, layout, type, color, craft, copy, accessibility, imagery, reference matching |
+| [seenry-assets](skills/seenry-assets/SKILL.md) | License-clear photos, icons and fonts from the web, generated images when an image model is available, provenance for every file |
 | [seenry-review](skills/seenry-review/SKILL.md) | Auditing a screen, reviewing a UI diff, stress-testing one component, explaining how something is built |
 | [seenry-motion](skills/seenry-motion/SKILL.md) | Transitions, gestures, scroll and component animation, with runnable assets |
 | [seenry-apps](skills/seenry-apps/SKILL.md) | Native-feeling mobile screens and flows |
@@ -13,10 +14,13 @@ Agent skills for building interfaces that look like they came from a top product
 
 ## What makes it different
 
-- **A system before styling.** 4px grid, one spacing scale, one radius family with concentric nesting (`inner = outer − inset`), one sans plus one accent family, one accent color, rings instead of heavy shadows. Starter [tokens.css](skills/seenry/assets/tokens.css) and a [DESIGN.md template](skills/seenry/assets/DESIGN.template.md) keep page 12 consistent with page 1.
+- **A system before styling.** 4px grid, one spacing scale, one radius family with concentric nesting (`inner = outer − inset`), one sans family (plus mono for data), one accent color, rings instead of heavy shadows. Starter [tokens.css](skills/seenry/assets/tokens.css) and a [DESIGN.md template](skills/seenry/assets/DESIGN.template.md) keep page 12 consistent with page 1.
+- **Studio process.** Brief → research → frame → material → explore 3 compositions → critique → refine → verify. [Structured exploration](skills/seenry/references/exploration.md) varies arrangement, scale, anchors and density inside the frame, never the frame itself.
+- **Real material.** `seenry-assets` sources CC0 and public-domain photos (Openverse), permissive icon sets (Lucide, Phosphor, Tabler via Iconify) and open fonts, or generates art-directed images through OpenAI or Gemini, and writes a license manifest.
 - **Components built in layers.** Grid → safe space and content areas → structure → type and states, recorded as a short spec card. Max three sizes and three weights per component. [Anatomies](skills/seenry/references/components.md) with measured defaults for buttons, inputs, cards, rows, menus, dialogs, tables, pricing tiers and more.
 - **Page shells and section archetypes** so every page shares gutters, widths, rhythm and heading patterns. [Pages](skills/seenry/references/pages.md).
 - **Measured, not imagined.** [Benchmarks](skills/seenry/references/benchmarks.md) from 24 leading sites (Linear, Stripe, Vercel, Notion, Figma, Raycast, Resend, GitHub and more): hero sizes, weights, tracking, radii, elevation. With Seenry MCP the agent re-measures any site and studies real sections, pages, app screens and recordings. [Research recipes](skills/seenry/references/research.md).
+- **A worked example.** The [player card](skills/seenry/assets/examples/player-card.html) was chosen from three explored compositions and documents its frame, anchors and asset licenses.
 - **An anti-slop pass** with fixes for every common AI tell, and a [system audit](skills/seenry/scripts/system_audit.mjs) that counts the sizes, weights, radii and colors a page actually renders and flags off-grid spacing and non-concentric corners.
 
 ## Install
@@ -31,7 +35,7 @@ Or clone and install locally (previews by default):
 python3 scripts/install.py --apply
 ```
 
-Upgrading from 2.x: run with `--replace --apply`. The eleven specialist skills merged in 3.0 (typography, color, layout, polish, writing, accessibility, variants, stress, explain, change-review, assets) are archived, and the printed manifest works with `--rollback`.
+Upgrading from 2.x: run with `--replace --apply`. The ten specialist skills merged in 3.0 (typography, color, layout, polish, writing, accessibility, variants, stress, explain, change-review) are archived, and the printed manifest works with `--rollback`.
 
 ## Seenry MCP
 

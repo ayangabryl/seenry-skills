@@ -15,7 +15,7 @@ A component is built in four layers on the system grid, and specced before it is
 
 **Layer 2: safe space and areas.** Draw the padding box. Inside it, name areas and give each one a fixed or flexible size: `media 96×96`, `text stack (flex)`, `controls row (auto)`, `meta (auto)`. Set gaps between areas on the scale, obeying the 2x rule: related items (title→subtitle) 4–8, areas (text→controls) 16–24.
 
-**Layer 3: structure.** Choose one alignment edge (almost always the leading edge of the text stack) and align everything that is not deliberately centered to it. Decide what grows, what truncates (with `min-width: 0` and ellipsis or line clamp), and what wraps. Controls sit on a shared baseline or center line.
+**Layer 3: structure.** Anchor every element to an edge or center line of another: a title's top to the media's top, a control row's bottom to the media's bottom, a progress bar to the media's left edge, a price baseline to the plan name's baseline. Choose one leading alignment edge and align everything that is not deliberately centered to it. An element that aligns to nothing reads as floating, and floating is what makes generated UI look off. Decide what grows, what truncates (with `min-width: 0` and ellipsis or line clamp), and what wraps. Controls sit on a shared baseline or center line.
 
 **Layer 4: type and states.** Assign type from the page scale, max 3 sizes and 3 weights inside the component. Most great components use 2 weights (400 + 500/600). Then render every state that can occur.
 
@@ -31,6 +31,14 @@ Color:  surface, text roles, accent usage
 States: default · hover · active · focus-visible · disabled · loading · empty · error · selected · overflow
 Ref:    <Seenry or site reference studied, and what was taken from it>
 ```
+
+## Composition moves studios use
+
+- **Chrome shell + content card.** An outer surface-2 shell (radius R, inset 4) holds a header row of small labels and a footer toolbar; the white content card inside has radius R − 4. It gives a widget structure and a place for secondary actions without cluttering the content.
+- **Scale contrast, not weight contrast.** A large number or title at 400–500 next to 11–12px labels in mono or muted text reads more premium than bold everywhere.
+- **A detail layer.** One row of precise metadata (times, counts, IDs, dates, units) in the smallest size. It signals a real product.
+- **Material first.** The component is designed around its real image, avatar or data, and the accent comes from that material.
+- **Mini-UI instead of icons.** In feature cards, show a small, specific piece of the product (three table rows, a status chip, a chart) instead of a generic icon.
 
 ## Component anatomies
 
@@ -130,10 +138,15 @@ Measured defaults below match what leading product sites ship (see [benchmarks](
 - Order inside each tier: plan name 13–14/500, price 32–48/500 tabular with the period 13–14/400 text-2 beside it, one-line description, CTA, then "Everything in X, plus:" and 5–8 features with 16px check icons.
 - CTAs aligned on the same horizontal line across tiers. Only the recommended tier's CTA is filled; mark it with a small badge, not a scaled-up card.
 
-### Media player (the reference card)
+### Media player
 
-- r24/i24 card. Areas: art 96–120 square (r12–16, or `24 − inset` when art is inset), text stack (title 17/600, artist 15/400 text-2), transport row (prev · play/pause 44 circle · next, icons 20), progress bar 4 tall full-width with elapsed and remaining times 12/500 tabular text-3 underneath.
-- 3 sizes (17, 15, 12), 2 weights (600, 400). Accent only on progress fill and play button.
+The finished reference is [assets/examples/player-card.html](../assets/examples/player-card.html).
+
+- Card r28, inset 12 (16 at the bottom), ring border, no shadow unless it floats. Cover 136 square at r16 (`28 − 12`), real artwork.
+- Right column: title 15/600 and artist 13/400 text-2 at the top, starting about 8 below the cover's top edge; transport row (previous · 48 pause/play circle · next, icons 20) pinned so its bottom meets the cover's bottom edge.
+- Full-width scrubber under both columns, aligned to the cover's left edge: 4px track, accent fill sampled from the cover, 12px thumb with a ring; elapsed and remaining times in 11/500 mono tabular below.
+- 3 sizes (15, 13, 11), 3 weights, 2 families (sans + mono). Accent appears only on progress.
+- States: paused/playing swap in the same 48 circle, scrubbing shows a time tooltip above the thumb, buffering replaces the fill with a subtle shimmer, a missing cover shows surface-2 with a 24px music glyph, long titles truncate with ellipsis.
 
 ## States checklist
 

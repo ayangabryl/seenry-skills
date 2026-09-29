@@ -21,8 +21,9 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 | --- | --- |
 | 700–800 weight hero, default tracking, 1.2 line height | 400–600, −0.02 to −0.05em, 1.0–1.1 |
 | Gradient-filled headline text | Solid text-1; color the accent word at most |
+| Display serif headline (Instrument Serif, Playfair, Fraunces) on a product or SaaS page | The product sans at 500–600, tight tracking; serif only for editorial or luxury brands |
 | More than 3 sizes or 3 weights inside one component | Remove one; use color or space for hierarchy |
-| Two sans-serif families, or a random display font | One sans; accent is serif or mono only |
+| Two families for headings and body, or a random display font | One sans for everything; mono only for code and data |
 | Uppercase letter-spaced labels on every section | Sentence case; overline for one role at most |
 | Body text in light grey that fails contrast | text-2 minimum |
 | Prices and numbers jumping width | `tabular-nums` |
@@ -39,6 +40,17 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 | Colored left-border "accent" on cards and alerts | Tint or icon; no stripe |
 | Neon glows and outer glows on dark UI | Inner hairline and surface steps |
 | Accent color used for headings, icons and borders | Accent only on actions, selection, focus |
+
+## Material and composition
+
+| Tell | Fix |
+| --- | --- |
+| Gradient or flat color block standing in for a photo, cover or avatar | Real image via `seenry-assets` (sourced or generated), or remove the slot |
+| Elements that align to nothing (a centered control row under a left-aligned block) | Anchor each element to an edge or center line of another |
+| Card nested in a tinted panel with the same radius, or overflowing it | Concentric radii and inset, or drop the panel |
+| Everything the same size and weight | One dominant element, clear subordinates |
+| No fine detail anywhere | One detail layer: metadata, mono labels, live values |
+| The first layout shipped without alternatives | Explore 3 compositions in the frame and critique ([exploration](exploration.md)) |
 
 ## Content
 

@@ -11,10 +11,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ('seenry', 'seenry-review', 'seenry-motion', 'seenry-apps', 'seenry-branding', 'seenry-decks')
+NAMES = ('seenry', 'seenry-review', 'seenry-assets', 'seenry-motion', 'seenry-apps', 'seenry-branding', 'seenry-decks')
 # Merged into the skills above in 3.0; archived on --replace so stale copies stop triggering.
 RETIRED = (
-    'seenry-assets', 'seenry-typography', 'seenry-color', 'seenry-layout', 'seenry-accessibility',
+    'seenry-typography', 'seenry-color', 'seenry-layout', 'seenry-accessibility',
     'seenry-writing', 'seenry-polish', 'seenry-change-review', 'seenry-explain', 'seenry-stress', 'seenry-variants',
 )
 AGENTS = ('agents', 'codex', 'claude', 'cursor', 'antigravity')

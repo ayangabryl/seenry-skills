@@ -4,11 +4,12 @@
 
 Version 2 split design into seventeen skills and wrapped original work in a checkpoint pipeline (frozen briefs, paired direction studies, CLI review gates, hashed packets). The process was rigorous, but the output still read as generic because the agent was never given concrete values: it was told to compare, review and verify, not what a good button, card or page shell measures. Specialist skills were also rarely loaded when needed.
 
-Version 3 inverts that. The main skill carries the system itself: allowed values, layered component construction, page shells, measured benchmarks and an explicit anti-slop list. Process shrinks to five steps (read, study real screens, write the system and spec cards, build one real slice, verify on pixels). The 2.x pipeline remains in git history at the `v2-archive` tag.
+Version 3 inverts that. The main skill carries the system itself: allowed values, layered component construction, page shells, measured benchmarks and an explicit anti-slop list. Process becomes a studio loop: brief, research, frame, material, explore three compositions inside the frame, critique, refine, verify on pixels. The frame gives consistency; exploration gives quality. The 2.x pipeline remains in git history at the `v2-archive` tag.
 
 ## Skills
 
 - `seenry` owns building web interfaces, pages and components. Everything the specialist skills used to cover (typography, color, layout, craft, writing, accessibility, imagery) is a reference file it loads on demand.
+- `seenry-assets` owns material: sourcing license-clear images, icons and fonts, generating images when a model is available, and provenance.
 - `seenry-review` owns judgment: screen reviews, diff reviews, stress tests and explanations, all reported in one ranked table against the same system.
 - `seenry-motion` owns behavior over time and ships runnable, tested motion assets.
 - `seenry-apps` owns native mobile screens and flows with platform metrics.

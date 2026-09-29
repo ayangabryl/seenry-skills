@@ -29,6 +29,7 @@ If you built the surface yourself, say so and treat the verdict as self-review. 
 2. **Measure.** Run [the system audit](../seenry/scripts/system_audit.mjs) at both widths. Record totals: font sizes, weights, families, radii, shadows, off-grid values, nested radius violations, components over limit, horizontal overflow. Toggle the [grid overlay](../seenry/assets/layout-guides/README.md) to check shared edges.
 3. **Look in this order**, because earlier failures make later ones moot:
    - **Job and hierarchy.** Within 5 seconds, is it clear what this is, for whom, and what to do next? Is the primary action the most prominent control?
+   - **Material and anchors.** Real images, icons and data, or placeholders? Does every element align to an edge or center line of another, or do some float? Is there one dominant element and one detail layer? Use the studio critique in [exploration](../seenry/references/exploration.md#4-critique-like-a-studio).
    - **Layout.** Shared content edges, section rhythm, grouping (2x rule), reading order, phone reflow.
    - **Type.** Family count, sizes and weights per component and page, display weight and tracking, line length, wrapping.
    - **Color and surface.** Accent area and roles, contrast, elevation choices, radius family and concentricity.

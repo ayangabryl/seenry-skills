@@ -29,8 +29,7 @@
   --radius-full: 9999px;
 
   /* Type: one UI family, one optional accent */
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-accent: ui-serif, "Iowan Old Style", Georgia, serif;
+  --font-sans: "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
   --text-xs: 12px;   --leading-xs: 16px;

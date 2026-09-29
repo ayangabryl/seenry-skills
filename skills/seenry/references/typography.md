@@ -1,31 +1,34 @@
 # Typography
 
-Type carries most of the perceived quality of an interface. The measured pattern across leading product sites is restraint: one family, few sizes, 2–3 weights, tight display tracking and light display weights.
+Type carries most of the perceived quality of an interface. The measured pattern across leading product sites is restraint: one family, few sizes, 2–3 weights, tight display tracking and medium display weights.
 
 ## Rules
 
-1. **Two families maximum.** One sans for everything functional. Optionally one accent: a serif for editorial voice (Notion uses Lyon, Anthropic uses its serif, Resend uses Domaine for display) or a mono for data, code and small labels (Linear uses Berkeley Mono, Vercel Geist Mono).
+1. **One sans family does everything.** Big product apps almost never use a display serif: Linear, Vercel, Stripe, Raycast, Airbnb, Spotify, Apple, GitHub, Figma, Supabase and Shopify are all one sans. The optional second family is a **mono** for code, data and small technical labels. A serif is a brand decision (publishing, luxury, wine, law, a literary product), never a default for "premium" or "calm".
 2. **Per component: ≤3 sizes, ≤3 weights.** Per page: ≤6 sizes. If you need a fourth size inside a component, you need color (text-2, text-3) or space instead.
-3. **Display is light and tight.** Headlines at 400–600 weight, tracking −0.02 to −0.05em, line height 1.0–1.15. Weight 700+ only when the brand typeface is designed for it.
-4. **Body is 16px, 1.5 line height,** 60–75 characters per line. Product UI is 13–14px with 20px leading.
-5. **Hierarchy through contrast of one variable at a time.** Size OR weight OR color, rarely all three. A 13/500 text-2 label above a 28/500 text-1 value is enough.
+3. **Display is tight and medium, not heavy.** Headlines at 500–600 weight (400 is fine for large, clean grotesques like Geist), tracking −0.02 to −0.04em, line height 1.0–1.15. 700+ only for rounded or friendly faces built for it (Nunito, Open Runde, SF Rounded) or a brand that owns a heavy voice.
+4. **Body is 16px, 1.5 line height,** 60–75 characters per line. Product UI is 13–15px with 20px leading.
+5. **Hierarchy through one variable at a time.** Size OR weight OR color. A 13/500 text-2 label above a 28/600 text-1 value is enough.
 
 ## Font choice
 
-Use the brand font if one exists. Otherwise pick for the product's voice, not the default.
+Use the brand font if one exists. Otherwise pick by product type. All of these are free unless marked.
 
-| Voice | Sans (UI) | Accent | Notes |
+| Product type | First choice | Alternatives | Pair with |
 | --- | --- | --- | --- |
-| Precise tool | Inter (with `cv11`, `ss01`), Geist | Geist Mono, JetBrains Mono | Linear, Vercel |
-| Warm product | Inter Display, Söhne, Figtree, Onest | a text serif (Newsreader, Source Serif 4) | Notion-like |
-| Editorial, premium | Neue Montreal, Satoshi, General Sans | Instrument Serif, Fraunces (opsz), EB Garamond, Baskerville | Resend, Anthropic |
-| Financial, trustworthy | Söhne, IBM Plex Sans, Inter | IBM Plex Mono | Stripe, Mercury |
-| Friendly consumer | Figtree, Plus Jakarta Sans, Nunito Sans (sparingly) | none | round radius family |
-| Native feel | system-ui (SF Pro on Apple) | ui-monospace | apps, utilities |
+| Pro tool, dev tool, SaaS | Inter (Display cut for ≥ 24px) | Geist, Söhne (paid), Manrope | Geist Mono, JetBrains Mono |
+| Apple-platform app or Apple-feel web | SF Pro via `system-ui` / `-apple-system` | Inter | SF Mono via `ui-monospace` |
+| Friendly consumer, social, health, kids, games | Open Runde | Nunito, SF Pro Rounded (`ui-rounded`), Figtree | none |
+| Fintech, banking, trust | Inter | Söhne (paid), IBM Plex Sans, Geist | IBM Plex Mono |
+| Marketplace, travel, commerce | Inter | DM Sans, Plus Jakarta Sans, Figtree | none |
+| Creative, portfolio, agency | Geist | Satoshi, General Sans, Neue Montreal (paid) | Geist Mono |
+| Editorial, publishing, luxury (only these) | a sans for UI | + a text serif: Newsreader, Source Serif 4 | — |
 
-Avoid as defaults: Poppins/Montserrat for product UI, Playfair Display paired with anything, and any font chosen because it "looks modern". Inter is a fine default only when its features and tracking are tuned.
+Rounded faces (Open Runde, Nunito, SF Rounded) pair with the round radius family (16–32 + pill). Neutral grotesques (Inter, Geist, SF Pro) fit soft or sharp families.
 
-Load only the weights you use (usually 400, 500, 600). Use variable fonts where available; `font-display: swap`; preload the one file used above the fold.
+Tune whatever you choose: Inter needs `font-feature-settings: "cv11", "ss01", "ss03"` and tightened display tracking to look deliberate; untuned Inter at default tracking is the generic look, not Inter itself.
+
+Load only the weights you use (usually 400, 500, 600). Use variable fonts where available; `font-display: swap`; preload the one file used above the fold. Open Runde and Inter ship as OFL files you can self-host; SF Pro must come from the system stack on the web, never a downloaded file.
 
 ## Scale
 
@@ -33,7 +36,7 @@ A practical scale (px, size/line-height):
 
 | Role | Size / leading | Weight | Tracking |
 | --- | --- | --- | --- |
-| Display (hero) | 56–80 / 1.0–1.05 | 400–600 | −0.03 to −0.05em |
+| Display (hero) | 48–72 / 1.0–1.05 | 500–600 | −0.025 to −0.04em |
 | H1 (page) | 40–48 / 1.1 | 500–600 | −0.025em |
 | H2 (section) | 28–36 / 1.15 | 500–600 | −0.02em |
 | H3 (group) | 20–24 / 1.3 | 500–600 | −0.01em |
@@ -74,7 +77,9 @@ Tracking scales inversely with size. Large text needs negative tracking; text be
 
 | Failure | Fix |
 | --- | --- |
-| 800-weight gradient-filled hero | 400–600 weight, solid text-1, tight tracking |
+| 800-weight gradient-filled hero | 500–600 weight, solid text-1, tight tracking |
+| Serif display headline (Instrument Serif, Playfair, Fraunces) on a product page | The product's sans at 500–600, tight tracking; serif only for editorial brands |
+| Italic serif accent word inside a sans headline | Remove; emphasize with color or weight of the same family |
 | Five weights on one page | 400 + 500 (+ 600 for titles) |
 | Labels in all-caps with wide tracking everywhere | Sentence case 13/500 text-2; reserve overlines for one role |
 | Body text at text-3 grey | text-2 minimum for anything people read |

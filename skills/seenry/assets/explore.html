@@ -1,0 +1,61 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exploration sheet</title>
+<!--
+  Side-by-side sheet for structured exploration. Serve this folder over HTTP next to the variant files, then open:
+    explore.html?v=vA.html,vB.html,vC.html&w=1440,390&h=900
+  Each variant renders in an iframe at the real width, scaled down to fit its column.
+-->
+<style>
+  :root { color-scheme: light; --bg: #f4f4f5; --fg: #18181b; --muted: #71717a; --ring: #0000000f; }
+  body { margin: 0; padding: 24px; background: var(--bg); color: var(--fg); font: 13px/20px system-ui, sans-serif; }
+  header { display: flex; gap: 16px; align-items: baseline; margin-bottom: 16px; }
+  header h1 { font: 600 15px/20px system-ui, sans-serif; margin: 0; }
+  header p { margin: 0; color: var(--muted); }
+  main { display: grid; gap: 24px; }
+  .row { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 16px; align-items: start; }
+  figure { margin: 0; display: grid; gap: 8px; }
+  figcaption { display: flex; justify-content: space-between; color: var(--muted); }
+  figcaption b { color: var(--fg); font-weight: 600; }
+  .frame { position: relative; overflow: hidden; background: #fff; border-radius: 12px; box-shadow: 0 0 0 1px var(--ring); }
+  .frame iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; background: #fff; }
+</style>
+<header><h1>Exploration sheet</h1><p id="hint"></p></header>
+<main id="sheet"></main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const variants = (params.get('v') || 'vA.html,vB.html,vC.html').split(',').filter(Boolean);
+  const widths = (params.get('w') || '1440,390').split(',').map(Number).filter(Boolean);
+  const height = Number(params.get('h') || 900);
+  document.getElementById('hint').textContent = `${variants.length} variants × ${widths.join(' / ')}px. Same frame, different composition. Critique read order, anchors, proportion, material, detail, fit.`;
+  const sheet = document.getElementById('sheet');
+  for (const width of widths) {
+    const row = document.createElement('section');
+    row.className = 'row';
+    row.style.setProperty('--cols', variants.length);
+    for (const file of variants) {
+      const figure = document.createElement('figure');
+      const frame = document.createElement('div');
+      frame.className = 'frame';
+      const iframe = document.createElement('iframe');
+      iframe.src = file;
+      iframe.title = `${file} at ${width}px`;
+      iframe.width = width;
+      iframe.height = height;
+      frame.append(iframe);
+      const caption = document.createElement('figcaption');
+      caption.innerHTML = `<b></b><span>${width}px</span>`;
+      caption.querySelector('b').textContent = file;
+      figure.append(frame, caption);
+      row.append(figure);
+      const fit = () => {
+        const scale = Math.min(1, frame.clientWidth / width);
+        iframe.style.transform = `scale(${scale})`;
+        frame.style.height = `${Math.round(height * scale)}px`;
+      };
+      new ResizeObserver(fit).observe(frame);
+    }
+    sheet.append(row);
+  }
+</script>

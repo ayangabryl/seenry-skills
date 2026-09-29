@@ -63,4 +63,4 @@ Extract relationships you can transfer: type scale ratios, weight choices, how m
 - A screenshot shows one state at one width. Hover, focus, motion and responsive behavior need a recording or a live check.
 - Captured CSS is observed evidence, not the company's specification.
 - Search results are lexical and not quality-ranked; judge the pixels yourself.
-- Media URLs expire; re-request instead of storing them. Never embed reference media in the build.
+- Media URLs expire; re-request instead of storing them. The CDN serves them to ordinary browser requests, so a script fetching a poster or video needs a browser `User-Agent`. Never embed reference media in the build.

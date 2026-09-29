@@ -1,6 +1,6 @@
 ---
 name: seenry
-description: "Design and build web interfaces that look like they came from a top product team, not an AI template. Use for any new page, landing page, dashboard, app shell, pricing, settings, form or single component, for redesigns and visual polish, and for matching a reference. Enforces a layered grid and spacing system, per-component type limits, concentric radii, consistent page shells and research from real company screens via Seenry MCP."
+description: "Design and build web interfaces at design-studio quality, not AI-template quality. Use for any new page, landing page, dashboard, app shell, pricing, settings, form or single component, for redesigns and visual polish, and for matching a reference. Works like a studio: fixes a strict frame (pixel grid, columns, padding, safe space, type set), explores several compositions inside it, critiques them side by side, and refines one with real material and research from real company screens via Seenry MCP."
 license: MIT
 metadata:
   author: Seenry
@@ -9,108 +9,107 @@ metadata:
 
 # Seenry
 
-Build interfaces the way strong product teams do: a small, strict system; components constructed in layers on that system; pages assembled from one shared shell; and every visual decision traceable to a real reference or a rule below. Constraints are what make an LLM consistent. Taste comes from studying real work, not from adjectives.
+Work like a design studio. Studios get consistent, high-end results from two things: a strict frame that every decision must fit, and the discipline to explore, critique and refine instead of shipping the first idea. The model is free to compose, but only inside the frame of pixel grid, column grid, padding, safe space, type set, radius family and palette. Taste comes from real references and real material, never from adjectives.
 
-Work in the project's existing stack. If the project already has tokens, components or a `DESIGN.md`, read them first and extend them; never introduce a parallel system.
+Work in the project's existing stack. If the project has tokens, components or a `DESIGN.md`, read them first and extend them; never introduce a parallel system.
 
-## The workflow
+## The studio process
 
-1. **Read.** Find the audience, the one job of the page or component, the real content, and existing tokens. Write down what is fixed (brand, stack, copy) and what is open.
-2. **Study real screens.** With Seenry MCP connected, inspect 3–6 references from companies that solve the same job well, and extract *measurements*, not vibes. Follow [research](references/research.md). Without MCP, use [benchmarks](references/benchmarks.md), which already hold measured type, radius and spacing from 24 leading sites.
-3. **Write the system, then the specs.** Before any styling, write or update `DESIGN.md` with the tokens from [the system](references/system.md), then one spec card per component you will build ([component construction](references/components.md)). This is the step that prevents slop.
-4. **Build one slice for real.** Real copy, real data, all states. Desktop 1440 and phone 390 from the start.
-5. **Verify on pixels.** Render, screenshot both widths, turn on the [grid overlay](assets/layout-guides/README.md), then run the [anti-slop check](references/anti-slop.md) and fix everything it catches before building the next slice. For an independent verdict, use `seenry-review`.
+1. **Brief.** Name the audience, the one job of the surface, the real content, and one sentence of point of view ("a calm, tool-like player that disappears behind the music"). Note what is fixed (brand, stack, copy).
+2. **Research.** With Seenry MCP, study 3–6 real screens from companies that solve the same job well and write down measurements, not vibes ([research](references/research.md)). Without MCP, use [benchmarks](references/benchmarks.md) from 24 leading sites.
+3. **Frame.** Write the system into `DESIGN.md`: tokens from [the system](references/system.md), the page shell from [pages](references/pages.md), and one spec card per component from [components](references/components.md). This is the frame every variant must fit.
+4. **Material.** Get real images, icons and fonts before composing: supplied assets, license-clear sources, or generated images when an image model is available. Use `seenry-assets`. No placeholder gradients, no emoji icons.
+5. **Explore.** For every hero, signature component or first screen, build 3 compositions that differ on 2–3 real axes (arrangement, media scale, anchor, density, detail layer) inside the same frame. Render them side by side at 1440 and 390 and critique in writing. Follow [structured exploration](references/exploration.md).
+6. **Refine.** Take the chosen variant through the [craft pass](references/craft.md): anchors, optical alignment, every state, longest content, dark mode.
+7. **Verify on pixels.** Screenshot both widths, toggle the [grid overlay](assets/layout-guides/README.md), run the [system audit](scripts/system_audit.mjs) and the [anti-slop check](references/anti-slop.md). Fix everything before expanding to the next section. Use `seenry-review` for an independent verdict.
 
-For a single component, steps 2–5 still apply but stay small: one or two references, one spec card, all states rendered.
+For a small fix in an established system, skip exploration: inspect, repair on-system, verify.
 
-## The system (non-negotiable defaults)
+## The frame (defaults)
 
-Use these unless the project already defines its own. Full detail and a starter `tokens.css` are in [the system](references/system.md).
+Use these unless the project already defines its own. Details and a starter `tokens.css` are in [the system](references/system.md).
 
-**Grid.** 4px base unit; every size, gap and padding is a multiple of 4, and layout-level values are multiples of 8. Spacing scale: `4 8 12 16 24 32 48 64 96 128`. Nothing off-scale (no 10, 15, 18, 22, 30).
+**Pixel grid.** 4px base; layout values are multiples of 8. Spacing scale `4 8 12 16 24 32 48 64 96 128`. Nothing off-scale.
 
-**Grouping.** The gap between groups must be at least 2x the gap inside a group (8 inside, 16+ between; 16 inside, 32+ between). Proximity does the grouping; lines and boxes are a last resort.
+**Grouping.** The gap between groups is at least 2x the gap inside a group. Proximity groups; lines and boxes are a last resort.
 
-**Radius.** Pick one scale, max 4 values plus pill, e.g. `6 10 16 24` + `9999`. Nested corners are concentric: `outer radius = inner radius + inset`. A 24px card with 8px inset holds a 16px image; a 24px card with 24px inset holds content that is square or 0–4px. Never put the same radius on a parent and its inset child.
+**Radius.** One family, at most 4 values plus pill. Nested corners are concentric: `inner = outer − inset`. Card r28 with inset 12 holds media at r16. Never the same radius on a parent and its inset child.
 
-**Type.** One sans family for UI, plus at most one accent (serif for editorial voice, or mono for data/code). **Per component: at most 3 sizes and at most 3 weights.** Per page: at most 6 sizes. Display weights are usually 400–600, not 700–800; tighten display tracking (-0.02em to -0.05em) and line height (1.0–1.15). Body 16px, dense UI 13–14px. See [typography](references/typography.md).
+**Type.** One sans family for everything; add a mono only for code, data and small technical labels. Pick by product type: Inter or Geist for tools and SaaS, SF Pro (`system-ui`) for Apple-feel, Open Runde or Nunito for friendly consumer apps. Display serifs are an AI tell on product surfaces; use one only for editorial or luxury brands. **Per component: ≤3 sizes, ≤3 weights. Per page: ≤6 sizes.** Display at 500–600 with −0.02 to −0.04em tracking and 1.0–1.15 line height. Body 16px; product UI 13–15px. See [typography](references/typography.md).
 
-**Color.** Neutrals do 90% of the work: background, 2 surface levels, 3 text levels, 2 border levels. One accent, used for the primary action, selection and focus only. Status colors only for status. Every text pair passes WCAG AA. See [color](references/color.md).
+**Color.** Neutrals do 90% of the work: background, 2 surfaces, 3 text levels, 2 borders. One accent, ideally sampled from the brand or the hero material, used only for the primary action, selection, progress and focus. See [color](references/color.md).
 
-**Elevation.** Prefer a 1px hairline border or a low-alpha ring (`0 0 0 1px rgb(0 0 0 / .06)`) over drop shadows. When something truly floats (menus, dialogs, popovers), use a layered soft shadow. Never a large shadow on a static card.
+**Elevation.** Rings and hairlines by default. Shadows only for things that float (menus, popovers, dialogs), layered and low-alpha.
 
-**Action hierarchy.** One primary (filled) action per view region. Secondary is outlined or tinted; tertiary is text. Two CTAs maximum in a hero.
+**Actions.** One filled primary per region. Two CTAs maximum in a hero.
 
 ## Build components in layers
 
-Every component is constructed on four stacked layers, in this order, and the spec card records each one before code:
+Every component is constructed in four layers on the frame, and specced before styling:
 
-1. **Grid.** The base unit, the component's outer radius and its inset (padding). Choose inset from the radius: `inset >= radius / 2`, and when inset equals radius the content sits in a clean safe area (the 24/24 rule).
-2. **Safe space and content areas.** The padding box, then named content areas (media, text stack, controls, meta) and the gaps between them, all on-grid.
-3. **Structure.** Place the hierarchy into those areas: title, body, caption, media placeholder, controls. Decide alignment edges (usually one shared left edge) and what grows vs. truncates.
-4. **Type and states.** Assign the real sizes and weights (max 3 each), then design every state: default, hover, active, focus-visible, disabled, loading, empty, error, selected, and long-content overflow.
-
-Spec card format (put it in `DESIGN.md` or a comment above the component):
+1. **Grid**: base unit, outer radius, inset.
+2. **Safe space and areas**: padding box, named content areas (media, text stack, controls, meta) and on-grid gaps.
+3. **Structure**: hierarchy placed into the areas. **Every element anchors to an edge or center line of another**: title top to media top, controls to media bottom, scrubber to media left edge. Nothing floats.
+4. **Type and states**: real sizes and weights (≤3 each), then every state.
 
 ```
 Component: Player card
-Grid: 8px base · radius 24 · inset 24
-Areas: [art 96x96 r16] [text stack] [controls row] [progress + times]
-Gaps: art→text 16 · title→artist 4 · text→controls 16 · controls→progress 24
-Type: 17/600 title · 15/400 artist · 12/500 tabular times   (3 sizes, 2 weights)
-Color: surface-1, text-1/text-2, accent on progress fill only
-States: playing/paused icon swap, scrubbing, buffering, disabled next
+Grid:   4px · radius 28 · inset 12 · cover r16 (28 − 12)
+Areas:  [cover 136] [text stack + transport, flex] / [scrubber + times, full width]
+Anchors: title top ≈ cover top + 8 · transport bottom = cover bottom · scrubber = cover left edge
+Type:   15/600 title · 13/400 artist · 11/500 mono times   (3 sizes, 3 weights)
+Color:  white card on warm neutral, ring border, accent sampled from the cover on progress only
+States: playing/paused, scrubbing (thumb + time tooltip), buffering, no artwork, long title
 ```
 
-Component anatomies with measured defaults (buttons, inputs, cards, list rows, tabs, menus, dialogs, tables, toasts, nav, pricing tiers, and more) are in [components](references/components.md).
+The finished example lives in [assets/examples/player-card.html](assets/examples/player-card.html). Anatomies for buttons, inputs, cards, rows, menus, dialogs, tables, pricing tiers and more are in [components](references/components.md).
 
 ## Keep pages consistent
 
-All pages share one **page shell**: max content width (e.g. 1200px, or 1080 for text-led), page gutter (24px phone, 32–48px desktop), a single 12-column grid with a 24px gutter, and a section rhythm (96–128px between marketing sections on desktop, 64 on phone; 32–48 inside product views). Header, sections and footer inherit the same content edges. Define these once as tokens and never override them per section.
+All pages share one **page shell**: content width, gutter, 12-column grid, header height and a section rhythm, defined once as tokens. Every section uses one of a small set of archetypes with one heading pattern. Templates for landing, pricing, app shell, settings, auth, docs, detail and error pages are in [pages](references/pages.md).
 
-Every section follows one of a few archetypes (hero, proof strip, feature, deep-dive, comparison, testimonial, pricing, FAQ, CTA, footer) with one alignment and one heading pattern reused throughout. Page templates for landing, pricing, dashboard/app shell, settings, auth, docs/article, detail and empty/error states are in [pages](references/pages.md).
+## What studio work has that templates don't
 
-## What separates great from generic
+Observed across Linear, Stripe, Vercel, Notion, Raycast, Resend, Apple and others (see [benchmarks](references/benchmarks.md)):
 
-Observed across Linear, Stripe, Vercel, Notion, Raycast, Resend and others (see [benchmarks](references/benchmarks.md)):
+- **Real material.** Real product UI with specific data, real photography, a real cover. Never a gradient standing in for an image.
+- **One dominant element** per view and clear subordinates, never everything at the same size.
+- **Anchored structure.** Edges line up across the whole component and page.
+- **A detail layer.** One level of fine detail rewards a closer look: metadata lines, mono labels, live counts, precise times.
+- **Restraint.** One sans family, 2–3 weights, one accent, hairlines instead of boxes.
+- **Density where work happens.** 13–15px product UI and compact rows; marketing breathes.
 
-- **Show the product, with plausible specific content.** Real names, IDs, timestamps, prices. The Linear hero is a working issue view, not an illustration of one.
-- **Restraint in type.** One family, 2–3 weights on the whole page. Stripe's hero is 48px at weight 300; Vercel's is 64px at 400 with -0.06em tracking.
-- **Hairlines, not boxes.** Pricing tiers share one container divided by 1px lines instead of three floating shadow cards.
-- **One accent, used sparingly.** Only the primary action and state carry color.
-- **Density where work happens.** Product surfaces use 13–14px text and 28–36px rows; marketing breathes.
-- **Every section answers a new question.** No filler "Why choose us" grid of three icon cards.
-
-The full list of AI tells and their fixes is in [anti-slop](references/anti-slop.md). Read it before the first render and again before you report.
+The full list of AI tells and their fixes is in [anti-slop](references/anti-slop.md).
 
 ## Guides
 
 | Need | Read |
 | --- | --- |
 | Tokens, grid, spacing, radius, elevation, starter CSS | [system](references/system.md) |
-| Constructing and speccing components, per-component anatomy | [components](references/components.md) |
+| Exploring compositions inside a fixed frame, studio critique | [exploration](references/exploration.md) |
+| Constructing and speccing components, anatomies | [components](references/components.md) |
 | Page shells, section archetypes, page templates | [pages](references/pages.md) |
-| Font choice, scale, tracking, numerals, wrapping | [typography](references/typography.md) |
+| Font choice by product type, scale, tracking, numerals | [typography](references/typography.md) |
 | Palette roles, dark mode, contrast | [color](references/color.md) |
-| Optical alignment, icons, hit areas, focus, states | [craft](references/craft.md) |
+| Anchors, optical alignment, icons, hit areas, states | [craft](references/craft.md) |
 | Headlines, labels, errors, empty states | [writing](references/writing.md) |
 | Keyboard, semantics, zoom, reduced motion | [accessibility](references/accessibility.md) |
-| Images, illustration, icons, fonts, provenance | [imagery](references/imagery.md) |
+| Choosing material; sourcing and generating it | [imagery](references/imagery.md) and `seenry-assets` |
 | Seenry MCP recipes and offline research | [research](references/research.md) |
 | Measured evidence from leading product sites | [benchmarks](references/benchmarks.md) |
 | AI tells and their fixes | [anti-slop](references/anti-slop.md) |
 | Faithfully reproducing a supplied design | [replication](references/replication.md) |
 
-Use `seenry-motion` for transitions and interaction, `seenry-apps` for native mobile, `seenry-branding` for identity systems, `seenry-review` for audits, diffs and stress tests.
+Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions and interaction, `seenry-apps` for native mobile, `seenry-branding` for identity systems, `seenry-review` for audits, diffs and stress tests.
 
 ## Tools
 
-- [Grid overlay](assets/layout-guides/README.md): development-only columns, gutter and baseline overlay. Toggle it on every screenshot pass.
+- [System audit](scripts/system_audit.mjs): counts rendered font sizes, weights, families, radii, shadows and colors; lists off-grid padding, gaps and margins; flags non-concentric corners, wrapped control labels and components over 3 sizes or weights. Run it on every screenshot pass.
+- [Exploration sheet](assets/explore.html): renders variant files side by side at real widths for critique.
+- [Grid overlay](assets/layout-guides/README.md): development-only columns, gutter and 8px checks.
 - [Starter tokens](assets/tokens.css) and [DESIGN.md template](assets/DESIGN.template.md).
-- [System audit](scripts/system_audit.mjs): counts distinct font sizes, weights, families, radii, shadows and colors; lists off-grid padding, gaps and margins; flags non-concentric nested corners and components over 3 sizes or weights. Run it on every screenshot pass.
-- [Text collisions](scripts/text_collisions.mjs), [control geometry](scripts/control_geometry.cjs), [visual inventory](scripts/visual_inventory.mjs): measure clipped text, hit areas and the count of distinct sizes, weights, radii and colors on a rendered page.
-- [Token contrast](scripts/token_contrast.py) and [contrast check](scripts/contrast_check.py): WCAG pairs from source or explicit colors.
+- [Text collisions](scripts/text_collisions.mjs), [control geometry](scripts/control_geometry.cjs), [visual inventory](scripts/visual_inventory.mjs), [token contrast](scripts/token_contrast.py), [contrast check](scripts/contrast_check.py).
 
 ## Report
 
-When done, state: what was built, the references studied (with links), the tokens used, the widths and states rendered, what the anti-slop pass caught and fixed, and anything not verified. Do not claim quality you did not see in a screenshot.
+State what was built, the references studied (with links), the frame, the variants explored and why one won, the material used and its licenses, the widths and states rendered, what the audit and anti-slop pass caught and fixed, and anything not verified. Do not claim quality you did not see in a screenshot.

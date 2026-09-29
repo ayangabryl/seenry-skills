@@ -24,7 +24,7 @@ Avoid:
 - Grid: 4px base, layout multiples of 8
 - Spacing scale: 4 8 12 16 24 32 48 64 96 128
 - Radius family: <sharp | soft | round>, values: <sm md lg xl> + 9999
-- Families: <sans> (+ <accent serif or mono>), weights loaded: <400 500 600>
+- Families: <one sans> (+ <mono for code/data>), weights loaded: <400 500 600>
 - Type scale: <display / h1 / h2 / h3 / title / body / ui / caption>
 - Color roles: bg, surface-1, surface-2, text-1..3, border-1..2, accent (+hover, soft), positive, warning, negative
 - Elevation: ring, raised, float, scrim

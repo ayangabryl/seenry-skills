@@ -1,5 +1,7 @@
 # Imagery, icons and fonts
 
+This guide decides *what* material a design needs. Sourcing, downloading, generating and recording it is done with `seenry-assets` and its assets tool.
+
 Material decides whether a page feels real. Generated gradients and stock illustrations are the fastest route to "AI template".
 
 ## Choose the material first
