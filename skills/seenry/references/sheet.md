@@ -22,6 +22,7 @@ Fill it in as you work, not from memory at the end. Only `project` and `pointOfV
 | `project`, `date`, `stack` | Name, ISO date, framework |
 | `pointOfView` | One sentence: what this design is trying to be, for whom |
 | `brief` | The job, constraints and platforms, in one or two sentences |
+| `brand` | `{concept, voice, imagery, signature, rejected[{name, why}]}`: the art direction ([art direction](art-direction.md)) and the two directions it beat |
 | `result.images[]` | `{src, caption, viewport: "phone"?}`: final screenshots at desktop and phone width |
 | `decisions[]` | `{topic, choice, why, evidence}`: every consequential choice (structure, emphasis, type, color, motion) with the reason and where the evidence came from |
 | `research.mcp`, `research.method` | Whether Seenry MCP was used and which tools |

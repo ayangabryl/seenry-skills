@@ -39,7 +39,7 @@ Source of truth: `<path to tokens file>`
 - Grid: <12 cols, 24 gap> / phone <4 cols, 16 gap>
 - Header height: <64 / 56>
 - Section rhythm: <128 / 96 / 64>
-- Section heading pattern: <eyebrow → title → lead, left-aligned, max 640>
+- Section heading pattern: <title → lead, left-aligned, max 640; no eyebrow, no numbering>
 
 ## Components
 

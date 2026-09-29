@@ -19,7 +19,7 @@ for entry in sorted((root/'skills').glob('*/SKILL.md')):
     for path in re.findall(r'\]\(([^)#]+)',parts[2]):
         if not re.match(r'https?://',path):assert (entry.parent/path).is_file(),f'Missing reference: {entry} -> {path}'
     skills[name]=meta
-assert json.loads((root/'.mcp.json').read_text(encoding='utf-8'))['mcpServers']['web-atlas']['url']==contract['endpoint']
+assert json.loads((root/'.mcp.json').read_text(encoding='utf-8'))['mcpServers']['seenry']['url']==contract['endpoint']
 cases=json.loads((root/'evals/scenarios.json').read_text(encoding='utf-8'));calls=0
 for case in cases:
     assert all(name in skills for name in case['skills'])

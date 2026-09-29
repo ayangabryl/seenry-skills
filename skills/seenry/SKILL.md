@@ -1,93 +1,72 @@
 ---
 name: seenry
-description: "Design and build web interfaces at design-studio quality, not AI-template quality. Use for any new page, landing page, dashboard, app shell, pricing, settings, form or single component, for redesigns and visual polish, and for matching a reference. Works like a studio: fixes a strict frame (pixel grid, columns, padding, safe space, type set), explores several compositions inside it, critiques them side by side, and refines one with real material and research from real company screens via Seenry MCP."
+description: "Design and build web interfaces at design-studio quality, not AI-template quality. Use for any new page, landing page, dashboard, app shell, pricing, settings, form or single component, for redesigns and visual polish, and for matching a reference. Sets the bar with real big-company screens from Seenry MCP, builds clean and premium on a proven product and motion floor, and does not finish until a strict slop check passes and a blind critic scores the page at big-company level."
 license: MIT
 metadata:
   author: Seenry
-  version: "3.0.0"
+  version: "4.0.0"
 ---
 
 # Seenry
 
-Work like a design studio. Studios get consistent, high-end results from two things: a strict frame that every decision must fit, and the discipline to explore, critique and refine instead of shipping the first idea. The model is free to compose, but only inside the frame of pixel grid, column grid, padding, safe space, type set, radius family and palette. Taste comes from real references and real material, never from adjectives.
+The standard is simple: **clean, premium, no AI slop, at the level of the best big-company product design** (Stripe, Linear, Apple, Attio, Figma, ARKET). Everything below serves that. Read this whole file before building; the rules that decide quality are here, not in the guides.
 
-Work in the project's existing stack. If the project has tokens, components or a `DESIGN.md`, read them first and extend them; never introduce a parallel system.
+Work in the project's existing stack. If the project has tokens, components or a `DESIGN.md`, read them first and extend them.
 
-## The studio process
+## The flow
 
-1. **Brief.** Name the audience, the one job of the surface, the real content, and one sentence of point of view ("a calm, tool-like player that disappears behind the music"). Note what is fixed (brand, stack, copy).
-2. **Research, automatically.** State the plan in one line ("Studying pricing at Vercel, Linear, Notion plus an open search") and proceed; never stop to ask which references to use. Shortlist 3–5 named leaders for this job with a reason each, run one open category search to discover products you did not know, study each at real pixels, and synthesize what everyone does, what only the best do, and the opening this design can take. Use Seenry MCP when connected ([research](references/research.md)); otherwise browse and use [benchmarks](references/benchmarks.md). Decide the direction yourself from the evidence and record it.
-3. **Frame.** Write the system into `DESIGN.md`: tokens from [the system](references/system.md), the page shell from [pages](references/pages.md), and one spec card per component from [components](references/components.md). This is the frame every variant must fit.
-4. **Material.** Get real images, icons and fonts before composing: supplied assets, license-clear sources, or generated images when an image model is available. Use `seenry-assets`. No placeholder gradients, no emoji icons.
-5. **Explore.** For every hero, signature component or first screen, build 3 compositions that differ on 2–3 real axes (arrangement, media scale, anchor, density, detail layer) inside the same frame. Render them side by side at 1440 and 390 and critique in writing. Follow [structured exploration](references/exploration.md).
-6. **Refine.** Put the chosen variant on keylines and align ink, not boxes ([alignment](references/alignment.md)); then apply optical corrections for shapes the eye misjudges ([optical](references/optical.md)); then the [craft pass](references/craft.md): every state, longest content, dark mode.
-7. **Verify on pixels.** Run `node scripts/audit_page.mjs <dev-server-url or file> --widths 1440,390 --shots <dir>` on the real page. It works on any project and reports system drift, alignment and optical errors. Look at the screenshots with the [grid overlay](assets/layout-guides/README.md) on, and run the [anti-slop check](references/anti-slop.md). Fix everything before expanding to the next section. Use `seenry-review` for an independent verdict.
+1. **Brief (2 minutes).** Audience, the one job of the surface, the real content, what is fixed. One sentence of intent ("a calm ledger that makes what is owed obvious").
+2. **Set the bar with real screens.** With Seenry MCP (see [research](references/research.md)), find 3 big-company pages that do this job at the highest level, in this category when the library has them (billing → Stripe, Mercury; CRM → Attio; commerce → Apple, ARKET, Aesop; product marketing → Linear, Figma, Arc). Download each desktop first screen to `.seenry/refs/` (`curl -A "Mozilla/5.0" -o .seenry/refs/<name>.png "<url>"`) and look at them. Write five lines on why they look premium: palette, type and weights, radius and elevation, density, what they leave out. Without MCP, do the same from the live sites.
+3. **Decide the direction in five lines.** Neutral temperature and one action color; one type family (plus a display face only for a brand surface, with a reason); radius family; the imagery (real photograph or the real product UI, never clip-art); the one detail this brand owns. Pick the obvious premium answer before a clever one.
+4. **Build on the floor.** App screens start from [the product kit](assets/kits/product.css); every page includes [the motion floor](assets/kits/motion.css). Set font, neutrals and accent from step 3. Real content and real imagery via `seenry-assets`.
+5. **Check until it passes.** Run `node scripts/check.mjs <file or url> --brief <brief file>` (add `--refs` if your references are not in `.seenry/refs/`). It fails on any slop blocker, then asks a blind critic, a fresh model that sees only the screenshots, the brief and the reference screens, to score the page against them. Apply every fix it prints, then run it again. Repeat until it prints `PASS` (critic 9+ with zero blockers) or six rounds have run; then ship the best round. Never finish on your own opinion of the page: in testing, self-review rated 9 what blind review rated 6–7.
+6. **Deliver.** Write `DESIGN.md` with a "Brand guidelines" section and give the report below. The design sheet is optional and comes last: `python3 scripts/sheet.py .seenry/sheet.json` ([sheet](references/sheet.md)).
 
-8. **Deliver the Seenry sheet.** Render `.seenry/sheet.html` with [sheet.py](scripts/sheet.py): the result, why each decision was made, the companies studied and discovered, the variants, color and type with measured contrast, component anatomy from [anatomy.mjs](scripts/anatomy.mjs), guidelines for future work, and what was verified. Open it for the user. See [the sheet](references/sheet.md).
+For a small fix in an established system: repair on-system, then run `check.mjs` once.
 
-For a small fix in an established system, skip exploration and the full sheet: inspect, repair on-system, verify, and update the existing sheet's record if a decision changed.
+## The standard
 
-## The frame (defaults)
+Leading teams look premium for one root reason: they ranked the job, then removed everything that does not serve it. Calm is the visible result. The reasons behind each rule are in [premium](references/premium.md).
 
-Use these unless the project already defines its own. Details and a starter `tokens.css` are in [the system](references/system.md).
+**Never ship these (check.mjs blocks most of them):**
+- Uppercase letter-spaced labels anywhere, especially eyebrows above titles. Use sentence case; the title says it.
+- Numbered labels: "01 /", "(001)", "No. 03", "Step 01". Numbers only where order is real, as plain figures.
+- Weights of 700 or more in UI, or more than three weights on a page.
+- Italic serif accent words in headlines; trendy default faces used for flavor (Instrument Serif, Fraunces, Playfair, Space Grotesk, Clash Display).
+- The default AI palettes: cream + terracotta or orange, plum + peach, navy + lime, forest green + cream as a costume, purple gradients.
+- Clip-art imagery: sunset circles, vinyl records, flat SVG product stand-ins, tilted floating cards with sticker badges, gradient blobs, glows.
+- Colored KPI hero cards with rings or stripes, an icon in every card, a card per row, saturated pill badges down a column.
+- Generic slogans ("X is better together", "Built for the way you Y"), fake stats, lorem.
+- Text people must read under 13px, or in a light grey that fails contrast.
 
-**Pixel grid.** 4px base; layout values are multiples of 8. Spacing scale `4 8 12 16 24 32 48 64 96 128`. Nothing off-scale.
+**Color.** Neutrals do the work, defined as roles: canvas, surface, selected, rule, three text levels. Pick the temperature once (cool for tools, warm for craft and hospitality) and keep every grey in it. One action color, used only for the primary action, selection and focus, so it is always findable. Status is a 6px dot plus words on a pale tint; strong color only for the exception that needs action. A brand surface may have one bold field (a dark band, a photograph); never a second accent.
 
-**Grouping.** The gap between groups is at least 2x the gap inside a group. Proximity groups; lines and boxes are a last resort.
+**Type.** One workhorse sans for the product (Inter with `cv11 ss01`, Geist, SF via `system-ui`, or the brand's face), tuned: display tracking −0.02 to −0.03em, `text-wrap: balance`, real punctuation. Weights by role: 400 values and body, 500 labels, controls and row anchors, 600 titles and the key figure. App screens: 24/30 page title, 14/20 cells, 13/20 meta, 12/16 table headers in Title Case. Brand surfaces: display 56–80 at 500–600, lead 18–20, body 16–18, supporting copy at least 15. Money: sans, right-aligned, tabular in columns, consistent cents, real minus sign.
 
-**Radius.** One family, at most 4 values plus pill. Nested corners are concentric: `inner = outer − inset`. Card r28 with inset 12 holds media at r16. Never the same radius on a parent and its inset child.
+**Radius and elevation.** Radius says what a shape is: grids and tables square or 8–12 on the container, controls 6–8, floating layers 12, pills only for status and small toggles. Nested corners concentric. Resting content uses 1px hairlines; only menus, popovers, dialogs and sheets get a shadow.
 
-**Type.** One sans family for everything; add a mono only for code, data and small technical labels. Pick by product type: Inter or Geist for tools and SaaS, SF Pro (`system-ui`) for Apple-feel, Open Runde or Nunito for friendly consumer apps. Display serifs are an AI tell on product surfaces; use one only for editorial or luxury brands. **Per component: ≤3 sizes, ≤3 weights. Per page: ≤6 sizes.** Display at 500–600 with −0.02 to −0.04em tracking and 1.0–1.15 line height. Body 16px; product UI 13–15px. See [typography](references/typography.md).
+**Scale on desktop.** Premium pages use the whole 1440 canvas with confidence; a phone layout enlarged onto a wide screen reads as a template. At 1440: content spans 1200–1280; the hero image or product media takes 55–60% of the width and most of the first screen's height; the page or product title is 40–56 on product and commerce pages (56–80 on marketing heroes); controls are 44–48 high with 15–16px labels; the primary action is visible in the first screen on desktop and within the first screen and a half on phone. Selected states are decisive: a 2px dark border or a solid fill, never a pale tint plus a hairline.
 
-**Color.** Neutrals do 90% of the work: background, 2 surfaces, 3 text levels, 2 borders. One accent, ideally sampled from the brand or the hero material, used only for the primary action, selection, progress and focus. Generate the ramps and roles with `python3 scripts/palette.py "<brand hex>"`, which measures every pair in both themes. See [color](references/color.md).
+**Layout and density.** One dominant element per view. Content max 1200–1280, gutters 32 desktop and 16–20 phone, 8px spacing scale, gaps between groups at least twice the gaps inside. App screens: summary as 0–3 figures in one divided strip, then the work (table or list) within the first screen; rows 44–56. Brand surfaces: generous and consistent section rhythm (96–128 desktop), each section one idea with real material, left-aligned text.
 
-**Elevation.** Rings and hairlines by default. Shadows only for things that float (menus, popovers, dialogs), layered and low-alpha.
+**Imagery.** Real product UI with specific data, or photography that belongs to the subject (generate with the host's image model when available: describe the subject, light, lens and surface). One strong image beats five decorations. Never a gradient or SVG standing in for a photograph.
 
-**Actions.** One filled primary per region. Two CTAs maximum in a hero.
+**Copy.** Plain, specific, short. Headlines say what it is or does for this audience; labels name the thing; empty states say what happened and the one next action.
 
-## Build components in layers
+**Motion.** Functional and quiet: 120–160ms color on hover, 0.98 press, 200ms enter for layers, a visible change on filter and tab switches, none on data people read, all respecting reduced motion ([motion floor](assets/kits/motion.css); `seenry-motion` for more).
 
-Every component is constructed in four layers on the frame, and specced before styling:
+**Phone.** Recompose, do not squeeze: bottom tab bar or menu (never a clipped scrolling tab row), compact two-line rows, 16px inputs, 44px targets, sticky bars that never cover content.
 
-1. **Grid**: base unit, outer radius, inset.
-2. **Safe space and areas**: padding box, named content areas (media, text stack, controls, meta) and on-grid gaps.
-3. **Structure**: hierarchy placed into the areas on named keylines. **Align ink, not boxes**: a title's cap height (not its line box) meets the media's top edge, an icon's drawn glyph (not its button) sits on the text keyline, padding is measured to the letters. Edges are exact or at least 8px apart; 2–6px offsets are bugs. See [alignment](references/alignment.md).
-4. **Type and states**: real sizes and weights (≤3 each), then every state.
+## Grid and alignment
 
-```
-Component: Player card
-Grid:   4px · radius 28 · optical inset 16 all sides · cover 96 (24%) r12 (28 − 16)
-Areas:  [cover 96] [text stack + transport, flex] / [scrubber + times, full width]
-Keylines: V1 cover left · V2 cover right + 16 · V3 right inset
-Anchors: title cap top = cover top · play bottom = cover bottom · scrubber and times on V1–V3
-Type:   15/600 title · 13/400 artist · 11/500 mono times   (3 sizes, 3 weights)
-Color:  white card on warm neutral, ring border, accent sampled from the cover on progress only
-States: playing/paused, scrubbing (thumb + time tooltip), buffering, no artwork, long title
-```
-
-Worked examples, each built with this process and audited clean at 1440 and 390 in light and dark: [player card](assets/examples/player-card.html), [pricing section](assets/examples/pricing.html) (subgrid-aligned tiers in one hairline container) and [settings panel](assets/examples/settings.html) (grouped rows, concentric switch, danger zone). Each file's header comment records its frame, keylines and licenses. Anatomies for buttons, inputs, cards, rows, menus, dialogs, tables, pricing tiers and more are in [components](references/components.md).
-
-## Keep pages consistent
-
-All pages share one **page shell**: content width, gutter, 12-column grid, header height and a section rhythm, defined once as tokens. Every section uses one of a small set of archetypes with one heading pattern. Templates for landing, pricing, app shell, settings, auth, docs, detail and error pages are in [pages](references/pages.md).
-
-## What studio work has that templates don't
-
-Observed across Linear, Stripe, Vercel, Notion, Raycast, Resend, Apple and others (see [benchmarks](references/benchmarks.md)):
-
-- **Real material.** Real product UI with specific data, real photography, a real cover. Never a gradient standing in for an image.
-- **One dominant element** per view and clear subordinates, never everything at the same size.
-- **Anchored structure.** Edges line up across the whole component and page.
-- **A detail layer.** One level of fine detail rewards a closer look: metadata lines, mono labels, live counts, precise times.
-- **Restraint.** One sans family, 2–3 weights, one accent, hairlines instead of boxes.
-- **Density where work happens.** 13–15px product UI and compact rows; marketing breathes.
-
-The full list of AI tells and their fixes is in [anti-slop](references/anti-slop.md).
+4px base, 8px layout values, spacing `4 8 12 16 24 32 48 64 96 128`. Align ink, not boxes: a title's cap height meets the media's top edge, icons sit on the text keyline; edges are exact or at least 8px apart ([alignment](references/alignment.md), [optical](references/optical.md)). Components have at most 3 sizes and 3 weights ([components](references/components.md)); pages share one shell ([pages](references/pages.md)).
 
 ## Guides
 
 | Need | Read |
 | --- | --- |
+| Why leading teams choose their colors, radii, weights and density; premium, clean, elegant rules | [premium](references/premium.md) |
+| Concept, directions, type voice, palette origin, signature component, generated-page defaults | [art direction](references/art-direction.md) |
 | Tokens, grid, spacing, radius, elevation, starter CSS | [system](references/system.md) |
 | Exploring compositions inside a fixed frame, studio critique | [exploration](references/exploration.md) |
 | Constructing and speccing components, anatomies | [components](references/components.md) |
@@ -112,6 +91,10 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 
 ## Tools
 
+- [Check](scripts/check.mjs): the finishing gate. Runs the review board, blocks on slop, then the blind critic against the reference screens; prints PASS or the fixes to apply.
+- [Blind critic](scripts/critic.mjs): a fresh Codex or Claude process scores the page against the references with the premium standard and returns ranked fixes.
+- [Review board](scripts/review_board.mjs): the page at review scale beside the references, plus craft blockers the grid audit cannot see (legibility at scale, eyebrows, numbering, weights, font loading, figure spacing, phone clipping, fixed overlays, motion coverage). Run it every review round.
+- [Product kit](assets/kits/product.css) and [motion floor](assets/kits/motion.css): the starting quality floor for app screens and interaction.
 - [Page audit](scripts/audit_page.mjs): one command for any project (URL or HTML file) at several widths; runs the system and optical audits and prints fixable findings. Needs Playwright.
 - [Optical audit](scripts/optical_audit.mjs): rasterizes icons to measure ink; reports off-center icon buttons (including asymmetric shapes), icons missing their label's cap-height center, labels not centered in controls, unbalanced icon-side padding and headline side bearing, each with a CSS nudge.
 - [System audit](scripts/system_audit.mjs): counts rendered font sizes, weights, families, radii, shadows and colors; lists off-grid padding, gaps and margins; flags non-concentric corners, wrapped control labels and components over 3 sizes or weights; per component, measures ink-level alignment (cap tops, baselines, drawn glyphs, media edges): near-miss edges, media anchors and optical insets. Run it on every screenshot pass.
@@ -124,4 +107,19 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 
 ## Report
 
-Give the sheet path first, then a short summary: the direction chosen and why, the companies that informed it (and any discovered along the way), what the audit caught and fixed, and anything not verified. The sheet carries the detail; do not repeat it in chat. Do not claim quality you did not see in a screenshot.
+Lead with a **brand guidelines summary** the user can read without opening anything, then the paths:
+
+```
+Bar:       <the 3 reference screens and the five lines on why they look premium>
+Direction: <intent in one sentence>
+Type:      <family and weights by role; why>
+Palette:   <name hex role> · … ; temperature and why
+Radius:    <family by role>; elevation rule
+Imagery:   <what the images are and how they were made>
+Owned detail: <the one detail this brand owns>
+Rules:     3–5 testable do/don't lines for future work
+Critic:    <round-by-round blind scores from check.mjs, e.g. 6 → 7 → 8 → 9> and what moved it
+Verified:  <widths, interactions, contrast>; not verified: <…>
+```
+
+Write the same guidelines into `DESIGN.md` under "Brand guidelines". State the critic's final score, never a self-score.

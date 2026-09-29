@@ -21,10 +21,13 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 | --- | --- |
 | 700–800 weight hero, default tracking, 1.2 line height | 400–600, −0.02 to −0.05em, 1.0–1.1 |
 | Gradient-filled headline text | Solid text-1; color the accent word at most |
-| Display serif headline (Instrument Serif, Playfair, Fraunces) on a product or SaaS page | The product sans at 500–600, tight tracking; serif only for editorial or luxury brands |
+| The fashionable default faces (Instrument Serif, Playfair, Fraunces, Space Grotesk, Clash Display) or untuned Inter/`system-ui` as the whole identity | A pairing from the concept with a written reason ([art direction](art-direction.md)) |
+| Italic serif accent word inside a headline ("better *together*") | One face per headline; the display face carries it |
 | More than 3 sizes or 3 weights inside one component | Remove one; use color or space for hierarchy |
-| Two families for headings and body, or a random display font | One sans for everything; mono only for code and data |
-| Uppercase letter-spaced labels on every section | Sentence case; overline for one role at most |
+| A display font picked for novelty with no link to the product | Display face from the concept; workhorse text face; mono only for data |
+| Uppercase letter-spaced label (eyebrow) above a title | Remove it. The title says it; if context is needed, put it in the lead sentence |
+| Numbered labels: "01 /", "(001)", "No. 03", "§2" | Remove. Numbers only where order is real (steps in a form), shown as plain figures |
+| Heavy weights (700–900) or more than three weights on a page | 400 text, 500 labels and controls, 600 titles and key figures |
 | Body text in light grey that fails contrast | text-2 minimum |
 | Prices and numbers jumping width | `tabular-nums` |
 
@@ -32,6 +35,8 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 
 | Tell | Fix |
 | --- | --- |
+| The default palettes: cream + terracotta/orange, forest green + cream, plum + peach, black + one neon | Sample the palette from the concept's material and name its origin |
+| Only neutrals and one accent, so the page is unrecognizable at thumbnail size | One bold field: a dark or saturated band or surface |
 | Purple/indigo-to-pink gradients on buttons, text and backgrounds | One accent, solid; one expressive visual at most |
 | Glassmorphism cards on a gradient mesh | Solid surfaces with a ring |
 | Every card with `shadow-lg` and `rounded-2xl` | Ring or hairline; shadow only on floating layers |
@@ -45,6 +50,8 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 
 | Tell | Fix |
 | --- | --- |
+| Stock music and product clichés: sunset-circle cover art, a vinyl sliding from a sleeve, a kraft bag with a colored band, tilted UI with sticker badges | Material from the concept: photographed places and objects, the real product UI |
+| "01 / 02 / 03" step rows, "Most popular" middle tier, accent CTA band before the footer | Use each only when the content needs it; vary section archetypes |
 | Gradient or flat color block standing in for a photo, cover or avatar | Real image via `seenry-assets` (sourced or generated), or remove the slot |
 | Elements that align to nothing (a centered control row under a left-aligned block) | Anchor each element to a keyline |
 | Title beside an image aligned by its line box, so the capitals sit below the image top | `text-box: trim-both cap alphabetic`; cap top = image top ([alignment](alignment.md)) |
@@ -90,6 +97,9 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 | Horizontal scroll from a wide element | Contain the element; check at 320px |
 | Tap targets under 44px, buttons touching edges | 44px targets; 16–24px gutters |
 | Hamburger menu hiding the only CTA | Keep the primary CTA visible in the header |
+| Horizontally scrolling nav tabs clipped at the edge | Bottom tab bar, menu or fewer items |
+| Sticky action bar covering content in the full-page render | Keep the action in flow; show a sticky copy only after it scrolls away |
+| Tall cards for each row in a phone list | Compact rows with the key figure on the right |
 
 ## Measure it
 

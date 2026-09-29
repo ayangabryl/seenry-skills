@@ -1,8 +1,11 @@
 {
   "mcpServers": {
-    "web-atlas": {
+    "seenry": {
       "type": "http",
-      "url": "https://mcp.seenry.design"
+      "url": "https://mcp.seenry.design",
+      "headers": {
+        "Authorization": "Bearer ${SEENRY_PRO_KEY}"
+      }
     }
   }
 }

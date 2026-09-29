@@ -43,7 +43,7 @@ Upgrading from 2.x: run with `--replace --apply`. The ten specialist skills merg
 
 ## Seenry MCP
 
-The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, iOS app screens and flows, branding systems and decks. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`. [.mcp.json](.mcp.json) is an example configuration. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
+The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, iOS app screens and flows, branding systems and decks. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
 
 ## Verify and contribute
 

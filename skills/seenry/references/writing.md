@@ -12,7 +12,7 @@ Copy is interface. Generic copy makes a well-built page look generated.
 
 ## Product copy
 
-- Sentence case everywhere. No title case buttons, no ALL CAPS labels (except a single overline role).
+- Sentence case everywhere. No title case buttons, no ALL CAPS labels, no eyebrow above titles, no numbered section labels.
 - **Buttons are verb + object:** "Create project", "Save changes", "Delete 3 files". The dialog title and its confirm button use the same verb.
 - **Labels are nouns,** short and specific: "Billing email", not "Please enter your billing email address".
 - **Help text answers the question the label raises,** in one line.

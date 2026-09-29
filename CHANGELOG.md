@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.0.0
+
+- Rewrites `seenry` around one standard: clean, premium, no AI slop, at big-company level. The rules that decide quality (never-ship list, color, type and weights by role, radius and elevation, desktop scale, layout, imagery, copy, motion, phone) now live in `SKILL.md`, because agents were not opening the reference files that held them.
+- New flow: brief, set the bar with three big-company screens from Seenry MCP saved to `.seenry/refs/`, a five-line direction, build on the product and motion kits, then `check.mjs` until it passes. The design sheet becomes optional and comes last.
+- Adds `check.mjs`, the finishing gate: `review_board.mjs` blocks on slop and craft problems, then `critic.mjs` scores the page against the reference screens and prints PASS or the fixes to apply.
+- Adds `critic.mjs`, a blind critic run in a fresh Codex or Claude process that sees only the screenshots, the brief and the references, scored on premium, clean and no-slop. It finds a working CLI even when a broken install shadows it on PATH. In testing, self-review rated 9 what blind review rated 6-7.
+- Adds `review_board.mjs`: the page at review scale beside the references, with detectors for tiny text, uppercase labels and eyebrows, numbered labels, heavy or too many weights, italic accent words, fonts that fail to load, spaced-out tabular punctuation, clipped phone rows, fixed bars over content and missing motion.
+- Adds `assets/kits/product.css` (app-screen floor from Stripe, Linear, Attio, Mercury, Ramp and Vercel) and `assets/kits/motion.css` (functional motion floor with reduced-motion handling).
+- Adds `references/premium.md` (why leading teams choose their colors, radii, weights and density, with sources) and `references/art-direction.md`; bans uppercase eyebrows and numbered section labels across the references; the sheet gains a Brand section.
+- Renames the MCP server from web-atlas to `seenry` and reads the key from `SEENRY_PRO_KEY`.
+- Benchmark (premium judge with big-company references, Codex gpt-6-sol): Seenry ranked first in all six passes across landing, dashboard and product (7.0 / 7.5 / 7.5 against 5.0 / 6.5 / 6.5 for the best competitor), with no-slop scores of 9-9.5 against 2-6.
+
 ## 3.0.0
 
 - Consolidates seventeen skills into seven: `seenry`, `seenry-review`, `seenry-assets`, `seenry-motion`, `seenry-apps`, `seenry-branding`, `seenry-decks`. Typography, color, layout, polish, writing and accessibility guidance become references of `seenry`; review, change review, stress and explain become modes of `seenry-review`.

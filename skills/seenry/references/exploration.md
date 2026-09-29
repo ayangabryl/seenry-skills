@@ -31,7 +31,7 @@ Pick 2–3 axes that actually change the design, and assign a different value to
 | Surface | flat on page · contained card · shell + inner card · full-bleed |
 | Detail layer | none · metadata line · mono labels · live data (counts, times, status) |
 
-Bad axes: color swap, corner radius, shadow, font swap. Those are frame decisions, not compositions.
+Bad axes: color swap, corner radius, shadow, font swap. Those are frame decisions, not compositions. The bigger choice (concept, type voice, palette origin) is made one level up, by pitching three directions in [art direction](art-direction.md) before the frame is fixed.
 
 ## 3. Generate 3 variants
 

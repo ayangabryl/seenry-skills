@@ -107,6 +107,18 @@ def result_section(r, base):
     return f'<div class="panel result">{figs}</div>{live}'
 
 
+def brand_section(r):
+    b = r.get('brand') or {}
+    head = rows([('Concept', b.get('concept')), ('Voice', b.get('voice')), ('Imagery', b.get('imagery')),
+                 ('Signature', b.get('signature'))])
+    rejected = ''.join(f'<div class="decision"><h3>{esc(x.get("name"))}</h3><div><p class="choice">Rejected</p>'
+                       f'<p class="why">{esc(x.get("why"))}</p></div></div>' for x in b.get('rejected') or [])
+    if not head and not rejected:
+        return ''
+    alt = f'<h3>Directions not taken</h3><div class="panel list">{rejected}</div>' if rejected else ''
+    return f'<div class="panel">{head}</div>{alt}'
+
+
 def decisions_section(r):
     items = r.get('decisions') or []
     if not items:
@@ -311,6 +323,7 @@ footer.bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px
 
 SECTIONS = (
     ('result', 'The result', 'What was built, at desktop and phone width.'),
+    ('brand', 'Brand', 'The concept behind the design, its voice and material, and the directions it beat.'),
     ('why', 'Why this design', 'Each decision, the reason for it, and the evidence behind it.'),
     ('research', 'Research', 'Real products studied before designing, and what each one taught.'),
     ('exploration', 'Exploration', 'Compositions built inside the same frame and compared side by side.'),
@@ -346,7 +359,7 @@ def render(record, base):
         if not record.get(key):
             raise SystemExit(f'sheet record needs "{key}"')
     parts = {
-        'result': result_section(record, base), 'why': decisions_section(record), 'research': research_section(record, base),
+        'result': result_section(record, base), 'brand': brand_section(record), 'why': decisions_section(record), 'research': research_section(record, base),
         'exploration': exploration_section(record, base), 'color': color_section(record), 'type': type_section(record),
         'anatomy': anatomy_section(record, base), 'guidelines': guidelines_section(record, base), 'verification': verification_section(record),
     }

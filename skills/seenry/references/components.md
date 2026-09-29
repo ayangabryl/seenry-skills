@@ -69,7 +69,7 @@ Measured defaults below match what leading product sites ship (see [benchmarks](
 ### Card
 
 - Radius lg (16) with inset 16–24, or xl (24) with inset 24. Surface-1 on bg with a ring; no shadow unless it moves.
-- Structure: optional media (full-bleed top with concentric top radius, or inset with `r − inset`), then text stack: eyebrow 12–13/500 text-3 (optional), title 16–20/600, body 14–15/400 text-2, then a meta/controls row pinned to the bottom (`margin-top: auto` in a flex column so rows of cards align).
+- Structure: optional media (full-bleed top with concentric top radius, or inset with `r − inset`), then text stack: title 16–20/600, body 14–15/400 text-2, then a meta/controls row pinned to the bottom (`margin-top: auto` in a flex column so rows of cards align).
 - Clickable card: whole card is the hit target, hover lifts surface by one step or moves the ring to border-2; do not scale the card.
 - Cards in a grid share the same height per row and the same internal area order.
 

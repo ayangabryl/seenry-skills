@@ -16,7 +16,7 @@ Consistency across pages comes from one shell, a small set of section archetypes
 
 - Header logo, section content and footer columns start on the same x. Check this with the grid overlay on every page.
 - Section backgrounds may bleed full-width; content never does (except intentional full-bleed media).
-- Use the same heading pattern for every section of a page: e.g. eyebrow 13/500 text-3 → title 32–40/500 → lead 17–18/400 text-2, max-width 640, left-aligned. Do not alternate centered and left-aligned headings between sections.
+- Use the same heading pattern for every section of a page: e.g. title 32–40/500–600 → lead 17–18/400 text-2 (no eyebrow above the title, no section numbers), max-width 640, left-aligned. Do not alternate centered and left-aligned headings between sections.
 
 ## Section archetypes
 
