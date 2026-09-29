@@ -1,0 +1,135 @@
+/* Seenry starter tokens. Copy, then rename values to the brand; keep the roles. */
+:root {
+  /* Grid */
+  --unit: 4px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  /* Page shell */
+  --content-max: 1200px;
+  --content-text: 720px;
+  --gutter: 16px;
+  --grid-gap: 16px;
+  --section-gap: var(--space-8);
+  --header-h: 56px;
+
+  /* Radius: one family, concentric when nested */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Type: one UI family, one optional accent */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-accent: ui-serif, "Iowan Old Style", Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  --text-xs: 12px;   --leading-xs: 16px;
+  --text-sm: 13px;   --leading-sm: 20px;
+  --text-base: 16px; --leading-base: 24px;
+  --text-md: 18px;   --leading-md: 28px;
+  --text-lg: 20px;   --leading-lg: 28px;
+  --text-xl: 28px;   --leading-xl: 32px;
+  --text-2xl: 40px;  --leading-2xl: 44px;
+  --text-display: clamp(40px, 6vw, 72px);
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --tracking-display: -0.035em;
+  --tracking-title: -0.015em;
+  --tracking-body: 0;
+  --tracking-caps: 0.06em;
+
+  /* Color roles (light) */
+  --bg: oklch(0.99 0.002 250);
+  --surface-1: oklch(1 0 0);
+  --surface-2: oklch(0.97 0.003 250);
+  --surface-inverse: oklch(0.2 0.01 250);
+  --text-1: oklch(0.2 0.01 250);
+  --text-2: oklch(0.45 0.01 250);
+  --text-3: oklch(0.58 0.01 250);
+  --text-inverse: oklch(0.98 0 0);
+  --border-1: oklch(0.2 0.01 250 / 0.08);
+  --border-2: oklch(0.2 0.01 250 / 0.14);
+  --accent: oklch(0.55 0.2 265);
+  --accent-hover: oklch(0.5 0.2 265);
+  --accent-fg: oklch(0.99 0 0);
+  --accent-soft: oklch(0.55 0.2 265 / 0.1);
+  --focus: oklch(0.55 0.2 265 / 0.45);
+  --positive: oklch(0.55 0.14 150);
+  --warning: oklch(0.7 0.15 75);
+  --negative: oklch(0.55 0.2 25);
+
+  /* Elevation */
+  --ring: 0 0 0 1px var(--border-1);
+  --shadow-raised: 0 0 0 1px var(--border-1), 0 1px 2px oklch(0 0 0 / 0.06);
+  --shadow-float: 0 0 0 1px var(--border-1), 0 4px 12px oklch(0 0 0 / 0.06), 0 16px 32px oklch(0 0 0 / 0.08);
+  --scrim: oklch(0 0 0 / 0.4);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+}
+
+@media (min-width: 480px) { :root { --gutter: 24px; } }
+@media (min-width: 768px) { :root { --gutter: 32px; --grid-gap: 24px; --header-h: 64px; } }
+@media (min-width: 1024px) { :root { --section-gap: var(--space-9); } }
+@media (min-width: 1280px) { :root { --gutter: 48px; --section-gap: var(--space-10); } }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: oklch(0.16 0.005 250);
+    --surface-1: oklch(0.2 0.006 250);
+    --surface-2: oklch(0.24 0.006 250);
+    --surface-inverse: oklch(0.96 0 0);
+    --text-1: oklch(0.96 0.003 250);
+    --text-2: oklch(0.74 0.008 250);
+    --text-3: oklch(0.6 0.008 250);
+    --text-inverse: oklch(0.2 0.01 250);
+    --border-1: oklch(1 0 0 / 0.07);
+    --border-2: oklch(1 0 0 / 0.13);
+    --accent: oklch(0.68 0.16 265);
+    --accent-hover: oklch(0.74 0.14 265);
+    --accent-fg: oklch(0.16 0.01 265);
+    --accent-soft: oklch(0.68 0.16 265 / 0.14);
+    --ring: inset 0 0 0 1px var(--border-1);
+    --shadow-raised: inset 0 0 0 1px var(--border-1);
+    --shadow-float: inset 0 0 0 1px var(--border-2), 0 8px 24px oklch(0 0 0 / 0.4);
+  }
+}
+
+.container {
+  width: min(100% - 2 * var(--gutter), var(--content-max));
+  margin-inline: auto;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font: var(--weight-regular) var(--text-base) / var(--leading-base) var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}

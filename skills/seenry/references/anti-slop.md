@@ -1,0 +1,78 @@
+# Anti-slop check
+
+Run this list against the rendered page (desktop 1440 and phone 390) before showing it and again before reporting. Each item is a pattern that marks an interface as generated. Fix every hit or state why it is deliberate.
+
+## Layout
+
+| Tell | Fix |
+| --- | --- |
+| Centered hero + centered paragraph + two buttons + gradient blob behind | Left-align, show the product, one visual idea |
+| Three identical icon-title-text cards ("Fast", "Secure", "Scalable") | Different content per cell: a UI crop, a number, a list; or cut the section |
+| Every section a centered heading over a 3-column grid | Vary archetypes: split, deep-dive, table, quote |
+| Section edges that don't align with the header logo | One container token for all regions |
+| Off-grid spacing (10, 15, 18, 22, 30px) or random `mt-[13px]` | Snap to the 4/8 scale; fix grouping instead |
+| Equal spacing everywhere, so nothing groups | Within-group gap ≤ half the between-group gap |
+| Content stretched to 1440+ with 20px text lines 150 characters long | Max widths: 1200 layout, 65ch text |
+| Hero taller than the viewport with nothing but a headline | Hero ≤ 760px desktop; first proof visible above the fold |
+
+## Type
+
+| Tell | Fix |
+| --- | --- |
+| 700–800 weight hero, default tracking, 1.2 line height | 400–600, −0.02 to −0.05em, 1.0–1.1 |
+| Gradient-filled headline text | Solid text-1; color the accent word at most |
+| More than 3 sizes or 3 weights inside one component | Remove one; use color or space for hierarchy |
+| Two sans-serif families, or a random display font | One sans; accent is serif or mono only |
+| Uppercase letter-spaced labels on every section | Sentence case; overline for one role at most |
+| Body text in light grey that fails contrast | text-2 minimum |
+| Prices and numbers jumping width | `tabular-nums` |
+
+## Color and surface
+
+| Tell | Fix |
+| --- | --- |
+| Purple/indigo-to-pink gradients on buttons, text and backgrounds | One accent, solid; one expressive visual at most |
+| Glassmorphism cards on a gradient mesh | Solid surfaces with a ring |
+| Every card with `shadow-lg` and `rounded-2xl` | Ring or hairline; shadow only on floating layers |
+| Same radius on parent and inset child | `inner = outer − inset` |
+| Mixed radius families (pill buttons, 4px inputs, 24px cards, 12px images) with no rule | One scale of ≤4 values + pill, applied by role |
+| Colored left-border "accent" on cards and alerts | Tint or icon; no stripe |
+| Neon glows and outer glows on dark UI | Inner hairline and surface steps |
+| Accent color used for headings, icons and borders | Accent only on actions, selection, focus |
+
+## Content
+
+| Tell | Fix |
+| --- | --- |
+| "Unlock", "Supercharge", "Elevate", "Seamless", "Revolutionize" | Concrete mechanism and result |
+| Lorem ipsum, John Doe, Acme Inc, $99.99, 10,000+ happy customers | Domain-plausible, varied, internally consistent data |
+| Fake testimonials with stock avatars | Real quotes, or no testimonial section |
+| Emoji as icons or bullet points | One icon family |
+| Dashboard hero with meaningless charts | Real product view with plausible data |
+| Tilted floating screenshot with heavy shadow | Straight, cropped UI with the card's ring and radius |
+| Stats row "99.9% uptime · 10x faster · 24/7 support" without source | One real, attributable number or none |
+
+## Components
+
+| Tell | Fix |
+| --- | --- |
+| Two or more filled primary buttons side by side | One primary; the other secondary or text |
+| Hover effects that scale cards up and add shadows | One-step surface/border change |
+| Icons at different sizes and stroke weights | 16/20/24, one stroke |
+| Missing focus, empty, error and loading states | Render all states (see [components](components.md)) |
+| Modal for everything | Inline edit, popover or page by consequence |
+| Toggle, checkbox and radio used interchangeably | Toggle = immediate, checkbox = submit later, radio = one of many |
+
+## Phone
+
+| Tell | Fix |
+| --- | --- |
+| Desktop layout squeezed: 4 columns at 390px, 10px text | Reflow to 1–2 columns; 16px body |
+| Headline breaking into one word per line | Smaller display size (55–65% of desktop), `text-wrap: balance` |
+| Horizontal scroll from a wide element | Contain the element; check at 320px |
+| Tap targets under 44px, buttons touching edges | 44px targets; 16–24px gutters |
+| Hamburger menu hiding the only CTA | Keep the primary CTA visible in the header |
+
+## Measure it
+
+Run [the system audit](../scripts/system_audit.mjs) in the page (Playwright or the browser console) to count distinct font sizes, weights, families, radii, shadows and colors, list off-grid paddings, gaps and margins, and flag nested radius violations. Numbers do not replace looking, but they catch drift you stop seeing after the third iteration.

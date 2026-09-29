@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.0
+
+- Consolidates seventeen skills into six: `seenry`, `seenry-review`, `seenry-motion`, `seenry-apps`, `seenry-branding`, `seenry-decks`. Typography, color, layout, polish, writing, accessibility and asset guidance become references of `seenry`; review, change review, stress and explain become modes of `seenry-review`. The installer archives the retired skills on `--replace`.
+- Replaces the checkpoint pipeline (first-slice gates, CLI review gates, packets, lessons) with a concrete system: 4px grid and spacing scale, concentric radius rule, one-sans-plus-accent type with at most three sizes and weights per component, color roles with one accent, ring-first elevation, starter `tokens.css` and a `DESIGN.md` template.
+- Adds layered component construction (grid → safe space → structure → type and states) with spec cards and measured anatomies for common components, page shells and section archetypes for cross-page consistency, and an anti-slop list with fixes.
+- Adds benchmarks measured through Seenry MCP from 24 leading product sites, and concrete MCP research recipes.
+- Adds `system_audit.mjs`, which counts rendered font sizes, weights, families, radii, shadows and colors, lists off-grid spacing and flags non-concentric nested corners and components over the type limits.
+- The 2.x pipeline is preserved at the `v2-archive` git tag.
+
 ## 2.0.1-dev.38
 
 - Gives reference-led adaptations a primary route: compare the decisive rendered slice with actual source pixels before expanding the page, preserve the visual relationship with original subject material, and report surviving gaps rather than inferring parity from working controls.

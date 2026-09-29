@@ -1,35 +1,25 @@
-# Seenry workflow map
+# Seenry architecture
 
-The original five skills own deliverables: `seenry` builds web interfaces, `seenry-motion` handles behavior over time, `seenry-assets` handles media and provenance, `seenry-branding` records identity, and `seenry-decks` handles presentation research. `seenry-apps` handles connected mobile screens in the project's platform. Directly invokable craft skills own typography, color, layout, accessibility, writing and visual polish. They are useful for a narrow request without loading a full site-building workflow.
+## Why 3.0 looks like this
 
-`seenry-review` judges a rendered screen or flow; `seenry-change-review` judges the impact of a named diff. `seenry-variants` produces candidates, `seenry-stress` tests one component's reachable states, and `seenry-explain` studies an observed source. These are different operations. The entrypoints are deliberately specific so an agent can select one rather than loading every domain skill by default.
+Version 2 split design into seventeen skills and wrapped original work in a checkpoint pipeline (frozen briefs, paired direction studies, CLI review gates, hashed packets). The process was rigorous, but the output still read as generic because the agent was never given concrete values: it was told to compare, review and verify, not what a good button, card or page shell measures. Specialist skills were also rarely loaded when needed.
 
-For original work, `seenry` still owns the full result. When Seenry MCP is connected, it inspects actual task and craft references before styling, then identifies the decision most likely to hide the task or produce a generic result. It compares two small rendered alternatives that differ on that decision. A type-led opening routes through `seenry-typography` and anti-default guidance. The selected first slice goes to a focused typography review and a broader `seenry-review`: one checks the type signature and reading path, the other checks the complete task. Resolve blocking findings and recapture before expanding. Use fresh review contexts when available; otherwise label a builder's craft judgment provisional. The reviews compare real wide and narrow pixels; a checklist, font name, source rating or self-authored rationale cannot certify quality. A dedicated skill makes a domain discoverable, but does not guarantee that a model applies it. Tests must inspect actual reads and artifacts.
+Version 3 inverts that. The main skill carries the system itself: allowed values, layered component construction, page shells, measured benchmarks and an explicit anti-slop list. Process shrinks to five steps (read, study real screens, write the system and spec cards, build one real slice, verify on pixels). The 2.x pipeline remains in git history at the `v2-archive` tag.
 
-The [first-slice checkpoint](skills/seenry/scripts/first_slice.py) records a frozen brief and decision, two wide/narrow studies, a chosen study and named task anchor, then a finished first-screen review. It requires a Keep direction verdict before selection and checks that the finished screen still exposes its task anchor and chosen type direction. `verify` rechecks the rendered source and evidence hashes before a cleared claim. A small behavior spike can precede the visual comparison; its polished screen should not. The underlying [direction study gate](skills/seenry/scripts/direction_study_gate.py) also accepts a local craft-reference image to compare relevant material and proportions without imposing its style. Missing CLI, captures, support or a non-Keep verdict stays Unverified or Revise. These artifacts enforce the checkpoint for callers that use it; the skill alone cannot force an agent to call a tool. Without the CLI or captures, direction quality remains unverified. It assesses pictured alternatives, not interaction behavior or the finished page. Both web gates stage only their supplied inputs in temporary reviewer workspaces, then copy reports to the requested output path; this keeps sibling trial files and earlier verdicts out of the reviewer's working directory.
+## Skills
 
-The optional [Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs those two fresh contexts and saves structured findings with input and skill hashes. Up to four named `--state name=image.png` captures can show complete material or connected results hidden by the default frame. Its nonzero result stops a reviewable slice from being labeled cleared; the builder must repair and recapture. It is available only where Codex CLI and the sibling specialist skills are installed. It does not force an agent to run it or make either review infallible, so independent artifact inspection and user acceptance remain separate.
+- `seenry` owns building web interfaces, pages and components. Everything the specialist skills used to cover (typography, color, layout, craft, writing, accessibility, imagery) is a reference file it loads on demand.
+- `seenry-review` owns judgment: screen reviews, diff reviews, stress tests and explanations, all reported in one ranked table against the same system.
+- `seenry-motion` owns behavior over time and ships runnable, tested motion assets.
+- `seenry-apps` owns native mobile screens and flows with platform metrics.
+- `seenry-branding` and `seenry-decks` own identity and presentation research.
 
-The opt-in [visual benchmarks](tests/run_visual_benchmarks.py) exercise that reviewer on two original rendered cases: a repair-shop opening whose selected study drifted into a generic editorial headline and hid the phone time choice, and a dated observation journal where editorial typography serves the content. The expected typography results are Revise and Keep respectively. Run them after changing the review prompt or typography guidance; inspect the saved reports rather than treating one model verdict as a permanent quality guarantee. These cases calibrate a narrow judgment, not overall design quality.
+## Consistency mechanism
 
-For a native app, `seenry-apps` owns the connected task and device verification. Its [optional flow gate](skills/seenry-apps/scripts/independent_flow_gate.py) sends ordered, settled captures to fresh visual and flow reviewers, with the brief, source observations and hashes. A static pass covers only the pictured states; the builder still exercises actions, calculations, correction and accessibility on the device.
+1. `tokens.css` (or the project's tokens) defines every allowed value.
+2. `DESIGN.md` records tokens, the page shell, one spec card per component, references studied and rejected directions. Every later task reads it first.
+3. The system audit measures what actually rendered, so drift is visible as numbers: extra font sizes, stray weights, off-grid spacing, non-concentric corners.
 
-## Create
+## Evidence
 
-1. Lock the person, object, decision, supplied facts and real action outcome. Cross-check the facts for contradictions before rendering. Keep the decision record short and preserve existing project identity.
-2. Name the decisive region and states: what someone must see, compare or change, including conflict, success and return. Inspect one or two relevant references for transferable relationships, separating observed pixels or movement from interpretation.
-3. Compare two small rendered answers to the highest-risk visual decision, keeping facts and material fixed. A surrounding layout change does not answer a question about the material or preview. Then finish the selected slice with real material, type, controls and behavior at delivery size.
-4. Capture wide and narrow views and the decisive before/change/settled/reverse frames. Inspect normal-speed movement where it matters, repair the largest visible gap, then carry the system through the remaining page or screen families.
-5. Exercise actions, keyboard, recovery, narrow layout and reduced motion as applicable. Independently review the first slice and the complete result. Report what passed, what is provisional and what remains unverified.
-
-## Replicate
-
-Use the [replication guide](skills/seenry/references/replication.md). Lock the supplied reference and its known states, measure layout and interaction relationships, then compare the implementation against it at matching viewports. Preserve source-specific content and behavior. Record any unavailable source detail or proposed motion.
-
-## Refine or review
-
-A narrow request starts with the affected state and its current implementation. Invoke the relevant craft skill directly or read one [craft module](skills/seenry/SKILL.md#load-the-module-for-the-current-decision), change the smallest relationship that resolves the defect, and verify it. A review reports observed findings and missing evidence without building an unrequested replacement.
-
-## Evidence and tooling
-
-MCP can supply references, but it is optional. The [offline route](skills/seenry/references/without-mcp.md) supports supplied screenshots, browser inspection and local prototypes. Optional [packets](skills/seenry/scripts/packet.py) bundle selected guides and resource hashes for staged work. A hash proves what was supplied, not what was understood or the quality of the final interface. The package validator and tests check structure and helpers; rendered review remains part of the workflow. For a reference study, inspect actual media and record source, viewport, observed relationship, adaptation and limits. Do not bundle source screenshots or signed media URLs into the skill.
+Seenry MCP is optional. When connected, the agent studies 3–6 references per decision and records measured relationships in a reference card. Without it, the bundled benchmarks carry measured values from 24 leading sites. A screenshot proves one state at one width; motion and interaction need a recording or a live check.

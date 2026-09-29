@@ -278,8 +278,7 @@
     "request": "Use Seenry to design a studio site from a simple prompt.",
     "skills": [
       "seenry",
-      "seenry-motion",
-      "seenry-assets"
+      "seenry-motion"
     ],
     "calls": [],
     "check": "Write DESIGN.md before product code; compare three distinct concepts with genuine wireframe, typography and surface checkpoints. Carry selected system through footer and narrow states; never retrofit anatomy as planning evidence."
@@ -321,8 +320,7 @@
   {
     "request": "We want a creative colorful product, not the pale monochrome treatment from our last site.",
     "skills": [
-      "seenry",
-      "seenry-assets"
+      "seenry"
     ],
     "calls": [],
     "check": "Do not universalize prior preferences. Compare color roles and occupied area on identical composition; verify image fit, contrast and emphasis. No promise of premium from a font, color or prohibition."
@@ -331,8 +329,7 @@
     "request": "Build an ASCII video card with a morphing play control and a scroll-linked sequence.",
     "skills": [
       "seenry",
-      "seenry-motion",
-      "seenry-assets"
+      "seenry-motion"
     ],
     "calls": [],
     "check": "Route conversion to asciify-engine; inspect actual media. Keep state authoritative and real icon data. Prove reverse scroll, interruption, reduced motion, runtime failure and readable fallback; no transitions-dev dependency."
@@ -359,8 +356,7 @@
     "id": "offline-colorful",
     "request": "Use local assets to create an expressive culture-journal interface with a large coral field and luminous yellow action. No network or MCP.",
     "skills": [
-      "seenry",
-      "seenry-assets"
+      "seenry"
     ],
     "calls": [],
     "check": "Honors colorful brief; compares foregrounds on the actual bright action and surface areas; does not force a monochrome design; retains semantic cues beyond color."
@@ -423,8 +419,7 @@
   {
     "id": "rejected-editorial-type",
     "skills": [
-      "seenry",
-      "seenry-typography"
+      "seenry"
     ],
     "request": "Design a small product landing page. I already rejected the category label above a large soft-serif headline with a colored phrase; keep that entire look out of this project.",
     "check": "Record the rejected composition in the brief before drawing. Compare rendered opening studies using the product's actual evidence and action. Do not keep the same type silhouette by swapping fonts, deleting only the colored phrase or praising its genre fit. Inspect the chosen phone and desktop captures before expansion.",
@@ -435,7 +430,7 @@
     "skills": [
       "seenry"
     ],
-    "request": "Create a colorful children\u2019s museum discovery page.",
+    "request": "Create a colorful children’s museum discovery page.",
     "check": "Evaluate color roles/area with actual imagery; do not force monochrome as a premium rule.",
     "calls": []
   },

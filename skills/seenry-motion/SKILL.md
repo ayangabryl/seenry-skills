@@ -4,12 +4,29 @@ description: "Research or implement web interactions using Seenry recordings, cr
 license: MIT
 metadata:
   author: Seenry
-  version: "2.1.0"
+  version: "3.0.0"
 ---
 
 # Design movement around a real change
 
 Start with the user's task and the existing product. Keep its working behavior, content, brand and runtime. Motion should explain an action, relationship or change of state. MCP, paid accounts and another design skill are not required.
+
+## Defaults
+
+| Decision | Default |
+| --- | --- |
+| Should it animate? | Not if it happens 100+ times a day or is keyboard-initiated (command menus, shortcuts). Yes for state changes, spatial continuity and feedback. |
+| Press feedback | `scale(0.97)`, 100–160ms |
+| Tooltip, small popover | 125–200ms; instant for subsequent tooltips |
+| Menu, dropdown, select | 150–250ms enter, exit ~30% faster |
+| Dialog, drawer, sheet | 200–350ms |
+| Easing (enter, exit, UI) | `cubic-bezier(0.23, 1, 0.32, 1)` ease-out; never `ease-in` for UI |
+| Easing (on-screen movement) | `cubic-bezier(0.77, 0, 0.175, 1)` or a spring |
+| Spring (gestures, interruptible) | `{type: "spring", duration: 0.35–0.5, bounce: 0–0.15}` |
+| Enter from | opacity 0 + scale 0.96 or 4–8px translate, never `scale(0)` |
+| Origin | popovers from their trigger; modals from center |
+| Properties | `transform` and `opacity` only; list them explicitly, never `transition: all` |
+| Reduced motion | keep opacity, remove movement |
 
 **For a whole page or product screen:** apply the sibling [Seenry design workflow](../seenry/SKILL.md) before code: establish the facts and visual system, choose a direction, finish one real slice, then review wide and narrow renders. Motion craft does not replace typography, layout, copy or contrast. A focused component added to an existing page can stay here.
 
@@ -51,4 +68,4 @@ For a range or scrub control, inspect focused minimum and maximum states at 320p
 
 **Whole-page text check:** inspect text contrast on actual wide and narrow renders. If the page uses opaque CSS colors, run the sibling offline audit on the delivered files: `python3 <seenry-skill-dir>/scripts/token_contrast.py index.html [styles.css ...]`, replacing the placeholder with the real path. Repair failed small-text pairs and rerun. The source audit approximates page backgrounds; transparent, image and nested surfaces still need rendered review. Do not report contrast as checked when this step was skipped.
 
-Use **seenry-assets** for sourced media and **seenry** for overall interface direction. Neither a working helper nor a capability lab proves the quality of the finished product.
+Use **seenry** for overall interface direction and sourced media. Neither a working helper nor a capability lab proves the quality of the finished product.

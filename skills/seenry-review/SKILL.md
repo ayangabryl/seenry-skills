@@ -1,28 +1,73 @@
 ---
 name: seenry-review
-description: "Independently review a rendered website, app screen or connected flow across design, writing, typography, color, layout, accessibility and behavior. Use for a holistic quality verdict or before claiming a design matches a reference."
+description: "Review a web interface, a UI diff or a single component and return ranked, fixable findings. Use for design critique, UI audits, accessibility checks, reviewing a branch or PR for interface impact, stress-testing one component across states and sizes, or explaining how an observed interface or animation is built."
 license: MIT
 metadata:
   author: Seenry
-  version: "2.1.0"
+  version: "3.0.0"
 ---
 
 # Seenry Review
 
-Treat this as an evidence review, not a compliment pass. Resolve the brief and the actual screen or flow in scope. If you authored the surface, seek a fresh review context when available and label any self-review. Inspect the rendered opening and narrow view first, then the full sequence and relevant alternate states. Source code cannot substitute for pixels; a static capture cannot establish motion, keyboard behavior or a working action. If a category lacks evidence, mark it unverified.
+Judge what renders, not what the code intends. Every finding is visible, specific, ranked and comes with the smallest fix. Use the rules in the [Seenry system](../seenry/SKILL.md) as the standard: grid and spacing, per-component type limits, concentric radii, one accent, consistent page shell, and the [anti-slop list](../seenry/references/anti-slop.md).
 
-## Review the decision, then the finish
+If you built the surface yourself, say so and treat the verdict as self-review. A fresh agent context is better.
 
-1. **Subject and argument:** Can a visitor understand the offering, evidence and next action? Are claims supported? Does each section add a new answer?
-2. **Originality and fit:** Is the visual idea specific to this subject and brand? Compare the page after mentally removing fashionable typography, filler labels and decorative marks. If it then fits any company, the direction needs work.
-3. **Typography and writing:** Read actual words at delivery size. Inspect font voice, line breaks, hierarchy and repeated copy. Judge the combined type signature, not only whether each label has a plausible job: a tracked kicker/rule, contrasting italic serif phrase and literary caption can still be an unearned editorial preset. A large soft-serif headline with a colored phrase and small category label can be the same genre default without the italic or rule. “Calm” or “premium” subject matter alone does not justify it. Record an unearned treatment as a finding even when other task defects rank higher. A clean scale is not a compelling type direction. A user-rejected treatment remains a blocking finding until it is changed and re-rendered.
-4. **Color, layout and material:** Inspect occupied color area, action emphasis, grouping, image quality, crops, icons, edges, corners and repeated surfaces as related systems. Check whether a photo's depicted conditions support nearby claims; attractive lighting can contradict the product advice. A polished hero cannot excuse weak lower sections.
-5. **Accessibility and behavior:** Exercise the actual task path through keyboard, pointer and supported states. A selected choice needs a persistent visible cue beyond a color change. Measure contrast and inspect focus, zoom, narrow layout, errors, recovery and reduced motion. Mark screen-reader and device behavior unverified unless exercised.
+## Choose the mode
 
-When a quality target or reference is named, inspect its relevant pixels or recording and compare **specific relationships** at equivalent display size. Separate faithful reconstruction from original adaptation. State what survives, what differs, and whether the difference serves the new brief. Ratings, captions and the author's rationale are not visual proof. A benchmark result remains separate from user acceptance.
+| The user asks | Mode |
+| --- | --- |
+| "Review / critique / audit this page, screen or site" | **Screen review** |
+| "Review this branch / PR / commit / my changes" | **Change review**: run `git diff` against the base, list changed UI surfaces, render them before and after, review only those |
+| "Stress test / break this component" | **Stress test** |
+| "Is this accessible / WCAG" | **Screen review**, accessibility pass only, with [the checklist](../seenry/references/accessibility.md) |
+| "How was this built / explain this interaction" | **Explain** |
 
-## Report and repair
+## Screen review
 
-For each finding give visible observation → consequence for this task → likely cause → smallest useful change → exact recheck. Rank consequential failures first. Preserve useful choices; a review is not a demand to redesign everything. Permit a no-selection verdict when all candidates fail the brief. After a repair, reopen the same states and reference comparison; do not call the result improved solely because files changed.
+1. **Render.** Open the page at 1440 and 390 (plus 320 for overflow). Screenshot each. Exercise the main action with pointer and keyboard.
+2. **Measure.** Run [the system audit](../seenry/scripts/system_audit.mjs) at both widths. Record totals: font sizes, weights, families, radii, shadows, off-grid values, nested radius violations, components over limit, horizontal overflow. Toggle the [grid overlay](../seenry/assets/layout-guides/README.md) to check shared edges.
+3. **Look in this order**, because earlier failures make later ones moot:
+   - **Job and hierarchy.** Within 5 seconds, is it clear what this is, for whom, and what to do next? Is the primary action the most prominent control?
+   - **Layout.** Shared content edges, section rhythm, grouping (2x rule), reading order, phone reflow.
+   - **Type.** Family count, sizes and weights per component and page, display weight and tracking, line length, wrapping.
+   - **Color and surface.** Accent area and roles, contrast, elevation choices, radius family and concentricity.
+   - **Components and states.** Hover, focus, active, disabled, loading, empty, error, overflow.
+   - **Content.** Specific or generic copy, realistic data, claims with proof.
+   - **Accessibility.** Keyboard path, focus visibility, names, contrast, targets, zoom, reduced motion.
+4. **Compare** against a reference when useful: with Seenry MCP, pull the same page type from 2–3 strong sites (`search_references` with `page_type`, or `list_sites` + `get_design`) and name the specific relationship that differs. See [benchmarks](../seenry/references/benchmarks.md).
 
-The directly invokable Seenry domain skills provide deeper checks: [typography](../seenry-typography/SKILL.md), [color](../seenry-color/SKILL.md), [layout](../seenry-layout/SKILL.md), [accessibility](../seenry-accessibility/SKILL.md), [writing](../seenry-writing/SKILL.md) and [polish](../seenry-polish/SKILL.md). Assess each domain visible in a holistic review, but open a specialist only when its deeper rules are needed to decide or explain a finding. Mark unexercised checks unverified. For a narrow review, state that boundary. For a full package, [visual review](../seenry/references/visual-review.md) describes artifact-based dispositions.
+## Report format
+
+One table, ranked by severity, one row per root cause, every location listed:
+
+| Sev | Where | Now | Change to | Why |
+| --- | --- | --- | --- | --- |
+| High | `Hero.tsx:14` | h1 72px / 800 / 0 tracking / 1.2 | 56px / 500 / −0.03em / 1.05 | Heavy default display reads as template; see benchmarks |
+| High | pricing, 390px | tiers overflow, horizontal scroll | stack tiers, CTA full-width | content hidden at supported width |
+| Med | `Card.tsx:8` | radius 16 with 12 inset, image radius 16 | image radius 4 | non-concentric corners |
+
+- **High**: blocks the task or hides content/actions at a supported size, fails contrast or keyboard, or reads immediately as generated.
+- **Med**: harms hierarchy, consistency or clarity.
+- **Low**: polish.
+
+Then: system audit totals at both widths, what was verified, what was not verified (motion, screen reader, device), and a one-line verdict: **Ship**, **Fix then ship** (Med only) or **Block** (any High). Do not rewrite the page unasked; offer to apply the fixes.
+
+## Change review
+
+Scope to the diff. For each changed component or page: render the affected states at both widths before and after (use `git stash` or a worktree for the before), run the system audit on both, and report regressions first (new sizes, weights, radii or colors that are not tokens; off-grid values; broken states), then improvements. Flag hard-coded values that bypass tokens by file and line.
+
+## Stress test
+
+Render the component alone on a scratch page and put every realistic variant on screen at once:
+
+- Content: empty, 1 character, typical, 2x long, 5x long, unbroken string (URL, email), emoji and CJK, RTL if supported, missing image, 0 / 1 / 99+ / 1,000,000 counts, negative numbers.
+- States: default, hover, focus-visible, active, disabled, loading, error, success, selected, expanded.
+- Containers: 240, 320, 390, 768, 1200 wide; 200% zoom; increased text spacing.
+- Input: mouse, keyboard only, touch emulation, rapid repeated clicks, reversal mid-transition.
+
+Screenshot the grid of variants, run the system audit and [text collisions](../seenry/scripts/text_collisions.mjs), and report failures in the table format. Delete the scratch page afterwards unless asked to keep it.
+
+## Explain
+
+Describe what is observed, then how it is likely built, then why it works for the task. Separate observed from inferred. For a live site, read the DOM and computed styles; for motion, record or step through frames at normal speed (a screenshot never proves timing). With Seenry MCP, `get_page_motion` and `get_design` give recordings and measured styles. End with how to adapt the mechanism to the user's product without copying brand assets.

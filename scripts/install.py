@@ -11,11 +11,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = (
-    'seenry', 'seenry-motion', 'seenry-assets', 'seenry-branding', 'seenry-decks', 'seenry-apps',
-    'seenry-typography', 'seenry-color', 'seenry-layout', 'seenry-accessibility',
-    'seenry-writing', 'seenry-polish', 'seenry-review', 'seenry-change-review',
-    'seenry-explain', 'seenry-stress', 'seenry-variants',
+NAMES = ('seenry', 'seenry-review', 'seenry-motion', 'seenry-apps', 'seenry-branding', 'seenry-decks')
+# Merged into the skills above in 3.0; archived on --replace so stale copies stop triggering.
+RETIRED = (
+    'seenry-assets', 'seenry-typography', 'seenry-color', 'seenry-layout', 'seenry-accessibility',
+    'seenry-writing', 'seenry-polish', 'seenry-change-review', 'seenry-explain', 'seenry-stress', 'seenry-variants',
 )
 AGENTS = ('agents', 'codex', 'claude', 'cursor', 'antigravity')
 
@@ -70,7 +70,12 @@ def plan(home, source=ROOT, replace=False, link_mode='symlink'):
             wanted = signature(origin) if agent == 'agents' or link_mode == 'copy' else link_signature(canonical)
             new.append({'path': str(target), 'source': str(origin), 'canonical': str(canonical),
                         'kind': 'copy' if agent == 'agents' or link_mode == 'copy' else 'symlink', 'signature': wanted})
-    unchanged = not old and all(exists(Path(x['path'])) and signature(Path(x['path'])) == x['signature'] for x in new)
+    retired = [home / f'.{agent}/skills' / name for name in RETIRED for agent in AGENTS if exists(home / f'.{agent}/skills' / name)]
+    unchanged = not retired and all(exists(Path(x['path'])) and signature(Path(x['path'])) == x['signature'] for x in new)
+    if retired and not replace:
+        raise ValueError(f'Retired Seenry skill at {retired[0]}; use --replace to archive it and upgrade.')
+    for target in retired:
+        old.append({'path': str(target), 'backup': f'entries/{target.parents[1].name[1:]}/{target.name}'})
     if not unchanged:
         for item in new:
             target = Path(item['path'])

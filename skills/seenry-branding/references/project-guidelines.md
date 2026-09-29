@@ -38,7 +38,7 @@ Show implemented expressive and dense/utilitarian applications when the project 
 
 When a visual guideline is requested, build an inspectable page using the existing stack, tokens, fonts and components. Separate navigation, explanation and specimens; give readers room to compare applications at ordinary and narrow widths. Booklet references inform documentation layout. Do not publish a development guide as customer-facing content by default.
 
-Give later agents the guide path/version, relevant rule content, component APIs and selected captures. A restricted context needs the excerpt itself. Preserve unrelated rules during local changes. Record exceptions and scope; update shared sources and the guide together when a brand decision changes. Recheck affected representative uses with [design continuity](../../seenry/references/design-continuity.md), font loading, state contrast and interaction evidence. Report authored, implemented and verified coverage separately.
+Give later agents the guide path/version, relevant rule content, component APIs and selected captures. A restricted context needs the excerpt itself. Preserve unrelated rules during local changes. Record exceptions and scope; update shared sources and the guide together when a brand decision changes. Recheck affected representative uses against the [page consistency checklist](../../seenry/references/pages.md#consistency-checklist), font loading, state contrast and interaction evidence. Report authored, implemented and verified coverage separately.
 
 For reference-study examples, read [guideline observations](guideline-observations.md) only when comparing documentation or resolving a rule. No library connection is needed to apply the method.
 

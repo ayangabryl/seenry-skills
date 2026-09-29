@@ -6,7 +6,7 @@ Use this when a photograph, illustration, render or video frame carries the sour
 
 At the source aspect ratio, measure the subject's bounds and focal point, surrounding structure, light, and quiet space behind text. Put each authorized or original candidate into the actual layout at that size before refining type. Compare crops side by side. Reject a beautiful candidate if it makes the subject too small, moves an architectural frame, or changes the scene's reading order. Replacing a dominant image can cap fidelity even when the typography is close.
 
-If original media is unavailable, an authorized generated substitute can test layout. Record the substitution and keep the media match unresolved. Do not describe a page with different central imagery as an accurate reconstruction. Use the source's own material when permission and availability allow, with provenance recorded through **seenry-assets**.
+If original media is unavailable, an authorized generated substitute can test layout. Record the substitution and keep the media match unresolved. Do not describe a page with different central imagery as an accurate reconstruction. Use the source's own material when permission and availability allow, with provenance recorded in DESIGN.md (see [imagery](imagery.md)).
 
 ## Score what was actually matched
 

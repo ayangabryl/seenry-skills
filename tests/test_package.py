@@ -16,7 +16,6 @@ def module(name, path):
     return result
 
 installer = module('seenry_install', ROOT / 'scripts/install.py')
-packet = module('seenry_packet', ROOT / 'skills/seenry/scripts/packet.py')
 
 class Installation(unittest.TestCase):
     def setUp(self):
@@ -84,6 +83,18 @@ class Installation(unittest.TestCase):
             with self.assertRaises(OSError):
                 installer.apply(plan)
         self.assertFalse((self.home / '.agents/skills/seenry').exists())
+    def test_replace_archives_retired_skills_and_rollback_restores_them(self):
+        retired = self.home / '.claude/skills' / installer.RETIRED[0]
+        retired.mkdir(parents=True)
+        (retired / 'SKILL.md').write_text('old specialist')
+        with self.assertRaisesRegex(ValueError, 'Retired Seenry skill'):
+            installer.plan(self.home)
+        plan = installer.plan(self.home, replace=True)
+        manifest = installer.apply(plan)
+        self.assertFalse(retired.exists())
+        self.assertEqual(installer.plan(self.home)['status'], 'unchanged')
+        installer.undo(plan, manifest.parent)
+        self.assertEqual((retired / 'SKILL.md').read_text(), 'old specialist')
     def test_missing_source_rejected_before_install(self):
         with self.assertRaises(ValueError):
             installer.plan(self.home, source=self.home)
@@ -100,58 +111,6 @@ class Installation(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Missing archive'):
             installer.undo(second, manifest.parent)
         self.assertEqual((self.home / '.agents/skills/seenry/SKILL.md').read_text(), 'updated skill')
-
-class Packets(unittest.TestCase):
-    def test_no_mcp_packet_works_without_server_contract_or_lookup_guide(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            destination = Path(temporary) / 'skills'
-            shutil.copytree(ROOT / 'skills', destination)
-            relocated = destination / 'seenry'
-            (relocated / 'references/mcp-tools.json').unlink()
-            (relocated / 'references/research.md').unlink()
-            for stage in packet.STAGES:
-                result = packet.compile_packet(stage, motion=True, assets=True, root=relocated, research_source='local', profile='complete')
-                self.assertEqual(result['research_source'], 'local')
-                paths = [r['path'] for r in result['resources']]
-                self.assertIn('seenry/references/without-mcp.md', paths)
-                self.assertNotIn('seenry/references/research.md', paths)
-            with self.assertRaises(FileNotFoundError):
-                packet.compile_packet('research', root=relocated, research_source='mcp')
-
-    def test_stage_selection_is_complete_and_hashed(self):
-        for stage in packet.STAGES:
-            result = packet.compile_packet(stage, motion=True, assets=True)
-            self.assertEqual(result['evidence'], 'supplied-only')
-            self.assertTrue(all(len(x['sha256']) == 64 and x['content'] for x in result['resources']))
-            self.assertEqual(len(result['resources']), len(set(x['path'] for x in result['resources'])))
-    def test_relocation_and_missing_optional_dependency(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            destination = Path(temporary) / 'skills'
-            shutil.copytree(ROOT / 'skills', destination)
-            relocated = destination / 'seenry'
-            self.assertEqual(packet.compile_packet('research'), packet.compile_packet('research', root=relocated))
-            shutil.rmtree(destination / 'seenry-motion')
-            packet.compile_packet('plan', root=relocated)
-            with self.assertRaises(FileNotFoundError):
-                packet.compile_packet('plan', motion=True, root=relocated)
-    def test_focused_lessons_resolve_from_relocated_install_without_mcp(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            destination=Path(temporary)/'skills';shutil.copytree(ROOT/'skills',destination)
-            relocated=destination/'seenry'
-            (relocated/'references/mcp-tools.json').unlink()
-            result=packet.compile_packet('prototype',root=relocated,research_source='local',profile='focused',project={'scope':'component','media':'needed','motion':'feedback','decisions':['controls'],'guide_topics':['subject-fit','convergence']})
-            resources={r['path']:r for r in result['resources']}
-            self.assertIn('seenry/references/quality-diagnosis.md',resources)
-            self.assertIn('seenry/references/component-design.md',resources)
-            self.assertNotIn('seenry/references/art-direction.md',resources)
-            self.assertEqual(result['research_source'],'local')
-            lessons=result['visual_lessons'];evidence_root=Path(lessons['evidence_root'])
-            self.assertTrue(evidence_root.is_relative_to(destination.resolve()))
-            for lesson in lessons['lessons']:
-                self.assertEqual(lesson['evidence'],[])
-                for resource in lesson['resources']:
-                    self.assertTrue((relocated/resource['path']).is_file())
-                    self.assertIn('seenry/'+resource['path'],resources)
 
 if __name__ == '__main__':
     unittest.main()

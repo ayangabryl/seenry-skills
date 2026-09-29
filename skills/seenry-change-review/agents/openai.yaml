@@ -1,3 +1,0 @@
-interface:
-  display_name: "Seenry Change Review"
-  short_description: "Review UI changes in a branch, commit or PR"
