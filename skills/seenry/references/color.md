@@ -15,13 +15,58 @@ In strong interfaces, neutrals do almost all the work and one accent does the re
 
 Tint all neutrals slightly with the accent or brand hue (chroma 0.002–0.01 in OKLCH) so greys feel of a piece. Pure grey next to a saturated accent looks cheap.
 
-## Building a palette
+## Build it as ramps, then roles
 
-1. Choose the accent from the brand, in OKLCH. Keep chroma realistic (0.12–0.2); ultra-saturated accents vibrate on white.
-2. Derive hover (±0.05 L), soft (accent at 10–14% alpha) and the dark-mode accent (raise L to 0.65–0.75, lower chroma slightly).
-3. Build neutrals from the same hue at tiny chroma: bg, surface-1, surface-2, border-1, border-2, text-3, text-2, text-1.
-4. Status colors at matched lightness so none shouts louder than the others.
-5. Check every text pair. Use [token contrast](../scripts/token_contrast.py) on the CSS or [contrast check](../scripts/contrast_check.py) on explicit pairs.
+A color system is a few 11-step ramps (50–950) plus semantic tokens that point at them. Generate it, don't eyeball it:
+
+```sh
+python3 scripts/palette.py "#5b5bd6" --status --out tokens.css
+```
+
+[palette.py](../scripts/palette.py) builds the accent and a hue-tinted neutral ramp in OKLCH (and positive, warning and negative with `--status`), picks semantic roles for light and dark, and measures every text and control pair with both WCAG 2 and APCA. It exits non-zero if any pair fails. What it enforces, and what to keep if you build a ramp another way:
+
+- **Even perceived lightness,** denser at the light end so 50 and 100 still read as two surfaces. HSL lightness is not perceptual; OKLCH `L` is.
+- **Constant hue** end to end, **chroma peaking mid-ramp** and falling toward both ends; neither end reaches pure white or black.
+- **The brand keeps its step.** A light brand (yellow, lime) stays the fill with dark text on it rather than being darkened into mustard; a mid brand that fails with white text moves its *fill* one step darker and keeps the original for decoration. `--pin` keeps the exact hex.
+- **Neutrals get a darker end** than hues (dark-mode backgrounds live at 900–950) and a trace of the accent hue; a gray brand gets true grays.
+- **Status ramps match the accent step for step** in lightness, so a red button and a blue button carry the same weight.
+
+## Two tiers of tokens
+
+Primitives are named by hue and step (`--accent-500`, `--neutral-200`) and never used in components. Semantic tokens are named by role and are the only thing components reference. Dark mode, high contrast and white-label themes repoint the semantic tier and touch nothing else.
+
+| Group | Roles |
+| --- | --- |
+| Surfaces | `bg`, `bg-surface`, `bg-sunken`, `bg-hover`, raised surface, scrim |
+| Text | `text`, `text-secondary`, `text-tertiary`, `text-disabled`, `on-accent` |
+| Borders | `border` (decorative), `border-control` (identifies an input, needs 3:1), `separator`, `focus` |
+| Accent | `accent-subtle`, `accent-border`, `accent-solid`, `accent-solid-hover`, `accent-text` |
+| Status | per status shipped: subtle, border, solid, text |
+
+Name with one grammar (`--color-{role}-{variant}-{state}`) and one word per concept (`text` not `fg`, `bg` not `background`, `accent` for the brand so `primary` can mean "most prominent"). Never borrow a token for its value: a separator used as text color breaks the day borders get lighter.
+
+## Contrast: measure the rendered pair
+
+Measure the foreground against the surface it actually sits on (a card, an image, a tint), in both themes.
+
+| Content | WCAG 2 (compliance) | APCA Lc (perception, preferred for design) |
+| --- | --- | --- |
+| Body text | 4.5:1 | 75+ (90 preferred) |
+| Labels, UI text, headings | 4.5:1 (3:1 at ≥ 24px or 19px bold) | 60+ |
+| Large display text ≥ 36px | 3:1 | 45+ |
+| Control boundaries, focus rings, meaningful icons | 3:1 | 30+ |
+
+APCA is signed (light-on-dark is negative); compare the absolute value. `python3 scripts/palette.py --check FG BG` prints both. Fix a failing pair by changing lightness, not hue.
+
+## Modern CSS color
+
+- Author in `oklch()`; it is perceptual and supported everywhere current. Keep the project's notation if it already has one.
+- Wide gamut: declare the sRGB value, then override inside `@media (color-gamut: p3)` with a more saturated `oklch()` or `color(display-p3 …)`.
+- `color-mix(in oklab, var(--accent) 12%, transparent)` for tints and hover states instead of new tokens per opacity.
+- Relative color syntax, `oklch(from var(--accent) calc(l - 0.05) c h)`, for a hover step derived from the base.
+- Gradients: `linear-gradient(in oklab, …)` for even brightness; `in oklch` to sweep through hues without going gray; the sRGB default muddies the middle.
+- `light-dark(#fff, #111)` with `color-scheme: light dark` for simple two-theme values. Choose one switching mechanism (media query, class or `data-theme`) and use it everywhere.
+- Support `prefers-contrast: more` (strengthen borders and secondary text) and `forced-colors: active` (use system colors; don't rely on backgrounds or shadows for boundaries).
 
 ## Dark mode
 
@@ -51,4 +96,8 @@ Tint all neutrals slightly with the accent or brand hue (chroma 0.002–0.01 in 
 | text-3 grey body copy failing 4.5:1 | text-2 or darker |
 | Pure #000 dark background with #fff text | L 0.16 bg, L 0.96 text |
 | Status green used as the brand accent | separate the roles |
-| Different greys in every component | route every grey through the 8 neutral tokens |
+| Different greys in every component | route every grey through the neutral semantic tokens |
+| Primitive like `--blue-500` used in a component | point a semantic token at it |
+| Ramp built by varying HSL lightness | regenerate with `palette.py` (OKLCH) |
+| Light brand darkened until white text passes | keep the brand fill, use dark text on it |
+| Two theme mechanisms (media query for some tokens, class for others) | one mechanism throughout |

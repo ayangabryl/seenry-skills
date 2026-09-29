@@ -52,7 +52,8 @@ jobs:
           node tests/interaction-probe.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/system-audit.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/optical-audit.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
-          node skills/seenry/scripts/audit_page.mjs skills/seenry/assets/examples/player-card.html --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --widths 560,390
+          node tests/motion-recipes.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+          for f in player-card pricing settings; do node skills/seenry/scripts/audit_page.mjs skills/seenry/assets/examples/$f.html --strict --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --widths 1440,390; done
           node tests/palette-study.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/visual-inventory.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/scroll-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"

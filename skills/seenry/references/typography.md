@@ -73,6 +73,25 @@ Tracking scales inversely with size. Large text needs negative tracking; text be
 - `-webkit-font-smoothing: antialiased` on dark backgrounds and for light display weights on macOS.
 - Real small caps (`font-variant-caps: all-small-caps`) for acronyms in body copy if the font supports them.
 
+## Rendering details
+
+- **Load the real faces.** Browsers fake missing bold and italic ("synthesis"), which looks smeared. Load every weight and style you use; `font-synthesis: none` only after checking nothing needs a synthesized form.
+- **Properties over raw feature tags:** `font-weight: 550` not `font-variation-settings: "wght" 550`; `font-optical-sizing: auto`; `font-variant-numeric: tabular-nums`; keep `font-feature-settings` for stylistic sets (`"ss01"`, `"cv11"`).
+- **Weight floor:** nothing lighter than 400 below 18px; weights under 300 are display-only above 28px.
+- **Heading sizes descend with level;** a child heading never outweighs its parent. Pick the element for structure, size it with CSS.
+- **Line height by role:** display 1.0–1.1, headings 1.1–1.25, body 1.5–1.6, and at least 1.4 on anything that wraps to three lines, even in a tight card.
+- **Letter spacing by size:** negative above 24px, zero for body, +0.02–0.06em for small uppercase labels only.
+- **Underlines from the font:** `text-underline-position: from-font; text-decoration-thickness: from-font; text-underline-offset: 0.15em; text-decoration-skip-ink: auto`. A dotted underline signals a definition or abbreviation. Animate only the underline's color; for a moving underline draw a separate element.
+- **Smart punctuation in rendered text:** curly quotes (“ ” ‘ ’), an en dash for ranges (9–5), an em dash for breaks, one ellipsis character (…), a real minus (−), `&nbsp;` between a number and its unit, `&shy;` where long words may break. Straight quotes stay in code.
+- **Store natural case,** style with `text-transform`, so a redesign never rewrites copy.
+- **Truncation keeps content reachable:** a tooltip, `title`, or expanded view for anything cut with an ellipsis or `line-clamp`.
+- **Language and direction:** `lang` on the document (and on quoted passages in other languages) for correct hyphenation, quotes and screen-reader pronunciation; `dir` where direction changes; `<bdi>` around user-generated names and values in mixed-direction text; `hyphens: auto` only on long-form text with `lang` set.
+- **Selection:** keep text selectable; `user-select: none` only on drag handles and gesture surfaces. Style `::selection` with the accent-subtle token.
+- **Smoothing once, on the root:** `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale` in the global stylesheet, never per component.
+- **Inputs at 16px on phones** to stop iOS zoom (see [mobile web](mobile-web.md)).
+- **Units:** font sizes in `rem` so browser text-size settings work; `clamp()` for fluid display sizes with a `rem` floor.
+- **Serve WOFF2,** subset to the scripts you need, `font-display: swap`, and match fallback metrics (`size-adjust`, `ascent-override`) so the swap does not shift layout.
+
 ## Common failures
 
 | Failure | Fix |
@@ -87,3 +106,8 @@ Tracking scales inversely with size. Large text needs negative tracking; text be
 | Centered multi-line paragraphs | left-align anything over two lines |
 | Default 1.2 line height on 16px body | 1.5 |
 | Headline widows on phone | `text-wrap: balance`, shorter copy |
+| Faux bold or italic (weight not loaded) | load the face, or drop the style |
+| Light (300) weight on 14px UI text | 400+ below 18px |
+| Straight quotes and three-dot ellipses in UI copy | “smart” quotes, …, – for ranges |
+| Underline cutting through descenders | `text-decoration-skip-ink: auto` + `from-font` metrics |
+| `user-select: none` across the app | only on drag and gesture surfaces |

@@ -13,6 +13,25 @@ Judge what renders, not what the code intends. Every finding is visible, specifi
 
 If you built the surface yourself, say so and treat the verdict as self-review. A fresh agent context is better.
 
+## Evidence, not taste
+
+Report what you can show: a measurement, a screenshot, a failing check, a rule with a number. A density, radius or voice you would have chosen differently is not a finding when the project chose it deliberately and applies it consistently. Press hard on the triggers below; stay quiet on preference. A short review from a real inspection beats a long one padded to look thorough, and "no actionable findings" is a valid result.
+
+**High on sight** (never averaged down because the surface is minor):
+- an interactive control with no accessible name, no visible focus, or no keyboard path
+- content or a control clipped, overlapped or unreachable at 320px, at 200% zoom or behind the keyboard
+- text or control contrast below its required ratio on the surface it actually renders on
+- state or meaning carried by color alone, or by motion alone
+- motion that ignores `prefers-reduced-motion`, or animation on a 100+/day or keyboard-driven action
+- a destructive action with no confirmation, undo or distinct treatment
+- truncated content with no way to reach the full value; an error with no way to recover
+- a semantic color used against its meaning (danger color on a safe action)
+- placeholder material shipped as final (gradient standing in for an image, lorem ipsum, fake testimonials)
+
+**Prefer the cheaper fix.** Propose the earliest that works: delete (a line space already carries, an animation that shouldn't exist), use the platform (native element, native focus ring), reuse a project token or component, correct a value, and only then add something new.
+
+**Consolidate.** One root cause is one row with every location. Report at most 15 findings; triggers first. If the cap cuts findings, say how many.
+
 ## Choose the mode
 
 | The user asks | Mode |
@@ -21,6 +40,7 @@ If you built the surface yourself, say so and treat the verdict as self-review. 
 | "Review this branch / PR / commit / my changes" | **Change review**: run `git diff` against the base, list changed UI surfaces, render them before and after, review only those |
 | "Stress test / break this component" | **Stress test** |
 | "Is this accessible / WCAG" | **Screen review**, accessibility pass only, with [the checklist](../seenry/references/accessibility.md) |
+| "Review / improve the animations", "where should this animate" | **Motion review** |
 | "How was this built / explain this interaction" | **Explain** |
 
 ## Screen review
@@ -56,7 +76,18 @@ Then: system audit totals at both widths, what was verified, what was not verifi
 
 ## Change review
 
-Scope to the diff. For each changed component or page: render the affected states at both widths before and after (use `git stash` or a worktree for the before), run the system audit on both, and report regressions first (new sizes, weights, radii or colors that are not tokens; off-grid values; broken states), then improvements. Flag hard-coded values that bypass tokens by file and line.
+The question is "did this change make the interface worse?", not "what is wrong with this codebase?".
+
+1. **Resolve the scope.** With a named PR, branch or commit range, use it. Otherwise: commits ahead of the merge base with the default branch plus uncommitted changes; else uncommitted changes only; else stop and ask what to review.
+2. **Expand files to surfaces.** A changed token, shared component or stylesheet affects every screen that uses it; list those screens. Render the affected states at both widths before (a worktree or `git stash`) and after, and run the page audit on both.
+3. **Read the removed lines.** Deleted focus styles, `aria-*` attributes, `alt` text, reduced-motion blocks, `min-width: 0`, labels and error handling are regressions even when the added code looks fine.
+4. **Hold the change to its stated intent** (PR description, commit message): a half-finished rollout is a finding.
+5. **Classify every finding:** **Introduced** (new problem), **Regression** (something that worked now doesn't; a regression against a high-on-sight trigger is High), **Pre-existing** (report at most three, in their own section, outside the verdict).
+6. Flag hard-coded values that bypass tokens, by file and line. Leave correctness, security and performance to the regular code review.
+
+## Motion review
+
+Inventory every transition, animation and gesture in scope. For each: frequency tier, purpose, tool, properties, duration, easing or spring, interruption, reduced-motion and hover gating, measured against the build sequence and **Never ship** table in `seenry-motion`. Watch each at normal speed and at 10% in the DevTools Animations panel. Also list **missed opportunities** (a jarring jump that needs continuity, a press with no feedback) and **rejected candidates** (what should stay instant, and why). Report in the table format.
 
 ## Stress test
 

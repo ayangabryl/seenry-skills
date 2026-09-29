@@ -21,6 +21,16 @@ Copy is interface. Generic copy makes a well-built page look generated.
 - **Numbers** are exact when people act on them; round only in summaries and say so.
 - **Confirmations** name the object: "Project 'Atlas' deleted. Undo."
 
+## Interface rules that are easy to miss
+
+- **Address the reader as "you"** and the product in the first person plural sparingly; never "the user".
+- **Settings describe the ON state:** "Show previews", not "Hide previews" or "Disable previews", so the toggle's on/off matches the words.
+- **Links say where they go:** "View invoice #1042", not "Click here" or "Learn more" alone. Link text makes sense out of context.
+- **One word per concept across the whole flow:** if the button says "Publish", the toast says "Published", not "Posted" or "Live".
+- **One capitalization policy** (sentence case) for buttons, labels, menu items, titles and tabs.
+- **Plain words:** "Delete", not "Purge"; "Sign in", not "Authenticate".
+- **Numbers as numerals** ("3 files"), dates in the reader's locale, and relative time ("2 min ago") only for recent events with the absolute time in a tooltip.
+
 ## Voice
 
 Pick three words for the product's voice (e.g. "direct, calm, expert") and write every string against them. Keep a short glossary in `DESIGN.md` so the same thing has the same name on every page (workspace vs. team vs. org).

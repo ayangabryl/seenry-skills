@@ -99,6 +99,19 @@ Every region (header, each section, footer) aligns to the same content box. The 
 
 Pick one mode per surface. Marketing and product pages can differ, but a product page never mixes modes within one panel.
 
+## Color role shorthand
+
+The guides use short role names; the tokens use the two-tier names from [color](color.md) and `palette.py`:
+
+| Shorthand | Token |
+| --- | --- |
+| bg | `--color-bg` |
+| surface-1 / surface-2 | `--color-bg-surface` / `--color-bg-sunken` (hover: `--color-bg-hover`) |
+| text-1 / text-2 / text-3 | `--color-text` / `--color-text-secondary` / `--color-text-tertiary` |
+| border-1 / border-2 | `--color-border` / `--color-border-control` |
+| accent / accent-soft | `--color-accent-solid` / `--color-accent-subtle` |
+| focus | `--color-focus` |
+
 ## Starter tokens
 
 Copy [assets/tokens.css](../assets/tokens.css) when the project has no tokens. It encodes everything above, light and dark, with semantic names. Rename values freely; keep the roles.

@@ -21,9 +21,12 @@ Geometric alignment comes first and is covered in [alignment](alignment.md): key
 
 ## Icons
 
-- One icon family, one stroke weight (1.5px at 16–20px or 2px at 24px), one corner style, sized 16/20/24 only. Mixing Lucide with Heroicons with emoji is a tell.
+- One family, one stroke convention, sized 16/20/24 (or `1em`–`1.25em` inline so icon and text scale together). Mixing Lucide with Heroicons with emoji is a tell.
+- **Match stroke to the adjacent text weight** (24px grid): 1.5px beside regular (400) text, 2px beside medium and semibold (500–600), 2.5px beside bold or as a standalone emphasis. A hairline icon next to a bold label looks broken.
+- **Outline by default, filled for the active state** (current tab, toggled bookmark, liked). Never mix the two variants arbitrarily.
+- **One SVG, recolored by state:** `currentColor` for fill or stroke, color and opacity from CSS for hover, selected and disabled. Strip hard-coded fills when importing.
 - Icons support labels; they rarely replace them. Icon-only buttons get an `aria-label` and a tooltip.
-- Icon color follows text color (`currentColor`), usually text-2, text-1 on hover/active.
+- Directional icons (back, forward, send, reply, progress chevrons) mirror in RTL with `:dir(rtl) .icon-directional { scale: -1 1; }`; clocks, media play buttons and checkmarks do not.
 - No decorative icon in front of every heading and every bullet.
 
 ## Borders, dividers, surfaces
@@ -52,10 +55,21 @@ Geometric alignment comes first and is covered in [alignment](alignment.md): key
 
 ## Images and media
 
+- **Image outline:** every image, avatar and thumbnail gets `outline: 1px solid oklch(0 0 0 / 0.1); outline-offset: -1px;` in light mode and `oklch(1 0 0 / 0.1)` in dark. Pure black or white at low alpha only; a tinted gray reads as dirt on the edge. `outline` never changes layout and follows the radius.
+
 - Consistent aspect ratios per context (16:10 for product shots, 1:1 avatars, 4:3 or 3:2 for photos).
 - Product screenshots at 2x, cropped to the relevant region, framed with the same radius and ring as cards. Never a tilted screenshot with a heavy shadow floating on a gradient.
 - `object-fit: cover` with a deliberate `object-position`.
 - Always set `width` and `height` (or `aspect-ratio`) to avoid layout shift.
+
+## Transitions hygiene
+
+- Name the properties (`transition-property: scale, opacity, background-color`); never `transition: all`.
+- High-frequency feedback (hover, focus, toggles) is instant or ≤150ms on color and opacity only.
+- **Theme switch:** disable all transitions for the frame the theme flips, or every color animates at once and the page smears (recipe in `seenry-motion`).
+- **First render:** no entrance animations on initial page load; they are for changes the user causes.
+- `will-change` only on an element that stutters on its first frame, and remove it after.
+- Every animated state change also leaves a static cue (color, icon or label) for reduced motion.
 
 ## Small things that read as quality
 

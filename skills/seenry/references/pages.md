@@ -62,6 +62,18 @@ Media left (7 columns), summary right (5 columns, sticky): name 24–32/600, pri
 ### Empty, error, 404
 Keep the shell (header, footer, navigation). One short title stating what happened, one line of help, a primary recovery action and a secondary link. No full-screen illustration that pushes recovery below the fold.
 
+## Responsive and international
+
+- **Breakpoints come from content,** not device presets: keep the wide layout until it actually stops fitting, and test the smallest (320) and largest (1920+) widths first.
+- **Container queries** for components that live in different widths (a card in a sidebar vs a grid): `container-type: inline-size` on the parent, `@container (min-width: 480px)` on the component.
+- **Content bleeds, controls stay inside:** backgrounds and media may run edge to edge; text and controls stay within the gutter and `env(safe-area-inset-*)`.
+- **Hint at hidden content:** horizontal scrollers show 16–32px of the next item; collapsed sections have a visible disclosure control. Content with no cue does not exist.
+- **Inset phone buttons:** full-width buttons sit inside the 16px gutter with their radius, not flush against the screen edge (unless they are platform chrome).
+- **Logical properties** (`margin-inline-start`, `padding-block`, `inset-inline-end`, `text-align: start`) so the layout mirrors for right-to-left languages; physical left/right only for truly physical geometry.
+- **Plan for growth:** translated strings run 30–100% longer (short labels grow the most). No fixed widths or heights on text containers; let rows wrap. Test with pseudo-localized text (e.g. `[!!! Šàvé çhàñĝéš !!!]`) and one real long language such as German.
+- **Never park a critical action** where zoom, a small viewport or the keyboard clips it: keep it in flow or in stable, safe-area-aware chrome.
+- **Mobile browsers** have their own traps (viewport units, tap highlight, input zoom, scroll chaining); see [mobile web](mobile-web.md).
+
 ## Consistency checklist
 
 Run across every page before shipping:

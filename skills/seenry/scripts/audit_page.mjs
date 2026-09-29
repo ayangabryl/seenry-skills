@@ -50,9 +50,9 @@ try {
     report.widths[width] = {system, optical};
     await page.close();
 
-    const t = system.totals, lines = [];
+    const t = system.totals, lines = [], seen = new Map();
     lines.push(`\n■ ${width}px  sizes ${t.fontSizes} · weights ${t.fontWeights} · families ${t.families} · radii ${t.radii} · shadows ${t.shadows} · colors ${t.colors}${system.horizontalOverflow ? ' · HORIZONTAL OVERFLOW' : ''}`);
-    const issue = text => { problems++; lines.push('  ' + text); };
+    const issue = text => { if (seen.has(text)) { seen.set(text, seen.get(text) + 1); return; } seen.set(text, 1); problems++; lines.push('  ' + text); };
     for (const o of system.offGrid.slice(0, 12)) issue(`off-grid   ${o.element} ${o.property} ${o.value}`);
     for (const n of system.nestedRadius) issue(`radius     ${n.child} r${n.childRadius} inside ${n.parent} r${n.parentRadius} (inset ${n.inset}) → r${n.expected}`);
     for (const w of system.wrappedControls) issue(`wrap       "${w.text}" wraps onto ${w.lines} lines`);
@@ -66,13 +66,13 @@ try {
         if (an.relation === 'below' && Math.abs(an.leftOffset) > 1 && Math.abs(an.leftOffset) < 12) issue(`anchor     ${c.component}: ${an.leftItem} starts ${an.leftOffset}px from the left edge of "${an.media}"`);
       }
       for (const m of a.nearMisses.slice(0, 6)) issue(`near-miss  ${c.component}: ${m.a} vs ${m.b} (${m.side}, ${m.off}px)`);
-      if (a.insets) { const v = Object.values(a.insets); if (Math.max(...v) - Math.min(...v) > 4) lines.push(`  inset      ${c.component}: ${JSON.stringify(a.insets)} (confirm the difference is deliberate)`); }
+      if (a.insets && a.anchors.length) { const v = Object.values(a.insets); if (Math.max(...v) - Math.min(...v) > 4) lines.push(`  inset      ${c.component}: ${JSON.stringify(a.insets)} (confirm the difference is deliberate)`); }
     }
     for (const f of optical.iconOnly) issue(`optical    ${f.control} (${f.shape}): ${f.fix}`);
     for (const f of optical.iconText) issue(`optical    icon beside "${f.control}": ${f.fix}`);
     for (const f of optical.controlText) issue(`optical    "${f.control}": ${f.issue}${f.fix ? ' → ' + f.fix : f.insets ? ` ${JSON.stringify(f.insets)}, expected ${f.expected}` : ''}`);
     for (const f of optical.sideBearing) issue(`optical    "${f.text}": ${f.fix}`);
-    console.log(lines.join('\n'));
+    console.log(lines.map(l => { const n = seen.get(l.trim()); return n > 1 ? `${l} (×${n})` : l; }).join('\n'));
   }
 } finally { await browser.close(); }
 const out = flag('json');

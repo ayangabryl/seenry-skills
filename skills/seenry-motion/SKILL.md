@@ -1,40 +1,71 @@
 ---
 name: seenry-motion
-description: "Research or implement web interactions using Seenry recordings, creator references, and source studies. Use for hover, drag and gesture controls, scrolling, transitions, and component animation; distinguish observed motion from static screenshots."
+description: "Build, review or research interface motion: press feedback, menus, tooltips, dialogs, sheets, toasts, accordions, tabs, page and shared-element transitions, scroll effects, drag and gestures, number and icon changes. Decides whether something should animate at all, then picks the tool, properties, curve, duration or spring, interruption and reduced-motion behavior, with tested modern-CSS recipes and runnable assets. Also studies recorded motion from Seenry references."
 license: MIT
 metadata:
   author: Seenry
   version: "3.0.0"
 ---
+# Seenry Motion
 
-# Design movement around a real change
+Motion exists to explain a change: where something came from, what the input did, what state the interface is in now. Build every animation through the sequence below, in order; steps 1 and 2 decide whether any code gets written at all.
 
-Start with the user's task and the existing product. Keep its working behavior, content, brand and runtime. Motion should explain an action, relationship or change of state. MCP, paid accounts and another design skill are not required.
+Make the call and state it in one line; do not offer a menu of motion options. Extend the project's existing motion tokens and components instead of adding a parallel set.
 
-## Defaults
+## The build sequence
 
-| Decision | Default |
+**1. Should it animate at all?** Decide by frequency.
+
+| How often people see it | Decision |
 | --- | --- |
-| Should it animate? | Not if it happens 100+ times a day or is keyboard-initiated (command menus, shortcuts). Yes for state changes, spatial continuity and feedback. |
-| Press feedback | `scale(0.97)`, 100–160ms |
-| Tooltip, small popover | 125–200ms; instant for subsequent tooltips |
-| Menu, dropdown, select | 150–250ms enter, exit ~30% faster |
-| Dialog, drawer, sheet | 200–350ms |
-| Easing (enter, exit, UI) | `cubic-bezier(0.23, 1, 0.32, 1)` ease-out; never `ease-in` for UI |
-| Easing (on-screen movement) | `cubic-bezier(0.77, 0, 0.175, 1)` or a spring |
-| Spring (gestures, interruptible) | `{type: "spring", duration: 0.35–0.5, bounce: 0–0.15}` |
-| Enter from | opacity 0 + scale 0.96 or 4–8px translate, never `scale(0)` |
-| Origin | popovers from their trigger; modals from center |
-| Properties | `transform` and `opacity` only; list them explicitly, never `transition: all` |
-| Reduced motion | keep opacity, remove movement |
+| 100+ times a day (command menu, keyboard shortcuts, list navigation with arrows) | No animation. Instant. |
+| Tens of times a day (hover, tabs, toggles) | ≤150ms on opacity and color only, or nothing |
+| Occasionally (menus, dialogs, sheets, toasts) | Standard motion from the table below |
+| Rarely (onboarding, first success, empty-to-full moments) | Room for character |
 
-**For a whole page or product screen:** apply the sibling [Seenry design workflow](../seenry/SKILL.md) before code: establish the facts and visual system, choose a direction, finish one real slice, then review wide and narrow renders. Motion craft does not replace typography, layout, copy or contrast. A focused component added to an existing page can stay here.
+Keyboard-triggered actions never wait on animation. If the gate says no, say so and ship the instant state change.
 
-## Define the interaction
+**2. Name the purpose** in one word: feedback, orientation (where it came from or went), state, continuity (avoid a jarring jump), explanation (marketing and onboarding only), or delight (rare moments only). No purpose, no animation. Data people are reading never moves for style.
 
-Use [the motion contract](references/motion-contract.md) to name the trigger, real state owner, stationary anchor, feedback, settled result and interruption. Choose one owner for each animated property. Keep controls and authoritative values stable through loading, success, error and recovery. For a faithful recreation, read [motion reconstruction](references/replication.md), preserve observed geometry and timing, and label unmeasured behavior as proposed. An adapted animation is not a replica.
+**3. Pick the cheapest tool that works.**
 
-Before implementing a named effect from a live library or component, check [existing implementation routing](references/existing-implementations.md). Use its maintained package or CLI when the license, stack and behavior fit; do not hand-draw a weaker stand-in to avoid checking. For original work choose the smallest capable mechanism. CSS, SVG or Web Animations are enough for many transitions; use an existing Lottie, GSAP, Anime.js, Motion or Three.js runtime only for a demonstrated need and verify its installed API. Read [implementation decisions](references/implementation-decisions.md) for easing, interruption, hover gating and reduced motion. For deeper mechanics use [motion craft](references/motion-craft.md) and [interaction anatomy](references/interaction-anatomy.md).
+| Need | Tool |
+| --- | --- |
+| Hover, press, color, class or attribute toggle | CSS transition |
+| Entrance on mount, exit before `display: none`, native `<dialog>` and `popover` | CSS transition + `@starting-style` + `allow-discrete` |
+| Height to `auto` | `interpolate-size: allow-keywords`, or the grid `0fr → 1fr` track |
+| Route changes, list → detail, morphing indicators | View Transitions API |
+| Scroll-linked effects | `animation-timeline: view()` / `scroll()` |
+| Programmatic, cancellable, no library | Web Animations (`element.animate`) |
+| Springs with velocity, layout animation, gestures, presence in React | Motion (`motion.dev`) |
+| A whole component (toast, drawer, command menu, select) | A maintained library, see [libraries](../seenry/references/libraries.md) |
+
+**4. Pick the properties.** `translate`, `scale`, `rotate`, `opacity`, `clip-path`, `filter` only. Never enter from `scale(0)`: start at 0.95–0.97 with opacity 0. Popovers scale from their trigger (`transform-origin` on the trigger side); dialogs scale from center. Percent translates (`translate: 0 100%`) move by the element's own size.
+
+**5. Pick the curve and duration, or a spring.**
+
+| Motion | Duration | Easing |
+| --- | --- | --- |
+| Press feedback | 100–160ms | `--ease-out` |
+| Tooltip, small popover | 120–200ms | `--ease-out` |
+| Menu, dropdown, select | 150–250ms | `--ease-out` |
+| Dialog | 200–250ms | `--ease-out` |
+| Sheet, drawer | 350–500ms | `--ease-drawer` |
+| Element moving across the screen, morphs | 250–400ms | `--ease-in-out` |
+| Color, background, border on hover | 150ms | `ease` |
+| Progress, marquee, hold-to-confirm fill | as long as the work | `linear` |
+
+`--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`, `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`, `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)`. Never `ease-in` on interface motion: it delays exactly the moment people are watching. Product UI stays under 300ms; exits are ~20–30% faster than entrances. Use a spring for anything the user drags, flicks or can reverse mid-way: Motion `{type: "spring", duration: 0.5, bounce: 0.2}` (bounce 0 for product UI, ≤0.3 for playful), or the CSS `linear()` springs in [recipes](references/recipes.md).
+
+**6. Plan interruption and exit.** Transitions, not keyframes, for anything that can fire twice quickly: transitions retarget from the current value. Exit along the path it entered. The state changes immediately; the presentation follows it, and a second input reverses rather than queues.
+
+**7. Ship reduced motion and input gating with it.** Under `prefers-reduced-motion: reduce`, remove movement, parallax, blur and loops; keep short opacity changes that aid understanding. Gate hover motion with `@media (hover: hover) and (pointer: fine)`. Every animated state change also leaves a static cue (label, icon, color) for when motion does not run.
+
+## Recipes
+
+Start from [recipes](references/recipes.md) for press feedback, menus and popovers, tooltips, dialogs, sheets, toasts, accordions, staggered entrances, tab indicators, page and shared-element transitions, scroll reveals, icon swaps, number changes, hold-to-confirm, drag-to-dismiss (with velocity projection and rubber banding), crossfade masking, theme switching and first-render suppression. The native-CSS recipes are exercised in Chromium by the package tests.
+
+## Runnable assets
 
 | Requested change | Focused route |
 | --- | --- |
@@ -52,20 +83,36 @@ Before implementing a named effect from a live library or component, check [exis
 
 Select only the guide and helper needed for this change. The bundled original assets are reusable starting points, not automatic substitutes for a named source component or proof of fidelity to it. Keep licenses with any copied third-party runtime; the original Seenry assets use the repository's MIT license.
 
+## Never ship
+
+| Never | Instead |
+| --- | --- |
+| Animation on a 100+/day or keyboard-driven action | Instant change |
+| `transition: all` | Name the properties |
+| Entrance from `scale(0)` | `scale: 0.96` + `opacity: 0` |
+| `ease-in` on UI | `--ease-out` |
+| Default `ease`/`ease-out` on a deliberate entrance | The custom curves above |
+| Product UI motion over 300ms without a reason | 150–250ms |
+| Popover scaling from its center | `transform-origin` at the trigger |
+| Keyframes on toasts, toggles, anything re-triggered | Transitions |
+| Animating `width`, `height`, `top`, `left`, `margin` | Transforms; grid-track or `interpolate-size` for height |
+| Ungated `:hover` movement | `(hover: hover) and (pointer: fine)` |
+| No reduced-motion variant | Opacity-only or instant |
+| A long list entering item by item | 30–50ms stagger capped at ~300ms total, or none |
+| Motion as the only sign of a state change | A static cue as well |
+
+## Output
+
+Write the code, then report in a few lines: the gate result (frequency and purpose, or why nothing animates), the ingredients (tool, properties, duration, curve or spring), and what was checked (normal speed, 10% speed in DevTools Animations, rapid repeat, reversal, keyboard, reduced motion, phone).
+
 ## Research the observed behavior
 
 When matching a supplied reference, inspect playback at normal speed and useful intermediate frames, not only endpoints. [Motion research](references/research-route.md) explains recordings, Seenry MCP, creator studies and source limits; load it only when research is needed. A static image cannot establish timing, interruption or keyboard behavior. Without playback, implement a proposed treatment and test it locally.
 
 **Recorded phase check:** Match source checkpoints to the running browser animation. State jumps verify endpoints, not timing. See [motion reconstruction](references/replication.md).
 
-## Finish the interface and transition
+## Verify
 
-Account for every requested transition: trigger, moving element and property, settled state, and reduced-motion result. Test normal speed, rapid input, reversal, keyboard/touch, resize, live reduced motion, unmount and failure where applicable. Inspect actual intermediate geometry; a reserved slot or immediate update does not fulfill a requested number animation. Report unavailable checks rather than inferring a pass.
+Watch it at normal speed, then at 10% in the DevTools Animations panel: check the origin, that coordinated properties stay in sync, and that nothing jumps at the end. Trigger it twice quickly and reverse it mid-way. Try keyboard, touch emulation, a 320px width and reduced motion. For gestures, test on a real phone. Report anything you could not check.
 
-For a standalone component, keep its page shell brief enough that the control and its first useful state are in the phone's first view. An oversized editorial introduction can bury a working tool. Inspect 390px and 320px renders for collisions between names, metadata, durations and actions; keep recovery controls visibly labeled. For drag reorder, make the prospective slot legible beside the held layer, let nearby items respond, and constrain movement to the task's axis when cross-axis motion has no meaning. Capture a held frame and a separate settled frame after release animation completes; an intermediate release frame cannot prove the final layout.
-
-For a range or scrub control, inspect focused minimum and maximum states at 320px. Leave visible space between its focus indicator and endpoint labels, ticks or help text; checking only the unfocused default can miss a collision during keyboard use.
-
-**Whole-page text check:** inspect text contrast on actual wide and narrow renders. If the page uses opaque CSS colors, run the sibling offline audit on the delivered files: `python3 <seenry-skill-dir>/scripts/token_contrast.py index.html [styles.css ...]`, replacing the placeholder with the real path. Repair failed small-text pairs and rerun. The source audit approximates page backgrounds; transparent, image and nested surfaces still need rendered review. Do not report contrast as checked when this step was skipped.
-
-Use **seenry** for overall interface direction and sourced media. Neither a working helper nor a capability lab proves the quality of the finished product.
+For deeper mechanics read [motion craft](references/motion-craft.md), [interaction anatomy](references/interaction-anatomy.md), [product transitions](references/product-transitions.md), [scroll choreography](references/scroll-choreography.md), [surface effects](references/surface-effects.md) and [number transitions](references/number-transitions.md). Use **seenry** for overall interface direction and material.

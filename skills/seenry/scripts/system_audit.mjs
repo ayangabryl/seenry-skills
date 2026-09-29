@@ -82,10 +82,11 @@ export function collectSystemAudit(options = {}) {
     const hostBox = host.getBoundingClientRect();
     const round = v => Math.round(v * 10) / 10;
     const visible = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el); return r.width > 1 && r.height > 1 && !/inset\(50%\)|rect\(0/.test(s.clipPath + ' ' + s.clip) && s.visibility !== 'hidden' && s.display !== 'none' && Number(s.opacity) !== 0; };
-    const name = el => el.getAttribute('aria-label') || (el.textContent || '').trim().slice(0, 24) || (el.className && String(el.className).split(' ')[0]) || el.tagName.toLowerCase();
+    const name = el => el.getAttribute('aria-label') || (el.textContent || '').trim().slice(0, 24) || ((el.getAttribute('class') || '').split(' ')[0]) || el.tagName.toLowerCase();
     const ctx = document.createElement('canvas').getContext('2d');
     const items = [];
-    const texts = [...host.querySelectorAll('*')].filter(el => !el.closest('svg') && [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) && visible(el));
+    const decorative = el => !!el.closest('[aria-hidden="true"]') && el.closest('[aria-hidden="true"]') !== host;
+    const texts = [...host.querySelectorAll('*')].filter(el => !el.closest('svg') && !decorative(el) && [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) && visible(el));
     for (const el of texts) {
       const s = getComputedStyle(el);
       ctx.font = `${s.fontStyle} ${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
@@ -101,38 +102,70 @@ export function collectSystemAudit(options = {}) {
       const base1 = lineTop(first) + half + m.fontBoundingBoxAscent, baseN = lineTop(last) + half + m.fontBoundingBoxAscent;
       // Text aligns by its layout edge here; display-size side bearings are corrected by optical_audit.mjs.
       const left = Math.min(...lines.map(r => r.left));
+      let block = el.parentElement;
+      while (block && block !== host && getComputedStyle(block).display === 'inline') block = block.parentElement;
+      const blockBox = block ? block.getBoundingClientRect() : hostBox, bs = block ? getComputedStyle(block) : null;
+      const midLine = s.display === 'inline' && bs && lines[0].left - (blockBox.left + px(bs.paddingLeft) + px(bs.borderLeftWidth)) > 1;
       const right = Math.max(...lines.map(r => r.right));
       const align = /right|end/.test(s.textAlign) ? 'right' : s.textAlign === 'center' ? 'center' : 'left';
-      items.push({kind: 'text', align, label: name(el), left, right, top: base1 - cap, bottom: baseN, edges: {top: 'cap top', bottom: 'baseline'}});
+      // Text inside a painted control is aligned by the control's own box, which is measured as a shape.
+      const control = el.closest('button,a,[role="button"],[role="tab"],label');
+      const cs = control && host.contains(control) ? getComputedStyle(control) : null;
+      const inControl = !!cs && (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(cs.borderTopWidth) > 0 || cs.boxShadow !== 'none');
+      items.push({kind: 'text', align, inControl, midLine, label: name(el), left, right, top: base1 - cap, bottom: baseN, edges: {top: 'cap top', bottom: 'baseline'}});
     }
     for (const svg of host.querySelectorAll('svg')) {
-      if (!visible(svg)) continue;
+      if (!visible(svg) || (svg.closest('[aria-hidden="true"]') && svg.closest('[aria-hidden="true"]') !== svg && !svg.closest('button,a,[role]'))) continue;
       const shapes = [...svg.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon')].map(e => e.getBoundingClientRect()).filter(r => r.width || r.height);
       if (!shapes.length) continue;
       items.push({kind: 'glyph', label: name(svg.closest('button,a,[role]') || svg), left: Math.min(...shapes.map(r => r.left)), right: Math.max(...shapes.map(r => r.right)), top: Math.min(...shapes.map(r => r.top)), bottom: Math.max(...shapes.map(r => r.bottom))});
     }
     for (const el of host.querySelectorAll('*')) {
-      if (el.closest('svg') || !visible(el)) continue;
+      if (el.closest('svg') || !visible(el) || decorative(el)) continue;
       const s = getComputedStyle(el);
+      // Decorative painted layers (glows, sheens) are usually pointer-events: none; they are not alignment targets.
+      if (s.pointerEvents === 'none' && !['IMG', 'VIDEO', 'CANVAS', 'PICTURE'].includes(el.tagName)) continue;
       const media = ['IMG', 'VIDEO', 'CANVAS', 'PICTURE'].includes(el.tagName) || s.backgroundImage !== 'none';
       const filled = s.backgroundColor !== 'rgba(0, 0, 0, 0)' && s.backgroundColor !== 'transparent';
       if (!media && !filled && parseFloat(s.borderTopWidth) === 0) continue;
       const r = el.getBoundingClientRect();
       if (r.width >= hostBox.width - 1 && r.height >= hostBox.height - 1) continue;
-      items.push({kind: media ? 'media' : 'shape', label: name(el), left: r.left, right: r.right, top: r.top, bottom: r.bottom});
+      // Parts of a painted control (a switch thumb, a progress fill, a selected segment) align to their control, not the layout.
+      let part = false;
+      for (let p = el.parentElement; p && p !== host; p = p.parentElement) {
+        const ps = getComputedStyle(p);
+        if (ps.backgroundColor !== 'rgba(0, 0, 0, 0)' || ps.backgroundImage !== 'none' || parseFloat(ps.borderTopWidth) > 0 || (ps.boxShadow !== 'none' && ps.boxShadow)) { part = true; break; }
+      }
+      if (part) continue;
+      // Avatars and thumbnails under 32px sit in text rows like icons and are judged by center, not edges.
+      const small = r.width <= 32 && r.height <= 32;
+      items.push({kind: media ? (small ? 'glyph' : 'media') : 'shape', label: name(el), left: r.left, right: r.right, top: r.top, bottom: r.bottom});
+    }
+    // A control centered on the text block beside it (a switch next to a label and help text) is aligned by center.
+    for (const it of items) {
+      if (it.kind === 'text') continue;
+      const band = items.filter(t => t.kind === 'text' && (t.right <= it.left || t.left >= it.right) && t.bottom > it.top - 24 && t.top < it.bottom + 24);
+      if (!band.length) continue;
+      const top = Math.min(...band.map(t => t.top)), bottom = Math.max(...band.map(t => t.bottom));
+      it.centeredOnText = Math.abs((top + bottom) / 2 - (it.top + it.bottom) / 2) <= 1;
     }
     const misses = [];
     const compare = (side, edgeName) => {
       for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
         const a = items[i], b = items[j], d = Math.abs(a[side] - b[side]);
-      if (a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom) continue;
-      if ((side === 'left' || side === 'right') && [a, b].some(x => x.align && x.align !== side)) continue;
+      // Horizontal edges only relate items stacked in a column; vertical edges only relate items side by side.
+      const shareRow = a.top < b.bottom && b.top < a.bottom, shareColumn = a.left < b.right && b.left < a.right;
+      if ((side === 'left' || side === 'right') ? shareRow : shareColumn) continue;
+      if ((side === 'left' || side === 'right') && [a, b].some(x => (x.align && x.align !== side) || x.inControl || x.midLine)) continue;
+      // Icons and small avatars sit in rows by their centers (checked in optical_audit.mjs), not by their top or bottom edges.
+      if ((side === 'top' || side === 'bottom') && [a, b].some(x => x.centeredOnText) && [a, b].some(x => x.kind === 'text')) continue;
+      if ((side === 'top' || side === 'bottom') && (a.kind === 'glyph' || b.kind === 'glyph')) continue;
         if (d > tolerance && d <= nearMiss && misses.length < limit) misses.push({side, a: `${a.kind} "${a.label}" ${edgeName(a)}`, b: `${b.kind} "${b.label}" ${edgeName(b)}`, off: round(d)});
       }
     };
     compare('left', () => 'left'); compare('right', () => 'right');
     compare('top', x => x.edges ? x.edges.top : 'top'); compare('bottom', x => x.edges ? x.edges.bottom : 'bottom');
-    const inset = side => round(side === 'left' ? Math.min(...items.map(i => i.left)) - hostBox.left : side === 'right' ? hostBox.right - Math.max(...(items.filter(i => i.align !== 'left').length ? items.filter(i => i.align !== 'left') : items).map(i => i.right)) : side === 'top' ? Math.min(...items.map(i => i.top)) - hostBox.top : hostBox.bottom - Math.max(...items.map(i => i.bottom)));
+    const inset = side => round(side === 'left' ? Math.min(...items.map(i => i.left)) - hostBox.left : side === 'right' ? (items.some(i => i.align !== 'left') ? hostBox.right - Math.max(...items.filter(i => i.align !== 'left').map(i => i.right)) : NaN) : side === 'top' ? Math.min(...items.map(i => i.top)) - hostBox.top : hostBox.bottom - Math.max(...items.map(i => i.bottom)));
     const anchors = [];
     for (const m of items.filter(i => i.kind === 'media')) {
       const beside = items.filter(i => i !== m && i.left >= m.right - 1 && i.top < m.bottom && i.bottom > m.top);
@@ -148,7 +181,8 @@ export function collectSystemAudit(options = {}) {
         anchors.push({media: m.label, relation: 'below', leftItem: `${lead.kind} "${lead.label}"`, leftOffset: round(lead.left - m.left)});
       }
     }
-    return {anchors, insets: items.length ? {top: inset('top'), right: inset('right'), bottom: inset('bottom'), left: inset('left')} : null, nearMisses: misses,
+    const right = inset('right');
+    return {anchors, insets: items.length ? {top: inset('top'), ...(Number.isNaN(right) ? {} : {right}), bottom: inset('bottom'), left: inset('left')} : null, nearMisses: misses,
       items: items.map(i => ({kind: i.kind, label: i.label, left: round(i.left - hostBox.left), right: round(hostBox.right - i.right), top: round(i.top - hostBox.top), bottom: round(hostBox.bottom - i.bottom)}))};
   }
 
@@ -161,6 +195,7 @@ export function collectSystemAudit(options = {}) {
       const cs = getComputedStyle(el), r = el.getBoundingClientRect();
       const painted = (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent') || px(cs.borderTopWidth) > 0 || cs.boxShadow !== 'none';
       if (!painted || px(cs.borderTopLeftRadius) < 4 || r.width < 120 || r.height < 48 || r.width > vw * 0.9 || r.height > vh * 1.5) return false;
+      if (r.width * r.height > vw * vh * 0.4 || el.querySelectorAll('*').length > 150 || el.closest('[aria-hidden="true"]')) return false;
       const withText = [...el.querySelectorAll('*')].some(hasText);
       const hasOther = el.querySelector('img,svg,video,canvas,button,a[href],input,[role="button"]') || [...el.querySelectorAll('*')].some(c => getComputedStyle(c).backgroundImage !== 'none');
       return withText && hasOther;

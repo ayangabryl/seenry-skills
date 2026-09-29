@@ -37,7 +37,7 @@ Use these unless the project already defines its own. Details and a starter `tok
 
 **Type.** One sans family for everything; add a mono only for code, data and small technical labels. Pick by product type: Inter or Geist for tools and SaaS, SF Pro (`system-ui`) for Apple-feel, Open Runde or Nunito for friendly consumer apps. Display serifs are an AI tell on product surfaces; use one only for editorial or luxury brands. **Per component: ≤3 sizes, ≤3 weights. Per page: ≤6 sizes.** Display at 500–600 with −0.02 to −0.04em tracking and 1.0–1.15 line height. Body 16px; product UI 13–15px. See [typography](references/typography.md).
 
-**Color.** Neutrals do 90% of the work: background, 2 surfaces, 3 text levels, 2 borders. One accent, ideally sampled from the brand or the hero material, used only for the primary action, selection, progress and focus. See [color](references/color.md).
+**Color.** Neutrals do 90% of the work: background, 2 surfaces, 3 text levels, 2 borders. One accent, ideally sampled from the brand or the hero material, used only for the primary action, selection, progress and focus. Generate the ramps and roles with `python3 scripts/palette.py "<brand hex>"`, which measures every pair in both themes. See [color](references/color.md).
 
 **Elevation.** Rings and hairlines by default. Shadows only for things that float (menus, popovers, dialogs), layered and low-alpha.
 
@@ -63,7 +63,7 @@ Color:  white card on warm neutral, ring border, accent sampled from the cover o
 States: playing/paused, scrubbing (thumb + time tooltip), buffering, no artwork, long title
 ```
 
-The finished example lives in [assets/examples/player-card.html](assets/examples/player-card.html). Anatomies for buttons, inputs, cards, rows, menus, dialogs, tables, pricing tiers and more are in [components](references/components.md).
+Worked examples, each built with this process and audited clean at 1440 and 390 in light and dark: [player card](assets/examples/player-card.html), [pricing section](assets/examples/pricing.html) (subgrid-aligned tiers in one hairline container) and [settings panel](assets/examples/settings.html) (grouped rows, concentric switch, danger zone). Each file's header comment records its frame, keylines and licenses. Anatomies for buttons, inputs, cards, rows, menus, dialogs, tables, pricing tiers and more are in [components](references/components.md).
 
 ## Keep pages consistent
 
@@ -96,6 +96,8 @@ The full list of AI tells and their fixes is in [anti-slop](references/anti-slop
 | Optical centering, size compensation, side bearing, icon nudges | [optical](references/optical.md) |
 | Optical corrections, icons, hit areas, states | [craft](references/craft.md) |
 | Headlines, labels, errors, empty states | [writing](references/writing.md) |
+| Which library to use instead of hand-rolling a component | [libraries](references/libraries.md) |
+| Phone browser quirks: viewport units, tap, zoom, safe areas | [mobile web](references/mobile-web.md) |
 | Keyboard, semantics, zoom, reduced motion | [accessibility](references/accessibility.md) |
 | Choosing material; sourcing and generating it | [imagery](references/imagery.md) and `seenry-assets` |
 | Seenry MCP recipes and offline research | [research](references/research.md) |
@@ -112,6 +114,7 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 - [System audit](scripts/system_audit.mjs): counts rendered font sizes, weights, families, radii, shadows and colors; lists off-grid padding, gaps and margins; flags non-concentric corners, wrapped control labels and components over 3 sizes or weights; per component, measures ink-level alignment (cap tops, baselines, drawn glyphs, media edges): near-miss edges, media anchors and optical insets. Run it on every screenshot pass.
 - [Exploration sheet](assets/explore.html): renders variant files side by side at real widths for critique.
 - [Grid overlay](assets/layout-guides/README.md): development-only columns, gutter and 8px checks.
+- [Palette](scripts/palette.py): OKLCH ramps from one brand color, two-tier tokens for light and dark, and WCAG + APCA measurement of every pair; `--check FG BG` for one pair.
 - [Starter tokens](assets/tokens.css) and [DESIGN.md template](assets/DESIGN.template.md).
 - [Text collisions](scripts/text_collisions.mjs), [control geometry](scripts/control_geometry.cjs), [visual inventory](scripts/visual_inventory.mjs), [token contrast](scripts/token_contrast.py), [contrast check](scripts/contrast_check.py).
 
