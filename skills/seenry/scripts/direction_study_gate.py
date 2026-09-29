@@ -38,7 +38,10 @@ def review_prompt(has_reference):
         'demanding a different navigation or content order. Recoloring the same occupied fields while keeping '
         'type, imagery and visual roles unchanged is one identity, not two; do not call that a material identity '
         'comparison. Before Keep, compare each study for both a usable task path and '
-        'subject-specific visual material. If one study has the better path and the other has more convincing '
+        'subject-specific visual material. At the delivered phone size, inspect whether the decisive object, '
+        'preview or changing state is distinguishable, not merely present. If critical material is compressed '
+        'to indistinguishable shapes, the task remains visually unresolved. '
+        'If one study has the better path and the other has more convincing '
         'material or identity, consider whether a feasible synthesis is needed before expansion. A competent '
         'arrangement of familiar controls and general copy is not enough for a new expressive site when the '
         'supplied material can carry a stronger identity. Do not demand decoration or novelty where a '
@@ -134,7 +137,8 @@ def main(argv=None):
         summary = {
             'scope': 'direction-study',
             'input_sha256': {name: digest(path) for name, path in staged.items()},
-            'skill_sha256': {'review': digest(REVIEW_SKILL), 'art-direction': digest(ART_DIRECTION)},
+            'skill_sha256': {'gate': digest(Path(__file__)), 'review': digest(REVIEW_SKILL),
+                             'art-direction': digest(ART_DIRECTION)},
             'review': review,
             'status': disposition(review),
         }

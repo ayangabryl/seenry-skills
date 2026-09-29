@@ -48,7 +48,7 @@ class DirectionStudyGate(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(summary['status'], 'Keep')
         self.assertEqual(len(summary['input_sha256']), 6)
-        self.assertEqual(set(summary['skill_sha256']), {'review', 'art-direction'})
+        self.assertEqual(set(summary['skill_sha256']), {'gate', 'review', 'art-direction'})
 
     def test_reset_blocks_expansion(self):
         result, summary = self.run_gate('Reset')
