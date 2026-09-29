@@ -57,15 +57,17 @@ python3 -m unittest discover -s tests
 
 The checks cover resources and behavior of included tools. They do not certify the visual quality of an output; inspect the actual page, responsive states and interactions. [Domain skill evaluation](evals/domain-skills/README.md) separates routing, first render, repair and independent judgment. The repository includes a [portable website example](examples/seenry-site/README.md) and development evidence under `evals/`.
 
-For an original website with a high craft bar, [the optional Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs a focused typography review and a whole-screen review of the opening in separate fresh contexts. After the page is built, `--scope full-page` runs writing and whole-screen reviews of the complete wide and narrow captures; it does not replace the opening review. Give each run a brief, captures, and a new output directory; it exits with a blocking result until its reviewers return Keep. It requires a local `codex` executable and the full Seenry installation. The saved JSON reports and input hashes make the disposition inspectable; the gate does not replace a human design decision or interaction testing.
-
-When the main design question is still open, [the optional direction study gate](skills/seenry/scripts/direction_study_gate.py) compares two small rendered answers at wide and narrow sizes. Name the decision explicitly; changing only surrounding layout will not clear a question about the subject or preview. This gate checks early visual choices, while the opening and full-page gates check the built interface.
+For an original web interface, [the first-slice checkpoint](skills/seenry/scripts/first_slice.py) keeps the brief, two rendered direction studies, chosen study, task anchor and finished opening together. Produce real browser captures at the intended wide and phone sizes, then run:
 
 ```sh
-python3 skills/seenry/scripts/direction_study_gate.py --brief BRIEF.md --decision "How should both proofs remain judgeable in the opening comparison?" --a-desktop a-wide.png --a-mobile a-narrow.png --b-desktop b-wide.png --b-mobile b-narrow.png --out study-review-1
-python3 skills/seenry/scripts/independent_review_gate.py --brief BRIEF.md --desktop desktop.png --mobile mobile.png --out review-1
-python3 skills/seenry/scripts/independent_review_gate.py --scope full-page --brief BRIEF.md --desktop desktop-full.png --mobile mobile-full.png --out review-final
+python3 skills/seenry/scripts/first_slice.py init --run .seenry-run --brief BRIEF.md --decision "How should the first useful object be shown?"
+python3 skills/seenry/scripts/first_slice.py studies --run .seenry-run --a-desktop a-wide.png --a-mobile a-phone.png --b-desktop b-wide.png --b-mobile b-phone.png
+python3 skills/seenry/scripts/first_slice.py select --run .seenry-run --study A --task-anchor "First useful item and price"
+python3 skills/seenry/scripts/first_slice.py slice --run .seenry-run --desktop final-wide.png --mobile final-phone.png --source-root .
+python3 skills/seenry/scripts/first_slice.py verify --run .seenry-run
 ```
+
+A non-Keep direction blocks selection. The finished first-screen gate compares its type direction and phone task anchor with the selected study; a changed source invalidates the cleared result. Use `init --craft-reference-image PATH` when a local, authorized reference capture helps compare material and scale. The [direction study gate](skills/seenry/scripts/direction_study_gate.py) and [independent review gate](skills/seenry/scripts/independent_review_gate.py) remain callable separately. Run `--scope full-page` after expansion. All visual verdicts require real rendered captures and still need behavior checks and human judgment; a model Keep is not user acceptance.
 
 For a connected native app flow, [the optional app gate](skills/seenry-apps/scripts/independent_flow_gate.py) reviews ordered, settled simulator captures in fresh visual and flow contexts. It records the exact images and blocks a cleared claim when either reviewer finds a supported repair. Exercise the flow on the device as well; screenshots cannot prove behavior.
 

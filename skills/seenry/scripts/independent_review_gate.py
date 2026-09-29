@@ -83,7 +83,7 @@ def parse_states(values):
     return states
 
 
-def review_prompt(kind, scope, state_names=()):
+def review_prompt(kind, scope, state_names=(), selected_study=False, task_anchor=None):
     if kind == 'writing':
         task = ('Independently review the actual visible writing in the supplied wide and narrow full-page captures. '
                 'Read the complete opening, every later section, actions and supplied result states. '
@@ -101,6 +101,19 @@ def review_prompt(kind, scope, state_names=()):
                 + ('Judge the complete visitor task, visual quality, copy, states visible in the captures, '
                    'and the reference relationship if provided. ' if kind == 'whole-screen' else
                    'Judge type voice, combined type signature, hierarchy, reading path, narrow-screen word separation, and any genre-default treatment. '))
+    continuity = (
+        'Compare the selected study image with the finished desktop and phone captures. '
+        'Judge the dominant type silhouette and the roles of its headline, labels, supporting copy and item text, '
+        'as well as the actual words used. A materially new headline or dominant type treatment absent from '
+        'the selected study requires Revise. A deliberate redesign can be reviewed by submitting its new study. '
+        if kind == 'typography' and scope == 'first-screen' and selected_study else ''
+    )
+    anchor = (
+        f'The named first useful item or task anchor is {json.dumps(task_anchor)}. '
+        'Check whether it remains visible and useful at the phone capture\'s delivery size. '
+        'If it is missing, hidden below the opening viewport, or too small to identify, return Revise. '
+        if scope == 'first-screen' and task_anchor else ''
+    )
     states = (f' Inspect the attached alternate states ({", ".join(state_names)}) at readable size too; '
               'judge what each reveals about the material, decision and result. '
               if state_names else '')
@@ -112,7 +125,7 @@ def review_prompt(kind, scope, state_names=()):
         if kind == 'whole-screen' else ''
     )
     return (
-        f'{task}Use {SKILLS[kind]}. Read ../brief.md and inspect both attached images at their actual size. '
+        f'{task}{continuity}{anchor}Use {SKILLS[kind]}. Read ../brief.md and inspect both finished captures at their actual size. '
         + states + coverage +
         'The findings array is only for supported defects requiring a repair. If you give Keep, '
         'return findings: [] and put positive observations in strengths instead; do not write '
@@ -128,7 +141,9 @@ def run_review(kind, args, staged, executable, review_root):
     folder.mkdir(parents=True, exist_ok=True)
     report = folder / 'review.json'
     log = folder / 'codex.log'
-    prompt = review_prompt(kind, args.scope, args.states)
+    prompt = review_prompt(kind, args.scope, args.states,
+                           selected_study=bool(staged.get('selected-study')),
+                           task_anchor=args.task_anchor)
     cmd = [executable, 'exec', '--ephemeral', '--ignore-user-config', '--skip-git-repo-check',
            '-s', 'workspace-write', '-c', 'approval_policy=never', '-C', str(folder),
            '--output-schema', str(SCHEMA), '-o', str(report)]
@@ -137,6 +152,8 @@ def run_review(kind, args, staged, executable, review_root):
     if args.effort:
         cmd.extend(['-c', f'model_reasoning_effort={args.effort}'])
     cmd.extend(['-i', str(staged['desktop']), '-i', str(staged['mobile'])])
+    if kind == 'typography' and staged.get('selected-study'):
+        cmd.extend(['-i', str(staged['selected-study'])])
     for name in args.states:
         cmd.extend(['-i', str(staged[f'state.{name}'])])
     if staged.get('reference') and kind == 'whole-screen':
@@ -164,6 +181,10 @@ def main():
     parser.add_argument('--desktop', type=Path, required=True)
     parser.add_argument('--mobile', type=Path, required=True)
     parser.add_argument('--reference', type=Path)
+    parser.add_argument('--selected-study', type=Path,
+                        help='Selected direction study image for first-screen type continuity review')
+    parser.add_argument('--task-anchor',
+                        help='Name of the first useful item or task object expected in the phone opening')
     parser.add_argument('--state', action='append', default=[], metavar='NAME=IMAGE',
                         help='Up to four named captures of complete material or connected states')
     parser.add_argument('--out', type=Path, required=True)
@@ -182,6 +203,14 @@ def main():
             parser.error(f'Review skill unavailable: {skill}')
     if args.timeout < 1:
         parser.error('--timeout must be positive')
+    if args.scope != 'first-screen' and (args.selected_study or args.task_anchor is not None):
+        parser.error('--selected-study and --task-anchor require --scope first-screen')
+    if args.selected_study and args.selected_study.suffix.lower() not in IMAGE_SUFFIXES:
+        parser.error('--selected-study must be a PNG, JPEG or WebP image')
+    if args.task_anchor is not None:
+        args.task_anchor = args.task_anchor.strip()
+        if not args.task_anchor:
+            parser.error('--task-anchor must name a visible first useful item or task object')
     try:
         args.states = parse_states(args.state)
     except ValueError as exc:
@@ -194,6 +223,8 @@ def main():
     inputs = {'brief': args.brief, 'desktop': args.desktop, 'mobile': args.mobile}
     if args.reference:
         inputs['reference'] = args.reference
+    if args.selected_study:
+        inputs['selected-study'] = args.selected_study
     for name, path in args.states.items():
         inputs[f'state.{name}'] = path
     with tempfile.TemporaryDirectory(prefix='seenry-web-review-') as temporary:
@@ -215,6 +246,8 @@ def main():
             'reviews': results,
             'status': disposition(results, args.scope),
         }
+        if args.task_anchor:
+            summary['task_anchor'] = args.task_anchor
         shutil.copytree(review_root, args.out, dirs_exist_ok=True)
     for kind, result in summary['reviews'].items():
         for key in ('log', 'report'):
