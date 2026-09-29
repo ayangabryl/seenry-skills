@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.3.3
+
+- `review_board.mjs` reads colors by painting them to a canvas, so `oklch()`, `lab()` and `color()` values get correct contrast and default-color checks (builds were converting tokens to hex to get past false contrast failures).
+- `research.mjs` drops error and 404 pages, reads app screens from the `screens` field (they were silently missing), and gives dashboards their own plan: app screens for dashboard, table, invoice, billing, list and filter, plus imported dashboard, table and admin designs.
+- `critic.mjs` no longer recommends text below the skill's minimum sizes.
+- Benchmark round 3 (Sonnet 5.5, premium judge): Seenry first in all six passes again, 7.0 on all three briefs, no-slop 7.0–8.0 against 3.0–5.5 for the competitors. Across three rounds Seenry ranked first in 17 of 18 passes.
+
 ## 4.3.2
 
 - Larger type floors, because every Sonnet judge pass still called Seenry's secondary text small and faint at review scale: paragraphs 16px, readable text 15px, short labels 14px at 1440, enforced by `review_board.mjs`; app screens 28/34 titles, 16/24 body, 15/22 cells; brand surfaces 18px body and 16px captions. The product kit and both component kits move to the new scale.

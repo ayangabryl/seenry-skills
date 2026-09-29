@@ -41,6 +41,10 @@ function inspect({phone}) {
   const f = {defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: []};
   const weights = new Set(), headings = [...document.querySelectorAll('h1,h2,h3,[role=heading]')].filter(vis);
   const canvas = document.createElement('canvas').getContext('2d');
+  const paint = document.createElement('canvas'); paint.width = paint.height = 1;
+  const pctx = paint.getContext('2d', {willReadFrequently: true});
+  // Computed colors can be oklch(), lab() or color(); paint them to read sRGB instead of parsing text.
+  const toRGBA = c => { pctx.clearRect(0, 0, 1, 1); pctx.fillStyle = '#000'; pctx.fillStyle = c; pctx.fillRect(0, 0, 1, 1); const d = pctx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
   const numbered = /^\s*(\(?0\d{1,2}\)?\s*[\/.\-–—)]|\(\d{2,3}\)|№\s?\d|No\.\s?\d|§\s?\d|\d{2}\s*\/\s*\d{2}\s*$)/;
   for (const el of els) {
     const s = getComputedStyle(el), size = parseFloat(s.fontSize), text = ownText(el), weight = +s.fontWeight;
@@ -51,7 +55,7 @@ function inspect({phone}) {
     if (size < 13 && text.length > 2 && !/^[\d:.,\s]+$/.test(text)) f.small.push(`${size}px ${label(el)}`);
     else if (!phone && text.length > 2 && !/^[\d:.,\s]+$/.test(text) && ((size < 15 && !(size >= 14 && text.length <= 24)) || (el.tagName === 'P' && text.length > 60 && size < 16))) f.desktopSmall.push(`${size}px ${label(el)}`);
     if (text.length > 2 && size < 24) {
-      const rgb = c => (c.match(/[\d.]+/g) || []).map(Number);
+      const rgb = c => (c === 'transparent' || /rgba?\([^)]*,\s*0\)$/.test(c)) ? [0, 0, 0, 0] : toRGBA(c);
       let bg = null;
       for (let n = el; n && !bg; n = n.parentElement) { const c = rgb(getComputedStyle(n).backgroundColor); if (c.length >= 3 && (c[3] === undefined || c[3] > 0.9)) bg = c; if (getComputedStyle(n).backgroundImage !== 'none') break; }
       const fg = rgb(s.color);
@@ -111,7 +115,7 @@ function inspect({phone}) {
     if (!vis(el)) continue;
     const cs = getComputedStyle(el);
     for (const c of [cs.backgroundColor, cs.color, cs.borderTopColor]) {
-      const v = (c.match(/[\d.]+/g) || []).map(Number);
+      const v = toRGBA(c);
       if (v.length < 3 || (v[3] !== undefined && v[3] < 0.9)) continue;
       for (const [k, name] of Object.entries(defaults)) {
         const d = k.match(/\d+/g).map(Number);

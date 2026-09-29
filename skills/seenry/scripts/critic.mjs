@@ -51,7 +51,7 @@ Score 1-10, calibrated so that the reference screens score about 8-9 and a compe
 - no_slop: 10 = none of the AI-generated tells; subtract for each: uppercase letter-spaced labels or eyebrows, numbered labels like "01 /", italic serif accent words, trendy default fonts, default AI palettes (cream+terracotta, plum+peach, navy+lime), clip-art imagery (sunset circles, vinyl records, flat product stand-ins), colored KPI hero cards with decoration, pill badges everywhere, tilted floating cards with stickers, heavy 700+ weights, gradient blobs, generic slogans, tiny or faint text.
 - typography, layout, craft, mobile.
 - overall: against the client's standard. Decoration never earns points; distinctiveness counts only when achieved cleanly.
-List every slop tell you see. Then the fixes that would raise overall most, most visible first: where on the page, the problem, and a concrete change (sizes, weights, colors, what to remove or replace). Prefer removing over adding. Say what the references do that the candidate does not.
+List every slop tell you see. Then the fixes that would raise overall most, most visible first: where on the page, the problem, and a concrete change (sizes, weights, colors, what to remove or replace). Prefer removing over adding. Say what the references do that the candidate does not. Never recommend text smaller than 16px for paragraphs, 15px for other readable text or 14px for short labels at 1440; the page is shown scaled down, so judge size relative to that.
 Do not open any files other than the attached images.`;
 
 mkdirSync(dirname(out), {recursive: true});

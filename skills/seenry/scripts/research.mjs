@@ -50,7 +50,7 @@ const plan = {
   studio: {pages: ['home page', 'about'], sections: ['hero', 'cards & tiles', 'footer'], motion: ['scroll', 'hover', 'illustration'], apps: []},
   pricing: {pages: ['pricing'], sections: ['pricing', 'accordion & collapse'], motion: ['toggle', 'number'], apps: []},
   product: {pages: ['product & landing', 'home page'], sections: ['image', 'hero'], motion: ['add to cart', 'gallery', 'hover'], apps: ['product', 'checkout']},
-  dashboard: {pages: ['general page'], sections: ['navigation', 'form'], motion: ['table', 'filter', 'number'], apps: ['dashboard', 'table', 'list']},
+  dashboard: {pages: [], sections: [], motion: ['table', 'filter', 'number'], apps: ['dashboard', 'table', 'invoice', 'billing', 'list', 'filter'], designs: ['dashboard', 'table', 'admin']},
   app: {pages: ['home page'], sections: ['hero'], motion: ['onboarding', 'sheet', 'tab'], apps: ['onboarding', 'settings', 'home']},
 }[type] || {pages: ['home page'], sections: ['hero'], motion: ['hover'], apps: []};
 
@@ -59,6 +59,9 @@ const seen = new Set(), perBrand = new Map();
 const brandOf = item => ((item.site || '').replace(/^www\./, '') || (item.brand || item.author || item.title || '').split(/[\s·—-]/)[0] || item.id).toLowerCase();
 const add = (group, item, extra = {}) => {
   if (!item) return;
+  // Error and placeholder pages are never references.
+  const kinds = [...(item.metadata?.pageTypes || []), item.title || '', item.label || ''].join(' ').toLowerCase();
+  if (/\b404\b|not found|page not found|error page/.test(kinds)) return;
   const brand = brandOf(item), key = `${group}:${brand}`;
   // At most one entry per brand in a group and two across the pack, so no single brand floods the context.
   if (seen.has(key) || (perBrand.get(brand) || 0) >= 2 || seen.has(`id:${item.id}`)) return;
@@ -99,8 +102,13 @@ for (const i of recorded.slice(0, 6)) {
     actions, scenes: (m?.scenes || []).slice(0, 4).map(x => x.path)}});
 }
 for (const q of plan.motion) for (const i of ((await call('search_designs', {family: 'motion', q, limit: 3})).items || [])) add(`Motion · ${q}`, i);
+// 5b. Imported app and product-UI designs for app surfaces (Dribbble-grade dashboards, tables, admin screens).
+for (const q of plan.designs || []) for (const fam of ['apps', 'sections']) for (const i of ((await call('search_designs', {family: fam, q, limit: 3})).items || [])) add(`Designs · ${q}`, i);
 // 6. App screens and flows when the surface is an app.
-for (const q of plan.apps) for (const i of ((await call('search_app_screens', {q, limit: 4})).items || [])) add(`App screens · ${q}`, i);
+for (const q of plan.apps) {
+  const r = await call('search_app_screens', {q, limit: 4, inline: false});
+  for (const i of (r.items || r.screens || [])) add(`App screens · ${q}`, {...i, id: i.id || `${i.app_id}:${i.index}`, brand: i.appName, title: `${i.title || ''}${i.flow ? ' · ' + i.flow : ''}`, posterUrl: i.url, site: i.appName});
+}
 // 7. Measured design evidence for the strongest few websites.
 const measured = pack.filter(p => /Curated pages|Named leaders|Category websites|Pages/.test(p.group) && p.id).slice(0, 5);
 for (const p of measured) {
