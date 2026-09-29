@@ -16,6 +16,19 @@ Style:       photographic (lens, film stock) or rendered (studio 3D, matte clay,
 Exclusions:  no text, no logos, no watermark, no extra hands, no borders
 ```
 
+## Premium product and brand photography
+
+The bar is Apple, Aesop and ARKET. Plan a matched set with one light and one surface, then check every image with the seenry `photo_check.mjs` before it goes into a layout (regenerate anything under 8 with the prompt it writes).
+
+**Product hero (commerce)**
+`Studio photograph of one <product, material, size> standing upright, true geometry, crisp edges and believable seams, blank label (no text), on a <limestone / linen / pale oak> surface against a seamless <warm-grey / off-white> backdrop, one large diffused light from upper camera-left with gentle fill and a soft grounding shadow, 85mm at product height, 4:5 vertical, product centered and filling about 78% of the frame height, warm-neutral grade with accurate <brand color>, no props, no scattered <ingredients>, no steam, no vignette, no HDR glow.`
+
+**Detail close-up (same set)**
+`Macro photograph of <texture: the foil gusset, whole beans in a ceramic dish, the linen weave>, same surface and light as the hero, 100mm macro, shallow depth of field, 1:1, calm negative space, no text.`
+
+**In-use or context shot (same palette)**
+`Editorial photograph of <the product in use: a pour-over on a kitchen counter, the shirt worn walking>, soft morning window light from the left, 50mm, 3:2, subject in the right third, muted palette matching <tokens>, no faces toward camera, no text, no logos.`
+
 ## Recipes
 
 **Hero photograph (landing page)**

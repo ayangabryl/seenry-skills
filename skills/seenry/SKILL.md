@@ -41,15 +41,38 @@ Leading teams look premium for one root reason: they ranked the job, then remove
 
 **Color.** Neutrals do the work, defined as roles: canvas, surface, selected, rule, three text levels. Pick the temperature once (cool for tools, warm for craft and hospitality) and keep every grey in it. One action color, used only for the primary action, selection and focus, so it is always findable. Status is a 6px dot plus words on a pale tint; strong color only for the exception that needs action. A brand surface may have one bold field (a dark band, a photograph); never a second accent.
 
-**Type.** One workhorse sans for the product (Inter with `cv11 ss01`, Geist, SF via `system-ui`, or the brand's face), tuned: display tracking −0.02 to −0.03em, `text-wrap: balance`, real punctuation. Weights by role: 400 values and body, 500 labels, controls and row anchors, 600 titles and the key figure. Minimum sizes at 1440 (check.mjs blocks below them): paragraphs 15, any other readable text 14, short labels such as table headers 13; body text at least 4.5:1 contrast, never a pale grey. App screens: 24/30 page title, 15/22 body, 14/20 cells and meta, 13/16 table headers in Title Case. Brand surfaces: display 56–80 at 500–600, lead 18–20, body 17–18, supporting copy 15–16. Money: sans, right-aligned, tabular in columns, consistent cents, real minus sign.
+**Type.** Use the brand's face if it has one. Otherwise pick from this list; these free faces are the closest to what the big companies use, and each needs its tuning to look expensive:
 
-**Radius and elevation.** Radius says what a shape is: grids and tables square or 8–12 on the container, controls 6–8, floating layers 12, pills only for status and small toggles. Nested corners concentric. Resting content uses 1px hairlines; only menus, popovers, dialogs and sheets get a shadow.
+| Surface | Face (Google Fonts, self-host the WOFF2) | Tuning |
+| --- | --- | --- |
+| App screens, dashboards, SaaS | Inter (variable, with `opsz`) | `font-optical-sizing: auto`; `font-feature-settings: "cv11", "ss01"`; titles 600 at −0.015em; body 400 at 0 |
+| Developer and technical products | Geist + Geist Mono | display 500–600 at −0.035em; mono only for code, IDs and keys |
+| Consumer tech and product marketing | Inter Display (Inter with `opsz` 32) or Geist | display 56–80 at 500–600, −0.03em, line height 1.02–1.08 |
+| Commerce, fashion, craft goods | Inter Tight for display with Inter for text, or Hanken Grotesk | product title 40–56 at 500, −0.02em; prices 500 tabular |
+| Apple-feel web | `system-ui` (SF Pro) | display 600 at −0.02em; never download SF Pro |
+| Editorial, long reading, hospitality | the sans above + Newsreader or Source Serif 4 for long-form text only | serif at 400 for reading, never as italic accents or display flavor |
+
+Never reach for DM Sans, Plus Jakarta Sans, Space Grotesk, Poppins or Montserrat as defaults; they read as templates. One family per page plus a mono or reading serif only with a reason. Tune the chosen face: display tracking −0.02 to −0.03em, `text-wrap: balance`, real punctuation. Weights by role: 400 values and body, 500 labels, controls and row anchors, 600 titles and the key figure. Minimum sizes at 1440 (check.mjs blocks below them): paragraphs 15, any other readable text 14, short labels such as table headers 13; body text at least 4.5:1 contrast, never a pale grey. App screens: 24/30 page title, 15/22 body, 14/20 cells and meta, 13/16 table headers in Title Case. Brand surfaces: display 56–80 at 500–600, lead 18–20, body 17–18, supporting copy 15–16. Money: sans, right-aligned, tabular in columns, consistent cents, real minus sign.
+
+**Radius and elevation.** Radius says what a shape is and how big it is; getting it wrong is one of the fastest ways to look generated.
+- **Pick the family once, from the brand:** sharp (0–4, editorial, fashion, technical: ARKET, Swiss print), product (6–12, tools and commerce: Stripe, Linear, Apple Store cards at 12–18), soft (16–24, friendly consumer). Every radius on the page comes from that family.
+- **Radius by role and size:** small parts (tags, checkboxes, 28–32px buttons) 4–6; controls (36–48px buttons, inputs, selects) one shared value, 6–10; cards, panels and tables 12; large media, sheets and dialogs 16–20; full pill only for status chips, toggles, avatars and segmented-control thumbs.
+- **Proportion:** a control's radius is at most 25% of its height (40px tall → 8–10) or exactly a full pill. Anything between 26% and 49% looks like a mistake (check.mjs flags it).
+- **Neighbors match:** a button beside an input, and every control in a toolbar, share one radius and one height.
+- **Concentric nesting:** inner = outer − inset (card 16 with 8 inset holds 8; card 12 with 16 inset holds square or 4 content). Never the same radius on a parent and its inset child.
+- **Edges:** anything full-bleed or touching a container edge is square on that side; media flush in a card takes the card's radius only on the touching corners. Tables: container rounded, cells square. Product cut-outs and photographs of objects are not rounded beyond the family's media value.
+- **Smoothness:** where supported, `corner-shape: squircle` inside `@supports (corner-shape: squircle)` on cards and media (raise the radius about 1.3× so the visual size matches); rings, focus outlines and shadows follow the same shape.
+- **Elevation:** resting content uses 1px hairlines; only menus, popovers, dialogs and sheets get a shadow, and they use the large radius.
 
 **Scale on desktop.** Premium pages use the whole 1440 canvas with confidence; a phone layout enlarged onto a wide screen reads as a template. At 1440: content spans 1200–1280; the hero image or product media takes 55–60% of the width and most of the first screen's height; the page or product title is 40–56 on product and commerce pages (56–80 on marketing heroes); controls are 44–48 high with 15–16px labels; the primary action is visible in the first screen on desktop and within the first screen and a half on phone. Selected states are decisive: a 2px dark border or a solid fill, never a pale tint plus a hairline.
 
 **Layout and density.** One dominant element per view. Content max 1200–1280, gutters 32 desktop and 16–20 phone, 8px spacing scale, gaps between groups at least twice the gaps inside. App screens: summary as 0–3 figures in one divided strip, then the work (table or list) within the first screen; rows 44–56. Brand surfaces: generous and consistent section rhythm (96–128 desktop), each section one idea with real material, left-aligned text.
 
-**Imagery.** Real product UI with specific data, or photography that belongs to the subject (generate with the host's image model when available: describe the subject, light, lens and surface). One strong image beats five decorations. Never a gradient or SVG standing in for a photograph.
+**Imagery.** Imagery is the most-cited gap between generated pages and big-company pages, so it is art-directed and checked, never accepted on the first try.
+- Software: the real product UI with specific data is the image. Commerce and brands: photography of the real subject (via `seenry-assets`: supplied, license-clear, or generated with the host's image model).
+- Shoot like Apple, Aesop and ARKET: one subject, one large soft motivated light (upper left, diffused), a controlled soft shadow, a quiet seamless or natural surface (limestone, linen, pale wood, paper) in the page's neutral temperature, 85mm product height or 50mm for context shots, true geometry, a color grade that matches the palette. Plan the set, not one image: hero (subject fills 70–80% of the frame height, 4:5 or 1:1), a detail or texture close-up, and one in-use or context shot, all with the same light and surface.
+- Keep text out of generated images: leave labels blank or minimal and set brand names in HTML, because generated lettering garbles. No clichés: scattered beans, steam wisps, floating objects, sunset circles, gradient blobs, fairy-light bokeh.
+- Run `node scripts/photo_check.mjs <images> --use "<slot, ratio, position>" --brand "<brand>" --refs .seenry/refs/<a>,<b>` before layout. Regenerate anything under 8 with the better prompt it writes, at most three attempts per image; crop to the slot's exact ratio and export 2x WebP.
 
 **Copy.** Plain, specific, short. Headlines say what it is or does for this audience; labels name the thing; empty states say what happened and the one next action.
 
@@ -92,6 +115,7 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 ## Tools
 
 - [Check](scripts/check.mjs): the finishing gate. Runs the review board, blocks on slop, then the blind critic against the reference screens; prints PASS or the fixes to apply.
+- [Photo check](scripts/photo_check.mjs): a blind art director scores each image for its slot against the references and writes a better prompt for anything under 8.
 - [Blind critic](scripts/critic.mjs): a fresh Codex or Claude process scores the page against the references with the premium standard and returns ranked fixes.
 - [Review board](scripts/review_board.mjs): the page at review scale beside the references, plus craft blockers the grid audit cannot see (legibility at scale, eyebrows, numbering, weights, font loading, figure spacing, phone clipping, fixed overlays, motion coverage). Run it every review round.
 - [Product kit](assets/kits/product.css) and [motion floor](assets/kits/motion.css): the starting quality floor for app screens and interaction.

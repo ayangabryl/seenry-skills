@@ -36,7 +36,20 @@ const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, ...(
 const board = spawnSync('node', boardArgs, {encoding: 'utf8'});
 process.stdout.write(board.stdout);
 if (board.status === 2) { process.stderr.write(board.stderr); process.exit(2); }
-const blockers = JSON.parse(readFileSync(join(review, 'board.json'), 'utf8')).blockers;
+let blockers = JSON.parse(readFileSync(join(review, 'board.json'), 'utf8')).blockers;
+// Photographs must pass photo_check.mjs before the critic is asked; weak imagery is the most-cited gap.
+if (!/^https?:/.test(target) && existsSync(target)) {
+  const html = readFileSync(target, 'utf8');
+  const photos = [...new Set([...html.matchAll(/(?:src|href|url\()\s*=?\s*["']?([^"')\s>]+\.(?:png|jpe?g|webp|avif))/gi)].map(m => m[1]).filter(u => !/^(https?:|data:)/.test(u)))];
+  const report = join(review, 'photos.json');
+  const passed = existsSync(report) && JSON.parse(readFileSync(report, 'utf8')).images.every(i => i.overall >= 8);
+  if (photos.length && !passed) {
+    blockers++;
+    console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
+    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>"${refs ? ' --refs ' + refs : ''} --out ${report}`);
+    console.log('  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
+  }
+}
 if (blockers) {
   history.push({round, blockers, critic: null});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));

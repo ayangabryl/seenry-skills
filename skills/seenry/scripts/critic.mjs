@@ -7,10 +7,9 @@
  *
  *  Uses the Codex CLI (`codex exec`) or Claude Code (`claude -p`), whichever is installed (override with --cli or
  *  SEENRY_CRITIC). Prints scores and the fixes ranked by visible impact, and writes them to --out. */
-import {existsSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync} from 'node:fs';
-import {resolve, dirname, join} from 'node:path';
-import {tmpdir, homedir, userInfo} from 'node:os';
-import {spawnSync} from 'node:child_process';
+import {existsSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs';
+import {resolve, dirname} from 'node:path';
+import {findCli, askModel} from './model_cli.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -22,20 +21,9 @@ const briefPath = flag('brief');
 const brief = briefPath && existsSync(briefPath) ? readFileSync(briefPath, 'utf8') : (flag('job') || 'A web page.');
 for (const f of [board, first]) if (!existsSync(f)) { console.error(`Missing ${f}. Run review_board.mjs first.`); process.exit(2); }
 
-// A PATH can hold several installs of a CLI, some broken (a global npm shim whose binary is missing), so try each
-// candidate and keep the first that actually runs.
-const runnable = name => {
-  const found = spawnSync('sh', ['-c', `which -a ${name} 2>/dev/null`], {encoding: 'utf8'}).stdout.split('\n').filter(Boolean);
-  const extra = name === 'codex' ? [process.env.SEENRY_CODEX_BIN, join(homedir(), '.local/bin/codex'), join(homedir(), '.codex/packages/standalone/current/bin/codex'), join(userInfo().homedir, '.local/bin/codex')] : [process.env.SEENRY_CLAUDE_BIN, join(homedir(), '.local/bin/claude'), join(userInfo().homedir, '.local/bin/claude')];
-  for (const bin of [...new Set([...extra.filter(Boolean), ...found])]) {
-    if (!existsSync(bin)) continue;
-    if (spawnSync(bin, ['--version'], {stdio: ['ignore', 'pipe', 'pipe'], timeout: 20000}).status === 0) return bin;
-  }
-  return null;
-};
-const cli = flag('cli', process.env.SEENRY_CRITIC) || (runnable('codex') ? 'codex' : runnable('claude') ? 'claude' : null);
-const bin = cli && runnable(cli);
-if (!cli || !bin) { console.error('No working critic CLI found (codex or claude). Ask an independent reviewer to score board.png and first.png instead.'); process.exit(2); }
+const found = findCli(flag('cli', process.env.SEENRY_CRITIC));
+if (!found) { console.error('No working critic CLI found (codex or claude). Ask an independent reviewer to score board.png and first.png instead.'); process.exit(2); }
+const {cli} = found;
 
 const images = [board, first, ...refs];
 const listing = [`image 1 = the candidate: full desktop page at half scale (left) and phone page (right)`,
@@ -67,24 +55,9 @@ List every slop tell you see. Then the fixes that would raise overall most, most
 Do not open any files other than the attached images.`;
 
 mkdirSync(dirname(out), {recursive: true});
-const work = mkdtempSync(join(tmpdir(), 'seenry-critic-'));
-let raw = '';
-if (cli === 'codex') {
-  const schemaFile = join(work, 'schema.json'), result = join(work, 'out.json');
-  writeFileSync(schemaFile, JSON.stringify(schema));
-  const cmd = ['exec', '--skip-git-repo-check', '-s', 'read-only', '--output-schema', schemaFile, '-o', result];
-  for (const img of images) cmd.push('-i', img);
-  cmd.push('--', prompt);
-  const r = spawnSync(bin, cmd, {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
-  raw = existsSync(result) ? readFileSync(result, 'utf8') : '';
-  if (!raw) { console.error(`codex critic failed (status ${r.status}${r.error ? ', ' + r.error.code : ''}):`, (r.stderr || r.stdout || '').slice(0, 1500)); process.exit(1); }
-} else {
-  const p = `${prompt}\n\nThe images are these files; read each one: ${images.join(', ')}\nAnswer with only a JSON object matching this schema: ${JSON.stringify(schema)}`;
-  const r = spawnSync(bin, ['-p', p, '--allowedTools', 'Read', '--output-format', 'text'], {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
-  raw = (r.stdout || '').slice((r.stdout || '').indexOf('{'), (r.stdout || '').lastIndexOf('}') + 1);
-  if (!raw) { console.error((r.stderr || r.stdout || '').slice(-2000)); process.exit(1); }
-}
-const verdict = JSON.parse(raw);
+let verdict;
+try { verdict = askModel(found, {images, prompt, schema}); } catch (e) { console.error(`critic failed: ${e.message}`); process.exit(1); }
+
 writeFileSync(out, JSON.stringify({cli, images, ...verdict}, null, 2));
 const s = verdict.scores;
 console.log(`Blind critic (${cli}): overall ${s.overall}/10 · premium ${s.premium} · clean ${s.clean} · no-slop ${s.no_slop} · type ${s.typography} · layout ${s.layout} · craft ${s.craft} · mobile ${s.mobile}`);

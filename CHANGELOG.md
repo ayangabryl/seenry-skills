@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.2.0
+
+- Photography: `SKILL.md` directs imagery like Apple, Aesop and ARKET (one soft motivated light, quiet natural surface, matched hero, detail and context set, no text in generated images, no clichés), with premium recipes in `seenry-assets`. Adds `photo_check.mjs`, a blind art director that scores each image for its slot against the reference screens and writes a better prompt for anything under 8; `check.mjs` blocks pages whose local photographs have not passed it.
+- Type: a curated table of free faces by surface (Inter with optical sizing, Geist, Inter Display, Inter Tight or Hanken Grotesk, `system-ui`, a reading serif for long-form only) with the tuning each needs, and a list of template defaults to avoid.
+- Radius: a family chosen from the brand, radius by role and size, at most 25% of a control's height or a full pill, matching neighbours, concentric nesting and square edges where content is flush; `review_board.mjs` blocks in-between control radii and mixed control radii.
+- `critic.mjs` and `photo_check.mjs` share `model_cli.mjs` to run a fresh Codex or Claude process.
+- Benchmark (premium judge, one build each): product 8.0 against 7.0 for the best competitor, landing 7.0 against 6.0, Seenry first in every pass.
+
 ## 4.1.0
 
 - Adds `assets/kits/motion.js`, a dependency-free classic script that works from disk: `SeenryMotion.number` rolls prices, totals and counts digit by digit with an accessible exact value, `swap` cross-fades filter, sort and tab changes with View Transitions, `pop` and `toast` give add-to-bag and save feedback. `SKILL.md` requires them for every in-place change.
