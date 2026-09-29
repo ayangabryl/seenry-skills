@@ -29,11 +29,13 @@
   --text-3: oklch(0.58 0.01 255);
   --text-4: oklch(0.7 0.008 255);
 
-  --accent: oklch(0.52 0.19 265);
-  --accent-hover: oklch(0.47 0.19 265);
-  --accent-subtle: oklch(0.96 0.03 265);
+  /* Default accent is ink, a deliberate premium default (Vercel, ARKET). Replace it with the brand's accent,
+     corrected to OKLCH lightness 0.50-0.62 and chroma 0.12-0.20; never leave a framework blue. */
+  --accent: oklch(0.24 0.01 255);
+  --accent-hover: oklch(0.32 0.01 255);
+  --accent-subtle: oklch(0.955 0.004 255);
   --on-accent: #fff;
-  --focus: 0 0 0 3px oklch(0.52 0.19 265 / 0.25);
+  --focus: 0 0 0 3px oklch(0.24 0.01 255 / 0.2);
 
   --ok: oklch(0.52 0.12 155);   --ok-bg: oklch(0.965 0.03 155);
   --warn: oklch(0.58 0.13 70);  --warn-bg: oklch(0.97 0.04 80);

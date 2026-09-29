@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.3.1
+
+- From the first Sonnet 5.5 benchmark (Seenry first on all three briefs, 7.0 / 7.0 / 6.5 against 5.5 for the best competitor): an imagery fallback when no image model is available (typographic covers, large product UI or one line system instead of weak stock photos; gradient blobs never), a ban on framework default accents with a `review_board.mjs` detector, readable table data (text-1 or text-2, never text-3), and sticky phone bars that hide while their options are on screen.
+- The product kit and both component kits default to an ink accent instead of a generic blue, so an unset accent reads as deliberate.
+
 ## 4.3.0
 
 - Research pack: `research.mjs` calls Seenry MCP directly and assembles 50–60 varied references per brief (human-rated picks, category sites and sections, named leaders, random samples beyond the alphabetical top, recorded motion walkthroughs with video, motion clips, app screens, measured design) into `.seenry/research/pack.md` with a contact sheet; one brand appears at most twice.

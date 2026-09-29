@@ -4,10 +4,10 @@
   --bg: #f8f9fb; --surface: #fff; --surface-2: #f2f4f7; --hover: #e9edf2;
   --line: #e1e5eb; --line-strong: #c5ccd6;
   --text: #18212d; --text-2: #485464; --text-3: #626f80;
-  --accent: #3659d9; --accent-hover: #2948bb; --accent-subtle: #e9edff; --on-accent: #fff;
-  --focus: 0 0 0 3px #3659d94d;
+  --accent: #1c1f24; --accent-hover: #343941; --accent-subtle: #eef0f2; --on-accent: #fff;
+  --focus: 0 0 0 3px #1c1f2433;
   --ok: #21734c; --ok-bg: #e5f4ea; --warn: #8d5a10; --warn-bg: #fff2d6;
-  --bad: #ae3f37; --bad-bg: #fbe9e7; --info: #3659d9; --info-bg: #e9edff;
+  --bad: #ae3f37; --bad-bg: #fbe9e7; --info: #1c1f24; --info-bg: #eef0f2;
   --r-sm: 6px; --r-md: 8px; --r-lg: 12px;
   --t-fast: 120ms; --t-base: 160ms; --t-layer: 200ms;
   --ease-out: cubic-bezier(.23,1,.32,1);
@@ -16,16 +16,16 @@
   --bg: #11161e; --surface: #19212c; --surface-2: #202a36; --hover: #2b3745;
   --line: #354150; --line-strong: #536172;
   --text: #f2f5f8; --text-2: #c0cad5; --text-3: #a9b5c2;
-  --accent: #88a0ff; --accent-hover: #a4b6ff; --accent-subtle: #27345b; --on-accent: #10172d;
-  --focus: 0 0 0 3px #88a0ff66;
+  --accent: #f1f2f4; --accent-hover: #ffffff; --accent-subtle: #2c3038; --on-accent: #15171b;
+  --focus: 0 0 0 3px #f1f2f455;
   --ok: #79d6a6; --ok-bg: #193d2f; --warn: #f2c678; --warn-bg: #493819;
   --bad: #f49a91; --bad-bg: #482b2b; --info: #9ab0ff; --info-bg: #263457;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #11161e; --surface: #19212c; --surface-2: #202a36; --hover: #2b3745;
   --line: #354150; --line-strong: #536172; --text: #f2f5f8; --text-2: #c0cad5; --text-3: #a9b5c2;
-  --accent: #88a0ff; --accent-hover: #a4b6ff; --accent-subtle: #27345b; --on-accent: #10172d;
-  --focus: 0 0 0 3px #88a0ff66; --ok: #79d6a6; --ok-bg: #193d2f;
+  --accent: #f1f2f4; --accent-hover: #ffffff; --accent-subtle: #2c3038; --on-accent: #15171b;
+  --focus: 0 0 0 3px #f1f2f455; --ok: #79d6a6; --ok-bg: #193d2f;
   --warn: #f2c678; --warn-bg: #493819; --bad: #f49a91; --bad-bg: #482b2b;
   --info: #9ab0ff; --info-bg: #263457;
 } }
