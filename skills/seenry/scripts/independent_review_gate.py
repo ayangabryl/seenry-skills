@@ -100,7 +100,7 @@ def review_prompt(kind, scope, state_names=()):
         task = ('Independently review the supplied first-screen captures. '
                 + ('Judge the complete visitor task, visual quality, copy, states visible in the captures, '
                    'and the reference relationship if provided. ' if kind == 'whole-screen' else
-                   'Judge type voice, combined type signature, hierarchy, reading path, and any genre-default treatment. '))
+                   'Judge type voice, combined type signature, hierarchy, reading path, narrow-screen word separation, and any genre-default treatment. '))
     states = (f' Inspect the attached alternate states ({", ".join(state_names)}) at readable size too; '
               'judge what each reveals about the material, decision and result. '
               if state_names else '')

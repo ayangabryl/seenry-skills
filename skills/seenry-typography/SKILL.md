@@ -16,6 +16,7 @@ Work from the project's actual words, language support, brand and delivery size.
 Name what the reader must notice, understand and act on. List the visible roles: title, evidence, body, metadata, control, status and long-form reading as applicable. A new role needs a distinct information job; a decorative eyebrow that repeats the title is not a role. Record where text sits relative to the product, image or task evidence. On a phone, a beautiful stack of text can still delay the subject.
 
 Inspect the rendered page at ordinary desktop and narrow sizes. Read its actual words. Note line breaks, optical size, width, weight, punctuation, tracking, paragraph measure, wrapping of long labels and fallback rendering. Contrast and semantic heading structure are separate checks; good type needs both, but passing them does not establish a strong direction.
+At narrow size, inspect display words as shapes as well as text: tightly set condensed capitals can make adjacent words read as one despite spaces in the source. Repair visible word separation before accepting the voice.
 
 ## Choose and compare
 
