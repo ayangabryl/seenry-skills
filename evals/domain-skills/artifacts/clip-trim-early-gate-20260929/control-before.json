@@ -1,0 +1,32 @@
+{
+  "scope": "direction-study",
+  "input_sha256": {
+    "brief": "042016abe4482a8701a593a5770b8a4f6214ecd9d786188efedcc61905587c9c",
+    "a-desktop": "907be4c2cdb732e8aaf5479d1b3468bc38a101f088d018aca1f464bd8751bf7b",
+    "a-mobile": "f524bed5affbc9e547992b78ddc6f1dcfcdd429dba170a56bfe3260a5f768c86",
+    "b-desktop": "c21ce3f194a05f097af3a97e36e990fd9049584826b37a58d8cd6456f1552d53",
+    "b-mobile": "de781af31665899d7a5278270936b4e6e259142d6dc63848594b8a3b85f0bf7a",
+    "decision": "f076d946a96d0e3be6339e0a37b41f667be4b2abf96269e32996770a35535d07"
+  },
+  "skill_sha256": {
+    "review": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2",
+    "art-direction": "1f3b198d9d50c8d133638838600b5410052a5e37cd96661ebd8ad4ab940df62d"
+  },
+  "review": {
+    "verdict": "Keep",
+    "findings": [],
+    "strengths": [
+      "Choose B. The studies materially differ in identity: B combines a dominant vermilion field with dense block lettering, replacing A\u2019s quiet paper field and literary serif headline. This is more than recoloring shared containers.",
+      "Both retain a clear comparison path: prominent dates, times, availability, concrete make/bring descriptions and repeated review actions. A exposes slightly more content on mobile; B\u2019s taller introduction preserves readable workshop information.",
+      "B\u2019s phone headline has distinguishable word spaces and deliberate two-line phrasing. Its print-poster voice suits the studio, while quieter schedule typography supports scanning.",
+      "Both show subject-specific material through complete poster and note-card specimens beside their workshop descriptions. B combines that material with the stronger identity and the same usable schedule structure; no synthesis or design repair is needed before expansion."
+    ],
+    "limits": [
+      "Reviewed the four captures at supplied size in the requested order. The third workshop and lower detail content are only partially visible or outside the captures.",
+      "Selection, exact detail-fact repetition, return behavior, keyboard operation, focus and accessibility behavior remain unverified from still images."
+    ],
+    "log": "/private/tmp/form-impression-seenry-20260929/gates/assisted-identity/review/codex.log",
+    "report": "/private/tmp/form-impression-seenry-20260929/gates/assisted-identity/review/review.json"
+  },
+  "status": "Keep"
+}

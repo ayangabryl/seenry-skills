@@ -21,7 +21,7 @@ Choose the closest family, then prototype its decisive moment in the actual host
 | Continuous or particle effects | Semantic fallback, resource budget, start/stop and cleanup | Multiple instances, reduced motion, hidden tab, unmount |
 | Live audio, media and time | Permission or data source, honest status, latency and fallback | Denied permission, missing device, inactive tab, stale reading |
 
-For each candidate, compare the same input and result at its real footprint. A static mockup can test geometry; it cannot select between a stiff drag and a responsive one. Build the smallest runnable behavior slice before investing in the outer presentation. When the user requests a close recreation, follow [replication](replication.md) and preserve observed behavior instead of substituting an original effect.
+For each candidate, compare the same input and result at its real footprint. A static mockup can test geometry; it cannot select between a stiff drag and a responsive one. Build the smallest runnable behavior slice before investing in the outer presentation; keep its styling provisional until the direction comparison. Check that the object remains recognizable and the changing state legible at phone size, not just that the control fits. When the user requests a close recreation, follow [replication](replication.md) and preserve observed behavior instead of substituting an original effect.
 
 ## Make the interaction dependable
 

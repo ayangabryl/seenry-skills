@@ -1,0 +1,1 @@
+On the same final schedule-first composition, which identity better expresses a neighborhood letterpress studio while keeping schedule and print specimens legible: paper/navy with a restrained serif heading, or vermilion print-poster field and condensed block type with the repaired phone word spacing?

@@ -1,0 +1,32 @@
+{
+  "scope": "direction-study",
+  "input_sha256": {
+    "brief": "042016abe4482a8701a593a5770b8a4f6214ecd9d786188efedcc61905587c9c",
+    "a-desktop": "907be4c2cdb732e8aaf5479d1b3468bc38a101f088d018aca1f464bd8751bf7b",
+    "a-mobile": "f524bed5affbc9e547992b78ddc6f1dcfcdd429dba170a56bfe3260a5f768c86",
+    "b-desktop": "c21ce3f194a05f097af3a97e36e990fd9049584826b37a58d8cd6456f1552d53",
+    "b-mobile": "de781af31665899d7a5278270936b4e6e259142d6dc63848594b8a3b85f0bf7a",
+    "decision": "f076d946a96d0e3be6339e0a37b41f667be4b2abf96269e32996770a35535d07"
+  },
+  "skill_sha256": {
+    "review": "9b8b97ce20bd7df62047cfa1771beabcc0e70bddb9c11629b35a8c656c8d50b2",
+    "art-direction": "1f3b198d9d50c8d133638838600b5410052a5e37cd96661ebd8ad4ab940df62d"
+  },
+  "review": {
+    "verdict": "Keep",
+    "findings": [],
+    "strengths": [
+      "Keep B for expansion. The studies materially differ in identity: B introduces a dominant vermilion opening and dense block lettering, changing both color-area distribution and type voice while preserving the useful schedule structure.",
+      "Both studies offer a clear visible task path: prominent dates, workshop names, times, availability and review actions. B preserves this clarity beneath its stronger opening.",
+      "B\u2019s phone headline has distinguishable word spaces and a clear two-line reading sequence at the delivered size. Its print-poster character better expresses the letterpress subject than A\u2019s restrained editorial heading.",
+      "Both studies include subject-specific material: the desktop specimen clearly presents a printable outcome, and the phone previews remain recognizable as a typographic poster and a floral note card. B combines this material with a coherent ink-and-paper palette and sufficiently finished alignment, rules and typography."
+    ],
+    "limits": [
+      "Reviewed the four captures at their delivered sizes in the requested order. The third specimen and lower content are outside the supplied views, so their visual quality remains unverified.",
+      "Still images do not verify selection, changing specimens, exact detail facts, return behavior, keyboard operation or focus management. Keep applies to the visible identity direction, not the completed interaction."
+    ],
+    "log": "/private/tmp/seenry-early-object-gate-general-control/review/codex.log",
+    "report": "/private/tmp/seenry-early-object-gate-general-control/review/review.json"
+  },
+  "status": "Keep"
+}
