@@ -24,6 +24,10 @@ let refs = flag('refs');
 if (!refs && existsSync(join(dir, 'refs'))) refs = readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).slice(0, 3).map(f => join(dir, 'refs', f)).join(',');
 const history = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
 const round = history.length + 1;
+if (round > 8 && !history.some(h => h.stop)) {
+  history[history.length - 1].stop = 'eight rounds';
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+}
 const stoppedAt = history.find(h => h.stop);
 if (stoppedAt) {
   const best = history.filter(h => h.critic).sort((a, b) => b.critic.overall - a.critic.overall)[0];
@@ -42,8 +46,13 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   const html = readFileSync(target, 'utf8');
   const photos = [...new Set([...html.matchAll(/(?:src|href|url\()\s*=?\s*["']?([^"')\s>]+\.(?:png|jpe?g|webp|avif))/gi)].map(m => m[1]).filter(u => !/^(https?:|data:)/.test(u)))];
   const report = join(review, 'photos.json');
-  const passed = existsSync(report) && JSON.parse(readFileSync(report, 'utf8')).images.every(i => i.overall >= 8);
-  if (photos.length && !passed) {
+  const checks = history.filter(h => h.photoChecked).length;
+  const data = existsSync(report) ? JSON.parse(readFileSync(report, 'utf8')) : null;
+  const passed = data && data.images.every(i => i.overall >= 8);
+  if (data && history.length && !history[history.length - 1].photoChecked) history[history.length - 1].photoChecked = true;
+  if (photos.length && data && !passed && checks >= 3) {
+    console.log(`\n■ photographs  best effort after three photo checks (${data.images.map(i => i.overall).join('/')}); not blocking. Keep the strongest versions and move on.`);
+  } else if (photos.length && !passed) {
     blockers++;
     console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
     console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>"${refs ? ' --refs ' + refs : ''} --out ${report}`);

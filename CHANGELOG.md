@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.2.1
+
+- `check.mjs` stops treating photographs as a hard blocker after three photo checks and keeps the strongest versions, and stops any loop after eight rounds. In the 4.2 benchmark the photo gate locked the critic out for nine rounds on landing and product pages, doubling build time.
+- Benchmark (premium judge, one build each): Seenry first in all six passes; dashboard 8.0 (best competitor 7.0), product 7.5 (6.0), landing 6.5 (5.0).
+
 ## 4.2.0
 
 - Photography: `SKILL.md` directs imagery like Apple, Aesop and ARKET (one soft motivated light, quiet natural surface, matched hero, detail and context set, no text in generated images, no clichés), with premium recipes in `seenry-assets`. Adds `photo_check.mjs`, a blind art director that scores each image for its slot against the reference screens and writes a better prompt for anything under 8; `check.mjs` blocks pages whose local photographs have not passed it.
