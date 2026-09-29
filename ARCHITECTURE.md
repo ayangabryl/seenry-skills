@@ -10,6 +10,8 @@ The [first-slice checkpoint](skills/seenry/scripts/first_slice.py) records a fro
 
 The optional [Codex CLI review gate](skills/seenry/scripts/independent_review_gate.py) runs those two fresh contexts and saves structured findings with input and skill hashes. Up to four named `--state name=image.png` captures can show complete material or connected results hidden by the default frame. Its nonzero result stops a reviewable slice from being labeled cleared; the builder must repair and recapture. It is available only where Codex CLI and the sibling specialist skills are installed. It does not force an agent to run it or make either review infallible, so independent artifact inspection and user acceptance remain separate.
 
+The opt-in [visual benchmarks](tests/run_visual_benchmarks.py) exercise that reviewer on two original rendered cases: a repair-shop opening whose selected study drifted into a generic editorial headline and hid the phone time choice, and a dated observation journal where editorial typography serves the content. The expected typography results are Revise and Keep respectively. Run them after changing the review prompt or typography guidance; inspect the saved reports rather than treating one model verdict as a permanent quality guarantee. These cases calibrate a narrow judgment, not overall design quality.
+
 For a native app, `seenry-apps` owns the connected task and device verification. Its [optional flow gate](skills/seenry-apps/scripts/independent_flow_gate.py) sends ordered, settled captures to fresh visual and flow reviewers, with the brief, source observations and hashes. A static pass covers only the pictured states; the builder still exercises actions, calculations, correction and accessibility on the device.
 
 ## Create
