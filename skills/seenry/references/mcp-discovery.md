@@ -1,6 +1,6 @@
 # Discover the right evidence with MCP
 
-Read the live `get_library_guide` and exposed tool schemas first. The bundled `mcp-tools.json` is a versioned fallback, not authority over a newer connected server. Do not invent endpoints or parameters.
+For a new visual direction with Seenry MCP connected, read the live `get_library_guide` and exposed tool schemas before styling. The bundled `mcp-tools.json` is a versioned fallback, not authority over a newer connected server. Do not invent endpoints or parameters. A narrow repair in an established system only needs new reference research if the defect requires it.
 
 For an open-ended brief, use `discover_references` for a bounded cross-family starting point. Use short observed terms; omit q for a diverse catalog starting point. This is lexical discovery, not semantic ranking or a beauty score. Inspect candidates before calling them suitable. A broad query returning zero does not establish that the library lacks suitable designs.
 

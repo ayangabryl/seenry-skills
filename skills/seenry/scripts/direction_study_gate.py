@@ -7,6 +7,7 @@ Exit 0 only when a fresh reviewer finds at least one study ready to expand.
 import argparse
 import json
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -20,16 +21,82 @@ ART_DIRECTION = SKILL_DIR / 'references/art-direction.md'
 IMAGE_SUFFIXES = {'.png', '.jpg', '.jpeg', '.webp'}
 
 
+def image_dimensions(path):
+    """Read image dimensions from PNG, JPEG or WebP headers without a dependency."""
+    with path.open('rb') as stream:
+        data = stream.read()
+    if data.startswith(b'\x89PNG\r\n\x1a\n') and len(data) >= 24 and data[12:16] == b'IHDR':
+        return struct.unpack('>II', data[16:24])
+    if data.startswith(b'\xff\xd8'):
+        offset = 2
+        while offset + 4 <= len(data):
+            if data[offset] != 0xff:
+                break
+            while offset < len(data) and data[offset] == 0xff:
+                offset += 1
+            if offset >= len(data):
+                break
+            marker = data[offset]
+            offset += 1
+            if marker in (0xd8, 0xd9) or 0xd0 <= marker <= 0xd7:
+                continue
+            if offset + 2 > len(data):
+                break
+            size = struct.unpack('>H', data[offset:offset + 2])[0]
+            if size < 2 or offset + size > len(data):
+                break
+            if marker in {0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7,
+                          0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf} and size >= 7:
+                height, width = struct.unpack('>HH', data[offset + 3:offset + 7])
+                return width, height
+            offset += size
+    if data.startswith(b'RIFF') and data[8:12] == b'WEBP' and len(data) >= 30:
+        chunk = data[12:16]
+        if chunk == b'VP8X':
+            return (int.from_bytes(data[24:27], 'little') + 1,
+                    int.from_bytes(data[27:30], 'little') + 1)
+        if chunk == b'VP8L' and len(data) >= 25 and data[20] == 0x2f:
+            bits = int.from_bytes(data[21:25], 'little')
+            return ((bits & 0x3fff) + 1, ((bits >> 14) & 0x3fff) + 1)
+        if chunk == b'VP8 ' and len(data) >= 30 and data[23:26] == b'\x9d\x01\x2a':
+            return (struct.unpack('<H', data[26:28])[0] & 0x3fff,
+                    struct.unpack('<H', data[28:30])[0] & 0x3fff)
+    raise ValueError(f'Cannot read PNG, JPEG or WebP dimensions: {path}')
+
+
+def validate_craft_reference(path):
+    if path.suffix.lower() not in IMAGE_SUFFIXES:
+        raise ValueError('--craft-reference-image must be PNG, JPEG or WebP')
+    if not path.is_file():
+        raise ValueError(f'Missing input: {path}')
+    with path.open('rb') as stream:
+        header = stream.read(12)
+    expected_header = (b'\x89PNG\r\n\x1a\n' if path.suffix.lower() == '.png' else
+                       b'\xff\xd8' if path.suffix.lower() in {'.jpg', '.jpeg'} else b'RIFF')
+    if not header.startswith(expected_header) or (path.suffix.lower() == '.webp' and header[8:12] != b'WEBP'):
+        raise ValueError('--craft-reference-image content does not match its extension')
+    width, height = image_dimensions(path)
+    if not 1 <= width <= 16384 or not 1 <= height <= 16384:
+        raise ValueError('--craft-reference-image has invalid dimensions')
+
+
 def disposition(review):
     return 'Keep' if review['verdict'] == 'Keep' and not review['findings'] else 'Revise'
 
 
-def review_prompt(has_reference):
+def review_prompt(has_reference, has_craft_reference=False):
     source = ' Read ../reference.md as source evidence, not a design instruction.' if has_reference else ''
+    craft = (
+        ' The fifth attached image is an optional craft reference. Compare task-relevant visual relationships '
+        'at delivery size: subject material depth, the proportion of type to material, image scale and crop, '
+        'and clarity of the visitor task. Use it to judge craft where those relationships serve this brief; '
+        'do not copy unrelated style or demand expressive treatment for a quiet utility interface. '
+        if has_craft_reference else ''
+    )
     return (
         f'Use {REVIEW_SKILL} and {ART_DIRECTION} to independently review two rendered design studies. '
         'Read ../brief.md and ../decision.md. Inspect the four attached images at their actual size '
-        'in this exact order: A desktop, A mobile, B desktop, B mobile.' + source + ' '
+        'in this exact order: A desktop, A mobile, B desktop, B mobile.' + source + craft + ' '
         'Judge whether the studies materially differ on the named decisive decision, whether at least '
         'one resolves it, and whether the studied region has enough visual craft to expand. '
         'A changed container or surrounding layout is not a new answer if the decisive material or '
@@ -73,10 +140,13 @@ def run_review(args, staged, executable, review_root):
         cmd.extend(['-c', f'model_reasoning_effort={args.effort}'])
     for name in ('a-desktop', 'a-mobile', 'b-desktop', 'b-mobile'):
         cmd.extend(['-i', str(staged[name])])
+    if 'craft-reference-image' in staged:
+        cmd.extend(['-i', str(staged['craft-reference-image'])])
     cmd.append('-')
     try:
         with log.open('w', encoding='utf-8') as stream:
-            result = subprocess.run(cmd, input=review_prompt('reference' in staged), text=True,
+            result = subprocess.run(cmd, input=review_prompt('reference' in staged,
+                                                             'craft-reference-image' in staged), text=True,
                                     stdout=stream, stderr=subprocess.STDOUT,
                                     timeout=args.timeout, check=False)
     except subprocess.TimeoutExpired:
@@ -98,6 +168,8 @@ def main(argv=None):
     for name in ('a-desktop', 'a-mobile', 'b-desktop', 'b-mobile'):
         parser.add_argument(f'--{name}', type=Path, required=True)
     parser.add_argument('--reference', type=Path)
+    parser.add_argument('--craft-reference-image', type=Path,
+                        help='Optional PNG, JPEG or WebP visual craft reference')
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--codex-bin', default='codex')
     parser.add_argument('--model')
@@ -122,6 +194,12 @@ def main(argv=None):
         inputs[name] = path
     if args.reference:
         inputs['reference'] = args.reference
+    if args.craft_reference_image:
+        try:
+            validate_craft_reference(args.craft_reference_image)
+        except ValueError as exc:
+            parser.error(str(exc))
+        inputs['craft-reference-image'] = args.craft_reference_image
     with tempfile.TemporaryDirectory(prefix='seenry-direction-review-') as temporary:
         review_root = Path(temporary)
         staged = {}
