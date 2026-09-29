@@ -49,7 +49,7 @@ function inspect({phone}) {
     const upper = s.textTransform === 'uppercase' || (letters.length > 3 && letters === letters.toUpperCase());
     const tracked = parseFloat(s.letterSpacing) / size > 0.03;
     if (size < 13 && text.length > 2 && !/^[\d:.,\s]+$/.test(text)) f.small.push(`${size}px ${label(el)}`);
-    else if (!phone && text.length > 2 && !/^[\d:.,\s]+$/.test(text) && ((size < 14 && !(size >= 13 && text.length <= 24)) || (el.tagName === 'P' && text.length > 60 && size < 15))) f.desktopSmall.push(`${size}px ${label(el)}`);
+    else if (!phone && text.length > 2 && !/^[\d:.,\s]+$/.test(text) && ((size < 15 && !(size >= 14 && text.length <= 24)) || (el.tagName === 'P' && text.length > 60 && size < 16))) f.desktopSmall.push(`${size}px ${label(el)}`);
     if (text.length > 2 && size < 24) {
       const rgb = c => (c.match(/[\d.]+/g) || []).map(Number);
       let bg = null;
@@ -181,7 +181,7 @@ const cells = [['This page', join(out, 'first-1440.png')], ...refs.map(r => [r.s
 await shot(`<div style="display:flex;flex-wrap:wrap;gap:16px;padding:16px">${cells.map(([n, p]) => `<figure style="margin:0"><figcaption style="padding:0 0 6px">${n}</figcaption>${clip(uri(p), 720, 450)}</figure>`).join('')}</div>`, 'first.png', 16 + cells.length * 736 > 1488 ? 1488 : 16 + cells.length * 736);
 await browser.close();
 
-const names = {defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px (unreadable at review scale)', desktopSmall: 'desktop text under 14px, or paragraph under 15px (reads as faint and unfinished at 1440)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content'};
+const names = {defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px (unreadable at review scale)', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content'};
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);

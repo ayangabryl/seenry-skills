@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.3.2
+
+- Larger type floors, because every Sonnet judge pass still called Seenry's secondary text small and faint at review scale: paragraphs 16px, readable text 15px, short labels 14px at 1440, enforced by `review_board.mjs`; app screens 28/34 titles, 16/24 body, 15/22 cells; brand surfaces 18px body and 16px captions. The product kit and both component kits move to the new scale.
+- Benchmark (Sonnet 5.5 builds and judge, premium standard, big-company references): Seenry 4.3.1 ranked first in all six passes, 7.0 on landing, dashboard and product against 5.0–6.0 for the best competitor, with no-slop scores of 6.5–7.5 against 3.0–5.5.
+
 ## 4.3.1
 
 - From the first Sonnet 5.5 benchmark (Seenry first on all three briefs, 7.0 / 7.0 / 6.5 against 5.5 for the best competitor): an imagery fallback when no image model is available (typographic covers, large product UI or one line system instead of weak stock photos; gradient blobs never), a ban on framework default accents with a `review_board.mjs` detector, readable table data (text-1 or text-2, never text-3), and sticky phone bars that hide while their options are on screen.
