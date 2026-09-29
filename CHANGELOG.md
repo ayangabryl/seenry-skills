@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.3.0
+
+- Research pack: `research.mjs` calls Seenry MCP directly and assembles 50–60 varied references per brief (human-rated picks, category sites and sections, named leaders, random samples beyond the alphabetical top, recorded motion walkthroughs with video, motion clips, app screens, measured design) into `.seenry/research/pack.md` with a contact sheet; one brand appears at most twice.
+- `SKILL.md` adds a Taste section, the core motion rules (frequency, easing, origin, interruption, stagger, scroll scrubbing), a motion spec step built from studied recordings, an OKLCH color system with premium palette families and a separate dark palette, a Craft section for line illustration and ambient canvas, and routes explicitly to `seenry-motion`, `seenry-assets`, `seenry-branding` and `seenry-review`.
+- Adds a core component kit (`assets/components/ui`: 28 token-driven, accessible components with a light and dark gallery) and a signature component kit (`assets/components/signature`: product demo player, line draw-in, ambient field, scroll story, live numbers, logo marquee, compare slider, case-study card). Every page gets one signature moment on Seenry's own initiative.
+- `check.mjs` blocks until the research pack, at least two references, a motion spec, `DESIGN.md` brand guidelines and a marked signature component exist.
+
 ## 4.2.1
 
 - `check.mjs` stops treating photographs as a hard blocker after three photo checks and keeps the strongest versions, and stops any loop after eight rounds. In the 4.2 benchmark the photo gate locked the critic out for nine rounds on landing and product pages, doubling build time.

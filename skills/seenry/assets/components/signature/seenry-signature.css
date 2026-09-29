@@ -1,0 +1,179 @@
+/* Seenry signature components — token-driven, dependency-free. */
+:root {
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #f8f9fb; --surface: #fff; --surface-2: #f2f4f7; --hover: #e9edf2;
+  --line: #e1e5eb; --line-strong: #c5ccd6;
+  --text: #18212d; --text-2: #485464; --text-3: #626f80;
+  --accent: #3659d9; --accent-hover: #2948bb; --accent-subtle: #e9edff; --on-accent: #fff;
+  --focus: 0 0 0 3px #3659d94d;
+  --ok: #21734c; --ok-bg: #e5f4ea; --warn: #8d5a10; --warn-bg: #fff2d6;
+  --bad: #ae3f37; --bad-bg: #fbe9e7; --info: #3659d9; --info-bg: #e9edff;
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px;
+  --t-fast: 120ms; --t-base: 160ms; --t-layer: 200ms;
+  --ease-out: cubic-bezier(.23,1,.32,1);
+}
+[data-theme="dark"] {
+  --bg: #11161e; --surface: #19212c; --surface-2: #202a36; --hover: #2b3745;
+  --line: #354150; --line-strong: #536172;
+  --text: #f2f5f8; --text-2: #c0cad5; --text-3: #a9b5c2;
+  --accent: #88a0ff; --accent-hover: #a4b6ff; --accent-subtle: #27345b; --on-accent: #10172d;
+  --focus: 0 0 0 3px #88a0ff66;
+  --ok: #79d6a6; --ok-bg: #193d2f; --warn: #f2c678; --warn-bg: #493819;
+  --bad: #f49a91; --bad-bg: #482b2b; --info: #9ab0ff; --info-bg: #263457;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161e; --surface: #19212c; --surface-2: #202a36; --hover: #2b3745;
+  --line: #354150; --line-strong: #536172; --text: #f2f5f8; --text-2: #c0cad5; --text-3: #a9b5c2;
+  --accent: #88a0ff; --accent-hover: #a4b6ff; --accent-subtle: #27345b; --on-accent: #10172d;
+  --focus: 0 0 0 3px #88a0ff66; --ok: #79d6a6; --ok-bg: #193d2f;
+  --warn: #f2c678; --warn-bg: #493819; --bad: #f49a91; --bad-bg: #482b2b;
+  --info: #9ab0ff; --info-bg: #263457;
+} }
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.5 var(--font); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .48; }
+button:focus-visible, input:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; box-shadow: var(--focus); }
+button:active:not(:disabled) { transform: scale(.98); }
+.s-button { min-height: 40px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); font-size: 15px; font-weight: 500; transition: color var(--t-fast), background-color var(--t-fast), border-color var(--t-fast), transform var(--t-base) var(--ease-out); }
+.s-button:hover:not(:disabled) { background: var(--hover); }
+.s-button--primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.s-button--primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+.s-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* 1. A demo runs against the author's actual HTML; only cursor and state cues are added. */
+.s-demo { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+.s-demo__bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 16px; border-bottom: 1px solid var(--line); color: var(--text-2); font-size: 16px; font-weight: 500; }
+.s-demo__bar .s-button { min-height: 36px; padding: 0 10px; font-size: 14px; border-radius: var(--r-sm); }
+.s-demo__ui { min-height: 0; padding: 24px; }
+.s-demo__cursor { position: absolute; z-index: 4; width: 18px; height: 21px; left: 0; top: 0; pointer-events: none; opacity: 0; transform: translate3d(var(--s-x, 16px),var(--s-y, 64px),0); transition: transform 480ms var(--ease-out), opacity var(--t-base); filter: drop-shadow(0 1px 1px #0005); }
+.s-demo[data-playing="true"] .s-demo__cursor { opacity: 1; }
+.s-demo__cursor path { fill: var(--text); stroke: var(--surface); stroke-width: 1.5; }
+.s-demo__click { position: absolute; z-index: 3; width: 26px; height: 26px; border: 1px solid var(--accent); border-radius: 50%; pointer-events: none; opacity: 0; transform: translate3d(var(--s-x, 16px),var(--s-y, 64px),0) scale(.6); }
+.s-demo__click.is-active { animation: s-click 360ms var(--ease-out) both; }
+@keyframes s-click { 0% { opacity: .7; transform: translate3d(var(--s-x),var(--s-y),0) scale(.5); } 100% { opacity: 0; transform: translate3d(var(--s-x),var(--s-y),0) scale(1.6); } }
+.s-demo [data-demo-panel] { display: none; opacity: 0; transform: translateY(5px) scale(.98); pointer-events: none; transition: opacity var(--t-layer) var(--ease-out), transform var(--t-layer) var(--ease-out), display var(--t-layer) allow-discrete; }
+.s-demo [data-demo-panel].is-open { display: block; opacity: 1; transform: none; pointer-events: auto; }
+@starting-style { .s-demo [data-demo-panel].is-open { opacity: 0; transform: translateY(5px) scale(.98); } }
+.s-demo [data-demo-target].is-target { box-shadow: var(--focus); }
+.s-demo__form { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 16px; }
+.s-demo__form label { font-weight: 500; }
+.s-demo__form input { height: 40px; min-width: 150px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); }
+.s-demo__result { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 24px; padding: 20px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); font-size: 16px; }
+.s-demo__result strong { font-size: 32px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.s-demo__panel { margin-top: 16px; padding: 14px 16px; border-left: 2px solid var(--accent); background: var(--accent-subtle); color: var(--text); }
+
+/* 2. One 30-degree isometric drawing language. */
+.s-draw-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.s-draw { display: grid; align-content: center; justify-items: center; min-height: 186px; margin: 0; padding: 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.s-draw:last-child { grid-column: 1 / -1; }
+.s-draw svg { width: min(100%,210px); height: 132px; overflow: visible; fill: none; stroke: var(--text); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
+.s-draw svg [data-accent] { stroke: var(--accent); }
+.s-draw svg path, .s-draw svg line, .s-draw svg polyline, .s-draw svg polygon { stroke-dashoffset: 0; }
+.s-draw figcaption { margin-top: 4px; color: var(--text-2); font-size: 15px; font-weight: 500; }
+
+/* 3. Ambient canvas: it is a quiet layer, never a text background. */
+.s-ambient { position: relative; min-height: 230px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+.s-ambient canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.s-ambient__content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 230px; max-width: 450px; padding: 32px; }
+.s-ambient__content h3 { margin: 0; padding: 8px 12px 0; border-radius: var(--r-sm) var(--r-sm) 0 0; background: var(--surface); font-size: 25px; line-height: 1.2; letter-spacing: -.02em; font-weight: 600; }
+.s-ambient__content p { margin: 0; padding: 8px 12px 12px; border-radius: 0 0 var(--r-sm) var(--r-sm); background: var(--surface); color: var(--text-2); font-size: 15px; }
+
+/* 4. Native document scroll chooses the current story step. */
+.s-story { display: grid; grid-template-columns: minmax(0,.95fr) minmax(0,1.05fr); gap: 32px; }
+.s-story__steps { min-width: 0; }
+.s-story__step { display: flex; flex-direction: column; justify-content: center; min-height: 250px; padding: 24px 0; border-top: 1px solid var(--line); opacity: .62; transition: opacity var(--t-base); }
+.s-story__step.is-current { opacity: 1; }
+.s-story__step h3 { margin: 0 0 8px; font-size: 22px; line-height: 1.25; letter-spacing: -.02em; font-weight: 600; }
+.s-story__step p { max-width: 38ch; margin: 0; color: var(--text-2); font-size: 16px; }
+.s-story__step button { align-self: flex-start; margin-top: 16px; }
+.s-story__stage { position: sticky; top: 20px; align-self: start; height: min(470px,calc(100dvh - 40px)); min-height: 330px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface-2); }
+.s-story__visual { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity var(--t-layer) var(--ease-out), transform var(--t-layer) var(--ease-out); }
+.s-story__visual.is-current { opacity: 1; transform: none; }
+.s-story__progress { position: absolute; z-index: 2; left: 18px; right: 18px; bottom: 16px; display: flex; gap: 6px; }
+.s-story__progress span { flex: 1; height: 3px; border-radius: 2px; background: var(--line-strong); }
+.s-story__progress span.is-current { background: var(--accent); }
+.s-story__mock { width: min(100%,400px); padding: 24px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.s-story__mock header { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 16px; font-weight: 600; }
+.s-story__mock p { margin: 0 0 8px; color: var(--text-2); font-size: 16px; }
+.s-story__mock strong { font-size: 30px; letter-spacing: -.025em; font-weight: 600; }
+.s-story__row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 16px; }
+
+/* 5. Accessible text remains one value; the visual reel is presentation only. */
+.s-values { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.s-value { min-height: 150px; padding: 24px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.s-value__label { color: var(--text-2); font-size: 16px; font-weight: 500; }
+.s-value__number { display: block; margin-top: 12px; font-size: clamp(32px,4vw,48px); line-height: 1.1; letter-spacing: -.035em; font-weight: 600; font-variant-numeric: tabular-nums; }
+.s-value__note { margin-top: 8px; color: var(--text-2); font-size: 15px; }
+.s-num-visible { display: inline-flex; white-space: nowrap; }
+.s-num-digit { display: inline-block; height: 1.1em; overflow: hidden; }
+.s-num-reel { display: flex; flex-direction: column; transition: transform 520ms var(--ease-out); }
+.s-num-reel span { height: 1.1em; line-height: 1.1em; }
+
+/* 6. One measured loop; the first group remains semantic. */
+.s-marquee { overflow: hidden; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); mask-image: linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent); }
+.s-marquee__track { display: flex; width: max-content; animation: s-marquee var(--s-marquee-duration,32s) linear infinite; }
+.s-marquee:hover .s-marquee__track, .s-marquee:focus-within .s-marquee__track { animation-play-state: paused; }
+.s-marquee__group { display: flex; align-items: center; gap: 56px; flex: none; padding-right: 56px; }
+.s-marquee__group span { white-space: nowrap; color: var(--text-2); font-size: 22px; font-weight: 600; letter-spacing: -.03em; }
+@keyframes s-marquee { to { transform: translateX(-50%); } }
+
+/* 7. A native range is the accessible handle. */
+.s-compare { --s-position: 50%; position: relative; height: 320px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface-2); }
+.s-compare__before, .s-compare__after { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; }
+.s-compare__after { clip-path: inset(0 calc(100% - var(--s-position)) 0 0); background: var(--accent-subtle); }
+.s-compare__before { background: var(--surface-2); }
+.s-compare__before .s-compare__sample { opacity: .8; }
+.s-compare__sample { width: min(82%,410px); padding: 24px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); box-shadow: 0 10px 24px #00000010; }
+.s-compare__sample small { color: var(--text-3); font-size: 14px; }
+.s-compare__sample strong { display: block; margin: 10px 0; font-size: 22px; line-height: 1.2; font-weight: 600; }
+.s-compare__sample p { margin: 0; color: var(--text-2); }
+.s-compare__line { position: absolute; top: 0; bottom: 0; left: var(--s-position); width: 2px; background: var(--accent); transform: translateX(-50%); pointer-events: none; }
+.s-compare__handle { position: absolute; left: var(--s-position); top: 50%; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--accent); border-radius: 50%; background: var(--surface); color: var(--accent); box-shadow: 0 2px 8px #0002; transform: translate(-50%,-50%); pointer-events: none; font-size: 14px; font-weight: 600; }
+.s-compare__range { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; margin: 0; cursor: ew-resize; opacity: 0; }
+.s-compare:focus-within .s-compare__handle { outline: 2px solid var(--accent); outline-offset: 3px; box-shadow: var(--focus); }
+.s-compare__label { position: absolute; z-index: 1; bottom: 16px; padding: 4px 8px; background: var(--surface); border-radius: var(--r-sm); font-size: 13px; font-weight: 500; }
+.s-compare__label--before { left: 16px; } .s-compare__label--after { right: 16px; }
+
+/* 8. The authored preview is a real content state, no synthetic photograph. */
+.s-case { display: block; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); color: var(--text); text-decoration: none; }
+.s-case__media { position: relative; min-height: 310px; overflow: hidden; background: var(--surface-2); }
+.s-case__frame { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; opacity: 0; transform: scale(.985); transition: opacity var(--t-layer) var(--ease-out), transform var(--t-layer) var(--ease-out); }
+.s-case__frame.is-current { opacity: 1; transform: none; }
+.s-case__art { width: min(85%,430px); min-height: 210px; padding: 22px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.s-case__art small { font-size: 15px; color: var(--text-2); }
+.s-case__art .rule { height: 1px; margin: 16px 0; background: var(--line); }
+.s-case__art strong { font-size: 28px; letter-spacing: -.03em; font-weight: 600; }
+.s-case__art p { margin: 8px 0 0; color: var(--text-2); }
+.s-case__route { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--text-2); font-size: 14px; }
+.s-case__route span:nth-child(2) { color: var(--accent); }
+.s-case__meta { display: flex; justify-content: space-between; gap: 24px; padding: 20px 24px 24px; }
+.s-case__meta h3 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
+.s-case__meta p { margin: 0; color: var(--text-2); font-size: 16px; }
+.s-case__arrow { align-self: start; color: var(--accent); transition: transform var(--t-base) var(--ease-out); }
+@media (hover:hover) and (pointer:fine) { .s-case:hover .s-case__arrow, .s-case:focus-visible .s-case__arrow { transform: translate(3px,-3px); } }
+
+@media (max-width:700px) {
+  .s-button { min-height: 44px; }
+  .s-demo__bar .s-button { min-height: 44px; }
+  .s-draw-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .s-draw { min-height: 132px; padding: 8px; }
+  .s-draw svg { height: 96px; }
+  .s-draw figcaption { font-size: 14px; }
+  .s-draw:last-child { grid-column: 1 / -1; }
+  .s-story { display: block; }
+  .s-story__stage { position: sticky; top: 0; height: 270px; min-height: 270px; z-index: 1; margin-bottom: 12px; }
+  .s-story__step { min-height: 190px; }
+  .s-values { grid-template-columns: 1fr; }
+  .s-compare { height: 260px; }
+  .s-compare__sample { width: min(82%,300px); padding: 16px; }
+  .s-compare__sample strong { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+  .s-demo__cursor, .s-demo__click { display: none; }
+  .s-marquee__track { transform: none !important; }
+  .s-marquee__group[aria-hidden="true"] { display: none; }
+}

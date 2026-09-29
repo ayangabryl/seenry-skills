@@ -9,18 +9,33 @@ metadata:
 
 # Seenry
 
-The standard is simple: **clean, premium, no AI slop, at the level of the best big-company product design** (Stripe, Linear, Apple, Attio, Figma, ARKET). Everything below serves that. Read this whole file before building; the rules that decide quality are here, not in the guides.
+The standard is simple: **clean, premium, no AI slop, at the level of the best big-company product design and the best independent studios** (Stripe, Linear, Apple, Attio, Figma, ARKET, kargul.studio). Everything below serves that. Read this whole file before building; the rules that decide quality are here, not in the guides.
 
 Work in the project's existing stack. If the project has tokens, components or a `DESIGN.md`, read them first and extend them.
 
+## Taste
+
+Taste is trained, not invented: it comes from looking hard at the best work and asking why it feels right. Seenry gives you the library for that; use it every time.
+- **Unseen details compound.** Nobody notices a 1px hairline, a concentric corner, tabular figures or a 140ms hover on its own. Together they are the difference between "tidy" and "expensive". Do all of them.
+- **Remove before you add.** Every element must help someone read, choose or act. When a page feels plain, the fix is almost always better material, scale or spacing, not more decoration.
+- **One idea per view, carried all the way.** One dominant element, one owned detail, one signature motion moment. Everything else is quiet so those can speak.
+- **Real over representational.** Real product UI, real photography, real data and specific copy beat any illustration of them.
+- **Motion is part of the design, not a finish.** A page that does not respond feels unfinished however good the stills look.
+
 ## The flow
 
-1. **Brief (2 minutes).** Audience, the one job of the surface, the real content, what is fixed. One sentence of intent ("a calm ledger that makes what is owed obvious").
-2. **Set the bar with real screens.** With Seenry MCP (see [research](references/research.md)), find 3 big-company pages that do this job at the highest level, in this category when the library has them (billing → Stripe, Mercury; CRM → Attio; commerce → Apple, ARKET, Aesop; product marketing → Linear, Figma, Arc). Download each desktop first screen to `.seenry/refs/` (`curl -A "Mozilla/5.0" -o .seenry/refs/<name>.png "<url>"`) and look at them. Write five lines on why they look premium: palette, type and weights, radius and elevation, density, what they leave out. Without MCP, do the same from the live sites.
-3. **Decide the direction in five lines.** Neutral temperature and one action color; one type family (plus a display face only for a brand surface, with a reason); radius family; the imagery (real photograph or the real product UI, never clip-art); the one detail this brand owns. Pick the obvious premium answer before a clever one.
-4. **Build on the floor.** App screens start from [the product kit](assets/kits/product.css); every page includes [the motion floor](assets/kits/motion.css). Set font, neutrals and accent from step 3. Real content and real imagery via `seenry-assets`.
-5. **Check until it passes.** Run `node scripts/check.mjs <file or url> --brief <brief file>` (add `--refs` if your references are not in `.seenry/refs/`). It fails on any slop blocker, then asks a blind critic, a fresh model that sees only the screenshots, the brief and the reference screens, to score the page against them. Apply every fix it prints, then run it again. Repeat until it prints `PASS` (critic 9+ with zero blockers). When it prints `LAST ROUND`, make the one root-level change it asks for and run it once more. When it prints `STOP` or `STOPPED`, you are done: ship the best-scoring round (restore it if a later round was worse). Never finish on your own opinion of the page: in testing, self-review rated 9 what blind review rated 6–7.
-6. **Deliver.** Write `DESIGN.md` with a "Brand guidelines" section and give the report below. The design sheet is optional and comes last: `python3 scripts/sheet.py .seenry/sheet.json` ([sheet](references/sheet.md)).
+1. **Brief (2 minutes).** Audience, the one job of the surface, the real content, what is fixed. One sentence of intent.
+2. **Research pack from Seenry MCP.** Run `node scripts/research.mjs --type <landing|product|dashboard|studio|pricing|app> --terms "<2-3 short category words>" --sites "<leaders' domains>"` (needs `SEENRY_PRO_KEY`). It pulls 50–60 varied references across the library: human-rated picks, the category's own sites and sections, named leaders, random samples beyond the famous names, recorded motion walkthroughs with their videos, motion design clips, app screens for app surfaces, and measured design evidence. Read `.seenry/research/pack.md`, look at `contact.png`, open your shortlist at full size, then:
+   - copy the 3 strongest first screens into `.seenry/refs/` (they are the bar for the critic);
+   - pick 2 motion references and study their videos (below);
+   - write in `DESIGN.md` why each was chosen, what you take and what you leave, which brands you discovered, and five lines on why the bar looks premium.
+   If the script cannot run but the Seenry MCP tools are connected, do the same by hand with `discover_references`, `search_curated_references`, `search_references`, `search_sections`, `get_page_motion` and `search_designs` ([research](references/research.md)). Without MCP, use the live sites.
+3. **Direction in five lines.** Neutral temperature and one action color; type from the table below; radius family; imagery; the one owned detail and the one signature motion moment. Pick the obvious premium answer before a clever one. For a new or changed identity, also follow `seenry-branding` ([its skill](../seenry-branding/SKILL.md)) and its project guidelines.
+4. **Motion spec.** Read [seenry-motion](../seenry-motion/SKILL.md) now. Download the 2 motion videos from the pack (they expire), pull frames around their most-movement window with `python3 ../seenry-motion/scripts/video_frames.py`, and write `.seenry/motion.md`: for each moving thing, the trigger, what moves, duration, easing or spring, stagger, interruption and reduced-motion behavior, and which reference it came from. Include the signature moment and every in-place change (numbers, filters, add-to-bag).
+5. **Material.** Photography and imagery via [seenry-assets](../seenry-assets/SKILL.md), art-directed and passed through `photo_check.mjs` (see Imagery). Illustration and ambient visuals per Craft below.
+6. **Build on the floor.** App screens start from [the product kit](assets/kits/product.css); every page loads [motion.css](assets/kits/motion.css) and [motion.js](assets/kits/motion.js) and implements `.seenry/motion.md`; components come from the core kit and the page gets its signature moment (both below). Set font, neutrals and accent from step 3.
+7. **Check until it passes.** Run `node scripts/check.mjs <file or url> --brief <brief file>`. It verifies the research pack, references, motion spec and `DESIGN.md` exist, blocks slop, readability, radius and motionless changes, sends photographs through the photo check, then asks a blind critic, a fresh model that sees only the screenshots, the brief and your reference screens, to score the page. Apply every fix it prints and run it again until `PASS` (critic 9+). On `LAST ROUND`, make the one root-level change it asks for; on `STOP` or `STOPPED`, ship the best-scoring round. Never finish on your own opinion of the page: in testing, self-review rated 9 what blind review rated 6–7.
+8. **Review and deliver.** For a second opinion on states and accessibility use [seenry-review](../seenry-review/SKILL.md). Write the "Brand guidelines" section of `DESIGN.md` and give the report below. The design sheet is optional and comes last ([sheet](references/sheet.md)).
 
 For a small fix in an established system: repair on-system, then run `check.mjs` once.
 
@@ -39,7 +54,11 @@ Leading teams look premium for one root reason: they ranked the job, then remove
 - Generic slogans ("X is better together", "Built for the way you Y"), fake stats, lorem.
 - Text people must read under 13px, or in a light grey that fails contrast.
 
-**Color.** Neutrals do the work, defined as roles: canvas, surface, selected, rule, three text levels. Pick the temperature once (cool for tools, warm for craft and hospitality) and keep every grey in it. One action color, used only for the primary action, selection and focus, so it is always findable. Status is a 6px dot plus words on a pale tint; strong color only for the exception that needs action. A brand surface may have one bold field (a dark band, a photograph); never a second accent.
+**Color.** Neutrals do the work, defined as roles: canvas, surface, selected, rule, three text levels. Pick the temperature once and keep every grey in it. One action color, used only for the primary action, selection and focus, so it is always findable. Status is a 6px dot plus words on a pale tint; strong color only for the exception that needs action. A brand surface may have one bold field (a dark band, a photograph); never a second accent.
+- **Build it in OKLCH** with `python3 scripts/palette.py "<accent hex>"`: neutrals share one hue with chroma 0.002–0.012; steps are even in lightness (canvas 0.985, surface 1.0 or 0.97, rule 0.92, text 0.22/0.45/0.58 in light). The accent sits at lightness 0.50–0.62 and chroma 0.12–0.20; its hover is 0.04 darker; its subtle tint is lightness 0.96 at chroma 0.03.
+- **Premium palettes that work:** cool graphite + one electric accent (Linear, Vercel: neutrals hue 250–270, accent indigo or blue); warm stone + deep ink accent (Aesop, ARKET: neutrals hue 60–80, accent near-black green, oxblood or navy); pure white + black + one saturated brand color used sparingly (Apple, Stripe). Sample the accent from the hero photograph or the product when there is one, then correct it to the lightness and chroma above.
+- **Dark mode is its own palette,** not an inversion: canvas lightness 0.14–0.17 (never #000), surfaces step up by 0.03–0.04, text 0.96/0.72/0.58, borders at 8–12% white, accent raised 0.06–0.1 in lightness, shadows replaced by lighter surfaces.
+- **Color on images and gradients:** text on a photograph gets a scrim from the image's own darkest tone, never a generic black overlay; gradients are allowed only as one soft light falloff in a single hue, never as a multi-color background.
 
 **Type.** Use the brand's face if it has one. Otherwise pick from this list; these free faces are the closest to what the big companies use, and each needs its tuning to look expensive:
 
@@ -76,9 +95,36 @@ Never reach for DM Sans, Plus Jakarta Sans, Space Grotesk, Poppins or Montserrat
 
 **Copy.** Plain, specific, short. Headlines say what it is or does for this audience; labels name the thing; empty states say what happened and the one next action.
 
-**Motion.** Every state change is visible and none is decorative. Copy [motion.css](assets/kits/motion.css) and [motion.js](assets/kits/motion.js) into the project's assets and load both (a classic script, so it works from disk). Then: every value that changes in place (price after a size change, totals, counts, filtered sums) uses `SeenryMotion.number(el, value, intlFormat)` so its digits roll; filtering, sorting, tab and view switches wrap the DOM update in `SeenryMotion.swap(() => render())`; add-to-bag and saves use `SeenryMotion.pop(badge)` plus `SeenryMotion.toast('Added to bag')`; hover 120–160ms, press 0.98, layers enter in 200ms. check.mjs clicks the page's controls and blocks any state change that happens with no motion. Reduced motion is respected throughout; `seenry-motion` has more recipes.
+**Motion.** The core rules, from `seenry-motion`:
+- **Frequency decides.** Used 100+ times a day (keyboard, command menus, list arrows): no animation. Tens of times (hover, tabs, toggles): 120–160ms, color and opacity. Occasional (menus, dialogs, sheets, toasts): 180–240ms enter, faster exit. Rare (first load, success, onboarding): room for one expressive moment.
+- **Easing:** ease-out for things entering or responding (`cubic-bezier(0.23, 1, 0.32, 1)`), ease-in-out for things moving on screen, never linear except for continuous loops; springs for anything dragged or interrupted.
+- **From where, to where.** Layers grow from their trigger (`transform-origin` at the trigger), never from nothing: start at scale 0.96–0.98 with opacity 0, not scale 0. Exits reverse the entry.
+- **Interruptible.** Use transitions, not keyframes, for anything that can fire twice; a second input reverses from the current value.
+- **Stagger** 30–60ms per item, at most 5–6 items, then everything at once.
+- **Only transform and opacity** in anything that runs often; no animating width, height, top or box-shadow on scroll.
+- **Scroll scrubbing** (progress tied to scroll, not triggered once) is for explaining a sequence: a product assembling, steps of a flow, a before-to-after. Use `animation-timeline: view()` or `scroll()` with a JS fallback (the scroll story in the signature kit), scrub transform, clip-path and opacity only, keep parallax under 40px, pin at most one section per page, never hijack wheel speed or snap. Content is readable at every scroll position and in a full-page screenshot: scrubbed elements never start below 0.6 opacity or fully clipped.
+- **The signature moment:** one crafted piece per page, taken from a studied reference (a hero reveal, a line illustration that draws in, a product UI that plays a real interaction, a canvas field behind the first screen). It runs once or ambiently, never blocks reading, and has a static reduced-motion state.
+
+Every state change is visible and none is decorative. Copy [motion.css](assets/kits/motion.css) and [motion.js](assets/kits/motion.js) into the project's assets and load both (a classic script, so it works from disk). Then: every value that changes in place (price after a size change, totals, counts, filtered sums) uses `SeenryMotion.number(el, value, intlFormat)` so its digits roll; filtering, sorting, tab and view switches wrap the DOM update in `SeenryMotion.swap(() => render())`; add-to-bag and saves use `SeenryMotion.pop(badge)` plus `SeenryMotion.toast('Added to bag')`; hover 120–160ms, press 0.98, layers enter in 200ms. check.mjs clicks the page's controls and blocks any state change that happens with no motion. Reduced motion is respected throughout; `seenry-motion` has more recipes.
 
 **Phone.** Recompose, do not squeeze: bottom tab bar or menu (never a clipped scrolling tab row), compact two-line rows, 16px inputs, 44px targets, sticky bars that never cover content.
+
+## Components
+
+Do not hand-roll common components. Copy [the core kit](assets/components/ui/README.md) (`seenry-ui.css` + `seenry-ui.js`: buttons, fields, select, checkbox, radio, switch, segmented control, tabs, menu, tooltip, dialog, sheet, toast, accordion, badge and status, avatars, cards, sortable and filterable table, pagination, empty state, stat strip, breadcrumb, kbd, skeleton, command menu) into the project, set its tokens from the direction, and restyle only through tokens. Open its `gallery.html` to see every state in light and dark. In React, Vue or Svelte projects, use the README's snippets or the project's own library (Radix, Base UI, shadcn) styled to the same tokens; never ship two component systems.
+
+## The signature moment (always, on Seenry's own initiative)
+
+Every page Seenry designs gets one crafted, creative component that makes the product's behavior or the brand's idea visible. Do not ask whether to add it; choosing it is part of the design. Start from [the signature kit](assets/components/signature/README.md) and its "Choosing the signature moment" guide: product demo player (a cursor clicks and types inside the real UI), line illustration draw-in, ambient field, scroll story (a sticky visual that changes with each step, scrubbed by scroll), live numbers, logo marquee, compare slider, case-study card with hover preview. Adapt it to the brand (content, color, drawing, timing from `.seenry/motion.md`) so no two pages look alike, or build an original one when the brief has a better idea. One per page, placed where it explains the most (usually the first screen or the product section), with `data-seenry-signature="<name>"` on its root element (check.mjs looks for it); it has a complete still state and never blocks reading.
+
+## Craft: illustration and ambient visuals
+
+Independent studios (kargul.studio, Linear's illustrations, Stripe's diagrams) separate themselves with a drawn visual language. When the brief calls for it:
+- **One system, not assets.** Pick one language and use it everywhere: monoline isometric or orthographic line drawings (1–1.5px strokes in text-2 on the surface color, one accent at most), or precise product diagrams built from real UI parts. Write it as SVG by hand or with code, on the 8px grid, with consistent angles (30° isometric) and stroke weights; never mix flat icons, 3D clay and line art.
+- **Explain, do not decorate.** Each drawing shows the thing it sits beside: the service's structure, the product's flow, the data's shape. Abstract blobs, gradients and generic "tech" swirls are slop.
+- **Ambient canvas.** A slow field, grid or line animation behind a first screen or a closing section may carry the brand's movement: start from `seenry-motion`'s [signal field](../seenry-motion/assets/signal-field/README.md), [boundary trace](../seenry-motion/assets/boundary-trace/README.md) and [image reveal](../seenry-motion/assets/image-reveal/README.md) and adapt; keep it under 10% CPU, pause offscreen with `IntersectionObserver`, stop for reduced motion, and never put text on moving pixels.
+- **Draw-in, not fly-in.** Line illustrations reveal by stroke (`stroke-dashoffset`) or a mask sweep in 600–900ms when first visible, once.
+- **Portraits and people:** real photographs, or one consistent illustrated style for the whole set (same line weight, same crop, same background); never mixed.
 
 ## Grid and alignment
 
@@ -114,6 +160,8 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 
 ## Tools
 
+- [Core components](assets/components/ui/README.md) and [signature components](assets/components/signature/README.md): copyable, token-driven, accessible, light and dark, with galleries.
+- [Research pack](scripts/research.mjs): pulls 50–60 varied references from Seenry MCP (rated picks, category sites and sections, leaders, random samples, motion recordings and clips, app screens, measured design) into `.seenry/research/` with a contact sheet.
 - [Check](scripts/check.mjs): the finishing gate. Runs the review board, blocks on slop, then the blind critic against the reference screens; prints PASS or the fixes to apply.
 - [Photo check](scripts/photo_check.mjs): a blind art director scores each image for its slot against the references and writes a better prompt for anything under 8.
 - [Blind critic](scripts/critic.mjs): a fresh Codex or Claude process scores the page against the references with the premium standard and returns ranked fixes.

@@ -41,6 +41,22 @@ const board = spawnSync('node', boardArgs, {encoding: 'utf8'});
 process.stdout.write(board.stdout);
 if (board.status === 2) { process.stderr.write(board.stderr); process.exit(2); }
 let blockers = JSON.parse(readFileSync(join(review, 'board.json'), 'utf8')).blockers;
+// The studio steps must have happened: research, references, a motion spec and the design record.
+const project = !/^https?:/.test(target) && existsSync(target) ? dirname(resolve(target)) : process.cwd();
+const refCount = existsSync(join(dir, 'refs')) ? readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).length : 0;
+const motionSpec = join(dir, 'motion.md'), design = join(project, 'DESIGN.md');
+const missing = [
+  !existsSync(join(dir, 'research', 'pack.md')) && `research pack: run node ${join(here, 'research.mjs')} --type <type> --terms "<words>" (or research by hand with the Seenry MCP tools and write ${join(dir, 'research', 'pack.md')})`,
+  refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
+  (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
+  (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
+  !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see SKILL.md) and mark its root element with data-seenry-signature="<name>"',
+].filter(Boolean);
+if (missing.length) {
+  blockers += missing.length;
+  console.log(`\n■ studio steps missing ×${missing.length}`);
+  for (const m of missing) console.log(`  ${m}`);
+}
 // Photographs must pass photo_check.mjs before the critic is asked; weak imagery is the most-cited gap.
 if (!/^https?:/.test(target) && existsSync(target)) {
   const html = readFileSync(target, 'utf8');
