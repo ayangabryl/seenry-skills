@@ -16,14 +16,16 @@ Work in the project's existing stack. If the project has tokens, components or a
 ## The studio process
 
 1. **Brief.** Name the audience, the one job of the surface, the real content, and one sentence of point of view ("a calm, tool-like player that disappears behind the music"). Note what is fixed (brand, stack, copy).
-2. **Research.** With Seenry MCP, study 3–6 real screens from companies that solve the same job well and write down measurements, not vibes ([research](references/research.md)). Without MCP, use [benchmarks](references/benchmarks.md) from 24 leading sites.
+2. **Research, automatically.** State the plan in one line ("Studying pricing at Vercel, Linear, Notion plus an open search") and proceed; never stop to ask which references to use. Shortlist 3–5 named leaders for this job with a reason each, run one open category search to discover products you did not know, study each at real pixels, and synthesize what everyone does, what only the best do, and the opening this design can take. Use Seenry MCP when connected ([research](references/research.md)); otherwise browse and use [benchmarks](references/benchmarks.md). Decide the direction yourself from the evidence and record it.
 3. **Frame.** Write the system into `DESIGN.md`: tokens from [the system](references/system.md), the page shell from [pages](references/pages.md), and one spec card per component from [components](references/components.md). This is the frame every variant must fit.
 4. **Material.** Get real images, icons and fonts before composing: supplied assets, license-clear sources, or generated images when an image model is available. Use `seenry-assets`. No placeholder gradients, no emoji icons.
 5. **Explore.** For every hero, signature component or first screen, build 3 compositions that differ on 2–3 real axes (arrangement, media scale, anchor, density, detail layer) inside the same frame. Render them side by side at 1440 and 390 and critique in writing. Follow [structured exploration](references/exploration.md).
 6. **Refine.** Put the chosen variant on keylines and align ink, not boxes ([alignment](references/alignment.md)); then apply optical corrections for shapes the eye misjudges ([optical](references/optical.md)); then the [craft pass](references/craft.md): every state, longest content, dark mode.
 7. **Verify on pixels.** Run `node scripts/audit_page.mjs <dev-server-url or file> --widths 1440,390 --shots <dir>` on the real page. It works on any project and reports system drift, alignment and optical errors. Look at the screenshots with the [grid overlay](assets/layout-guides/README.md) on, and run the [anti-slop check](references/anti-slop.md). Fix everything before expanding to the next section. Use `seenry-review` for an independent verdict.
 
-For a small fix in an established system, skip exploration: inspect, repair on-system, verify.
+8. **Deliver the Seenry sheet.** Render `.seenry/sheet.html` with [sheet.py](scripts/sheet.py): the result, why each decision was made, the companies studied and discovered, the variants, color and type with measured contrast, component anatomy from [anatomy.mjs](scripts/anatomy.mjs), guidelines for future work, and what was verified. Open it for the user. See [the sheet](references/sheet.md).
+
+For a small fix in an established system, skip exploration and the full sheet: inspect, repair on-system, verify, and update the existing sheet's record if a decision changed.
 
 ## The frame (defaults)
 
@@ -101,6 +103,7 @@ The full list of AI tells and their fixes is in [anti-slop](references/anti-slop
 | Keyboard, semantics, zoom, reduced motion | [accessibility](references/accessibility.md) |
 | Choosing material; sourcing and generating it | [imagery](references/imagery.md) and `seenry-assets` |
 | Seenry MCP recipes and offline research | [research](references/research.md) |
+| The design sheet: rationale, research, anatomy, guidelines | [sheet](references/sheet.md) |
 | Measured evidence from leading product sites | [benchmarks](references/benchmarks.md) |
 | AI tells and their fixes | [anti-slop](references/anti-slop.md) |
 | Faithfully reproducing a supplied design | [replication](references/replication.md) |
@@ -112,6 +115,7 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 - [Page audit](scripts/audit_page.mjs): one command for any project (URL or HTML file) at several widths; runs the system and optical audits and prints fixable findings. Needs Playwright.
 - [Optical audit](scripts/optical_audit.mjs): rasterizes icons to measure ink; reports off-center icon buttons (including asymmetric shapes), icons missing their label's cap-height center, labels not centered in controls, unbalanced icon-side padding and headline side bearing, each with a CSS nudge.
 - [System audit](scripts/system_audit.mjs): counts rendered font sizes, weights, families, radii, shadows and colors; lists off-grid padding, gaps and margins; flags non-concentric corners, wrapped control labels and components over 3 sizes or weights; per component, measures ink-level alignment (cap tops, baselines, drawn glyphs, media edges): near-miss edges, media anchors and optical insets. Run it on every screenshot pass.
+- [Design sheet](scripts/sheet.py) and [anatomy capture](scripts/anatomy.mjs): the end-of-task deliverable, styled like seenry.design.
 - [Exploration sheet](assets/explore.html): renders variant files side by side at real widths for critique.
 - [Grid overlay](assets/layout-guides/README.md): development-only columns, gutter and 8px checks.
 - [Palette](scripts/palette.py): OKLCH ramps from one brand color, two-tier tokens for light and dark, and WCAG + APCA measurement of every pair; `--check FG BG` for one pair.
@@ -120,4 +124,4 @@ Use `seenry-assets` for images, icons and fonts, `seenry-motion` for transitions
 
 ## Report
 
-State what was built, the references studied (with links), the frame, the variants explored and why one won, the material used and its licenses, the widths and states rendered, what the audit and anti-slop pass caught and fixed, and anything not verified. Do not claim quality you did not see in a screenshot.
+Give the sheet path first, then a short summary: the direction chosen and why, the companies that informed it (and any discovered along the way), what the audit caught and fixed, and anything not verified. The sheet carries the detail; do not repeat it in chat. Do not claim quality you did not see in a screenshot.

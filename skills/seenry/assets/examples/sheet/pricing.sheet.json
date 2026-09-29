@@ -1,0 +1,78 @@
+{
+  "project": "Pricing section",
+  "date": "2026-09-29",
+  "pointOfView": "A calm, tool-like pricing section where the price is the loudest thing on each plan and the recommended plan is obvious without shouting.",
+  "brief": "Three per-seat plans for a developer platform. Web, light and dark themes, must work at 390px. Worked example for the Seenry skill.",
+  "stack": "HTML + CSS",
+  "result": {"images": [
+    {"src": "pricing-1440.jpg", "caption": "Desktop, 1440 wide"},
+    {"src": "pricing-390.jpg", "caption": "Phone, 390 wide", "viewport": "phone"}
+  ]},
+  "decisions": [
+    {"topic": "Tier container", "choice": "One container divided by hairlines, not three floating cards", "why": "Plans read as one comparison. Separate shadowed cards compete with each other and misalign when copy lengths differ.", "evidence": "Vercel and Linear pricing pages, inspected through Seenry MCP"},
+    {"topic": "Row alignment", "choice": "CSS subgrid for plan, price, description, button and features", "why": "Buttons and feature lists line up across plans whatever the description length, which the leaders do by hand and we get for free."},
+    {"topic": "Emphasis", "choice": "Only the recommended plan's button is filled; a small badge names it", "why": "One primary action per view. Scaling or tinting the whole card is the common AI tell."},
+    {"topic": "Price type", "choice": "40px, weight 500, tabular figures, −0.02em", "why": "The price is the answer people came for. Light-to-medium weight and tight tracking match the measured leaders (Vercel 40/500, Stripe display weight 300).", "evidence": "benchmarks.md"},
+    {"topic": "Inheritance", "choice": "“Everything in Hobby, plus:” before each feature list", "why": "Shows only what changes between plans, so lists stay short and comparable."}
+  ],
+  "research": {
+    "mcp": true,
+    "method": "Seenry MCP (list_sites, get_page, get_screenshot section=Pricing, get_design)",
+    "references": [
+      {"name": "Vercel pricing", "url": "https://vercel.com/pricing", "role": "leader", "via": "MCP",
+       "seen": "Three plans in one bordered container split by 1px lines; plan name small, price large; “All Hobby features, plus:”; only the Pro button filled.",
+       "measured": "Hero 64/400 −0.06em; pill buttons; radius 6–8 on controls",
+       "adopt": "Shared container, inheritance line, one filled button", "avoid": "An icon before every feature line"},
+      {"name": "Linear pricing", "url": "https://linear.app/pricing", "role": "leader", "via": "MCP",
+       "seen": "Hairline columns, plan name and price at the top, buttons aligned at the bottom of every column.",
+       "measured": "Inter Variable 400/510; radii 4–12 plus pill",
+       "adopt": "Buttons on one line across plans", "avoid": "Dark-only palette"},
+      {"name": "Notion pricing", "url": "https://www.notion.com/pricing", "role": "leader", "via": "MCP",
+       "seen": "Two plans, large prices, full-width tinted buttons, “Everything in Free, and:”.",
+       "adopt": "Plain per-member price phrasing", "avoid": "Full-width tinted buttons on every plan"},
+      {"name": "Stripe pricing", "url": "https://stripe.com/pricing", "role": "discovered", "via": "MCP",
+       "seen": "The price itself is the display type (3.4% + 30¢); custom plan on a dark panel beside the standard one.",
+       "adopt": "Price as the largest element", "avoid": "Gradient ribbon behind the plans"}
+    ],
+    "patterns": {
+      "tableStakes": ["Monthly/annual toggle", "Three plans, the middle one recommended", "A contact-sales plan at the top end"],
+      "edge": ["Plans in one container with hairlines", "Buttons aligned across plans", "“Everything in X, plus” inheritance"],
+      "opening": ["Per-seat math next to the price", "Subgrid alignment that survives any copy length"]
+    }
+  },
+  "exploration": {"axes": ["container", "emphasis", "density"], "variants": [
+    {"name": "A. Shared container", "verdict": "chosen", "why": "Rows align across plans; the price leads; one filled button. Audits clean at both widths."},
+    {"name": "B. Floating cards", "verdict": "rejected", "why": "Three shadows compete, the recommended card has to be scaled to stand out, and buttons drift when a description wraps."},
+    {"name": "C. Comparison table first", "verdict": "rejected", "why": "Precise but slow to scan on a phone; kept as a separate section below the plans."}
+  ]},
+  "color": {"why": "Neutral surfaces do the work so the one indigo button is the only colored action on the page. Indigo reads as a calm, technical accent and keeps white text above WCAG AA."},
+  "type": {"family": "Inter", "source": "Google Fonts (OFL)", "why": "A neutral tool voice for a developer product. Tuned with cv11 and ss01, tightened for display sizes.",
+    "css": "\"Inter\", system-ui, sans-serif", "cssUrl": "https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap",
+    "scale": [
+      {"role": "Section title", "size": "36px", "weight": "600", "tracking": "-0.02em", "sample": "Start free. Pay per seat."},
+      {"role": "Price", "size": "40px", "weight": "500", "tracking": "-0.02em", "sample": "$16"},
+      {"role": "Lead", "size": "16px", "weight": "400", "sample": "Every plan includes unlimited previews."},
+      {"role": "UI and body", "size": "14px", "weight": "400", "sample": "For professionals shipping to production every week."},
+      {"role": "Badge", "size": "12px", "weight": "500", "sample": "Most popular"}
+    ]},
+  "anatomy": [{"component": "Pricing plan (recommended)", "image": "tier-anatomy.jpg", "spec": {
+    "Grid": "4px base · 24 inset on all sides · container r16 with a ring",
+    "Rows": "subgrid: plan, price, description, button, features",
+    "Gaps": "plan → price 16 · price → description 8 · description → button 24 · button → features 24",
+    "Type": "14/500 plan · 40/500 tabular price · 14/400 text · 12/500 badge",
+    "Keylines": "every element starts on the 24 inset; check icons pulled left so their ink sits on it",
+    "Color": "one filled accent button; other plans use the outlined secondary button"}}],
+  "guidelines": [
+    {"area": "Layout", "rule": "Plans share one container divided by hairlines. Never float plans as separate shadowed cards.", "do": "One container, 1px dividers, rows aligned with subgrid", "dont": "Three cards with drop shadows and a scaled-up middle card"},
+    {"area": "Color", "rule": "Only the recommended plan gets the filled accent button. Everything else stays neutral.", "do": "One filled button, others outlined", "dont": "A filled button on every plan, or a tinted card background"},
+    {"area": "Type", "rule": "The price is the largest thing in a plan: 40px, weight 500, tabular figures.", "do": "$16 / seat / month with the period in secondary text", "dont": "Bold 700 prices, or a plan name larger than its price"},
+    {"area": "Content", "rule": "Each paid plan lists only what it adds, introduced by “Everything in X, plus:”.", "do": "Four short additions per plan", "dont": "Repeating every feature from the plan below"},
+    {"area": "Icons", "rule": "Check icons align by their ink to the text edge, one icon set, 16px, accent-text color.", "do": "Lucide check pulled 2.7px left", "dont": "Mixed icon sets, or icons boxed and indented"}
+  ],
+  "verification": {"checks": [
+    {"name": "System, alignment and optical audit at 1440 and 390", "result": "0 findings", "pass": true},
+    {"name": "Contrast in light and dark (WCAG AA and APCA)", "result": "all measured pairs pass", "pass": true},
+    {"name": "Billing toggle updates prices, keyboard reachable", "result": "passes", "pass": true},
+    {"name": "Horizontal overflow at 390", "result": "none", "pass": true}
+  ], "notVerified": ["Screen reader pass", "Real checkout flow", "Localized copy lengths"]}
+}

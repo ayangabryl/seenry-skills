@@ -13,6 +13,9 @@ For creating, codifying or updating a project's guidelines, use [project guideli
 
 ## Deliver project continuity
 
+Render the guideline as a Seenry sheet ([the sheet](../seenry/references/sheet.md)) alongside `BRAND.md`: logo and naming rules, color with measured contrast from `palette.py`, type, imagery and icon rules, each as a testable rule with a do and a don't (the way Spotify's developer design guidelines present logo, color and artwork rules). The sheet is what later agents and people read first.
+
+
 For a request to create or maintain project branding, the deliverable is a usable guideline tied to implementation—not a reference screenshot or palette board. Read the project's DESIGN.md and linked brand rules before editing. Keep one canonical guideline: use an existing DESIGN.md brand section, or BRAND.md linked from DESIGN.md. State which file later agents must read.
 
 Define shared token/component owners and demonstrate the rules in at least two relevant existing surfaces or states when the project has them. Verify that the same components, terminology and state behavior carry across. Record scoped exceptions and update shared sources with the guideline; do not invent a second per-page identity. Research through MCP informs the rules but does not replace their authorship or verification. A small change should reuse the rules without expanding into a brand manual.

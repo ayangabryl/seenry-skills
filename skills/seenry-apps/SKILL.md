@@ -17,7 +17,8 @@ Mobile quality is mostly platform fidelity plus the same discipline as the web s
 2. **Study real apps.** With Seenry MCP: `search_app_screens` `{q: "paywall" | "settings" | "onboarding" | "now playing" | "checkout" | "empty state"}` for patterns across apps, `get_app_flow` for an ordered journey, `search_designs` `{family: "apps", q: "<app name>"}` for a named app. Inspect 3–5 screens; write down measured relationships (spacing, type sizes, control placement), not looks. App screens carry a small watermark; ignore it.
 3. **Spec each component** with the [four-layer construction](../seenry/references/components.md): grid → safe space → structure → type and states.
 4. **Build the connected states** with real data: loading, empty, error, permission denied, offline, success, and the keyboard-open layout.
-5. **Verify on a simulator or device**: screenshot every state, exercise gestures, back and swipe-to-dismiss, Dynamic Type at the largest accessibility size, dark mode and VoiceOver/TalkBack labels.
+5. **Deliver the Seenry sheet** at the end, as in `seenry` ([the sheet](../seenry/references/sheet.md)): simulator screenshots per state, the apps studied and discovered, decisions, anatomy of the signature screen and guidelines. Use `sheet.py`; capture anatomy from simulator screenshots annotated by hand in the spec when `anatomy.mjs` (web only) does not apply.
+6. **Verify on a simulator or device**: screenshot every state, exercise gestures, back and swipe-to-dismiss, Dynamic Type at the largest accessibility size, dark mode and VoiceOver/TalkBack labels.
 
 ## Platform system
 

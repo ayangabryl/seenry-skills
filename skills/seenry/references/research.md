@@ -6,6 +6,15 @@ The fastest way out of generic output is to look at how the best teams solved th
 
 Study 3–6 references per decision, not 30. Spend the time looking at pixels and extracting numbers. `get_credits` is free; check it at the start.
 
+## Method (automatic, no questions)
+
+1. **Announce and proceed.** One line stating what you will study, then do it. The user is not asked to pick references or approve a plan.
+2. **Shortlist the leaders.** Translate the brief into its category and name 3–5 products known for doing this exact job well (developer SaaS pricing → Vercel, Linear, Stripe, Notion; food delivery checkout → DoorDash, Uber Eats, Deliveroo). One line each on why.
+3. **Discover.** Run one open category search (`search_sections` with the section kind, `search_references` with the page type, `search_app_screens` with the screen type) and add anything strong you did not know. Record these as discovered, even if you take nothing from them.
+4. **Study at pixels.** For each: screenshot of the relevant section, `get_design` for measured type, radius and elevation. Note what it does, what to adopt, what to avoid.
+5. **Synthesize.** What everyone does (table stakes), what only the best do (the edge), what they all do badly or leave out (the opening).
+6. **Decide and record.** Choose the direction from the evidence and write it into `DESIGN.md` and the sheet record ([sheet](sheet.md)). The user sees the reasoning in the sheet, not as a question.
+
 ## Recipes
 
 Use the exact tool names and arguments from the connected server; call `get_library_guide` once if unsure.
