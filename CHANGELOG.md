@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.5.5
+
+- `research/bar/` is always filled: leaders already in the pack were skipped by the per-brand limit, leaving the critic's bar empty.
+- `review_board.mjs` reads linked stylesheets on pages opened from disk, so press states and reduced-motion rules in CSS files are seen and builders no longer inline their CSS to pass.
+- Second-brief check (Tally, invoicing for studios): Seenry 7/10 (median of 7/7/7, motion 8) against a no-skill Sonnet build at 4/10 (4/4/4) on the same critic and bar.
+
 ## 4.5.4
 
 - Composition guidance rewritten around scale ("fewer, larger, fuller"): every brand-page section gets an anchor at 40-60% of the content width or full width (the product working at real scale, one strong photograph, a large figure, a readable diagram), section headings 40-56px with a 20-22px lead, hero display 64-96px, five to seven full sections, and "replace, never just remove". Builds had been getting sparser round by round because every rule and the critic's own advice only removed material.

@@ -98,7 +98,9 @@ for (const s of [...sites, ...LEADERS.filter(l => !sites.includes(l)).sort(() =>
   const home = ((await call('search_references', {site: s, limit: 3})).items || []).find(i => /\/captures\//.test(i.captures?.desktop?.thumbnailUrl || ''));
   if (!home) continue;
   bar.push(home.id);
-  add('Bar · first screens', {...home, posterUrl: home.captures.desktop.thumbnailUrl});
+  // The bar bypasses the per-brand limits: a leader already in the pack must still be in the bar.
+  pack.push({group: 'Bar · first screens', id: home.id, title: home.title || 'Home', brand: home.brand || s, source: home.source || s, url: home.referenceUrl || '',
+    section: '', rating: null, poster: home.captures.desktop.thumbnailUrl, tags: home.metadata?.patterns || []});
 }
 // 4. The page type and its sections, sampled across the whole library.
 for (const p of plan.pages) (await spread('search_references', {page_type: p}, 6)).forEach(i => add(`Pages · ${p}`, i));

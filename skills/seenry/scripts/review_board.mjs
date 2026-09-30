@@ -171,7 +171,7 @@ function inspect({phone}) {
 }
 
 const {chromium} = await loadPlaywright();
-const browser = await chromium.launch({headless: true, ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
+const browser = await chromium.launch({headless: true, args: ['--allow-file-access-from-files'], ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
 const report = {url, widths: {}};
 for (const [w, h] of [[1440, 900], [390, 844]]) {
   const page = await browser.newPage({viewport: {width: w, height: h}});
