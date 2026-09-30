@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.5.0
+
+- Production motion, measured: `seenry-motion/references/production-motion.md` comes from a frame-by-frame study of 48 real product and website clips from the Seenry library across 15 transition families: per-family specs, a token system with several clocks (curves E, M, F, X; 0/80/120/160/180/240/280ms chosen by distance × size × frequency), choreography rules, an interruption contract and what separates senior from junior motion.
+- Seenry Transitions (`assets/components/transitions`): 28 clean-room transitions rebuilt to that study (menus and sheets growing from their trigger with the close control where the trigger was, digit-level number changes with blur as focus, attached modal content, AI thinking and streaming states without dots), applied by `data-st` or a small JS API. Motion judge 8/10, zero violations, reduced motion 10/10.
+- Interaction kit (`assets/components/interaction`): 32 clean-room components (slide to confirm, hold to delete, status island, morphing button, combobox, one-time code, reorderable list, date range, dual range slider, waveform player, stacked drawer, pricing toggle and more) on the same tokens. Motion judge 7/10, zero violations.
+- Statement with inline objects (`assets/components/statement`): a large editorial statement with the brand's proof set inline and one morphing action button, words inking in with scroll and readable at every position. Motion judge 8/10.
+- `SKILL.md` applies transitions on Seenry's own initiative by situation (every modal, menu, tab set, changing value, async action, form error, list change, loading state and navigation) and routes richer components to the interaction kit.
+
 ## 4.4.3
 
 - Design thinking before patterns: `references/design-thinking.md` and a new flow step have the agent write the product's claim, proof, moment and material, generate at least five ideas with different designer moves, score them on truth, clarity, distinctiveness, restraint and buildability, and carry the chosen idea through hero, signature moment, imagery, copy and one detail. Kits are how to build an idea, never the idea. `check.mjs` requires `.seenry/idea.md`, the blind critic scores the idea, and the report opens with it.

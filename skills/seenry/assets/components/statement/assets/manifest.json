@@ -1,0 +1,43 @@
+{
+  "generated": {
+    "files": [
+      "album-ocean.webp",
+      "album-flower.webp",
+      "portrait.webp"
+    ],
+    "date": "2026-09-30",
+    "tool": "Seenry image.mjs / Codex image model",
+    "prompt": "Three-panel sheet: flash-lit cobalt ocean wave album cover, burgundy poppy macro album cover, fictional short-haired woman studio portrait. No text or logos.",
+    "usage": "Fictional illustrative examples; portrait does not imply endorsement",
+    "processing": "Equal third crops, 192\u00d7192 WebP",
+    "revision": "Album art revised to a restrained slate ocean crest and desaturated burgundy poppy with clearer small-crop composition.",
+    "portrait_revision": "Final portrait: original fictional adviser, shoulders-up 85mm composition, directional window light, muted gray backdrop. Three variants reviewed; final chosen for clearest facial composition at the inline size.",
+    "originals": [
+      ".seenry/generated/material.png",
+      ".seenry/generated/material-v2.png",
+      ".seenry/generated/portrait-v3.png"
+    ]
+  },
+  "original_svg": {
+    "files": [
+      "civic.svg",
+      "community.svg",
+      "service.svg"
+    ],
+    "creator": "Original artwork for this project",
+    "license": "MIT",
+    "usage": "Fictional civic marks; no real organization"
+  },
+  "inline_icons": {
+    "creator": "Original artwork for this project",
+    "license": "MIT",
+    "style": "Monoline fingerprint, waveform, lock, arrow, spinner, check, error"
+  },
+  "fonts": {
+    "families": [
+      "Georgia",
+      "system-ui"
+    ],
+    "source": "User's operating system; no font files distributed"
+  }
+}
