@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.4.2
+
+- Editorial serifs used well, studied from America.gov: a type row for civic, public-service, cultural and premium consumer pages (a neutral grotesk for all UI and headings, an editorial serif for one or two display moments at weight 400, tracking −0.04 to −0.06em, roman only) and the line between a well-used serif and serif slop.
+- "The claim made visible" as the first signature choice when a page makes one big claim, with a pause control for loops over 5 seconds.
+- One photographic look per page: the same style words in every image prompt so every photo reads as one shoot.
+
 ## 4.4.1
 
 - Colored dots in front of text ("● Active") are slop: `SKILL.md` bans them, both kits drop them, and `review_board.mjs` blocks any small round dot before text unless marked `data-seenry-dot="live|presence|unread"`, where a dot is the whole message. Status in data views stays a quiet tinted pill with the word only; outside data views, pills and chips need a real reason.
