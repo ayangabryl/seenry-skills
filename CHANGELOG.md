@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.5.6
+
+- Rhythm: every major section is composed differently (full-bleed scene, one oversized artifact, split, large statement or figure, comparison as one image, quiet close), each used at most twice, planned in `.seenry/idea.md`, with scale changing between neighbours. The Tally check stalled at 7 because every section repeated heading, paragraph and bordered module.
+- One focal moment per demo: one thing happening, larger than the supporting figures; equal-weight KPI and card grids are a screenshot, not a moment. The critic now flags repeated rhythm and equal-weight demos and names the composition each section should take.
+
 ## 4.5.5
 
 - `research/bar/` is always filled: leaders already in the pack were skipped by the per-brand limit, leaving the critic's bar empty.
