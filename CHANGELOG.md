@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.4.0
+
+- Real photography from any host: `scripts/image.mjs` generates photographs through the Codex CLI's image model (single or batched, three at a time), so Claude Code and other hosts without an image tool still get art-directed photos. `SKILL.md` and `seenry-assets` put it right after supplied photos and the host's own image tool; the no-photo fallback now applies only when every image route fails. Prompts name the subject's real state (roasted beans, worn products, plated food).
+- `seenry-motion/references/interaction-craft.md`: the method behind high-quality interactive components (job and one idea, state graph, fixed geometry, motion score with reasons, interruption rule, input contract, reduced motion, runtime budget), timing ranges with reasons, a pattern catalogue, a twelve-field component brief with eight worked examples, a review checklist and what to leave out of serious products. `SKILL.md` requires the brief for any interactive component the kits do not have.
+- Benchmark (Sonnet 5.5 builds and judge, premium standard): with generated photography Seenry scored 7.5 on landing (from 7.0) and 7.0 on product, first in all four passes, against 6.0 and 5.0 for the best competitor.
+
 ## 4.3.3
 
 - `review_board.mjs` reads colors by painting them to a canvas, so `oklch()`, `lab()` and `color()` values get correct contrast and default-color checks (builds were converting tokens to hex to get past false contrast failures).

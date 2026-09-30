@@ -20,7 +20,7 @@ Then take the first route that can produce it at quality:
 1. **Supplied or brand assets.** The user's logos, product shots, photos and fonts always win. Ask if they likely exist.
 2. **Build it in code.** Product UI, charts, diagrams and simple geometric marks are sharper and more honest as HTML/CSS/SVG than as images.
 3. **License-clear sources.** Photos, icons and fonts from the sources below via [the assets tool](scripts/assets.py).
-4. **Generate.** When the host has an image generation tool (an MCP image tool, a built-in image model, or `OPENAI_API_KEY` / `GEMINI_API_KEY` for the assets tool), generate art-directed images: hero visuals, 3D-style icons, textures, covers, illustrations. Follow [generation](references/generation.md).
+4. **Generate.** When the host has an image generation tool (an MCP image tool, a built-in image model, the Codex CLI through `seenry/scripts/image.mjs`, or `OPENAI_API_KEY` / `GEMINI_API_KEY` for the assets tool), generate art-directed images: hero visuals, 3D-style icons, textures, covers, illustrations. Follow [generation](references/generation.md).
 5. **Go type-led.** If none of the above reaches quality, remove the image and let typography, layout and one detail carry the design. A weak image is worse than none.
 
 ## Sources

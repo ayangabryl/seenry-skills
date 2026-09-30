@@ -1,6 +1,6 @@
 # Generating images
 
-Generate only when the host actually has an image model: an image-generation MCP tool, a built-in image tool, or an API key the [assets tool](../scripts/assets.py) can use (`OPENAI_API_KEY`, `GEMINI_API_KEY`). Never claim a capability you do not have; fall back to sourced images or a type-led design.
+Generate only when the host actually has an image model: an image-generation MCP tool, a built-in image tool, the Codex CLI through seenry's `image.mjs` (`node <skills>/seenry/scripts/image.mjs --prompt "..." --out assets/hero.png`, works from Claude Code and any other host where `codex` is signed in), or an API key the [assets tool](../scripts/assets.py) can use (`OPENAI_API_KEY`, `GEMINI_API_KEY`). Never claim a capability you do not have; fall back to sourced images or a type-led design.
 
 ## Write an art-directed prompt
 
