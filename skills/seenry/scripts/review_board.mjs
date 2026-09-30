@@ -209,7 +209,16 @@ const shot = async (html, file, width) => {
   await page.close();
 };
 const clip = (src, w, maxH) => `<div style="width:${w}px;max-height:${maxH}px;overflow:hidden;background:#fff"><img src="${src}" style="width:${w}px;display:block"></div>`;
-await shot(`<div style="display:flex;gap:16px;padding:16px;align-items:flex-start">${clip(uri(join(out, 'full-1440.png')), 720, 2600)}${clip(uri(join(out, 'full-390.png')), 280, 2600)}</div>`, 'board.png', 1048);
+// The whole page, never clipped: a long page is cut into side-by-side columns so the critic sees every section down to
+// the footer (clipping at 5200px made critics report missing footers and sections).
+const pngHeight = p => readFileSync(p).readUInt32BE(20), pngWidth = p => readFileSync(p).readUInt32BE(16);
+const columns = (p, w, maxH) => {
+  const h = Math.ceil(pngHeight(p) * w / pngWidth(p)), src = uri(p);
+  return Array.from({length: Math.max(1, Math.ceil(h / maxH))}, (_, k) =>
+    `<div style="width:${w}px;height:${Math.min(maxH, h - k * maxH)}px;overflow:hidden;background:#fff"><img src="${src}" style="width:${w}px;display:block;margin-top:${-k * maxH}px"></div>`);
+};
+const cols = [...columns(join(out, 'full-1440.png'), 720, 2600), ...columns(join(out, 'full-390.png'), 280, 2600)];
+await shot(`<div style="display:flex;gap:16px;padding:16px;align-items:flex-start">${cols.join('')}</div>`, 'board.png', 16 + cols.reduce((n, c) => n + (c.includes('width:720px') ? 736 : 296), 0));
 const cells = [['This page', join(out, 'first-1440.png')], ...refs.map(r => [r.split('/').pop(), r])];
 await shot(`<div style="display:flex;flex-wrap:wrap;gap:16px;padding:16px">${cells.map(([n, p]) => `<figure style="margin:0"><figcaption style="padding:0 0 6px">${n}</figcaption>${clip(uri(p), 720, 450)}</figure>`).join('')}</div>`, 'first.png', 16 + cells.length * 736 > 1488 ? 1488 : 16 + cells.length * 736);
 await browser.close();

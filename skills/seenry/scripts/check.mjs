@@ -7,7 +7,7 @@
  *  2. With zero blockers, runs critic.mjs: a fresh model scores the page against the reference screens.
  *  3. Prints PASS when the critic's overall reaches --target (default 9: Stripe's own home page scores 7-8 on this critic, so 9 means beating the big-company bar), else FAIL with the fixes to apply.
  *  Rounds are numbered; every critic result is kept as <dir>/review/critic-N.json and summarized in check.json. */
-import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs';
+import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, statSync, copyFileSync} from 'node:fs';
 import {resolve, join, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
@@ -112,6 +112,16 @@ process.stdout.write('\n' + mj.stdout);
 const motion = existsSync(join(review, `motion-${round}`, 'motion.json')) ? JSON.parse(readFileSync(join(review, `motion-${round}`, 'motion.json'), 'utf8')) : null;
 const motionScore = motion?.verdict?.scores?.overall ?? null, motionBlocks = motion?.violations?.length || 0;
 history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks, hash: fingerprint});
+// Keep the page's code as it was when scored, so the best round can be restored after a later round scores worse.
+if (!/^https?:/.test(target) && existsSync(target)) {
+  const snap = join(review, `round-${round}`), root = dirname(resolve(target));
+  const copy = (d, rel = '') => { for (const f of readdirSync(join(root, rel))) {
+    const r = join(rel, f), st = statSync(join(root, r));
+    if (st.isDirectory()) { if (!/^(\.|skills$|node_modules$)/.test(f)) copy(d, r); }
+    else if (/\.(html|css|js|mjs|svg|json)$/i.test(f) && st.size < 2e6) { mkdirSync(dirname(join(d, r)), {recursive: true}); copyFileSync(join(root, r), join(d, r)); }
+  } };
+  try { copy(snap); } catch {}
+}
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
 if (verdict.scores.overall >= goal && !motionBlocks && (motionScore === null || motionScore >= 8)) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10. Critic trail: ${trail}.`); process.exit(0); }
@@ -127,7 +137,8 @@ if (stalled && !history.some(h => h.rootChange)) {
 if (stalled || scored.length >= 6) {
   history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : 'six critic rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  console.log(`STOP: ${history[history.length - 1].stop}. Ship the best-scoring round (critic ${best}) and report the trail. check.mjs will not run further rounds.`);
+  const bestRound = history.filter(h => h.critic && h.critic.overall === best).pop();
+  console.log(`STOP: ${history[history.length - 1].stop}. Ship the best-scoring round (critic ${best}, round ${bestRound.round}): if the page now differs, copy the code saved in ${join(review, `round-${bestRound.round}`)} back over the project (it holds the HTML, CSS and JS, not images), and check.mjs will recognise that version by its fingerprint. check.mjs will not run further rounds after that.`);
   process.exit(3);
 }
 process.exit(1);

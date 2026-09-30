@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.5.3
+
+- The critic sees the whole page: `review_board.mjs` cuts long desktop and phone pages into side-by-side columns instead of clipping them at about 5200px, which had made critics report missing footers and sections.
+- Every critic round saves the page's HTML, CSS and JS in `review/round-N/`, and STOP names the best round to restore, so a worse last round is never what ships.
+
 ## 4.5.2
 
 - A steadier critic: `critic.mjs` scores the page in three independent runs and reports the median (fixes come from the median run), because one run moved about a point and changed its advice between rounds. It also sees the first screen at full 1440 size and judges text size there, not from the half-scale board.
