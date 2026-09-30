@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Motion and interaction judge: screenshots cannot show motion, so this plays the page's interactions and judges them.
  *
- *  node motion_judge.mjs <url | file.html> [--out .seenry/review/motion] [--max 8] [--brief BRIEF.md] [--no-critic]
+ *  node motion_judge.mjs <url | file.html> [--out .seenry/review/motion] [--max 8] [--selector "[data-replay]"] [--brief BRIEF.md] [--no-critic]
  *                        [--playwright path]
  *
  *  1. Clicks up to --max interactive controls and captures a filmstrip around each (before, then about 40, 120, 220,
@@ -25,6 +25,7 @@ if (!target) { console.error('Usage: node motion_judge.mjs <url | file.html> [--
 const url = /^https?:|^file:/.test(target) ? target : pathToFileURL(resolve(target)).href;
 const out = resolve(flag('out', '.seenry/review/motion')); mkdirSync(out, {recursive: true});
 const max = Number(flag('max', '8'));
+const only = flag('selector'); // e.g. "[data-replay]" to judge specific controls such as a gallery's replay buttons
 
 async function loadPlaywright() {
   const explicit = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
@@ -72,7 +73,10 @@ async function run(reduced) {
   const page = await ctx.newPage();
   await page.goto(url, {waitUntil: 'networkidle'});
   await page.waitForTimeout(900);
-  const targets = await page.evaluate(pickTargets, max);
+  const targets = await page.evaluate(({max, only}) => {
+    if (!only) return null;
+    return [...document.querySelectorAll(only)].slice(0, max).map((el, i) => { el.setAttribute('data-seenry-probe', String(i)); const card = el.closest('article,section,li,[class*=card]'); const h = card && card.querySelector('h2,h3,h4'); return {i, label: ((h && h.textContent) || el.getAttribute('aria-label') || el.textContent || 'control').trim().replace(/\s+/g, ' ').slice(0, 40)}; });
+  }, {max, only}) || await page.evaluate(pickTargets, max);
   const rows = [];
   for (const t of targets) {
     const loc = page.locator(`[data-seenry-probe="${t.i}"]`);

@@ -29,7 +29,7 @@ const images = [board, first, ...refs];
 const listing = [`image 1 = the candidate: full desktop page at half scale (left) and phone page (right)`,
   `image 2 = the candidate's desktop first screen beside the reference screens`,
   ...refs.map((r, i) => `image ${i + 3} = reference ${r.split('/').pop()}`)].join('\n');
-const KEYS = ['premium', 'clean', 'no_slop', 'typography', 'layout', 'craft', 'mobile', 'overall'];
+const KEYS = ['premium', 'clean', 'no_slop', 'idea', 'typography', 'layout', 'craft', 'mobile', 'overall'];
 const schema = {type: 'object', additionalProperties: false, required: ['scores', 'slop', 'verdict', 'fixes'], properties: {
   scores: {type: 'object', additionalProperties: false, required: KEYS, properties: Object.fromEntries(KEYS.map(k => [k, {type: 'integer', minimum: 1, maximum: 10}]))},
   slop: {type: 'array', items: {type: 'string'}},
@@ -49,6 +49,7 @@ Score 1-10, calibrated so that the reference screens score about 8-9 and a compe
 - premium: would this sit beside the references as the same level of craft?
 - clean: calm, uncluttered, clear hierarchy, nothing decorative that does not help the job.
 - no_slop: 10 = none of the AI-generated tells; subtract for each: uppercase letter-spaced labels or eyebrows, numbered labels like "01 /", italic serif accent words, trendy default fonts, default AI palettes (cream+terracotta, plum+peach, navy+lime), clip-art imagery (sunset circles, vinyl records, flat product stand-ins), colored KPI hero cards with decoration, pill badges everywhere, tilted floating cards with stickers, heavy 700+ weights, gradient blobs, generic slogans, tiny or faint text.
+- idea: is there one clear idea that comes from this product's own claim and proof, carried through the hero, imagery, copy and a signature detail? A page assembled from generic patterns, or one that borrows another brand's signature idea, scores low even when it is clean.
 - typography, layout, craft, mobile.
 - overall: against the client's standard. Decoration never earns points; distinctiveness counts only when achieved cleanly.
 List every slop tell you see. Then the fixes that would raise overall most, most visible first: where on the page, the problem, and a concrete change (sizes, weights, colors, what to remove or replace). Prefer removing over adding. Say what the references do that the candidate does not. Never recommend text smaller than 16px for paragraphs, 15px for other readable text or 14px for short labels at 1440; the page is shown scaled down, so judge size relative to that.
@@ -60,7 +61,7 @@ try { verdict = askModel(found, {images, prompt, schema}); } catch (e) { console
 
 writeFileSync(out, JSON.stringify({cli, images, ...verdict}, null, 2));
 const s = verdict.scores;
-console.log(`Blind critic (${cli}): overall ${s.overall}/10 · premium ${s.premium} · clean ${s.clean} · no-slop ${s.no_slop} · type ${s.typography} · layout ${s.layout} · craft ${s.craft} · mobile ${s.mobile}`);
+console.log(`Blind critic (${cli}): overall ${s.overall}/10 · premium ${s.premium} · clean ${s.clean} · no-slop ${s.no_slop} · idea ${s.idea} · type ${s.typography} · layout ${s.layout} · craft ${s.craft} · mobile ${s.mobile}`);
 if (verdict.slop.length) console.log('Slop seen: ' + verdict.slop.join('; '));
 console.log(verdict.verdict);
 verdict.fixes.forEach((f, i) => console.log(`${i + 1}. [${f.where}] ${f.problem} → ${f.fix}`));

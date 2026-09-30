@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.4.3
+
+- Design thinking before patterns: `references/design-thinking.md` and a new flow step have the agent write the product's claim, proof, moment and material, generate at least five ideas with different designer moves, score them on truth, clarity, distinctiveness, restraint and buildability, and carry the chosen idea through hero, signature moment, imagery, copy and one detail. Kits are how to build an idea, never the idea. `check.mjs` requires `.seenry/idea.md`, the blind critic scores the idea, and the report opens with it.
+- Motion rules from measured production work: the trigger becomes the surface (the close control lands where the trigger was; content follows the container 100–150ms later, 30–40ms per item) and blur as focus only at text and icon size, with the digit-level number change.
+
 ## 4.4.2
 
 - Editorial serifs used well, studied from America.gov: a type row for civic, public-service, cultural and premium consumer pages (a neutral grotesk for all UI and headings, an editorial serif for one or two display moments at weight 400, tracking −0.04 to −0.06em, roman only) and the line between a well-used serif and serif slop.
