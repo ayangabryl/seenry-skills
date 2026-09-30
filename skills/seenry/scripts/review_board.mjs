@@ -38,7 +38,7 @@ function inspect({phone}) {
   const ownText = el => [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
   const label = el => `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${(el.textContent || '').trim().slice(0, 40)}"`;
   const els = [...document.body.querySelectorAll('*')].filter(el => ownText(el) && vis(el));
-  const f = {defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: []};
+  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: []};
   const weights = new Set(), headings = [...document.querySelectorAll('h1,h2,h3,[role=heading]')].filter(vis);
   const canvas = document.createElement('canvas').getContext('2d');
   const paint = document.createElement('canvas'); paint.width = paint.height = 1;
@@ -124,6 +124,22 @@ function inspect({phone}) {
     }
   }
   for (const [name, n] of hits) if (n >= 3) f.defaultColor.push(`Tailwind ${name} used on ${n} elements; derive the accent from the brand and correct it in OKLCH`);
+  // Colored dots in front of text ("● Active") read as generated UI; a dot is allowed only when it is the whole
+  // message and marked so: data-seenry-dot="live|presence|unread".
+  const dotLike = (st, w, h) => w > 0 && w <= 12 && h > 0 && h <= 12 && (parseFloat(st.borderTopLeftRadius) >= Math.min(w, h) / 2 - 0.5 || st.borderTopLeftRadius.includes('%'))
+    && toRGBA(st.backgroundColor)[3] > 0.5;
+  for (const el of document.body.querySelectorAll('*')) {
+    if (!vis(el) || el.closest('[data-seenry-dot]')) continue;
+    const text = (el.textContent || '').trim();
+    if (text.length < 2) continue;
+    const b = getComputedStyle(el, '::before');
+    if (b.content && b.content !== 'none' && dotLike(b, parseFloat(b.width), parseFloat(b.height))) { f.dotText.push(label(el)); continue; }
+    const c = el.firstElementChild;
+    if (c && !(c.textContent || '').trim() && !c.querySelector('img,svg') && c.tagName !== 'IMG' && c.tagName !== 'svg') {
+      const r = c.getBoundingClientRect();
+      if (dotLike(getComputedStyle(c), r.width, r.height)) f.dotText.push(label(el));
+    }
+  }
   const controls = [...document.querySelectorAll('button,input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,a[class*=btn],a[class*=button],[role=button]')].filter(vis);
   const radii = [];
   for (const el of controls) {
@@ -185,7 +201,7 @@ const cells = [['This page', join(out, 'first-1440.png')], ...refs.map(r => [r.s
 await shot(`<div style="display:flex;flex-wrap:wrap;gap:16px;padding:16px">${cells.map(([n, p]) => `<figure style="margin:0"><figcaption style="padding:0 0 6px">${n}</figcaption>${clip(uri(p), 720, 450)}</figure>`).join('')}</div>`, 'first.png', 16 + cells.length * 736 > 1488 ? 1488 : 16 + cells.length * 736);
 await browser.close();
 
-const names = {defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px (unreadable at review scale)', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content'};
+const names = {dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px (unreadable at review scale)', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content'};
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);

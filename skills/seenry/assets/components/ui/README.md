@@ -247,7 +247,7 @@ Keyboard: Tab to summary; Enter/Space toggles. React:
 
 ## Badge and status
 
-Use a badge for a short category and a status for a state. Status always includes words; its dot is supplementary. Tones: `ok`, `warn`, `bad`, `info`. Neutral is the default.
+Use a badge for a short category and a status for a state. Status is a quiet tinted pill with the word only, no leading dot. Use it in data views (tables, lists, dashboards); on marketing and editorial surfaces a pill needs a real reason.
 
 ```html
 <span class="ui-badge">Draft</span><span class="ui-status" data-tone="ok">Active</span>

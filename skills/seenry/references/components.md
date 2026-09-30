@@ -112,7 +112,7 @@ Measured defaults below match what leading product sites ship (see [benchmarks](
 ### Table
 
 - Container with a ring, radius lg, overflow hidden. Header row 32–36, 12–13/500 text-2, bg surface-2 or transparent with a bottom hairline.
-- Body rows 40–48, 13–14/400, hairline separators. Numbers right-aligned and tabular; dates in one format; status as a small dot + label, not a colored full-cell fill.
+- Body rows 40–48, 13–14/400, hairline separators. Numbers right-aligned and tabular; dates in one format; status as a word (semantic color only for exceptions), not a colored full-cell fill.
 - First column is the identity (name, not an ID). Row actions appear on hover at the end. Sticky header on long tables.
 
 ### Badge, tag, status

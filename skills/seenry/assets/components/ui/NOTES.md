@@ -31,7 +31,7 @@ The searches also returned many marketing sections that did not contain the requ
 | Sheet | V, M, H | The same layer hierarchy extends to an edge-attached surface; phone uses a bottom edge to preserve usable width. |
 | Toast | V, R, A | Brief action results use the shared floating surface, not a saturated banner; title and description remain readable. |
 | Accordion | U, T, V | U’s full-row question and T’s divider rhythm led to native `details` with an explicit open icon state. |
-| Badge / status | V, A, H | Neutral categorization stays quiet; status adds a dot and word on a low-intensity tint, with strong color for exceptions. |
+| Badge / status | V, A, H | Neutral categorization stays quiet; status is a word on a low-intensity tint, with strong color only for exceptions and no leading dot. |
 | Avatar / group | V, A, T | Small identity markers follow the same radius and border system; initials are a deliberate fallback, not a decorative placeholder. |
 | Card | V, T, R | V’s hairlines and low elevation define the resting card; link cards change border/background on hover. |
 | Table | V, A, H | Neutral hierarchy and row separators make values scannable; headers remain sticky and numeric data aligns right. |

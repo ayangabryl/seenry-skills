@@ -11,6 +11,7 @@ import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync} from 'n
 import {resolve, join, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -24,12 +25,17 @@ let refs = flag('refs');
 if (!refs && existsSync(join(dir, 'refs'))) refs = readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).slice(0, 3).map(f => join(dir, 'refs', f)).join(',');
 const history = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
 const round = history.length + 1;
+// Fingerprint the page so a result cannot be reported for a version that was never checked.
+const fingerprint = !/^https?:/.test(target) && existsSync(target) ? createHash('sha1').update(readFileSync(target)).digest('hex').slice(0, 12) : null;
+const checkedVersions = new Set(history.map(h => h.hash).filter(Boolean));
 if (round > 8 && !history.some(h => h.stop)) {
   history[history.length - 1].stop = 'eight rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 }
 const stoppedAt = history.find(h => h.stop);
-if (stoppedAt) {
+if (stoppedAt && fingerprint && !checkedVersions.has(fingerprint)) {
+  console.log(`The page changed after the last checked round (${stoppedAt.round}). Running one verification round on the current version before you report.`);
+} else if (stoppedAt) {
   const best = history.filter(h => h.critic).sort((a, b) => b.critic.overall - a.critic.overall)[0];
   console.log(`STOPPED at round ${stoppedAt.round}: ${stoppedAt.stop}. Do not run more rounds. Ship the best round (round ${best ? best.round : '?'}, critic ${best ? best.critic.overall : '?'}), restore it if a later round was worse, and report the trail.`);
   process.exit(3);
@@ -76,7 +82,7 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   }
 }
 if (blockers) {
-  history.push({round, blockers, critic: null});
+  history.push({round, blockers, critic: null, hash: fingerprint});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one above, then run check.mjs again. The critic runs once the board is clean.`);
   process.exit(1);
@@ -88,13 +94,18 @@ const critic = spawnSync('node', [join(here, 'critic.mjs'), '--board', join(revi
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
-history.push({round, blockers: 0, critic: verdict.scores});
+// Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
+const mj = spawnSync('node', [join(here, 'motion_judge.mjs'), target, '--out', join(review, `motion-${round}`), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
+process.stdout.write('\n' + mj.stdout);
+const motion = existsSync(join(review, `motion-${round}`, 'motion.json')) ? JSON.parse(readFileSync(join(review, `motion-${round}`, 'motion.json'), 'utf8')) : null;
+const motionScore = motion?.verdict?.scores?.overall ?? null, motionBlocks = motion?.violations?.length || 0;
+history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks, hash: fingerprint});
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
-if (verdict.scores.overall >= goal) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}). Critic trail: ${trail}.`); process.exit(0); }
+if (verdict.scores.overall >= goal && !motionBlocks && (motionScore === null || motionScore >= 8)) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10. Critic trail: ${trail}.`); process.exit(0); }
 const scored = history.filter(h => h.critic).map(h => h.critic.overall), best = Math.max(...scored);
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
-console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10, target ${goal}. Critic trail: ${trail}. Apply every fix listed above, most visible first, then run check.mjs again.`);
+console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 8)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
 if (stalled && !history.some(h => h.rootChange)) {
   history[history.length - 1].rootChange = true;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));

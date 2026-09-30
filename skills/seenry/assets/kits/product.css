@@ -9,7 +9,7 @@
  * - Radii are small (6 controls, 8–12 containers, 12 floating layers, as in Vercel Geist) because radius marks what a
  *   shape is; grids stay square-ish, tokens and controls round. Shadows only on layers that float.
  * - Money is proportional in single figures and tabular in columns, right-aligned, with the currency de-emphasised.
- * - Status is a small dot plus words in a quiet tint, so a column of statuses reads as data, not confetti.
+ * - Status is a quiet tinted pill with the word only (no leading dot), so a column of statuses reads as data, not confetti.
  * - Motion is short and functional: 120–160ms color on hover, a 0.98 press, 200ms enter for layers, none for data. */
 
 :root {
@@ -112,9 +112,8 @@ th.money { text-align: right; }
 tbody tr { cursor: pointer; }
 tbody tr:hover td { background: var(--hover); }
 
-/* Status: dot + words, quiet tint */
-.status { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--neutral); }
-.status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+/* Status: a quiet tinted pill with the word only, no leading dot */
+.status { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 999px; font-size: 14px; font-weight: 500; background: var(--neutral-bg); color: var(--neutral); }
 .status[data-tone="ok"] { background: var(--ok-bg); color: var(--ok); }
 .status[data-tone="warn"] { background: var(--warn-bg); color: var(--warn); }
 .status[data-tone="bad"] { background: var(--bad-bg); color: var(--bad); }

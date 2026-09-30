@@ -13,7 +13,7 @@ Frequent users come to find a record, compare it, spot the exception and act. St
 - **Neutrals are roles, not a count.** Canvas, working surface, selected surface, rule, secondary ink, primary ink. Linear generates its themes from base, accent and contrast variables in LCH so every step keeps its relationship. Design the relationships; the exact greys follow.
 - **Temperature is a brand decision.** Linear and Vercel stay cool and technical; Ramp warms its near-white so its yellow-green action has a unique role. Pick the temperature from the direction, then keep it consistent in every grey.
 - **One action hue, because it must be findable.** Stripe's purple marks links and selection; Ramp's accent lives almost only on "New vendor". If the accent also colors headings, icons and cards, the primary action stops being the obvious thing to press.
-- **Status color describes state, it is not decoration.** Stripe uses green for live progress and red for errors, always with words. A column of saturated status pills turns a ledger into a heat map; use a dot with words on a pale tint, and keep strong color for urgent exceptions.
+- **Status color describes state, it is not decoration.** Stripe uses green for live progress and red for errors, always with words. A column of saturated status pills, or of colored dots, turns a ledger into a heat map; ordinary states are plain words in text-2, and only the urgent exception gets its color.
 - **Color can belong to a field.** Attio's pale category chips in several hues are right because each hue encodes a real category in one column. The rule is "color only where it carries meaning", not "no color".
 
 ## Radius and elevation: why small, why flat
@@ -59,7 +59,7 @@ Eyebrows and numbered labels, colored KPI hero cards, decorative rings, stripes 
 | Filters | Search 36 high, 240–320 wide; tabs or segmented control 32–36 high; rare filters in a 12px-radius popover | Search full width; tabs fit or scroll with the next label peeking; other filters in a sheet |
 | Table | Header 36–40, 12/16 500 Title Case; cell inset 12–16; 1px rules; no row cards or shadow | One full-width list with 1px rules |
 | Row | 48 one line, 56 with helper; anchor 14/20 500; values 400 | 72–84; name and amount on line one, ID or date and status on line two |
-| Status | Dot 6px + words, 12/16 500, pale tint, radius 4–6 | Same; never a dot alone |
+| Status | Quiet tinted pill with the word only, 14/20 500, no leading dot; strong color only for the exception that needs action | Same |
 | Money | Sans, tabular, right-aligned, 14/20 500 | Top-line amount 15/20 600 |
 | Empty | Inside the work area: title 16/22 600, reason 13/19, one action; distinct for no data, no matches, error | Same with 16 inset |
 

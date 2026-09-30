@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.4.1
+
+- Colored dots in front of text ("● Active") are slop: `SKILL.md` bans them, both kits drop them, and `review_board.mjs` blocks any small round dot before text unless marked `data-seenry-dot="live|presence|unread"`, where a dot is the whole message. Status in data views stays a quiet tinted pill with the word only; outside data views, pills and chips need a real reason.
+- Adds `motion_judge.mjs`: it plays every control, films each transition and a rapid double click, measures running animations (properties, durations, easing), layout shift, long frames and a reduced-motion run, blocks hard violations (animated layout properties, UI motion over 600ms, layout shift, motion under reduced motion) and asks a fresh model to score purpose, timing, spatial logic, smoothness, consistency and reduced motion. `check.mjs` runs it every round and passes only at critic 9+ and motion 8+.
+- `check.mjs` fingerprints the page each round and runs a verification round if the page changed after the last checked round, so results always describe a checked version.
+- `motion.js` number rolls shorten from 520ms to 240ms, which the motion judge flagged as slow beside 140ms selection feedback.
+
 ## 4.4.0
 
 - Real photography from any host: `scripts/image.mjs` generates photographs through the Codex CLI's image model (single or batched, three at a time), so Claude Code and other hosts without an image tool still get art-directed photos. `SKILL.md` and `seenry-assets` put it right after supplied photos and the host's own image tool; the no-photo fallback now applies only when every image route fails. Prompts name the subject's real state (roasted beans, worn products, plated food).

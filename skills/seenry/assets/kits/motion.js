@@ -16,7 +16,7 @@
 .sm-num{display:inline-flex;font-variant-numeric:tabular-nums;white-space:nowrap}
 .sm-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .sm-digit{display:inline-block;height:1.15em;line-height:1.15em;overflow:hidden;vertical-align:bottom}
-.sm-reel{display:flex;flex-direction:column;transition:transform 520ms ${ease}}
+.sm-reel{display:flex;flex-direction:column;transition:transform 240ms ${ease}}
 .sm-reel span{height:1.15em}
 .sm-toast{position:fixed;left:50%;bottom:24px;translate:-50% 0;z-index:1000;padding:10px 16px;border-radius:10px;background:#1c1c1a;color:#fff;font-family:inherit;font-size:14px;font-weight:500;line-height:20px;box-shadow:0 8px 24px rgb(0 0 0/.16);transition:opacity 200ms ease,transform 200ms ${ease}}
 .sm-toast[data-state=hidden]{opacity:0;transform:translateY(8px)}
