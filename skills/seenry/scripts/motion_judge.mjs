@@ -98,7 +98,8 @@ async function run(reduced) {
     } else await page.waitForTimeout(700);
     let rapid = [];
     if (!reduced) {
-      await loc.click({timeout: 1500}).catch(() => {}); await page.waitForTimeout(90); await loc.click({timeout: 1500}).catch(() => {});
+      await loc.click({timeout: 1500}).catch(() => {}); await page.waitForTimeout(50); rapid.push({t: 'rapid 2nd click +50ms', buf: await page.screenshot({clip})});
+      await page.waitForTimeout(40); await loc.click({timeout: 1500}).catch(() => {});
       await page.waitForTimeout(150); rapid.push({t: 'rapid +150ms', buf: await page.screenshot({clip})});
       await page.waitForTimeout(450); rapid.push({t: 'rapid +600ms', buf: await page.screenshot({clip})});
     }
@@ -155,7 +156,7 @@ if (found && normal.length) {
   const schema = {type: 'object', additionalProperties: false, required: ['scores', 'verdict', 'fixes'], properties: {
     scores: {type: 'object', additionalProperties: false, required: KEYS, properties: Object.fromEntries(KEYS.map(k => [k, {type: 'integer', minimum: 1, maximum: 10}]))},
     verdict: {type: 'string'}, fixes: {type: 'array', minItems: 1, maxItems: 8, items: {type: 'object', additionalProperties: false, required: ['interaction', 'problem', 'fix'], properties: {interaction: {type: 'string'}, problem: {type: 'string'}, fix: {type: 'string'}}}}}};
-  const prompt = `You are a motion and interaction design lead at the level of Apple, Linear and Vercel. The attached image is a filmstrip board: each row is one interaction on a web page, showing the region before the click and at the measured times after it, then two frames after a rapid double click (interruption test). Measured data from the browser follows.
+  const prompt = `You are a motion and interaction design lead at the level of Apple, Linear and Vercel. The attached image is a filmstrip board: each row is one interaction on a web page, showing the region before the click and at the measured times after it, then three frames of the interruption test: 50ms after a second click, then 150ms and 600ms after a third click 90ms later. A toggle (menu, accordion, attach, play) correctly ends the test in the same state as after the first click, because it closed and reopened; that is a pass. Judge only whether each change reversed smoothly from its current position, without jumps, restarts or a stuck state. Measured data from the browser follows.
 
 ${brief ? 'The brief:\n' + brief + '\n' : ''}Measured per interaction (animations running 40ms after the click: properties, duration, delay, easing):
 ${JSON.stringify(report.interactions.map(i => ({interaction: i.label, anims: i.anims.map(a => ({props: a.props, ms: Math.round(a.duration), delay: a.delay, easing: a.easing, target: a.target})), layoutShift: i.shift})), null, 0).slice(0, 6000)}

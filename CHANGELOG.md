@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.5.2
+
+- A steadier critic: `critic.mjs` scores the page in three independent runs and reports the median (fixes come from the median run), because one run moved about a point and changed its advice between rounds. It also sees the first screen at full 1440 size and judges text size there, not from the half-scale board.
+- The motion judge's interruption test now films the reversal mid-flight and tells the judge that a toggle correctly ends in its first-click state, so a correct close-and-reopen is no longer scored as a failure.
+- People photography at most once per page; other visual slots show the product working at real scale, the object or place, or type.
+- `image.mjs` generates variants one at a time and warns on identical files.
+
 ## 4.5.1
 
 - A calibrated critic bar: `research.mjs` now saves `research/bar/`, home-page first screens of design leaders (Stripe, Linear, Airbnb, Raycast and others), and `check.mjs` and `pick.mjs` score against it instead of the builder's own picks, which were often section crops or mid-animation frames. On this bar Stripe's own home page scores 7-8 and a no-skill page 3; the pass target stays 9.
