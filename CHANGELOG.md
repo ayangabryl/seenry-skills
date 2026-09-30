@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.5.4
+
+- Composition guidance rewritten around scale ("fewer, larger, fuller"): every brand-page section gets an anchor at 40-60% of the content width or full width (the product working at real scale, one strong photograph, a large figure, a readable diagram), section headings 40-56px with a 20-22px lead, hero display 64-96px, five to seven full sections, and "replace, never just remove". Builds had been getting sparser round by round because every rule and the critic's own advice only removed material.
+- The critic no longer prefers removing over adding: when it removes material it names what stronger material replaces it, and it flags sections that are small or sparse for a 1440 canvas.
+
 ## 4.5.3
 
 - The critic sees the whole page: `review_board.mjs` cuts long desktop and phone pages into side-by-side columns instead of clipping them at about 5200px, which had made critics report missing footers and sections.
