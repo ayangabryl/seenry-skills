@@ -17,7 +17,13 @@ import {createRequire} from 'node:module';
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const KEY = process.env.SEENRY_PRO_KEY;
-if (!KEY) { console.error('SEENRY_PRO_KEY is not set. Research through the connected Seenry MCP tools by hand, following references/research.md.'); process.exit(2); }
+if (!KEY) {
+  // Without Seenry MCP: capture the leaders' live first screens as the bar, then research by hand (references/research.md).
+  console.log('SEENRY_PRO_KEY is not set: building the bar from live sites with bar.mjs. If the Seenry MCP tools are connected, also research with them by hand (references/research.md).');
+  const {spawnSync} = await import('node:child_process');
+  const r = spawnSync(process.execPath, [new URL('./bar.mjs', import.meta.url).pathname, ...process.argv.slice(2)], {stdio: 'inherit'});
+  process.exit(r.status ?? 1);
+}
 const type = flag('type', 'landing'), terms = (flag('terms', '') || '').split(',').map(t => t.trim()).filter(Boolean);
 const sites = (flag('sites', '') || '').split(',').map(t => t.trim()).filter(Boolean);
 const out = resolve(flag('out', '.seenry/research')), imgDir = join(out, 'img');

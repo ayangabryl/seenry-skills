@@ -19,6 +19,7 @@ Mobile quality is mostly platform fidelity plus the same discipline as the web s
 4. **Build the connected states** with real data: loading, empty, error, permission denied, offline, success, and the keyboard-open layout.
 5. **Deliver the Seenry sheet** at the end, as in `seenry` ([the sheet](../seenry/references/sheet.md)): simulator screenshots per state, the apps studied and discovered, decisions, anatomy of the signature screen and guidelines. Use `sheet.py`; capture anatomy from simulator screenshots annotated by hand in the spec when `anatomy.mjs` (web only) does not apply.
 6. **Verify on a simulator or device**: screenshot every state, exercise gestures, back and swipe-to-dismiss, Dynamic Type at the largest accessibility size, dark mode and VoiceOver/TalkBack labels.
+7. **Check until it passes**, with the same gate as the web: save the key screens in flow order, record the interactions (`xcrun simctl io booted recordVideo rec.mov`; Android `adb shell screenrecord /sdcard/rec.mp4`), then run `node ../seenry/scripts/check.mjs --screens home.png,detail.png,sheet.png --video rec.mov --brief <brief>` and apply its fixes until PASS or STOP. Without Seenry MCP, first run `node ../seenry/scripts/research.mjs --type app` so the critic has a bar. Write `.seenry/idea.md`, `.seenry/motion.md` and `DESIGN.md` as in `seenry`; the gate checks for them.
 
 ## Platform system
 
@@ -56,7 +57,21 @@ The same keyline, ink-level and optical rules apply natively ([alignment](../see
 
 ## Motion
 
-Navigation motion comes from the platform (push, sheet, zoom). Custom motion: springs (`response 0.35–0.5, dampingFraction 0.8–0.9`), interruptible, 150–300ms feel, with haptic feedback on commit (selection, success, warning). Respect Reduce Motion. For web-based apps, use `seenry-motion`.
+Navigation motion comes from the platform (push, sheet, zoom). Custom motion: springs (`response 0.35–0.5, dampingFraction 0.8–0.9`), interruptible, 150–300ms feel, with haptic feedback on commit (selection, success, warning). Respect Reduce Motion. For web-based apps, use `seenry-motion` and the Seenry Transitions kit.
+
+The same transitions the web kit provides, natively (apply them without being asked, by situation):
+
+| Situation | SwiftUI | Jetpack Compose | React Native |
+| --- | --- | --- | --- |
+| Trigger becomes the surface (menu, card to detail) | `matchedGeometryEffect` or `.navigationTransition(.zoom(sourceID:in:))`; close lands where the trigger was | `SharedTransitionLayout` + `sharedBounds` | Reanimated shared element transitions |
+| Sheet, dialog | `.sheet` with `.presentationDetents`; custom: `.spring(response: 0.4, dampingFraction: 0.86)` | `ModalBottomSheet`; `spring(dampingRatio = 0.86f, stiffness = 400f)` | `@gorhom/bottom-sheet`, spring damping 20-24 |
+| Changing numbers | `.contentTransition(.numericText(value:))` inside `withAnimation` | `AnimatedContent` per digit, slide by direction | Reanimated per-digit `FadeIn/SlideIn` by direction |
+| Tabs, segmented control | shared indicator via `matchedGeometryEffect` | animated indicator offset with `animateDpAsState` | Reanimated `withSpring` indicator translateX |
+| List insert, remove, reorder | `.transition(.move(edge:).combined(with: .opacity))` on stable IDs | `Modifier.animateItem()` | `LinearTransition` / `FadeIn` layout animations |
+| Button loading, success, error | `.symbolEffect` and `.contentTransition(.symbolEffect(.replace))`; `.sensoryFeedback` | `AnimatedContent` for the label; `HapticFeedback` | icon swap with scale 0.9→1 and opacity; `expo-haptics` |
+| Toast, banner | from the top safe edge, spring in, 120ms ease-out out | `AnimatedVisibility(slideInVertically + fadeIn)` | Reanimated `SlideInUp` / `FadeOut` |
+
+Exits are faster than entrances, only transform and opacity move in lists, and every custom animation has a Reduce Motion path (`@Environment(\.accessibilityReduceMotion)`, `Settings.Global.ANIMATOR_DURATION_SCALE`, `AccessibilityInfo.isReduceMotionEnabled`).
 
 ## Anti-slop for apps
 

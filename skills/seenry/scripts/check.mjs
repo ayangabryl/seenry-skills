@@ -2,6 +2,8 @@
 /** The finishing gate. One command per round:
  *
  *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png] [--dir .seenry] [--target 9] [--playwright path]
+ *  node check.mjs --screens home.png,detail.png,sheet.png --video rec.mov --brief BRIEF.md   (native apps: SwiftUI,
+ *    UIKit, React Native, Flutter; simulator screenshots in flow order and a screen recording of the interactions)
  *
  *  1. Renders the page with review_board.mjs. Any slop or craft blocker fails the round before a critic is asked.
  *  2. With zero blockers, runs critic.mjs: a fresh model scores the page against the reference screens.
@@ -16,8 +18,9 @@ import {createHash} from 'node:crypto';
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
-const target = args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));
-if (!target) { console.error('Usage: node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png]'); process.exit(2); }
+const native = flag('screens'), video = flag('video');
+const target = native ? null : args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));
+if (!target && !native) { console.error('Usage: node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png]'); process.exit(2); }
 const dir = resolve(flag('dir', '.seenry')), review = join(dir, 'review');
 const goal = Number(flag('target', '9'));
 mkdirSync(review, {recursive: true});
@@ -29,7 +32,9 @@ if (!refs) refs = pickFrom(join(dir, 'research', 'bar')) || pickFrom(join(dir, '
 const history = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
 const round = history.length + 1;
 // Fingerprint the page so a result cannot be reported for a version that was never checked.
-const fingerprint = !/^https?:/.test(target) && existsSync(target) ? createHash('sha1').update(readFileSync(target)).digest('hex').slice(0, 12) : null;
+const fingerprint = native
+  ? (h => { for (const f of [...native.split(','), video].filter(Boolean)) if (existsSync(f)) h.update(readFileSync(f)); return h.digest('hex').slice(0, 12); })(createHash('sha1'))
+  : !/^https?:/.test(target) && existsSync(target) ? createHash('sha1').update(readFileSync(target)).digest('hex').slice(0, 12) : null;
 const checkedVersions = new Set(history.map(h => h.hash).filter(Boolean));
 // Only critic rounds count toward the budget: board fixes are cheap and must never eat the rounds of design feedback.
 const criticRounds = history.filter(h => h.critic).length;
@@ -48,10 +53,13 @@ if (stoppedAt && fingerprint && !checkedVersions.has(fingerprint)) {
 
 const pw = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
 const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
-const board = spawnSync('node', boardArgs, {encoding: 'utf8'});
+// Native apps have no DOM to inspect: their screenshots are laid out as the board and the critic and motion judge do the review.
+const board = native
+  ? spawnSync('node', [join(here, 'screens.mjs'), '--screens', native, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
+  : spawnSync('node', boardArgs, {encoding: 'utf8'});
 process.stdout.write(board.stdout);
 if (board.status === 2) { process.stderr.write(board.stderr); process.exit(2); }
-let blockers = JSON.parse(readFileSync(join(review, 'board.json'), 'utf8')).blockers;
+let blockers = native ? 0 : JSON.parse(readFileSync(join(review, 'board.json'), 'utf8')).blockers;
 // The studio steps must have happened: research, references, a motion spec and the design record.
 const project = !/^https?:/.test(target) && existsSync(target) ? dirname(resolve(target)) : process.cwd();
 const refCount = existsSync(join(dir, 'refs')) ? readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).length : 0;
@@ -61,9 +69,10 @@ const missing = [
   refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
   (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
   (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
-  !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three first-screen compositions in ${join(dir, 'explore')}/ and run node ${join(here, 'pick.mjs')} on them`,
+  !native && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three first-screen compositions in ${join(dir, 'explore')}/ and run node ${join(here, 'pick.mjs')} on them`,
   (!existsSync(join(dir, 'idea.md')) || readFileSync(join(dir, 'idea.md'), 'utf8').length < 600) && `idea: write ${join(dir, 'idea.md')} following references/design-thinking.md (claim, proof, moment, material, five candidate ideas with scores, the chosen idea and where it shows)`,
-  !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see SKILL.md) and mark its root element with data-seenry-signature="<name>"',
+  native && !video && 'motion recording: record the interactions (xcrun simctl io booted recordVideo rec.mov, or adb shell screenrecord) and pass --video rec.mov',
+  !native && !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see SKILL.md) and mark its root element with data-seenry-signature="<name>"',
 ].filter(Boolean);
 if (missing.length) {
   blockers += missing.length;
@@ -107,7 +116,9 @@ process.stdout.write(critic.stdout);
 if (critic.status !== 0) { process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
-const mj = spawnSync('node', [join(here, 'motion_judge.mjs'), target, '--out', join(review, `motion-${round}`), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
+const mj = native
+  ? spawnSync('node', [join(here, 'motion_video.mjs'), '--video', video, '--out', join(review, `motion-${round}`), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
+  : spawnSync('node', [join(here, 'motion_judge.mjs'), target, '--out', join(review, `motion-${round}`), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
 process.stdout.write('\n' + mj.stdout);
 const motion = existsSync(join(review, `motion-${round}`, 'motion.json')) ? JSON.parse(readFileSync(join(review, `motion-${round}`, 'motion.json'), 'utf8')) : null;
 const motionScore = motion?.verdict?.scores?.overall ?? null, motionBlocks = motion?.violations?.length || 0;

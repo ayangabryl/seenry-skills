@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.0
+
+- Works without Seenry MCP: when `SEENRY_PRO_KEY` is unset, `research.mjs` runs the new `bar.mjs`, which captures category leaders' live first screens (waiting for hero media to load, skipping bot checks and errors, phone screens for apps) as the critic's bar, and starts a pack to complete by hand. Every later step and score works the same.
+- Native apps get the full gate: `check.mjs --screens a.png,b.png --video rec.mov` lays out simulator screenshots with the new `screens.mjs` for the critic, and the new `motion_video.mjs` judges a screen recording from its changing frames and their timing. `seenry-apps` adds the check step and a native transitions table (SwiftUI, Jetpack Compose, React Native) matching the web kit's situations.
+
 ## 4.5.6
 
 - Rhythm: every major section is composed differently (full-bleed scene, one oversized artifact, split, large statement or figure, comparison as one image, quiet close), each used at most twice, planned in `.seenry/idea.md`, with scale changing between neighbours. The Tally check stalled at 7 because every section repeated heading, paragraph and bordered module.
