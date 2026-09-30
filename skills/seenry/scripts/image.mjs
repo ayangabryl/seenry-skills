@@ -46,10 +46,14 @@ function generate({prompt, out}) {
   });
 }
 
+// One at a time: parallel Codex runs share ~/.codex/generated_images and can each copy the same newest file, which
+// silently turned three variants into three copies of one image.
 let ok = 0;
-for (let i = 0; i < jobs.length; i += 3) {
-  const results = await Promise.all(jobs.slice(i, i + 3).map(generate));
-  ok += results.filter(Boolean).length;
+for (const job of jobs) ok += (await generate(job)) ? 1 : 0;
+if (variants > 1) {
+  const {createHash} = await import('node:crypto');
+  const sums = jobs.map(j => resolve(j.out)).filter(existsSync).map(f => createHash('sha1').update(readFileSync(f)).digest('hex'));
+  if (new Set(sums).size < sums.length) console.error('Warning: some variants are identical files; regenerate them before trusting the photo check.');
 }
 const here = dirname(new URL(import.meta.url).pathname);
 if (variants > 1) {
