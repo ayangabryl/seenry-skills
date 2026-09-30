@@ -1,6 +1,6 @@
 # Design thinking: find this brand's idea before choosing any pattern
 
-Great pages are not assembled from good components. They start from one idea that could only belong to this product, and every section expresses it. America.gov is a useful example of the *thinking*, not a pattern to copy: its promise "29,000 websites into one" is shown as thousands of real sites becoming one; "answers only from official sources" puts the agencies' seals inside the sentence; "private" becomes a fingerprint; "just ask" puts a question field first. Each visual came from the product's own truth. Copying their seals, statement or search hero onto another brand is the opposite of what they did.
+Great pages are not assembled from good components. They start from one idea that could only belong to this product, and every section expresses it. Studios reach it by asking what is true about this product and showing that truth, not by choosing a layout: Stripe's hero ribbon is money in motion, Linear's first screen is the product itself at work, Aesop sells with the object and the light, not adjectives. Each visual came from its own product's truth; copying any of them onto another brand is the opposite of what they did. The same goes for any reference in these files, including America.gov: learn the move, never its visuals.
 
 ## 1. Find the truth
 
@@ -18,9 +18,9 @@ Produce at least five candidate ideas using different moves, each as one sentenc
 
 | Move | Question it asks | Example of the move (not a template) |
 | --- | --- | --- |
-| Make the claim literal | What would the promise look like if it happened on screen? | Many sites visibly becoming one; many listeners' timelines snapping to one playhead |
+| Make the claim literal | What would the promise look like if it happened on screen? | A roast date that is this Monday; the invoice total that is already reconciled; readable, never a cloud of tiny tokens |
 | Let them do it now | Can the first screen be the product working, not a picture of it? | The question field is the hero; the size picker already sets the price |
-| Proof inside the language | Can the evidence sit inside the sentence that makes the claim? | Seals in the line "only official sources"; the actual roast date inside "roasted Monday" |
+| Proof inside the language | Can the evidence sit inside the sentence that makes the claim? | The actual roast date inside "roasted Monday"; the real response time inside "we answer fast" |
 | Before and after | Is the value a change the person can see? | A messy inbox of invoices settling into one total |
 | Borrow a physical truth | What real object or ritual already means this? | A receipt, a ticket stub, a vinyl run-out groove, a cupping card, only if it explains |
 | The detail that proves care | What small thing would only a team that cares add? | The close button landing under the pointer; the price that counts up only the digits that change |

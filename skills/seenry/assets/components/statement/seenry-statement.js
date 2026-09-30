@@ -10,23 +10,34 @@
   function schedule() {
     if (!frame) frame = requestAnimationFrame(tick);
   }
-  // Fallback work is coalesced, with one geometry read per visible statement.
+  // Scroll values are assigned directly, without idle per-word animations.
+  // Read visible geometry first, then write only values that changed.
   function tick() {
     frame = 0;
+    const updates = [];
     for (const [el, s] of instances) {
-      if (!s.visible || s.css || reduce.matches) continue;
+      if (!s.visible && !reduce.matches) continue;
       const r = el.getBoundingClientRect();
-      el.style.setProperty(
-        "--statement-progress",
-        Math.max(
-          0,
-          Math.min(
-            1,
-            (innerHeight - r.top) /
-              Math.min(r.height + innerHeight * 0.18, innerHeight * 0.7),
-          ),
-        ),
-      );
+      const progress = (innerHeight - r.top) / (s.css
+        ? Math.min(r.height, innerHeight)
+        : Math.min(r.height + innerHeight * 0.18, innerHeight * 0.7));
+      updates.push({ s, progress, faint: parseFloat(getComputedStyle(el).getPropertyValue("--statement-faint")) });
+    }
+    for (const { s, progress, faint } of updates) {
+      s.parts.forEach((part, i) => {
+        if (part.dataset.object === "action") return;
+        const count = s.parts.length;
+        const amount = reduce.matches ? 1 : Math.max(0, Math.min(1, s.css
+          ? (progress - i / count * .8) / (.8 / count + .2)
+          : progress * count - i));
+        const object = part.hasAttribute("data-object");
+        const opacity = String((object ? .6 : faint) + (1 - (object ? .6 : faint)) * amount);
+        if (part.style.opacity !== opacity) part.style.opacity = opacity;
+        if (object) {
+          const transform = amount === 1 ? "none" : `scale(${.8 + .2 * amount})`;
+          if (part.style.transform !== transform) part.style.transform = transform;
+        }
+      });
     }
   }
   const io =
@@ -167,6 +178,7 @@
     walk(el);
     const parts = [...el.querySelectorAll(".ss-word,[data-object]")],
       count = parts.length || 1;
+    s.parts = parts;
     el.style.setProperty("--ss-count", count);
     parts.forEach((part, i) => {
       part.style.setProperty("--ss-index", i);
@@ -267,7 +279,11 @@
           w.replaceWith(document.createTextNode(w.textContent)),
         );
         el.querySelectorAll("[data-object]").forEach((o) =>
-          o.removeAttribute("aria-hidden"),
+          {
+            o.removeAttribute("aria-hidden");
+            o.style.removeProperty("opacity");
+            o.style.removeProperty("transform");
+          },
         );
         s.sentence.remove();
         s.status.remove();
@@ -308,6 +324,13 @@
           }),
       });
     });
+    document.querySelectorAll("[data-retry]").forEach(button => {
+      button.addEventListener("click", () => {
+        const action = button.closest('[data-object="action"]').querySelector('.ss-action');
+        action.focus({ preventScroll: true });
+        action.click();
+      });
+    });
     const sampleObserver = new IntersectionObserver((entries) => {
       for (const entry of entries)
         entry.target.toggleAttribute("data-ss-paused", !entry.isIntersecting);
@@ -334,7 +357,7 @@
     });
     document.querySelectorAll("[data-replay-states]").forEach((b) => {
       b.addEventListener("click", () => {
-        b.closest(".state-panel").querySelectorAll("[data-state-sample]").forEach(playSample);
+        playSample(b.closest(".state-panel").querySelector('[data-state-sample="idle"]'));
       });
     });
   }

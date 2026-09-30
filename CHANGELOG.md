@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.5.1
+
+- A calibrated critic bar: `research.mjs` now saves `research/bar/`, home-page first screens of design leaders (Stripe, Linear, Airbnb, Raycast and others), and `check.mjs` and `pick.mjs` score against it instead of the builder's own picks, which were often section crops or mid-animation frames. On this bar Stripe's own home page scores 7-8 and a no-skill page 3; the pass target stays 9.
+- Explore, then pick blind: a new flow step builds three first screens from three different ideas and `scripts/pick.mjs` has a fresh model rank them at desktop and phone against the bar; `check.mjs` requires it.
+- Only critic rounds count toward the round budget; board-only rounds are free, and re-running an unchanged page with open blockers is refused.
+- New rules from what the critic kept citing: one focal element on the first screen, proof text (sources, dates, names, diagram labels) at 15px or larger and never faint, no repeated examples or claims, "many" never drawn as a cloud of tiny chips, no production notes in the page body. `review_board.mjs` blocks chip clouds and body production notes. Design-thinking examples no longer carry one site's visuals.
+- Imagery: photograph the idea rather than a person using the product, best of three via `image.mjs --variants 3`, phone hero rules, proof shown at real scale; result reveals as one unit and locked submits in the motion rules.
+- Transitions, interaction and statement kits polished to motion judge 8/10 with zero violations.
+
 ## 4.5.0
 
 - Production motion, measured: `seenry-motion/references/production-motion.md` comes from a frame-by-frame study of 48 real product and website clips from the Seenry library across 15 transition families: per-family specs, a token system with several clocks (curves E, M, F, X; 0/80/120/160/180/240/280ms chosen by distance × size × frequency), choreography rules, an interruption contract and what separates senior from junior motion.

@@ -38,7 +38,7 @@ function inspect({phone}) {
   const ownText = el => [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
   const label = el => `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${(el.textContent || '').trim().slice(0, 40)}"`;
   const els = [...document.body.querySelectorAll('*')].filter(el => ownText(el) && vis(el));
-  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: []};
+  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: []};
   const weights = new Set(), headings = [...document.querySelectorAll('h1,h2,h3,[role=heading]')].filter(vis);
   const canvas = document.createElement('canvas').getContext('2d');
   const paint = document.createElement('canvas'); paint.width = paint.height = 1;
@@ -52,7 +52,7 @@ function inspect({phone}) {
     const letters = text.replace(/[^A-Za-z]/g, '');
     const upper = s.textTransform === 'uppercase' || (letters.length > 3 && letters === letters.toUpperCase());
     const tracked = parseFloat(s.letterSpacing) / size > 0.03;
-    if (size < 13 && text.length > 2 && !/^[\d:.,\s]+$/.test(text)) f.small.push(`${size}px ${label(el)}`);
+    if ((size < 13 || (phone && size < 14 && text.length > 24)) && text.length > 2 && !/^[\d:.,\s]+$/.test(text)) f.small.push(`${size}px ${label(el)}`);
     else if (!phone && text.length > 2 && !/^[\d:.,\s]+$/.test(text) && ((size < 15 && !(size >= 14 && text.length <= 24)) || (el.tagName === 'P' && text.length > 60 && size < 16))) f.desktopSmall.push(`${size}px ${label(el)}`);
     if (text.length > 2 && size < 24) {
       const rgb = c => (c === 'transparent' || /rgba?\([^)]*,\s*0\)$/.test(c)) ? [0, 0, 0, 0] : toRGBA(c);
@@ -140,6 +140,19 @@ function inspect({phone}) {
       if (dotLike(getComputedStyle(c), r.width, r.height)) f.dotText.push(label(el));
     }
   }
+  // "Many" drawn as a cloud of tiny chips or domains, and production notes left on the page.
+  for (const el of document.body.querySelectorAll('*')) {
+    if (!vis(el) || el.closest('nav,footer,table,form,select,[role=listbox],[role=menu],[role=tablist]')) continue;
+    const kids = [...el.children].filter(k => vis(k) && (k.textContent || '').trim().length > 0 && (k.textContent || '').trim().length < 32);
+    const chips = kids.filter(k => { const r = k.getBoundingClientRect(), st = getComputedStyle(k);
+      return r.height <= 40 && r.width <= 260 && (parseFloat(st.borderTopWidth) > 0 || toRGBA(st.backgroundColor)[3] > 0.05); });
+    if (chips.length >= 12) f.tokenCloud.push(`${chips.length} small chips in ${label(el)}`);
+  }
+  for (const el of document.body.querySelectorAll('p,span,small,figcaption,li,div')) {
+    if (!vis(el) || el.children.length > 2 || el.closest('footer')) continue;
+    const t = (el.textContent || '').trim();
+    if (t.length < 200 && /\b(illustrative|placeholder|demo data|sample data|for demonstration|invented|fictional|not real|lorem ipsum)\b/i.test(t)) f.processNote.push(`"${t.slice(0, 60)}"`);
+  }
   const controls = [...document.querySelectorAll('button,input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,a[class*=btn],a[class*=button],[role=button]')].filter(vis);
   const radii = [];
   for (const el of controls) {
@@ -201,7 +214,7 @@ const cells = [['This page', join(out, 'first-1440.png')], ...refs.map(r => [r.s
 await shot(`<div style="display:flex;flex-wrap:wrap;gap:16px;padding:16px">${cells.map(([n, p]) => `<figure style="margin:0"><figcaption style="padding:0 0 6px">${n}</figcaption>${clip(uri(p), 720, 450)}</figure>`).join('')}</div>`, 'first.png', 16 + cells.length * 736 > 1488 ? 1488 : 16 + cells.length * 736);
 await browser.close();
 
-const names = {dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px (unreadable at review scale)', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content'};
+const names = {dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)'};
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);

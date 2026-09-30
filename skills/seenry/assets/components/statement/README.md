@@ -61,7 +61,7 @@ Use cover artwork as emotional punctuation, never as a replacement for the title
 </p>
 ```
 
-The waveform is a decorative request motif, not an audio meter. It moves only while the visible music action is pending; it pauses offscreen, in hidden tabs, and with reduced motion. The gallery's music action simulates a 900ms successful request; it does not play audio.
+The waveform is a decorative request motif, not an audio meter. Its bars stay still and brighten over 120ms while the music action is pending; reduced motion makes this cue immediate. The anchored spinner alone rotates. The gallery's music action simulates a 900ms successful request; it does not play audio.
 
 ### Finance: portrait and lock
 
@@ -201,11 +201,13 @@ Original component code and SVG artwork: MIT. Generated example image provenance
 
 ## Production motion pass
 
-Motion follows the supplied measured study: E/M/F/X curves; 0/80/120/160/180/240/280ms duration tokens; 0/40/60/80ms delays. The action compresses to .96 in 80ms, releases in 120ms, nudges its arrow 3px on hover, sends the arrow out in 120ms, fades the spinner in after 80ms, and draws the success check in 160ms. Each transition uses the clock appropriate to its small distance and frequent feedback. Longer surface/spatial tokens are available without forcing them into the button. Loading duration follows your promise, not an animation timer.
+Motion follows the supplied measured study: E/M/F/X curves; 0/80/120/160/180/240/280ms duration tokens; 0/40/60/80ms delays. The action compresses to .96 in 80ms, releases in 120ms, nudges its arrow 3px on hover, sends the outgoing glyph out in 80ms on X, overlaps the incoming glyph from 40ms over 120ms on E, and draws the success check in 160ms. Each transition uses the clock appropriate to its small distance and frequent feedback. Longer surface/spatial tokens are available without forcing them into the button. Loading duration follows your promise, not an animation timer.
 
-The six gallery cards each have an h3 and a `data-replay` trigger. The civic demo now simulates success locally for individual judging; copied markup with `data-next` still uses default navigation when no hook is supplied. Light/dark state panels have a Replay states button. Pending repeats preserve the current request and spinner phase; reset cancels and allows immediate reactivation. CSS transitions reverse from their rendered values.
+Scroll ink and object scale are assigned directly on scroll, with writes only when values change. The native entry-range geometry and fallback geometry are preserved without creating 1ms animations on every word.
 
-Production results: **review board: 0 blockers; motion measurements: 0 violations across 6 demos; blind motion critic: 8/10 overall**. Subscores: purpose 8, timing 8, spatial 9, smoothness 8, consistency 9, reduced motion 9. No fixes requested. Browser verification passes at 1440, 390 and 320px, including keyboard, touch emulation, both scroll paths, 50/100/150ms interruption, stale promises, and destroy/remount. Reduced motion has zero running animations.
+The six gallery cards each have an h3 and a `data-replay` trigger. The civic demo now simulates success locally for individual judging; copied markup with `data-next` still uses default navigation when no hook is supplied. Light/dark state panels have a Replay action button that replays the default example; other state examples remain still. Pending repeats preserve the current request and spinner phase; reset cancels and allows immediate reactivation. CSS transitions reverse from their rendered values.
+
+Prior production results: **review board: 0 blockers; motion measurements: 0 violations across 6 demos; blind motion critic: 8/10 overall**. Subscores: purpose 8, timing 8, spatial 9, smoothness 8, consistency 9, reduced motion 9. No fixes requested. Browser verification passes at 1440, 390 and 320px, including keyboard, touch emulation, both scroll paths, 50/100/150ms interruption, stale promises, and destroy/remount. Reduced motion has zero running animations.
 
 Reproduce measurements with:
 
@@ -215,3 +217,9 @@ Set `SEENRY_PLAYWRIGHT` to your installed Playwright ESM entry. The capture-only
 ## Verify
 
 Run `node ../../../scripts/review_board.mjs gallery.html` and `node ../../../scripts/motion_judge.mjs gallery.html --selector "[data-replay]" --max 40` (Playwright required). Both should report no blockers; the motion judge should score 8 or higher.
+
+### Polish verification
+
+Outgoing glyphs leave over 80ms on X; incoming glyphs start at 40ms over 120ms on E, centered in the existing action. Scroll values update directly, with no animation objects on text spans. At 60ms, both outgoing and incoming glyphs remain visible across idle/loading, loading/success, loading/error and success/reset.
+
+Review board: **0 blockers**. Motion judge rounds: **9 → 8 → 8 → 8 → 8**, final **0 violations**, purpose 8, timing 8, spatial 9, smoothness 8, consistency 9, reduced motion 10. Applied review requests for a still waveform, one replayed sample per panel, and a readable, clickable retry label. The final critic inferred duplicate submissions from the finance demo's deliberate first failure; the pending guard and 50/100/150ms tests confirm only one request starts while loading. Errors still reflect actual promise rejection.

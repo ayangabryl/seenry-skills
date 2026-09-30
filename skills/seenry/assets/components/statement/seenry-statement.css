@@ -148,14 +148,7 @@ a {
   view-timeline-axis: block;
 }
 .ss-word {
-  opacity: calc(
-    var(--statement-faint) + (1 - var(--statement-faint)) *
-      clamp(
-        0,
-        (var(--statement-progress) * var(--ss-count) - var(--ss-index)),
-        1
-      )
-  );
+  opacity: 1;
 }
 [data-object] {
   display: inline-flex;
@@ -168,24 +161,8 @@ a {
   letter-spacing: 0;
   border-radius: 50%;
   background: var(--surface-2);
-  opacity: calc(
-    0.6 + 0.4 *
-      clamp(
-        0,
-        (var(--statement-progress) * var(--ss-count) - var(--ss-index)),
-        1
-      )
-  );
-  transform: scale(
-    calc(
-      0.8 + 0.2 *
-        clamp(
-          0,
-          (var(--statement-progress) * var(--ss-count) - var(--ss-index)),
-          1
-        )
-    )
-  );
+  opacity: 1;
+  transform: none;
   transform-origin: center;
 }
 [data-object] img {
@@ -259,6 +236,8 @@ a {
 }
 .ss-action > svg {
   position: absolute;
+  inset: 0;
+  margin: auto;
   width: 42%;
   height: 42%;
   fill: none;
@@ -267,8 +246,8 @@ a {
   stroke-linecap: round;
   stroke-linejoin: round;
   transition:
-    opacity var(--motion-feedback) var(--motion-F),
-    transform var(--motion-quick) var(--motion-E);
+    opacity var(--motion-feedback) var(--motion-X),
+    transform var(--motion-feedback) var(--motion-X);
 }
 .ss-action .ss-spinner,
 .ss-action .ss-check,
@@ -288,11 +267,17 @@ a {
   opacity: 0;
   transform: translateX(100%);
 }
+.ss-action[data-state="idle"] .ss-arrow,
+.ss-action[data-state="loading"] .ss-spinner,
 .ss-action[data-state="done"] .ss-check,
 .ss-action[data-state="error"] .ss-error {
   opacity: 1;
-  transition: opacity var(--motion-quick) var(--motion-F) var(--motion-delay-short);
+  transition:
+    opacity var(--motion-quick) var(--motion-E) var(--motion-delay-short),
+    transform var(--motion-quick) var(--motion-E);
 }
+.ss-action .ss-error { transform: scale(.92); }
+.ss-action[data-state="error"] .ss-error { transform: scale(1); }
 .ss-check path {
   stroke-dasharray: 30;
   stroke-dashoffset: 30;
@@ -334,61 +319,46 @@ a {
     transform: rotate(360deg);
   }
 }
-@keyframes ss-ink {
-  from {
-    opacity: var(--statement-faint);
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes ss-object {
-  from {
-    opacity: 0.6;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-@supports (animation-timeline: view()) {
-  [data-ss-timeline="css"] .ss-word,
-  [data-ss-timeline="css"] [data-object]:not([data-object="action"]) {
-    animation: ss-ink 1ms linear both;
-    animation-timeline: --statement;
-    animation-range: entry calc(var(--ss-start) * 1%) entry
-      calc(var(--ss-end) * 1%);
-  }
-  [data-ss-timeline="css"] [data-object]:not([data-object="action"]) {
-    animation-name: ss-object;
-  }
-}
 .ss-wave {
   background: var(--accent-subtle);
   color: var(--accent);
 }
 .ss-wave svg path {
-  transform-origin: center;
-  animation: ss-wave 1100ms var(--motion-M) infinite alternate;
-  animation-play-state: paused;
+  opacity: .65;
+  transition: opacity var(--motion-quick) var(--motion-E);
 }
-.ss-wave svg path:nth-child(2n) {
-  animation-delay: -400ms;
+[data-seenry-signature]:has(.ss-action[data-state="loading"]) .ss-wave svg path {
+  opacity: 1;
 }
-.ss-wave svg path:nth-child(3n) {
-  animation-delay: -700ms;
+/* Error help occupies the card's existing breathing room, not the text line. */
+.ss-retry {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 50%;
+  translate: -50% 0;
+  white-space: nowrap;
+  font: 400 16px/1.3 var(--font);
+  min-height: 44px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--bg);
+  cursor: pointer;
+  visibility: hidden;
+  color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-quick) var(--motion-E);
 }
-@keyframes ss-wave {
-  from {
-    transform: scaleY(0.5);
-  }
-  to {
-    transform: scaleY(1);
-  }
+[data-object="action"]:has(.ss-action[data-state="error"]) .ss-retry {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
-[data-ss-visible="false"] .ss-wave svg path {
-  animation-play-state: paused;
+@media (prefers-reduced-motion: reduce) {
+  .ss-wave svg path,
+  .ss-retry { transition: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ss-word,
@@ -472,7 +442,7 @@ a {
 }
 
 .ss-action[data-state="loading"] .ss-spinner {
-  transition-delay: var(--motion-delay-long);
+  transition-delay: var(--motion-delay-short);
   transition-duration: var(--motion-quick);
 }
 
@@ -485,13 +455,10 @@ a {
 .ss-action[data-state="loading"] .ss-arrow,
 .ss-action[data-state="done"] .ss-arrow,
 .ss-action[data-state="error"] .ss-arrow {
-  transition-timing-function: var(--motion-F), var(--motion-X);
+  transition-timing-function: var(--motion-X), var(--motion-X);
 }
 .ss-action:active:not(:disabled), .ss-action[data-preview="pressed"] {
   transition-duration: var(--motion-feedback);
-}
-[data-ss-visible="true"]:has(.ss-action[data-state="loading"]) .ss-wave svg path {
-  animation-play-state: running;
 }
 [data-ss-visible="false"] .ss-spinner,
 [data-ss-paused] .ss-spinner, [data-ss-paused] .ss-wave svg path {

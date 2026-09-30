@@ -5,7 +5,7 @@
  *
  *  1. Renders the page with review_board.mjs. Any slop or craft blocker fails the round before a critic is asked.
  *  2. With zero blockers, runs critic.mjs: a fresh model scores the page against the reference screens.
- *  3. Prints PASS when the critic's overall reaches --target (default 9), else FAIL with the fixes to apply.
+ *  3. Prints PASS when the critic's overall reaches --target (default 9: Stripe's own home page scores 7-8 on this critic, so 9 means beating the big-company bar), else FAIL with the fixes to apply.
  *  Rounds are numbered; every critic result is kept as <dir>/review/critic-N.json and summarized in check.json. */
 import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs';
 import {resolve, join, dirname} from 'node:path';
@@ -22,14 +22,19 @@ const dir = resolve(flag('dir', '.seenry')), review = join(dir, 'review');
 const goal = Number(flag('target', '9'));
 mkdirSync(review, {recursive: true});
 let refs = flag('refs');
-if (!refs && existsSync(join(dir, 'refs'))) refs = readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).slice(0, 3).map(f => join(dir, 'refs', f)).join(',');
+// The critic's bar is the leaders' home-page first screens from research.mjs, never the builder's own picks: section
+// crops and motion frames made a weak, noisy bar that scored America.gov itself 5/10.
+const pickFrom = d => existsSync(d) ? readdirSync(d).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).slice(0, 3).map(f => join(d, f)).join(',') : '';
+if (!refs) refs = pickFrom(join(dir, 'research', 'bar')) || pickFrom(join(dir, 'refs'));
 const history = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
 const round = history.length + 1;
 // Fingerprint the page so a result cannot be reported for a version that was never checked.
 const fingerprint = !/^https?:/.test(target) && existsSync(target) ? createHash('sha1').update(readFileSync(target)).digest('hex').slice(0, 12) : null;
 const checkedVersions = new Set(history.map(h => h.hash).filter(Boolean));
-if (round > 8 && !history.some(h => h.stop)) {
-  history[history.length - 1].stop = 'eight rounds';
+// Only critic rounds count toward the budget: board fixes are cheap and must never eat the rounds of design feedback.
+const criticRounds = history.filter(h => h.critic).length;
+if ((criticRounds >= 8 || round > 20) && !history.some(h => h.stop)) {
+  history[history.length - 1].stop = criticRounds >= 8 ? 'eight critic rounds' : 'twenty rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 }
 const stoppedAt = history.find(h => h.stop);
@@ -56,6 +61,7 @@ const missing = [
   refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
   (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
   (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
+  !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three first-screen compositions in ${join(dir, 'explore')}/ and run node ${join(here, 'pick.mjs')} on them`,
   (!existsSync(join(dir, 'idea.md')) || readFileSync(join(dir, 'idea.md'), 'utf8').length < 600) && `idea: write ${join(dir, 'idea.md')} following references/design-thinking.md (claim, proof, moment, material, five candidate ideas with scores, the chosen idea and where it shows)`,
   !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see SKILL.md) and mark its root element with data-seenry-signature="<name>"',
 ].filter(Boolean);
@@ -83,9 +89,14 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   }
 }
 if (blockers) {
+  const last = history[history.length - 1];
+  if (last && !last.critic && fingerprint && last.hash === fingerprint) {
+    console.log(`\nFAIL: ${blockers} blocker(s), and the page has not changed since round ${last.round}. Fix the blockers above before running check.mjs again; this run was not counted.`);
+    process.exit(1);
+  }
   history.push({round, blockers, critic: null, hash: fingerprint});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one above, then run check.mjs again. The critic runs once the board is clean.`);
+  console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one above, then run check.mjs again. The critic runs once the board is clean; board rounds do not use up critic rounds.`);
   process.exit(1);
 }
 
@@ -113,8 +124,8 @@ if (stalled && !history.some(h => h.rootChange)) {
   console.log(`LAST ROUND: the critic has not improved for two rounds (best ${best}). Make one root-level change to the weakest dimension (type scale and weights, palette, or imagery), then run check.mjs one final time.`);
   process.exit(1);
 }
-if (stalled || round >= 6) {
-  history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : 'six rounds';
+if (stalled || scored.length >= 6) {
+  history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : 'six critic rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   console.log(`STOP: ${history[history.length - 1].stop}. Ship the best-scoring round (critic ${best}) and report the trail. check.mjs will not run further rounds.`);
   process.exit(3);

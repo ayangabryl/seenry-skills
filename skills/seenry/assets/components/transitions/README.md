@@ -19,14 +19,14 @@ The runtime initializes on DOMContentLoaded and observes later additions. Call `
 | Number pop-in | control 160 / E; feedback 80 / X; delay 40 | Changed digits roll in value direction with 4px blur; repeated values must stay current. |
 | Notification badge | control 160 / E | A small local settle acknowledges a count. |
 | Text states swap | control 160 / E; feedback 80 / F; glyph offsets 20, capped 60 | A stable label slot reveals changed words. |
-| Menu dropdown | relocate 180 / M; quick 120 / F, X; delay 40 | The button surface expands into its actions. |
+| Menu dropdown | relocate 180 / M; quick 120 / M exit | The shell grows from its trigger; actions appear together without label filters. |
 | Modal open and close | surface 240 / E; quick 120 / X | Content travels attached to the centered dialog. |
 | Inline panel reveal | spatial 280 / M; surface 240 / M return; quick 120 / F | The trigger becomes a larger surface, then returns. |
 | Page side by side | spatial 280 / M | Related content enters in the navigation direction. |
 | Icon swap | feedback 80 / F; quick 120 / E; delay 40 | Crossfade incompatible icons within one fixed target. |
 | Success check | control 160 / E | Immediate success semantics precede the local stroke resolve. |
 | Avatar group | control 160 / E | A short local lift identifies the focused member. |
-| Error shake | surface 240 / E | One bounded shake accompanies a persistent error. |
+| Error shake | relocate 180 / E | Only the field frame shakes by 3px; the label, message and action stay still. |
 | Accordion | surface 240 / M; quick 120 / F | Measured disclosure bounds preserve readable text. |
 | Banner stacking | relocate 180 / M | Existing notices move together to readable slots. |
 | Checkbox | quick 120 / E | A frequent selection needs a short stroke. |
@@ -37,7 +37,7 @@ The runtime initializes on DOMContentLoaded and observes later additions. Call `
 | Text shimmer | spatial 280 / E | One bounded text-size highlight; no perpetual ornament. |
 | Skeleton reveal | quick 120 / F; relocate 180 / F | Placeholder and ready content crossfade in reserved geometry. |
 | Tabs sliding | relocate 180 / M; quick 120 / F; delay 40 | The shared indicator relocates; keyboard selection is instant. |
-| Toast | surface 240 / E; quick 120 / X | A notice enters 16px with attached text and exits promptly. |
+| Toast | relocate 180 / E; quick 120 / X | A notice enters 8px with attached text and exits promptly. |
 | Toggle | control 160 / E | A small thumb travels within a stable hit area. |
 | Tooltip | quick 120 / E; feedback 80 / X | A two-pixel arrival follows 400ms hover dwell; focus is immediate. |
 | Streaming text | feedback 80 / F | Available chunks batch per frame, without translation or artificial delay. |
@@ -46,7 +46,7 @@ The runtime initializes on DOMContentLoaded and observes later additions. Call `
 
 Curves: E `cubic-bezier(.16,1,.3,1)` resolves arrivals; M `cubic-bezier(.4,0,.2,1)` preserves visible movement; F `cubic-bezier(.2,0,.2,1)` fades; X `cubic-bezier(.4,0,1,1)` clears outgoing content. Durations are `--st-instant:0ms`, `--st-feedback:80ms`, `--st-quick:120ms`, `--st-control:160ms`, `--st-relocate:180ms`, `--st-surface:240ms`, `--st-spatial:280ms`. Delay tokens are 0/40/60/80ms. Choose by distance × size × frequency; keyboard navigation is instant.
 
-Numbers use the changed-digit, direction and 4px blur formula from seenry SKILL.md (Motion) at the study's frequent-readout clock (160ms in, 80ms out, 40ms overlap). They have no cascade at live-update frequency. Back navigation uses surface 240 / M. `data-st="sheet"` with a native dialog uses the panel's button-origin geometry without adding a gallery family.
+Numbers use the changed-digit, direction and 4px blur formula from seenry SKILL.md (Motion) at the study's frequent-readout clock (160ms in, 80ms out, 40ms overlap). They have no cascade at live-update frequency. Rapid updates within one second use a 4px fade/move with no blur or entrance delay; mark known steppers with `data-st-frequent` (or `{frequent: true}`) for this treatment from the first update. Back navigation uses surface 240 / M. `data-st="sheet"` with a native dialog uses the panel's button-origin geometry without adding a gallery family.
 
 ## API and styling contract
 
@@ -118,7 +118,7 @@ root.querySelector('button').onclick = () => {
 };
 ```
 
-**Options:** data-value initializes or updates the count. number(el, value, {locale, format}) uses Intl.NumberFormat options. Values must be finite. --st-reserve reserves the widest expected formatted value; default 7ch. Only changed places animate, no stagger for frequent updates. Set locale and direction appropriately for international data.
+**Options:** data-value initializes or updates the count. number(el, value, {locale, format, frequent}) uses Intl.NumberFormat options. Set `frequent: true` or `data-st-frequent` on stepper readouts to use a 4px fade/move without blur from the first press. Updates less than one second apart automatically use this treatment and cancel any in-flight digit blur. Values must be finite. --st-reserve reserves the widest expected formatted value; default 7ch. Only changed places animate, no stagger for frequent updates. Set locale and direction appropriately for international data.
 
 **Keyboard:** Display only. Trigger updates from a native control; choose live-region policy in the application.
 
@@ -434,7 +434,7 @@ root.querySelector('button').onclick = () => {
 };
 ```
 
-**Options:** shake(el) sets data-st-error and aria-invalid on its input, then settles. Render the actual validation message separately. Clear both durable states when validation succeeds. It does not decide whether the input is valid.
+**Options:** shake(el) sets data-st-error and aria-invalid on its input, then shakes only the input by 3px over 180ms. For a composite field, mark its frame with `data-st-field-frame`; labels, messages and actions stay outside that frame. Render the actual validation message separately. Clear both durable states when validation succeeds. It does not decide whether the input is valid.
 
 **Keyboard:** Validation is application-owned. Focus the invalid input when appropriate, associate the error via aria-describedby, and set its aria-invalid state.
 

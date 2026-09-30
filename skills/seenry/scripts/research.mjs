@@ -7,9 +7,9 @@
  *
  *  Needs SEENRY_PRO_KEY. Writes <out>/pack.md (every reference with source, rating, what it is, measured design and
  *  motion evidence), <out>/pack.json, downloaded posters in <out>/img/, and <out>/contact.png, a numbered contact
- *  sheet to look at. The library search is lexical and alphabetical, so the pack mixes four sources on purpose:
+ *  sheet to look at, plus <out>/bar/: home-page first screens of design leaders, the fixed bar check.mjs scores against. The library search is lexical and alphabetical, so the pack mixes four sources on purpose:
  *  human-rated picks, the brief's category terms, named leaders, and random samples across the whole library. */
-import {mkdirSync, writeFileSync, existsSync} from 'node:fs';
+import {mkdirSync, writeFileSync, existsSync, copyFileSync} from 'node:fs';
 import {resolve, join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
@@ -89,6 +89,17 @@ for (const s of sites.slice(0, 4)) {
   const r = await call('search_references', {site: s, limit: 2});
   (r.items || []).forEach(i => add('Named leaders', i));
 }
+// 3b. The bar: home-page first screens of companies whose design is the standard, whatever the category. The critic
+// scores against these, never against section crops or motion frames, which are inspiration, not a bar.
+const LEADERS = ['stripe.com', 'linear.app', 'apple.com', 'vercel.com', 'arc.net', 'attio.com', 'figma.com', 'raycast.com', 'framer.com', 'ramp.com', 'notion.com', 'airbnb.com'];
+const bar = [];
+for (const s of [...sites, ...LEADERS.filter(l => !sites.includes(l)).sort(() => Math.random() - 0.5)]) {
+  if (bar.length >= 4) break;
+  const home = ((await call('search_references', {site: s, limit: 3})).items || []).find(i => /\/captures\//.test(i.captures?.desktop?.thumbnailUrl || ''));
+  if (!home) continue;
+  bar.push(home.id);
+  add('Bar · first screens', {...home, posterUrl: home.captures.desktop.thumbnailUrl});
+}
 // 4. The page type and its sections, sampled across the whole library.
 for (const p of plan.pages) (await spread('search_references', {page_type: p}, 6)).forEach(i => add(`Pages · ${p}`, i));
 for (const e of plan.sections) (await spread('search_sections', {element: e}, 5)).forEach(i => add(`Sections · ${e}`, i));
@@ -131,6 +142,9 @@ for (const p of pack) {
   } catch {}
 }
 
+const barDir = join(out, 'bar');
+mkdirSync(barDir, {recursive: true});
+for (const p of pack.filter(x => x.group.startsWith('Bar') && x.image)) copyFileSync(join(out, p.image), join(barDir, `${(p.brand || p.n).toString().toLowerCase().replace(/[^a-z0-9]+/g, '-')}${p.image.slice(p.image.lastIndexOf('.'))}`));
 const groups = [...new Set(pack.map(p => p.group))];
 const md = [`# Research pack · ${type}${terms.length ? ' · ' + terms.join(', ') : ''}`, '',
   `${pack.length} references from Seenry MCP (${calls} calls). Look at contact.png, then open the images you shortlist at full size. The library is lexical and alphabetical; every group below mixes rated picks, category matches and random samples, so judge each image yourself. Media URLs expire; the images in img/ are private working copies, never shipped.`, ''];

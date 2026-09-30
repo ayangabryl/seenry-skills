@@ -23,6 +23,9 @@
   let s=states.get(el);
   if(!s||s.type!=='number'){el.replaceChildren();const sr=document.createElement('span'),vis=document.createElement('span');sr.className='st-sr';vis.className='st-digits';vis.setAttribute('aria-hidden','true');el.append(sr,vis);s={type:'number',sr,vis,value:Number(value),text:'',cells:new Map()};states.set(el,s);el.classList.add('st-number');}
   if(s.text===formatted)return;
+  const now=performance.now(), frequent=options.frequent===true||el.hasAttribute('data-st-frequent')||(s.lastChange!==undefined&&now-s.lastChange<1000);
+  if(s.text)s.lastChange=now;
+  if(frequent)for(const cell of s.cells.values())for(const digit of cell.querySelectorAll('.st-digit')){animations.get(digit)?.cancel();if(digit.classList.contains('st-digit-exit'))digit.remove();}
   const before=s.text,direction=Number(value)>=s.value?1:-1;s.sr.textContent=formatted;s.value=Number(value);s.text=formatted;
   const parts=formatter.formatToParts(Number(value)), entries=[];let integer=[...parts.filter(p=>p.type==='integer').map(p=>p.value).join('')].length, fraction=0,other=0;
   for(const part of parts)for(const ch of part.value){const digit=/\p{Nd}/u.test(ch),key=digit?(part.type==='fraction'?'f'+fraction++:'i'+--integer):part.type+other++;entries.push({ch,digit,key});}
@@ -33,9 +36,9 @@
    let ink=cell.querySelector('.st-ink');if(ink?.textContent===entry.ch)continue;
    cell.querySelectorAll('.st-digit-exit').forEach(x=>{animations.get(x)?.cancel();x.remove();});
    const delay=0; // Frequent readouts never queue a digit cascade.
-   if(ink&&entry.digit&&before&&!reduced.matches){const old=ink;old.className='st-digit st-digit-exit';animate(old,[{transform:getComputedStyle(old).transform,opacity:getComputedStyle(old).opacity,filter:getComputedStyle(old).filter},{transform:`translateY(${-direction*40}%)`,opacity:0,filter:'blur(4px)'}],'feedback',0,'X').then(()=>old.remove());}else ink?.remove();
+   if(ink&&entry.digit&&before&&!reduced.matches){const old=ink;old.className='st-digit st-digit-exit';animate(old,[{transform:getComputedStyle(old).transform,opacity:getComputedStyle(old).opacity,...(frequent?{}:{filter:getComputedStyle(old).filter})},{transform:`translateY(${-direction*(frequent?4:40)}${frequent?'px':'%'})`,opacity:0,...(frequent?{}:{filter:'blur(4px)'})}],'feedback',0,'X').then(()=>old.remove());}else ink?.remove();
    ink=document.createElement('span');ink.className='st-ink '+(entry.digit?'st-digit':'st-glyph');ink.textContent=entry.ch;cell.append(ink);
-   if(before&&entry.digit){changed++;animate(ink,[{transform:`translateY(${direction*40}%)`,opacity:0,filter:'blur(4px)'},{transform:'none',opacity:1,filter:'blur(0px)'}],'control',duration(el,'feedback')/2+delay);}
+   if(before&&entry.digit){changed++;animate(ink,[{transform:`translateY(${direction*(frequent?4:40)}${frequent?'px':'%'})`,opacity:0,...(frequent?{}:{filter:'blur(4px)'})},{transform:'none',opacity:1,...(frequent?{}:{filter:'blur(0px)'})}],'control',frequent?0:duration(el,'feedback')/2+delay);}
   }
   entries.forEach(e=>s.vis.append(s.cells.get(e.key)));
  }
@@ -51,8 +54,8 @@
   return Promise.all([...text].map((ch,i)=>{const glyph=document.createElement('span');glyph.className='st-letter';glyph.textContent=ch;next.append(glyph);return animate(glyph,thinking?[{opacity:0},{opacity:1}]:[{opacity:0,transform:'translateY(40%)',filter:'blur(4px)'},{opacity:1,transform:'none',filter:'blur(0px)'}],thinking?'quick':'control',thinking?40:Math.min(i*20,60),thinking?'F':'E');}));
  }
 
- function shake(el){el.dataset.stError='true';const input=el.matches('input')?el:q(el,'input');input?.setAttribute('aria-invalid','true');return animate(el,[{transform:'translateX(0)'},...[-4,4,-4,4,-4,4,0].map(x=>({transform:`translateX(${x}px)`}))],240);}
- function success(el){el.dataset.stDone='true';return pop(el.querySelector('svg')||el);}
+ function shake(el){el.dataset.stError='true';const input=el.matches('input,textarea,select')?el:q(el,'input,textarea,select');input?.setAttribute('aria-invalid','true');const frame=q(el,'[data-st-field-frame]')||input;return animate(frame,[{transform:'translateX(0)'},...[-3,3,-3,3,0].map(x=>({transform:`translateX(${x}px)`}))],'relocate');}
+ function success(el){el.dataset.stDone='true';return Promise.all([pop(el.querySelector('svg')||el),...qa(el,'path').map(path=>animate(path,[{strokeDashoffset:'24'},{strokeDashoffset:'0'}],'control'))]);}
  const resizing=new WeakMap();
  function resize(el,update){
   // FLIP the shell and siblings. Text is painted once at its final unscaled geometry.
@@ -100,8 +103,13 @@
    const clock=['sheet','panel'].includes(el.dataset.st)?'spatial':'relocate';
    animate(s.shell,[{transform:s.from},{transform:'none'}],clock,0,'M');
    const content=[...el.children].filter(x=>x!==s.shell&&x!==s.close);
+   if(['menu','plus-menu'].includes(el.dataset.st)){
+    // Frequent menus reveal their actions together, with no label choreography.
+    [...content,s.close].forEach(x=>animations.get(x)?.cancel());
+   }else{
    content.forEach((x,i)=>{animate(x,[{opacity:0},{opacity:1}],'quick',40,'F');for(const node of [...x.childNodes])if(node.nodeType===3&&node.textContent.trim()){const ink=document.createElement('span');ink.className='st-surface-label';node.replaceWith(ink);ink.append(node);}qa(x,'.st-surface-label').forEach(ink=>animate(ink,[{filter:'blur(4px)'},{filter:'blur(0px)'}],'quick',Math.min(40+i*20,60),'F'));});
    animate(s.close,[{opacity:0},{opacity:1}],'quick',40,'F');
+   }
   }else if(!was){
    const tip=el.dataset.st==='tooltip';animate(el,[{opacity:0,transform:tip?'translateY(2px)':'translateY(12px) scale(.97)'},{opacity:1,transform:'none'}],tip?'quick':'surface');
   }
@@ -136,7 +144,7 @@
   let drag;el.addEventListener('pointerdown',e=>{if(e.target.closest('button')||!e.isPrimary)return;const base=new DOMMatrixReadOnly(getComputedStyle(el).transform).m41;el.style.transform=`translateX(${base}px)`;animations.get(el)?.cancel();el.style.transition='none';drag={id:e.pointerId,x:e.clientX,start:e.clientX,base,time:performance.now()};el.setPointerCapture(e.pointerId);});
   el.addEventListener('pointermove',e=>{if(drag?.id!==e.pointerId)return;const dx=e.clientX-drag.start;el.style.transform=`translateX(${drag.base+dx}px)`;drag.x=e.clientX;});
   const release=e=>{if(drag?.id!==e.pointerId)return;const dx=e.clientX-drag.start,v=Math.abs(dx)/(performance.now()-drag.time);drag=null;el.style.transition='';if(e.type!=='pointercancel'&&(Math.abs(dx)>64||Math.abs(dx)>16&&v>.5))dismiss();else {const from=el.style.transform;el.style.transform='';animate(el,[{transform:from},{transform:'none'}]);}};el.addEventListener('pointerup',release);el.addEventListener('pointercancel',release);
-  const active=[...region.children].filter(x=>!x.dataset.stLeaving);if(active.length>3)active[0].querySelector('button').click();animate(el,[{opacity:0,transform:'translateY(16px)'},{opacity:1,transform:'none'}],'surface');return {element:el,dismiss};
+  const active=[...region.children].filter(x=>!x.dataset.stLeaving);if(active.length>3)active[0].querySelector('button').click();animate(el,[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],'relocate');return {element:el,dismiss};
  }
  function tabSelect(root,tab,keyboard=false){const tabs=qa(root,'[role="tab"]');tabs.forEach(t=>{const active=t===tab;t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;const panel=document.getElementById(t.getAttribute('aria-controls'));if(panel){const was=panel.hidden;panel.hidden=!active;if(active&&was&&!keyboard)animate(panel,[{opacity:0},{opacity:1}],'quick',40,'F');}});const ind=q(root,'.st-tab-indicator'),list=q(root,'[role="tablist"]');if(ind&&list){ind.style.transitionDuration=keyboard?'0s':'';ind.style.transform=`translateX(${tab.offsetLeft}px) scaleX(${tab.offsetWidth})`;}root.dispatchEvent(new CustomEvent('st:tab-change',{bubbles:true,detail:{tab}}));}
  let tooltipTimer,tooltipCurrent,tooltipWarm=0;
