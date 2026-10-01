@@ -174,7 +174,7 @@ async function run(reduced) {
       const covered = await loc.evaluate(el => { const r = el.getBoundingClientRect(), hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return !hit || !(el === hit || el.contains(hit)); }).catch(() => true);
       if (covered) await loc.evaluate(el => el.click()).catch(() => {}); else await loc.click({timeout: 1500}).catch(() => {});
     };
-    const before = await page.evaluate(() => ({shift: window.__seenryShift, long: window.__seenryLong}));
+    const before = await page.evaluate(() => ({shift: window.__seenryShift, long: window.__seenryLong, held: document.getAnimations().filter(a => a.constructor.name === 'Animation' && a.playState === 'finished' && /forwards|both/.test(a.effect?.getTiming().fill)).length}));
     let anims = [], reverseAnims = [], layers = [];
     await slow(true);
     if (!reduced) {
@@ -218,11 +218,13 @@ async function run(reduced) {
     await slow(false);
     for (const l of layers) box = union(box, l);
     const crop = clampBox({x: box.x - 12, y: box.y - 12, w: box.w + 24, h: box.h + 24});
-    const after = await page.evaluate(() => ({shift: window.__seenryShift, long: window.__seenryLong}));
+    await page.waitForTimeout(500);
+    const after = await page.evaluate(() => ({shift: window.__seenryShift, long: window.__seenryLong,
+      held: document.getAnimations().filter(a => a.constructor.name === 'Animation' && a.playState === 'finished' && /forwards|both/.test(a.effect?.getTiming().fill)).length}));
     // Leave the page as found: Escape dismisses whatever the interaction left open (dialogs, popovers, sheets).
     await page.keyboard.press('Escape'); await page.waitForTimeout(300);
     if (await page.evaluate(() => !!document.querySelector('dialog[open],[aria-modal=true],[popover]:popover-open'))) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); }
-    rows.push({label: t.label, anims, reverseAnims, shift: +(after.shift - before.shift).toFixed(3), longFrames: after.long - before.long, crop, shots});
+    rows.push({label: t.label, anims, reverseAnims, shift: +(after.shift - before.shift).toFixed(3), longFrames: after.long - before.long, held: Math.max(0, after.held - before.held), crop, shots});
   }
   await ctx.close();
   return rows;
@@ -242,6 +244,7 @@ for (const r of normal) {
   // Eight or more keyframes under linear timing is a sampled physical curve (a spring or a decaying shake), not linear motion.
   const linear = ui.filter(a => /^linear$/.test(a.easing) && a.duration > 80 && (a.keyframes || 2) < 8 && !a.props.some(p => /stroke-dash|background-position/.test(p)));
   if (linear.length) notes.push(`"${r.label}": linear easing on ${linear.map(a => a.target).slice(0, 3).join(', ')} (fine only for progress or clocks)`);
+  if (r.held > 0) violations.push(`"${r.label}": ${r.held} finished animation(s) still hold their end styles (fill: forwards); write the final state, then cancel() them, or later state changes are overridden`);
   if (r.shift > 0.02) violations.push(`"${r.label}": layout shift ${r.shift} during the interaction`);
   const blur = ui.filter(a => a.props.some(p => /filter/.test(p)) && a.area > 40000);
   if (blur.length) notes.push(`"${r.label}": animates filter on a large element (${blur[0].area}px²); limit blur to small elements`);

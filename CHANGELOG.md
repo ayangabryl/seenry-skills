@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.7.2
+
+- Seenry Transitions 3: the gallery is now a filterable library of live cards, each with replay and a copy-snippet button, laid out in three columns on desktop. A category select replaces the pills on phones. There are no divider lines: a card is one tone above the page, and its stage is inset with concentric radii. Shimmer, tilt and text reveal moved to an "Expressive extras" section. The avatar group was rebuilt: a lift that falls off toward the neighbours, a name label that glides between avatars, and a bouncy return. Copy now swaps its label in place, with a tooltip. Card expand samples its spring per frame so the cover and title travel together, and the palette scrolls only its own list. The accordion, tabs, segmented control and search lose their rules.
+- Blur option: `data-st-blur` (or `blur()` in JS) adds a short blur to fades on small elements only (at most 40000 px²). It is off by default, and the gallery has a switch in its header.
+- The motion pass target rises from 8 to 9: `check.mjs`, SKILL.md, and a "From 8 to 9" section in seenry-motion. The motion judge blocks finished animations that still hold their end styles (`fill: forwards`).
+- Separation by space and surface tone replaces the "1px hairlines" rule. `review_board.mjs` blocks more than 10 wide divider lines in the first two screens, and anti-slop lists "divider lines everywhere".
+- Measured: the motion judge scores the whole catalogue 7/10 (median of 7/7/7) with zero violations; card expand alone scores 8. The review board finds zero blockers at 390 and 1440.
+
 ## 4.7.1
 
 - The judges and `image.mjs` pin their Codex model: `SEENRY_CODEX_MODEL` if set, else `gpt-6.1-sol`, falling back to `gpt-6-sol` and then the CLI default when an account does not offer a model. A Codex config defaulting to a model the ChatGPT login rejects had made every critic, motion judge, pick and image call fail.

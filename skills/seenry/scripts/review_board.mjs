@@ -38,7 +38,7 @@ function inspect({phone}) {
   const ownText = el => [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
   const label = el => `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${(el.textContent || '').trim().slice(0, 40)}"`;
   const els = [...document.body.querySelectorAll('*')].filter(el => ownText(el) && vis(el));
-  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: []};
+  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: [], dividers: []};
   const weights = new Set(), headings = [...document.querySelectorAll('h1,h2,h3,[role=heading]')].filter(vis);
   const canvas = document.createElement('canvas').getContext('2d');
   const paint = document.createElement('canvas'); paint.width = paint.height = 1;
@@ -148,6 +148,17 @@ function inspect({phone}) {
       return r.height <= 40 && r.width <= 260 && (parseFloat(st.borderTopWidth) > 0 || toRGBA(st.backgroundColor)[3] > 0.05); });
     if (chips.length >= 12) f.tokenCloud.push(`${chips.length} small chips in ${label(el)}`);
   }
+  // Separation by lines instead of space and tone: rules under headers, between rows, around every card. Data tables
+  // are exempt (their row rules carry meaning).
+  { let rules = 0; const lim = innerHeight * 2;
+    const line = (st, side) => parseFloat(st[`border${side}Width`]) >= 0.5 && st[`border${side}Style`] !== 'none' && toRGBA(st[`border${side}Color`])[3] > 0.04;
+    for (const el of document.body.querySelectorAll('*')) {
+      if (!vis(el) || el.closest('table,[role=grid],[role=table],input,textarea,select,button')) continue;
+      const r = el.getBoundingClientRect(); if (r.top > lim || r.width < 120) continue;
+      const st = getComputedStyle(el);
+      if (el.tagName === 'HR' || line(st, 'Top') || line(st, 'Bottom') || /inset[^,]*0px -?1px 0px|0px -?1px 0px [^,]*inset/.test(st.boxShadow)) rules++;
+    }
+    if (rules > 10) f.dividers.push(`${rules} divider lines in the first two screens`); }
   for (const el of document.body.querySelectorAll('p,span,small,figcaption,li,div')) {
     if (!vis(el) || el.children.length > 2 || el.closest('footer')) continue;
     const t = (el.textContent || '').trim();
@@ -223,7 +234,7 @@ const cells = [['This page', join(out, 'first-1440.png')], ...refs.map(r => [r.s
 await shot(`<div style="display:flex;flex-wrap:wrap;gap:16px;padding:16px">${cells.map(([n, p]) => `<figure style="margin:0"><figcaption style="padding:0 0 6px">${n}</figcaption>${clip(uri(p), 720, 450)}</figure>`).join('')}</div>`, 'first.png', 16 + cells.length * 736 > 1488 ? 1488 : 16 + cells.length * 736);
 await browser.close();
 
-const names = {dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)'};
+const names = {dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)'};
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);

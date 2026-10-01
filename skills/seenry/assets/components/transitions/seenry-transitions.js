@@ -1,4 +1,4 @@
-/* Seenry Transitions 2. Original implementation, MIT. Classic script; no dependencies.
+/* Seenry Transitions 3. Original implementation, MIT. Classic script; no dependencies.
    Every animation starts from the currently rendered value, so a second input reverses a change mid-flight. */
 (function () {
  'use strict';
@@ -8,7 +8,7 @@
  const CURVES = {E: 'cubic-bezier(.16,1,.3,1)', M: 'cubic-bezier(.4,0,.2,1)', F: 'cubic-bezier(.2,0,.2,1)', X: 'cubic-bezier(.4,0,1,1)'};
  const MS = {instant: 0, feedback: 80, quick: 120, control: 160, relocate: 180, surface: 240, spatial: 280, fast: 120, base: 160, slow: 240, page: 280};
  // spring(response seconds, bounce), the parameterisation designers know from SwiftUI. lead/trail drive a two-edge indicator.
- const SPRINGS = {snappy: [.26, .04], smooth: [.36, 0], gentle: [.34, .08], bouncy: [.34, .42], thumb: [.28, .28], lead: [.16, 0], trail: [.23, 0]};
+ const SPRINGS = {expand: [.3, 0], snappy: [.26, .04], smooth: [.36, 0], gentle: [.34, .08], bouncy: [.34, .42], thumb: [.28, .28], lead: [.16, 0], trail: [.23, 0]};
  const tracks = {};
  function track(name) {
   if (tracks[name]) return tracks[name];
@@ -21,6 +21,9 @@
   const t = pts.slice(0, last + 1); t[t.length - 1] = 1;
   return (tracks[name] = t);
  }
+ // Evaluate a cubic-bezier easing at progress x (Newton steps), for paths sampled into keyframes.
+ function bez(x1, y1, x2, y2) { const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by; const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t, D = t => (3 * ax * t + 2 * bx) * t + cx; return x => { if (x <= 0) return 0; if (x >= 1) return 1; let t = x; for (let i = 0; i < 6; i++) { const d = D(t); if (Math.abs(d) < 1e-6) break; t -= (X(t) - x) / d; } return Y(Math.min(1, Math.max(0, t))); }; }
+ const easeE = bez(.16, 1, .3, 1);
  const at = (t, ms) => t[Math.min(t.length - 1, Math.max(0, Math.round(ms)))];
  const easings = {};
  function spring(name) {
@@ -34,14 +37,16 @@
  /* play(el, frames, options): one running animation per element and channel. With current (default) the first
     keyframe is replaced by the rendered value, so a new call retargets instead of restarting. Returns a promise that
     resolves true when it finished, false when something newer replaced it. */
- const channels = new WeakMap();
+ const channels = new WeakMap(), heldStyles = new WeakMap();
  function play(el, frames, o = {}) {
   if (!el || !el.animate) return Promise.resolve(true);
   const key = (o.channel || 'main') + (o.pseudo || '');
   let map = channels.get(el); if (!map) channels.set(el, map = new Map());
   const prev = map.get(key);
+  let held = heldStyles.get(el); if (!held) heldStyles.set(el, held = new Map());
+  const committed = held.get(key);
   // A single keyframe is a target: start it from the rendered value.
-  if ((prev && o.current !== false) || frames.length === 1) {
+  if (((prev || committed) && o.current !== false) || frames.length === 1) {
    const cs = getComputedStyle(el, o.pseudo || null), first = {};
    for (const p of Object.keys(frames[frames.length - 1])) if (p !== 'offset' && p !== 'easing' && p !== 'composite') first[p] = cs[p];
    // clip-path 'none' does not interpolate; start from the equivalent full inset instead.
@@ -49,6 +54,7 @@
    frames = frames.length === 1 ? [first, frames[0]] : [first, ...frames.slice(1)];
   }
   prev?.cancel();
+  if (committed) { for (const [prop, value] of Object.entries(committed)) el.style[prop] = value; held.delete(key); }
   let duration, easing;
   if (o.spring) ({duration, easing} = spring(o.spring));
   else { duration = typeof o.ms === 'number' ? o.ms : MS[o.ms || 'control']; easing = CURVES[o.curve || 'E'] || o.curve; }
@@ -59,12 +65,39 @@
    if (frames.length < 2) { map.delete(key); return Promise.resolve(true); }
    duration = Math.min(duration, 100); easing = 'linear'; delay = 0;
   }
-  const a = el.animate(frames, {duration, easing, delay, fill: o.fill || 'backwards', pseudoElement: o.pseudo});
+  // Blur option: inside [data-st-blur], a fade on a small element also pulls focus (blur to sharp on the way in, a
+  // softer blur on the way out). Large surfaces never blur; reduced motion already returned above.
+  const blurHost = !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
+  if (blurHost && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
+   const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 4;
+   if (r.width * r.height > 0 && r.width * r.height <= 40000) {
+    const a0 = +frames[0].opacity, a1 = +frames[frames.length - 1].opacity;
+    if (a1 > a0) { frames = frames.map((f, i) => ({...f, filter: i === 0 ? `blur(${px}px)` : i === frames.length - 1 ? 'blur(0px)' : f.filter || `blur(${px * (1 - i / (frames.length - 1))}px)`})); }
+    else if (a1 < a0) { frames = frames.map((f, i) => ({...f, filter: i === frames.length - 1 ? `blur(${px / 2}px)` : i === 0 ? 'blur(0px)' : `blur(${px / 2 * i / (frames.length - 1)}px)`})); }
+   }
+  }
+  const a = el.animate(frames, {duration, easing, delay, fill: o.fill==='forwards'?'both':o.fill||'backwards', pseudoElement: o.pseudo});
   map.set(key, a);
-  return a.finished.then(() => { if (map.get(key) === a) map.delete(key); return true; }, () => false);
+  return a.finished.then(() => {
+   if (map.get(key) !== a) { a.cancel(); return false; }
+   if (o.fill === 'forwards' && !o.pseudo) {
+    const last = frames[frames.length - 1], saved = {};
+    for (const prop of Object.keys(last)) if (!['offset','easing','composite'].includes(prop)) saved[prop] = el.style[prop];
+    try { a.commitStyles(); } catch { for (const prop of Object.keys(saved)) el.style[prop] = last[prop]; }
+    held.set(key, saved);
+   }
+   map.delete(key); a.cancel(); return true;
+  }, () => { a.cancel(); return false; });
  }
- function stop(el, channel = 'main') { const map = channels.get(el), a = map?.get(channel); if (a) { a.cancel(); map.delete(channel); } }
- function stopAll(el) { const map = channels.get(el); if (map) { for (const a of map.values()) a.cancel(); map.clear(); } }
+ function stop(el, channel = 'main') {
+  const map = channels.get(el), a = map?.get(channel); if (a) { a.cancel(); map.delete(channel); }
+  const held = heldStyles.get(el), saved = held?.get(channel);
+  if (saved) { Object.assign(el.style, saved); held.delete(channel); }
+ }
+ function stopAll(el) {
+  const map = channels.get(el); if (map) { for (const a of map.values()) a.cancel(); map.clear(); }
+  const held = heldStyles.get(el); if (held) { for (const saved of held.values()) Object.assign(el.style, saved); held.clear(); }
+ }
  const fadeIn = (el, o = {}) => play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', channel: 'o', fade: true, ...o});
 
  // FLIP: measure (rendered positions, including running transforms), mutate, then animate from the old place.
@@ -77,13 +110,15 @@
   for (const e of els) {
    if (!e.isConnected) continue;
    const f = first.get(e), l = e.getBoundingClientRect();
-   const dx = f.left + f.width / 2 - (l.left + l.width / 2), dy = f.top + f.height / 2 - (l.top + l.height / 2);
+   const dx = o.axis === 'y' ? 0 : o.scale ? f.left+f.width/2-l.left-l.width/2 : f.left-l.left, dy = o.scale ? f.top+f.height/2-l.top-l.height/2 : f.top-l.top;
    const sx = o.scale && l.width ? f.width / l.width : 1, sy = o.scale && l.height ? f.height / l.height : 1;
    if (Math.abs(dx) < .5 && Math.abs(dy) < .5 && Math.abs(sx - 1) < .005 && Math.abs(sy - 1) < .005) continue;
-   jobs.push(play(e, [{transform: `translate(${dx}px, ${dy}px)${o.scale ? ` scale(${sx}, ${sy})` : ''}`}, {transform: 'none'}], {spring: o.spring || 'smooth', channel: 'flip', current: false, delay: o.delay || 0}));
+   jobs.push(play(e, [{transform: `translate(${dx}px, ${dy}px)${o.scale ? ` scale(${sx}, ${sy})` : ''}`}, {transform: 'none'}], {...(o.ms ? {ms:o.ms,curve:o.curve||'E'} : {spring: o.spring || 'smooth'}), channel: 'flip', current: false, delay: o.delay || 0}));
   }
   return Promise.all(jobs);
  }
+ // The first opaque background behind an element, for content that must cover what it passes over.
+ function backdrop(el) { for (let n = el; n && n.nodeType === 1; n = n.parentElement) { const c = getComputedStyle(n).backgroundColor; if (c && !/rgba\(.*,\s*0\)$|transparent/.test(c)) return c; } return getComputedStyle(doc.body).backgroundColor; }
  const positioned = el => { if (getComputedStyle(el).position === 'static') el.style.position = 'relative'; return el; };
  // A non-interactive copy of an element at its rendered place, for content that leaves while layout has moved on.
  function ghost(el, host = el.parentElement) {
@@ -92,10 +127,16 @@
   for (const n of [g, ...qa(g, '[id],[data-st]')]) { n.removeAttribute('id'); if (n.dataset.st) { n.dataset.stGhostOf = n.dataset.st; n.removeAttribute('data-st'); } }
   g.classList.add('st-ghost-layer'); g.setAttribute('aria-hidden', 'true'); g.inert = true; g.dataset.stGhost = '';
   Object.assign(g.style, {position: 'absolute', left: r.left - h.left - host.clientLeft + host.scrollLeft + 'px', top: r.top - h.top - host.clientTop + host.scrollTop + 'px', width: r.width + 'px', height: r.height + 'px', margin: '0', boxSizing: 'border-box', pointerEvents: 'none', transform: 'none', clipPath: getComputedStyle(el).clipPath});
+  // A copy elsewhere in the tree loses position-based styles (nth-child colours, parent selectors): keep its paint.
+  const ecs = getComputedStyle(el);
+  Object.assign(g.style, {backgroundColor: ecs.backgroundColor, backgroundImage: ecs.backgroundImage, color: ecs.color, borderColor: ecs.borderColor, borderRadius: ecs.borderRadius, font: ecs.font});
   host.append(g);
+  // A positioned copy no longer collapses its first child's margin; shift it so every line sits where it was drawn.
+  const a = el.firstElementChild, b = g.firstElementChild;
+  if (a && b) { const d = a.getBoundingClientRect().top - b.getBoundingClientRect().top; if (Math.abs(d) > .5) { g.style.top = parseFloat(g.style.top) + d + 'px'; g.style.height = 'auto'; } }
   return g;
  }
- const followers = el => { const out = []; for (let n = el.nextElementSibling; n; n = n.nextElementSibling) if (!n.dataset.stGhost) out.push(n); return out; };
+ const followers = el => { const out = []; for (let n = el.nextElementSibling; n; n = n.nextElementSibling) if (!n.hasAttribute("data-st-ghost")) out.push(n); return out; };
  function announce(text) { let live = doc.getElementById('st-live'); if (!live) { live = doc.createElement('div'); live.id = 'st-live'; live.className = 'st-sr'; live.setAttribute('aria-live', 'polite'); doc.body.append(live); } live.textContent = ''; setTimeout(() => { live.textContent = text; }, 30); }
 
  /* ---------- Numbers: digits roll by place value; unchanged places keep identity and slide when width changes. ---------- */
@@ -169,61 +210,103 @@
   text = String(text);
   if (!el.dataset.stLabel) el.dataset.stLabel = el.textContent.trim();
   if (el.dataset.stLabel === text && !o.force) return Promise.resolve();
-  const previous = el.dataset.stLabel; el.dataset.stLabel = text;
+  const previous = o.__prev ?? el.dataset.stLabel; el.dataset.stLabel = text;
   const thinking = el.dataset.st === 'thinking';
+  const fitTo = o.fit || el.closest('[data-st-fit]');
+  if(!o.letters){
+   if (fitTo && !reduced() && !o.__fitted) { let p; resize(fitTo, () => { p = swapText(el, text, {...o, force: true, __fitted: true, __prev: previous}); }); return p; }
+   positioned(el); qa(el,'.st-text-exit').forEach(n=>{stopAll(n);n.remove();});
+   const current=q(el,'.st-text-value') || letters(previous,'st-text-value'); if(!current.parentElement)el.replaceChildren(current);
+   // The outgoing label stays exactly where it was drawn, wherever padding or alignment put it.
+   const cr=current.getBoundingClientRect(), er=el.getBoundingClientRect();
+   current.className='st-text-exit';Object.assign(current.style,{position:'absolute',left:cr.left-er.left-el.clientLeft+'px',top:cr.top-er.top-el.clientTop+'px',width:cr.width+'px',whiteSpace:'nowrap',margin:'0'});
+   const next=letters(text,'st-text-value'),sr=doc.createElement('span');sr.className='st-sr';sr.textContent=text;qa(el,':scope>.st-sr').forEach(n=>n.remove());el.append(next,sr);
+   // The old label clears before the new one is legible, so the two never read as one doubled word.
+   const movement=thinking?{}:{transform:'translateY(-3px)'};
+   play(current,[{opacity:0,...movement}],{ms:50,curve:'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
+   const lag = o.tight ? 15 : 30;
+   return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), thinking?Promise.resolve():play(next,[{transform:'translateY(3px)'},{transform:'none'}],{ms:160,delay:lag,curve:'E',channel:'t',current:false})]);
+  }
   const run = () => {
    positioned(el);
+   // Letters roll inside their own line, like an odometer, instead of escaping the shape around them.
+   el.style.clipPath = 'inset(-1px -6px)';
    qa(el, '.st-text-exit').forEach(x => x.remove());
    let current = q(el, '.st-text-value');
    if (!current) { el.replaceChildren(); current = letters(previous, 'st-text-value'); el.append(current); }
    let sr = q(el, ':scope > .st-sr'); if (!sr) { sr = doc.createElement('span'); sr.className = 'st-sr'; }
    sr.textContent = text;
+   const cr = current.getBoundingClientRect(), er = el.getBoundingClientRect();
    current.className = 'st-text-exit';
-   const centered = el.dataset.stAlign ? el.dataset.stAlign === 'center' : getComputedStyle(el).textAlign === 'center';
-   Object.assign(current.style, {position: 'absolute', top: '0', left: centered ? '50%' : '0', translate: centered ? '-50% 0' : ''});
+   Object.assign(current.style, {position: 'absolute', left: cr.left - er.left - el.clientLeft + 'px', top: cr.top - er.top - el.clientTop + 'px', width: cr.width + 'px', whiteSpace: 'nowrap', margin: '0'});
    const next = letters(text, 'st-text-value');
    el.append(next, sr);
    const out = [...current.children], inn = [...next.children];
-   const outs = out.map((l, i) => play(l, [{opacity: 1, transform: 'none', filter: 'blur(0px)'}, thinking ? {opacity: 0} : {opacity: 0, transform: 'translateY(-35%)', filter: 'blur(3px)'}], {ms: thinking ? 'feedback' : 65, curve: thinking ? 'F' : 'X', delay: Math.min(i * 5, 20), fill: 'forwards', fade: true}));
+   // Letters stay sharp: they lift out and rise in by position and opacity, readable at every frame.
+   const outs = out.map((l, i) => play(l, [{opacity: 1, transform: 'none'}, thinking ? {opacity: 0} : {opacity: 0, transform: 'translateY(-40%)'}], {ms: thinking ? 'feedback' : 70, curve: thinking ? 'F' : 'X', delay: Math.min(i * 6, 24), fill: 'forwards', fade: true}));
    Promise.all(outs).then(() => { if (current.isConnected && current.className === 'st-text-exit') current.remove(); });
    if (reduced()) { current.remove(); return Promise.all(inn.map(l => fadeIn(l))); }
    return Promise.all(inn.map((l, i) => thinking
     ? play(l, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', delay: 40 + Math.min(i * 10, 60)})
     : Promise.all([
-     play(l, [{transform: 'translateY(45%)', filter: 'blur(3px)'}, {transform: 'none', filter: 'blur(0px)'}], {spring: 'snappy', delay: 25 + Math.min(i * 10, 40), current: false}),
-     play(l, [{opacity: 0}, {opacity: 1}], {ms: 90, curve: 'F', channel: 'o', delay: 25 + Math.min(i * 10, 40), current: false})])));
+     play(l, [{transform: 'translateY(50%)'}, {transform: 'none'}], {spring: 'snappy', delay: 40 + Math.min(i * 12, 60), current: false}),
+     play(l, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', channel: 'o', delay: 40 + Math.min(i * 12, 60), current: false})])));
   };
   const fit = o.fit || el.closest('[data-st-fit]');
   if (fit && !reduced()) { let p; resize(fit, () => { p = run(); }); return p; }
   return run();
  }
 
- /* ---------- Resize: layout commits once; a painted shell scales from the old box, text never stretches. ---------- */
+ /* ---------- Resize: layout commits once; a painted shell follows the size on one spring, text never stretches.
+    The shell scales with its radius corrected every frame, the content is clipped by the same curve, outgoing content
+    leaves as a copy, and an interruption starts from the rendered size. ---------- */
  const resizing = new WeakMap();
  function resize(el, update) {
   const prev = resizing.get(el);
-  const first = prev ? prev.shell.getBoundingClientRect() : el.getBoundingClientRect();
+  const r0 = prev ? prev.shell.getBoundingClientRect() : el.getBoundingClientRect();
+  const first = {left: r0.left, top: r0.top, width: r0.width, height: r0.height};
   prev?.cleanup();
-  const followerEls = followers(el);
-  const beforeKids = new Set(el.children);
-  let last;
-  flip(followerEls, () => { update(); last = el.getBoundingClientRect(); }, {spring: 'smooth'});
-  if (reduced() || !first.width || !last.width || (Math.abs(first.width - last.width) < .5 && Math.abs(first.height - last.height) < .5)) return Promise.resolve();
-  const cs = getComputedStyle(el), shell = doc.createElement('span');
+  if (reduced()) { update(); return Promise.resolve(); }
+  const elBefore = el.getBoundingClientRect();
+  const kidsBefore = [...el.children].filter(c => !c.hasAttribute("data-st-ghost") && c.getBoundingClientRect().height > 0);
+  const copies = kidsBefore.map(c => { const g = ghost(c, el); g.style.visibility = 'hidden'; return [c, g]; });
+  flip([...followers(el), ...kidsBefore], () => update(), {spring: 'smooth'});
+  const last = el.getBoundingClientRect();
+  const leaving = [], entering = [...el.children].filter(c => !c.hasAttribute("data-st-ghost") && !kidsBefore.includes(c) && c.getBoundingClientRect().height > 0);
+  // Copies are positioned inside the card; if the card itself moved (centred layouts), keep them where they were drawn.
+  const mx = elBefore.left - last.left, my = elBefore.top - last.top;
+  for (const [c, g] of copies) { if (c.isConnected && c.getBoundingClientRect().height > 0) g.remove(); else { g.style.left = parseFloat(g.style.left) + mx + 'px'; g.style.top = parseFloat(g.style.top) + my + 'px'; leaving.push(g); } }
+  if (Math.abs(first.width - last.width) < .5 && Math.abs(first.height - last.height) < .5) { leaving.forEach(g => g.remove()); entering.forEach(c => fadeIn(c, {delay: 40})); return Promise.resolve(); }
+  // The shell paints the colour the element is heading to, and eases there from the colour on screen now.
+  const bgNow = getComputedStyle(el).backgroundColor, tr = el.style.transition; el.style.transition = 'none';
+  const cs = getComputedStyle(el), bgEnd = cs.backgroundColor, rad = parseFloat(cs.borderTopLeftRadius) || 0, shell = doc.createElement('span');
+  el.style.transition = tr;
   shell.className = 'st-resize-shell'; shell.setAttribute('aria-hidden', 'true');
-  Object.assign(shell.style, {position: 'absolute', left: -parseFloat(cs.borderLeftWidth) + 'px', top: -parseFloat(cs.borderTopWidth) + 'px', width: last.width + 'px', height: last.height + 'px', background: cs.backgroundColor, backgroundImage: cs.backgroundImage, border: cs.border, borderRadius: cs.borderRadius, boxShadow: cs.boxShadow, transformOrigin: '0 0', pointerEvents: 'none', zIndex: '-1', boxSizing: 'border-box'});
-  const saved = {position: el.style.position, isolation: el.style.isolation, background: el.style.background, boxShadow: el.style.boxShadow, borderColor: el.style.borderColor};
+  Object.assign(shell.style, {position: 'absolute', left: -parseFloat(cs.borderLeftWidth) + 'px', top: -parseFloat(cs.borderTopWidth) + 'px', width: last.width + 'px', height: last.height + 'px', background: bgEnd, backgroundImage: cs.backgroundImage, border: cs.border, boxShadow: cs.boxShadow, transformOrigin: '0 0', pointerEvents: 'none', zIndex: '-1', boxSizing: 'border-box'});
+  const saved = {position: el.style.position, isolation: el.style.isolation, background: el.style.background, boxShadow: el.style.boxShadow, borderColor: el.style.borderColor, clipPath: el.style.clipPath};
   Object.assign(el.style, {position: cs.position === 'static' ? 'relative' : el.style.position, isolation: 'isolate', background: 'transparent', boxShadow: 'none', borderColor: 'transparent'});
   el.prepend(shell);
-  const state = {shell, cleanup() { stopAll(shell); shell.remove(); Object.assign(el.style, saved); if (resizing.get(el) === state) resizing.delete(el); }};
+  if (bgNow !== bgEnd) play(shell, [{backgroundColor: bgNow}, {backgroundColor: bgEnd}], {ms: 160, curve: 'F', channel: 'bg', current: false});
+  // One sampled spring drives shell size, its corrected radius and the content clip, so they never drift apart.
+  const t = track('smooth'), n = 40, shellFrames = [], clipFrames = [];
+  const dx = first.left - last.left, dy = first.top - last.top;
+  for (let i = 0; i <= n; i++) {
+   const p = at(t, (t.length - 1) * i / n), lerp = (a, b) => a + (b - a) * p;
+   const w = lerp(first.width, last.width), h = lerp(first.height, last.height), x = lerp(dx, 0), y = lerp(dy, 0);
+   shellFrames.push({transform: `translate(${x}px, ${y}px) scale(${w / last.width}, ${h / last.height})`, borderRadius: `${rad * last.width / w}px / ${rad * last.height / h}px`});
+   clipFrames.push({clipPath: `inset(${y}px ${last.width - x - w}px ${last.height - y - h}px ${x}px round ${rad}px)`});
+  }
+  const ms = t.length - 1, state = {shell, cleanup() { stopAll(shell); stop(el, 'resize-clip'); shell.remove(); leaving.forEach(g => { stopAll(g); g.remove(); }); Object.assign(el.style, saved); if (resizing.get(el) === state) resizing.delete(el); }};
   resizing.set(el, state);
-  [...el.children].filter(c => c !== shell && (!beforeKids.has(c) || c.getBoundingClientRect().top >= first.top + first.height - 1)).forEach(c => fadeIn(c, {delay: 60, ms: 'control'}));
-  return play(shell, [{transform: `scale(${first.width / last.width}, ${first.height / last.height})`}, {transform: 'none'}], {spring: 'smooth', current: false}).then(ok => { if (ok && resizing.get(el) === state) state.cleanup(); });
+  play(el, clipFrames, {ms, curve: 'linear', channel: 'resize-clip', current: false});
+  leaving.forEach(g => { g.style.visibility = ''; play(g, [{opacity: 1}, {opacity: 0}], {ms: 70, curve: 'X', fill: 'forwards'}); });
+  entering.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', delay: 60, channel: 'o', current: false, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 220, curve: 'E', delay: 60, channel: 't', current: false}); });
+  return play(shell, shellFrames, {ms, curve: 'linear', current: false}).then(ok => { if (ok && resizing.get(el) === state) state.cleanup(); });
  }
 
  /* ---------- Layers ---------- */
  const layers = new WeakMap(), active = new Set();
- const POP = ['menu', 'plus-menu', 'popover', 'tooltip'];
+ const POP = ['menu', 'plus-menu', 'popover', 'popover-panel', 'tooltip'];
  const layerState = el => { let s = layers.get(el); if (!s) layers.set(el, s = {open: false, version: 0}); return s; };
  const isOpen = el => { const s = layers.get(el); if (s) return s.open; if (el.tagName === 'DIALOG') return el.open; if (el.hasAttribute('popover')) return el.matches(':popover-open'); return el.dataset.stOpen === 'true'; };
  const scrimOf = el => (el.dataset.stScrim && doc.getElementById(el.dataset.stScrim)) || (el.previousElementSibling?.matches('[data-st-scrim]') ? el.previousElementSibling : null);
@@ -238,7 +321,12 @@
   let y = side === 'bottom' ? t.bottom + gap : t.top - gap - h;
   if (morph) { x = align === 'end' ? t.right - w : t.left; y = side === 'bottom' ? t.top : t.bottom - h; }
   x = clamp(x, 8, Math.max(8, innerWidth - w - 8)); y = clamp(y, 8, Math.max(8, innerHeight - h - 8));
-  el.style.left = x + 'px'; el.style.top = y + 'px';
+  if (el.hasAttribute('data-st-contained')) {
+   const host = el.offsetParent.getBoundingClientRect();
+   x = clamp(x, host.left + 8, Math.max(host.left + 8, host.right - w - 8));
+   y = clamp(y, host.top + 8, Math.max(host.top + 8, host.bottom - h - 52));
+   el.style.left = x - host.left + 'px'; el.style.top = y - host.top + 'px';
+  } else { el.style.left = x + 'px'; el.style.top = y + 'px'; }
   el.style.transformOrigin = `${clamp(t.left + t.width / 2 - x, 0, w)}px ${side === 'bottom' ? 0 : h}px`;
   el.dataset.stSide = side;
  }
@@ -246,7 +334,8 @@
   const t = trigger.getBoundingClientRect(), r = el.getBoundingClientRect(), rad = parseFloat(getComputedStyle(trigger).borderTopLeftRadius) || 8;
   return `inset(${t.top - r.top}px ${r.right - t.right}px ${r.bottom - t.bottom}px ${t.left - r.left}px round ${rad}px)`;
  }
- function focusFirst(el) { const f = q(el, '[autofocus],[data-st-palette-input],[role="menuitem"]:not([disabled]),[role="option"],button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'); f?.focus({preventScroll: true}); }
+ let keyboardInput = false; doc.addEventListener('keydown', () => { keyboardInput = true; doc.documentElement.dataset.stInputMode='keyboard'; active.forEach(el=>delete el.dataset.stPointerFocus); }, true); doc.addEventListener('pointerdown', () => { keyboardInput = false; doc.documentElement.dataset.stInputMode='pointer'; }, true);
+ function focusFirst(el) { const f = q(el, '[autofocus],[data-st-palette-input],[role="menuitem"]:not([disabled]),[role="option"],button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'); f?.focus({preventScroll: true, focusVisible: keyboardInput}); }
 
  function open(el, trigger, o = {}) {
   if (!el) return;
@@ -257,7 +346,7 @@
   s.open = true; s.closing = false; const v = ++s.version;
   el.inert = false; el.dataset.stManaged = ''; el.dataset.stOpen = 'true'; el.hidden = false;
   s.trigger?.setAttribute('aria-expanded', 'true');
-  if (el.tagName === 'DIALOG') { if (!el.open) el.showModal(); }
+  if (el.tagName === 'DIALOG') { if (!el.open) (el.hasAttribute('data-st-contained') ? el.show() : el.showModal()); }
   else if (el.hasAttribute('popover')) { if (!el.matches(':popover-open')) el.showPopover(); }
   if (POP.includes(kind) && kind !== 'tooltip') { for (const other of [...active]) if (other !== el && !other.contains(el) && POP.includes(other.dataset.st)) close(other, {silent: true}); }
   if (POP.includes(kind) && s.trigger) { place(el, s.trigger); active.add(el); }
@@ -265,8 +354,8 @@
   const t = s.trigger && s.trigger.getBoundingClientRect(), r = el.getBoundingClientRect();
   const scrim = scrimOf(el), recede = recedeOf(el);
   if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', fade: true}); }
-  if (recede) play(recede, [{transform: 'none', borderRadius: '0px', opacity: 1}, {transform: 'scale(.94) translateY(6px)', borderRadius: '14px', opacity: .7}], {spring: 'smooth', fill: 'forwards', channel: 'recede'});
-  const morph = (kind === 'plus-menu' || el.hasAttribute('data-st-morph')) && s.trigger && (el.hasAttribute('popover') || el.tagName === 'DIALOG');
+  if (recede) play(recede, [{transform: 'none', clipPath:'inset(0px round 0px)', opacity: 1}, {transform: 'scale(.94) translateY(6px)', clipPath:'inset(0px round 14px)', opacity: .7}], {spring: 'smooth', fill: 'forwards', channel: 'recede'});
+  const morph = (kind === 'plus-menu' || el.hasAttribute('data-st-morph')) && s.trigger && (el.hasAttribute('popover') || el.tagName === 'DIALOG' || el.hasAttribute('data-st-contained'));
   if (morph && el.tagName === 'DIALOG') {
    // A dialog that morphs opens over its trigger: its first row lands where the trigger was.
    const tr = s.trigger.getBoundingClientRect(), w = el.offsetWidth, first = el.querySelector('[data-st-morph-anchor]') || el.firstElementChild, fh = first ? first.offsetHeight : tr.height;
@@ -300,31 +389,44 @@
     stop(el, 'o');
     const label = q(el, '.st-tip-label'); if (label) play(label, [{opacity: .3}, {opacity: 1}], {ms: 100, curve: 'F', current: false, fade: true});
    }
+  } else if (kind === 'popover-panel') {
+   play(el, [{clipPath: 'inset(0 0 100% 0 round 14px)'}, {clipPath: 'inset(0 0 0% 0 round 14px)'}], {ms: 220, curve: 'E', channel: 'clip'});
+   play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', channel: 'o', fade: true});
+   [...el.children].forEach((c, i) => { play(c, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content-t'}); play(c, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content', fade: true}); });
   } else if (POP.includes(kind)) {
    // The shell lands first from the trigger point; rows arrive 35ms later while it is still settling.
    const dy = el.dataset.stSide === 'top' ? 4 : -4;
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 90, curve: 'F', channel: 'o', fade: true});
    play(el, [{transform: `translateY(${dy}px) scale(.96)`}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
-   if (!wasClosing) [...el.children].forEach((c, i) => play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 20 + Math.min(i * 10, 40), channel: 'o', fade: true}));
+   // Reopened mid-close: rows return from wherever their fade got to, so the shell is never empty.
+   [...el.children].forEach((c, i) => wasClosing ? play(c, [{opacity: 1}], {ms: 90, curve: 'F', channel: 'o', fade: true}) : play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 20 + Math.min(i * 10, 40), channel: 'o', fade: true}));
   } else if (kind === 'sheet') {
    play(el, [{transform: 'translateY(100%)'}, {transform: 'none'}], {spring: 'smooth', channel: 't'});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fade: true});
   } else if (kind === 'drawer') {
    const side = el.dataset.stSide === 'left' ? -1 : 1;
    play(el, [{transform: `translateX(${side * 100}%)`}, {transform: 'none'}], {spring: 'smooth', channel: 't'});
+   // Its contents settle a beat after the panel, travelling a little further, so the drawer reads as layered.
+   if (!wasClosing) [...el.children].forEach((c, i) => { play(c, [{transform: `translateX(${side * 18}px)`}, {transform: 'none'}], {spring: 'smooth', delay: 30 + Math.min(i * 20, 80), channel: 'drawer-t', current: false}); play(c, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', delay: 30 + Math.min(i * 20, 80), channel: 'drawer-o', current: false, fade: true}); });
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fade: true});
   } else if (kind === 'panel') {
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', channel: 'o', fade: true});
    play(el, [{transform: 'translateY(-6px) scale(.98)'}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
   } else if (el.tagName === 'DIALOG' || kind === 'modal' || kind === 'palette') {
    if (kind !== 'palette' && t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
-   if (kind === 'palette') el.style.transformOrigin = '50% 0';
-   play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', channel: 'o', fade: true});
-   play(el, [{transform: kind === 'palette' ? 'translateY(-8px) scale(.98)' : 'translateY(4px) scale(.97)'}, {transform: 'none'}], kind === 'palette' ? {spring: 'snappy', channel: 't'} : {ms: 220, curve: 'E', channel: 't'});
-   if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fade: true});
+   if (kind === 'palette') {
+    el.style.transformOrigin = '50% 0';
+    play(el, [{clipPath: `inset(0px 0px calc(100% - ${q(el,'.st-palette-search')?.offsetHeight||52}px) 0px round 14px)`}, {clipPath:'inset(0px 0px 0px 0px round 14px)'}], {spring:'snappy', channel:'clip'});
+    const resultBox = q(el, '[role=listbox]'); if (resultBox) play(resultBox,[{opacity:0},{opacity:1}],{ms:100,delay:40,curve:'F',channel:'o',fade:true});
+   }
+   if (kind !== 'palette') play(el, [{opacity: 0}, {opacity: 1}], {ms: 80, curve: 'F', channel: 'o', fade: true});
+   if (!el.hasAttribute('data-st-persistent')) play(el, [{transform: kind === 'palette' ? 'translateY(-8px) scale(.98)' : 'translateY(4px) scale(.97)'}, {transform: 'none'}], kind === 'palette' ? {spring: 'snappy', channel: 't'} : {ms: 220, curve: 'E', channel: 't'});
+   if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
+   if (kind === 'modal') [...el.children].forEach(c => fadeIn(c,{ms:100,delay:c.matches('.row,.st-actions')?45:25}));
   }
+  if (o.keyboard) delete el.dataset.stPointerFocus; else el.dataset.stPointerFocus = '';
   if (!wasOpen && o.focus !== false && kind !== 'tooltip') {
-   if (kind === 'menu' || kind === 'plus-menu') { if (o.keyboard) focusFirst(el); else el.focus?.({preventScroll: true}); }
+   if (kind === 'menu' || kind === 'plus-menu') { if (o.keyboard) focusFirst(el); else { el.dataset.stPointerFocus = ''; el.focus?.({preventScroll: true, focusVisible: false}); } }
    else if (el.tagName !== 'DIALOG' || kind === 'palette') focusFirst(el);
   }
   el.dispatchEvent(new CustomEvent('st:open', {bubbles: true}));
@@ -343,7 +445,8 @@
   if (refocus && el.tagName !== 'DIALOG') s.trigger.focus({preventScroll: true});
   const scrim = scrimOf(el), recede = recedeOf(el);
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', fade: true}); }
-  if (recede) play(recede, [{transform: 'none', borderRadius: '0px', opacity: 1}], {spring: 'smooth', channel: 'recede'}).then(ok => { if (ok) stop(recede, 'recede'); });
+  // The page behind comes back in step with the sheet's 220ms exit, not on a longer tail.
+  if (recede) play(recede, [{transform: 'none', clipPath:'inset(0px round 0px)', opacity: 1}], {ms: 220, curve: 'E', channel: 'recede'}).then(ok => { if (ok) stop(recede, 'recede'); });
   let done;
   const morph = s.label && s.trigger && el.classList !== undefined && (kind === 'plus-menu' || el.hasAttribute('data-st-morph'));
   if (morph) {
@@ -354,9 +457,13 @@
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true});
   } else if (kind === 'tooltip') {
    done = o.instant ? Promise.resolve(true) : play(el, [{opacity: 0}], {ms: 'feedback', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
+  } else if (kind === 'popover-panel') {
+   [...el.children].forEach(c => play(c, [{opacity: 0}], {ms: 'feedback', channel: 'content', fill: 'forwards', fade: true}));
+   done = play(el, [{clipPath: 'inset(0 0 100% 0 round 14px)'}], {ms: 'quick', curve: 'X', channel: 'clip', fill: 'forwards'});
+   play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if (POP.includes(kind)) {
    const dy = el.dataset.stSide === 'top' ? 2 : -2;
-   [...el.children].forEach(c => stop(c, 'o'));
+   [...el.children].forEach(c => play(c,[{opacity:0}],{ms:65,curve:'F',channel:'o',fill:'forwards',fade:true}));
    play(el, [{transform: `translateY(${dy}px) scale(.97)`}], {ms: 110, curve: 'X', channel: 't', fill: 'forwards'});
    done = play(el, [{opacity: 0}], {ms: 110, curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if (kind === 'sheet' || kind === 'drawer') {
@@ -364,12 +471,14 @@
    done = play(el, [{transform: to}], {ms: o.velocity ? 180 : 220, curve: o.velocity ? 'cubic-bezier(.2,.6,.4,1)' : CURVES.X, channel: 't', fill: 'forwards'});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true});
    if (reduced()) done = play(el, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
+  } else if(kind==='palette' && el.hasAttribute('data-st-persistent')){
+   const height=q(el,'.st-palette-search')?.offsetHeight||46;done=play(el,[{clipPath:`inset(0px 0px calc(100% - ${height}px) 0px round 12px)`}],{ms:120,curve:'X',channel:'clip',fill:'forwards'});const results=q(el,'[role=listbox]');if(results)play(results,[{opacity:0}],{ms:65,channel:'o',fill:'forwards',fade:true});
   } else if (kind === 'panel') {
    play(el, [{transform: 'translateY(-4px) scale(.98)'}], {ms: 'quick', curve: 'X', channel: 't', fill: 'forwards'});
    done = play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else {
-   play(el, [{transform: kind === 'palette' ? 'translateY(-4px) scale(.98)' : 'scale(.97)'}], {ms: 140, curve: 'X', channel: 't', fill: 'forwards'});
-   done = play(el, [{opacity: 0}], {ms: 140, curve: 'F', channel: 'o', fill: 'forwards', fade: true});
+   if (!el.hasAttribute('data-st-persistent')) play(el, [{transform: kind === 'palette' ? 'translateY(-4px) scale(.98)' : 'scale(.97)'}], {ms: 120, curve: 'X', channel: 't', fill: 'forwards'});
+   done = play(el, [{opacity: 0}], {ms: 100, curve: 'F', channel: 'o', fill: 'forwards', fade: true});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}], {ms: 140, curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true});
   }
   const finish = () => {
@@ -446,7 +555,7 @@
   ind.style.clipPath = target; if (ink) ink.style.clipPath = inkTarget;
   if (!animate || !cur || reduced()) { stop(ind, 'clip'); if (ink) stop(ink, 'clip'); return; }
   const [, cr, , cl] = cur; if (Math.abs(cl - L) < .5 && Math.abs(cr - R) < .5) return;
-  const stretch = root.dataset.st === 'tabs' && !keyboard;
+  const stretch = false;
   const right = L > cl, lt = track(stretch ? (right ? 'trail' : 'lead') : 'snappy'), rt = track(stretch ? (right ? 'lead' : 'trail') : 'snappy');
   const dur = Math.max(lt.length, rt.length) - 1, N = 36, off = ink ? ink.offsetLeft : 0, iw = ink ? ink.clientWidth : 0;
   const frames = [], inkFrames = [];
@@ -463,12 +572,25 @@
   if (!tab) return;
   const prev = tabs.find(t => t.getAttribute('aria-selected') === 'true');
   const dir = prev ? Math.sign(tabs.indexOf(tab) - tabs.indexOf(prev)) : 0;
-  const prevPanel = prev && prev !== tab && !keyboard && !reduced() ? doc.getElementById(prev.getAttribute('aria-controls')) : null;
-  if (prevPanel && !prevPanel.hidden && prevPanel.parentElement) { const g = ghost(prevPanel, prevPanel.parentElement); play(g, [{opacity: 1, transform: 'none'}, {opacity: 0, transform: `translateX(${-dir * 6}px)`}], {ms: 80, curve: 'X', fill: 'forwards'}).then(() => g.remove()); }
+  // A change hard on the heels of another is a reversal: the new panel answers at once instead of waiting.
+  const rapid = tabs.some(t => { const p = doc.getElementById(t.getAttribute('aria-controls')); return p && p.getAnimations().some(a => a.playState === 'running'); });
   tabs.forEach(t => {
    const on = t === tab; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1;
    const panel = doc.getElementById(t.getAttribute('aria-controls'));
-   if (panel) { const was = panel.hidden; panel.hidden = !on; if (on && was && prev && prev !== tab) { play(panel, [{transform: `translateX(${dir * 6}px)`}, {transform: 'none'}], {spring: 'snappy', channel: 't', current: false}); play(panel, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', channel: 'o', delay: 30, fade: true, current: false}); } }
+   if (!panel) return;
+   const was = panel.dataset.stActive === 'true';
+   const alpha = getComputedStyle(panel).opacity, transform = getComputedStyle(panel).transform;
+   panel.hidden = false; panel.inert = !on; panel.setAttribute('aria-hidden', String(!on)); panel.dataset.stActive = String(on);
+   if (on === was || !prev || prev === tab || keyboard || reduced()) { stopAll(panel); return; }
+   if (on) {
+    // A panel that was just leaving comes straight back from where its fade got to; a fresh one waits for the old to clear.
+    const back = was || +alpha > .05, wait = back ? 0 : rapid ? 20 : 30;
+    play(panel, [{transform: back ? transform : `translateX(${dir * 4}px)`}, {transform:'none'}], {ms:200,curve:'E',delay:wait,channel:'t'});
+    play(panel, [{opacity: back ? alpha : 0},{opacity:1}], {ms:140,curve:'F',delay:wait,channel:'o',fade:true});
+   } else if (was) {
+    play(panel, [{transform},{transform:`translateX(${-dir * 4}px)`}], {ms:rapid ? 30 : 60,curve:'X',channel:'t'});
+    play(panel, [{opacity:alpha},{opacity:0}], {ms:rapid ? 30 : 60,curve:'X',channel:'o',fade:true});
+   }
   });
   indicate(root, tab, !!prev && prev !== tab, keyboard);
   if (prev !== tab) root.dispatchEvent(new CustomEvent('st:tab-change', {bubbles: true, detail: {tab}}));
@@ -481,24 +603,24 @@
   const body = q(d, '.st-details-body') || d.lastElementChild, host = d.parentElement;
   const g0 = d._stGhost; let startClip = null;
   if (g0) { startClip = getComputedStyle(g0).clipPath; stopAll(g0); g0.remove(); d._stGhost = null; }
-  const after = followers(d);
+  const after = [...host.children].filter(n=>!n.hasAttribute("data-st-ghost"));
   if (reduced()) { d.open = opening; if (body) body.inert = !opening; return; }
   if (opening) {
    if (startClip) after.forEach(f => stop(f, 'flip'));
-   flip(after, () => { d.open = true; }, {spring: 'smooth'});
+   flip(after, () => { d.open = true; }, {ms:220,curve:'E'});
    if (body) {
     body.inert = false;
-    play(body, [{clipPath: startClip && startClip !== 'none' ? startClip : 'inset(0px 0px 100% 0px)'}, {clipPath: 'inset(0px 0px 0% 0px)'}], {spring: 'smooth', channel: 'clip', current: false});
-    play(body, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {spring: 'smooth', channel: 't'});
-    play(body, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', channel: 'o', delay: 20, fade: true});
+    play(body, [{clipPath: startClip && startClip !== 'none' ? startClip : 'inset(0px 0px 100% 0px)'}, {clipPath: 'inset(0px 0px 0% 0px)'}], {ms:220,curve:'E',channel:'clip'});
+    play(body, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms:220,curve:'E',channel:'t'});
+    play(body, [{opacity: startClip ? +getComputedStyle(body).opacity : 0}, {opacity: 1}], {ms:120,curve:'F',channel:'o',fade:true});
    }
   } else {
    let g = null;
    if (body && host) { const cur = getComputedStyle(body).clipPath; g = ghost(body, host); d._stGhost = g; g.style.clipPath = cur === 'none' ? 'inset(0px 0px 0% 0px)' : cur; g.style.opacity = getComputedStyle(body).opacity; }
-   flip(after, () => { d.open = false; if (body) { stopAll(body); body.inert = true; } }, {spring: 'smooth'});
+   flip(after, () => { d.open = false; if (body) { stopAll(body); body.inert = true; } }, {ms:220,curve:'E'});
    if (g) {
-    play(g, [{clipPath: 'inset(0px 0px 100% 0px)'}], {spring: 'smooth', fill: 'forwards'}).then(ok => { if (ok && d._stGhost === g) { g.remove(); d._stGhost = null; } });
-    play(g, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards'});
+    play(g, [{clipPath: 'inset(0px 0px 100% 0px)'}], {ms:220,curve:'E',fill:'forwards'}).then(ok => { if (ok && d._stGhost === g) { g.remove(); d._stGhost = null; } });
+    play(g, [{opacity: 0}], {ms:65,curve:'F',channel:'o',fill:'forwards'});
    }
   }
   d.dispatchEvent(new CustomEvent('st:accordion', {bubbles: true, detail: {open: opening}}));
@@ -525,7 +647,7 @@
   if (el.dataset.st === 'button') buildButton(el);
   const prev = el.dataset.stState || 'idle'; if (prev === next && label === undefined) return;
   const content = q(el, '.st-button-content'), icon = q(el, '.st-state-icon'), text = q(el, '[data-st="text"]');
-  const x0 = content?.getBoundingClientRect().left;
+  const x0 = content?.getBoundingClientRect().left; if(content)stop(content,'flip');
   el.dataset.stState = next;
   el.setAttribute('aria-busy', String(next === 'loading'));
   if (label !== undefined && text) swapText(text, label);
@@ -542,9 +664,9 @@
  function success(el) {
   if (!el) return Promise.resolve();
   if (el.dataset.st === 'button') { state(el, 'success'); return Promise.resolve(); }
-  el.dataset.stDone = 'true';
+  el.dataset.stDone = 'true';const label=q(el,'[data-st-success-text]');if(label)label.textContent=el.dataset.stSuccessLabel||'Completed';
   const svg = q(el, 'svg') || el;
-  return play(svg, [{transform: 'scale(.6)', opacity: 0}, {transform: 'none', opacity: 1}], {spring: 'bouncy', fade: true});
+  el.setAttribute('role', 'status'); el.setAttribute('aria-label', el.dataset.stSuccessLabel || 'Completed'); return play(svg, [{transform: 'scale(.98)'}, {transform: 'none'}], {ms: 'control', delay: 160, curve: 'E'});
  }
 
  /* ---------- Form error: the field frame shakes with a decaying spring; the message drops into reserved space. ---------- */
@@ -578,24 +700,31 @@
     play(q(burst, 'b'), [{opacity: .8, transform: 'scale(.3)'}, {opacity: 0, transform: 'scale(1.35)'}], {ms: 380, curve: 'E', current: false});
     qa(burst, 'i').forEach((dot, i) => { const a = i * 60 + 30; play(dot, [{opacity: 1, transform: `rotate(${a}deg) translateY(-6px) scale(1)`}, {opacity: 0, transform: `rotate(${a}deg) translateY(-17px) scale(.2)`}], {ms: 420, curve: 'E', delay: 50, current: false}); });
    }
-  } else play(svg, [{transform: 'scale(.86)'}, {transform: 'none'}], {spring: 'snappy', current: false});
+  } else play(svg, [{transform: 'none'}], {ms:120,curve:'X'});
   el.dispatchEvent(new CustomEvent('st:like-change', {bubbles: true, detail: {liked: on, value: n ? states.get(n)?.value : undefined}}));
  }
 
  /* ---------- Copy: the glyph swaps in place and the label confirms; it reverts on its own. ---------- */
  function copy(el, text) {
   const value = text ?? el.dataset.stCopy ?? (el.dataset.stCopyFrom ? doc.querySelector(el.dataset.stCopyFrom)?.textContent : '');
-  try { navigator.clipboard?.writeText(value).catch(() => {}); } catch {}
+  const fallback = () => {
+   const focused=doc.activeElement, field=doc.createElement('textarea'); field.value=value;
+   Object.assign(field.style,{position:'fixed',opacity:'0',left:'0',top:'0'}); field.setAttribute('aria-hidden','true');doc.body.append(field);field.select();
+   const copied=doc.execCommand('copy');field.remove();focused?.focus({preventScroll:true,focusVisible:keyboardInput});return copied;
+  };
+  try { if(navigator.clipboard) navigator.clipboard.writeText(value).catch(fallback); else fallback(); } catch { fallback(); }
   icon(el, true);
-  const label = q(el, '[data-st="text"]'); if (label) { if (!el.dataset.stIdle) el.dataset.stIdle = label.dataset.stLabel || label.textContent.trim(); swapText(label, el.dataset.stCopied || 'Copied'); }
+  const label = q(el, '[data-st="text"]'); if (label) { if (!el.dataset.stIdle) el.dataset.stIdle = label.dataset.stLabel || label.textContent.trim(); swapText(label, el.dataset.stCopied || 'Copied', {fit: el}); }
   announce(el.dataset.stCopied || 'Copied');
   clearTimeout(el._stCopy);
-  el._stCopy = setTimeout(() => { icon(el, false); if (label) swapText(label, el.dataset.stIdle); }, 1600);
+  el._stCopy = setTimeout(() => { icon(el, false); if (label) swapText(label, el.dataset.stIdle, {fit: el}); }, 1600);
  }
- function icon(el, on) { el.dataset.stOn = String(on); const swap = el.matches('[data-st="icon"],.st-swap') ? el : q(el, '.st-swap,[data-st="icon"]'); if (swap && swap !== el) swap.dataset.stOn = String(on); }
+ // Icon morph: the path's outline changes shape; matching point counts let the browser interpolate it.
+ function morphIcon(el, on) { const path = q(el, 'path[data-st-on]'); if (!path) return; path.style.d = `path("${on ? path.dataset.stOn : path.dataset.stOff}")`; const label = on ? el.dataset.stLabelOn : el.dataset.stLabelOff; if (label) el.setAttribute('aria-label', label); }
+ function icon(el, on) { el.dataset.stOn = String(on); const swap = el.matches('[data-st="icon"],[data-st="icon-swap"],.st-swap') ? el : q(el, '.st-swap,[data-st="icon"]'); if (swap && swap !== el) swap.dataset.stOn = String(on); }
 
  /* ---------- Lists: add, remove and reorder with FLIP; a removed row fades before its neighbours close the gap. ---------- */
- const rows = container => [...container.children].filter(c => !c.dataset.stGhost && !c.hidden);
+ const rows = container => [...container.children].filter(c => !c.hasAttribute("data-st-ghost") && !c.hidden);
  const list = {
   add(container, node, index = 0) {
    const kids = rows(container), ref = kids[index] || null;
@@ -615,13 +744,28 @@
   },
   reorder(container, order) {
    const kids = rows(container), sorted = typeof order === 'function' ? [...kids].sort(order) : order;
-   return flip(kids, () => sorted.forEach(n => container.append(n)), {spring: 'smooth'});
+   // Rows stay in their lane: vertical FLIP only, every row retargeting from where it is rendered now. The row that
+   // travels furthest lifts above the others, so crossing rows read as one passing over the other.
+   const before = new Map(kids.map(n => [n, n.getBoundingClientRect().top]));
+   kids.forEach(n => { delete n.dataset.stMoving; });
+   const done = flip(kids, () => sorted.forEach(n => container.append(n)), {spring: 'smooth', axis: 'y'});
+   const far = kids.reduce((m, n) => Math.abs(before.get(n) - n.getBoundingClientRect().top) > Math.abs(before.get(m) - m.getBoundingClientRect().top) ? n : m, kids[0]);
+   const token = (container.__stSort = (container.__stSort || 0) + 1);
+   if (far && !reduced()) {
+    // Rows are painted with the surface behind them while they cross, so text never shows through text.
+    const paint = backdrop(container);
+    kids.forEach(n => { if (!('stPaint' in n.dataset)) { n.dataset.stPaint = n.style.backgroundColor; n.style.backgroundColor = paint; } });
+    far.dataset.stMoving = 'true';
+   }
+   return done.then(r => { if (container.__stSort === token) kids.forEach(n => { delete n.dataset.stMoving; if ('stPaint' in n.dataset) { n.style.backgroundColor = n.dataset.stPaint; delete n.dataset.stPaint; } }); return r; });
   }
  };
 
  /* ---------- Skeleton, reveal, shimmer ---------- */
- function skeleton(el, ready) { el.setAttribute('aria-busy', String(!ready)); const real = q(el, '.st-real'); if (real) real.inert = !ready; }
- function reveal(el) { return Promise.all([...el.children].map((x, i) => Promise.all([play(x, [{transform: 'translateY(8px)', filter: 'blur(4px)'}, {transform: 'none', filter: 'blur(0px)'}], {spring: 'smooth', delay: Math.min(i * 20, 60), current: false}), play(x, [{opacity: 0}, {opacity: 1}], {ms: 'surface', curve: 'F', channel: 'o', delay: Math.min(i * 20, 60), current: false, fade: true})]))); }
+ function skeleton(el, ready, o = {}) { if (o.instant) { el.classList.add('st-instant'); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('st-instant'))); } el.setAttribute('aria-busy', String(!ready)); const real = q(el, '.st-real'); if (real) real.inert = !ready; }
+ // Each line is uncovered left to right in reading order, the next line a beat behind; text starts at .6 opacity, so
+ // even a capture taken mid-reveal reads.
+ function reveal(el) { if ([...el.children].some(x => x.getAnimations().some(a => a.playState === 'running'))) return Promise.resolve(); return Promise.all([...el.children].map((x, i) => Promise.all([play(x, [{clipPath: 'inset(-4px 100% -4px -4px)'}, {clipPath: 'inset(-4px -4px -4px -4px)'}], {ms: 260, curve: 'E', delay: i * 60, current: false, channel: 'clip'}), play(x, [{transform: 'translateX(-6px)'}, {transform: 'none'}], {ms: 260, curve: 'E', delay: i * 60, current: false})]))); }
  function shimmer(el) {
   let shine = q(el, '.st-shine');
   if (!shine) { shine = doc.createElement('span'); shine.className = 'st-shine'; shine.setAttribute('aria-hidden', 'true'); shine.textContent = el.textContent; el.append(shine); }
@@ -638,7 +782,7 @@
   const flush = () => {
    s.frame = 0; if (!el.isConnected || !s.buffer) { s.buffer = ''; return; }
    const words = s.buffer.match(/\S+\s*|\s+/g) || []; s.buffer = '';
-   words.forEach((w, i) => { const span = doc.createElement('span'); span.className = 'st-word'; span.textContent = w; el.append(span); play(span, [{opacity: 0, filter: 'blur(4px)'}, {opacity: 1, filter: 'blur(0px)'}], {ms: 260, curve: 'F', delay: Math.min(i * 16, 80), fade: true, current: false}); });
+   words.forEach((w, i) => { const span = doc.createElement('span'); span.className = 'st-word'; span.textContent = w; el.append(span); play(span, [{opacity: 0, transform: 'translateY(3px)'}, {opacity: 1, transform: 'none'}], {ms: 120, curve: 'E', delay: i * 18, fade: true, current: false}); });
   };
   if (done) { cancelAnimationFrame(s.frame); flush(); el.dispatchEvent(new CustomEvent('st:stream-end', {bubbles: true})); }
   else if (!s.frame) s.frame = requestAnimationFrame(flush);
@@ -717,76 +861,155 @@
   return {element: el, dismiss};
  }
 
- /* ---------- Expand: a card opens into its detail; the surface unclips from the card, shared parts travel. ---------- */
+ /* ---------- Expand: a card opens into its detail. The surface unclips from the card; the cover travels and scales; the
+    title follows the cover and steps around it (the axis that clears the cover leads), so it never crosses the artwork;
+    details arrive after the title lands. Every phase is sampled from one clock and restarts from rendered geometry. ---------- */
  function sharedPairs(source, detail) {
   return qa(detail, '[data-st-shared]').map(d => [q(source, `[data-st-shared="${d.dataset.stShared}"]`), d]).filter(([s]) => s);
  }
- function sharedFrom(src, dst) {
-  const a = src.getBoundingClientRect(), b = dst.getBoundingClientRect();
-  // Text travels by translation only and re-renders at its own size, so glyphs are never scaled.
-  if (dst.hasAttribute('data-st-shared-text')) return {origin: '0 0', text: true, transform: `translate(${a.left - b.left}px, ${a.top + a.height / 2 - b.top - b.height / 2}px)`};
-  return {origin: '50% 50%', transform: `translate(${a.left + a.width / 2 - b.left - b.width / 2}px, ${a.top + a.height / 2 - b.top - b.height / 2}px) scale(${a.width / b.width}, ${a.height / b.height})`};
+ const box = r => ({x: r.left, y: r.top, w: r.width, h: r.height});
+ function travel(s, detail, pairs, toSource, v) {
+  const anchorPair = pairs.find(([, d]) => !d.hasAttribute('data-st-shared-text')), jobs = [];
+  if (!s.travelers) s.travelers = new Map();
+  // Rendered start: the travelling layers if a transition is in flight, otherwise whichever side is at rest.
+  const from = new Map(), to = new Map();
+  for (const [a, d] of pairs) {
+   const g = s.travelers.get(d), moving = g && g.isConnected ? g : d;
+   from.set(d, box((toSource || s.moved ? moving : a).getBoundingClientRect()));
+   stop(d, 'shared'); if (g) stopAll(g);
+  }
+  for (const [a, d] of pairs) to.set(d, box((toSource ? a : d).getBoundingClientRect()));
+  const springName = toSource ? 'snappy' : 'expand', n = 32;
+  const A = anchorPair && anchorPair[1], aFrom = A && from.get(A), aTo = A && to.get(A);
+  for (const [, d] of pairs) {
+   const isText = d.hasAttribute('data-st-shared-text'), f = from.get(d), t = to.get(d), home = box(d.getBoundingClientRect());
+   let layer = d;
+   if (isText) {
+    layer = s.travelers.get(d);
+    if (!layer || !layer.isConnected) {
+     // The title travels under the artwork, so where their paths overlap it slides out from behind it.
+     const host = (A && A.parentElement && A.parentElement.contains(d) ? A.parentElement : null) || q(detail, '.st-expand-surface,.expand-surface') || detail;
+     layer = ghost(d, host); const cs = getComputedStyle(d);
+     Object.assign(layer.style, {visibility: 'visible', zIndex: '1', font: cs.font, letterSpacing: cs.letterSpacing, color: cs.color, whiteSpace: 'nowrap', maxWidth: 'none', overflow: 'visible', transformOrigin: '0 0'});
+     s.travelers.set(d, layer);
+    }
+    d.style.visibility = 'hidden';
+   } else Object.assign(d.style, {transformOrigin: '0 0', position: getComputedStyle(d).position === 'static' ? 'relative' : d.style.position, zIndex: '2'});
+   // Relative to the anchor, lead with the axis that takes the text clear of it.
+   const relF = A && isText ? {x: f.x - aFrom.x, y: f.y - aFrom.y} : null, relT = A && isText ? {x: t.x - aTo.x, y: t.y - aTo.y} : null;
+   const leadX = relT && (relT.x >= aTo.w || relF.x >= aFrom.w ? relT.x > relF.x : false);
+   const frames = [];
+   for (let i = 0; i <= n; i++) {
+    const p = i / n, q2 = p, lerp = (u, w, k) => u + (w - u) * k;
+    let x, y, w, h;
+    if (relF) {
+     const ax = lerp(aFrom.x, aTo.x, p), ay = lerp(aFrom.y, aTo.y, p);
+     // Straight to the header, front-loaded (95% of the way by about 60% of the spring), passing under the artwork.
+     const f = 1 - Math.pow(1 - p, 2.4); void q2; void leadX;
+     x = ax + lerp(relF.x, relT.x, f); y = ay + lerp(relF.y, relT.y, f);
+     w = lerp(f.w, t.w, p); h = lerp(f.h, t.h, p);
+    } else { x = lerp(f.x, t.x, p); y = lerp(f.y, t.y, p); w = lerp(f.w, t.w, p); h = lerp(f.h, t.h, p); }
+    const sx = isText ? 1 : w / home.w, sy = isText ? 1 : h / home.h;
+    frames.push({transform: `translate(${x - home.x}px, ${y - home.y}px) scale(${sx}, ${sy})`});
+   }
+   jobs.push(play(layer, frames, {spring: springName, channel: 'shared', current: false, fill: toSource ? 'forwards' : 'backwards'}));
+  }
+  s.moved = true;
+  return Promise.all(jobs).then(r => r.every(Boolean) && s.version === v);
  }
+ function expandPaint(surface, state) {
+  if (state.paint?.isConnected) return state.paint;
+  const cs = getComputedStyle(surface), paint = doc.createElement('span'); paint.setAttribute('aria-hidden', 'true'); paint.className = 'st-expand-paint';
+  Object.assign(paint.style, {position: 'absolute', inset: '0', background: cs.background, boxShadow: cs.boxShadow, border: cs.border, borderRadius: cs.borderRadius, pointerEvents: 'none', zIndex: '-1'});
+  state.paintSaved = {background: surface.style.background, boxShadow: surface.style.boxShadow, borderColor: surface.style.borderColor, overflow: surface.style.overflow, isolation: surface.style.isolation};
+  Object.assign(surface.style, {background: 'transparent', boxShadow: 'none', borderColor: 'transparent', overflow: 'visible', isolation: 'isolate'}); surface.prepend(paint); state.paint = paint; return paint;
+ }
+ const cardClip = (sr, dr, rad) => `inset(${sr.top - dr.top}px ${dr.right - sr.right}px ${dr.bottom - sr.bottom}px ${sr.left - dr.left}px round ${rad}px)`;
  function expand(source, detail) {
   if (!source || !detail) return;
-  const s = layerState(detail); const wasClosing = s.closing; s.source = source; s.open = true; s.closing = false; const v = ++s.version;
+  const s = layerState(detail), wasClosing = s.closing; s.source = source; s.open = true; s.closing = false; const v = ++s.version;
+  if (!wasClosing) s.moved = false;
   detail.dataset.stOpen = 'true'; detail.hidden = false; detail.inert = false; active.add(detail);
   if (detail.tagName === 'DIALOG' && !detail.open) detail.showModal();
   s.trigger = source; source.setAttribute('aria-expanded', 'true');
-  const surface = q(detail, '.st-expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
-  const pairs = sharedPairs(source, detail), radius = getComputedStyle(source).borderRadius || '12px';
-  const sr = source.getBoundingClientRect(), dr = surface.getBoundingClientRect();
-  const from = `inset(${sr.top - dr.top}px ${dr.right - sr.right}px ${dr.bottom - sr.bottom}px ${sr.left - dr.left}px round ${parseFloat(radius)}px)`;
+  const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
+  const pairs = sharedPairs(source, detail), rad = parseFloat(getComputedStyle(source).borderRadius) || 12;
+  const sr = source.getBoundingClientRect(), dr = surface.getBoundingClientRect(), paint = expandPaint(surface, s);
   const endR = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
   source.style.visibility = 'hidden';
-  if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 'surface', curve: 'F', fade: true}); }
-  play(surface, [{clipPath: from}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'smooth', channel: 'clip', current: wasClosing});
-  if (reduced()) play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'});
-  for (const [a, b] of pairs) { const f = sharedFrom(a, b); b.style.transformOrigin = f.origin; play(b, [{transform: f.transform}, {transform: 'none'}], {spring: 'smooth', channel: 'shared', current: wasClosing}); if (f.text) play(b, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', delay: 60, channel: 'o', current: wasClosing, fade: true}); }
-  qa(surface, '[data-st-expand-content]').forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', delay: 60, channel: 'o', fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {spring: 'smooth', delay: 50, channel: 't'}); });
-  (q(detail, '[data-st-close]') || focusFirst(detail))?.focus?.({preventScroll: true});
-  void v;
+  const content = qa(surface, '[data-st-expand-content]'), closeControl = q(surface, '[data-st-close]');
+  if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 'surface', curve: 'F', fade: true, current: wasClosing}); }
+  if (reduced()) { play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'}); pairs.forEach(([, d]) => d.style.visibility = ''); }
+  else {
+   // The shell's clip is sampled from the same spring track as the shared parts, so all three move as one.
+   { const cur = wasClosing ? parseInset(getComputedStyle(paint).clipPath) : null, a0 = cur || [sr.top - dr.top, dr.right - sr.right, dr.bottom - sr.bottom, sr.left - dr.left], r0 = wasClosing ? endR : rad;
+     play(paint, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false}); }
+   travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); } s.travelers.clear(); s.moved = false; });
+   // Details belong to the open state: they arrive once the title has nearly landed.
+   content.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: wasClosing ? 0 : 130, channel: 'o', current: wasClosing, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: wasClosing ? 0 : 130, channel: 't', current: wasClosing}); });
+   if (closeControl) play(closeControl, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 150, channel: 'o', current: wasClosing, fade: true});
+  }
+  (closeControl || focusFirst(detail))?.focus?.({preventScroll: true});
  }
  function collapse(detail) {
   const s = layerState(detail); if (!s.open || !s.source) return;
   s.open = false; s.closing = true; const v = ++s.version, source = s.source;
   source.setAttribute('aria-expanded', 'false');
-  const surface = q(detail, '.st-expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
+  const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
   if (detail.contains(doc.activeElement)) source.focus({preventScroll: true});
   detail.inert = true;
   const sr = source.getBoundingClientRect(), dr = surface.getBoundingClientRect(), rad = parseFloat(getComputedStyle(source).borderRadius) || 12;
+  const finish = () => {
+   if (s.version !== v || s.open) return; s.closing = false; s.moved = false;
+   if (s.travelers) { for (const [d, g] of s.travelers) { stopAll(g); g.remove(); d.style.visibility = ''; } s.travelers.clear(); }
+   if (s.paint) { stopAll(s.paint); s.paint.remove(); s.paint = null; Object.assign(surface.style, s.paintSaved); }
+   source.style.visibility = ''; detail.dataset.stOpen = 'false'; active.delete(detail);
+   if (detail.tagName === 'DIALOG' && detail.open) detail.close();
+   stopAll(surface); qa(detail, '*').forEach(stopAll); if (scrim) stopAll(scrim);
+  };
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 0}], {ms: 'control', curve: 'F', fade: true, fill: 'forwards'}); }
-  qa(surface, '[data-st-expand-content]').forEach(c => play(c, [{opacity: 0}], {ms: 'feedback', curve: 'F', channel: 'o', fill: 'forwards', fade: true}));
-  for (const [a, b] of sharedPairs(source, detail)) { const f = sharedFrom(a, b); b.style.transformOrigin = f.origin; play(b, [{transform: f.transform}], {spring: 'smooth', channel: 'shared', fill: 'forwards'}); if (f.text) play(b, [{opacity: 0}], {ms: 'feedback', curve: 'F', channel: 'o', fill: 'forwards', fade: true}); }
-  const done = play(surface, [{clipPath: `inset(${sr.top - dr.top}px ${dr.right - sr.right}px ${dr.bottom - sr.bottom}px ${sr.left - dr.left}px round ${rad}px)`}], {spring: 'smooth', channel: 'clip', fill: 'forwards'});
-  const finish = () => { if (s.version !== v || s.open) return; s.closing = false; source.style.visibility = ''; qa(source, '[data-st-shared]').forEach(n => { if (q(detail, `[data-st-shared="${n.dataset.stShared}"][data-st-shared-text]`)) fadeIn(n, {ms: 'quick'}); }); detail.dataset.stOpen = 'false'; active.delete(detail); if (detail.tagName === 'DIALOG' && detail.open) detail.close(); stopAll(surface); qa(detail, '*').forEach(stopAll); if (scrim) stopAll(scrim); };
+  const closeControl = q(surface, '[data-st-close]'); if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
+  qa(surface, '[data-st-expand-content]').forEach(c => play(c, [{opacity: 0}], {ms: 45, curve: 'X', channel: 'o', fill: 'forwards', fade: true}));
   if (reduced()) { play(surface, [{opacity: 0}], {ms: 'quick', fade: true, channel: 'o', fill: 'forwards'}).then(finish); return; }
-  done.then(finish);
+  { const a0 = parseInset(getComputedStyle(s.paint || surface).clipPath) || [0, 0, 0, 0], r0 = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
+    play(s.paint || surface, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: cardClip(sr, dr, rad)}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false}); }
+  travel(s, detail, sharedPairs(source, detail), true, v).then(ok => { if (ok) finish(); });
  }
 
- /* ---------- Page: View Transitions with a slide in the navigation direction and shared elements; WAAPI fallback. ---------- */
- let pageVT = null, pageVersion = 0;
+ /* ---------- Page: the old view clears in 60ms toward where it came from, shared parts travel to their new places,
+    and the rest of the new view slides in from the direction of navigation a beat later. Nothing is drawn twice. ---------- */
+ let pageVersion = 0, pageCleanup = null;
  async function page(direction, update, el = doc.documentElement, o = {}) {
-  const dir = direction === 'back' ? -1 : 1, v = ++pageVersion, root = doc.documentElement;
+  const scope = el === doc.documentElement ? doc.body : el, v = ++pageVersion, dir = direction === 'back' ? -1 : 1;
+  const keys = new Set(o.shared || []), isShared = n => n.dataset && keys.has(n.dataset.stShared), before = new Map();
+  qa(scope, '[data-st-shared]').filter(isShared).forEach(n => before.set(n.dataset.stShared, n.getBoundingClientRect()));
+  const interrupted = !!pageCleanup; pageCleanup?.();
   if (reduced()) { await update(); return; }
-  const scope = el && el !== root ? el : null;
-  if (doc.startViewTransition && !o.fallback) {
-   try { pageVT?.skipTransition(); } catch {}
-   root.style.setProperty('--st-dir', dir);
-   const keys = new Set(o.shared || []);
-   const name = () => qa(scope || doc, '[data-st-shared]').forEach(n => { if (keys.has(n.dataset.stShared)) { n.style.viewTransitionName = 'st-shared-' + n.dataset.stShared.replace(/[^\w-]/g, '_'); n.style.viewTransitionClass = 'st-shared'; } });
-   const unname = () => qa(doc, '[data-st-shared]').forEach(n => { n.style.viewTransitionName = ''; n.style.viewTransitionClass = ''; });
-   if (scope) { root.classList.add('st-vt'); scope.style.viewTransitionName = 'st-page'; }
-   name();
-   const vt = doc.startViewTransition(async () => { unname(); await update(); name(); });
-   pageVT = vt;
-   vt.finished.finally(() => { if (pageVT === vt) { pageVT = null; root.classList.remove('st-vt'); if (scope) scope.style.viewTransitionName = ''; unname(); } });
-   return vt.updateCallbackDone;
+  const outgoing = interrupted ? doc.createElement('span') : ghost(scope, scope.parentElement);
+  qa(outgoing, '[data-st-shared]').filter(n => keys.has(n.dataset.stShared) || keys.has(n.dataset.stGhostOf)).forEach(n => n.style.visibility = 'hidden');
+  const clean = () => { stopAll(outgoing); outgoing.remove(); };
+  pageCleanup = clean;
+  await update();
+  if (v !== pageVersion) { clean(); return; }
+  const jobs = [play(outgoing, [{opacity: 1, transform: 'none'}, {opacity: 0, transform: `translateX(${-12 * dir}px)`}], {ms: interrupted ? 40 : 60, curve: 'X', fill: 'forwards'}).then(clean)];
+  // Shared parts: one copy each, travelling from where it was drawn.
+  qa(scope, '[data-st-shared]').filter(n => isShared(n) && before.has(n.dataset.stShared)).forEach(n => {
+   if (getComputedStyle(n).display === 'inline') n.style.display = 'inline-block';
+   // While it travels, a shared part rides above the content arriving around it.
+   const saved = {position: n.style.position, zIndex: n.style.zIndex};
+   if (getComputedStyle(n).position === 'static') n.style.position = 'relative'; n.style.zIndex = '3';
+   const a = before.get(n.dataset.stShared), b = n.getBoundingClientRect();
+   jobs.push(play(n, [{transform: `translate(${a.left - b.left}px, ${a.top - b.top}px)`}, {transform: 'none'}], {spring: 'snappy', channel: 'shared', current: false}).then(r => { Object.assign(n.style, saved); return r; }));
+  });
+  // Everything else in the new view: the largest blocks that hold no shared part.
+  const loose = root => [...root.children].flatMap(c => isShared(c) ? [] : qa(c, '[data-st-shared]').some(isShared) ? loose(c) : [c]);
+  for (const n of loose(scope)) {
+   // A beat after the shared parts have nearly landed, so nothing arrives underneath them.
+   const wait = before.size ? (n === loose(scope)[0] ? 40 : 70) : 40;
+   jobs.push(play(n, [{opacity: 0}, {opacity: 1}], {ms: n === loose(scope)[0] ? 100 : 140, curve: 'F', delay: wait, channel: 'o', current: false, fade: true}));
+   jobs.push(play(n, [{transform: `translateX(${16 * dir}px)`}, {transform: 'none'}], {spring: 'smooth', delay: wait, channel: 't', current: false}));
   }
-  await update(); if (v !== pageVersion) return;
-  const target = scope || doc.body;
-  play(target, [{transform: `translateX(${dir * 24}px)`}, {transform: 'none'}], {spring: 'smooth', channel: 't'});
-  return play(target, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', channel: 'o', fade: true});
+  await Promise.all(jobs); if (v === pageVersion) pageCleanup = null;
  }
 
  /* ---------- Command palette: filter with FLIP, one highlight travels between results. ---------- */
@@ -804,7 +1027,8 @@
    const y = opt.offsetTop, h = opt.offsetHeight;
    hl.style.height = h + 'px'; hl.style.transition = instant || hl.style.opacity === '0' ? 'none' : ''; hl.style.transform = `translateY(${y}px)`; hl.style.opacity = '1';
    void hl.offsetHeight; hl.style.transition = '';
-   opt.scrollIntoView?.({block: 'nearest'});
+   // Keep the highlighted result in view by scrolling the list itself, never the page around it.
+   const lb = opt.closest('[role="listbox"]'); if (lb) { const top = opt.offsetTop - lb.offsetTop * (opt.offsetParent === lb ? 0 : 1); if (top < lb.scrollTop) lb.scrollTop = top; else if (top + h > lb.scrollTop + lb.clientHeight) lb.scrollTop = top + h - lb.clientHeight; }
   };
   input.addEventListener('input', () => {
    const term = input.value.trim().toLowerCase(), all = qa(box, '[role="option"]');
@@ -822,8 +1046,9 @@
   });
   box.addEventListener('pointermove', e => { const o = e.target.closest('[role="option"]'); if (o && o !== activeOpt) setActive(o); });
   box.addEventListener('click', e => { const o = e.target.closest('[role="option"]'); if (!o) return; el.dispatchEvent(new CustomEvent('st:palette-select', {bubbles: true, detail: {option: o, value: o.dataset.value || o.textContent.trim()}})); close(el); });
-  el.addEventListener('st:open', () => { if (input.value) { input.value = ''; input.dispatchEvent(new Event('input')); } setActive(opts()[0] || null, true); requestAnimationFrame(() => input.focus()); });
+  el.addEventListener('st:open', () => { if (input.value) { input.value = ''; input.dispatchEvent(new Event('input')); } setActive(opts()[0] || null, true); requestAnimationFrame(() => input.focus({preventScroll:true,focusVisible:keyboardInput})); });
   setActive(opts()[0] || null, true);
+  if(el.hasAttribute('data-st-persistent')) input.addEventListener('focus',()=>{if(!isOpen(el)&&doc.documentElement.dataset.stInputMode==='keyboard')open(el,input,{keyboard:true});});
  }
 
  /* ---------- Tooltips: dwell once, then the bubble glides between neighbours. Focus and long-press work too. ---------- */
@@ -859,6 +1084,108 @@
   ['pointerup', 'pointercancel', 'pointermove'].forEach(t => trigger.addEventListener(t, e => { if (t !== 'pointermove' || Math.abs(e.movementX) + Math.abs(e.movementY) > 6) clearTimeout(press); }));
  }
 
+ /* ---------- v3: local feedback, shared images and direct manipulation ---------- */
+ function badge(el, value, fromMutation = false) {
+  el.dataset.stFrequent = '';
+  const visible = Number(value) > 0, was = el.dataset.stVisible === 'true';
+  el.dataset.stVisible = String(visible); el.setAttribute('aria-label', visible ? `${value} unread notifications` : 'No unread notifications');
+  // A count this small changes as one unit: the old number lifts out, the new one rises in, no per-digit overlap.
+  if (!fromMutation) { if (!el.dataset.stLabel && el.dataset.value) { el.dataset.stLabel = el.dataset.value; el.replaceChildren(letters(el.dataset.value, 'st-text-value')); } swapText(el, String(value), {tight: true}); el.dataset.value = String(value); }
+  if (visible && !was) play(el, [{transform: 'scale(.5)', opacity: 0}, {transform: 'none', opacity: 1}], {spring: 'bouncy', channel: 'badge', fade: true});
+  else if (!visible) play(el, [{transform: 'scale(.5)', opacity: 0}], {ms: 'quick', curve: 'X', channel: 'badge', fill: 'forwards', fade: true});
+ }
+ function progress(el, next) {
+  if (!el || !['loading', 'success', 'error'].includes(next)) return;
+  if (!q(el, '.st-progress-ring')) el.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="st-progress-ring" cx="20" cy="20" r="14" pathLength="100"/><path class="st-progress-check" d="m12 20 5 5 11-11" pathLength="100"/><path class="st-progress-cross" d="m14 14 12 12m0-12L14 26" pathLength="100"/></svg>';
+  el.dataset.stProgress = next; el.setAttribute('role', 'status'); el.setAttribute('aria-label', next === 'loading' ? 'Loading' : next === 'success' ? 'Completed' : 'Failed'); el.setAttribute('aria-busy', String(next === 'loading'));
+  if (next !== 'loading') announce(next === 'success' ? 'Completed' : 'Failed');
+ }
+ function tilt(el, x = 0, y = 0) {
+  if (reduced() || !finePointer.matches) { el.style.transform = ''; return; }
+  // Engaged, the card lifts and leans toward the pointer; the photo inside shifts the other way for depth, and a soft
+  // light follows the pointer. Released, everything settles back on the same spring.
+  const on = !!(x || y), rx = clamp(-y * 3, -3, 3), ry = clamp(x * 3, -3, 3);
+  el.dataset.stEngaged = String(on);
+  el.style.transform = on ? `perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)` : '';
+  const media = q(el, 'img,.st-media'); if (media) media.style.transform = on ? `translate(${-x * 7}px, ${-y * 5}px) scale(1.08)` : '';
+  const shine = q(el, '.st-tilt-light'); if (shine) { shine.style.transform = `translate(${x * 60}px,${y * 40}px)`; shine.style.opacity = on ? '.32' : '0'; }
+ }
+ function bindTilt(el) {
+  let raf = 0, point;
+  el.addEventListener('pointermove', e => { if (!finePointer.matches || reduced()) return; point = e; if (!raf) raf = requestAnimationFrame(() => { raf = 0; const r = el.getBoundingClientRect(); tilt(el, (point.clientX - r.left) / r.width * 2 - 1, (point.clientY - r.top) / r.height * 2 - 1); }); });
+  el.addEventListener('pointerleave', () => { cancelAnimationFrame(raf); raf = 0; tilt(el); });
+ }
+ const images = new WeakMap(); let currentImage;
+ function image(source) {
+  let s = images.get(source);
+  if (!s) {
+   const img = source.matches('img') ? source : q(source, 'img'); if (!img) return;
+   const dialog = doc.createElement('dialog'); dialog.className = 'st-lightbox'; dialog.setAttribute('aria-label', img.alt || 'Image preview');
+   const full = img.cloneNode(); full.removeAttribute('id'); const closeButton = doc.createElement('button'); closeButton.className = 'st-button st-lightbox-close'; closeButton.textContent = 'Close'; const backdrop=doc.createElement('span');backdrop.className='st-lightbox-scrim';backdrop.setAttribute('aria-hidden','true');dialog.append(backdrop,full,closeButton); (source.closest('[data-st-preview]') || doc.body).append(dialog);
+   s = {dialog, full, img, source, version: 0, open: false}; images.set(source, s);
+   closeButton.onclick = () => closeImage(source); dialog.addEventListener('cancel', e => { e.preventDefault(); closeImage(source); });
+   dialog.addEventListener('click', e => { if (e.target === dialog || e.target.classList.contains('st-lightbox-scrim')) closeImage(source); });
+   let drag;
+   full.addEventListener('pointerdown', e => { if (e.pointerType !== 'touch' || !s.open) return; const r = full.getBoundingClientRect(); stop(full, 'image'); const final = full.getBoundingClientRect(); full.style.transform = `translate(${r.left-final.left}px,${r.top-final.top}px) scale(${r.width/final.width})`; drag = {id: e.pointerId, y: e.clientY, last: e.clientY, time: performance.now(), velocity: 0}; full.setPointerCapture(e.pointerId); });
+   full.addEventListener('pointermove', e => { if (!drag || e.pointerId !== drag.id) return; const now = performance.now(); drag.velocity = (e.clientY - drag.last) / Math.max(1, now-drag.time); drag.last=e.clientY; drag.time=now; full.style.transform = reduced() ? 'none' : `translateY(${Math.max(0,e.clientY-drag.y)}px)`; });
+   const end = e => { if (!drag || e.pointerId !== drag.id) return; const dismiss = e.type !== 'pointercancel' && (e.clientY-drag.y > 100 || drag.velocity > .5); drag=null; if (dismiss) closeImage(source); else { play(full,[{transform:'none'}],{spring:'smooth',channel:'image'}); full.style.transform='none'; } };
+   full.addEventListener('pointerup',end); full.addEventListener('pointercancel',end);
+  }
+  if (s.open && !s.closing) return closeImage(source);
+  if (currentImage && currentImage !== source) closeImage(currentImage);
+  const wasClosing = s.closing; s.open = true; s.closing = false; currentImage = source; const v = ++s.version;
+  // Start from what is on screen: the travelling photo mid-close, or the thumbnail.
+  const from = wasClosing ? s.full.getBoundingClientRect() : s.img.getBoundingClientRect();
+  const fromR = wasClosing ? s.radius ?? thumbRadius(s) : thumbRadius(s);
+  if (!s.dialog.open) (source.closest('[data-st-preview]') ? s.dialog.show() : s.dialog.showModal());
+  stop(s.full, 'image');
+  const host = source.closest('[data-st-preview]'), slot = s.img.getBoundingClientRect(), ratio = slot.width / slot.height;
+  const width = host ? Math.min(host.clientWidth - 40, (host.clientHeight - 88) * ratio) : Math.min(900, innerWidth - 48, (innerHeight - 144) * ratio);
+  Object.assign(s.full.style, {width: width + 'px', height: width / ratio + 'px', maxWidth: 'none', maxHeight: 'none', objectFit: 'cover', transform: 'none', transformOrigin: '0 0', borderRadius: '12px'});
+  const to = s.full.getBoundingClientRect();
+  s.img.style.visibility = 'hidden';
+  play(s.full, photoFrames(s, from, to, to, fromR, 12), {ms: track('smooth').length - 1, curve: 'linear', channel: 'image', current: false});
+  play(q(s.dialog, '.st-lightbox-scrim'), [{opacity: 0}, {opacity: 1}], {ms: 160, curve: 'F', fade: true, current: wasClosing});
+  play(q(s.dialog, '.st-lightbox-close'), [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', delay: wasClosing ? 0 : 140, fade: true, channel: 'o', current: wasClosing});
+  void v;
+ }
+ const thumbRadius = s => parseFloat(getComputedStyle(s.source).borderTopLeftRadius) || parseFloat(getComputedStyle(s.img).borderTopLeftRadius) || 0;
+ // One sampled spring: position, uniform scale and a radius that looks the same on screen at every scale.
+ function photoFrames(s, from, to, base, r0, r1) {
+  const T = track('smooth'), n = 40, frames = [];
+  for (let i = 0; i <= n; i++) {
+   const p = at(T, (T.length - 1) * i / n), w = from.width + (to.width - from.width) * p;
+   const x = from.left + (to.left - from.left) * p, y = from.top + (to.top - from.top) * p, k = w / base.width, r = r0 + (r1 - r0) * p;
+   frames.push({transform: `translate(${x - base.left}px, ${y - base.top}px) scale(${k})`, borderRadius: `${r / k}px`});
+  }
+  s.radius = r1;
+  return frames;
+ }
+ function closeImage(source = currentImage) {
+  const s = images.get(source); if (!s || !s.dialog.open || s.closing) return;
+  s.open = false; s.closing = true; const v = ++s.version;
+  const rendered = s.full.getBoundingClientRect(); stop(s.full, 'image'); s.full.style.transform = 'none';
+  const base = s.full.getBoundingClientRect(), target = s.img.getBoundingClientRect();
+  play(q(s.dialog, '.st-lightbox-scrim'), [{opacity: 0}], {ms: 140, curve: 'F', fill: 'forwards', fade: true});
+  play(q(s.dialog, '.st-lightbox-close'), [{opacity: 0}], {ms: 60, curve: 'X', fill: 'forwards', fade: true, channel: 'o'});
+  return play(s.full, photoFrames(s, rendered, target, base, 12, thumbRadius(s)), {ms: track('smooth').length - 1, curve: 'linear', channel: 'image', current: false, fill: 'forwards'}).then(ok => {
+   if (!ok || v !== s.version) return;
+   s.dialog.close(); s.img.style.visibility = ''; stop(s.full, 'image'); stopAll(s.dialog); qa(s.dialog, '*').forEach(stopAll);
+   s.closing = false; source.focus?.({preventScroll: true}); if (currentImage === source) currentImage = null;
+  });
+ }
+ function bindReorder(root) {
+  let held=null, original=[], pointer=null;
+  const label = row => row.dataset.stName || row.textContent.trim();
+  const pick = row => { held=row; original=rows(root); row.dataset.stHeld='true'; announce(`Picked up ${label(row)}. Use arrow keys to move, Space to drop, Escape to cancel.`); };
+  const move = i => { const all=rows(root), old=all.indexOf(held); i=clamp(i,0,all.length-1); if(i===old)return; all.splice(old,1);all.splice(i,0,held); list.reorder(root,all); held.querySelector('[data-st-handle]')?.focus({preventScroll:true}); announce(`${label(held)}, position ${i+1} of ${all.length}`); };
+  const drop = cancel => { if(!held)return; const row=held; if(cancel)list.reorder(root,original); delete row.dataset.stHeld; row.style.translate=''; held=null; pointer=null; announce(`${label(row)} ${cancel?'cancelled':'dropped'}, position ${rows(root).indexOf(row)+1} of ${rows(root).length}`); };
+  root.addEventListener('keydown',e=>{ const row=e.target.closest('[data-st-row]');if(!row)return; if(e.code==='Space'){e.preventDefault();held?drop(false):pick(row);}else if(held && ['ArrowUp','ArrowDown','Home','End','Escape'].includes(e.key)){e.preventDefault();if(e.key==='Escape')drop(true);else move(e.key==='Home'?0:e.key==='End'?rows(root).length-1:rows(root).indexOf(held)+(e.key==='ArrowUp'?-1:1));} });
+  root.addEventListener('pointerdown',e=>{ const h=e.target.closest('[data-st-handle]'),row=h?.closest('[data-st-row]');if(!row || e.button!==0 || held)return; pick(row);const r=row.getBoundingClientRect();pointer={id:e.pointerId,y:e.clientY,offset:e.clientY-r.top};h.setPointerCapture(e.pointerId); });
+  root.addEventListener('pointermove',e=>{if(!pointer || e.pointerId!==pointer.id || !held)return; const all=rows(root), r=root.getBoundingClientRect(), desired=clamp(e.clientY-pointer.offset,r.top,r.bottom-held.offsetHeight);const candidate=all.findIndex(n=>{const b=n.getBoundingClientRect();return e.clientY<b.top+b.height/2;});move(candidate<0?all.length-1:candidate);stop(held,'flip');held.style.translate='';const base=held.getBoundingClientRect();held.style.translate=reduced()?'':`0 ${desired-base.top}px`; });
+  root.addEventListener('pointerup',e=>{if(pointer?.id===e.pointerId)drop(false);});root.addEventListener('pointercancel',()=>drop(true));
+ }
+
  /* ---------- Init ---------- */
  const initialized = new WeakSet();
  function init(root = doc) {
@@ -874,12 +1201,17 @@
    if (kind === 'number' || kind === 'badge') number(el, el.dataset.value ?? el.textContent.trim().replace(/[^\d.-]/g, ''));
    if (kind === 'panel' || kind === 'sheet' || kind === 'drawer') { if (el.tagName !== 'DIALOG' && el.dataset.stOpen !== 'true') el.inert = true; }
    if (kind === 'sheet') sheetDrag(el);
+   if (kind === 'badge') el.dataset.stVisible = String(Number(el.dataset.value || el.textContent) > 0);
+   if (kind === 'icon-swap') { el.addEventListener('click', () => { const on = el.dataset.stOn !== 'true'; icon(el, on); el.setAttribute('aria-pressed', String(on)); }); }
+   if (kind === 'reorder') bindReorder(el);
+   if (kind === 'tilt') bindTilt(el);
+   if (kind === 'image-open') el.addEventListener('click', () => image(el));
    if (kind === 'skeleton') skeleton(el, el.getAttribute('aria-busy') === 'false');
    if (kind === 'button') buildButton(el);
    if (kind === 'like') { buildLike(el); el.addEventListener('click', () => like(el)); }
    if (kind === 'copy') el.addEventListener('click', () => copy(el));
    if (kind === 'palette') palette(el);
-   if (kind === 'reveal' || kind === 'shimmer') observer.observe(el);
+   if(['reveal','shimmer','progress','button'].includes(kind) && !el.closest('[data-st-preview]')) observer.observe(el);
    if (kind === 'text' || kind === 'thinking') { if (!el.dataset.stLabel) el.dataset.stLabel = el.textContent.trim(); }
    if (kind === 'accordion') {
     const summary = q(el, 'summary'), body = q(el, '.st-details-body');
@@ -897,6 +1229,11 @@
    }
    if (kind === 'tabs' || kind === 'segmented') {
     const parts = tabParts(el);
+    const panels = parts.tabs.map(t => doc.getElementById(t.getAttribute('aria-controls'))).filter(Boolean);
+    if (panels.length && !panels[0].parentElement.classList.contains('st-tab-panels')) {
+     const stack = doc.createElement('div'); stack.className = 'st-tab-panels'; panels[0].before(stack);
+     panels.forEach(p => { p.dataset.stActive = String(!p.hidden); p.hidden = false; stack.append(p); });
+    }
     parts.tabs.forEach(t => {
      t.addEventListener('click', () => tabSelect(el, t));
      t.addEventListener('keydown', e => {
@@ -911,18 +1248,74 @@
     doc.fonts?.ready.then(sync);
    }
    if (kind === 'avatars') {
-    const lift = index => [...el.children].forEach((x, i) => { const dist = Math.abs(index - i); x.style.setProperty('--st-lift', index < 0 ? '0px' : `${-Math.max(0, 6 - dist * 2)}px`); x.style.setProperty('--st-z', i === index ? '5' : '0'); });
-    [...el.children].forEach((x, i) => { x.addEventListener('pointerenter', () => { if (finePointer.matches) lift(i); }); x.addEventListener('focus', () => lift(i)); });
-    el.addEventListener('pointerleave', () => lift(-1)); el.addEventListener('focusout', () => lift(-1));
+    // Hover lifts the person under the pointer and, with a falloff, their neighbours; one name label glides above
+    // whoever is lifted. Leaving springs everything back with a small settle (a different curve from the lift).
+    let name = q(el, ':scope > .st-avatar-name');
+    if (!name) { name = doc.createElement('span'); name.className = 'st-avatar-name'; name.setAttribute('aria-hidden', 'true'); el.append(name); }
+    const people = () => [...el.children].filter(c => !c.hidden && !c.classList.contains('st-avatar-name') && !c.hasAttribute('data-st-ghost'));
+    const lift = index => {
+     const list = people(); el.dataset.stReturning = String(index < 0);
+     list.forEach((x, i) => { const d = Math.abs(index - i), on = index >= 0; x.style.setProperty('--st-lift', on ? (-4 * Math.pow(.45, d)).toFixed(2) + 'px' : '0px'); x.style.setProperty('--st-scale', on && d === 0 ? '1.06' : '1'); x.style.setProperty('--st-z', on && d === 0 ? '5' : ''); });
+     const t = list[index], label = t && !t.hasAttribute('data-st-avatar-more') ? t.getAttribute('aria-label') : '';
+     if (!label) { name.dataset.stShow = 'false'; return; }
+     const er = el.getBoundingClientRect(), r = t.getBoundingClientRect(), first = name.dataset.stShow !== 'true';
+     name.textContent = label; name.style.setProperty('--x', (r.left + r.width / 2 - er.left) + 'px');
+     if (first) { name.style.transition = 'none'; void name.offsetWidth; name.style.transition = ''; }
+     name.dataset.stShow = 'true';
+    };
+    el.__stLift = lift;
+    el.addEventListener('pointerover', e => { const i = people().indexOf(e.target.closest('[data-st="avatars"] > *')); if (finePointer.matches && i >= 0) lift(i); });
+    el.addEventListener('focusin', e => { const i = people().indexOf(e.target); if (i >= 0) lift(i); });
+    // "+3" opens the rest of the group: the hidden people slide out from under the chip while the stack makes room,
+    // and tuck back under it on close. The chip label changes in place.
+    const more = q(el, '[data-st-avatar-more]');
+    if (more) {
+     if (!more.dataset.stLabel) more.dataset.stLabel = more.textContent.trim();
+     const collapsedLabel = more.dataset.stLabel;
+     more.addEventListener('click', () => {
+      const on = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded', String(on));
+      const extras = qa(el, '[data-st-avatar-extra]'), visible = () => [...el.children].filter(c => !c.hidden && !c.hasAttribute('data-st-ghost') && !c.classList.contains('st-avatar-name'));
+      // Interrupted mid-collapse: each person restarts from where its leaving copy is now, not from the chip.
+      const was = new Map(); for (const [x, g] of el.__stLeaving || []) if (g.isConnected) was.set(x, g.getBoundingClientRect());
+      qa(el, '[data-st-ghost]').forEach(g => { stopAll(g); g.remove(); }); el.__stLeaving = null;
+      if (on) {
+       flip(visible(), () => extras.forEach(x => { x.hidden = false; }), {spring: 'smooth'});
+       const m = more.getBoundingClientRect();
+       extras.forEach((x, i) => { const r = x.getBoundingClientRect(), w = was.get(x); stop(x, 'flip'); play(x, [{transform: w ? `translateX(${w.left - r.left}px)` : `translateX(${m.left - r.left}px) scale(.7)`}, {transform: 'none'}], {spring: 'smooth', channel: 'flip', current: false, delay: w ? 0 : i * 18}); if (!w) play(x, [{opacity: 0}, {opacity: 1}], {ms: 70, curve: 'F', channel: 'o', current: false, delay: i * 18, fade: true}); });
+      } else {
+       const going = extras.filter(x => !x.hidden), leaving = going.map(x => ghost(x, el)), e0 = el.getBoundingClientRect(); let m;
+       el.__stLeaving = going.map((x, i) => [x, leaving[i]]);
+       // They tuck under the chip where it is going, not where it was.
+       flip(visible().filter(c => !extras.includes(c)), () => { extras.forEach(x => { x.hidden = true; }); m = more.getBoundingClientRect(); }, {spring: 'smooth'});
+       // A centred group re-centres when it shrinks; keep the leaving copies where they were drawn.
+       const e1 = el.getBoundingClientRect(); leaving.forEach(g => { g.style.left = parseFloat(g.style.left) + e0.left - e1.left + 'px'; g.style.top = parseFloat(g.style.top) + e0.top - e1.top + 'px'; });
+       leaving.forEach(g => { const r = g.getBoundingClientRect(); play(g, [{transform: `translateX(${m.left - r.left}px) scale(.7)`, opacity: 0}], {ms: 180, curve: 'X', fill: 'forwards'}).then(() => g.remove()); });
+      }
+      swapText(more, on ? 'Less' : collapsedLabel);
+      announce(on ? `Showing all ${visible().length - 1} people` : 'Showing fewer people');
+     });
+    }
+    el.addEventListener('pointerleave', () => lift(-1)); el.addEventListener('focusout', e => { if (!el.contains(e.relatedTarget)) lift(-1); });
+   }
+   if (kind === 'icon-morph') {
+    const path = q(el, 'path[data-st-on]');
+    el.addEventListener('click', () => { const on = el.getAttribute('aria-pressed') !== 'true'; el.setAttribute('aria-pressed', String(on)); morphIcon(el, on); });
+    void path;
    }
    if (kind === 'clear') {
-    const input = q(el, 'input'), button = q(el, 'button'); const sync = () => { button.disabled = !input.value; }; sync(); input.addEventListener('input', sync);
-    button.addEventListener('click', () => { const g = doc.createElement('span'); g.textContent = input.value; g.setAttribute('aria-hidden', 'true'); const cs = getComputedStyle(input); Object.assign(g.style, {position: 'absolute', left: cs.paddingLeft, top: '50%', translate: '0 -50%', font: cs.font, color: cs.color, pointerEvents: 'none', whiteSpace: 'nowrap'}); el.append(g); input.value = ''; input.dispatchEvent(new Event('input', {bubbles: true})); input.focus(); play(g, [{opacity: 1, transform: 'none', filter: 'blur(0px)'}, {opacity: 0, transform: 'translateX(-6px)', filter: 'blur(3px)'}], {ms: 'quick', curve: 'X', fill: 'forwards'}).then(() => g.remove()); });
+    const input = q(el, 'input'), button = q(el, 'button'); let clearing = 0;
+    const sync = () => { button.disabled = !input.value; if (input.value) { ++clearing; el.dataset.stHasText = 'true'; } else if (!clearing) el.dataset.stHasText = 'false'; }; sync(); input.addEventListener('input', sync);
+    button.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', {bubbles: true})); input.focus(); el.dataset.stHasText = 'false'; clearing = 0; });
    }
   }
   qa(root, '[data-st-tip]').forEach(t => { if (!initialized.has(t)) { initialized.add(t); bindTip(t); } });
  }
- const observer = new IntersectionObserver(entries => entries.forEach(({target, isIntersecting}) => { if (!isIntersecting) return; if (target.dataset.st === 'reveal') { reveal(target); observer.unobserve(target); } if (target.dataset.st === 'shimmer' && !target.dataset.stPlayed) { target.dataset.stPlayed = 'true'; shimmer(target); } }));
+ const observer = new IntersectionObserver(entries => entries.forEach(({target,isIntersecting}) => {
+  target.dataset.stPaused=String(!isIntersecting);
+  if(!isIntersecting)return;
+  if(target.dataset.st==='reveal'){reveal(target);observer.unobserve(target);}
+  if(target.dataset.st==='shimmer'&&!target.dataset.stPlayed){target.dataset.stPlayed='true';shimmer(target);}
+ }));
 
  // Delegated triggers, outside press and Escape for managed layers.
  doc.addEventListener('click', e => {
@@ -932,7 +1325,7 @@
    if (el && el.dataset.st) { e.preventDefault(); if (el.dataset.st === 'expand') { isOpen(el) && !layerState(el).closing ? collapse(el) : expand(trigger, el); } else toggle(el, trigger, {keyboard: e.detail === 0}); return; }
   }
   const dismiss = e.target.closest('[data-st-close]');
-  if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer); else close(dismiss.closest('dialog,[popover],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
+  if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer); else close(dismiss.closest('dialog,[popover],[data-st="popover-panel"],[data-st="palette"],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
   const scrim = e.target.closest('[data-st-scrim]');
   if (scrim) { const layer = [...active].reverse().find(l => scrimOf(l) === scrim || l.contains(scrim)); if (layer) layer.dataset.st === 'expand' ? collapse(layer) : close(layer); }
  });
@@ -957,8 +1350,10 @@
 
  const mutation = new MutationObserver(records => {
   for (const r of records) {
-   if (r.type === 'attributes' && ['number', 'badge'].includes(r.target.dataset.st)) { number(r.target, r.target.dataset.value); if (r.target.dataset.st === 'badge') pop(r.target); }
-   for (const n of r.addedNodes) if (n.nodeType === 1 && !n.dataset.stGhost) init(n);
+   if (r.type === 'attributes' && r.target.dataset.st === 'number') number(r.target, r.target.dataset.value);
+   // A badge changed from outside rolls like one changed through the API; its own updates are already drawn.
+   if (r.type === 'attributes' && r.target.dataset.st === 'badge' && r.target.dataset.stLabel !== r.target.dataset.value) badge(r.target, r.target.dataset.value);
+   for (const n of r.addedNodes) if (n.nodeType === 1 && !n.hasAttribute("data-st-ghost")) init(n);
    for (const n of r.removedNodes) if (n.nodeType === 1 && !n.isConnected) { for (const l of [...active]) if (n === l || n.contains(l)) active.delete(l); }
   }
  });
@@ -967,8 +1362,9 @@
 
  window.SeenryTransitions = {
   // v1 API (unchanged names)
-  number, swapText, shake, success, page, resize, pop, open, close, icon, skeleton, reveal, shimmer, stream, toast, init, tab: tabSelect,
+  number, swapText,
+  blur(on = true, root = doc.documentElement, px) { if (on) root.dataset.stBlur = px ? String(px) : ''; else delete root.dataset.stBlur; }, shake, success, page, resize, pop, open, close, icon, skeleton, reveal, shimmer, stream, toast, init, tab: tabSelect,
   // v2 additions
-  toggle, state, clearError, copy, like, list, expand, collapse, accordion, flip, play, spring, tooltip: {show: t => showTip(t, true), hide: () => hideTip()}
+  toggle, state, clearError, copy, like, list, expand, collapse, accordion, flip, play, spring, progress, badge, image, closeImage, tilt, tooltip: {show: t => showTip(t, true), hide: () => hideTip()}
  };
 })();

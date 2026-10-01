@@ -59,6 +59,15 @@ Keyboard-triggered actions never wait on animation. If the gate says no, say so 
 
 **6. Plan interruption and exit.** Transitions, not keyframes, for anything that can fire twice quickly: transitions retarget from the current value. Exit along the path it entered. The state changes immediately; the presentation follows it, and a second input reverses rather than queues.
 
+**From 8 to 9.** Pages that follow the steps above score 8 with the motion judge. Builds lose the last point to the same few things. Each one is checked by pressing a control twice, 70ms apart:
+- **Swap in place, never remount.** Tabs, segmented views, filters, a "paid" state, a tone picker: keep every state mounted in one grid cell (`display:grid` on the parent, `grid-area:1/1` on every child) and switch with a data attribute that drives CSS transitions on `opacity` and a small `translate`. The outgoing state clears in 65–90ms. The incoming one starts 35ms later and runs 120–160ms, moving 6–10px in the direction of travel. Toggling `hidden`, `display` or `visibility` at a fixed boundary, re-rendering the node, or using keyframes all break reversal.
+- **No faint or empty frame.** At every frame of a change something legible is on screen. The new content arrives over the old, never after a gap. Two layers are never below about 50% opacity at the same time. A status ("Searching 4 entries…") is readable from its first frame.
+- **One copy of a travelling thing.** When a title, avatar or cover moves to a new place, only one copy is visible. Hide the destination until the traveller lands, and never crossfade two copies of the same text.
+- **The label moves with its result.** When a label describes a result ("Mark paid" becoming "Paid"), both change on the same clock, driven by one state. Overlay both labels in a fixed footprint and crossfade them, so the label never jumps ahead.
+- **Sequences can be cancelled.** Typing demos, staged reveals and replays run on one controller that holds the pending steps. Pause, reversal and a new input cancel what has not started, keep the current index, and let items already moving settle within 80ms. A `setTimeout` chain that keeps firing after pause fails.
+- **Release finished animations.** A WAAPI animation ends by writing its final state (CSS class or `commitStyles()`) and calling `cancel()`. An animation left holding `fill: forwards` overrides the next state change. After things settle, `document.getAnimations()` should be empty.
+- **Each move shows where things come from.** Menus grow from the trigger, panels from their edge, and content moves in the direction of navigation. Each single animation stays at 400ms or less, even inside a longer demo sequence.
+
 **7. Ship reduced motion and input gating with it.** Under `prefers-reduced-motion: reduce`, remove movement, parallax, blur and loops; keep short opacity changes that aid understanding. Gate hover motion with `@media (hover: hover) and (pointer: fine)`. Every animated state change also leaves a static cue (label, icon, color) for when motion does not run.
 
 ## Recipes
@@ -114,6 +123,6 @@ When matching a supplied reference, inspect playback at normal speed and useful 
 
 ## Verify
 
-Watch it at normal speed, then at 10% in the DevTools Animations panel: check the origin, that coordinated properties stay in sync, and that nothing jumps at the end. Trigger it twice quickly and reverse it mid-way. Try keyboard, touch emulation, a 320px width and reduced motion. For gestures, test on a real phone. Report anything you could not check.
+Watch it at normal speed, then at 10% in the DevTools Animations panel: check the origin, that coordinated properties stay in sync, and that nothing jumps at the end. Trigger it twice quickly and reverse it mid-way. Then run `node ../seenry/scripts/motion_judge.mjs <page>`: the bar is 9 overall with no violations, and its fixes say which "From 8 to 9" rule a change breaks. Try keyboard, touch emulation, a 320px width and reduced motion. For gestures, test on a real phone. Report anything you could not check.
 
 For deeper mechanics read [motion craft](references/motion-craft.md), [interaction anatomy](references/interaction-anatomy.md), [product transitions](references/product-transitions.md), [scroll choreography](references/scroll-choreography.md), [surface effects](references/surface-effects.md) and [number transitions](references/number-transitions.md). Use **seenry** for overall interface direction and material.

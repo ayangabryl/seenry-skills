@@ -158,6 +158,11 @@ class CheckGate(unittest.TestCase):
         self.configure(output={'violations':[],'verdict':{'scores':{'overall':0}}})
         self.assert_blocked(self.run_gate())
 
+    def test_motion_eight_does_not_meet_release_nine_target(self):
+        self.configure(output={'violations':[],'verdict':{'scores':{'overall':8}}})
+        result=self.run_gate();self.assert_blocked(result)
+        self.assertIn('target 9',result.stdout)
+
     def test_motion_violation_is_not_pass(self):
         self.configure(output={'violations':['unverified keyboard reversal'],'verdict':{'scores':{'overall':9}}})
         self.assert_blocked(self.run_gate())
