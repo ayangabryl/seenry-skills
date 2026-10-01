@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 NODE = shutil.which('node')
@@ -72,13 +73,23 @@ class CheckGate(unittest.TestCase):
         if output == 'default': output={'violations':[],'verdict':{'scores':{'overall':9}}}
         (self.scripts/'motion-config.json').write_text(json.dumps({'output':output,'exit':exit_code}))
 
+    def isolated_env(self):
+        home=self.root/'empty-home';home.mkdir(exist_ok=True)
+        env={'PATH':str(Path(NODE).parent),'HOME':str(home),'USERPROFILE':str(home),
+             'TEMP':str(self.root),'TMP':str(self.root),'LANG':'C.UTF-8'}
+        # Windows Node needs the OS runtime location even with an isolated profile.
+        # Preserve only these platform settings, never the parent's credentials.
+        for name in ['SystemRoot','WINDIR','SystemDrive','COMSPEC','PATHEXT']:
+            if name in os.environ: env[name]=os.environ[name]
+        return env
+
     def run_gate(self, target='index.html'):
-        env={'PATH':str(Path(NODE).parent),'HOME':str(self.root/'empty-home'),'LANG':'C.UTF-8'}
+        env=self.isolated_env()
         return subprocess.run([NODE,str(self.scripts/'check.mjs'),target,'--brief','brief.md'],cwd=self.project,
                               env=env,text=True,capture_output=True,timeout=30)
 
     def run_native_gate(self, screens='screen.png'):
-        env={'PATH':str(Path(NODE).parent),'HOME':str(self.root/'empty-home'),'LANG':'C.UTF-8'}
+        env=self.isolated_env()
         return subprocess.run([NODE,str(self.scripts/'check.mjs'),'--screens',screens,'--video','screen.mov',
                                '--brief','brief.md'],cwd=self.project,env=env,text=True,capture_output=True,timeout=30)
 
@@ -98,6 +109,16 @@ class CheckGate(unittest.TestCase):
         result=self.run_gate()
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         self.assertIn('motion 9/10',result.stdout)
+
+    def test_runtime_environment_is_allowlisted_without_credentials(self):
+        with patch.dict(os.environ, {'SystemRoot':r'C:\Windows','SEENRY_PRO_KEY':'test-secret',
+                                     'OPENAI_API_KEY':'test-secret','ANTHROPIC_API_KEY':'test-secret'}):
+            env=self.isolated_env()
+        self.assertEqual(env['SystemRoot'],r'C:\Windows')
+        self.assertEqual(env['HOME'],str(self.root/'empty-home'))
+        self.assertEqual(env['USERPROFILE'],env['HOME'])
+        for name in ['SEENRY_PRO_KEY','OPENAI_API_KEY','ANTHROPIC_API_KEY']:
+            self.assertNotIn(name,env)
 
     def test_missing_result_blocks_even_zero_exit(self):
         self.configure(output=None)
