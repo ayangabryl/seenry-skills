@@ -1,6 +1,7 @@
 /** Run a fresh, blind model process (Codex CLI or Claude Code) on images and a prompt, and get JSON back.
  *  Shared by critic.mjs and photo_check.mjs. Override the CLI with SEENRY_CRITIC=codex|claude and the binaries with
- *  SEENRY_CODEX_BIN / SEENRY_CLAUDE_BIN. */
+ *  SEENRY_CODEX_BIN / SEENRY_CLAUDE_BIN. Codex runs on SEENRY_CODEX_MODEL if set, else gpt-6.1-sol, falling back to
+ *  gpt-6-sol and then the CLI's default when an account does not offer a model. */
 import {existsSync, readFileSync, writeFileSync, mkdtempSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir, homedir, userInfo} from 'node:os';
@@ -34,12 +35,17 @@ export function askModel({cli, bin}, {images, prompt, schema}) {
   if (cli === 'codex') {
     const schemaFile = join(work, 'schema.json'), result = join(work, 'out.json');
     writeFileSync(schemaFile, JSON.stringify(schema));
-    const cmd = ['exec', '--skip-git-repo-check', '-s', 'read-only', '--output-schema', schemaFile, '-o', result];
-    for (const img of images) cmd.push('-i', img);
-    cmd.push('--', prompt);
-    const r = spawnSync(bin, cmd, {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
-    if (!existsSync(result)) throw new Error(`codex failed (status ${r.status}${r.error ? ', ' + r.error.code : ''}): ${(r.stderr || r.stdout || '').slice(0, 1500)}`);
-    return JSON.parse(readFileSync(result, 'utf8'));
+    let last = '';
+    for (const model of [...new Set([process.env.SEENRY_CODEX_MODEL, 'gpt-6.1-sol', 'gpt-6-sol', ''])].filter(m => m !== undefined)) {
+      const cmd = ['exec', '--skip-git-repo-check', '-s', 'read-only', ...(model ? ['-m', model] : []), '--output-schema', schemaFile, '-o', result];
+      for (const img of images) cmd.push('-i', img);
+      cmd.push('--', prompt);
+      const r = spawnSync(bin, cmd, {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
+      if (existsSync(result)) return JSON.parse(readFileSync(result, 'utf8'));
+      last = `codex failed on ${model || 'its default model'} (status ${r.status}${r.error ? ', ' + r.error.code : ''}): ${(r.stderr || r.stdout || '').slice(-1500)}`;
+      if (!/not supported|does not exist|unknown model|model_not_found|invalid model/i.test(r.stderr + r.stdout)) break;
+    }
+    throw new Error(last);
   }
   const p = `${prompt}\n\nThe images are these files; read each one: ${images.join(', ')}\nAnswer with only a JSON object matching this schema: ${JSON.stringify(schema)}`;
   const r = spawnSync(bin, ['-p', p, '--allowedTools', 'Read', '--output-format', 'text'], {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});

@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.7.1
+
+- The judges and `image.mjs` pin their Codex model: `SEENRY_CODEX_MODEL` if set, else `gpt-6.1-sol`, falling back to `gpt-6-sol` and then the CLI default when an account does not offer a model. A Codex config defaulting to a model the ChatGPT login rejects had made every critic, motion judge, pick and image call fail.
+
 ## 4.7.0
 
 - Seenry Transitions v2, rebuilt clean-room: a real bottom sheet (finger-following drag, flick to dismiss, page recedes), drawer, a command palette that opens out of its search button with one gliding highlight, card-to-detail expand with travelling cover and title, a segmented control whose selected label changes colour exactly under the pill, tabs whose underline leads with its front edge, button states in one reserved footprint, copy-to-clipboard, list sort/add/remove with stable identity, and a single gliding tooltip. Five SwiftUI-style springs (response, bounce) are baked into CSS `linear()` so plain transitions reverse from wherever they are. The v1 API is unchanged, with aliases for renamed tokens; weak or decorative v1 rows were removed from the gallery but still work. The gallery shows each transition in a small product context, with light and dark themes and no placeholder gradients.
