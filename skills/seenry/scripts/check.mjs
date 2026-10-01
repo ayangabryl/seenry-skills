@@ -9,8 +9,8 @@
  *  2. With zero blockers, runs critic.mjs: a fresh model scores the page against the reference screens.
  *  3. Prints PASS when the critic's overall reaches --target (default 9: Stripe's own home page scores 7-8 on this critic, so 9 means beating the big-company bar), else FAIL with the fixes to apply.
  *  Rounds are numbered; every critic result is kept as <dir>/review/critic-N.json and summarized in check.json. */
-import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, statSync, copyFileSync} from 'node:fs';
-import {resolve, join, dirname} from 'node:path';
+import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, statSync, lstatSync, copyFileSync} from 'node:fs';
+import {resolve, join, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -31,11 +31,70 @@ const pickFrom = d => existsSync(d) ? readdirSync(d).filter(f => /\.(png|jpe?g|w
 if (!refs) refs = pickFrom(join(dir, 'research', 'bar')) || pickFrom(join(dir, 'refs'));
 const history = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
 const round = history.length + 1;
-// Fingerprint the page so a result cannot be reported for a version that was never checked.
-const fingerprint = native
-  ? (h => { for (const f of [...native.split(','), video].filter(Boolean)) if (existsSync(f)) h.update(readFileSync(f)); return h.digest('hex').slice(0, 12); })(createHash('sha1'))
-  : !/^https?:/.test(target) && existsSync(target) ? createHash('sha1').update(readFileSync(target)).digest('hex').slice(0, 12) : null;
-const checkedVersions = new Set(history.map(h => h.hash).filter(Boolean));
+// Bind the review to local source AND material. HTML alone misses changes in linked CSS,
+// scripts, images and fonts. Review outputs are excluded so producing evidence does not
+// invalidate itself. Live URLs and symlinked inputs cannot prove immutable identity.
+function projectFingerprint() {
+  if (native) {
+    const h = createHash('sha256');
+    if (!video) return {digest: null, reusable: false};
+    for (const path of [...native.split(','), video, flag('brief'), ...(refs || '').split(',')].filter(Boolean)) {
+      if (!existsSync(path) || !lstatSync(path).isFile()) return {digest: null, reusable: false};
+      h.update(JSON.stringify([resolve(path), statSync(path).size])); h.update(readFileSync(path));
+    }
+    return {digest: h.digest('hex'), reusable: true};
+  }
+  if (/^https?:/.test(target) || !existsSync(target)) return {digest: null, reusable: false};
+  const root = dirname(resolve(target)), h = createHash('sha256');
+  h.update('target:' + resolve(target));
+  const extensions = /\.(html?|css|[cm]?js|jsx|tsx?|json|svg|png|jpe?g|webp|gif|avif|ico|woff2?|ttf|otf|eot|mp4|webm|mov|mp3|wav|ogg)$/i;
+  let unverifiable = false;
+  const excluded = new Set(['.git','.seenry','.cache','.next','.nuxt','.venv','node_modules']);
+  const within = (path, directory) => path === directory || path.startsWith(directory + sep);
+  const add = (path, label) => {
+    const st = lstatSync(path);
+    if (st.isSymbolicLink()) { unverifiable = true; return; }
+    if (!st.isFile()) return;
+    const bytes = readFileSync(path);
+    h.update(JSON.stringify([label, st.size])); h.update(bytes);
+    if (/\.(html?|css|[cm]?js|jsx|tsx?)$/i.test(path)) {
+      const text = bytes.toString('utf8');
+      // Do not assert immutable identity for resources outside the inspected source
+      // root. This also covers parent-directory CSS/imports without reading them.
+      const patterns = [/(?:src|href|poster)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/gi,
+        /url\(\s*["']?([^"')\s]+)["']?\s*\)/gi,
+        /(?:from\s*|import\s*\(\s*|import\s*)["']([^"']+)["']/g];
+      for (const pattern of patterns) for (const m of text.matchAll(pattern)) {
+        const value = (m[1] ?? m[2] ?? m[3]).split(/[?#]/)[0];
+        if (!value || /^(?:data:|blob:|node:)/i.test(value)) continue;
+        if (/^(?:https?:|\/\/|\/)/i.test(value)) { unverifiable = true; continue; }
+        const dependency = resolve(dirname(path), value);
+        if (!within(dependency, root) || relative(root, dependency).split(sep).some(part => excluded.has(part))) unverifiable = true;
+      }
+    }
+  };
+  const walk = (path, prefix = '') => {
+    for (const f of readdirSync(path).sort()) {
+      const p = join(path, f), label = join(prefix, f), st = lstatSync(p);
+      if ((within(p, review) && !within(root, review)) || excluded.has(f)) continue;
+      if (st.isSymbolicLink()) { unverifiable = true; continue; }
+      if (st.isDirectory()) walk(p, label);
+      else if (extensions.test(f) || p === resolve(target)) add(p, 'source:' + label);
+    }
+  };
+  walk(root);
+  for (const p of [flag('brief'), join(root, 'DESIGN.md'), join(dir, 'idea.md'), join(dir, 'motion.md'),
+    join(dir, 'research', 'pack.md'), join(dir, 'explore', 'pick.json'), ...(refs || '').split(',')].filter(Boolean)) {
+    if (existsSync(p)) add(resolve(p), 'input:' + relative(root, resolve(p)));
+  }
+  return {digest: h.digest('hex'), reusable: !unverifiable};
+}
+const identity = projectFingerprint();
+const fingerprint = identity.reusable ? identity.digest : null;
+// A failed/unverified attempt does not certify a version; retry it after repairing
+// the tool instead of stopping merely because its source hash appears in history.
+const completedReviews = () => history.filter(h => h.critic && Number.isFinite(h.motion) && !h.motionError);
+const checkedVersions = new Set(completedReviews().map(h => h.hash).filter(Boolean));
 // Only critic rounds count toward the budget: board fixes are cheap and must never eat the rounds of design feedback.
 const criticRounds = history.filter(h => h.critic).length;
 if ((criticRounds >= 8 || round > 20) && !history.some(h => h.stop)) {
@@ -43,11 +102,11 @@ if ((criticRounds >= 8 || round > 20) && !history.some(h => h.stop)) {
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 }
 const stoppedAt = history.find(h => h.stop);
-if (stoppedAt && fingerprint && !checkedVersions.has(fingerprint)) {
-  console.log(`The page changed after the last checked round (${stoppedAt.round}). Running one verification round on the current version before you report.`);
+if (stoppedAt && (!fingerprint || !checkedVersions.has(fingerprint))) {
+  console.log(`The current version changed or cannot be matched to the last checked round (${stoppedAt.round}). Running one verification round before you report.`);
 } else if (stoppedAt) {
-  const best = history.filter(h => h.critic).sort((a, b) => b.critic.overall - a.critic.overall)[0];
-  console.log(`STOPPED at round ${stoppedAt.round}: ${stoppedAt.stop}. Do not run more rounds. Ship the best round (round ${best ? best.round : '?'}, critic ${best ? best.critic.overall : '?'}), restore it if a later round was worse, and report the trail.`);
+  const best = completedReviews().sort((a, b) => b.critic.overall - a.critic.overall)[0];
+  console.log(`STOPPED at round ${stoppedAt.round}: ${stoppedAt.stop}. No new PASS is recorded. Best fully reviewed candidate: ${best ? `round ${best.round}, critic ${best.critic.overall}, motion ${best.motion}` : 'none'}. Report remaining quality gaps; a stopping budget is not acceptance.`);
   process.exit(3);
 }
 
@@ -116,13 +175,35 @@ process.stdout.write(critic.stdout);
 if (critic.status !== 0) { process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
+// Every attempt owns fresh evidence; a prior result must never satisfy a new run.
+const motionDir = mkdtempSync(join(review, `motion-${round}-`));
 const mj = native
-  ? spawnSync('node', [join(here, 'motion_video.mjs'), '--video', video, '--out', join(review, `motion-${round}`), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
-  : spawnSync('node', [join(here, 'motion_judge.mjs'), target, '--out', join(review, `motion-${round}`), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
+  ? spawnSync('node', [join(here, 'motion_video.mjs'), '--video', video, '--out', motionDir, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
+  : spawnSync('node', [join(here, 'motion_judge.mjs'), target, '--out', motionDir, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
 process.stdout.write('\n' + mj.stdout);
-const motion = existsSync(join(review, `motion-${round}`, 'motion.json')) ? JSON.parse(readFileSync(join(review, `motion-${round}`, 'motion.json'), 'utf8')) : null;
-const motionScore = motion?.verdict?.scores?.overall ?? null, motionBlocks = motion?.violations?.length || 0;
-history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks, hash: fingerprint});
+let motion = null, motionError = null;
+const motionPath = join(motionDir, 'motion.json');
+try {
+  if (!existsSync(motionPath)) motionError = 'missing motion result';
+  else motion = JSON.parse(readFileSync(motionPath, 'utf8'));
+} catch { motionError = 'malformed motion result'; }
+const motionScore = motion?.verdict?.scores?.overall ?? null;
+if (!motionError && (!Number.isFinite(motionScore) || motionScore < 0 || motionScore > 10 || !Array.isArray(motion?.violations))) {
+  motionError = 'incomplete motion judgment';
+}
+if (mj.status !== 0) motionError = `motion process exited ${mj.status ?? mj.signal ?? 'without status'}`;
+if (identity.digest !== projectFingerprint().digest) motionError = 'local source changed during review';
+const motionBlocks = Array.isArray(motion?.violations) ? motion.violations.length : 0;
+if (motionError) {
+  history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks,
+    motionError, motionEvidence: relative(dir, motionDir), hash: fingerprint});
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+  if (mj.stderr) process.stderr.write(mj.stderr);
+  console.log(`\nUNVERIFIED round ${round}: ${motionError}. A successful, complete motion judgment is required for PASS. Fix the cause and rerun; no quality pass is recorded.`);
+  process.exit(2);
+}
+history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks,
+  motionEvidence: relative(dir, motionDir), hash: fingerprint});
 // Keep the page's code as it was when scored, so the best round can be restored after a later round scores worse.
 if (!/^https?:/.test(target) && existsSync(target)) {
   const snap = join(review, `round-${round}`), root = dirname(resolve(target));
@@ -135,8 +216,8 @@ if (!/^https?:/.test(target) && existsSync(target)) {
 }
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
-if (verdict.scores.overall >= goal && !motionBlocks && (motionScore === null || motionScore >= 8)) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10. Critic trail: ${trail}.`); process.exit(0); }
-const scored = history.filter(h => h.critic).map(h => h.critic.overall), best = Math.max(...scored);
+if (verdict.scores.overall >= goal && !motionBlocks && motionScore >= 8) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Critic trail: ${trail}.`); process.exit(0); }
+const scored = completedReviews().map(h => h.critic.overall), best = Math.max(...scored);
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
 console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 8)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
 if (stalled && !history.some(h => h.rootChange)) {
@@ -148,8 +229,8 @@ if (stalled && !history.some(h => h.rootChange)) {
 if (stalled || scored.length >= 6) {
   history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : 'six critic rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  const bestRound = history.filter(h => h.critic && h.critic.overall === best).pop();
-  console.log(`STOP: ${history[history.length - 1].stop}. Ship the best-scoring round (critic ${best}, round ${bestRound.round}): if the page now differs, copy the code saved in ${join(review, `round-${bestRound.round}`)} back over the project (it holds the HTML, CSS and JS, not images), and check.mjs will recognise that version by its fingerprint. check.mjs will not run further rounds after that.`);
+  const bestRound = completedReviews().filter(h => h.critic.overall === best).pop();
+  console.log(`STOP: ${history[history.length - 1].stop}. The quality target was not reached. Best fully reviewed candidate: critic ${best}, motion ${bestRound.motion}, round ${bestRound.round}. Its code is in ${join(review, `round-${bestRound.round}`)} (HTML, CSS and JS, not images). Report unresolved gaps; do not call this a pass or publish it as accepted.`);
   process.exit(3);
 }
 process.exit(1);
