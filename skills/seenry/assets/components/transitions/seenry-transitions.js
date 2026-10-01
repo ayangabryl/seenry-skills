@@ -67,7 +67,7 @@
   }
   // Blur option: inside [data-st-blur], a fade on a small element also pulls focus (blur to sharp on the way in, a
   // softer blur on the way out). Large surfaces never blur; reduced motion already returned above.
-  const blurHost = !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
+  const blurHost = !reduced() && !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
   if (blurHost && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
    const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 4;
    if (r.width * r.height > 0 && r.width * r.height <= 40000) {
@@ -497,18 +497,24 @@
  const toggle = (el, trigger, o) => (isOpen(el) && !layerState(el).closing ? close(el, o) : open(el, trigger, o));
 
  /* ---------- Sheet drag: follows the finger, dismisses on distance or velocity, springs back otherwise. ---------- */
+ const sheetDrags = new WeakSet();
  function sheetDrag(el) {
+  if (sheetDrags.has(el)) return; sheetDrags.add(el);
   let d = null;
   el.addEventListener('pointerdown', e => {
-   if (!e.isPrimary || e.button > 0 || e.target.closest('button,a,input,textarea,select,[data-st-no-drag]')) return;
+   if (el.dataset.st !== 'sheet' || !e.isPrimary || e.button > 0 || e.target.closest('button,a,input,textarea,select,[data-st-no-drag]')) return;
+   // Nested surfaces own their gestures; the gallery detail can opt into handle-only drag.
+   if (e.target.closest('[data-st="sheet"]') !== el) return;
+   if (el.hasAttribute('data-st-drag-handle-only') && !e.target.closest('[data-st-drag-handle]')) return;
    d = {id: e.pointerId, y0: e.clientY, y: 0, h: el.offsetHeight, claimed: false, samples: [[e.timeStamp, 0]]};
   });
   el.addEventListener('pointermove', e => {
    if (!d || d.id !== e.pointerId) return;
+   if (el.dataset.st !== 'sheet') { d = null; el.style.transform = ''; return; }
    let dy = e.clientY - d.y0;
    if (!d.claimed) { if (Math.abs(dy) < 4) return; d.claimed = true; el.setPointerCapture(e.pointerId); const m = new DOMMatrixReadOnly(getComputedStyle(el).transform); d.base = m.m42; d.y0 = e.clientY - d.base; dy = d.base; stop(el, 't'); }
    d.y = dy < 0 ? dy * .2 : dy;
-   el.style.transform = `translateY(${d.y}px)`;
+   el.style.transform = reduced() ? 'none' : `translateY(${d.y}px)`;
    const scrim = scrimOf(el); if (scrim) scrim.style.opacity = String(clamp(1 - d.y / d.h, 0, 1));
    d.samples.push([e.timeStamp, d.y]); if (d.samples.length > 6) d.samples.shift();
   });
@@ -705,23 +711,32 @@
  }
 
  /* ---------- Copy: the glyph swaps in place and the label confirms; it reverts on its own. ---------- */
- function copy(el, text) {
+ async function copy(el, text) {
   const value = text ?? el.dataset.stCopy ?? (el.dataset.stCopyFrom ? doc.querySelector(el.dataset.stCopyFrom)?.textContent : '');
-  const fallback = () => {
-   const focused=doc.activeElement, field=doc.createElement('textarea'); field.value=value;
-   Object.assign(field.style,{position:'fixed',opacity:'0',left:'0',top:'0'}); field.setAttribute('aria-hidden','true');doc.body.append(field);field.select();
-   const copied=doc.execCommand('copy');field.remove();focused?.focus({preventScroll:true,focusVisible:keyboardInput});return copied;
-  };
-  try { if(navigator.clipboard) navigator.clipboard.writeText(value).catch(fallback); else fallback(); } catch { fallback(); }
-  icon(el, true);
-  const label = q(el, '[data-st="text"]'); if (label) { if (!el.dataset.stIdle) el.dataset.stIdle = label.dataset.stLabel || label.textContent.trim(); swapText(label, el.dataset.stCopied || 'Copied', {fit: el}); }
-  announce(el.dataset.stCopied || 'Copied');
+  const version = el._stCopyVersion = (el._stCopyVersion || 0) + 1;
   clearTimeout(el._stCopy);
-  el._stCopy = setTimeout(() => { icon(el, false); if (label) swapText(label, el.dataset.stIdle, {fit: el}); }, 1600);
+  const fallback = () => {
+   if (el._stCopyVersion !== version) return false;
+   const focused = doc.activeElement, field = doc.createElement('textarea'); field.value = value;
+   Object.assign(field.style, {position:'fixed',opacity:'0',left:'0',top:'0'}); field.setAttribute('aria-hidden','true'); doc.body.append(field);
+   try { field.select(); return doc.execCommand('copy') === true; }
+   catch { return false; }
+   finally { field.remove(); focused?.focus({preventScroll:true,focusVisible:keyboardInput}); }
+  };
+  let copied = false;
+  try { if (navigator.clipboard) { await navigator.clipboard.writeText(value); copied = true; } else copied = fallback(); }
+  catch { copied = fallback(); }
+  if (el._stCopyVersion !== version) return copied;
+  icon(el, copied); el.dataset.stCopyStatus = copied ? 'success' : 'error';
+  const label = q(el, '[data-st="text"]');
+  if (label) { if (!el.dataset.stIdle) el.dataset.stIdle = label.dataset.stLabel || label.textContent.trim(); swapText(label, copied ? el.dataset.stCopied || 'Copied' : 'Copy failed', {fit: el}); }
+  announce(copied ? el.dataset.stCopied || 'Copied' : 'Copy failed. Please select and copy the text.');
+  el._stCopy = setTimeout(() => { if (el._stCopyVersion !== version) return; icon(el, false); delete el.dataset.stCopyStatus; if (label) swapText(label, el.dataset.stIdle, {fit: el}); }, 1600);
+  return copied;
  }
  // Icon morph: the path's outline changes shape; matching point counts let the browser interpolate it.
  function morphIcon(el, on) { const path = q(el, 'path[data-st-on]'); if (!path) return; path.style.d = `path("${on ? path.dataset.stOn : path.dataset.stOff}")`; const label = on ? el.dataset.stLabelOn : el.dataset.stLabelOff; if (label) el.setAttribute('aria-label', label); }
- function icon(el, on) { el.dataset.stOn = String(on); const swap = el.matches('[data-st="icon"],[data-st="icon-swap"],.st-swap') ? el : q(el, '.st-swap,[data-st="icon"]'); if (swap && swap !== el) swap.dataset.stOn = String(on); }
+ function icon(el, on) { el.dataset.stOn = String(on); if (el.dataset.st === 'icon-morph') { el.setAttribute('aria-pressed', String(on)); morphIcon(el, on); return; } const swap = el.matches('[data-st="icon"],[data-st="icon-swap"],.st-swap') ? el : q(el, '.st-swap,[data-st="icon"]'); if (swap && swap !== el) swap.dataset.stOn = String(on); }
 
  /* ---------- Lists: add, remove and reorder with FLIP; a removed row fades before its neighbours close the gap. ---------- */
  const rows = container => [...container.children].filter(c => !c.hasAttribute("data-st-ghost") && !c.hidden);
@@ -767,10 +782,19 @@
  // even a capture taken mid-reveal reads.
  function reveal(el) { if ([...el.children].some(x => x.getAnimations().some(a => a.playState === 'running'))) return Promise.resolve(); return Promise.all([...el.children].map((x, i) => Promise.all([play(x, [{clipPath: 'inset(-4px 100% -4px -4px)'}, {clipPath: 'inset(-4px -4px -4px -4px)'}], {ms: 260, curve: 'E', delay: i * 60, current: false, channel: 'clip'}), play(x, [{transform: 'translateX(-6px)'}, {transform: 'none'}], {ms: 260, curve: 'E', delay: i * 60, current: false})]))); }
  function shimmer(el) {
+  if (!el) return Promise.resolve(true);
   let shine = q(el, '.st-shine');
   if (!shine) { shine = doc.createElement('span'); shine.className = 'st-shine'; shine.setAttribute('aria-hidden', 'true'); shine.textContent = el.textContent; el.append(shine); }
-  return play(shine, [{clipPath: 'polygon(-30% 0,-10% 0,-10% 100%,-30% 100%)'}, {clipPath: 'polygon(110% 0,130% 0,130% 100%,110% 100%)'}], {ms: 'spatial', curve: 'M', current: false});
+  // A requested preview is one finite sweep. Apps can separately opt into the
+  // CSS working-state loop while real work is pending by setting data-st-working.
+  return play(shine, [
+   {opacity:0,maskPosition:'-60% 0',webkitMaskPosition:'-60% 0'},
+   {opacity:1,maskPosition:'-60% 0',webkitMaskPosition:'-60% 0',offset:.1},
+   {opacity:1,maskPosition:'160% 0',webkitMaskPosition:'160% 0',offset:.85},
+   {opacity:0,maskPosition:'160% 0',webkitMaskPosition:'160% 0'}
+  ], {ms:2400,curve:'M',current:false,channel:'shimmer'});
  }
+
 
  /* ---------- Streaming text: words sharpen into place as they arrive, batched per frame. ---------- */
  const streams = new WeakMap();
@@ -929,7 +953,7 @@
   if (!source || !detail) return;
   const s = layerState(detail), wasClosing = s.closing; s.source = source; s.open = true; s.closing = false; const v = ++s.version;
   if (!wasClosing) s.moved = false;
-  detail.dataset.stOpen = 'true'; detail.hidden = false; detail.inert = false; active.add(detail);
+  detail.dataset.stOpen = 'true'; delete detail.dataset.stClosing; detail.hidden = false; detail.inert = false; active.add(detail);
   if (detail.tagName === 'DIALOG' && !detail.open) detail.showModal();
   s.trigger = source; source.setAttribute('aria-expanded', 'true');
   const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
@@ -954,6 +978,9 @@
  function collapse(detail) {
   const s = layerState(detail); if (!s.open || !s.source) return;
   s.open = false; s.closing = true; const v = ++s.version, source = s.source;
+  // Publish logical state now so Replay/direct toggles can reverse this exit.
+  detail.dataset.stOpen = 'false';
+  detail.dataset.stClosing = 'true';
   source.setAttribute('aria-expanded', 'false');
   const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
   if (detail.contains(doc.activeElement)) source.focus({preventScroll: true});
@@ -963,7 +990,7 @@
    if (s.version !== v || s.open) return; s.closing = false; s.moved = false;
    if (s.travelers) { for (const [d, g] of s.travelers) { stopAll(g); g.remove(); d.style.visibility = ''; } s.travelers.clear(); }
    if (s.paint) { stopAll(s.paint); s.paint.remove(); s.paint = null; Object.assign(surface.style, s.paintSaved); }
-   source.style.visibility = ''; detail.dataset.stOpen = 'false'; active.delete(detail);
+   source.style.visibility = ''; detail.dataset.stOpen = 'false'; delete detail.dataset.stClosing; active.delete(detail);
    if (detail.tagName === 'DIALOG' && detail.open) detail.close();
    stopAll(surface); qa(detail, '*').forEach(stopAll); if (scrim) stopAll(scrim);
   };
@@ -1191,6 +1218,8 @@
  function init(root = doc) {
   const nodes = [...(root.matches?.('[data-st]') ? [root] : []), ...qa(root, '[data-st]')].filter(el => !el.closest('[data-st-ghost]'));
   for (const el of nodes) {
+   // A responsive surface may become a sheet after its first initialization.
+   if (el.dataset.st === 'sheet') sheetDrag(el);
    if (initialized.has(el)) continue; initialized.add(el);
    const kind = el.dataset.st;
    if (el.hasAttribute('popover') && POP.includes(kind)) el.popover = 'manual';
@@ -1200,7 +1229,6 @@
    }
    if (kind === 'number' || kind === 'badge') number(el, el.dataset.value ?? el.textContent.trim().replace(/[^\d.-]/g, ''));
    if (kind === 'panel' || kind === 'sheet' || kind === 'drawer') { if (el.tagName !== 'DIALOG' && el.dataset.stOpen !== 'true') el.inert = true; }
-   if (kind === 'sheet') sheetDrag(el);
    if (kind === 'badge') el.dataset.stVisible = String(Number(el.dataset.value || el.textContent) > 0);
    if (kind === 'icon-swap') { el.addEventListener('click', () => { const on = el.dataset.stOn !== 'true'; icon(el, on); el.setAttribute('aria-pressed', String(on)); }); }
    if (kind === 'reorder') bindReorder(el);
@@ -1303,9 +1331,29 @@
     void path;
    }
    if (kind === 'clear') {
-    const input = q(el, 'input'), button = q(el, 'button'); let clearing = 0;
-    const sync = () => { button.disabled = !input.value; if (input.value) { ++clearing; el.dataset.stHasText = 'true'; } else if (!clearing) el.dataset.stHasText = 'false'; }; sync(); input.addEventListener('input', sync);
-    button.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', {bubbles: true})); input.focus(); el.dataset.stHasText = 'false'; clearing = 0; });
+    const input = q(el, 'input'), button = q(el, 'button'); let version = 0, leaving = null, clearing = false;
+    if (!input || !button) continue;
+    const removeLeaving = () => { if (leaving) { stopAll(leaving); leaving.remove(); leaving = null; } };
+    const sync = () => {
+     button.disabled = !input.value;
+     if (input.value) { ++version; clearing = false; removeLeaving(); el.dataset.stHasText = 'true'; }
+     else if (!clearing) el.dataset.stHasText = 'false';
+    };
+    sync(); input.addEventListener('input', sync);
+    button.addEventListener('click', () => {
+     if (!input.value) return;
+     const current = ++version, text = input.value;
+     removeLeaving(); clearing = true;
+     const rect = input.getBoundingClientRect(), host = el.getBoundingClientRect(), cs = getComputedStyle(input);
+     const ink = doc.createElement('span'); ink.className = 'st-clear-exit'; ink.textContent = input.type === 'password' ? '•'.repeat([...text].length) : text; ink.setAttribute('aria-hidden', 'true');
+     Object.assign(ink.style, {position:'absolute',left:rect.left-host.left-el.clientLeft+el.scrollLeft+'px',top:rect.top-host.top-el.clientTop+el.scrollTop+'px',width:rect.width+'px',height:rect.height+'px',boxSizing:'border-box',display:'flex',alignItems:'center',padding:cs.padding,borderStyle:'solid',borderColor:'transparent',borderWidth:cs.borderWidth,font:cs.font,letterSpacing:cs.letterSpacing,color:cs.color,whiteSpace:'pre',overflow:'hidden',pointerEvents:'none'});
+     el.append(ink); leaving = ink;
+     input.value = ''; input.dispatchEvent(new Event('input', {bubbles:true})); input.focus({preventScroll:true});
+     play(ink, [{opacity:1,transform:'none',filter:'blur(0px)'},{opacity:0,transform:'translateX(-8px)',filter:'blur(2px)'}], {ms:'quick',curve:'X',fade:true}).then(() => {
+      ink.remove(); if (current !== version) return;
+      leaving = null; clearing = false; el.dataset.stHasText = String(!!input.value);
+     });
+    });
    }
   }
   qa(root, '[data-st-tip]').forEach(t => { if (!initialized.has(t)) { initialized.add(t); bindTip(t); } });

@@ -26,6 +26,10 @@ jobs:
           node-version: 22
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
       - run: node --test tests/transition-contracts.test.mjs
+      - name: Exercise Transitions3 library logic and rendered-finding regressions
+        run: |
+          node tests/transitions-library-logic.test.cjs
+          node tests/transitions-library-rendered-findings.test.cjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check examples/seenry-site/app.js
       - run: node --check examples/seenry-site/studies/held/app.js
@@ -62,3 +66,4 @@ jobs:
           node tests/scroll-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/transition-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/voice-presence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+

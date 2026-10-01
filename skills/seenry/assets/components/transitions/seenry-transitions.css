@@ -157,7 +157,7 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 [data-st="tabs"] [role="tab"][aria-selected="true"] { color: var(--text); }
 [data-st="segmented"] [role="tablist"], [data-st="segmented"][role="tablist"] { padding: 3px; border-radius: 11px; background: var(--surface-2); }
 [data-st="segmented"] [role="tab"] { position: relative; z-index: 1; flex: 1; min-height: 34px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--text-2); font: 500 13.5px/20px var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
-@media (pointer: coarse) { [data-st="segmented"] [role="tab"] { min-height: 40px; } [data-st="tabs"] [role="tab"] { min-height: 44px; } }
+@media (pointer: coarse) { [data-st="segmented"] [role="tab"] { min-height: 44px; } [data-st="tabs"] [role="tab"] { min-height: 44px; } }
 .st-tab-indicator { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--text); pointer-events: none; z-index: 0; border-radius: 2px; }
 [data-st="segmented"] .st-tab-indicator { top: 3px; bottom: 3px; left: 0; right: 0; height: auto; border-radius: 8px; background: var(--surface); box-shadow: 0 1px 2px #0000001f, 0 0 0 .5px #0000000f; }
 [data-theme="dark"] [data-st="segmented"] .st-tab-indicator { background: #2c2c30; }
@@ -318,7 +318,7 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 
 /* Card expand */
 [data-st="expand"] { position: absolute; inset: 0; z-index: 10; }
-[data-st="expand"]:not([data-st-open="true"]) { visibility: hidden; }
+[data-st="expand"]:not([data-st-open="true"]):not([data-st-closing="true"]) { visibility: hidden; }
 
 /* Legacy groups kept for v1 pages */
 [data-st="avatars"] { display: flex; padding: 8px; }
@@ -382,8 +382,8 @@ html.st-vt::view-transition-group(root) { animation: none; }
 [data-st="progress"]{display:inline-grid;place-items:center;width:40px;height:40px;color:var(--text);}
 [data-st="progress"] svg{width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .st-progress-ring{stroke-dasharray:72 28;transform-origin:20px 20px;opacity:0;transform:scale(.8);transition:opacity 60ms var(--st-X),transform var(--st-quick) var(--st-X),stroke-dashoffset var(--st-control) var(--st-E);}
-/* The ring keeps turning while it fades, so finishing never snaps its rotation back to zero. */
-[data-st-progress] .st-progress-ring{animation:st-spin .8s linear infinite;}
+/* Only active work rotates. Terminal success/error rings settle with no retained loop. */
+[data-st-progress="loading"] .st-progress-ring{animation:st-spin .8s linear infinite;}
 [data-st-progress="loading"] .st-progress-ring{opacity:1;transform:scale(1);}
 .st-progress-check,.st-progress-cross{stroke-dasharray:100;stroke-dashoffset:100;opacity:0;transition:stroke-dashoffset 140ms var(--st-E) 40ms,opacity 60ms var(--st-F) 40ms;}
 [data-st-progress="success"] .st-progress-check,[data-st-progress="error"] .st-progress-cross{stroke-dashoffset:0;opacity:1;}
