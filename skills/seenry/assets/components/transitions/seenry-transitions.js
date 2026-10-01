@@ -551,9 +551,21 @@
   parts.ink.replaceChildren(...parts.tabs.map(t => { const r = t.getBoundingClientRect(), s = doc.createElement('span'); s.textContent = t.textContent.trim(); const f = getComputedStyle(t); Object.assign(s.style, {position: 'absolute', left: r.left - ir.left + 'px', top: r.top - ir.top + 'px', width: r.width + 'px', height: r.height + 'px', font: f.font, letterSpacing: f.letterSpacing}); return s; }));
   void lr;
  }
+ function revealTab(list, tab) {
+  // Scroll only the tab strip: selecting a hidden option must not move the page.
+  const lr = list.getBoundingClientRect(), tr = tab.getBoundingClientRect();
+  const left = lr.left + list.clientLeft, right = left + list.clientWidth;
+  const delta = tr.left < left || tr.width > list.clientWidth ? tr.left - left : tr.right > right ? tr.right - right : 0;
+  if (Math.abs(delta) > .5) list.scrollTo({left: list.scrollLeft + delta, behavior: 'instant'});
+ }
  function indicate(root, tab, animate, keyboard) {
   const parts = tabParts(root), {list, ind, ink} = parts;
-  const W = list.clientWidth, L = tab.offsetLeft, R = W - (tab.offsetLeft + tab.offsetWidth);
+  // A scrolling strip's indicator owns the content width, not just its viewport.
+  // Derive it from actual tabs so a previous wider indicator cannot preserve overflow.
+  const scrolling = root.dataset.st === 'tabs';
+  const W = scrolling ? Math.max(list.clientWidth, ...parts.tabs.map(t => t.offsetLeft + t.offsetWidth)) : list.clientWidth;
+  if (scrolling) { ind.style.width = W + 'px'; ind.style.right = 'auto'; }
+  const L = tab.offsetLeft, R = W - (tab.offsetLeft + tab.offsetWidth);
   const rad = root.dataset.st === 'segmented' ? 8 : 2;
   const target = `inset(0px ${R}px 0px ${L}px round ${rad}px)`;
   const inkTarget = ink ? (() => { const off = ink.offsetLeft; return `inset(0px ${R - (W - off - ink.clientWidth)}px 0px ${L - off}px round ${rad}px)`; })() : null;
@@ -574,7 +586,7 @@
   if (ink) play(ink, inkFrames, {ms: dur, curve: 'linear', channel: 'clip', current: false});
  }
  function tabSelect(root, tab, keyboard = false) {
-  const {tabs} = tabParts(root);
+  const {list, tabs} = tabParts(root);
   if (!tab) return;
   const prev = tabs.find(t => t.getAttribute('aria-selected') === 'true');
   const dir = prev ? Math.sign(tabs.indexOf(tab) - tabs.indexOf(prev)) : 0;
@@ -598,6 +610,7 @@
     play(panel, [{opacity:alpha},{opacity:0}], {ms:rapid ? 30 : 60,curve:'X',channel:'o',fade:true});
    }
   });
+  if (root.dataset.st === 'tabs') revealTab(list, tab);
   indicate(root, tab, !!prev && prev !== tab, keyboard);
   if (prev !== tab) root.dispatchEvent(new CustomEvent('st:tab-change', {bubbles: true, detail: {tab}}));
  }
@@ -889,7 +902,9 @@
     title follows the cover and steps around it (the axis that clears the cover leads), so it never crosses the artwork;
     details arrive after the title lands. Every phase is sampled from one clock and restarts from rendered geometry. ---------- */
  function sharedPairs(source, detail) {
-  return qa(detail, '[data-st-shared]').map(d => [q(source, `[data-st-shared="${d.dataset.stShared}"]`), d]).filter(([s]) => s);
+  // Travelers retain the markup they clone. Re-discover only authored destinations, otherwise a
+  // reversal treats the previous title ghost (or its children) as another shared part and clones it again.
+  return qa(detail, '[data-st-shared]').filter(d => !d.closest('[data-st-ghost]')).map(d => [q(source, `[data-st-shared="${d.dataset.stShared}"]`), d]).filter(([s]) => s);
  }
  const box = r => ({x: r.left, y: r.top, w: r.width, h: r.height});
  // A label changes sides through the free corner of the moving cover. The corner must fit in the
@@ -1326,7 +1341,7 @@
       tabSelect(el, n, true); n.focus();
      });
     });
-    const sync = () => { if (!el.isConnected) return ro.disconnect(); layoutInk(parts); const sel = parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0]; if (sel) indicate(el, sel, false); };
+    const sync = () => { if (!el.isConnected) return ro.disconnect(); layoutInk(parts); const sel = parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0]; if (sel) { if (el.dataset.st === 'tabs') revealTab(parts.list, sel); indicate(el, sel, false); } };
     const ro = new ResizeObserver(sync); ro.observe(parts.list);
     tabSelect(el, parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0], true); layoutInk(parts);
     doc.fonts?.ready.then(sync);

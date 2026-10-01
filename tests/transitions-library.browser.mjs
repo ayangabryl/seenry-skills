@@ -28,7 +28,7 @@ try {
         const range=document.createRange();range.selectNodeContents(label);
         if (!inside(rect({getBoundingClientRect:()=>range.getBoundingClientRect()}),rect(button))) failures.push(`${selector}: label outside button`);
       }
-      for (const key of ['list','switch']) {
+      for (const key of ['list','switch','dialog','tabs']) {
         const card=document.querySelector(`[data-key="${key}"]`),app=card.querySelector('.app'),replay=card.querySelector('[data-replay]');
         if (area(rect(app),rect(replay))>1) failures.push(`${key}: Replay overlaps content`);
       }
@@ -37,6 +37,19 @@ try {
       for(const control of bar.querySelectorAll('button')) {
         if (!inside(rect(control),rect(bar))) failures.push('list: header control outside header');
         if (rect(control).bottom>rect(first).top+1) failures.push('list: header control overlaps first task');
+      }
+      const blur=document.querySelector('.blur-switch'),blurLabel=blur.firstElementChild;
+      if(getComputedStyle(blurLabel).display==='none'||!inside(rect(blurLabel),rect(blur))) failures.push('header: Blur option has no visible contained label');
+      const checklist=document.querySelector('[data-key="checkbox"]'),checkApp=checklist.querySelector('.app'),checkStage=checklist.querySelector('.stage'),checkReplay=checklist.querySelector('[data-replay]');
+      for(const row of checklist.querySelectorAll('.st-check')) {
+        if (getComputedStyle(row).display==='none'||!inside(rect(row),rect(checkApp))||!inside(rect(row),rect(checkStage))) failures.push('checkbox: counted item is hidden or clipped');
+      }
+      if(area(rect(checkApp),rect(checkReplay))>1) failures.push('checkbox: Replay overlaps content');
+      const chip=checkApp.querySelector('.chip'),chipRange=document.createRange();chipRange.selectNodeContents(chip);
+      if(!inside(rect({getBoundingClientRect:()=>chipRange.getBoundingClientRect()}),rect(chip))) failures.push('checkbox: counter outside chip');
+      for(const avatar of document.querySelectorAll('.mail-list .msg>.avatar')) {
+        if(getComputedStyle(avatar.closest('.msg')).display==='none') continue;
+        const a=rect(avatar);if(Math.abs(a.width-32)>1||Math.abs(a.height-32)>1) failures.push('page: avatar lost circular geometry');
       }
       const tip=document.querySelector('[data-key="tooltip"]'),line=tip.querySelector('.editor-line'),stage=tip.querySelector('.stage');
       if (!inside(rect(line),rect(stage))) failures.push('tooltip: placeholder lines clipped');
@@ -52,8 +65,62 @@ try {
     assert.equal(result.scrollY,0,`${width}/${theme} initialization unexpectedly scrolled`);
     assert.ok(result.overflow<=1,`${width}/${theme} document overflow ${result.overflow}`);
     assert.deepEqual(result.failures,[],`${width}/${theme} internal preview fit`);
+    // Reach the last embedded Settings tab through the real keyboard path.
+    await page.locator('#t-acc').focus();
+    await page.keyboard.press('End');
+    const lastTab=await page.evaluate(()=>{
+      const tab=document.querySelector('#t-sec'),list=tab.parentElement,ind=list.querySelector('.st-tab-indicator'),a=tab.getBoundingClientRect(),b=list.getBoundingClientRect();
+      return {selected:tab.getAttribute('aria-selected'),active:document.activeElement===tab,panelInert:document.querySelector('#p-sec').inert,
+        visible:a.left>=b.left+list.clientLeft-1&&a.right<=b.left+list.clientLeft+list.clientWidth+1,
+        canScroll:getComputedStyle(list).overflowX!=='clip'&&getComputedStyle(list).overflowX!=='hidden',
+        indicatorContentWidth:ind.offsetWidth,tabEnd:tab.offsetLeft+tab.offsetWidth};
+    });
+    assert.equal(lastTab.selected,'true',`${width}/${theme} Security selection`);
+    assert.equal(lastTab.active,true,`${width}/${theme} Security focus`);
+    assert.equal(lastTab.panelInert,false,`${width}/${theme} Security panel access`);
+    assert.equal(lastTab.visible,true,`${width}/${theme} Security tab visible after End`);
+    assert.equal(lastTab.canScroll,true,`${width}/${theme} embedded strip permits pointer scrolling`);
+    assert.ok(lastTab.indicatorContentWidth>=lastTab.tabEnd-1,`${width}/${theme} last tab underline has a painted surface`);
+    await page.keyboard.press('Home');
+    await page.locator('#tabs-1>[role=tablist]').hover();
+    await page.mouse.wheel(500,0);
+    await page.waitForFunction(()=>{const list=document.querySelector('#tabs-1>[role=tablist]');return list.scrollWidth<=list.clientWidth+1||list.scrollLeft>0;});
+    await page.locator('#t-sec').click();
+    assert.equal(await page.locator('#t-sec').getAttribute('aria-selected'),'true',`${width}/${theme} Security pointer selection after local wheel`);
+    assert.equal(await page.evaluate(()=>scrollX),0,`${width}/${theme} embedded tab navigation does not pan document`);
+    await page.setViewportSize({width:1440,height:1000});
+    await page.locator('#t-sec').focus();
+    await page.keyboard.press('End');
+    await page.setViewportSize({width:320,height:1000});
+    await page.waitForFunction(()=>{const tab=document.querySelector('#t-sec'),list=tab.parentElement,a=tab.getBoundingClientRect(),b=list.getBoundingClientRect();return a.left>=b.left+list.clientLeft-1&&a.right<=b.left+list.clientLeft+list.clientWidth+1;});
+    assert.equal(await page.locator('#t-sec').getAttribute('aria-selected'),'true',`${width}/${theme} selected tab survives narrowing`);
+    await page.setViewportSize({width,height:1000});
+    // The gallery moves the real stage into its detail surface. Recheck there:
+    // ancestor-card-only styles otherwise disappear even though the DOM survives.
+    for(const key of ['checkbox','dialog','list']) {
+      await page.locator(`[data-key="${key}"] .title-link`).click();
+      await page.waitForFunction(()=>document.querySelector('#library-detail').dataset.stOpen==='true');
+      const detailFailures=await page.evaluate(key=>{
+        const stage=document.querySelector('#detail-preview .stage'),app=stage.querySelector('.app'),replay=stage.querySelector('[data-replay]');
+        const r=e=>e.getBoundingClientRect(),inside=(a,b)=>a.left>=b.left-1&&a.top>=b.top-1&&a.right<=b.right+1&&a.bottom<=b.bottom+1;
+        const a=r(app),b=r(replay),failures=[];
+        if(Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top))>1) failures.push('Replay overlaps detail content');
+        if(!inside(a,r(stage))) failures.push('app outside detail stage');
+        if(key==='list') {
+          const bar=app.querySelector('.app-bar'),first=app.querySelector('.task');
+          if(r(bar).bottom>r(first).top+1) failures.push('detail header overlaps first task');
+          for(const control of bar.querySelectorAll('button')) if(!inside(r(control),r(bar))||r(control).bottom>r(first).top+1) failures.push('detail header control outside reserved header');
+        }
+        if(key==='checkbox') for(const row of app.querySelectorAll('.st-check')) if(getComputedStyle(row).display==='none'||!inside(r(row),a)) failures.push('counted detail item hidden or clipped');
+        return failures;
+      },key);
+      assert.deepEqual(detailFailures,[],`${width}/${theme}/${key} moved-detail fit`);
+      await page.locator('#library-detail .detail-close').click();
+      await page.waitForFunction(key=>!!document.querySelector(`[data-key="${key}"] .stage`),key);
+    }
+    assert.deepEqual(errors,[],`${width}/${theme} runtime errors after detail interactions`);
     checks.push({width,theme,status:'passed'});
     await context.close();
   }
-  console.log(JSON.stringify({checks,scope:'Live Chromium default-state layout and initial-scroll regression. No perceptual motion or overall quality score.'},null,2));
+  console.log(JSON.stringify({checks,scope:'Live Chromium gallery/moved-detail layout and initial-scroll regression. No perceptual motion or overall quality score.'},null,2));
 } finally { await browser.close(); }
