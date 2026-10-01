@@ -497,6 +497,10 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
  .tasks #sort-btn{min-width:0;flex:1}
  .tasks #add-task{flex:none}
 }
+/* State buttons keep their reserved label width; wrap the group at component width. */
+.stage .stack-center:has(#deploy){width:100%;min-width:0}
+.stage .row:has(>#deploy){width:100%;flex-wrap:wrap;justify-content:center}
+.stage .row:has(>#deploy)>.st-button{flex:0 0 auto;max-width:100%}
 /* Embedded settings sections remain reachable at narrow component widths. */
 #tabs-1>[role=tablist]{overflow-x:auto!important;scrollbar-width:thin}
 /* Header wrapping follows the task card's available width, including two-column layouts. */
