@@ -892,6 +892,51 @@
   return qa(detail, '[data-st-shared]').map(d => [q(source, `[data-st-shared="${d.dataset.stShared}"]`), d]).filter(([s]) => s);
  }
  const box = r => ({x: r.left, y: r.top, w: r.width, h: r.height});
+ // A label changes sides through the free corner of the moving cover. The corner must fit in the
+ // painted shell at that same progress; all three edges then share a clock instead of racing each other.
+ function titleRoute(f, t, af, at, sf, st, size) {
+  const mix = (a, b, p) => a + (b - a) * p;
+  const sides = (r, a) => ({left: a.x - r.x - size.w, right: r.x - a.x - a.w, above: a.y - r.y - size.h, below: r.y - a.y - a.h});
+  const first = sides(f, af), last = sides(t, at), names = Object.keys(first);
+  // A common separating edge also separates every point of a straight interpolation, including reversals.
+  if (names.some(k => first[k] >= 0 && last[k] >= 0)) return {kind: 'direct'};
+  const fs = names.find(k => first[k] >= 0), ts = names.find(k => last[k] >= 0);
+  if (!fs || !ts || ['left', 'right'].includes(fs) === ['left', 'right'].includes(ts)) return {kind: 'fade'};
+  let gap = Math.min(8, Math.max(0, first[fs]), Math.max(0, last[ts]));
+  const horizontal = ['left', 'right'].includes(fs) ? fs : ts, vertical = ['above', 'below'].includes(fs) ? fs : ts;
+  const corner = a => ({x: horizontal === 'right' ? a.x + a.w + gap : a.x - size.w - gap, y: vertical === 'below' ? a.y + a.h + gap : a.y - size.h - gap});
+  const room = (c, s) => [c.x - s.x, c.y - s.y, s.x + s.w - c.x - size.w, s.y + s.h - c.y - size.h];
+  let cf, ct, lo, hi;
+  for (;;) {
+   cf = corner(af); ct = corner(at); const rf = room(cf, sf), rt = room(ct, st); lo = 0; hi = 1;
+   for (let i = 0; i < 4; i++) {
+    const d = rt[i] - rf[i];
+    if (Math.abs(d) < .0000001) { if (rf[i] < 0) { lo = 1; hi = 0; break; } }
+    else if (d > 0) lo = Math.max(lo, -rf[i] / d);
+    else hi = Math.min(hi, -rf[i] / d);
+   }
+   if (lo <= hi && hi > 0 && lo < 1) break;
+   if (!gap) return {kind: 'fade'};
+   // Clearance is a preference, not a reason to reject an otherwise safe tight corner.
+   gap = gap > .25 ? gap / 2 : 0;
+  }
+  // Do not round/clamp to .001/.999: a narrow valid interval can lie beyond those values.
+  const pivot = clamp(.5, lo, hi);
+  const c = {x: mix(cf.x, ct.x, pivot), y: mix(cf.y, ct.y, pivot)};
+  const line = p => { const before = p <= pivot, a = before ? f : c, b = before ? c : t, k = before ? p / pivot : (p - pivot) / (1 - pivot); return {x: mix(a.x, b.x, k), y: mix(a.y, b.y, k)}; };
+  // Round only within the free corner. Its control points also fit the shell, so the quadratic
+  // stays inside the same linearly changing bounds; its tangents join the two straight segments.
+  const clearCorner = p => { const a = {x: mix(af.x, at.x, p), y: mix(af.y, at.y, p), w: mix(af.w, at.w, p), h: mix(af.h, at.h, p)}, edge = sides(line(p), a); return edge[fs] >= 0 && edge[ts] >= 0; };
+  let bend = Math.min(.08, pivot / 2, (1 - pivot) / 2);
+  while (bend > .0001 && (!clearCorner(pivot - bend) || !clearCorner(pivot + bend))) bend /= 2;
+  if (bend <= .0001) bend = 0;
+  const b0 = line(pivot - bend), b1 = line(pivot + bend);
+  return {kind: 'corner', pivot, bend, gap, point(p) {
+   if (!bend || p <= pivot - bend || p >= pivot + bend) return line(p);
+   const u = (p - pivot + bend) / (2 * bend), v = 1 - u;
+   return {x: v * v * b0.x + 2 * v * u * c.x + u * u * b1.x, y: v * v * b0.y + 2 * v * u * c.y + u * u * b1.y};
+  }};
+ }
  function travel(s, detail, pairs, toSource, v) {
   const anchorPair = pairs.find(([, d]) => !d.hasAttribute('data-st-shared-text')), jobs = [];
   if (!s.travelers) s.travelers = new Map();
@@ -905,36 +950,46 @@
   for (const [a, d] of pairs) to.set(d, box((toSource ? a : d).getBoundingClientRect()));
   const springName = toSource ? 'snappy' : 'expand', n = 32;
   const A = anchorPair && anchorPair[1], aFrom = A && from.get(A), aTo = A && to.get(A);
+  const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, shell = box(surface.getBoundingClientRect());
+  const inset = parseInset(getComputedStyle(s.paint || surface).clipPath), sourceBox = box(s.source.getBoundingClientRect());
+  const shellFrom = inset ? {x: shell.x + inset[3], y: shell.y + inset[0], w: shell.w - inset[1] - inset[3], h: shell.h - inset[0] - inset[2]} : toSource || s.moved ? shell : sourceBox;
+  const shellTo = toSource ? sourceBox : shell;
   for (const [, d] of pairs) {
-   const isText = d.hasAttribute('data-st-shared-text'), f = from.get(d), t = to.get(d), home = box(d.getBoundingClientRect());
+   const isText = d.hasAttribute('data-st-shared-text'), f = from.get(d), t = to.get(d); let home = box(d.getBoundingClientRect());
    let layer = d;
    if (isText) {
     layer = s.travelers.get(d);
     if (!layer || !layer.isConnected) {
-     // The title travels under the artwork, so where their paths overlap it slides out from behind it.
+     // One unscaled title follows a clear route around the artwork, rather than losing letters behind it.
      const host = (A && A.parentElement && A.parentElement.contains(d) ? A.parentElement : null) || q(detail, '.st-expand-surface,.expand-surface') || detail;
      layer = ghost(d, host); const cs = getComputedStyle(d);
      Object.assign(layer.style, {visibility: 'visible', zIndex: '1', font: cs.font, letterSpacing: cs.letterSpacing, color: cs.color, whiteSpace: 'nowrap', maxWidth: 'none', overflow: 'visible', transformOrigin: '0 0'});
      s.travelers.set(d, layer);
     }
+    // A reused ghost may have a different containing block after layout changes. Its own resting rect is
+    // the transform origin; the rendered start above was captured before cancelling the previous flight.
+    home = box(layer.getBoundingClientRect());
     d.style.visibility = 'hidden';
    } else Object.assign(d.style, {transformOrigin: '0 0', position: getComputedStyle(d).position === 'static' ? 'relative' : d.style.position, zIndex: '2'});
-   // Relative to the anchor, lead with the axis that takes the text clear of it.
-   const relF = A && isText ? {x: f.x - aFrom.x, y: f.y - aFrom.y} : null, relT = A && isText ? {x: t.x - aTo.x, y: t.y - aTo.y} : null;
-   const leadX = relT && (relT.x >= aTo.w || relF.x >= aFrom.w ? relT.x > relF.x : false);
+   const route = A && isText ? titleRoute(f, t, aFrom, aTo, shellFrom, shellTo, home) : null;
+   if (isText && (route?.kind === 'fade' || s.titleFades?.has(d))) {
+    // Some custom layouts have no safe one-corner route. Keep the whole title out of the
+    // moving artwork, including during reversals; fade it in only after the surface lands.
+    if (!s.titleFades) s.titleFades = new Set(); s.titleFades.add(d); layer.style.visibility = 'hidden'; continue;
+   }
+   // Include the bend boundaries: interpolating across them could cut the corner through the cover.
+   const offsets = Array.from({length: n + 1}, (_, i) => i / n);
+   if (route?.kind === 'corner') for (const p of [route.pivot - route.bend, route.pivot - route.bend / 2, route.pivot, route.pivot + route.bend / 2, route.pivot + route.bend]) if (!offsets.includes(p)) offsets.push(p);
+   offsets.sort((a, b) => a - b);
    const frames = [];
-   for (let i = 0; i <= n; i++) {
-    const p = i / n, q2 = p, lerp = (u, w, k) => u + (w - u) * k;
+   for (const p of offsets) {
+    const lerp = (u, w, k) => u + (w - u) * k;
     let x, y, w, h;
-    if (relF) {
-     const ax = lerp(aFrom.x, aTo.x, p), ay = lerp(aFrom.y, aTo.y, p);
-     // Straight to the header, front-loaded (95% of the way by about 60% of the spring), passing under the artwork.
-     const f = 1 - Math.pow(1 - p, 2.4); void q2; void leadX;
-     x = ax + lerp(relF.x, relT.x, f); y = ay + lerp(relF.y, relT.y, f);
-     w = lerp(f.w, t.w, p); h = lerp(f.h, t.h, p);
+    if (route?.kind === 'corner') {
+     ({x, y} = route.point(p)); w = home.w; h = home.h;
     } else { x = lerp(f.x, t.x, p); y = lerp(f.y, t.y, p); w = lerp(f.w, t.w, p); h = lerp(f.h, t.h, p); }
     const sx = isText ? 1 : w / home.w, sy = isText ? 1 : h / home.h;
-    frames.push({transform: `translate(${x - home.x}px, ${y - home.y}px) scale(${sx}, ${sy})`});
+    frames.push({offset: p, transform: `translate(${x - home.x}px, ${y - home.y}px) scale(${sx}, ${sy})`});
    }
    jobs.push(play(layer, frames, {spring: springName, channel: 'shared', current: false, fill: toSource ? 'forwards' : 'backwards'}));
   }
@@ -963,14 +1018,14 @@
   source.style.visibility = 'hidden';
   const content = qa(surface, '[data-st-expand-content]'), closeControl = q(surface, '[data-st-close]');
   if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 'surface', curve: 'F', fade: true, current: wasClosing}); }
-  if (reduced()) { play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'}); pairs.forEach(([, d]) => d.style.visibility = ''); }
+  if (reduced()) { play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'}); pairs.forEach(([, d]) => d.style.visibility = ''); if (s.travelers) { for (const g of s.travelers.values()) { stopAll(g); g.remove(); } s.travelers.clear(); } s.titleFades?.clear(); }
   else {
    // The shell's clip is sampled from the same spring track as the shared parts, so all three move as one.
    { const cur = wasClosing ? parseInset(getComputedStyle(paint).clipPath) : null, a0 = cur || [sr.top - dr.top, dr.right - sr.right, dr.bottom - sr.bottom, sr.left - dr.left], r0 = wasClosing ? endR : rad;
      play(paint, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false}); }
-   travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); } s.travelers.clear(); s.moved = false; });
+   travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); if (s.titleFades?.has(d)) fadeIn(d, {ms: 80, blur: false}); } s.travelers.clear(); s.titleFades?.clear(); s.moved = false; });
    // Details belong to the open state: they arrive once the title has nearly landed.
-   content.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: wasClosing ? 0 : 130, channel: 'o', current: wasClosing, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: wasClosing ? 0 : 130, channel: 't', current: wasClosing}); });
+   content.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 200, channel: 'o', current: wasClosing, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: 200, channel: 't', current: wasClosing}); });
    if (closeControl) play(closeControl, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 150, channel: 'o', current: wasClosing, fade: true});
   }
   (closeControl || focusFirst(detail))?.focus?.({preventScroll: true});
@@ -993,6 +1048,7 @@
    source.style.visibility = ''; detail.dataset.stOpen = 'false'; delete detail.dataset.stClosing; active.delete(detail);
    if (detail.tagName === 'DIALOG' && detail.open) detail.close();
    stopAll(surface); qa(detail, '*').forEach(stopAll); if (scrim) stopAll(scrim);
+   if (s.titleFades?.size) { for (const [a, d] of sharedPairs(source, detail)) if (s.titleFades.has(d)) fadeIn(a, {ms: 80, blur: false}); s.titleFades.clear(); }
   };
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 0}], {ms: 'control', curve: 'F', fade: true, fill: 'forwards'}); }
   const closeControl = q(surface, '[data-st-close]'); if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});

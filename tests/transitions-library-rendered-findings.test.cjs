@@ -36,7 +36,7 @@ const collapse=source.slice(source.indexOf(' function collapse(detail) {'),sourc
  record('Narrow state buttons stack instead of clipping labels',()=>assert(html.includes('[data-key="button"] .stack-center>.row{flex-direction:column;align-items:stretch;width:100%}')));
  record('Destructive action cannot shrink below its own label',()=>assert(html.includes('.stage .settings-card .field-row:last-child>.st-button{flex:0 0 auto;white-space:nowrap}')));
  record('Narrow list and switch content reserve a separate Replay lane',()=>assert(html.includes('[data-key="list"] .stage,[data-key="switch"] .stage{height:auto;min-height:300px;padding-bottom:78px}')));
- record('Narrow list actions can wrap without ejecting Add',()=>{assert(html.includes('.tasks .app-bar{height:auto;min-height:40px;padding:8px;flex-wrap:wrap;gap:6px}'));assert(html.includes('.tasks #sort-btn{min-width:0;flex:1}'));});
+ record('Narrow list actions can wrap without ejecting Add',()=>{assert(html.includes('.stage .tasks .app-bar{height:auto;min-height:40px;padding:8px;flex-wrap:wrap;gap:6px}'));assert(html.includes('.tasks #sort-btn{min-width:0;flex:1}'));});
  record('Trailing padding cannot cover the final category with a cue',()=>{filterList.scrollLeft=330;filterScope.updateFilterOverflow();assert.equal(filterScroll.dataset.more,'false');});
  record('Palette initialization scrolls only its result list',()=>{assert(!source.includes("opt.scrollIntoView?.({block: 'nearest'})"));assert(source.includes("const lb = opt.closest('[role=\"listbox\"]')"));});
  completed=true;console.log(`${cases.length}/${cases.length} rendered-finding logic/static regressions passed; browser retest pending`);

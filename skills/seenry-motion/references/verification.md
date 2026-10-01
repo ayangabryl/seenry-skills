@@ -1,0 +1,40 @@
+# Verify the changed interaction
+
+Select the checks relevant to the change. A hover adjustment does not require auditing an unrelated checkout or rebuilding the page. Keep the existing stack, content, tokens and authorized scope. Use fixture actions for destructive or financial demos.
+
+## State and interruption
+
+- Write the expected settled result before testing: selected item, visible panel, saved value, focus destination and recovery path. A click handler firing is not evidence that the result is correct
+- Reopen while an exit is running, then alternate inputs rapidly. The latest accepted input wins. Logical state and its public representation (ARIA, state attributes or framework state) change when input is accepted; a separate closing/presentation state may keep the exit painted
+- Finish an old animation or async request after a newer one. It must not hide the reopened surface, replace newer content, overwrite a newer clipboard result, or announce stale success
+- Check both the direct API and the real control that invokes it when they branch on different state. For example, a Replay button can read a stale attribute even when the underlying animation code supports reversal
+- Preserve immediate feedback, keyboard behavior and the same result under reduced motion. Optional blur, particles or other enhancement layers must not reintroduce effects after reduction has removed them
+
+## Visible fit and moving layers
+
+- Inspect the affected component at its supported narrow width with actual labels and relevant loading, error and success states. Check text against the button's interior, media against its card, and controls against the local clipping region. Zero document overflow can coexist with clipped labels, an off-surface action or an overlapping Replay control
+- Let long content reflow or give it an appropriate scroll region. Do not conceal a required action or truncate an essential label merely to pass an overflow check. If a category strip scrolls, keep the selected category visible and do not let an overflow cue cover the final option
+- For shared-element motion, follow the visible cover, title and temporary traveler/ghost through the transition. A fixed detail rectangle cannot prove that those layers move smoothly. Look for partial-word occlusion, text outside the moving shell, scaling, double paint and discontinuities on retarget
+- Keep copy consistent with material. A photograph of mountains does not support a specific city caption without provenance. Functional demonstrations still need accurate, readable content
+
+## Nested surfaces and focus
+
+- Give a pointer gesture one owner. Dragging an inner sheet must not let a containing sheet capture the pointer or dismiss itself
+- Scrollable details need a usable scroll path. A dedicated drag handle can separate dismissal from reading code or interacting with an embedded preview; avoid making the whole scrollable document a dismiss gesture
+- Test nested Close and Escape independently. A bubbled child-close event must not tear down the parent, restore focus behind an open modal, or change an unrelated URL state
+- Traverse the changed flow with the keyboard and verify sensible focus restoration. Distinguish a browser/document focus boundary from a concrete focus escape to an actionable background control; preserve the observation rather than silently dropping the failed assertion
+- On a fresh default load, confirm that initialization does not move the document unexpectedly. Highlighting an option inside a closed palette should scroll its own list, not the page. Respect an intentional deep link instead of always forcing scroll to zero
+
+## Evidence that can support the claim
+
+Record the source revision or relevant file hashes, viewport, theme, input method and motion preference with each result. Preserve first failures and use unique filenames for different states and iterations. Do not overwrite a reduced-motion image with a normal-motion capture.
+
+For a timing claim, retain actual input timestamps and observe the moving properties. Schedule rapid inputs independently of screenshots: awaiting an image between clicks can turn a requested 50ms interval into a much slower test. A 25fps recording has 40ms samples and cannot precisely certify a 50ms reversal. Supplement it with timestamped animation-frame measurements when useful, without pretending those measurements prove every painted pixel or production frame rate.
+
+Record normal-speed video without concurrent element screenshots for presentation review. Screenshots may scroll elements into view or disturb capture. If a tall full-page image looks inconsistent around sticky chrome or the footer, reproduce the area in an ordinary viewport before changing the app.
+
+Report separately: code checks, live state/input checks, inspected pixels, measured motion, independent judgment and remaining unknowns. A high overall score cannot clear a known failed criterion, missing evidence or an older source version. Do not average away a minimum criterion set by the user.
+
+## Regression hooks
+
+In a full Seenry repository checkout, `tests/transitions-library-logic.test.cjs` exercises state, async, gesture and reduced-motion contracts with local stubs; `tests/transitions-library-rendered-findings.test.cjs` preserves specific corrections discovered from pixels; `tests/transitions-library-title-motion.test.cjs` checks shared-title geometry; and `tests/transitions-library.browser.mjs` checks live default-state layout. These are repository-only hooks and are not part of a standalone skill installation. Use the host project's relevant tests when the checkout is absent. These support their stated invariants; none replaces a fresh browser capture of the changed output. Add a focused regression when a failure is reproducible, and retain a browser follow-up for anything a stub or source assertion cannot establish.

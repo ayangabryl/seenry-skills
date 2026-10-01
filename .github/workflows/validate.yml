@@ -30,6 +30,7 @@ jobs:
         run: |
           node tests/transitions-library-logic.test.cjs
           node tests/transitions-library-rendered-findings.test.cjs
+          node tests/transitions-library-title-motion.test.cjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check examples/seenry-site/app.js
       - run: node --check examples/seenry-site/studies/held/app.js
@@ -38,6 +39,8 @@ jobs:
         run: npm install --no-save --package-lock=false playwright@1.63.0
       - name: Install Chromium and host dependencies
         run: npx playwright install --with-deps chromium
+      - name: Exercise Transitions3 responsive gallery bounds
+        run: node tests/transitions-library.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
       - name: Exercise geometry, icons and rendered evidence
         run: |
           node tests/geometry-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
