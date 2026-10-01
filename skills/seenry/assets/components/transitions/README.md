@@ -1,6 +1,6 @@
-# Seenry Transitions 2
+# Seenry Transitions 3
 
-24 interface transitions taken from real product surfaces. One stylesheet, one classic script, no dependencies, no build step, no network requests. Open [gallery.html](gallery.html) straight from disk.
+38 interface transitions informed by recorded product behavior. One stylesheet, one classic script, no dependencies, no build step, no network requests. Open [gallery.html](gallery.html) straight from disk.
 
 ```html
 <link rel="stylesheet" href="seenry-transitions.css">
@@ -13,7 +13,7 @@ The script starts on `DOMContentLoaded` and picks up elements added later. After
 
 Every transition follows the same rules. The gallery and the motion judge check them.
 
-- **Exact origin.** A surface grows from the thing that caused it. A menu's `transform-origin` is its trigger's centre on the facing edge. The button-to-menu morph unclips from the button's own rectangle. A dialog scales toward the button that opened it, a sheet rises from its screen edge, and an expanded card opens from the card.
+- **Exact origin.** A surface grows from the thing that caused it. A menu's `transform-origin` is its trigger's centre on the facing edge. The button-to-menu morph unclips from the button's own rectangle. A dialog stays centered in the viewport and scales with an origin toward its trigger, a sheet rises from its screen edge, and an expanded card opens from the card.
 - **Attached content.** Text rides its container and is never scaled by it. Size changes use a clip (`clip-path: inset()`) or a painted shell that scales behind the text, and followers move by FLIP.
 - **Choreography.** The container says where, the content says what. New content starts 40 to 90ms into the container's motion, so the two overlap and nothing waits in series. Outgoing content clears before its space collapses.
 - **Character.** Things the hand moves, or that retarget often, run on springs: indicators, sheets, switches, dialogs. A visible settle appears only where the material earns it (a like, a switch thumb). Exact values, text and data never overshoot.
@@ -25,7 +25,7 @@ Every transition follows the same rules. The gallery and the motion judge check 
 
 ## Motion tokens
 
-Curves and clocks come from `production-motion.md`: E `cubic-bezier(.16,1,.3,1)`, M `(.4,0,.2,1)`, F `(.2,0,.2,1)`, X `(.4,0,1,1)`. Durations are `--st-feedback` 80, `--st-quick` 120, `--st-control` 160, `--st-relocate` 180, `--st-surface` 240 and `--st-spatial` 280ms. Delays are 0, 40, 60 or 80ms, and pick by distance × size × frequency.
+Curves and clocks come from `production-motion.md`: E `cubic-bezier(.16,1,.3,1)`, M `(.4,0,.2,1)`, F `(.2,0,.2,1)`, X `(.4,0,1,1)`. Durations are `--st-feedback` 80, `--st-quick` 120, `--st-control` 160, `--st-relocate` 180, `--st-surface` 240 and `--st-spatial` 280ms. Delay tokens stay at 0, 40, 60 and 80ms. The overlapping handoffs specified in BRIEF also use 25, 30, 35, 45 and 50ms.
 
 **Added in v2: springs.** Springs use the `spring(response, bounce)` parameters designers know from SwiftUI. They are baked into CSS `linear()` easing, so an ordinary CSS transition gets spring character and still retargets natively. The JS simulates the same springs for WAAPI.
 
@@ -36,9 +36,9 @@ Curves and clocks come from `production-motion.md`: E `cubic-bezier(.16,1,.3,1)`
 | `--st-spring-gentle` | .34s, .08 | 348ms | none | dialog, toast stack |
 | `--st-spring-bouncy` | .34s, .42 | 521ms | 10% | like heart, badge pop, state-icon change |
 | `--st-spring-thumb` | .28s, .28 | 349ms | 3.6% | switch thumb |
-| lead / trail (JS) | .19s / .34s, 0 | 280 / 445ms | none | the tab underline's two edges |
+| lead / trail (JS) | .16s / .23s, 0 | 212 / 294ms | none | the tab underline's two edges |
 
-Why the values changed from the timed spec, measured on the springs: the study proposed E curves of 180 to 280ms. A spring's settle time includes a long, near-invisible tail. `snappy` reaches 73% of its travel at 100ms and 90% at about 150ms, which is the perceived speed of the 180ms E curve. It also keeps velocity when it is retargeted, so a reversal curves instead of snapping. The judge reports the full settle time, which is why durations of 300 to 445ms show up next to the spec's 180 to 280ms. The press compression (80ms) and all exits (80 to 220ms) keep their timed E, F and X curves, because an exit should never spring back.
+Why the values changed from the timed spec, measured on the springs: the study proposed E curves of 180 to 280ms. A spring's settle time includes a long, near-invisible tail. `snappy` reaches 73% of its travel at 100ms and 90% at about 150ms, which is the perceived speed of the 180ms E curve. Retargeting starts at the current rendered position; these sampled springs do not claim physical velocity preservation. The judge reports the full settle time, which is why durations of 300 to 445ms show up next to the spec's 180 to 280ms. The press compression (80ms) and all exits (80 to 220ms) keep their timed E, F and X curves, because an exit should never spring back.
 
 ## The catalog
 
@@ -46,35 +46,57 @@ Why the values changed from the timed spec, measured on the springs: the study p
 | --- | --- | --- |
 | Menu | `[data-st-target]` → `[data-st="menu"][popover]` | scale .96→1 and y ∓4 from the trigger point, snappy; opacity 120 F; rows attached; exit 110ms X to .97 |
 | Button to menu | `[data-st="plus-menu"]` or `data-st-morph` | clip-path from the button's rect with its radius, snappy; a painted copy of the button fades over it; items +50ms; closes back into the rect |
-| Dialog | `dialog[data-st="modal"]` | origin toward the trigger, scale .95→1 gentle; backdrop 160 F; exit 140 X |
+| Dialog | `dialog[data-st="modal"]` | origin toward the trigger, scale .97→1 over 220 E; backdrop 100 F, body +25ms, actions +45ms; exit 140 X |
 | Command palette | `dialog[data-st="palette"]` with `[data-st-palette-input]` and `[role=listbox]` | y −8, scale .98 from the top edge; results reflow by FLIP; one highlight travels (snappy); arrows, Enter, Escape |
 | Bottom sheet | `[data-st="sheet"]` (dialog or in-container), `data-st-recede` | y 100%→0 smooth; the page behind scales to .94 and rounds; drag follows the finger 1:1 and dismisses past 30% or on a flick over 0.5px/ms |
 | Drawer | `[data-st="drawer"]`, `data-st-side="left"` | x 100%→0 smooth, content fixed to it; scrim; exit 220 X |
 | Tooltip | `[data-st-tip="id"]` → `[data-st="tooltip"]` | 400ms dwell once, then the bubble glides between neighbours; focus opens at once; long-press on touch; exit 80 F |
-| Card expand | `SeenryTransitions.expand(card, detail)`, `[data-st="expand"]`, `[data-st-shared]` | surface unclips from the card's rect; cover and title travel (smooth); detail content +90ms; collapse returns to the card |
-| Tabs | `[data-st="tabs"]` | the underline's leading edge lands first (.19s) and the tail follows (.34s); panel slides ±14px in the direction of travel; arrow keys move without the stretch |
+| Card expand | `SeenryTransitions.expand(card, detail)`, `[data-st="expand"]`, `[data-st-shared]` | surface unclips from the card's rect; cover and title travel (smooth); detail opacity 100ms at +50ms; content clip follows the travelling title; collapse returns to the card |
+| Tabs | `[data-st="tabs"]` | the underline's leading edge lands first (.16s) and the tail follows (.23s); panels stay mounted: outgoing 65ms / 6px, incoming +35ms / 10px / 160ms with 90ms opacity; arrow keys move without the stretch |
 | Segmented control | `[data-st="segmented"]` | pill on snappy; the selected label is a clipped copy, so its colour changes exactly under the pill |
-| Page transition | `SeenryTransitions.page(dir, update, scope, {shared})` | View Transitions: old page 140ms X out, new page x ±48 smooth in, shared elements morph; WAAPI slide fallback |
+| Page transition | `SeenryTransitions.page(dir, update, scope, {shared})` | one shared layer travels by FLIP over 220 E; unrelated content out 65ms, detail body +50ms; names and held styles are released |
 | Accordion | `details[data-st="accordion"]` | layout commits at once; the answer is revealed by a clip that tracks the rows below as they FLIP down; closing clips a copy up |
 | Button states | `button[data-st="button"][data-st-labels="A\|B"]`, `state(el, 'loading'\|'success'\|'error'\|'idle', label)` | footprint reserved for the widest state; icon springs in; label recentres by FLIP; check and cross draw; error shakes |
-| Copy | `[data-st="copy"][data-st-copy]` | glyph swap at scale .5 and blur 3 in a fixed box; the label rolls to Copied; reverts after 1.6s |
+| Copy | `[data-st="copy"][data-st-copy]` with `.st-swap` and an optional `[data-st="text"]` label | the glyph becomes a check (scale .25, blur 4, snappy); a visible label rolls to Copied while the button resizes to fit; reverts after 1.6s |
 | Like | `button[data-st="like"]` | heart .55→1 bouncy, a ring and six sparks (420ms E); the count rolls; unliking is quiet |
 | Switch | `label.st-toggle > input[role=switch]` | thumb stretches toward its destination while pressed; travel on thumb spring; track 160 F |
 | Checkbox | `label.st-check`, optional `.st-strike` | fill 120 F, tick draws 160 E, strike-through draws +40ms |
-| Form error | `[data-st="error"]`, `shake(el, message)`, `clearError(el)` | the field frame shakes on a sampled decaying spring (6px, 2 cycles, 320ms; the message follows at 60ms); the message is revealed by clip in reserved space |
+| Form error | `[data-st="error"]`, `shake(el, message)`, `clearError(el)` | the field frame shakes on a sampled decaying spring (6px, 2 cycles, 320ms; the message follows at 25ms with a 2px rise and 120ms clip); the message is revealed by clip in reserved space |
 | Toast stack | `toast(region, message, {description, action, duration})` | rises from the stack edge (gentle); older toasts tuck to scale 1 − .05n; fans out on hover, focus or tap; swipe with velocity; pauses while expanded |
 | Number | `[data-st="number"]`, `number(el, value, opts)` | only changed places roll, in the direction of the change; unchanged digits slide when the width changes; neighbours follow; 12ms offsets capped at 36 (none for steppers); digits use the .16s spring |
-| Text change | `[data-st="text"]`, `swapText(el, text)`, `data-st-fit` | old glyphs lift and blur out (120 X), new glyphs rise into focus (snappy, 12ms offsets capped at 48); a fitted container resizes as a painted shell |
+| Text change | `[data-st="text"]`, `swapText(el, text)`, `data-st-fit` | whole label handoff: outgoing 65 X / −3px, incoming 100 F at +30ms / 3px; optional `{letters:true}` keeps the original glyph effect |
 | List | `list.add(container, node, i)`, `list.remove(item)`, `list.reorder(container, fn)` | FLIP on smooth; a removed row fades first, then neighbours close the gap 40ms later; identity is kept through a sort; no stagger |
 | Skeleton to content | `[data-st="skeleton"][aria-busy]`, `skeleton(el, ready)` | reserved geometry; mask 120 F; content 180 F; media blur 8→0 and scale 1.03→1 |
-| AI thinking and streaming | `[data-st="thinking"]`, `[data-st="stream"]`, `stream(el, chunk, {reset, done})` | honest status swaps with a sheen; words sharpen from blur 4 as they arrive, batched per frame, no fake delay |
+| AI thinking and streaming | `[data-st="thinking"]`, `[data-st="stream"]`, `stream(el, chunk, {reset, done})` | honest status swaps with opacity only; status visible from input time; previous answer out 65 F; words arrive with opacity only, batched per frame, no fake delay |
+| Card resize | `resize(el, update)` | painted shell changes bounds on smooth; text never scales; newly shown content +50ms |
+| Notification badge | `[data-st="badge"]`, `badge(el, count)` | attached corner pop .5→1 bouncy; digits roll by direction; clear 120 X |
+| Icon swap | `button[data-st="icon-morph"]` with one `path[data-st-off][data-st-on]` (matching point counts); `[data-st="icon-swap"]` for unrelated icons | the outline itself morphs on the snappy spring (play becomes pause); unrelated icons cross in a fixed box |
+| Success check | `[data-st="success"]`, `success(el)` | circle 160 E, check +160ms, circle settle 160; success announced immediately |
+| Avatar group | `[data-st="avatars"]`; extra people as `[data-st-avatar-extra][hidden]`, a `[data-st-avatar-more]` chip | hover or focus lifts the person 4px and scales 1.06, neighbours follow with a .45 falloff, one name label glides above; leaving settles back on a bouncy spring; the chip slides the others out from under it and tucks them back |
+| Input clear | `[data-st="clear"]` | text x −8 / blur 2 / fade 120 X; focus and caret stay; button scales out afterward |
+| Link arrow | `a[data-st="learn"]` with `svg.st-arrow` (`.st-arrow-line`, `.st-arrow-head`) | at rest a chevron; on hover or focus its shaft draws in behind it while the head steps forward; underline draws from the left |
+| Text reveal (extra) | `[data-st="reveal"]`, `reveal(el)` | each line is uncovered left to right in reading order, 260ms, next line +60ms; a second call while running lets it finish |
+| Shimmer text (extra) | `[data-st="shimmer"][data-st-working]` | a soft masked highlight sweeps through the words while working; when work ends the label settles to full ink |
+| Popover panel | `[data-st="popover-panel"][popover]` | clip from trigger side snappy, content +50ms, closes to trigger edge |
+| Spinner to check | `[data-st="progress"]`, `progress(el, state)` | loading ring narrows into drawn check/cross in one box; state immediate |
+| Image open | `[data-st="image-open"]`, `image(el)`, `closeImage(el)` | image shared FLIP smooth, backdrop fades, returns to slot; touch drag dismiss/cancel |
+| Reorder | `[data-st="reorder"]`, `[data-st-row]`, `[data-st-handle]` | drag lift 1.02, smooth neighbor FLIP, spring drop; Space/arrows/Escape with announcements |
+| Tilt card (extra) | `[data-st="tilt"]`, `tilt(el, x, y)` | leans up to 3deg toward a fine pointer with a 2px lift, the photo shifts the other way, a light follows the pointer; snappy return |
+
+## Blur option
+
+Add `data-st-blur` to `<html>` (or any container) and every fade inside it also pulls focus: elements fading in sharpen from a blur, elements fading out soften slightly. `data-st-blur="6"` sets the amount in pixels (default 4). Only elements up to about 200×200px blur, so surfaces never smear; reduced motion removes it. Toggle it from script with `SeenryTransitions.blur(true | false, root?, px?)`.
+
+```html
+<html data-st-blur>
+```
 
 ## JS API
 
 ```js
 SeenryTransitions.open(el, trigger?)   .close(el)   .toggle(el, trigger?)
 SeenryTransitions.number(el, value, {locale, format, frequent})
-SeenryTransitions.swapText(el, text, {fit})
+SeenryTransitions.swapText(el, text, {fit, letters})
 SeenryTransitions.state(button, 'idle'|'loading'|'success'|'error', label?)
 SeenryTransitions.shake(el, message?)   .clearError(el)   .success(el)
 SeenryTransitions.copy(el, text?)   .like(el, on?)   .icon(el, on)   .pop(el)
@@ -86,6 +108,8 @@ SeenryTransitions.page('forward'|'back', update, scopeEl?, {shared: [keys]})
 SeenryTransitions.toast(region, message, {description, action: {label, onClick}, duration})
 SeenryTransitions.skeleton(el, ready)   .stream(el, chunk, {reset, done})
 SeenryTransitions.reveal(el)   .shimmer(el)   .init(root)
+SeenryTransitions.badge(el, count)   .progress(el, 'loading'|'success'|'error')
+SeenryTransitions.image(thumbnail)   .closeImage(thumbnail?)   .tilt(el, x, y)
 SeenryTransitions.play(el, keyframes, {spring|ms, curve, delay, channel, fill})   .spring(name)
 SeenryTransitions.tooltip.show(trigger) / .hide()
 ```
@@ -105,7 +129,7 @@ Every v1 `data-st` name, data attribute, token and JS function still works. Page
   - `sheet` is now a real bottom sheet. It works as a `<dialog>` or inside any positioned container.
   - `menu` and `plus-menu` popovers are switched to `popover="manual"` at init, so the kit can animate the exit. The kit provides outside-press and Escape dismissal itself. `popovertarget` buttons are intercepted the same way as `data-st-target`.
   - Page view transitions now name the scope element `st-page` instead of animating `root`. v1's root slide is available with `data-st-page-scope="root"` on `<html>`.
-- **Legacy kinds kept but no longer in the gallery**: `avatars` (hover or focus lift), `banners` (use `toasts`), `clear` (input clear), `learn` (arrow nudge), `shimmer`, `reveal`, `icon`, `success`, `badge`, `resize`. They are cut from the showcase because they are either decoration without a state change or a subset of a stronger transition. They remain supported.
+- **Legacy aliases kept**: `avatars` (hover or focus lift), `banners` (use `toasts`), `clear` (input clear), `learn` (arrow nudge), `shimmer`, `reveal`, `icon`, `success`, `badge`, `resize`. Version 3 showcases these again and extends their behavior. `icon-swap`, `popover-panel`, `progress`, `image-open`, `reorder` and `tilt` are new kinds.
 - **Token aliases**: `--st-fast → --st-quick`, `--st-base → --st-control`, `--st-slow → --st-surface`, `--st-page → --st-spatial`, `--st-ease-out → E`, `--st-ease-in-out → M`, `--st-ease-drawer → E`. `--st-rise`, `--st-scale-in`, `--st-shadow`, `--st-reserve` and `--st-stream-lines` remain defined. Colour and radius tokens keep their names, with a new palette.
 - **Removed**: none.
 
@@ -134,6 +158,26 @@ node review_board.mjs gallery.html --out out/board --playwright …/playwright/i
 
 `motion_judge.mjs` in this folder is v2 of the judge; its CLI flags are backward compatible. It films each interaction in slow motion (4x, with timers slowed too): hover, keyboard focus, rest, and hover inside the revealed layer; the change at 30 to 320ms; and an interruption strip. It then asks three independent model runs to score the result against a calibrated rubric (origin, attachment, choreography, character, exit, continuity, interruption, states, reduced motion) and reports the median. `--labels "Menu,Tabs"` films only those rows.
 
+## Design of the library
+
+Depth comes from surface tone and soft shadow, not divider lines. Each card holds a darker stage inset 10px with concentric corners (22px outside, 12px inside); the caption is a quiet title and line; Replay and copy are ghost controls until touched. The copy button shows a tooltip on hover and turns its glyph into a check on copy. A Blur switch in the header turns on the blur option for the whole library.
+
+## Quality, measured
+
+The motion judge (`motion_judge.mjs`, three blind model runs, median) scores this catalog **7/10** overall: origin 8, attachment 8, interruption 8, reduced motion 9. Scored in two halves of 19 rows, the first half has 12 rows at 8 and the second 7 rows at 8; no row has yet scored 9. Weakest rows (6): card expand, AI thinking and streaming, card resize, and the three expressive extras. Every transition was filmed in slow motion (normal, interrupted, close-then-reopen) and settles with no held animations and no console errors. Work continues row by row toward 9; a row only changes when its own score goes up.
+
 ## Clean-room note
 
 The behaviour catalogue was studied at the level of what moves, from where and for how long, together with the Seenry motion study (`production-motion.md`) and the component-brief method (`interaction-craft.md`). No code, markup, text or visual design was taken from any transition library or website. All code, copy, icons and artwork here are original.
+
+## Browse and copy
+
+The gallery has 35 equal live stages in three columns (two on tablet, one on phone, where the categories become one picker), plus three expressive extras below them (shimmer, tilt, text reveal: decorative motion for brand moments, not state), category filters, search (`/`), and a System/Light/Dark switch. Filters use the kit's segmented indicator and list FLIP without stagger. `#f/feedback` restores a category; `#t/menu` opens a detail. Click a title or press Enter on a focused card to open a drawer (bottom sheet on phone). Escape returns focus. The original stage moves into the detail so its handlers and state stay intact. Card copy buttons copy HTML; details include HTML, JS API and reduced-motion notes.
+
+Only one first-view preview runs per stage; replays are user-triggered and finite. The gallery contains surfaces inside their own stage. Outside the gallery, menus use native popovers with viewport flipping/shifting, and dialogs use `showModal()` in the top layer. `data-st-contained` is a preview adapter, not needed on real-page markup. Application code supplies real async outcomes and content.
+
+Every WAAPI completion releases its animation. Forward-held exit values are committed only while a close is in progress; cleanup restores the previous inline values. A replacement animation reads the current rendered value before retiring its predecessor. Settled gallery interactions leave `document.getAnimations().length === 0`.
+
+### Copying examples
+
+The gallery copies the HTML usage structure with inline SVGs and real-page popover/dialog markup. The component classes in `seenry-transitions.css` supply motion and basic controls. Classes such as `app`, `field-row`, and `media-card` are application layout examples styled in `gallery.html`; adapt those to your product. Use the JS API block to connect application-owned content changes. Images reference the local `assets` folder. Use unique IDs if placing multiple copies on one page.

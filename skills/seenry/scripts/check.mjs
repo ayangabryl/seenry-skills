@@ -135,10 +135,10 @@ if (!/^https?:/.test(target) && existsSync(target)) {
 }
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
-if (verdict.scores.overall >= goal && !motionBlocks && (motionScore === null || motionScore >= 8)) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10. Critic trail: ${trail}.`); process.exit(0); }
+if (verdict.scores.overall >= goal && !motionBlocks && (motionScore === null || motionScore >= 9)) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10. Critic trail: ${trail}.`); process.exit(0); }
 const scored = history.filter(h => h.critic).map(h => h.critic.overall), best = Math.max(...scored);
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
-console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 8)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
+console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
 if (stalled && !history.some(h => h.rootChange)) {
   history[history.length - 1].rootChange = true;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));

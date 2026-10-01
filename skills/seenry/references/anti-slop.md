@@ -40,6 +40,7 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 | Purple/indigo-to-pink gradients on buttons, text and backgrounds | One accent, solid; one expressive visual at most |
 | Glassmorphism cards on a gradient mesh | Solid surfaces with a ring |
 | Every card with `shadow-lg` and `rounded-2xl` | Ring or hairline; shadow only on floating layers |
+| Divider lines everywhere: a rule under every header, between every row, around every card, under every tab bar | Space and tone: group by spacing, tint the selected or open row, nest panels one surface step apart; at most one faint ring per surface |
 | Same radius on parent and inset child | `inner = outer − inset` |
 | Mixed radius families (pill buttons, 4px inputs, 24px cards, 12px images) with no rule | One scale of ≤4 values + pill, applied by role |
 | Colored left-border "accent" on cards and alerts | Tint or icon; no stripe |
