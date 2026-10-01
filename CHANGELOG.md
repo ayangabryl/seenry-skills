@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.7.0
+
+- Seenry Transitions v2, rebuilt clean-room: a real bottom sheet (finger-following drag, flick to dismiss, page recedes), drawer, a command palette that opens out of its search button with one gliding highlight, card-to-detail expand with travelling cover and title, a segmented control whose selected label changes colour exactly under the pill, tabs whose underline leads with its front edge, button states in one reserved footprint, copy-to-clipboard, list sort/add/remove with stable identity, and a single gliding tooltip. Five SwiftUI-style springs (response, bounce) are baked into CSS `linear()` so plain transitions reverse from wherever they are. The v1 API is unchanged, with aliases for renamed tokens; weak or decorative v1 rows were removed from the gallery but still work. The gallery shows each transition in a small product context, with light and dark themes and no placeholder gradients.
+- A stricter motion judge: the median of three runs on a calibrated scale (9-10 means Apple, Linear or Family at their best; 6-7 means correct but generic), with a rubric covering origin, attachment, choreography, spring character, exit asymmetry, continuity, interruption and states. It films at 4x slow motion with hover, focus and in-layer states, and adds a per-row score. The v1 catalogue drops from 8 to 6 on it, and v2 scores 7 with zero violations.
+
 ## 4.6.0
 
 - Works without Seenry MCP: when `SEENRY_PRO_KEY` is unset, `research.mjs` runs the new `bar.mjs`, which captures category leaders' live first screens (waiting for hero media to load, skipping bot checks and errors, phone screens for apps) as the critic's bar, and starts a pack to complete by hand. Every later step and score works the same.

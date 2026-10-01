@@ -1,44 +1,806 @@
-<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Transitions — Seenry</title><link rel="stylesheet" href="seenry-transitions.css"><style>
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.5 var(--font);-webkit-font-smoothing:antialiased}button,input{font:inherit}h1,h2,h3,p{margin:0}h1{font-size:48px;line-height:1.05;letter-spacing:-.045em;font-weight:500}h2{font-size:20px;font-weight:500;letter-spacing:-.02em}h3{font-size:18px;font-weight:500;letter-spacing:-.015em}a{color:inherit}button{font-weight:500}.g-shell{max-width:1280px;margin:auto;padding:0 32px}.g-nav{height:72px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}.g-wordmark{font-size:24px;font-weight:600;letter-spacing:-.05em;text-decoration:none}.g-navlinks{display:flex;gap:24px;align-items:center;font-size:15px}.g-navlinks a{text-decoration:none;color:var(--text-2)}.g-hero{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center;padding:24px 0 24px}.g-hero p{font-size:16px;color:var(--text-2);max-width:52ch;margin-top:16px}.g-hero aside{padding-bottom:4px}.g-line{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0;font-size:15px}.g-line span:last-child{color:var(--text-2)}.g-toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-top:1px solid var(--line)}.g-filter{display:flex;flex-wrap:wrap;gap:8px}.g-filter button{border:0;background:transparent;color:var(--text-2);min-height:44px;padding:8px 14px;border-radius:var(--r-md);cursor:pointer;font-size:15px}.g-filter button[aria-pressed=true]{background:var(--text);color:var(--surface)}.g-toolbar>span{font-size:15px;color:var(--text-2)}.g-grid{display:grid;grid-template-columns:1fr;gap:24px}.g-grouphead{grid-column:1/-1;padding-top:20px;display:flex;justify-content:space-between;align-items:baseline;gap:24px;border-top:1px solid var(--line);margin-top:8px}.g-grouphead h2{font-size:28px}.g-grouphead p{font-size:16px;color:var(--text-2)}.g-grouphead[hidden]{display:none}.g-context{font-size:16px;font-weight:500;margin-bottom:16px}.g-context-note{font-size:16px;color:var(--text-2);margin-top:4px}.g-card[data-kind=number] .g-demo{min-height:104px}.g-card[data-kind=resize] .g-demo,.g-card[data-kind=accordion] .g-demo,.g-card[data-kind=stream] .g-demo{min-height:88px}.g-card{min-width:0;display:grid;grid-template-columns:240px minmax(0,1fr);grid-template-rows:auto 1fr;column-gap:32px}.g-card .g-pair{grid-column:2;grid-row:1/3}.g-card .g-caption{grid-column:1;grid-row:1;display:block;padding-top:12px}.g-card .g-caption h3{font-size:20px}.g-card .g-caption span{display:block;margin-top:8px}.g-card .g-description{grid-column:1;grid-row:2;margin-top:12px}.g-theme-switch{display:none}.g-card[data-kind=thinking] .g-row{justify-content:flex-start}.g-card[hidden]{display:none}.g-pair{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;min-height:180px}.g-preview{min-width:0;background:var(--surface);color:var(--text);display:flex;flex-direction:column;padding:12px 16px}.g-preview+.g-preview{border-left:1px solid var(--line)}.g-preview-head{display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:500;color:var(--text-2)}.g-replay{background:transparent;border:0;color:var(--text-2);min-width:44px;min-height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px;font-weight:500;border-radius:var(--r-md);transition:transform var(--st-fast) var(--st-ease-out)}.g-replay:active{transform:scale(.96)}.g-replay:hover{background:var(--hover)}.g-demo{flex:1;min-height:104px;display:flex;align-items:center;justify-content:center;padding:12px 0;min-width:0;position:relative}.g-demo p{font-size:16px;line-height:1.5}.g-demo .st-surface{padding:16px;background:var(--surface-2)}.g-demo .st-surface p{margin:8px 0 12px}.g-full{width:100%;min-width:0}.g-muted{color:var(--text-2)}.g-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.g-dot{display:inline-block;flex:none;width:6px;height:6px;background:var(--ok);border-radius:50%}.g-stat{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px 16px;width:100%}.g-stat>.g-muted{grid-column:1/-1}.g-stat>.st-button{padding:8px 12px}.g-stat strong{font-size:36px;font-weight:500;line-height:1.2;letter-spacing:-.03em;--st-reserve:5ch}.g-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.g-caption{padding:16px 0 0;display:flex;align-items:baseline;justify-content:space-between;gap:12px}.g-caption span{font-size:15px;font-weight:500;color:var(--text-2);white-space:nowrap}.g-description{color:var(--text-2);margin-top:6px;font-size:16px}.g-states{margin-top:0;font-size:15px;font-weight:500;color:var(--text-2)}.g-states summary{cursor:pointer;min-height:36px;display:flex;align-items:center}.g-state-content{font-weight:400;display:flex;flex-direction:column;gap:12px;overflow-wrap:anywhere;padding:16px;background:var(--surface-2);border-radius:var(--r-md)}.g-state-row{display:flex;justify-content:space-between;align-items:center;gap:8px}.g-state-row .st-number{--st-reserve:0ch}.g-state-content p{font-size:16px}.g-demo label{display:block;margin-bottom:8px}.g-demo label.st-check,.g-demo label.st-toggle{display:inline-flex;margin:0}.g-demo .st-error{margin:8px 0}.g-demo [data-st=panel]{margin-top:12px}.g-demo [data-st=error]>.st-button{margin-top:12px}.g-demo [data-st=banners]{margin-top:20px}.g-demo [data-st=success]{flex-direction:column;align-items:center}.g-demo [data-st=tabs]{min-height:145px}.g-demo [data-st=toasts]{margin-top:12px}.g-demo [data-st=stream]{font-size:16px}.g-demo [data-st=resize]{width:100%}.g-usage{margin:72px 0 48px;padding-top:32px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:32px}.g-usage p{color:var(--text-2);margin-top:12px;max-width:48ch}.g-code{background:var(--surface-2);padding:24px;border-radius:var(--r-lg);font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}footer{border-top:1px solid var(--line);padding:24px 0 40px;display:flex;justify-content:space-between;color:var(--text-2);font-size:15px}dialog h3{margin-bottom:12px}dialog p{margin-bottom:24px}dialog form{display:flex;justify-content:flex-end}button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}@media(max-width:1000px){.g-card{grid-template-columns:180px minmax(0,1fr);column-gap:24px}.g-grid{grid-template-columns:1fr}.g-hero{gap:32px}.g-demo{min-height:104px;padding:16px}}@media(max-width:600px){.g-card{display:flex;flex-direction:column;gap:0}.g-card .g-caption{order:0;padding:0}.g-card .g-description{order:1;margin-top:8px;margin-bottom:16px}.g-card .g-pair{order:2}.g-theme-switch{display:flex;gap:8px;margin:0 0 24px}.g-theme-switch button[aria-pressed=true]{background:#202329;color:#fff;border-color:#202329;opacity:1}.g-theme-switch button[aria-pressed=true]:hover{background:#303b4d}body:not([data-st-gallery-theme=dark]) .g-preview[data-theme=dark],body[data-st-gallery-theme=dark] .g-preview[data-theme=light]{display:none}.g-states summary{min-height:44px}.g-preview+.g-preview{border-top:0!important}.g-shell{padding:0 20px}.g-nav{height:72px}.g-navlinks{gap:16px}.g-navlinks a:first-child{display:none}.g-hero{grid-template-columns:1fr;padding:40px 0 32px;gap:24px}h1{font-size:40px;line-height:1.08}.g-hero aside{display:none}.g-grouphead{margin-top:0;padding-top:24px}.g-hero p{font-size:16px}.g-toolbar{align-items:flex-start;flex-direction:column}.g-filter{gap:0}.g-filter button{padding:8px 12px}.g-pair{grid-template-columns:1fr}.g-preview+.g-preview{border-left:0;border-top:1px solid var(--line)}.g-demo{min-height:88px}.g-caption{align-items:center}.g-caption h3{font-size:19px}.g-grouphead{align-items:flex-start;flex-direction:column;gap:8px}.g-grouphead h2{font-size:24px}.g-usage{grid-template-columns:1fr}footer{gap:16px;flex-direction:column}}@media(max-width:360px){.g-wordmark .g-muted{display:none}.g-stat{display:flex;align-items:flex-start;flex-direction:column}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-[data-st="learn"][data-st-preview] .st-icon{transform:translateX(4px)}
-</style><script src="seenry-transitions.js" defer></script></head><body><div class="g-shell"><header class="g-nav"><a class="g-wordmark" href="#">seenry<span class="g-muted"> / transitions</span></a><nav class="g-navlinks" aria-label="Main"><a href="#collection">Collection</a><a href="README.md">Documentation ↗</a></nav></header><main><section class="g-hero" data-seenry-signature="paired-motion-studies"><div><h1>Seenry Transitions</h1><p>28 native interactions. Copy two files, add an attribute,<br>and connect your application state.</p></div><aside aria-label="Kit details"><div class="g-line"><span>Include once</span><span>CSS + classic JavaScript</span></div><div class="g-line"><span>Apply by attribute</span><span>data-st="modal"</span></div><div class="g-line"><span>Respect preferences</span><span>Reduced motion built in</span></div></aside></section><section id="collection" aria-label="Transition collection"><div class="g-toolbar"><div class="g-filter" aria-label="Filter transitions"><button aria-pressed="true" data-filter="All transitions">All transitions</button><button aria-pressed="false" data-filter="Feedback">Feedback</button><button aria-pressed="false" data-filter="State">State</button><button aria-pressed="false" data-filter="Orientation">Orientation</button><button aria-pressed="false" data-filter="Continuity">Continuity</button></div><span id="g-count" role="status">28 transitions · Light & dark</span></div><div class="g-theme-switch" aria-label="Preview theme"><button class="st-button" data-theme-choice="light" aria-pressed="true">Light previews</button><button class="st-button" data-theme-choice="dark" aria-pressed="false">Dark previews</button></div><div class="g-grid"><header class="g-grouphead" data-category="Feedback"><h2>Feedback</h2><p>Acknowledge an action. Keep the result clear.</p></header><article class="g-card" data-kind="number" data-category="Feedback"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Number pop-in, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="number" aria-label="Replay Number pop-in, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-stat"><span class="g-muted">Monthly subscribers</span><strong data-st="number" data-value="1284">1,284</strong><button class="st-button" data-demo="number">Add subscriber</button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="g-state-row"><span>Zero</span><span data-st="number" data-value="0">0</span></div><div class="g-state-row"><span>Decrease</span><span data-st="number" data-value="-12">−12</span></div><div class="g-state-row"><span>Large value</span><span data-st="number" data-value="1234567">1,234,567</span></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Number pop-in, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="number" aria-label="Replay Number pop-in, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-stat"><span class="g-muted">Monthly subscribers</span><strong data-st="number" data-value="1284">1,284</strong><button class="st-button" data-demo="number">Add subscriber</button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="g-state-row"><span>Zero</span><span data-st="number" data-value="0">0</span></div><div class="g-state-row"><span>Decrease</span><span data-st="number" data-value="-12">−12</span></div><div class="g-state-row"><span>Large value</span><span data-st="number" data-value="1234567">1,234,567</span></div></div></details></section></div><div class="g-caption"><h3>Number pop-in</h3><span>control 160 / E</span></div><p class="g-description">Only the digits that change take a step.</p></article><article class="g-card" data-kind="badge" data-category="Feedback"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Notification badge, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="badge" aria-label="Replay Notification badge, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Workspace inbox<div class="g-context-note"></div></div><button class="st-button" data-demo="badge">Inbox <span data-st="badge" data-value="3">3</span></button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" disabled>Inbox <span data-st="badge" data-value="0">0</span></button><span>No unread notifications</span></div></details></section><section class="g-preview" data-theme="dark" aria-label="Notification badge, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="badge" aria-label="Replay Notification badge, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Workspace inbox<div class="g-context-note"></div></div><button class="st-button" data-demo="badge">Inbox <span data-st="badge" data-value="3">3</span></button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" disabled>Inbox <span data-st="badge" data-value="0">0</span></button><span>No unread notifications</span></div></details></section></div><div class="g-caption"><h3>Notification badge</h3><span>control 160 / E</span></div><p class="g-description">A small arrival, anchored to its corner.</p></article><article class="g-card" data-kind="success" data-category="Feedback"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Success check, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="success" aria-label="Replay Success check, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="success" data-st-done="true"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="20" cy="20" r="17"/><path d="m12 20 5 5 11-11"/></svg><span>Changes saved</span></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><span role="status">✓ Your project and all linked documents have been saved.</span></div></details></section><section class="g-preview" data-theme="dark" aria-label="Success check, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="success" aria-label="Replay Success check, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="success" data-st-done="true"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="20" cy="20" r="17"/><path d="m12 20 5 5 11-11"/></svg><span>Changes saved</span></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><span role="status">✓ Your project and all linked documents have been saved.</span></div></details></section></div><div class="g-caption"><h3>Success check</h3><span>control 160 / E</span></div><p class="g-description">A clear finish, drawn in one stroke.</p></article><article class="g-card" data-kind="avatars" data-category="Feedback"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Avatar group hover, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="avatars" aria-label="Replay Avatar group hover, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="avatars" aria-label="Project members"><button class="st-button" aria-label="Maya Chen">MC</button><button class="st-button" aria-label="Leo Park">LP</button><button class="st-button" aria-label="Ari Rivera">AR</button><button class="st-button" aria-label="Sam Lee">SL</button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="avatars"><button class="st-button" disabled aria-label="Maya Chen, unavailable">MC</button></div><span>No other members have joined.</span></div></details></section><section class="g-preview" data-theme="dark" aria-label="Avatar group hover, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="avatars" aria-label="Replay Avatar group hover, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="avatars" aria-label="Project members"><button class="st-button" aria-label="Maya Chen">MC</button><button class="st-button" aria-label="Leo Park">LP</button><button class="st-button" aria-label="Ari Rivera">AR</button><button class="st-button" aria-label="Sam Lee">SL</button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="avatars"><button class="st-button" disabled aria-label="Maya Chen, unavailable">MC</button></div><span>No other members have joined.</span></div></details></section></div><div class="g-caption"><h3>Avatar group hover</h3><span>control 160 / E</span></div><p class="g-description">A lift for the person, a little follow-through.</p></article><article class="g-card" data-kind="error" data-category="Feedback"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Error shake, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="error" aria-label="Replay Error shake, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="error" class="g-full"><label for="email-error-light">Work email</label><input class="st-input" id="email-error-light" type="email" value="maya@" aria-describedby="error-error-light"><div id="error-error-light" class="st-error" hidden>Enter a complete email address.</div><button class="st-button" data-demo="error">Continue</button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><label for="valid-error-states-light">Valid email</label><input class="st-input" id="valid-error-states-light" type="email" value="maya@example.com"><span>We’ll send your invitation here.</span></div></details></section><section class="g-preview" data-theme="dark" aria-label="Error shake, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="error" aria-label="Replay Error shake, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="error" class="g-full"><label for="email-error-dark">Work email</label><input class="st-input" id="email-error-dark" type="email" value="maya@" aria-describedby="error-error-dark"><div id="error-error-dark" class="st-error" hidden>Enter a complete email address.</div><button class="st-button" data-demo="error">Continue</button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><label for="valid-error-states-dark">Valid email</label><input class="st-input" id="valid-error-states-dark" type="email" value="maya@example.com"><span>We’ll send your invitation here.</span></div></details></section></div><div class="g-caption"><h3>Error shake</h3><span>relocate 180 / E</span></div><p class="g-description">Brief feedback, followed by a useful message.</p></article><article class="g-card" data-kind="clear" data-category="Feedback"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Input clear, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="clear" aria-label="Replay Input clear, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Find your next project<div class="g-context-note"></div></div><div class="g-full"><label for="search-clear-light">Search projects</label><div data-st="clear"><input id="search-clear-light" class="st-input" type="text" value="Website refresh"><button class="st-button" aria-label="Clear search">×</button></div></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><label for="empty-clear-states-light">Empty search</label><div data-st="clear"><input class="st-input" id="empty-clear-states-light" placeholder="Search projects"><button class="st-button" aria-label="Clear search" disabled>×</button></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Input clear, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="clear" aria-label="Replay Input clear, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Find your next project<div class="g-context-note"></div></div><div class="g-full"><label for="search-clear-dark">Search projects</label><div data-st="clear"><input id="search-clear-dark" class="st-input" type="text" value="Website refresh"><button class="st-button" aria-label="Clear search">×</button></div></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><label for="empty-clear-states-dark">Empty search</label><div data-st="clear"><input class="st-input" id="empty-clear-states-dark" placeholder="Search projects"><button class="st-button" aria-label="Clear search" disabled>×</button></div></div></details></section></div><div class="g-caption"><h3>Input clear</h3><span>quick 120 / X</span></div><p class="g-description">The old query leaves with your click.</p></article><article class="g-card" data-kind="like" data-category="Feedback"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Like button, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="like" aria-label="Replay Like button, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Website refresh<div class="g-context-note">Feedback on the latest direction.</div></div><button class="st-button" data-st="like" aria-pressed="false" aria-label="Like this project"><svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span data-st="number" data-value="24">24</span></button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" data-st="like" disabled aria-pressed="true" aria-label="Like unavailable">♥ <span data-st="number" data-value="0">0</span></button></div></details></section><section class="g-preview" data-theme="dark" aria-label="Like button, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="like" aria-label="Replay Like button, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Website refresh<div class="g-context-note">Feedback on the latest direction.</div></div><button class="st-button" data-st="like" aria-pressed="false" aria-label="Like this project"><svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span data-st="number" data-value="24">24</span></button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" data-st="like" disabled aria-pressed="true" aria-label="Like unavailable">♥ <span data-st="number" data-value="0">0</span></button></div></details></section></div><div class="g-caption"><h3>Like button</h3><span>control 160 / E</span></div><p class="g-description">A small acknowledgement, a real count.</p></article><article class="g-card" data-kind="toast" data-category="Feedback"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Toast, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="toast" aria-label="Replay Toast, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><button class="st-button" data-demo="toast">Save project</button><div data-st="toasts" aria-label="Notifications"></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-toast"><span>Project saved, including all comments and attached documents.</span></div><div class="st-toast"><span class="st-error">Couldn’t save. Your changes are still here.</span></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Toast, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="toast" aria-label="Replay Toast, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><button class="st-button" data-demo="toast">Save project</button><div data-st="toasts" aria-label="Notifications"></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-toast"><span>Project saved, including all comments and attached documents.</span></div><div class="st-toast"><span class="st-error">Couldn’t save. Your changes are still here.</span></div></div></details></section></div><div class="g-caption"><h3>Toast</h3><span>relocate 180 / E</span></div><p class="g-description">A notice arrives, then gets out of the way.</p></article><header class="g-grouphead" data-category="State"><h2>State changes</h2><p>Change a value without losing your place.</p></header><article class="g-card" data-kind="text" data-category="State"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Text states swap, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="text" aria-label="Replay Text states swap, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Project settings<div class="g-context-note">Website refresh</div></div><button class="st-button st-primary" data-demo="text"><span data-st="text" style="--st-reserve:14ch">Save changes</span></button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" disabled aria-busy="true">Saving changes…</button><span class="st-error">Couldn’t save. Check your connection.</span><span data-st="text" style="--st-reserve:0ch">All project changes have been saved successfully.</span></div></details></section><section class="g-preview" data-theme="dark" aria-label="Text states swap, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="text" aria-label="Replay Text states swap, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Project settings<div class="g-context-note">Website refresh</div></div><button class="st-button st-primary" data-demo="text"><span data-st="text" style="--st-reserve:14ch">Save changes</span></button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" disabled aria-busy="true">Saving changes…</button><span class="st-error">Couldn’t save. Check your connection.</span><span data-st="text" style="--st-reserve:0ch">All project changes have been saved successfully.</span></div></details></section></div><div class="g-caption"><h3>Text states swap</h3><span>control 160 / E</span></div><p class="g-description">The label changes. The button stays put.</p></article><article class="g-card" data-kind="icon" data-category="State"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Icon swap, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="icon" aria-label="Replay Icon swap, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Design principles<div class="g-context-note">Keep this document close.</div></div><button class="st-button" data-demo="icon" aria-pressed="false" aria-label="Bookmark project"><span data-st="icon"><svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg><svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></span><span>Bookmark</span></button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" disabled aria-pressed="true">✓ Bookmarked</button></div></details></section><section class="g-preview" data-theme="dark" aria-label="Icon swap, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="icon" aria-label="Replay Icon swap, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Design principles<div class="g-context-note">Keep this document close.</div></div><button class="st-button" data-demo="icon" aria-pressed="false" aria-label="Bookmark project"><span data-st="icon"><svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg><svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></span><span>Bookmark</span></button></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" disabled aria-pressed="true">✓ Bookmarked</button></div></details></section></div><div class="g-caption"><h3>Icon swap</h3><span>feedback 80 / F</span></div><p class="g-description">Two states share one small footprint.</p></article><article class="g-card" data-kind="checkbox" data-category="State"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Checkbox check, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="checkbox" aria-label="Replay Checkbox check, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Export options<div class="g-context-note">Choose what goes into your export.</div></div><label class="st-check" data-st="checkbox"><input type="checkbox"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 10 4 4 10-10"/></svg><span>Include activity</span></label></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><label class="st-check" data-st="checkbox"><input type="checkbox" checked disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 10 4 4 10-10"/></svg><span>Included · Disabled</span></label></div></details></section><section class="g-preview" data-theme="dark" aria-label="Checkbox check, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="checkbox" aria-label="Replay Checkbox check, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Export options<div class="g-context-note">Choose what goes into your export.</div></div><label class="st-check" data-st="checkbox"><input type="checkbox"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 10 4 4 10-10"/></svg><span>Include activity</span></label></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><label class="st-check" data-st="checkbox"><input type="checkbox" checked disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 10 4 4 10-10"/></svg><span>Included · Disabled</span></label></div></details></section></div><div class="g-caption"><h3>Checkbox check</h3><span>quick 120 / E</span></div><p class="g-description">Fill, draw, done.</p></article><article class="g-card" data-kind="shimmer" data-category="State"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Shimmer text, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="shimmer" aria-label="Replay Shimmer text, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Project assistant<div class="g-context-note">Setting up your new project.</div></div><span data-st="shimmer" role="status">Preparing your workspace…</span></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><span role="status">Your workspace is ready.</span><span class="st-error">Preparation failed. Try the request again.</span></div></details></section><section class="g-preview" data-theme="dark" aria-label="Shimmer text, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="shimmer" aria-label="Replay Shimmer text, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Project assistant<div class="g-context-note">Setting up your new project.</div></div><span data-st="shimmer" role="status">Preparing your workspace…</span></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><span role="status">Your workspace is ready.</span><span class="st-error">Preparation failed. Try the request again.</span></div></details></section></div><div class="g-caption"><h3>Shimmer text</h3><span>spatial 280 / E</span></div><p class="g-description">One calm sweep while work is underway.</p></article><article class="g-card" data-kind="toggle" data-category="State"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Toggle, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="toggle" aria-label="Replay Toggle, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Notifications<div class="g-context-note">Stay up to date with your team.</div></div><label class="st-toggle" data-st="toggle"><input type="checkbox" role="switch"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span><span>Email updates</span></label></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><label class="st-toggle" data-st="toggle"><input type="checkbox" role="switch" checked disabled><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span><span>Enabled · Disabled</span></label></div></details></section><section class="g-preview" data-theme="dark" aria-label="Toggle, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="toggle" aria-label="Replay Toggle, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Notifications<div class="g-context-note">Stay up to date with your team.</div></div><label class="st-toggle" data-st="toggle"><input type="checkbox" role="switch"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span><span>Email updates</span></label></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><label class="st-toggle" data-st="toggle"><input type="checkbox" role="switch" checked disabled><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span><span>Enabled · Disabled</span></label></div></details></section></div><div class="g-caption"><h3>Toggle</h3><span>control 160 / E</span></div><p class="g-description">An immediate choice, with a little give.</p></article><article class="g-card" data-kind="thinking" data-category="State"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Thinking states, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="thinking" aria-label="Replay Thinking states, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Project assistant<div class="g-context-note">Reviewing your latest changes.</div></div><div class="g-row"><span data-st="thinking" role="status" style="--st-reserve:12ch">Thinking…</span></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><span role="status">Response ready</span><span class="st-error">Search unavailable. Try again when you’re connected.</span></div></details></section><section class="g-preview" data-theme="dark" aria-label="Thinking states, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="thinking" aria-label="Replay Thinking states, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Project assistant<div class="g-context-note">Reviewing your latest changes.</div></div><div class="g-row"><span data-st="thinking" role="status" style="--st-reserve:12ch">Thinking…</span></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><span role="status">Response ready</span><span class="st-error">Search unavailable. Try again when you’re connected.</span></div></details></section></div><div class="g-caption"><h3>Thinking states</h3><span>feedback 80 / F</span></div><p class="g-description">A useful account of what is happening.</p></article><header class="g-grouphead" data-category="Orientation"><h2>Layers & navigation</h2><p>Show where things come from and where they go.</p></header><article class="g-card" data-kind="menu" data-category="Orientation"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Menu dropdown, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="menu" aria-label="Replay Menu dropdown, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Website refresh<div class="g-context-note">Updated a moment ago</div></div><button class="st-button" data-st-target="menu-menu-light" aria-expanded="false">Project actions <svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></button><div id="menu-menu-light" data-st="menu" popover><button class="st-button" data-demo="menu-action">Duplicate project</button><button class="st-button" data-demo="menu-action">Copy project link</button><button class="st-button" disabled>Archive project</button></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-surface"><button class="st-button" disabled>Archive unavailable</button><p>Duplicate this project and all of its linked documents</p></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Menu dropdown, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="menu" aria-label="Replay Menu dropdown, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Website refresh<div class="g-context-note">Updated a moment ago</div></div><button class="st-button" data-st-target="menu-menu-dark" aria-expanded="false">Project actions <svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></button><div id="menu-menu-dark" data-st="menu" popover><button class="st-button" data-demo="menu-action">Duplicate project</button><button class="st-button" data-demo="menu-action">Copy project link</button><button class="st-button" disabled>Archive project</button></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-surface"><button class="st-button" disabled>Archive unavailable</button><p>Duplicate this project and all of its linked documents</p></div></div></details></section></div><div class="g-caption"><h3>Menu dropdown</h3><span>relocate 180 / M</span></div><p class="g-description">A surface that remembers where it came from.</p></article><article class="g-card" data-kind="modal" data-category="Orientation"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Modal open and close, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="modal" aria-label="Replay Modal open and close, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Share your project<div class="g-context-note">Give your team access to the review.</div></div><button class="st-button" data-st-target="modal-modal-light" aria-expanded="false">Open dialog</button><dialog id="modal-modal-light" data-st="modal" aria-labelledby="title-modal-light"><h3 id="title-modal-light">Share this project</h3><p>Anyone with the link can view the latest design review.</p><form method="dialog"><button class="st-button st-primary">Done</button></form></dialog></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><span>Long content stays readable; the native dialog scrolls inside the viewport.</span><button class="st-button" disabled>Share unavailable</button></div></details></section><section class="g-preview" data-theme="dark" aria-label="Modal open and close, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="modal" aria-label="Replay Modal open and close, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Share your project<div class="g-context-note">Give your team access to the review.</div></div><button class="st-button" data-st-target="modal-modal-dark" aria-expanded="false">Open dialog</button><dialog id="modal-modal-dark" data-st="modal" aria-labelledby="title-modal-dark"><h3 id="title-modal-dark">Share this project</h3><p>Anyone with the link can view the latest design review.</p><form method="dialog"><button class="st-button st-primary">Done</button></form></dialog></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><span>Long content stays readable; the native dialog scrolls inside the viewport.</span><button class="st-button" disabled>Share unavailable</button></div></details></section></div><div class="g-caption"><h3>Modal open and close</h3><span>surface 240 / E</span></div><p class="g-description">A focused task, with a quiet entrance.</p></article><article class="g-card" data-kind="panel" data-category="Orientation"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Panel reveal, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="panel" aria-label="Replay Panel reveal, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><button class="st-button" data-st-target="panel-panel-light" aria-expanded="false">Toggle details</button><div id="panel-panel-light" data-st="panel" class="st-surface" data-st-open="false"><div class="g-row"><span>Activity</span><button class="st-button" data-st-close aria-label="Close details">×</button></div><p class="g-muted">Maya added a design review.</p></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-surface"><h3>No details yet</h3><p>This project has no activity. Updates from your team will appear here.</p></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Panel reveal, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="panel" aria-label="Replay Panel reveal, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><button class="st-button" data-st-target="panel-panel-dark" aria-expanded="false">Toggle details</button><div id="panel-panel-dark" data-st="panel" class="st-surface" data-st-open="false"><div class="g-row"><span>Activity</span><button class="st-button" data-st-close aria-label="Close details">×</button></div><p class="g-muted">Maya added a design review.</p></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-surface"><h3>No details yet</h3><p>This project has no activity. Updates from your team will appear here.</p></div></div></details></section></div><div class="g-caption"><h3>Panel reveal</h3><span>spatial 280 / M</span></div><p class="g-description">Bring the details into view from the edge.</p></article><article class="g-card" data-kind="learn" data-category="Orientation"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Learn more hover, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="learn" aria-label="Replay Learn more hover, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Keyboard guide<div class="g-context-note">Move through your workspace faster.</div></div><a href="#usage" class="st-button" data-st="learn">Learn more <svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><a class="st-button" href="#usage" data-st="learn">Read the complete integration guide →</a></div></details></section><section class="g-preview" data-theme="dark" aria-label="Learn more hover, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="learn" aria-label="Replay Learn more hover, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Keyboard guide<div class="g-context-note">Move through your workspace faster.</div></div><a href="#usage" class="st-button" data-st="learn">Learn more <svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><a class="st-button" href="#usage" data-st="learn">Read the complete integration guide →</a></div></details></section></div><div class="g-caption"><h3>Learn more hover</h3><span>quick 120 / E</span></div><p class="g-description">A gentle nudge toward the next step.</p></article><article class="g-card" data-kind="plus-menu" data-category="Orientation"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Plus menu morph, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="plus-menu" aria-label="Replay Plus menu morph, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Your workspace<div class="g-context-note">Start something new.</div></div><button class="st-button" data-st-target="plus-plus-menu-light" aria-expanded="false" aria-label="Create new item"><svg class="st-icon st-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Create</button><div id="plus-plus-menu-light" data-st="plus-menu" popover><button class="st-button" data-demo="menu-action">New project</button><button class="st-button" data-demo="menu-action">New document</button></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" disabled aria-expanded="false">＋ Create unavailable</button></div></details></section><section class="g-preview" data-theme="dark" aria-label="Plus menu morph, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="plus-menu" aria-label="Replay Plus menu morph, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Your workspace<div class="g-context-note">Start something new.</div></div><button class="st-button" data-st-target="plus-plus-menu-dark" aria-expanded="false" aria-label="Create new item"><svg class="st-icon st-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Create</button><div id="plus-plus-menu-dark" data-st="plus-menu" popover><button class="st-button" data-demo="menu-action">New project</button><button class="st-button" data-demo="menu-action">New document</button></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" disabled aria-expanded="false">＋ Create unavailable</button></div></details></section></div><div class="g-caption"><h3>Plus menu morph</h3><span>relocate 180 / M</span></div><p class="g-description">The opener becomes the way back.</p></article><article class="g-card" data-kind="tabs" data-category="Orientation"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Tabs sliding, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="tabs" aria-label="Replay Tabs sliding, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="tabs" class="g-full"><div role="tablist" aria-label="Project view"><button class="st-button" role="tab" id="tab-a-tabs-light" aria-controls="pane-a-tabs-light" aria-selected="true">Overview</button><button class="st-button" role="tab" id="tab-b-tabs-light" aria-controls="pane-b-tabs-light" aria-selected="false" tabindex="-1">Activity</button></div><div role="tabpanel" id="pane-a-tabs-light" aria-labelledby="tab-a-tabs-light" tabindex="0">Everything you need for the next review.</div><div role="tabpanel" id="pane-b-tabs-light" aria-labelledby="tab-b-tabs-light" tabindex="0" hidden>Maya updated the project a moment ago.</div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div><button class="st-button" disabled>Archived view unavailable</button><p>No activity in this view yet. Updates will appear when a teammate makes a change.</p></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Tabs sliding, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="tabs" aria-label="Replay Tabs sliding, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="tabs" class="g-full"><div role="tablist" aria-label="Project view"><button class="st-button" role="tab" id="tab-a-tabs-dark" aria-controls="pane-a-tabs-dark" aria-selected="true">Overview</button><button class="st-button" role="tab" id="tab-b-tabs-dark" aria-controls="pane-b-tabs-dark" aria-selected="false" tabindex="-1">Activity</button></div><div role="tabpanel" id="pane-a-tabs-dark" aria-labelledby="tab-a-tabs-dark" tabindex="0">Everything you need for the next review.</div><div role="tabpanel" id="pane-b-tabs-dark" aria-labelledby="tab-b-tabs-dark" tabindex="0" hidden>Maya updated the project a moment ago.</div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div><button class="st-button" disabled>Archived view unavailable</button><p>No activity in this view yet. Updates will appear when a teammate makes a change.</p></div></div></details></section></div><div class="g-caption"><h3>Tabs sliding</h3><span>relocate 180 / M</span></div><p class="g-description">One indicator follows the selected view.</p></article><article class="g-card" data-kind="tooltip" data-category="Orientation"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Tooltip, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="tooltip" aria-label="Replay Tooltip, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Sharing settings<div class="g-context-note">A little context, when you need it.</div></div><div class="g-actions"><button class="st-button" data-st-tip="tip-tooltip-light">Hover or focus</button><button class="st-button" data-st-tip="tip2-tooltip-light" aria-label="More information">?</button></div><div data-st="tooltip" id="tip-tooltip-light" popover="manual" role="tooltip">Share with your team</div><div data-st="tooltip" id="tip2-tooltip-light" popover="manual" role="tooltip">Only workspace members</div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" data-st-tip="long-tip-tooltip-states-light">Long description</button><div data-st="tooltip" id="long-tip-tooltip-states-light" popover="manual" role="tooltip">Workspace members can view and comment on this project. Only editors can make changes.</div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Tooltip, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="tooltip" aria-label="Replay Tooltip, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div class="g-context">Sharing settings<div class="g-context-note">A little context, when you need it.</div></div><div class="g-actions"><button class="st-button" data-st-tip="tip-tooltip-dark">Hover or focus</button><button class="st-button" data-st-tip="tip2-tooltip-dark" aria-label="More information">?</button></div><div data-st="tooltip" id="tip-tooltip-dark" popover="manual" role="tooltip">Share with your team</div><div data-st="tooltip" id="tip2-tooltip-dark" popover="manual" role="tooltip">Only workspace members</div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><button class="st-button" data-st-tip="long-tip-tooltip-states-dark">Long description</button><div data-st="tooltip" id="long-tip-tooltip-states-dark" popover="manual" role="tooltip">Workspace members can view and comment on this project. Only editors can make changes.</div></div></details></section></div><div class="g-caption"><h3>Tooltip</h3><span>quick 120 / E</span></div><p class="g-description">A deliberate pause, then instant neighbours.</p></article><article class="g-card" data-kind="reveal" data-category="Orientation"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Texts reveal, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="reveal" aria-label="Replay Texts reveal, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="reveal"><h3>A clear next step.</h3><p class="g-muted">Bring your team’s work into focus.</p><p>Everything is ready when you are.</p></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="reveal"><h3>A heading long enough to wrap naturally onto another line.</h3><p>The content remains visible before JavaScript runs and when motion is reduced.</p></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Texts reveal, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="reveal" aria-label="Replay Texts reveal, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="reveal"><h3>A clear next step.</h3><p class="g-muted">Bring your team’s work into focus.</p><p>Everything is ready when you are.</p></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="reveal"><h3>A heading long enough to wrap naturally onto another line.</h3><p>The content remains visible before JavaScript runs and when motion is reduced.</p></div></div></details></section></div><div class="g-caption"><h3>Texts reveal</h3><span>surface 240 / E</span></div><p class="g-description">A first impression that never hides the content.</p></article><header class="g-grouphead" data-category="Continuity"><h2>Content & layout</h2><p>Keep the interface steady as content changes.</p></header><article class="g-card" data-kind="resize" data-category="Continuity"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Card resize, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="resize" aria-label="Replay Card resize, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="resize" class="st-surface"><div class="g-row"><span>Project details</span></div><p class="g-muted">Website refresh</p><button class="st-button" data-demo="resize">Show details</button><div class="g-extra" hidden><p>Design review is ready. Two updates are waiting for your feedback.</p></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-surface"><h3>No activity yet</h3><p>Updates will appear here after your team makes a change.</p></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Card resize, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="resize" aria-label="Replay Card resize, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="resize" class="st-surface"><div class="g-row"><span>Project details</span></div><p class="g-muted">Website refresh</p><button class="st-button" data-demo="resize">Show details</button><div class="g-extra" hidden><p>Design review is ready. Two updates are waiting for your feedback.</p></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-surface"><h3>No activity yet</h3><p>Updates will appear here after your team makes a change.</p></div></div></details></section></div><div class="g-caption"><h3>Card resize</h3><span>surface 240 / M</span></div><p class="g-description">A little more room, without stretching the words.</p></article><article class="g-card" data-kind="page" data-category="Continuity"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Page side by side, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="page" aria-label="Replay Page side by side, light">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div data-st="page"><span class="g-muted">Workspace</span><h3>All projects</h3><p>Website refresh · In review</p></div><div class="g-actions"><button class="st-button" data-demo="back">← Back</button><button class="st-button" data-demo="page">Open project →</button></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="page"><h3>No projects yet</h3><p>Your first project will appear here after you create it.</p></div><button class="st-button" disabled>Back unavailable</button></div></details></section><section class="g-preview" data-theme="dark" aria-label="Page side by side, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="page" aria-label="Replay Page side by side, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div class="g-full"><div data-st="page"><span class="g-muted">Workspace</span><h3>All projects</h3><p>Website refresh · In review</p></div><div class="g-actions"><button class="st-button" data-demo="back">← Back</button><button class="st-button" data-demo="page">Open project →</button></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="page"><h3>No projects yet</h3><p>Your first project will appear here after you create it.</p></div><button class="st-button" disabled>Back unavailable</button></div></details></section></div><div class="g-caption"><h3>Page side by side</h3><span>spatial 280 / M</span></div><p class="g-description">Forward and back have a visible direction.</p></article><article class="g-card" data-kind="accordion" data-category="Continuity"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Accordion, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="accordion" aria-label="Replay Accordion, light">↻ <span>Replay</span></button></div><div class="g-demo"><details data-st="accordion" class="st-surface g-full"><summary>Who can access this project?</summary><div class="st-details-body">Your workspace members can view this project. Invite a guest to share access with someone outside your team.</div></details></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><details data-st="accordion" class="st-surface" open><summary>What happens to archived projects?</summary><div class="st-details-body">Archived projects stay in your workspace. Members can still view the full history, comments and attached documents. Restore a project whenever you need to continue working on it.</div></details></div></details></section><section class="g-preview" data-theme="dark" aria-label="Accordion, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="accordion" aria-label="Replay Accordion, dark">↻ <span>Replay</span></button></div><div class="g-demo"><details data-st="accordion" class="st-surface g-full"><summary>Who can access this project?</summary><div class="st-details-body">Your workspace members can view this project. Invite a guest to share access with someone outside your team.</div></details></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><details data-st="accordion" class="st-surface" open><summary>What happens to archived projects?</summary><div class="st-details-body">Archived projects stay in your workspace. Members can still view the full history, comments and attached documents. Restore a project whenever you need to continue working on it.</div></details></div></details></section></div><div class="g-caption"><h3>Accordion</h3><span>surface 240 / M</span></div><p class="g-description">Make space for the answer, then reveal it.</p></article><article class="g-card" data-kind="banners" data-category="Continuity"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Banner stacking, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="banners" aria-label="Replay Banner stacking, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="banners" class="g-full"><div tabindex="0" style="--st-index:0">Your review is ready</div><div tabindex="0" style="--st-index:1">Two new comments</div><div tabindex="0" style="--st-index:2">All changes synced</div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-surface" tabindex="0">Your project has been shared with all members of the design and engineering teams.</div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Banner stacking, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="banners" aria-label="Replay Banner stacking, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="banners" class="g-full"><div tabindex="0" style="--st-index:0">Your review is ready</div><div tabindex="0" style="--st-index:1">Two new comments</div><div tabindex="0" style="--st-index:2">All changes synced</div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div class="st-surface" tabindex="0">Your project has been shared with all members of the design and engineering teams.</div></div></details></section></div><div class="g-caption"><h3>Banner stacking</h3><span>relocate 180 / M</span></div><p class="g-description">Compact at rest. Room to read on focus.</p></article><article class="g-card" data-kind="skeleton" data-category="Continuity"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Skeleton reveal, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="skeleton" aria-label="Replay Skeleton reveal, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="skeleton" aria-busy="true" class="g-full"><div class="st-real"><h3>Website refresh</h3><p class="g-muted">Updated by Maya · Just now</p><span>Ready for review</span></div><div class="st-skeleton-mask" aria-hidden="true"><i></i><i></i><i></i></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="skeleton" aria-busy="false"><div class="st-real"><h3>Ready for your team</h3><p>Your workspace includes projects, documents and a complete activity history.</p></div><div class="st-skeleton-mask" aria-hidden="true"><i></i><i></i></div></div><span class="st-error">If loading fails, replace the skeleton with a useful error.</span></div></details></section><section class="g-preview" data-theme="dark" aria-label="Skeleton reveal, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="skeleton" aria-label="Replay Skeleton reveal, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="skeleton" aria-busy="true" class="g-full"><div class="st-real"><h3>Website refresh</h3><p class="g-muted">Updated by Maya · Just now</p><span>Ready for review</span></div><div class="st-skeleton-mask" aria-hidden="true"><i></i><i></i><i></i></div></div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="skeleton" aria-busy="false"><div class="st-real"><h3>Ready for your team</h3><p>Your workspace includes projects, documents and a complete activity history.</p></div><div class="st-skeleton-mask" aria-hidden="true"><i></i><i></i></div></div><span class="st-error">If loading fails, replace the skeleton with a useful error.</span></div></details></section></div><div class="g-caption"><h3>Skeleton reveal</h3><span>quick 120 / F</span></div><p class="g-description">Real content settles into the space it owns.</p></article><article class="g-card" data-kind="stream" data-category="Continuity"><div class="g-pair"><section class="g-preview" data-theme="light" aria-label="Streaming text, light"><div class="g-preview-head"><span>Light</span><button class="g-replay" data-replay="stream" aria-label="Replay Streaming text, light">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="stream" aria-live="polite" aria-busy="false" class="g-full">Your project is ready for review. The layout is consistent, and every change is saved.</div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="stream" aria-busy="false"><span class="st-error">The response was interrupted. Your last message is still saved.</span></div></div></details></section><section class="g-preview" data-theme="dark" aria-label="Streaming text, dark"><div class="g-preview-head"><span>Dark</span><button class="g-replay" data-demo="stream" aria-label="Replay Streaming text, dark">↻ <span>Replay</span></button></div><div class="g-demo"><div data-st="stream" aria-live="polite" aria-busy="false" class="g-full">Your project is ready for review. The layout is consistent, and every change is saved.</div></div><details class="g-states"><summary>More states</summary><div class="g-state-content"><div data-st="stream" aria-busy="false"><span class="st-error">The response was interrupted. Your last message is still saved.</span></div></div></details></section></div><div class="g-caption"><h3>Streaming text</h3><span>feedback 80 / F</span></div><p class="g-description">Let each new phrase arrive softly.</p></article></div></section><section class="g-usage" id="usage"><div><h2>A small addition to your interface.</h2><p>Include two files. Add an attribute. Use the tiny JavaScript API when your application changes state.</p><p><a href="README.md">Read the integration guide →</a></p></div><pre class="g-code">&lt;link rel="stylesheet"
-  href="seenry-transitions.css"&gt;
-&lt;script src="seenry-transitions.js" defer&gt;&lt;/script&gt;
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Seenry Transitions</title>
+<link rel="stylesheet" href="seenry-transitions.css">
+<script>try{const t=localStorage.getItem('st-gallery-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch{}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.55 var(--font);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,p,ul,ol,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+button,input{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 max(20px,env(safe-area-inset-left))}
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+.mark{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;letter-spacing:-.01em;text-decoration:none}
+.mark svg{width:22px;height:22px}
+.nav{display:flex;align-items:center;gap:6px}
+.nav a{display:inline-flex;align-items:center;min-height:40px;padding:0 10px;border-radius:8px;color:var(--text-2);font-size:14px;font-weight:500;text-decoration:none}
+.nav a:hover{color:var(--text)}
+.theme{width:216px}
+.hero{padding:88px 0 56px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:48px;align-items:end}
+.hero h1{font-size:clamp(36px,5.2vw,56px);line-height:1.02;letter-spacing:-.035em;font-weight:600;max-width:14ch}
+.hero p{color:var(--text-2);font-size:17px;line-height:1.55;max-width:46ch}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:28px;border-radius:14px;overflow:hidden;background:var(--line);box-shadow:0 0 0 1px var(--line)}
+.facts div{background:var(--bg);padding:14px 16px}
+.facts b{display:block;font-size:20px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.facts span{color:var(--text-2);font-size:14px}
+.jump{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 12px}
+.jump a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:99px;background:var(--surface);box-shadow:var(--shadow-card);font-size:14px;font-weight:500;text-decoration:none;color:var(--text-2)}
+.jump a:hover{color:var(--text)}
+section.group{padding:56px 0 8px}
+.group-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px;padding-top:24px;border-top:1px solid var(--line)}
+.group-head h2{font-size:26px;letter-spacing:-.025em;font-weight:600;line-height:1.15}
+.group-head p{color:var(--text-2);max-width:48ch;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.card{min-width:0;display:flex;flex-direction:column;border-radius:20px;background:var(--surface);box-shadow:var(--shadow-card);overflow:clip}
+.stage{position:relative;height:320px;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:24px;background:var(--stage);border-bottom:1px solid var(--line);overflow:hidden;isolation:isolate}
+:root{--stage:#f4f4f6;--frame:#fff}
+[data-theme="dark"]{--stage:#111113;--frame:#18181b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--stage:#111113;--frame:#18181b}}
+.caption{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;align-items:start;padding:18px 20px 20px}
+.caption h3{font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.4}
+.caption p{grid-column:1;color:var(--text-2);font-size:16px;line-height:1.5}
+.caption .spec{grid-column:1/-1;margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.spec span{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:7px;background:var(--surface-2);color:var(--text-2);font:500 13px/1 var(--font-mono);letter-spacing:-.01em}
+.replay{grid-column:2;grid-row:1/3;align-self:start;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 10px;border:0;border-radius:10px;background:var(--surface-2);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy),background-color var(--st-quick) var(--st-F)}
+.replay svg{width:16px;height:16px;transition:transform var(--st-spring-smooth-ms) var(--st-spring-smooth)}
+.replay:active{transform:scale(.96);transition-duration:var(--st-feedback)}
+.replay:active svg{transform:rotate(-40deg)}
+@media (hover:hover) and (pointer:fine){.replay:hover{background:color-mix(in srgb,var(--text) 9%,transparent)}}
+.foot{padding:72px 0 64px;margin-top:64px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.foot h2{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px}
+.foot p{color:var(--text-2);max-width:48ch}
+pre.install{margin:0;padding:16px 18px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow-card);font:400 14px/1.7 var(--font-mono);overflow:auto;color:var(--text-2)}
+pre.install b{color:var(--text);font-weight:500}
 
-&lt;span data-st="number" data-value="42"&gt;42&lt;/span&gt;</pre></section></main><footer><span>Seenry component kit</span><span>Native elements. Considered motion. Yours to build with.</span></footer></div><script>
+/* Mini product frames */
+.app{position:relative;width:min(100%,400px);border-radius:14px;background:var(--frame);box-shadow:var(--shadow-card);color:var(--text);font-size:14px}
+.app-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;height:48px;padding:0 10px 0 16px;border-bottom:1px solid var(--line)}
+.app-title{font-weight:600;font-size:14px}
+.muted{color:var(--text-2)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:12px}
+.between{justify-content:space-between}
+.file{display:flex;align-items:center;gap:12px;padding:12px 10px 12px 16px}
+.file+.file{border-top:1px solid var(--line)}
+.file-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:var(--surface-2);color:var(--text-2)}
+.file-icon svg{width:16px;height:16px}
+.file-meta{flex:1;min-width:0}
+.file-meta b{display:block;font-weight:500}
+.file-meta span{color:var(--text-2);font-size:13px}
+.avatar{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:50%;color:#fff;font-weight:600;font-size:13px}
+.a1{background:#a8452f}.a2{background:#26386b}.a3{background:#235e4f}.a4{background:#8a6a2a}
+.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:99px;background:var(--surface-2);color:var(--text-2);font-size:13px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.icon-btn{display:inline-grid;place-items:center;width:40px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--text-2);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn[aria-expanded="true"]{background:var(--hover);color:var(--text)}
+@media (hover:hover) and (pointer:fine){.icon-btn:hover{background:var(--hover);color:var(--text)}}
+.icon-btn:active{background:var(--press)}
+.phone{position:relative;width:228px;height:300px;margin-bottom:-60px;border-radius:30px 30px 0 0;padding:8px 8px 0;background:#0d0d0f;box-shadow:0 0 0 1px #0000001a,0 20px 40px -18px #0006;align-self:end}
+.screen{position:relative;height:100%;border-radius:23px 23px 0 0;overflow:hidden;background:var(--frame)}
+.photo{position:absolute;inset:0;background:#23224f}
+.photo-bar{position:absolute;left:0;right:0;bottom:60px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;color:#fff;font-size:13px;font-weight:500}
+.photo-bar button{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border:0;border-radius:99px;background:#ffffff33;color:#fff;font-weight:600;font-size:13px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer}
+.share-row{display:flex;gap:4px;justify-content:space-between;padding:4px 0 14px}
+.share-row div{display:grid;justify-items:center;gap:6px;font-size:12.5px;color:var(--text-2)}
+.share-row .avatar{width:38px;height:38px}
+.share-actions{display:grid;gap:2px;border-radius:12px;background:var(--surface-2);padding:4px}
+.share-actions button{display:flex;align-items:center;justify-content:space-between;height:40px;padding:0 12px;border:0;border-radius:8px;background:transparent;font-size:14px;font-weight:400;cursor:pointer}
+.share-actions svg{width:16px;height:16px;color:var(--text-2)}
+.sheet-title{font-weight:600;font-size:15px;margin-bottom:10px}
+.desk{width:min(100%,440px);height:250px;overflow:hidden}
+.desk .grid-rows{padding:8px 16px}
+.bar-row{display:flex;align-items:center;gap:10px;height:34px;border-bottom:1px solid var(--line)}
+.bar-row i{height:8px;border-radius:4px;background:var(--surface-2)}
+.filters h4{margin:0 0 12px;font-size:15px;font-weight:600}
+.filters .opt{display:flex;align-items:center;justify-content:space-between;min-height:40px;border-bottom:1px solid var(--line);font-size:14px}
+.toolbar{display:flex;gap:2px;padding:4px;border-radius:12px;background:var(--frame);box-shadow:var(--shadow-card)}
+.toolbar .sep{width:1px;margin:8px 4px;background:var(--line)}
+.editor-line{margin-top:18px;width:300px;display:grid;gap:8px}
+.editor-line i{display:block;height:9px;border-radius:5px;background:var(--line)}
+.settings-card{width:min(100%,420px);padding:0 18px 18px}
+.panel-body{display:grid;gap:10px;padding-top:6px}
+.field-row{display:flex;justify-content:space-between;align-items:center;min-height:36px;font-size:14px}
+.field-row span:last-child{color:var(--text-2)}
+.metric{width:min(100%,400px);padding:18px}
+.metric-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.metric .big{margin-top:18px;font-size:34px;font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.bars{display:flex;align-items:end;gap:6px;height:64px;margin-top:14px}
+.bars i{flex:1;height:100%;border-radius:4px 4px 2px 2px;background:color-mix(in srgb,var(--text) 14%,transparent);transform-origin:50% 100%;transition:transform var(--st-spatial) var(--st-E)}
+.bars i:last-child{background:var(--text)}
+.mail{position:relative;width:min(100%,380px);height:260px;overflow:hidden}
+.mail-list .msg{display:flex;gap:12px;align-items:flex-start;width:100%;padding:12px 16px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer}
+.mail-list .msg:hover{background:var(--hover)}
+.msg b{display:block;width:max-content;max-width:100%;font-weight:600;font-size:14px}
+.msg span{display:block;width:max-content;max-width:100%;color:var(--text-2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg .body{min-width:0;flex:1}
+.detail{padding:6px 16px 16px}
+.detail h4{margin:10px 0 6px;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.25;width:max-content;max-width:100%}
+.detail p{color:var(--text-2);font-size:14px;line-height:1.55}
+.covers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(100%,420px)}
+.cover-card{display:block;padding:0;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:14px}
+.cover{display:block;aspect-ratio:1;border-radius:12px}
+.c1{background:#a8452f}
+.c2{background:#26386b}
+.c3{background:#235e4f}
+.cover-card b{display:block;margin-top:8px;font-size:14px;font-weight:600;width:max-content}
+.cover-card span{display:block;color:var(--text-2);font-size:13px}
+.expand-surface{position:absolute;inset:12px;display:grid;grid-template-columns:150px 1fr;gap:16px;padding:14px;border-radius:18px;background:var(--frame);box-shadow:var(--shadow-layer)}
+.expand-surface .cover{width:150px;height:150px;border-radius:12px}
+.expand-surface h4{margin:4px 0 0;font-size:20px;font-weight:600;letter-spacing:-.02em;width:max-content}
+.expand-surface p{margin-top:8px;color:var(--text-2);font-size:14px;line-height:1.5}
+.expand-surface .tracks{margin-top:10px;display:grid;gap:2px;font-size:13px}
+.expand-surface .tracks div{display:flex;justify-content:space-between;color:var(--text-2);border-bottom:1px solid var(--line);padding:5px 0}
+.close-x{position:absolute;right:8px;top:8px}
+.stack-center{display:grid;justify-items:center;gap:14px}
+.code{display:flex;align-items:center;gap:8px;width:min(100%,380px);padding:6px 6px 6px 16px;border-radius:12px;background:var(--frame);box-shadow:var(--shadow-card);font:400 14px/1 var(--font-mono)}
+.code code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.code code b{color:var(--text-3);font-weight:400}
+.copy-btn{min-width:98px}
+.copy-btn .st-swap{width:16px;height:16px}
+.copy-btn .st-swap svg{width:16px;height:16px}
+.post{width:min(100%,380px);padding:16px}
+.post p{margin:12px 0 10px;font-size:14.5px;line-height:1.5}
+.post .actions{display:flex;gap:4px;margin-left:-10px}
+.post .ghostbtn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border:0;border-radius:99px;background:transparent;color:var(--text-2);font-size:14px;font-weight:500}
+.post .ghostbtn svg{width:19px;height:19px}
+.list-card{width:min(100%,400px)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 16px;border-bottom:1px solid var(--line)}
+.set-row:last-child{border-bottom:0}
+.set-row b{display:block;font-weight:500}
+.set-row span{display:block;color:var(--text-2);font-size:13px}
+.invite{width:min(100%,380px);padding:18px}
+.invite label{display:block;margin-bottom:8px;font-weight:500}
+.invite .row{align-items:flex-start}
+.invite .st-field{flex:1}
+.toast-stage{align-content:start}
+.toast-host{position:absolute;left:50%;bottom:20px;width:min(340px,calc(100% - 32px));translate:-50% 0}
+.seats{width:min(100%,380px);padding:18px}
+.stepper{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:12px;background:var(--surface-2)}
+.stepper button{width:36px;height:36px;border:0;border-radius:9px;background:transparent;font-size:18px;cursor:pointer;color:var(--text)}
+.stepper button:hover{background:var(--hover)}
+.stepper output{min-width:48px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.total{display:flex;align-items:baseline;gap:6px;margin-top:18px}
+.total .price{font-size:40px;font-weight:600;letter-spacing:-.035em;line-height:1.05}
+.issue{width:min(100%,400px);padding:18px}
+.issue h4{margin:10px 0 14px;font-size:17px;font-weight:600;letter-spacing:-.015em}
+.status{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 11px 0 9px;border:0;border-radius:99px;background:var(--pill-bg,var(--surface-2));color:var(--pill-fg,var(--text-2));font-size:13px;font-weight:600;cursor:pointer;transition:background-color var(--st-control) var(--st-F),color var(--st-control) var(--st-F)}
+.status .dot{transition:background-color var(--st-control) var(--st-F)}
+.tasks{width:min(100%,400px)}
+.checklist .st-check{display:flex;padding:4px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.checklist .st-check:last-child{border-bottom:0}
+.task{display:flex;align-items:center;gap:12px;padding:10px 8px 10px 16px;border-bottom:1px solid var(--line);background:var(--frame)}
+.task:last-child{border-bottom:0}
+.task .grow{flex:1;min-width:0}
+.task b{display:block;font-weight:500}
+.task span{font-size:13px;color:var(--text-2)}
+.prio{width:8px;height:8px;border-radius:50%}
+.faq{width:min(100%,420px);padding:4px 20px}
+.faq [data-st="accordion"]:last-child{border-bottom:0}
+.profile{width:min(100%,360px);padding:18px}
+.profile .st-skeleton-mask{grid-template-columns:52px 1fr;gap:10px 14px;align-items:center}
+.profile .st-skeleton-mask .sk-av{width:52px;height:52px;border-radius:50%;grid-row:span 2}
+.profile .st-skeleton-mask .sk-wide{grid-column:1/-1}
+.profile .st-real{display:grid;grid-template-columns:52px 1fr;gap:4px 14px;align-items:center}
+.profile .st-media{width:52px;height:52px;border-radius:50%;grid-row:span 2;background:#7a4b3a}
+.profile .st-real p{grid-column:1/-1;margin-top:12px;color:var(--text-2);font-size:14px;line-height:1.5}
+.profile .stats{grid-column:1/-1;display:flex;gap:18px;margin-top:10px;font-size:13px;color:var(--text-2)}
+.profile .stats b{color:var(--text);font-weight:600}
+.card.wide{grid-column:1/-1}
+.chat{width:min(100%,520px);padding:16px;display:grid;gap:12px;align-content:start;height:272px}
+.bubble{justify-self:end;max-width:80%;padding:8px 12px;border-radius:14px 14px 4px 14px;background:var(--surface-2);font-size:14px}
+.answer{font-size:14.5px;line-height:1.6;color:var(--text)}
+.thinking-row{display:flex;align-items:center;gap:8px;color:var(--text-2);font-size:14px;min-height:22px}
+.spark{width:16px;height:16px;color:var(--text-2)}
+.chat-foot{display:flex;justify-content:flex-end}
+.mono{font-family:var(--font-mono)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+@media (prefers-reduced-motion:reduce){.bars i{transition:none}}
+@media (max-width:900px){
+ .hero{grid-template-columns:1fr;gap:24px;padding:48px 0 32px}
+ .grid{grid-template-columns:1fr}
+ .foot{grid-template-columns:1fr}
+ .group-head{flex-direction:column;align-items:start;gap:8px}
+}
+@media (max-width:560px){
+ .nav a{display:none}
+ .theme{width:auto}
+ .theme [role=tab]{padding:0 9px;font-size:13px}
+ .mark{font-size:14px;gap:8px}
+ .top .wrap{gap:8px}
+ .stage{height:300px;padding:16px}
+ .caption{padding:16px}
+ .facts b{font-size:17px}
+ .facts span{font-size:13px}
+ .expand-surface{grid-template-columns:1fr;grid-template-rows:auto 1fr;overflow:hidden}
+ .expand-surface .cover{width:100%;height:110px}
+ .covers{gap:8px}
+ .desk{height:240px}
+ .app .small,.file-meta span,.msg span,.task span,.set-row span,.stage p.small,.cover-card span,.share-row div{font-size:14px}
+ pre.install{white-space:pre-wrap;word-break:break-word}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 20 20"><path d="M10 4.5v11M4.5 10h11"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 20 20"><path d="M12.5 4.5l3 3-8 8H4.5v-3z"/></symbol>
+  <symbol id="i-dup" viewBox="0 0 20 20"><rect x="7" y="7" width="9" height="9" rx="2"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7"/></symbol>
+  <symbol id="i-move" viewBox="0 0 20 20"><path d="M3.5 6.5a2 2 0 0 1 2-2h3l1.5 2h4.5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 20 20"><path d="M10 3.5v9M6.5 7L10 3.5 13.5 7M4.5 11v3.5a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V11"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 20 20"><path d="M4.5 6h11M8 6V4.5h4V6M6 6l.7 9.2a1.5 1.5 0 0 0 1.5 1.3h3.6a1.5 1.5 0 0 0 1.5-1.3L14 6"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 20 20"><path d="M11.5 3.5H6.5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V7.5z"/><path d="M11.5 3.5v4h4M7.5 11h5M7.5 13.5h3.5"/></symbol>
+  <symbol id="i-table" viewBox="0 0 20 20"><rect x="3.5" y="4" width="13" height="12" rx="2"/><path d="M3.5 8h13M3.5 12h13M8.5 8v8"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 20 20"><path d="M10 13V4M6.5 7.5L10 4l3.5 3.5M4.5 13.5v1a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-1"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5"/><path d="M13 13l3.5 3.5"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 20 20"><path d="M3.5 11l2-6.5h9l2 6.5v3.5a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2z"/><path d="M3.5 11h3.5l1 2h4l1-2h3.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7.5" r="3"/><path d="M4.5 16.5c.8-2.8 3-4.3 5.5-4.3s4.7 1.5 5.5 4.3"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.5"/><path d="M10 3v2M10 15v2M3 10h2M15 10h2M5 5l1.4 1.4M13.6 13.6L15 15M5 15l1.4-1.4M13.6 6.4L15 5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 20 20"><path d="M15.5 12.5A6 6 0 0 1 7.5 4.5a6 6 0 1 0 8 8z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 20 20"><rect x="7" y="7" width="9" height="9" rx="2"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-x" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 20 20"><path d="M10 16.5s-6-3.6-6-8.2A3.3 3.3 0 0 1 10 6.4a3.3 3.3 0 0 1 6 1.9c0 4.6-6 8.2-6 8.2z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 20 20"><path d="M4 9.5a5.5 5 0 0 1 11 0 5.5 5 0 0 1-7.7 4.6L4.5 15.5l.8-2.6A4.8 4.8 0 0 1 4 9.5z"/></symbol>
+  <symbol id="i-bold" viewBox="0 0 20 20"><path d="M6.5 4.5h4.2a2.8 2.8 0 0 1 0 5.5H6.5zM6.5 10h4.8a3 3 0 0 1 0 6H6.5z"/></symbol>
+  <symbol id="i-italic" viewBox="0 0 20 20"><path d="M11.5 4.5h3M5.5 15.5h3M13 4.5l-6 11"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.5 11.5a3 3 0 0 0 4.2 0l2.3-2.3a3 3 0 0 0-4.2-4.2l-.8.8M11.5 8.5a3 3 0 0 0-4.2 0L5 10.8A3 3 0 0 0 9.2 15l.8-.8"/></symbol>
+  <symbol id="i-comment" viewBox="0 0 20 20"><path d="M4.5 5.5a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-1.5 1.5H9l-3.5 3v-3H6a1.5 1.5 0 0 1-1.5-1.5z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 20 20"><path d="M4 5.5h12M6.5 10h7M9 14.5h2"/></symbol>
+  <symbol id="i-back" viewBox="0 0 20 20"><path d="M12 5l-5 5 5 5"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 20 20"><path d="M4.5 10a5.5 5.5 0 1 0 1.8-4.1"/><path d="M4.5 3.5v3h3"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 20 20"><path d="M10 3.5l1.4 4 4.1 1.5-4.1 1.5L10 14.5l-1.4-4L4.5 9l4.1-1.5z"/></symbol>
+  <symbol id="i-link2" viewBox="0 0 20 20"><path d="M8 12l4-4M7 9.5l-1.5 1.5a2.5 2.5 0 0 0 3.5 3.5l1.5-1.5M13 10.5l1.5-1.5a2.5 2.5 0 0 0-3.5-3.5L9.5 7"/></symbol>
+  <symbol id="i-down" viewBox="0 0 20 20"><path d="M10 4.5v11M5.5 11l4.5 4.5 4.5-4.5"/></symbol>
+ </defs>
+</svg>
+
+<header class="top">
+ <div class="wrap">
+  <a class="mark" href="#top" aria-label="Seenry Transitions, top of page"><svg viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" rx="6" fill="currentColor"/><path d="M6.5 13.5c1.8 1.8 4.4 2 6.4.6M8 8.5h.01M14 8.5h.01" stroke="var(--bg)" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>Seenry Transitions</a>
+  <nav class="nav" aria-label="Sections">
+   <a href="#surfaces">Surfaces</a><a href="#navigation">Navigation</a><a href="#feedback">Feedback</a><a href="#content">Content</a>
+   <div class="theme" data-st="segmented"><div role="tablist" aria-label="Color theme"><button role="tab" type="button" data-theme-choice="system" aria-selected="true">System</button><button role="tab" type="button" data-theme-choice="light">Light</button><button role="tab" type="button" data-theme-choice="dark">Dark</button></div></div>
+  </nav>
+ </div>
+</header>
+
+<main id="top" class="wrap">
+ <section class="hero">
+  <div>
+   <h1>Motion that explains what changed.</h1>
+  </div>
+  <div>
+   <p>Twenty-four transitions from real product surfaces. Each one starts where its cause is, keeps attached content attached, and reverses from wherever it is when you change your mind. One stylesheet, one script, no build step.</p>
+   <div class="facts" aria-label="Kit facts">
+    <div><b>24</b><span>transitions</span></div>
+    <div><b>5</b><span>springs, 4 curves</span></div>
+    <div><b>0</b><span>layout animations</span></div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ============ Surfaces ============ -->
+ <section class="group" id="surfaces" aria-labelledby="h-surfaces">
+  <div class="group-head"><h2 id="h-surfaces">Surfaces</h2><p>Layers grow from the control that summoned them and leave faster than they arrived.</p></div>
+  <div class="grid">
+
+   <article class="card" data-motion-region data-motion-label="Menu">
+    <div class="stage">
+     <div class="app">
+      <div class="app-bar"><span class="app-title">Planning</span><span class="chip">4 files</span></div>
+      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-doc"/></svg></span><span class="file-meta"><b>Q3 roadmap</b><span>Edited 2 hours ago by Mara</span></span>
+       <button class="icon-btn" id="menu-trigger" data-st-target="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Q3 roadmap"><svg class="st-icon"><use href="#i-dots"/></svg></button></div>
+      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-table"/></svg></span><span class="file-meta"><b>Hiring plan</b><span>Edited yesterday</span></span><button class="icon-btn" aria-label="More actions for Hiring plan"><svg class="st-icon"><use href="#i-dots"/></svg></button></div>
+     </div>
+     <div id="menu-1" data-st="menu" data-st-placement="bottom-end" popover role="menu" aria-label="Q3 roadmap actions">
+      <button role="menuitem"><svg class="st-icon"><use href="#i-pen"/></svg>Rename<kbd>R</kbd></button>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-dup"/></svg>Duplicate<kbd>⌘D</kbd></button>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-move"/></svg>Move to…</button>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-share"/></svg>Share</button>
+      <hr>
+      <button role="menuitem" class="st-danger"><svg class="st-icon"><use href="#i-trash"/></svg>Delete</button>
+     </div>
+    </div>
+    <div class="caption"><h3>Menu</h3><p>Scales from the exact point of its trigger, rows ride the surface, leaves in 110ms.</p><button class="replay" data-replay="menu" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>spring .26 / .04</span><span>scale .96 → 1</span><span>exit 110 X</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Button to menu">
+    <div class="stage">
+     <div class="app" style="width:min(100%,380px)">
+      <div class="app-bar"><span class="app-title">Drive</span><button class="st-button st-primary" id="morph-trigger" data-st-target="morph-1" aria-haspopup="menu" aria-expanded="false"><svg class="st-icon"><use href="#i-plus"/></svg>New</button></div>
+      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-move"/></svg></span><span class="file-meta"><b>Brand assets</b><span>32 items</span></span></div>
+      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-doc"/></svg></span><span class="file-meta"><b>Launch notes</b><span>Shared with you</span></span></div>
+     </div>
+     <div id="morph-1" data-st="plus-menu" data-st-placement="bottom-end" popover role="menu" aria-label="Create new">
+      <button role="menuitem"><svg class="st-icon"><use href="#i-doc"/></svg>Document</button>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-table"/></svg>Spreadsheet</button>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-move"/></svg>Folder</button>
+      <hr>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-upload"/></svg>Upload file</button>
+     </div>
+    </div>
+    <div class="caption"><h3>Button to menu</h3><p>The button becomes the menu: its shape unclips from the button's rect while its colour turns to surface.</p><button class="replay" data-replay="morph" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>clip-path morph</span><span>content +50ms</span><span>return to rect</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Dialog">
+    <div class="stage">
+     <div class="app settings-card">
+      <div class="app-bar" style="margin:0 -18px 14px"><span class="app-title">Project settings</span></div>
+      <div class="field-row"><span>Name</span><span>Aurora website</span></div>
+      <div class="field-row"><span>Visibility</span><span>Team</span></div>
+      <div class="field-row" style="margin-top:8px"><span class="muted small">Deleting removes every page and asset.</span><button class="st-button" style="color:var(--bad)" id="dialog-trigger" data-st-target="dialog-1">Delete project</button></div>
+     </div>
+     <dialog id="dialog-1" data-st="modal" aria-labelledby="dlg-title">
+      <h3 id="dlg-title" style="font-size:17px;font-weight:600;letter-spacing:-.01em">Delete Aurora website?</h3>
+      <p class="muted" style="margin:8px 0 20px;font-size:14.5px">This removes 24 pages and 318 assets. You can restore it from the trash for 30 days.</p>
+      <div class="row" style="justify-content:flex-end"><button class="st-button" data-st-close autofocus>Cancel</button><button class="st-button" style="background:var(--bad);color:#fff;box-shadow:none" data-st-close>Delete project</button></div>
+     </dialog>
+    </div>
+    <div class="caption"><h3>Dialog</h3><p>Grows toward the button that asked for it, over a backdrop that fades; closes in 140ms.</p><button class="replay" data-replay="dialog" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>spring .34 / .08</span><span>origin: trigger</span><span>exit 140 X</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Command palette">
+    <div class="stage">
+     <div class="stack-center">
+      <button class="st-button" id="palette-trigger" data-st-target="palette-1" style="min-width:280px;justify-content:flex-start;color:var(--text-2)"><svg class="st-icon"><use href="#i-search"/></svg>Search or jump to…<kbd style="margin-left:auto;font:500 12px var(--font);color:var(--text-3)">⌘K</kbd></button>
+      <p class="muted small">Type to filter. Arrow keys move the highlight.</p>
+     </div>
+     <dialog id="palette-1" data-st="palette" data-st-morph aria-label="Command palette">
+      <div class="st-palette-search"><svg class="st-icon"><use href="#i-search"/></svg><input data-st-palette-input type="text" placeholder="Search commands" aria-label="Search commands" role="combobox" aria-controls="palette-list" aria-expanded="true" autocomplete="off"></div>
+      <ul role="listbox" id="palette-list" aria-label="Commands">
+       <li role="option"><svg class="st-icon"><use href="#i-inbox"/></svg>Go to Inbox<kbd>G I</kbd></li>
+       <li role="option"><svg class="st-icon"><use href="#i-plus"/></svg>Create issue<kbd>C</kbd></li>
+       <li role="option"><svg class="st-icon"><use href="#i-user"/></svg>Invite teammate</li>
+       <li role="option"><svg class="st-icon"><use href="#i-moon"/></svg>Change theme</li>
+       <li role="option"><svg class="st-icon"><use href="#i-gear"/></svg>Open settings<kbd>⌘,</kbd></li>
+      </ul>
+      <p data-st-palette-empty hidden>No commands match.</p>
+     </dialog>
+    </div>
+    <div class="caption"><h3>Command palette</h3><p>The search field becomes the palette: results unclip below it, one highlight glides between them, and the list reflows as you type.</p><button class="replay" data-replay="palette" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>clip from trigger</span><span>FLIP filter</span><span>shared highlight</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Bottom sheet">
+    <div class="stage">
+     <div class="phone"><div class="screen">
+      <div class="photo" id="sheet-recede"><div class="photo-bar"><span>Lisbon, 6:42 pm</span><button id="sheet-trigger" data-st-target="sheet-1"><svg class="st-icon" style="width:15px;height:15px"><use href="#i-share"/></svg>Share</button></div></div>
+      <div data-st-scrim></div>
+      <div id="sheet-1" data-st="sheet" data-st-recede="#sheet-recede" role="dialog" aria-label="Share photo">
+       <span class="st-sheet-handle" aria-hidden="true"></span>
+       <div class="sheet-title">Share photo</div>
+       <div class="share-row"><div><span class="avatar a1">MA</span>Mara</div><div><span class="avatar a2">JO</span>Jon</div><div><span class="avatar a3">EV</span>Eva</div><div><span class="avatar a4">LI</span>Liu</div></div>
+       <div class="share-actions"><button data-st-close>Copy link<svg class="st-icon"><use href="#i-link2"/></svg></button><button data-st-close>Save to Files<svg class="st-icon"><use href="#i-down"/></svg></button></div>
+      </div>
+     </div></div>
+    </div>
+    <div class="caption"><h3>Bottom sheet</h3><p>Rises from the screen edge as the page recedes behind it. Drag it: it follows the finger and leaves on a flick.</p><button class="replay" data-replay="sheet" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>spring .36 / 0</span><span>drag + velocity</span><span>exit 220 X</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Drawer">
+    <div class="stage">
+     <div class="app desk">
+      <div class="app-bar"><span class="app-title">Orders</span><button class="st-button" id="drawer-trigger" data-st-target="drawer-1"><svg class="st-icon"><use href="#i-filter"/></svg>Filters</button></div>
+      <div class="grid-rows"><div class="bar-row"><i style="width:30%"></i><i style="width:18%"></i><i style="width:12%;margin-left:auto"></i></div><div class="bar-row"><i style="width:24%"></i><i style="width:22%"></i><i style="width:10%;margin-left:auto"></i></div><div class="bar-row"><i style="width:34%"></i><i style="width:14%"></i><i style="width:14%;margin-left:auto"></i></div><div class="bar-row"><i style="width:20%"></i><i style="width:26%"></i><i style="width:9%;margin-left:auto"></i></div><div class="bar-row"><i style="width:28%"></i><i style="width:16%"></i><i style="width:12%;margin-left:auto"></i></div></div>
+      <div data-st-scrim style="border-radius:14px"></div>
+      <div id="drawer-1" data-st="drawer" role="dialog" aria-label="Filters" class="filters">
+       <div class="row between" style="margin:-6px -8px 8px 0"><h4 style="margin:0">Filters</h4><button class="icon-btn" data-st-close aria-label="Close filters"><svg class="st-icon"><use href="#i-x"/></svg></button></div>
+       <div class="opt">Status<span class="muted">Paid</span></div>
+       <div class="opt">Date<span class="muted">Last 30 days</span></div>
+       <div class="opt">Amount<span class="muted">Any</span></div>
+       <button class="st-button st-primary" data-st-close style="width:100%;margin-top:14px">Show 128 orders</button>
+      </div>
+     </div>
+    </div>
+    <div class="caption"><h3>Drawer</h3><p>Slides from the edge it lives on, with its content fixed to it; the scrim is the way out.</p><button class="replay" data-replay="drawer" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>x 100% → 0</span><span>spring .36 / 0</span><span>exit 220 X</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Tooltip">
+    <div class="stage">
+     <div class="stack-center">
+      <div class="toolbar" role="toolbar" aria-label="Formatting">
+       <button class="icon-btn" data-st-tip="tip-bold" aria-label="Bold"><svg class="st-icon"><use href="#i-bold"/></svg></button>
+       <button class="icon-btn" data-st-tip="tip-italic" aria-label="Italic"><svg class="st-icon"><use href="#i-italic"/></svg></button>
+       <button class="icon-btn" data-st-tip="tip-link" aria-label="Link"><svg class="st-icon"><use href="#i-link"/></svg></button>
+       <span class="sep" aria-hidden="true"></span>
+       <button class="icon-btn" data-st-tip="tip-comment" aria-label="Comment"><svg class="st-icon"><use href="#i-comment"/></svg></button>
+      </div>
+      <div class="editor-line" aria-hidden="true"><i style="width:92%"></i><i style="width:78%"></i><i style="width:60%"></i></div>
+     </div>
+     <div id="tip-bold" data-st="tooltip" popover>Bold<kbd>⌘B</kbd></div>
+     <div id="tip-italic" data-st="tooltip" popover>Italic<kbd>⌘I</kbd></div>
+     <div id="tip-link" data-st="tooltip" popover>Add link<kbd>⌘K</kbd></div>
+     <div id="tip-comment" data-st="tooltip" popover>Comment<kbd>⌥⌘M</kbd></div>
+    </div>
+    <div class="caption"><h3>Tooltip</h3><p>Waits 400ms once, then glides between neighbours instead of blinking. Focus shows it at once; long-press on touch.</p><button class="replay" data-replay="tooltip" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>dwell 400</span><span>glide spring .26</span><span>exit 80 F</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Card expand">
+    <div class="stage">
+     <div class="covers" id="covers">
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><b data-st-shared="title">Golden Hour</b><span>12 tracks</span></button>
+      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><b data-st-shared="title">Night Swim</b><span>9 tracks</span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><b data-st-shared="title">Greenhouse</b><span>11 tracks</span></button>
+     </div>
+     <div id="expand-1" data-st="expand" role="dialog" aria-label="Album details">
+      <div data-st-scrim style="border-radius:0"></div>
+      <div class="expand-surface" style="z-index:20">
+       <span class="cover" data-st-shared="cover" id="expand-cover"></span>
+       <div style="min-width:0">
+        <h4 data-st-shared="title" data-st-shared-text id="expand-title">Night Swim</h4>
+        <div data-st-expand-content>
+         <p id="expand-meta">9 tracks · 34 min · Released 2026</p>
+         <div class="tracks"><div><span>Low tide</span><span>3:41</span></div><div><span>Harbour lights</span><span>4:02</span></div><div><span>Undertow</span><span>3:18</span></div></div>
+        </div>
+       </div>
+       <button class="icon-btn close-x" data-st-close aria-label="Close album"><svg class="st-icon"><use href="#i-x"/></svg></button>
+      </div>
+     </div>
+    </div>
+    <div class="caption"><h3>Card expand</h3><p>The card unclips into its detail while the cover and title travel to their new places; details arrive last.</p><button class="replay" data-replay="expand" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>shared FLIP</span><span>clip from card rect</span><span>content +90ms</span></div></div>
+   </article>
+  </div>
+ </section>
+
+ <!-- ============ Navigation ============ -->
+ <section class="group" id="navigation" aria-labelledby="h-navigation">
+  <div class="group-head"><h2 id="h-navigation">Navigation</h2><p>One indicator, one page, one shared element: identity survives the change.</p></div>
+  <div class="grid">
+   <article class="card" data-motion-region data-motion-label="Tabs">
+    <div class="stage">
+     <div class="app settings-card" data-st="tabs" id="tabs-1" style="padding-top:8px">
+      <div role="tablist" aria-label="Settings sections">
+       <button role="tab" id="t-acc" aria-controls="p-acc" aria-selected="true">Account</button>
+       <button role="tab" id="t-not" aria-controls="p-not">Notifications</button>
+       <button role="tab" id="t-bil" aria-controls="p-bil">Billing</button>
+       <button role="tab" id="t-sec" aria-controls="p-sec">Security</button>
+      </div>
+      <div role="tabpanel" id="p-acc" aria-labelledby="t-acc"><div class="panel-body"><div class="field-row"><span>Email</span><span>mara@aurora.co</span></div><div class="field-row"><span>Language</span><span>English</span></div><div class="field-row"><span>Time zone</span><span>Lisbon (GMT+1)</span></div></div></div>
+      <div role="tabpanel" id="p-not" aria-labelledby="t-not" hidden><div class="panel-body"><div class="field-row"><span>Mentions</span><span>Push and email</span></div><div class="field-row"><span>Weekly digest</span><span>Mondays</span></div><div class="field-row"><span>Product news</span><span>Off</span></div></div></div>
+      <div role="tabpanel" id="p-bil" aria-labelledby="t-bil" hidden><div class="panel-body"><div class="field-row"><span>Plan</span><span>Team, yearly</span></div><div class="field-row"><span>Next invoice</span><span>$1,152 on Nov 1</span></div><div class="field-row"><span>Card</span><span>Visa ending 4242</span></div></div></div>
+      <div role="tabpanel" id="p-sec" aria-labelledby="t-sec" hidden><div class="panel-body"><div class="field-row"><span>Two-factor</span><span>Authenticator app</span></div><div class="field-row"><span>Sessions</span><span>3 devices</span></div><div class="field-row"><span>Passkeys</span><span>2 saved</span></div></div></div>
+     </div>
+    </div>
+    <div class="caption"><h3>Tabs</h3><p>The underline reaches for the new tab with its leading edge and pulls its tail in after; the panel slides in the same direction.</p><button class="replay" data-replay="tabs" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>lead .19 · tail .34</span><span>panel x ±14</span><span>keys: no stretch</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Segmented control">
+    <div class="stage">
+     <div class="app metric">
+      <div class="metric-head"><span class="app-title">Revenue</span>
+       <div data-st="segmented" id="seg-1" style="width:210px"><div role="tablist" aria-label="Period"><button role="tab" data-period="day">Day</button><button role="tab" data-period="week" aria-selected="true">Week</button><button role="tab" data-period="year">Year</button></div></div>
+      </div>
+      <div class="big">$<span data-st="number" id="rev" data-value="8420">8,420</span></div>
+      <div class="bars" id="rev-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+     </div>
+    </div>
+    <div class="caption"><h3>Segmented control</h3><p>The pill glides on a spring; the selected label is a clipped copy, so its colour changes exactly under the pill.</p><button class="replay" data-replay="segmented" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>spring .26 / .04</span><span>clipped label ink</span><span>digits roll</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Page transition">
+    <div class="stage">
+     <div class="app mail" id="mail">
+      <div id="mail-view"></div>
+     </div>
+    </div>
+    <div class="caption"><h3>Page transition</h3><p>View Transitions: the page slides in the direction of travel while the sender and subject move into the header.</p><button class="replay" data-replay="page" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>View Transitions API</span><span>x ±48 · shared</span><span>WAAPI fallback</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Accordion">
+    <div class="stage">
+     <div class="app faq">
+      <details data-st="accordion"><summary>Can I change plans later?</summary><div class="st-details-body">Yes. Upgrades apply at once and are prorated; downgrades take effect at the end of the billing period.</div></details>
+      <details data-st="accordion" id="acc-2"><summary>Do you offer education pricing?</summary><div class="st-details-body">Students and teachers get the Team plan free for a year with a school email address.</div></details>
+      <details data-st="accordion"><summary>Where is my data stored?</summary><div class="st-details-body">In the EU by default, with US and APAC regions available on Enterprise.</div></details>
+     </div>
+    </div>
+    <div class="caption"><h3>Accordion</h3><p>Layout commits at once; the answer is revealed by a clip that tracks the rows sliding down below it.</p><button class="replay" data-replay="accordion" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>clip + FLIP</span><span>spring .36 / 0</span><span>chevron .26</span></div></div>
+   </article>
+  </div>
+ </section>
+
+ <!-- ============ Feedback ============ -->
+ <section class="group" id="feedback" aria-labelledby="h-feedback">
+  <div class="group-head"><h2 id="h-feedback">Feedback</h2><p>The answer appears at the control that was pressed, in its own footprint, and says what happened.</p></div>
+  <div class="grid">
+   <article class="card" data-motion-region data-motion-label="Button states">
+    <div class="stage">
+     <div class="stack-center">
+      <div class="row">
+       <button class="st-button st-primary" data-st="button" id="deploy" data-st-labels="Deploying|Deployed">Deploy</button>
+       <button class="st-button" data-st="button" id="pay" data-st-labels="Paying|Card declined|Try again">Pay $24.00</button>
+      </div>
+      <p class="muted small">The first succeeds, the second fails.</p>
+     </div>
+    </div>
+    <div class="caption"><h3>Button states</h3><p>Loading, success and error in one reserved footprint; the label recentres as the icon arrives, the check draws itself.</p><button class="replay" data-replay="button" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>fixed footprint</span><span>icon spring</span><span>error shake 320</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Copy to clipboard">
+    <div class="stage">
+     <div class="code"><code><b>$</b> npm install seenry-transitions</code>
+      <button class="st-button copy-btn" data-st="copy" id="copy-1" data-st-copy="npm install seenry-transitions"><span class="st-swap" aria-hidden="true"><svg class="st-icon"><use href="#i-copy"/></svg><svg class="st-icon"><use href="#i-check"/></svg></span><span data-st="text">Copy</span></button>
+     </div>
+    </div>
+    <div class="caption"><h3>Copy to clipboard</h3><p>The glyph swaps inside the same box with a little blur, the label rolls to Copied, then both return on their own.</p><button class="replay" data-replay="copy" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>scale .5 · blur 3</span><span>glyph roll</span><span>reverts 1.6s</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Like">
+    <div class="stage">
+     <div class="app post">
+      <div class="row"><span class="avatar a2">JO</span><div><b style="font-weight:600">Jon Okafor</b><div class="muted small">2h · Design</div></div></div>
+      <p>Shipped the new onboarding today. Three screens instead of seven, and every one of them has a reason to exist.</p>
+      <div class="actions">
+       <button data-st="like" id="like-1" aria-pressed="false" aria-label="Like"><span class="st-heart"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16.5s-6-3.6-6-8.2A3.3 3.3 0 0 1 10 6.4a3.3 3.3 0 0 1 6 1.9c0 4.6-6 8.2-6 8.2z"/></svg></span><span data-st="number" data-value="128" data-st-frequent>128</span></button>
+       <span class="ghostbtn"><svg class="st-icon"><use href="#i-chat"/></svg>24</span>
+      </div>
+     </div>
+    </div>
+    <div class="caption"><h3>Like</h3><p>The heart springs past full size and settles while a ring and six sparks leave its centre. Unliking is quiet.</p><button class="replay" data-replay="like" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>spring .34 / .42</span><span>sparks 420 E</span><span>count rolls</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Switch">
+    <div class="stage">
+     <div class="app list-card">
+      <div class="set-row"><div><b>Email notifications</b><span>Mentions and replies</span></div><label class="st-toggle"><input type="checkbox" role="switch" id="sw-1" aria-label="Email notifications"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span></label></div>
+      <div class="set-row"><div><b>Weekly digest</b><span>Every Monday at 9:00</span></div><label class="st-toggle"><input type="checkbox" role="switch" checked aria-label="Weekly digest"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span></label></div>
+      <div class="set-row"><div><b>Desktop alerts</b><span>While the app is open</span></div><label class="st-toggle"><input type="checkbox" role="switch" aria-label="Desktop alerts"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span></label></div>
+     </div>
+    </div>
+    <div class="caption"><h3>Switch</h3><p>The thumb stretches toward where it is going while pressed, then travels on a spring with a slight settle.</p><button class="replay" data-replay="switch" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>spring .28 / .28</span><span>press stretch 1.22</span><span>track 160 F</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Form error">
+    <div class="stage">
+     <form class="app invite" id="invite" novalidate data-st="error">
+      <label for="invite-email">Invite a teammate</label>
+      <div class="row"><div class="st-field"><input class="st-input" id="invite-email" type="email" value="mara@aurora" autocomplete="off"></div><button class="st-button st-primary" type="submit">Send invite</button></div>
+      <p class="st-error" id="invite-error" role="alert"><svg class="st-icon" style="width:15px;height:15px"><use href="#i-x"/></svg><span data-st-error-text>Enter a full email address, like mara@aurora.co</span></p>
+     </form>
+    </div>
+    <div class="caption"><h3>Form error</h3><p>Only the field shakes, on a decaying spring; the message drops into space that was already reserved for it.</p><button class="replay" data-replay="error" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>6px, 2 cycles</span><span>clip reveal</span><span>no layout shift</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Toast stack">
+    <div class="stage toast-stage">
+     <div class="stack-center" style="padding-top:28px">
+      <div class="row"><button class="st-button" id="toast-save">Save draft</button><button class="st-button" id="toast-archive">Archive</button></div>
+      <p class="muted small">Hover, focus or tap the stack to fan it out. Swipe to dismiss.</p>
+     </div>
+     <ol class="toast-host" data-st="toasts" id="toasts" aria-label="Notifications"></ol>
+    </div>
+    <div class="caption"><h3>Toast stack</h3><p>New notices rise from the stack edge; older ones tuck behind at smaller scale and fan out when you reach for them.</p><button class="replay" data-replay="toast" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>spring .34 / .08</span><span>scale 1 − .05n</span><span>swipe + velocity</span></div></div>
+   </article>
+  </div>
+ </section>
+
+ <!-- ============ Content ============ -->
+ <section class="group" id="content" aria-labelledby="h-content">
+  <div class="group-head"><h2 id="h-content">Content</h2><p>Values, words and rows change in place: only what changed moves.</p></div>
+  <div class="grid">
+   <article class="card" data-motion-region data-motion-label="Number">
+    <div class="stage">
+     <div class="app seats">
+      <div class="row between"><div><b style="font-weight:600">Team plan</b><div class="muted small">$8 per seat, monthly</div></div>
+       <div class="stepper"><button type="button" id="seat-minus" aria-label="Remove a seat">−</button><output id="seat-out" aria-live="polite"><span data-st="number" id="seats" data-value="12" data-st-frequent>12</span></output><button type="button" id="seat-plus" aria-label="Add a seat">+</button></div></div>
+      <div class="total"><span class="price">$<span data-st="number" id="price" data-value="96">96</span></span><span class="muted">per month</span></div>
+     </div>
+    </div>
+    <div class="caption"><h3>Number</h3><p>Digits roll by place value in the direction of the change; unchanged digits stay, and the comma slides when the width grows.</p><button class="replay" data-replay="number" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>per-digit roll</span><span>offset 12ms, cap 36</span><span>steppers: no stagger</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Text change">
+    <div class="stage">
+     <div class="app issue">
+      <div class="row between"><span class="muted small mono">AUR-214</span><button class="status" id="status" data-seenry-dot="live" data-st-fit type="button" aria-label="Change status"><span class="dot" data-seenry-dot></span><span data-st="text" id="status-text">Backlog</span></button></div>
+      <h4>Hero video stutters on Safari 18</h4>
+      <p class="muted small">Assigned to Eva · Due Friday</p>
+     </div>
+    </div>
+    <div class="caption"><h3>Text change</h3><p>The old word lifts away letter by letter as the new one rises into focus, and the pill resizes as a painted shell.</p><button class="replay" data-replay="text" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>glyph offsets 14</span><span>blur 3 → 0</span><span>shell FLIP</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="List">
+    <div class="stage">
+     <div class="app tasks">
+      <div class="app-bar"><span class="app-title">This week</span><div class="row" style="gap:6px"><button class="st-button" id="sort-btn" style="min-height:34px;padding:0 10px;font-size:13px;border-radius:8px">Sort by due date</button><button class="icon-btn" id="add-task" aria-label="Add task"><svg class="st-icon"><use href="#i-plus"/></svg></button></div></div>
+      <ul data-st="list" id="task-list">
+       <li class="task" data-seenry-dot="live" data-prio="1" data-due="3"><span class="prio" data-seenry-dot style="background:var(--bad)"></span><div class="grow"><b>Fix checkout redirect</b><span>Due Thu</span></div><button class="icon-btn" data-remove aria-label="Remove Fix checkout redirect"><svg class="st-icon"><use href="#i-x"/></svg></button></li>
+       <li class="task" data-seenry-dot="live" data-prio="2" data-due="1"><span class="prio" data-seenry-dot style="background:var(--warn)"></span><div class="grow"><b>Review pricing copy</b><span>Due Mon</span></div><button class="icon-btn" data-remove aria-label="Remove Review pricing copy"><svg class="st-icon"><use href="#i-x"/></svg></button></li>
+       <li class="task" data-seenry-dot="live" data-prio="3" data-due="2"><span class="prio" data-seenry-dot style="background:var(--info)"></span><div class="grow"><b>Update changelog</b><span>Due Tue</span></div><button class="icon-btn" data-remove aria-label="Remove Update changelog"><svg class="st-icon"><use href="#i-x"/></svg></button></li>
+      </ul>
+     </div>
+    </div>
+    <div class="caption"><h3>List</h3><p>Rows keep their identity through a sort; a removed row fades before its neighbours close the gap, and new rows open a slot.</p><button class="replay" data-replay="list" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>FLIP spring .36</span><span>remove: fade, +40</span><span>no stagger</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Skeleton to content">
+    <div class="stage">
+     <div class="app profile" data-st="skeleton" id="skel" aria-busy="true">
+      <div class="st-skeleton-mask" aria-hidden="true"><i class="sk-av"></i><i style="width:60%"></i><i style="width:40%"></i><i class="sk-wide" style="margin-top:12px"></i><i class="sk-wide" style="width:80%"></i><i class="sk-wide" style="width:50%;margin-top:6px"></i></div>
+      <div class="st-real">
+       <span class="st-media" aria-hidden="true"></span><b style="font-weight:600;align-self:end">Eva Lindqvist</b><span class="muted small" style="align-self:start">Product designer, Stockholm</span>
+       <p>Designs calm tools for busy teams. Currently working on the new review flow.</p>
+       <div class="stats"><span><b>1,204</b> followers</span><span><b>86</b> shots</span></div>
+      </div>
+     </div>
+    </div>
+    <div class="caption"><h3>Skeleton to content</h3><p>Placeholders hold the exact geometry, then crossfade to content; the photo sharpens from a soft blur.</p><button class="replay" data-replay="skeleton" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>mask 120 F</span><span>content 180 F</span><span>image blur 8 → 0</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="AI thinking and streaming">
+    <div class="stage">
+     <div class="app chat" id="chat">
+      <div class="bubble">Summarise this week's releases</div>
+      <div class="thinking-row" id="think-row"><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think">Ready</span></div>
+      <div class="answer" data-st="stream" id="answer" aria-live="polite"></div>
+     </div>
+    </div>
+    <div class="caption"><h3>AI thinking and streaming</h3><p>An honest status line with a moving sheen, then words sharpen into place as they arrive. No fake typing delay.</p><button class="replay" data-replay="ai" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>status swap</span><span>word blur 4 → 0</span><span>batched per frame</span></div></div>
+   </article>
+
+   <article class="card" data-motion-region data-motion-label="Checkbox">
+    <div class="stage">
+     <div class="app list-card checklist">
+      <div class="app-bar"><span class="app-title">Launch checklist</span><span class="chip"><span data-st="number" id="done-count" data-value="1">1</span>&nbsp;of 4 done</span></div>
+      <label class="st-check"><input type="checkbox" id="chk-1"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7"/></svg><span class="st-strike">Record the demo video</span></label>
+      <label class="st-check"><input type="checkbox" checked><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7"/></svg><span class="st-strike">Approve pricing page</span></label>
+      <label class="st-check"><input type="checkbox"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7"/></svg><span class="st-strike">Schedule the announcement</span></label>
+      <label class="st-check"><input type="checkbox"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7"/></svg><span class="st-strike">Brief the support team</span></label>
+     </div>
+    </div>
+    <div class="caption"><h3>Checkbox</h3><p>The box fills and the tick draws itself, then a line crosses the task out; the count above rolls to match.</p><button class="replay" data-replay="checkbox" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button><div class="spec"><span>tick 160 E</span><span>strike +40ms</span><span>press .9</span></div></div>
+   </article>
+  </div>
+ </section>
+
+ <section class="foot" aria-labelledby="h-install">
+  <div><h2 id="h-install">Add it to a page</h2><p>Two files, no build step. Tokens are CSS custom properties; springs are baked into <code>linear()</code>, so plain CSS transitions retarget from the current frame. With reduced motion, travel, scale, blur and loops are removed and state changes stay clear.</p></div>
+  <pre class="install"><b>&lt;link</b> rel="stylesheet" href="seenry-transitions.css"<b>&gt;</b>
+<b>&lt;script</b> src="seenry-transitions.js" defer<b>&gt;&lt;/script&gt;</b>
+
+<b>&lt;button</b> data-st-target="menu"<b>&gt;</b>More<b>&lt;/button&gt;</b>
+<b>&lt;div</b> id="menu" data-st="menu" popover role="menu"<b>&gt;</b>…<b>&lt;/div&gt;</b></pre>
+ </section>
+</main>
+
+<script src="seenry-transitions.js"></script>
+<script>
 (function(){
-const timers=new WeakMap();
-const $=(el,s)=>el.querySelector(s);
-const later=(el,fn,ms)=>{const id=setTimeout(fn,ms);const ids=timers.get(el)||[];ids.push(id);timers.set(el,ids);};
-function demo(preview,kind){const S=window.SeenryTransitions,box=$(preview,'.g-demo');if(!S)return;(timers.get(preview)||[]).forEach(clearTimeout);timers.set(preview,[]);
-const get=s=>$(box,s),target=get('[data-st]');
-switch(kind){
-case 'resize':{const extra=get('.g-extra'),button=get('[data-demo]');S.resize(target,()=>{extra.hidden=!extra.hidden;button.textContent=extra.hidden?'Show details':'Show less';});break;}
-case 'number':{const n=get('[data-st=number]');S.number(n,Number(n.dataset.value)+1);n.dataset.value=Number(n.dataset.value)+1;break;}
-case 'badge':{const b=get('[data-st=badge]');b.dataset.value=Number(b.dataset.value)+1;S.pop(b);break;}
-case 'text':{const t=get('[data-st=text]');S.swapText(t,t.dataset.stLabel==='Saved'?'Save changes':'Saved');break;}
-case 'menu':case 'plus-menu':case 'modal':{const b=get('[data-st-target]');b.click();break;}
-case 'panel':get('[data-st-target]').click();break;
-case 'page':case 'back':{const t=get('[data-st=page]');S.page(kind==='back'?'back':'forward',()=>{t.innerHTML=kind==='back'?'<span class="g-muted">Workspace</span><h3>All projects</h3><p>Website refresh · In review</p>':'<span class="g-muted">Project details</span><h3>Website refresh</h3><p>Design review · Ready to share</p>';},t);break;}
-case 'icon':{const b=get('button'),on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);S.icon(get('[data-st=icon]'),on);break;}
-case 'success':S.success(target);break;
-case 'avatars':{const kids=[...target.children];kids[1].focus();later(preview,()=>kids[1].blur(),850);break;}
-case 'error':{get('.st-error').hidden=false;S.shake(target);break;}
-case 'accordion':get('summary').click();break;
-case 'banners':target.dataset.stOpen=target.dataset.stOpen!=='true';break;
-case 'checkbox':case 'toggle':{const input=get('input');input.checked=!input.checked;input.dispatchEvent(new Event('change',{bubbles:true}));break;}
-case 'clear':{const input=get('input');input.value='Website refresh';input.dispatchEvent(new Event('input',{bubbles:true}));get('button').click();break;}
-case 'learn':{const a=get('a');a.dataset.stPreview='true';later(preview,()=>delete a.dataset.stPreview,240);break;}
-case 'like':get('[data-st=like]').click();break;
-case 'shimmer':S.shimmer(target);break;
-case 'skeleton':S.skeleton(target,target.getAttribute('aria-busy')==='true');break;
-case 'tabs':{const tabs=[...box.querySelectorAll('[role=tab]')];tabs.find(t=>t.getAttribute('aria-selected')!=='true').click();break;}
-case 'toast':{const r=get('[data-st=toasts]');r._stTrigger=get('button');S.toast(r,'Project saved');break;}
-case 'tooltip':get('[data-st-tip]').focus();break;
-case 'stream':{S.stream(target,'',{reset:true});const chunks=['Your project ','is ready for review. ','The layout is consistent, ','and every change is saved.'];chunks.forEach((chunk,i)=>later(preview,()=>S.stream(target,chunk,{done:i===chunks.length-1}),i*80));break;}
-case 'thinking':{S.swapText(target,target.dataset.stLabel==='Ready'?'Thinking…':'Ready');break;}
-case 'reveal':S.reveal(target);break;
-}}
-document.addEventListener('click',e=>{const theme=e.target.closest('[data-theme-choice]');if(theme){document.body.dataset.stGalleryTheme=theme.dataset.themeChoice;document.querySelectorAll('[data-theme-choice]').forEach(b=>b.setAttribute('aria-pressed',b===theme));}const replay=e.target.closest('[data-replay]');if(replay)demo(replay.closest('.g-preview'),replay.dataset.replay);const action=e.target.closest('[data-demo]');if(action){if(action.dataset.demo==='menu-action'){const layer=action.closest('[popover]');window.SeenryTransitions.close(layer);return;}demo(action.closest('.g-preview'),action.dataset.demo);}const filter=e.target.closest('[data-filter]');if(filter){document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',b===filter));document.querySelectorAll('.g-grouphead').forEach(h=>h.hidden=filter.dataset.filter!=='All transitions'&&h.dataset.category!==filter.dataset.filter);let count=0;document.querySelectorAll('.g-card').forEach(card=>{card.hidden=filter.dataset.filter!=='All transitions'&&card.dataset.category!==filter.dataset.filter;if(!card.hidden){count++;window.SeenryTransitions.reveal(card);}});document.getElementById('g-count').textContent=count+' transitions · Light & dark';}});
+ const S = window.SeenryTransitions, $ = id => document.getElementById(id);
+
+ // Theme
+ const themeRoot = document.querySelector('.theme');
+ const applyTheme = t => { if (t === 'system') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t; try { localStorage.setItem('st-gallery-theme', t); } catch {} };
+ const saved = document.documentElement.dataset.theme || 'system';
+ const savedTab = themeRoot.querySelector(`[data-theme-choice="${saved}"]`); if (savedTab) S.tab(themeRoot, savedTab, true);
+ themeRoot.addEventListener('st:tab-change', e => applyTheme(e.detail.tab.dataset.themeChoice));
+
+ // Tooltip replay walks the toolbar so the bubble glides.
+ const tipTriggers = [...document.querySelectorAll('[data-st-tip]')]; let tipIndex = -1;
+
+ // Revenue per period
+ const periods = {day: [1210, [4,6,5,7,6,8,7,9,8,10]], week: [8420, [5,7,6,8,7,6,9,8,10,9]], year: [412880, [3,4,5,4,6,7,6,8,9,10]]};
+ const bars = [...$('rev-bars').children];
+ const setPeriod = p => { const [v, b] = periods[p]; S.number($('rev'), v); bars.forEach((el, i) => el.style.transform = `scaleY(${b[i] / 10})`); };
+ setPeriod('week');
+ $('seg-1').addEventListener('st:tab-change', e => setPeriod(e.detail.tab.dataset.period));
+
+ // Mail: list and detail views rendered into one scope, switched with a view transition.
+ const mails = [
+  {id: 'm1', from: 'Mara Alves', init: 'MA', av: 'a1', subject: 'Launch checklist for Friday', body: 'Here is the final list. Copy is approved, the video is encoded, and the press kit goes out at 9:00 Lisbon time.'},
+  {id: 'm2', from: 'Jon Okafor', init: 'JO', av: 'a2', subject: 'Onboarding numbers are in', body: 'Completion is up 18% since we cut the flow to three screens. Drop-off moved from step two to the paywall.'},
+  {id: 'm3', from: 'Eva Lindqvist', init: 'EV', av: 'a3', subject: 'Review flow, round two', body: 'New prototype attached. Comments now sit beside the frame instead of on top of it.'}
+ ];
+ let openMail = null;
+ const renderList = () => `<div class="app-bar"><span class="app-title">Inbox</span><span class="chip">3 new</span></div><div class="mail-list">${mails.map(m => `<button class="msg" data-open="${m.id}"><span class="avatar ${m.av}" data-st-shared="${m.id}-av">${m.init}</span><span class="body"><b data-st-shared="${m.id}-from">${m.from}</b><span data-st-shared="${m.id}-subject">${m.subject}</span></span></button>`).join('')}</div>`;
+ const renderDetail = m => `<div class="app-bar"><button class="icon-btn" data-back aria-label="Back to inbox" style="margin-left:-8px"><svg class="st-icon"><use href="#i-back"/></svg></button><span class="muted small">Inbox</span></div><div class="detail"><div class="row"><span class="avatar ${m.av}" data-st-shared="${m.id}-av">${m.init}</span><div><b data-st-shared="${m.id}-from" style="display:block;font-weight:600;width:max-content">${m.from}</b><span class="muted small">to you · 9:41</span></div></div><h4 data-st-shared="${m.id}-subject">${m.subject}</h4><p>${m.body}</p></div>`;
+ const mailView = $('mail-view'); mailView.innerHTML = renderList();
+ const go = (m, back) => { const key = (m || openMail).id; S.page(back ? 'back' : 'forward', () => { openMail = back ? null : m; mailView.innerHTML = back ? renderList() : renderDetail(m); }, $('mail'), {shared: [key + '-av', key + '-from', key + '-subject']}).then(() => { const f = mailView.querySelector(back ? `[data-open="${key}"]` : '[data-back]'); f?.focus({preventScroll: true}); }); };
+ $('mail').addEventListener('click', e => { const o = e.target.closest('[data-open]'); if (o) go(mails.find(m => m.id === o.dataset.open)); if (e.target.closest('[data-back]')) go(null, true); });
+
+ // Card expand: fill the detail from the card that opened it.
+ const covers = {c1: ['Golden Hour', '12 tracks · 41 min · Released 2025'], c2: ['Night Swim', '9 tracks · 34 min · Released 2026'], c3: ['Greenhouse', '11 tracks · 38 min · Released 2024']};
+ document.querySelectorAll('.cover-card').forEach(card => card.addEventListener('click', () => {
+  const c = card.querySelector('.cover').classList[1]; const [title, meta] = covers[c];
+  $('expand-cover').className = 'cover ' + c; $('expand-title').textContent = title; $('expand-meta').textContent = meta;
+ }, true));
+
+ // Button states
+ let deployRun = 0;
+ const runDeploy = () => { const b = $('deploy'), run = ++deployRun; if (b.dataset.stState === 'loading') { S.state(b, 'idle', 'Deploy'); return; } S.state(b, 'loading', 'Deploying'); setTimeout(() => { if (run !== deployRun) return; S.state(b, 'success', 'Deployed'); setTimeout(() => { if (run === deployRun) S.state(b, 'idle', 'Deploy'); }, 1800); }, 1100); };
+ $('deploy').addEventListener('click', runDeploy);
+ let payRun = 0;
+ $('pay').addEventListener('click', () => { const b = $('pay'), run = ++payRun; if (b.dataset.stState === 'loading') { S.state(b, 'idle', 'Pay $24.00'); return; } S.state(b, 'loading', 'Paying'); setTimeout(() => { if (run !== payRun) return; S.state(b, 'error', 'Card declined'); setTimeout(() => { if (run === payRun) S.state(b, 'idle', 'Try again'); }, 1600); }, 1000); });
+
+ // Form error
+ const form = $('invite'), email = $('invite-email');
+ form.addEventListener('submit', e => { e.preventDefault(); if (/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.value)) { S.clearError(form); S.toast($('toasts'), 'Invite sent', {description: email.value}); } else S.shake(form); });
+ email.addEventListener('input', () => { if (form.dataset.stError && /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.value)) S.clearError(form); });
+
+ // Toasts
+ const toastMsgs = [['Draft saved', 'Q3 roadmap · just now'], ['Moved to archive', '3 conversations'], ['Link copied', 'Anyone with the link can view'], ['Invite sent', 'eva@aurora.co']];
+ let toastN = 0;
+ const pushToast = (i = toastN++ % toastMsgs.length) => S.toast($('toasts'), toastMsgs[i][0], {description: toastMsgs[i][1], action: i === 1 ? {label: 'Undo'} : undefined});
+ $('toast-save').addEventListener('click', () => pushToast(0)); $('toast-archive').addEventListener('click', () => pushToast(1));
+ $('toasts')._stTrigger = $('toast-save');
+
+ // Seats and price
+ let seats = 12; const setSeats = n => { seats = Math.max(1, Math.min(999, n)); S.number($('seats'), seats); S.number($('price'), seats * 8, {frequent: false}); };
+ $('seat-minus').addEventListener('click', () => setSeats(seats - 1)); $('seat-plus').addEventListener('click', () => setSeats(seats + 1));
+
+ // Status pill
+ const statuses = [['Backlog', 'var(--surface-2)', 'var(--text-2)'], ['In progress', 'var(--warn-bg)', 'var(--warn)'], ['In review', 'var(--info-bg)', 'var(--info)'], ['Done', 'var(--ok-bg)', 'var(--ok)']];
+ let statusI = 0;
+ const nextStatus = () => { statusI = (statusI + 1) % statuses.length; const [t, bg, fg] = statuses[statusI], pill = $('status'); pill.style.setProperty('--pill-bg', bg); pill.style.setProperty('--pill-fg', fg); S.swapText($('status-text'), t); };
+ $('status').addEventListener('click', nextStatus);
+
+ // Tasks
+ const taskList = $('task-list'); let byDue = false;
+ const sortTasks = () => { byDue = !byDue; S.list.reorder(taskList, (a, b) => byDue ? a.dataset.due - b.dataset.due : a.dataset.prio - b.dataset.prio); S.swapText($('sort-btn'), byDue ? 'Sort by priority' : 'Sort by due date'); };
+ $('sort-btn').addEventListener('click', sortTasks);
+ taskList.addEventListener('click', e => { const r = e.target.closest('[data-remove]'); if (r) S.list.remove(r.closest('li')); });
+ const extra = [['Book user interviews', 'Due Wed', 'var(--info)', 3, 2], ['Draft release notes', 'Due Fri', 'var(--warn)', 2, 4], ['Rotate API keys', 'Due Mon', 'var(--bad)', 1, 1]]; let extraI = 0;
+ $('add-task').addEventListener('click', () => { const [t, d, c, p, due] = extra[extraI++ % extra.length]; const li = document.createElement('li'); li.className = 'task'; li.dataset.seenryDot = 'live'; li.dataset.prio = p; li.dataset.due = due; li.innerHTML = `<span class="prio" data-seenry-dot style="background:${c}"></span><div class="grow"><b>${t}</b><span>${d}</span></div><button class="icon-btn" data-remove aria-label="Remove ${t}"><svg class="st-icon"><use href="#i-x"/></svg></button>`; if (taskList.children.length >= 4) S.list.remove(taskList.lastElementChild); S.list.add(taskList, li, 0); });
+
+ // AI
+ let aiRun = 0;
+ const answer = 'Three releases shipped. Checkout now remembers saved cards, the editor gained comments beside the frame, and exports are 40% faster on large files.';
+ const runAI = () => {
+  const run = ++aiRun, think = $('think'), out = $('answer'), later = (fn, ms) => setTimeout(() => { if (run === aiRun) fn(); }, ms);
+  delete think.dataset.stDone; S.swapText(think, 'Searching the changelog');
+  if (out.textContent) S.play(out, [{opacity: 0}], {ms: 80, curve: 'F', fill: 'forwards'}).then(ok => { if (ok && run === aiRun) { out.getAnimations().forEach(a => a.cancel()); S.stream(out, '', {reset: true}); } });
+  // The previous answer stays readable, dimmed, until the new one starts arriving.
+
+  later(() => S.swapText(think, 'Reading 4 entries'), 350);
+  later(() => { S.swapText(think, 'Answered from 4 entries'); think.dataset.stDone = 'true'; const words = answer.match(/\S+\s*/g); let i = 0; const begin = () => { if (run !== aiRun) return; out.getAnimations().forEach(a => a.cancel()); S.stream(out, '', {reset: true}); tick(); }; const tick = () => { if (run !== aiRun) return; const n = 2 + (i % 3); S.stream(out, words.slice(i, i + n).join(''), {done: i + n >= words.length}); i += n; if (i < words.length) setTimeout(tick, 80); }; begin(); }, 650);
+ };
+
+ // Replay buttons drive the same code paths as the real controls.
+ const replay = {
+  menu: () => S.toggle($('menu-1'), $('menu-trigger')),
+  morph: () => S.toggle($('morph-1'), $('morph-trigger')),
+  dialog: () => S.toggle($('dialog-1'), $('dialog-trigger')),
+  palette: () => S.toggle($('palette-1'), $('palette-trigger')),
+  sheet: () => S.toggle($('sheet-1'), $('sheet-trigger')),
+  drawer: () => S.toggle($('drawer-1'), $('drawer-trigger')),
+  tooltip: () => { tipIndex = (tipIndex + 1) % tipTriggers.length; S.tooltip.show(tipTriggers[tipIndex]); clearTimeout(replay._tip); replay._tip = setTimeout(() => { S.tooltip.hide(); tipIndex = -1; }, 2600); },
+  expand: () => { const d = $('expand-1'); if (d.dataset.stOpen === 'true') S.collapse(d); else $('expand-src').click(); },
+  tabs: () => { const tabs = [...document.querySelectorAll('#tabs-1 [role=tab]')], cur = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true'); S.tab($('tabs-1'), tabs[cur === 0 ? 2 : 0]); },
+  segmented: () => { const tabs = [...document.querySelectorAll('#seg-1 [role=tab]')], cur = tabs.find(t => t.getAttribute('aria-selected') === 'true'); S.tab($('seg-1'), cur.dataset.period === 'year' ? tabs[1] : tabs[2]); },
+  page: () => openMail ? go(null, true) : go(mails[1]),
+  accordion: () => S.accordion($('acc-2')),
+  button: runDeploy,
+  copy: () => S.copy($('copy-1')),
+  like: () => S.like($('like-1')),
+  switch: () => { $('sw-1').click(); },
+  error: () => { if (form.dataset.stError === 'true') { email.value = 'mara@aurora.co'; S.clearError(form); } else { email.value = 'mara@aurora'; S.shake(form); } },
+  toast: () => pushToast(),
+  number: () => setSeats(seats === 12 ? 125 : 12),
+  text: nextStatus,
+  list: sortTasks,
+  skeleton: () => { const el = $('skel'); S.skeleton(el, el.getAttribute('aria-busy') === 'true'); },
+  ai: runAI,
+  checkbox: () => $('chk-1').click()
+ };
+ document.querySelector('.checklist').addEventListener('change', () => S.number($('done-count'), document.querySelectorAll('.checklist input:checked').length));
+ document.addEventListener('click', e => { const b = e.target.closest('[data-replay]'); if (b) replay[b.dataset.replay]?.(); });
+
+ // The chat starts answered; Replay asks again.
+ $('think').dataset.stDone = 'true'; S.swapText($('think'), 'Answered from 4 entries', {force: true}); S.stream($('answer'), answer, {reset: true, done: true});
 })();
-</script></body></html>
+</script>
+</body>
+</html>
