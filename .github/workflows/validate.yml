@@ -27,6 +27,7 @@ jobs:
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
       - run: node --test tests/transition-contracts.test.mjs
       - name: Exercise Transitions3 library logic and rendered-finding regressions
+        shell: bash
         run: |
           node tests/transitions-library-logic.test.cjs
           node tests/transitions-library-rendered-findings.test.cjs
@@ -115,6 +116,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: Exercise geometry, icons and rendered evidence
+        shell: bash
         run: |
           node tests/geometry-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/expanding-card.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
@@ -142,4 +144,3 @@ jobs:
           node tests/scroll-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/transition-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/voice-presence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
-
