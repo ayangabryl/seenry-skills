@@ -26,4 +26,19 @@ vm.createContext(syncScope);vm.runInContext(syncCode+'\nthis.runSync=sync;',sync
 check('Resize synchronization reveals the selected tab after a wide strip narrows',()=>{list.clientWidth=400;list.scrollLeft=0;syncScope.runSync();assert.equal(list.scrollLeft,0);list.clientWidth=200;syncScope.runSync();assert.equal(list.scrollLeft,80);});
 check('Synchronization after reparent restores local visibility without changing selection',()=>{list.scrollLeft=0;syncScope.runSync();assert.equal(list.scrollLeft,80);assert.equal(selected.getAttribute('aria-selected'),'true');});
 check('Segmented synchronization never introduces tab-strip scrolling',()=>{syncScope.el.dataset.st='segmented';list.scrollLeft=0;syncScope.runSync();assert.equal(list.scrollLeft,0);});
+check('Fixed-width segmented lists observe each actual tab footprint',()=>{
+ const start=source.indexOf('    const ro = new ResizeObserver(sync);'),end=source.indexOf('\n    tabSelect(el,',start),observed=new Set();let syncCalls=0;
+ const tab1={},tab2={},list={};const c={parts:{list,tabs:[tab1,tab2]},sync:()=>syncCalls++,ResizeObserver:class{constructor(cb){this.callback=cb;}observe(e){observed.add(e);}}};
+ vm.createContext(c);vm.runInContext(source.slice(start,end),c);assert(observed.has(list));assert(observed.has(tab1)&&observed.has(tab2),'Changing a tab width without resizing the list must still synchronize ink');
+ if(observed.has(tab1))c.sync();assert.equal(syncCalls,1);
+});
+check('Observed spacing fixture preserves actual stale header geometry',()=>{
+ const fixture=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/transitions/mac-segmented-ink-observed.json'),'utf8'));assert.equal(fixture.pairs.length,2);
+ for(const pair of fixture.pairs){assert(pair.original.rect.width>pair.copy.rect.width);assert(Math.abs(pair.original.glyphRects[0].x-pair.copy.glyphRects[0].x)>2,'Original failure must retain visible glyph displacement');}
+});
+check('Ink copies use current tab boxes and text spacing, including word spacing',()=>{
+ const children=[],ink={getBoundingClientRect:()=>({left:735,top:15}),replaceChildren:(...items)=>children.push(...items)},tabs=[{textContent:'System',getBoundingClientRect:()=>({left:735,top:15,width:87.234375,height:34})}];
+ const c={doc:{createElement:()=>({style:{}})},getComputedStyle:()=>({font:'500 14px/21px sans-serif',letterSpacing:'1.68px',wordSpacing:'2.24px'})};vm.createContext(c);vm.runInContext(source.slice(source.indexOf(' function layoutInk('),source.indexOf(' function revealTab(')),c);c.layoutInk({ink,list:{getBoundingClientRect:()=>({})},tabs});
+ assert.equal(children[0].style.width,'87.234375px');assert.equal(children[0].style.letterSpacing,'1.68px');assert.equal(children[0].style.wordSpacing,'2.24px');assert.equal(children[0].textContent,'System');
+});
 assert(stops>=3);console.log(`${cases.length}/${cases.length} tab strip geometry checks passed; browser input/render acceptance separate`);

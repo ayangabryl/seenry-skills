@@ -565,7 +565,7 @@
  function layoutInk(parts) {
   if (!parts.ink) return;
   const lr = parts.list.getBoundingClientRect(), ir = parts.ink.getBoundingClientRect();
-  parts.ink.replaceChildren(...parts.tabs.map(t => { const r = t.getBoundingClientRect(), s = doc.createElement('span'); s.textContent = t.textContent.trim(); const f = getComputedStyle(t); Object.assign(s.style, {position: 'absolute', left: r.left - ir.left + 'px', top: r.top - ir.top + 'px', width: r.width + 'px', height: r.height + 'px', font: f.font, letterSpacing: f.letterSpacing}); return s; }));
+  parts.ink.replaceChildren(...parts.tabs.map(t => { const r = t.getBoundingClientRect(), s = doc.createElement('span'); s.textContent = t.textContent.trim(); const f = getComputedStyle(t); Object.assign(s.style, {position: 'absolute', left: r.left - ir.left + 'px', top: r.top - ir.top + 'px', width: r.width + 'px', height: r.height + 'px', font: f.font, letterSpacing: f.letterSpacing, wordSpacing: f.wordSpacing}); return s; }));
   void lr;
  }
  function revealTab(list, tab) {
@@ -1397,7 +1397,7 @@
      });
     });
     const sync = () => { if (!el.isConnected) return ro.disconnect(); layoutInk(parts); const sel = parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0]; if (sel) { if (el.dataset.st === 'tabs') revealTab(parts.list, sel); indicate(el, sel, false); } };
-    const ro = new ResizeObserver(sync); ro.observe(parts.list);
+    const ro = new ResizeObserver(sync); ro.observe(parts.list); parts.tabs.forEach(t => ro.observe(t));
     tabSelect(el, parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0], true); layoutInk(parts);
     doc.fonts?.ready.then(sync);
    }

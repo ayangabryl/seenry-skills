@@ -73,6 +73,17 @@ jobs:
           path: ${{ runner.temp }}/seenry-title-boundary
           if-no-files-found: ignore
           retention-days: 7
+      - name: Exercise segmented text-copy spacing geometry
+        timeout-minutes: 2
+        run: node tests/transitions-library-segmented-ink.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-segmented-ink"
+      - name: Preserve segmented text-copy evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: segmented-ink-${{ matrix.os }}
+          path: ${{ runner.temp }}/seenry-segmented-ink
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Exercise essential control contrast
         run: node tests/transitions-library-control-contrast.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-control-contrast"
       - name: Preserve essential control contrast evidence
