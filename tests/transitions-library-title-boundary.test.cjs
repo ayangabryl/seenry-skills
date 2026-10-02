@@ -60,7 +60,11 @@ const pressFunction=browserHarness.slice(browserHarness.indexOf('function heldPr
 const heldPressObserved=require('node:vm').runInNewContext(pressFunction+';heldPressObserved');
 const pointer={active:true,hover:true,hoverCapable:true,coarse:false,transform:'matrix(1,0,0,1,0,-1)'},touch={active:true,hover:false,hoverCapable:false,coarse:true,transform:'matrix(.98,0,0,.98,0,0)'};
 assert(heldPressObserved(pointer));assert(heldPressObserved(touch));
+assert(heldPressObserved({...pointer,transform:'matrix(1, 0, 0, 1, 0, -0.998808)'}),'Observed MacCI subpixel settling residue still realizes the active hover-lift contract');
+assert.equal(heldPressObserved({...pointer,transform:'matrix(1, 0, 0, 1, 0, -0.8)'}),false,'A materially incomplete lift does not meet the contract');
 for(const p of [{...pointer,active:false},{...pointer,transform:'none'},{...pointer,transform:'matrix(.98,0,0,.98,0,0)'},{...touch,transform:'matrix(1,0,0,1,0,-1)'},{...touch,transform:'matrix(.98,0,0,1,0,0)'}])assert.equal(heldPressObserved(p),false,'Unrealized or wrong-input transform cannot count as held-state coverage');
-result.heldPressPreconditions='7positive/negative helper checks; fine-pointer hover lift and coarse active scale are distinct CSS contracts. Actual pointer evidence does not prove coarse-scale coverage.';
+assert(browserHarness.includes('page.waitForFunction(heldPressObserved,await target.elementHandle(),{timeout:100})'),'Only a bounded100ms observable input precondition wait is permitted');
+assert(browserHarness.includes('run.pressedInitial=await pressed()')&&browserHarness.includes('observedHoldMs:'),'Initial/final input measurements and actual hold timing must remain recorded');
+result.heldPressPreconditions='9positive/negative helper checks; fine-pointer hover lift and coarse active scale are distinct CSS contracts. Actual pointer evidence does not prove coarse-scale coverage.';
 if(process.argv[4])fs.writeFileSync(process.argv[4],JSON.stringify(result,null,2)+'\n');
 console.log(`PASS2 observed source-border checks,10 Night Swim boundaries,36 all-label/press-scale boundaries; longest required${requiredWithoutClearance.toFixed(6)}px, +4px clearance${requiredWithClearance.toFixed(6)}px, row cutoff${threshold}px; fresh render pending`);
