@@ -304,9 +304,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 
 .msg .body{overflow:visible;width:auto;white-space:normal}
 
-/* Demo stages: a contained dialog dims the app under it, as a real dialog's backdrop would. */
 .stage .app{transition:opacity 100ms var(--st-F)}
-.stage:has(> [data-st="modal"][data-st-open="true"]) > .app,.stage:has([data-st="modal"][data-st-open="true"]) .app:not([data-st]){opacity:.28}
 /* The popover's trigger sits high in its stage so the panel opens below it, attached, never over it. */
 .stage:has(#popover-trigger) > .stack-center{align-self:start;margin-top:28px}
 
@@ -652,13 +650,17 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .think-demo .spark{width:16px;height:16px;color:var(--text-2)}
 /* Growing content is anchored at the top of its stage, so it only grows downward and nothing above it moves. */
 .stage:has(.faq){place-items:start center;padding-top:36px}
-/* Dialog v5: a compact dialog sized to its content, centred above the page it belongs to; the page dims behind it
-   on the same clock, so the two layers never compete. */
-.stage [data-st-contained][data-st=modal]{inset:0 0 48px 0;margin:auto;width:min(300px,calc(100% - 32px));height:fit-content;padding:18px;border-radius:16px}
-.stage [data-st-contained][data-st=modal] h3{margin:0}
-.stage:has([data-st=modal]) .app:not([data-st]){transition:opacity 240ms cubic-bezier(.3,1,0,1),filter 240ms cubic-bezier(.3,1,0,1)}
-.stage:has([data-st=modal]) .app:not([data-st]){transition-delay:90ms}
-.stage:has([data-st="modal"][data-st-open="true"]) .app:not([data-st]){opacity:.35;filter:blur(1px);transition-delay:0ms}
+/* Dialog: native top-layer presentation spans the viewport; the decision stays compact.
+   Destructive action colors are a paired role, independent of the brighter dark-mode status color. */
+dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;width:min(360px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);padding:24px;overflow:auto;overscroll-behavior:contain;border-radius:var(--r-xl)}
+.project-dialog h3{margin:0;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.35}
+.project-dialog p{margin:12px 0 20px;font-size:15px;line-height:1.5;color:var(--text-2)}
+.project-dialog .dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.project-dialog .st-button{min-height:44px;font-size:15px}
+.project-dialog .dialog-destructive{background:var(--dialog-danger-surface);color:var(--dialog-danger-ink);box-shadow:none}
+@media(hover:hover) and (pointer:fine){.project-dialog .dialog-destructive:hover{background:color-mix(in srgb,var(--dialog-danger-surface) 88%,#000)}}
+.project-dialog::backdrop{background:var(--st-backdrop);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+@media(prefers-reduced-motion:reduce){.project-dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}}
 .orders{display:grid;padding:2px 8px 8px}
 .order{display:grid;grid-template-columns:52px 1fr auto;align-items:center;height:32px;padding:0 6px;border-radius:8px;font-size:13px}
 .stage .order span{font-size:13px}.stage .order .o-id{color:var(--text-3);font-variant-numeric:tabular-nums}.stage .order .o-amt{font-variant-numeric:tabular-nums;color:var(--text)}
@@ -778,21 +780,21 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
      </div>
     <button class="replay" data-replay="morph" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="morph">Button to menu</button></h3><p>A button unfolds</p><button class="snippet-copy" data-st="copy" data-snippet="morph" aria-label="Copy HTML for Button to menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>clip-path morph</span><span>content +50ms</span><span>return to rect</span></div></div>
-   </article><article class="card" data-key="dialog" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Dialog">
+   </article><article class="card" data-key="dialog" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Dialog" data-why="A compact surface keeps the project, consequences and safe Cancel action together. The page-wide backdrop marks a focused decision; dismissal returns to the opening control. Keyboard opening and dismissal are immediate; reduced motion keeps the decision readable without travel or blur.">
     <div class="stage" data-st-preview>
      <div class="app settings-card">
       <div class="app-bar" style="margin:0 -18px 14px"><span class="app-title">Project settings</span></div>
       <div class="field-row"><span>Name</span><span>Aurora website</span></div>
       <div class="field-row"><span>Visibility</span><span>Team</span></div>
-      <div class="field-row" style="margin-top:8px"><span class="muted small">Deletes pages and assets</span><button class="st-button" style="color:var(--bad)" id="dialog-trigger" data-st-target="dialog-1">Delete project</button></div>
+      <div class="field-row" style="margin-top:8px"><span class="muted small">Deletes pages and assets</span><button class="st-button" style="color:var(--bad)" id="dialog-trigger" data-st-target="dialog-1" aria-controls="dialog-1" aria-haspopup="dialog" aria-expanded="false">Delete project</button></div>
      </div>
-     <div data-st-contained role="dialog" id="dialog-1" data-st="modal" aria-labelledby="dlg-title">
-      <h3 id="dlg-title" style="font-size:17px;font-weight:600;letter-spacing:-.01em">Delete Aurora website?</h3>
-      <p class="muted" style="margin:8px 0 20px;font-size:14.5px">This removes 24 pages and 318 assets. You can restore it from the trash for 30 days.</p>
-      <div class="row" style="justify-content:flex-end"><button class="st-button" data-st-close autofocus>Cancel</button><button class="st-button" style="background:var(--bad);color:#fff;box-shadow:none" data-st-close>Delete project</button></div>
-     </div>
+     <dialog class="project-dialog" id="dialog-1" data-st="modal" aria-labelledby="dlg-title" aria-describedby="dlg-description">
+      <h3 id="dlg-title">Delete Aurora website?</h3>
+      <p id="dlg-description">This removes 24 pages and 318 assets. You can restore it from the trash for 30 days.</p>
+      <div class="dialog-actions"><button class="st-button" type="button" data-st-close autofocus>Cancel</button><button class="st-button dialog-destructive" type="button" data-st-close>Delete project</button></div>
+     </dialog>
     <button class="replay" data-replay="dialog" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="dialog">Dialog</button></h3><p>A focused task</p><button class="snippet-copy" data-st="copy" data-snippet="dialog" aria-label="Copy HTML for Dialog"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .34 / .08</span><span>origin: trigger</span><span>exit 140 X</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="dialog">Dialog</button></h3><p>A focused task</p><button class="snippet-copy" data-st="copy" data-snippet="dialog" aria-label="Copy HTML for Dialog"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>220ms ease-out</span><span>native modal</span><span>pointer exit 140ms</span></div></div>
    </article><article class="card" data-key="palette" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Command palette">
     <div class="stage" data-st-preview>
      <div data-st-contained role="dialog" id="palette-1" data-st-persistent data-st="palette" data-st-palette-gallery aria-label="Command palette">

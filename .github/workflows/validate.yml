@@ -37,6 +37,9 @@ jobs:
           node tests/transitions-library-tabs.test.cjs
           node tests/transitions-library-actual-shell.test.cjs
           node tests/transitions-library-focus-escape.test.cjs
+          node tests/transitions-library-dialog.test.cjs
+          node tests/transitions-library-dialog-paint.test.cjs
+          node tests/transitions-library-dialog-observer.test.cjs
           node tests/transitions-library-palette-input.test.cjs
           node tests/transitions-library-native-ax-assertion.test.cjs
           node tests/transitions-library-reading-keys.test.cjs
@@ -118,6 +121,17 @@ jobs:
         with:
           name: focus-escape-${{ matrix.os }}
           path: ${{ runner.temp }}/seenry-focus-escape
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Exercise native Dialog scenario and early focus paint
+        timeout-minutes: 4
+        run: node tests/transitions-library-dialog.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-dialog"
+      - name: Preserve Dialog native preference, focus and first-frame evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialog-${{ matrix.os }}
+          path: ${{ runner.temp }}/seenry-dialog
           if-no-files-found: ignore
           retention-days: 7
       - name: Exercise trusted palette input and native-modal recovery

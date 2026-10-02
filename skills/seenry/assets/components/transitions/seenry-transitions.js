@@ -393,8 +393,14 @@
   el.inert = false; el.dataset.stManaged = ''; el.dataset.stOpen = 'true'; el.hidden = false;
   s.trigger?.setAttribute('aria-expanded', 'true');
   paletteExpanded(el, true);
-  if (el.tagName === 'DIALOG') { if (!el.open) (el.hasAttribute('data-st-contained') ? el.show() : el.showModal()); }
+  if (el.tagName === 'DIALOG') {
+   // Autofocus may request an animated close before open resumes. Own that interval.
+   if (kind === 'modal') active.add(el);
+   if (!el.open) (el.hasAttribute('data-st-contained') ? el.show() : el.showModal());
+  }
   else if (el.hasAttribute('popover')) { if (!el.matches(':popover-open')) el.showPopover(); }
+  // Native autofocus can synchronously close or reopen the layer through host code.
+  if (s.version !== v || !s.open || (el.tagName === 'DIALOG' && !el.open)) return;
   if (POP.includes(kind) && kind !== 'tooltip') { for (const other of [...active]) if (other !== el && !other.contains(el) && POP.includes(other.dataset.st)) close(other, {silent: true}); }
   if (POP.includes(kind) && s.trigger) { place(el, s.trigger); active.add(el); }
   else if (!POP.includes(kind)) active.add(el);
@@ -464,7 +470,18 @@
   } else if (kind === 'panel') {
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', channel: 'o', fade: true});
    play(el, [{transform: 'translateY(-6px) scale(.98)'}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
-  } else if (el.tagName === 'DIALOG' || kind === 'modal' || kind === 'palette') {
+  } else if (kind === 'modal') {
+   // A decision and its safe initial focus are readable from the first painted frame.
+   // The backdrop establishes scope; do not fade or blur the focused content on entry.
+   const instant = o.keyboard || keyboardInput || reduced();
+   if (instant) { stop(el, 'o'); stop(el, 't'); }
+   else {
+    if (wasClosing) play(el, [{opacity: 1}], {ms: 80, curve: 'F', channel: 'o', fade: true, blur: false});
+    if (t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
+    play(el, [{transform: 'translateY(4px) scale(.97)'}, {transform: 'none'}], {ms: 220, curve: 'E', channel: 't'});
+   }
+   if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
+  } else if (el.tagName === 'DIALOG' || kind === 'palette') {
    if (kind !== 'palette' && t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
    if (kind === 'palette') {
     el.style.transformOrigin = '50% 0';
@@ -476,11 +493,13 @@
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
    if (kind === 'modal') [...el.children].forEach(c => fadeIn(c,{ms:100,delay:c.matches('.row,.st-actions')?45:25}));
   }
-  if (o.keyboard) delete el.dataset.stPointerFocus; else el.dataset.stPointerFocus = '';
+  if (o.keyboard || (kind === 'modal' && keyboardInput)) delete el.dataset.stPointerFocus; else el.dataset.stPointerFocus = '';
   if (!wasOpen && o.focus !== false && kind !== 'tooltip') {
    if (kind === 'menu' || kind === 'plus-menu') { if (o.keyboard) focusFirst(el); else { el.dataset.stPointerFocus = ''; el.focus?.({preventScroll: true, focusVisible: false}); } }
-   else if (el.tagName !== 'DIALOG' || kind === 'palette') focusFirst(el);
+   else if (el.tagName !== 'DIALOG' || kind === 'palette' || (kind === 'modal' && wasClosing)) focusFirst(el);
   }
+  // Explicit focus on a reversal is another synchronous host callback boundary.
+  if (s.version !== v || !s.open || (el.tagName === 'DIALOG' && !el.open)) return;
   el.dispatchEvent(new CustomEvent('st:open', {bubbles: true}));
  }
 
@@ -526,6 +545,14 @@
    if (reduced()) done = play(el, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if(kind==='palette' && el.hasAttribute('data-st-persistent')){
    const height=q(el,'.st-palette-search')?.offsetHeight||46;done=play(el,[{clipPath:`inset(0px 0px calc(100% - ${height}px) 0px round 12px)`}],{ms:200,curve:'O',channel:'clip',fill:'forwards'});const results=q(el,'[role=listbox]');if(results)play(results,[{opacity:0}],{ms:65,channel:'o',fill:'forwards',fade:true});
+  } else if (kind === 'modal') {
+   // Pointer exit keeps the native scope until every owned job finishes. Keyboard
+   // dismissal returns to the task immediately rather than waiting for decoration.
+   if (!keyboardInput) {
+    const jobs = [play(el, [{opacity: 0}], {ms: 120, curve: 'F', channel: 'o', fill: 'forwards', fade: true, blur: false}), play(el, [{transform: 'scale(.97)'}], {ms: 120, curve: 'X', channel: 't', fill: 'forwards'})];
+    if (el.tagName === 'DIALOG') jobs.push(play(el, [{opacity: 0}], {ms: 140, curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true}));
+    done = Promise.all(jobs);
+   }
   } else if (kind === 'panel') {
    play(el, [{transform: 'translateY(-4px) scale(.98)'}], {ms: 'quick', curve: 'X', channel: 't', fill: 'forwards'});
    done = play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
@@ -538,13 +565,22 @@
    if (s.version !== v || s.open) return;
    s.closing = false;
    if (s.trigger) s.trigger.style.visibility = '';
+   const clean = () => {
+    el.dataset.stOpen = 'false'; active.delete(el);
+    stopAll(el); if (s.label) stopAll(s.label); if (s.body) { stopAll(s.body); [...s.body.children].forEach(stopAll); } [...el.children].forEach(stopAll); el.classList.remove('st-morphing');
+   };
+   // Native close may restore focus synchronously. Retire only this modal's old
+   // presentation first, so a host reopen cannot be erased by the old finish.
+   if (kind === 'modal') clean();
    if (el.tagName === 'DIALOG' && el.open) el.close();
    else if (el.hasAttribute('popover') && el.matches(':popover-open')) el.hidePopover();
-   el.dataset.stOpen = 'false'; active.delete(el);
-   stopAll(el); if (s.label) stopAll(s.label); if (s.body) { stopAll(s.body); [...s.body.children].forEach(stopAll); } [...el.children].forEach(stopAll); el.classList.remove('st-morphing');
+   if (kind === 'modal' && (s.version !== v || s.open)) return;
+   if (kind !== 'modal') clean();
    if (morph || el.tagName === 'DIALOG') refocus?.();
+   if (kind === 'modal' && (s.version !== v || s.open)) return;
    el.dispatchEvent(new CustomEvent('st:close', {bubbles: true}));
   };
+  if (kind === 'modal' && keyboardInput) { finish(); return; }
   (done || Promise.resolve(true)).then(finish);
   if (reduced() && !done) finish();
  }
@@ -1702,8 +1738,12 @@
  doc.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (tipOpen) { hideTip(); }
-  const top = [...active].reverse().find(el => el.tagName !== 'DIALOG' && el.dataset.st !== 'tooltip' && isOpen(el) && !layerState(el).closing);
-  if (top) { e.preventDefault(); top.dataset.st === 'expand' ? collapse(top) : close(top); }
+  if (e.defaultPrevented) return;
+  // Respect the actual top layer, including its outgoing interval. Native modal
+  // cancellation owns Escape; a later manual child menu still gets the first Escape.
+  const top = [...active].reverse().find(el => el.dataset.st !== 'tooltip' && (el.tagName !== 'DIALOG' || el.open) && (isOpen(el) || layerState(el).closing));
+  if (top?.tagName === 'DIALOG' && !top.hasAttribute('data-st-contained')) return;
+  if (top) { e.preventDefault(); if (!layerState(top).closing) top.dataset.st === 'expand' ? collapse(top) : close(top); }
  });
  let frame = 0;
  const reposition = () => { if (frame) return; frame = requestAnimationFrame(() => { frame = 0; for (const el of active) { const s = layers.get(el); if (POP.includes(el.dataset.st) && s?.trigger && el.matches(':popover-open')) place(el, s.trigger); } }); };
