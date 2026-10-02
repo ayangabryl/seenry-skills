@@ -224,10 +224,12 @@
    current.className='st-text-exit';Object.assign(current.style,{position:'absolute',left:cr.left-er.left-el.clientLeft+'px',top:cr.top-er.top-el.clientTop+'px',width:cr.width+'px',whiteSpace:currentWhiteSpace||'nowrap',margin:'0'});
    const next=letters(text,'st-text-value'),sr=doc.createElement('span');sr.className='st-sr';sr.textContent=text;qa(el,':scope>.st-sr').forEach(n=>n.remove());el.append(next,sr);
    // The old label clears before the new one is legible, so the two never read as one doubled word.
-   const movement=thinking?{}:{transform:'translateY(-3px)'};
-   play(current,[{opacity:0,...movement}],{ms:50,curve:'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
-   const lag = o.tight ? 15 : 30;
-   return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), thinking?Promise.resolve():play(next,[{transform:'translateY(3px)'},{transform:'none'}],{ms:160,delay:lag,curve:'E',channel:'t',current:false})]);
+   // A status line changes in its own slot with a 2px lift: the old label clears before the new one starts, so two
+   // labels are never drawn over each other.
+   const movement={transform:thinking?'translateY(-2px)':'translateY(-3px)'};
+   play(current,[{opacity:0,...movement}],{ms:thinking?40:50,curve:'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
+   const lag = o.tight ? 0 : thinking ? 20 : 30;
+   return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:thinking?80:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:thinking?'translateY(2px)':'translateY(3px)'},{transform:'none'}],{ms:thinking?110:160,delay:lag,curve:'E',channel:'t',current:false})]);
   }
   const run = () => {
    positioned(el);
@@ -826,17 +828,40 @@
  }
 
 
- /* ---------- Streaming text: words sharpen into place as they arrive, batched per frame. ---------- */
+ /* ---------- Streaming text: letters flow in at an even pace, so the leading edge is a soft gradient rather than
+    chunks popping in; words never break mid-line. A [n] token becomes a citation that appears as the text reaches it
+    and announces itself (st:cite) so its source can answer. ---------- */
  const streams = new WeakMap();
- function stream(el, chunk, {reset = false, done = false} = {}) {
-  let s = streams.get(el); if (!s) streams.set(el, s = {buffer: '', frame: 0});
-  if (reset) { cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; el.replaceChildren(); }
+ function stream(el, chunk, {reset = false, done = false, stop = false} = {}) {
+  let s = streams.get(el); if (!s) streams.set(el, s = {buffer: '', frame: 0, t: 0});
+  // Stop keeps exactly what is on screen: letters already arriving finish at once, queued ones are dropped.
+  if (stop) {
+   cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; el.setAttribute('aria-busy', 'false');
+   for (const c of qa(el, '.st-word > span, .st-cite')) { const a = c.getAnimations(); if (a.some(x => (x.currentTime ?? 0) < (x.effect?.getTiming().delay || 0))) c.remove(); else a.forEach(x => x.finish()); }
+   qa(el, '.st-word').forEach(w => { if (!w.childElementCount) w.remove(); });
+   return;
+  }
+  if (reset) { cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; el.replaceChildren(); }
   s.buffer += chunk || '';
   el.setAttribute('aria-busy', String(!done));
+  // Letters are revealed faster than text arrives, so the soft edge stays a few letters long and never backs up.
+  const at = () => { const now = performance.now(); s.t = Math.max(s.t, now) + 3; return s.t - now; };
   const flush = () => {
    s.frame = 0; if (!el.isConnected || !s.buffer) { s.buffer = ''; return; }
-   const words = s.buffer.match(/\S+\s*|\s+/g) || []; s.buffer = '';
-   words.forEach((w, i) => { const span = doc.createElement('span'); span.className = 'st-word'; span.textContent = w; el.append(span); play(span, [{opacity: 0, transform: 'translateY(3px)'}, {opacity: 1, transform: 'none'}], {ms: 120, curve: 'E', delay: i * 18, fade: true, current: false}); });
+   const words = s.buffer.match(/\[\d+\]|[^\s[]+\s*|\s+/g) || []; s.buffer = '';
+   for (const w of words) {
+    const cite = /^\[(\d+)\]$/.exec(w);
+    if (cite) {
+     const sup = doc.createElement('sup'); sup.className = 'st-cite'; sup.textContent = cite[1]; el.append(sup);
+     const delay = reduced() ? 0 : at();
+     if (!reduced()) play(sup, [{opacity: 0, transform: 'translateY(2px) scale(.8)'}, {opacity: 1, transform: 'none'}], {spring: 'snappy', delay, current: false});
+     el.dispatchEvent(new CustomEvent('st:cite', {bubbles: true, detail: {n: +cite[1], delay}}));
+     continue;
+    }
+    const span = doc.createElement('span'); span.className = 'st-word'; el.append(span);
+    if (reduced()) { span.textContent = w; continue; }
+    for (const ch of w) { const c = doc.createElement('span'); c.textContent = ch; span.append(c); play(c, [{opacity: 0}, {opacity: 1}], {ms: 40, curve: 'linear', delay: at(), fade: true, current: false}); }
+   }
   };
   if (done) { cancelAnimationFrame(s.frame); flush(); el.dispatchEvent(new CustomEvent('st:stream-end', {bubbles: true})); }
   else if (!s.frame) s.frame = requestAnimationFrame(flush);

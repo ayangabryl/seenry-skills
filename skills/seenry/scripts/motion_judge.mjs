@@ -181,11 +181,12 @@ async function run(reduced) {
     let anims = [], reverseAnims = [], layers = [];
     await slow(true);
     if (!reduced) {
-      await loc.hover({timeout: 1500}).catch(() => {}); await wait(260); await shoot('states', 'hover');
-      await page.mouse.move(2, 2); await page.keyboard.press('Shift');
-      // Keyboard focus on the region's own first control (in a gallery the probe is a replay button, not the component).
-      const own = await page.evaluate(i => { const self = document.querySelector(`[data-seenry-probe="${i}"]`), scope = document.querySelector('[data-seenry-region]'); const el = scope && [...scope.querySelectorAll('button,a[href],input,summary,[role=tab],[tabindex="0"]')].find(n => n !== self && !self.contains(n) && n.getBoundingClientRect().width > 8 && getComputedStyle(n).visibility !== 'hidden'); if (!el) return false; el.setAttribute('data-seenry-focus', ''); return true; }, t.i);
+      // Hover and keyboard focus go to the region's own first control: in a gallery the probe is a replay button,
+      // and its hover says nothing about the component being judged.
+      const own = await page.evaluate(i => { const self = document.querySelector(`[data-seenry-probe="${i}"]`), scope = document.querySelector('[data-seenry-region]'); const el = scope && [...scope.querySelectorAll('button,a[href],input,summary,[role=tab],[tabindex="0"]')].find(n => n !== self && !self.contains(n) && self.parentElement.contains(n) && n.getBoundingClientRect().width > 8 && getComputedStyle(n).visibility !== 'hidden'); if (!el) return false; el.setAttribute('data-seenry-focus', ''); return true; }, t.i);
       const focusLoc = own ? page.locator('[data-seenry-focus]').first() : loc;
+      await focusLoc.hover({timeout: 1500}).catch(() => {}); await wait(260); await shoot('states', 'hover');
+      await page.mouse.move(2, 2); await page.keyboard.press('Shift');
       await focusLoc.focus().catch(() => {}); await wait(200); await shoot('states', 'keyboard focus');
       await page.evaluate(() => document.querySelectorAll('[data-seenry-focus]').forEach(n => n.removeAttribute('data-seenry-focus')));
       await page.evaluate(() => document.activeElement?.blur()); await wait(200);

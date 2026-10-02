@@ -1,5 +1,5 @@
 {
-  "sourceSha256": "87155de6eea965eda881904359a6e86872781773a4097e596b762ce368141eb0",
+  "sourceSha256": "6322451bb806d9a070a892d555e6320286013330c067aaca11fa149cbc8e4b77",
   "scope": "Deterministic geometry and state only; fresh browser capture required",
   "cases": [
     {
@@ -71,7 +71,7 @@
       "pass": true
     },
     {
-      "name": "Details wait for the title corridor on initial open and rapid reopen",
+      "name": "Details ride the shell: clipped by its spring and arriving while it is still moving",
       "pass": true
     },
     {

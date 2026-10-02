@@ -324,7 +324,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 
 .expand-surface .close-x{background:color-mix(in srgb,var(--text) 6%,transparent);border-radius:99px}
 @media (hover:hover) and (pointer:fine){.expand-surface .close-x:hover{background:color-mix(in srgb,var(--text) 14%,transparent)}}
-.expand-surface .close-x:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.expand-surface .close-x:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .expand-surface .close-x:active{transform:scale(.96);transition-duration:60ms}
 
 @media (hover:hover) and (pointer:fine){.cover-card:hover{transform:translateY(-1px)}}
@@ -344,7 +344,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .library-tools{background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3)}
 .search-box input{border:0;background:var(--ghost);border-radius:10px;transition:background-color 120ms var(--st-F)}
 .search-box input:hover{background:var(--ghost-2)}
-.search-box input:focus{outline:2px solid var(--focus);outline-offset:0;background:var(--card)}
+.search-box input:focus{outline:2px solid var(--focus-ring);outline-offset:0;background:var(--card)}
 .filter [role=tab]{color:var(--text-2);transition:color 120ms var(--st-F)}
 .filter [role=tab][aria-selected=true],.filter [role=tab]:hover{color:var(--text)}
 .filter .st-tab-indicator{background:var(--ghost-2)}
@@ -354,7 +354,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 @media (max-width:700px){.grid{grid-template-columns:1fr;gap:14px}}
 /* Card: a stage inset 10px with concentric corners (22 = 12 + 10), a quiet caption, no lines. */
 .card{height:auto;border:0;border-radius:22px;padding:10px;background:var(--card);box-shadow:var(--card-shadow),inset 0 0 0 1px var(--ring);overflow:visible;transition:background-color 160ms var(--st-F)}
-.card:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.card:focus-visible{outline:2px solid var(--focus-ring);outline-offset:3px}
 .stage{height:300px;min-height:300px;border:0;border-radius:12px;background:var(--stage);padding:20px 20px 60px;overflow:hidden}
 .stage::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--ring-2);pointer-events:none;z-index:30}
 .caption{height:auto;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 12px;padding:14px 6px 4px 8px}
@@ -584,6 +584,11 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .ex-tracks li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;height:32px;padding:0 10px;border-radius:8px;font-size:14px}
 .ex-tracks li>span:first-child,.ex-tracks li>span:last-child{color:var(--text-2);font-variant-numeric:tabular-nums}
 .ex-tracks li:first-child{background:var(--hover)}
+@container(max-width:340px){
+ .expand-surface .ex-head .cover{width:64px;height:64px}
+ .expand-surface .ex-name{padding-right:52px}
+ .stage .expand-surface .ex-name h4{white-space:normal;overflow-wrap:anywhere}
+}
 @container(min-width:385px){
  .stage .expand-surface{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;align-items:start}
  .expand-surface .ex-head{flex-direction:column;align-items:flex-start;gap:8px}
@@ -595,7 +600,18 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .stage .replay svg{transition:transform 160ms var(--st-F)}
 @media (hover:hover) and (pointer:fine){.stage .replay:hover{background:color-mix(in srgb,var(--text) 12%,var(--ghost));color:var(--text)}.stage .replay:hover svg{transform:rotate(-45deg)}}
 .stage .replay:active{transform:scale(.95);transition-duration:60ms}
-.stage .replay:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.stage .replay:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+/* AI: sources sit in one quiet row and light up as they are read; the answer keeps its own reserved block. */
+.sources{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.sources span{height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:99px;font-size:13px!important;background:var(--surface-2);color:var(--text-3);transition:color 120ms var(--st-F),background-color 120ms var(--st-F)}
+.sources span{color:var(--text)}.sources span.reading{background:color-mix(in srgb,var(--accent,#3b82f6) 16%,var(--surface-2))}
+.stage .chat{gap:10px}.stage .chat .answer{min-height:66px}
+@media(prefers-reduced-motion:reduce){.sources span{transition:none}}
+/* While an answer is being written: a small breathing dot holds the writing position, and the sparkle turns slowly. */
+.thinking-row .spark{transition:rotate 240ms var(--st-F)}
+.thinking-row[data-busy] .spark{animation:spark-turn 1.6s linear infinite}
+@keyframes spark-turn{to{rotate:90deg}}
+@media(prefers-reduced-motion:reduce){.thinking-row[data-busy] .spark{animation:none}}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -912,11 +928,12 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
     <div class="stage" data-st-preview>
      <div class="app chat" id="chat">
       <div class="bubble">Summarise this week's releases</div>
-      <div class="thinking-row" id="think-row"><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think">Ready</span></div>
-      <div class="answer" data-st="stream" id="answer" aria-live="polite"></div>
+      <div class="thinking-row" id="think-row"><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think" data-st-done="true">Answered from 3 sources</span></div>
+      <div class="sources" id="ai-sources" aria-label="Sources"><span>Changelog</span><span>Release notes</span><span>Docs</span></div>
+      <div class="answer" data-st="stream" id="answer" aria-live="polite" aria-busy="false">Three releases shipped: saved cards<sup class="st-cite">1</sup>, editor comments<sup class="st-cite">2</sup> and faster exports<sup class="st-cite">3</sup>.</div>
      </div>
     <button class="replay" data-replay="ai" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="ai">AI thinking and streaming</button></h3><p>Status, then an answer</p><button class="snippet-copy" data-st="copy" data-snippet="ai" aria-label="Copy HTML for AI thinking and streaming"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>status swap</span><span>word blur 4 → 0</span><span>batched per frame</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="ai">AI thinking and streaming</button></h3><p>Status, then an answer</p><button class="snippet-copy" data-st="copy" data-snippet="ai" aria-label="Copy HTML for AI thinking and streaming"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>sources light in turn</span><span>words rise 3px</span><span>second press stops</span></div></div>
    </article><article class="card" data-key="checkbox" data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Checkbox">
     <div class="stage" data-st-preview>
      <div class="app list-card checklist">
@@ -1021,17 +1038,35 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
  const extra = [['Book user interviews', 'Due Wed', 'var(--info)', 3, 2], ['Draft release notes', 'Due Fri', 'var(--warn)', 2, 4], ['Rotate API keys', 'Due Mon', 'var(--bad)', 1, 1]]; let extraI = 0;
  $('add-task').addEventListener('click', () => { const [t, d, c, p, due] = extra[extraI++ % extra.length]; const li = document.createElement('li'); li.className = 'task';  li.dataset.prio = p; li.dataset.due = due; li.innerHTML = `<svg class="st-icon muted"><use href="#i-doc"/></svg><div class="grow"><b>${t}</b><span>${d}</span></div><button class="icon-btn" data-remove aria-label="Remove ${t}"><svg class="st-icon"><use href="#i-x"/></svg></button>`; if (taskList.children.length >= 4) S.list.remove(taskList.lastElementChild); S.list.add(taskList, li, 0); });
 
- // AI
- let aiRun = 0;
- const answer = 'Three releases shipped: saved cards, editor comments, and faster exports.';
+ // AI: the search is visible (each source lights as it is read), words start arriving within 150ms, and a second
+ // press stops the answer like a real assistant: before writing begins it returns to the previous answer.
+ let aiRun = 0, aiPhase = 'idle', aiPrev = '';
+ const answers = ['Three releases shipped: saved cards[1], editor comments[2] and faster exports[3].', 'Exports are 40% faster[1], and comments now thread inside the editor[2].'];
+ let answerIndex = 0;
+ // A citation lights its source the moment the text reaches it.
+ $('answer').addEventListener('st:cite', e => { const chip = $('ai-sources').children[e.detail.n - 1]; if (!chip) return;
+  setTimeout(() => { chip.classList.add('reading'); setTimeout(() => chip.classList.remove('reading'), 260); }, e.detail.delay); });
  const runAI = () => {
-  const run = ++aiRun, think = $('think'), out = $('answer'), later = (fn, ms) => setTimeout(() => { if (run === aiRun) fn(); }, ms);
-  delete think.dataset.stDone; S.swapText(think, 'Searching 4 entries…');
-  // The previous answer stays on screen, dimmed, until the new one starts arriving: no empty frame.
-  if (out.textContent) S.play(out, [{opacity: 0}], {ms:40,curve:'X',fill:'forwards',fade:true});
-  const words = answer.match(/\S+\s*/g); let i = 0;
-  const tick = () => { if (run !== aiRun) return; const n = 2; S.stream(out, words.slice(i, i + n).join(''), {done: i + n >= words.length}); i += n; if (i < words.length) setTimeout(tick, 55); else { S.swapText(think, 'Answered from 4 entries'); think.dataset.stDone = 'true'; } };
-  later(() => { S.swapText(think, 'Writing…'); out.getAnimations().forEach(a => a.cancel()); out.style.opacity = ''; S.stream(out, '', {reset: true}); tick(); }, 220);
+  const think = $('think'), out = $('answer'), chips = [...$('ai-sources').children];
+  if (aiPhase === 'search') {
+   ++aiRun; aiPhase = 'idle';
+   S.play(out, [{opacity: 1}], {ms: 90, curve: 'E', current: true});
+   chips.forEach(c => c.classList.remove('reading')); think.dataset.stDone = 'true'; $('think-row').removeAttribute('data-busy'); S.swapText(think, 'Answered from 3 sources', {tight: true}); return;
+  }
+  if (aiPhase === 'write') {
+   ++aiRun; aiPhase = 'idle'; S.stream(out, '', {stop: true}); think.dataset.stDone = 'true'; $('think-row').removeAttribute('data-busy');
+   S.swapText(think, 'Stopped', {tight: true});
+   return;
+  }
+  const run = ++aiRun, later = (fn, ms) => setTimeout(() => { if (run === aiRun) fn(); }, ms);
+  const words = answers[answerIndex = (answerIndex + 1) % answers.length].match(/\[\d+\]|\S+\s*/g); let i = 0;
+  aiPrev = out.innerHTML; aiPhase = 'search'; delete think.dataset.stDone; S.swapText(think, 'Writing'); $('think-row').setAttribute('data-busy', '');
+  // The previous answer dims in place and is replaced the moment new words arrive: the answer area is never blank.
+  S.play(out, [{opacity: .35}], {ms: 50, curve: 'X', fill: 'forwards'});
+  chips.forEach((c, k) => { c.classList.remove('reading'); later(() => { c.classList.add('reading'); later(() => c.classList.remove('reading'), 140); }, 10 + k * 30); });
+  const tick = () => { if (run !== aiRun) return; const done = i + 2 >= words.length; S.stream(out, words.slice(i, i + 2).join(''), {done}); i += 2;
+   if (!done) setTimeout(tick, 70); else { aiPhase = 'idle'; think.dataset.stDone = 'true'; $('think-row').removeAttribute('data-busy'); S.swapText(think, 'Answered from 3 sources'); } };
+  later(() => { aiPhase = 'write'; out.getAnimations().forEach(a => a.cancel()); out.style.opacity = ''; out.style.transform = ''; S.stream(out, '', {reset: true}); tick(); }, 55);
  };
 
  // Replay buttons drive the same code paths as the real controls.
@@ -1066,6 +1101,6 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
  window.galleryReplay = replay;
 
  // The chat starts answered; Replay asks again.
- $('think').dataset.stDone='true'; $('think').textContent='Answered from 4 entries'; $('think').dataset.stLabel='Answered from 4 entries'; $('answer').textContent=answer; $('answer').setAttribute('aria-busy','false');
+ $('think').dataset.stLabel = $('think').textContent;
 })();
 </script><script src="gallery.js"></script></body></html>

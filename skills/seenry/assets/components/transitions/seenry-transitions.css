@@ -490,6 +490,7 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 .st-instant, .st-instant * { transition: none !important; }
 
 .st-word { display: inline-block; white-space: pre; }
+.st-cite { display: inline-grid; place-items: center; min-width: 16px; height: 16px; margin: 0 0 0 2px; padding: 0 4px; border-radius: 99px; font-size: 11px; line-height: 1; font-weight: 600; vertical-align: 2px; background: var(--surface-2, rgba(0,0,0,.06)); color: var(--text-2, inherit); font-variant-numeric: tabular-nums; }
 
 [data-st="shimmer"][data-st-working="true"] { color: var(--text-3); }
 

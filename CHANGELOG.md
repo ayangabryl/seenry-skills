@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.7.3
+
+- Why rounds stalled at 7–8, now fixed in the tools:
+  - **Crop:** the motion judge cropped every row to include layers already open elsewhere on the page (a header listbox, another demo's popover), so components were judged as thumbnails. It now crops only to layers the input opened, with larger frames.
+  - **States:** the judge hovered the gallery's Replay button instead of the component, so "states" stayed at 7–8 everywhere. It now hovers and focuses the component's own first control.
+  - **Repeated fixes:** small recurring fixes were never applied. `motion_judge.mjs --prev` (passed automatically by `check.mjs`) lists criteria that did not rise and interactions asked to fix again. seenry-motion gains "Reaching 9": one component at a time, apply every fix, treat a returning problem as structural, no empty frames, one crafted idea, two runs before claiming a 9. The judge now exits non-zero under 9.
+- Merged Codex's `fix/quality-gate-evidence` (fresh motion evidence required for a pass) and `fix/transitions-gallery-behavior` (focus recovery, reflow, palette input and title-boundary fixes with browser tests).
+- **Card expand:** the detail keeps the card's arrangement (title and count beside the artwork in rows, under it in tiles), so nothing travels through the cover. The count is shared, and the track list rides the shell, clipped by its spring. Judge runs: 9, 9 and 8, then 8 on a third check.
+- **AI:** sources sit in a quiet row and light up when the answer cites them, letters flow in at an even pace, the previous answer is replaced in place, and a second press stops generation and keeps what was written. Judge 7, up from 6.
+- **Gallery fixes:**
+  - Focus rings for Replay, cards and the close button used an undefined token and drew nothing.
+  - Replay hover and press are clearer.
+  - The detail title no longer runs under the close target at 320px.
 ## 4.7.2
 
 - Seenry Transitions 3: the gallery is now a filterable library of live cards, each with replay and a copy-snippet button, laid out in three columns on desktop. A category select replaces the pills on phones. There are no divider lines: a card is one tone above the page, and its stage is inset with concentric radii. Shimmer, tilt and text reveal moved to an "Expressive extras" section. The avatar group was rebuilt: a lift that falls off toward the neighbours, a name label that glides between avatars, and a bouncy return. Copy now swaps its label in place, with a tooltip. Card expand samples its spring per frame so the cover and title travel together, and the palette scrolls only its own list. The accordion, tabs, segmented control and search lose their rules.
