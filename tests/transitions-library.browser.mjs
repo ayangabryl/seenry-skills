@@ -9,11 +9,60 @@ const browser = await chromium.launch({headless:true, ...(process.env.SEENRY_CHR
 const galleryArg = process.argv.indexOf('--gallery');
 const url = galleryArg >= 0 ? pathToFileURL(resolve(process.argv[galleryArg + 1])).href : new URL('../skills/seenry/assets/components/transitions/gallery.html', import.meta.url).href;
 const checks = [];
+
+// Read-only failure diagnostics preserve the original trusted key sequence and
+// polling predicate. They do not scroll, focus, resize, or alter product state.
+async function reportMailKeyFailure(page, profile, error) {
+  const dom = await page.evaluate(() => {
+    const detail = document.querySelector('#mail .detail');
+    const describe = el => el ? {tag:el.tagName,id:el.id,className:el.className,inert:el.inert,insideInert:!!el.closest?.('[inert]')} : null;
+    const rect = r => r ? {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height} : null;
+    const paragraph = detail?.querySelector('p'), range = document.createRange();
+    if (paragraph) range.selectNodeContents(paragraph);
+    return {
+      activeElement:describe(document.activeElement),documentHasFocus:document.hasFocus(),
+      detail:detail ? {element:describe(detail),isActive:document.activeElement===detail,
+        scrollTop:detail.scrollTop,maxScrollTop:detail.scrollHeight-detail.clientHeight,
+        clientHeight:detail.clientHeight,scrollHeight:detail.scrollHeight,
+        overflowY:getComputedStyle(detail).overflowY,scrollBehavior:getComputedStyle(detail).scrollBehavior,
+        frame:rect(detail.getBoundingClientRect()),text:paragraph ? rect(range.getBoundingClientRect()) : null,
+        animations:detail.getAnimations({subtree:true}).map(a=>({playState:a.playState,pending:a.pending}))} : null,
+      viewport:{innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,scrollX,scrollY,
+        visualViewport:visualViewport ? {width:visualViewport.width,height:visualViewport.height,
+          offsetLeft:visualViewport.offsetLeft,offsetTop:visualViewport.offsetTop,pageLeft:visualViewport.pageLeft,
+          pageTop:visualViewport.pageTop,scale:visualViewport.scale} : null},
+      events:window.__mailKeyDiagnostics || []
+    };
+  });
+  let nativeWindow;
+  const cdp = await page.context().newCDPSession(page);
+  try {
+    nativeWindow = {window:await cdp.send('Browser.getWindowForTarget'),version:await cdp.send('Browser.getVersion')};
+  } catch (nativeError) { nativeWindow = {error:nativeError.message}; }
+  finally { await cdp.detach(); }
+  console.error('MAIL_KEY_FAILURE '+JSON.stringify({profile,error:error.message,playwrightViewport:page.viewportSize(),nativeWindow,...dom}));
+}
+
 try {
   for (const width of [320,390,720,1440]) for (const theme of ['light','dark']) {
     const context = await browser.newContext({viewport:{width,height:1000},colorScheme:theme,reducedMotion:'reduce'});
     const page = await context.newPage(), errors=[];
     page.on('pageerror', e => errors.push(e.message));
+    await page.addInitScript(() => {
+      window.__mailKeyDiagnostics = [];
+      const describe = el => el ? {tag:el.tagName,id:el.id,className:el.className} : null;
+      for (const type of ['keydown','keyup','focusin','focusout']) document.addEventListener(type, event => {
+        if ((type==='keydown'||type==='keyup') && !['Home','End'].includes(event.key)) return;
+        const detail=document.querySelector('#mail .detail');
+        const item={type,key:event.key||null,trusted:event.isTrusted,at:performance.now(),
+          target:describe(event.target),active:describe(document.activeElement),
+          detailScrollTop:detail?.scrollTop,detailMaxScrollTop:detail ? detail.scrollHeight-detail.clientHeight : null,
+          scrollY,defaultPrevented:event.defaultPrevented};
+        window.__mailKeyDiagnostics.push(item);
+        if (window.__mailKeyDiagnostics.length>100) window.__mailKeyDiagnostics.shift();
+        queueMicrotask(()=>{item.defaultPrevented=event.defaultPrevented;});
+      },true);
+    });
     // This test is an offline gallery regression; external content is not needed.
     await page.route(/^https?:/, route => route.abort());
     await page.goto(url);
@@ -86,11 +135,17 @@ try {
     if(mailOverflow>1){await mailDetail.hover();await page.mouse.wheel(0,600);await page.waitForFunction(()=>{const el=document.querySelector('#mail .detail'),r=document.createRange();r.selectNodeContents(el.querySelector('p'));return el.scrollTop>0&&r.getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1;});}
     const mailFit=await mailDetail.evaluate(el=>{const range=document.createRange();range.selectNodeContents(el.querySelector('p'));const text=range.getBoundingClientRect(),frame=el.getBoundingClientRect();return text.bottom<=frame.bottom+1;});
     assert.equal(mailFit,true,`${width}/${theme} complete message body can be revealed`);
-    await mailDetail.press('Home');
-    await page.waitForFunction(()=>document.querySelector('#mail .detail').scrollTop<=1);
-    await mailDetail.press('End');
-    await page.waitForFunction(()=>{const el=document.querySelector('#mail .detail'),r=document.createRange();r.selectNodeContents(el.querySelector('p'));return r.getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1;});
-    assert.equal(await mailDetail.evaluate(el=>{const r=document.createRange();r.selectNodeContents(el.querySelector('p'));return r.getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1;}),true,`${width}/${theme} keyboard End reveals message tail`);
+    try {
+      await mailDetail.press('Home');
+      await page.waitForFunction(()=>document.querySelector('#mail .detail').scrollTop<=1);
+      await mailDetail.press('End');
+      await page.waitForFunction(()=>{const el=document.querySelector('#mail .detail'),r=document.createRange();r.selectNodeContents(el.querySelector('p'));return r.getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1;});
+      assert.equal(await mailDetail.evaluate(el=>{const r=document.createRange();r.selectNodeContents(el.querySelector('p'));return r.getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1;}),true,`${width}/${theme} keyboard End reveals message tail`);
+    } catch (error) {
+      try { await reportMailKeyFailure(page,{width,theme},error); }
+      catch (diagnosticError) { console.error('MAIL_KEY_DIAGNOSTICS_ERROR '+diagnosticError.message); }
+      throw error;
+    }
     await page.locator('#mail [data-back]').click();
     await page.locator('#mail .mail-list').waitFor({state:'visible'});
     const cover=page.locator('[data-key="expand"] .cover-card').first();
