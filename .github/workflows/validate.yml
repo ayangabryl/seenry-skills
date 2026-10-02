@@ -230,6 +230,18 @@ jobs:
         if: ${{ !cancelled() }}
         timeout-minutes: 4
         run: node tests/transitions-library-reduced-expand-reopen.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/reduced"
+      - name: Record unpaused Dialog video independently
+        if: ${{ !cancelled() }}
+        timeout-minutes: 3
+        run: node tests/transitions-library-dialog-video.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-dialog-video"
+      - name: Preserve unpaused Dialog recordings and source pins
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialog-video-ubuntu
+          path: ${{ runner.temp }}/seenry-dialog-video
+          if-no-files-found: error
+          retention-days: 7
       - name: Preserve Card source pins, traces, screenshots and recording
         if: always()
         uses: actions/upload-artifact@v4

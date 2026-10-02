@@ -16,7 +16,7 @@ Every transition follows the same rules. The gallery and the motion judge check 
 - **Exact origin.** A surface grows from the thing that caused it. A menu's `transform-origin` is its trigger's centre on the facing edge. The button-to-menu morph unclips from the button's own rectangle. A dialog stays centered in the viewport and scales with an origin toward its trigger, a sheet rises from its screen edge, and an expanded card opens from the card.
 - **Attached content.** Text rides its container and is never scaled by it. Size changes use a clip (`clip-path: inset()`) or a painted shell that scales behind the text, and followers move by FLIP.
 - **Choreography.** The container explains location and the content explains state. Overlap motion where the content stays readable; delay incoming detail only enough to keep its title and artwork from colliding. Outgoing content clears before its space collapses. Check interruption rather than treating one delay as a universal recipe.
-- **Character.** Things the hand moves, or that retarget often, run on springs: indicators, sheets, switches, dialogs. A visible settle appears only where the material earns it (a like, a switch thumb). Exact values, text and data never overshoot.
+- **Character.** Things the hand moves, or that retarget often, run on springs: indicators, sheets and switches. The compact Dialog uses the 220ms ease-out recipe below. A visible settle appears only where the material earns it (a like, a switch thumb). Exact values, text and data never overshoot.
 - **Exit asymmetry.** Exits are shorter, travel less and accelerate out (curve X). Spatial returns such as a card collapsing back into its slot keep their geometry.
 - **Interruptible.** Every animation starts from the currently rendered value. A second input 70ms into a change reverses it from where it is, with no flash and no restart.
 - **Compositor only.** Only transform, opacity, clip-path, small filters and SVG strokes animate. Layout commits once.
@@ -33,7 +33,7 @@ Curves and clocks come from `production-motion.md`: E `cubic-bezier(.16,1,.3,1)`
 | --- | --- | --- | --- | --- |
 | `--st-spring-snappy` | .26s, .04 | 300ms | none | menus, popovers, tooltip glide, segmented pill, digits, glyphs, chevrons |
 | `--st-spring-smooth` | .36s, 0 | 445ms | none | sheets, drawers, shared elements, FLIP reflow, accordion, page slide |
-| `--st-spring-gentle` | .34s, .08 | 348ms | none | dialog, toast stack |
+| `--st-spring-gentle` | .34s, .08 | 348ms | none | toast stack |
 | `--st-spring-bouncy` | .34s, .42 | 521ms | 10% | like heart, badge pop, state-icon change |
 | `--st-spring-thumb` | .28s, .28 | 349ms | 3.6% | switch thumb |
 | lead / trail (JS) | .16s / .23s, 0 | 212 / 294ms | none | the tab underline's two edges |
