@@ -14,7 +14,7 @@ import {resolve, join, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {validMotionVerdict} from './motion_contract.mjs';
+import {validMotionVerdict, motionAcceptance, MOTION_ACCEPTANCE_POLICY} from './motion_contract.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -95,7 +95,9 @@ const fingerprint = identity.reusable ? identity.digest : null;
 // A failed/unverified attempt does not certify a version; retry it after repairing
 // the tool instead of stopping merely because its source hash appears in history.
 const completedReviews = () => history.filter(h => h.critic && Number.isFinite(h.motion) && !h.motionError);
-const checkedVersions = new Set(completedReviews().map(h => h.hash).filter(Boolean));
+// An older scoring policy does not certify unchanged source under a stricter bar.
+// Keep those complete rounds as useful previous findings, but verify once on upgrade.
+const checkedVersions = new Set(completedReviews().filter(h => native || h.motionPolicy === MOTION_ACCEPTANCE_POLICY).map(h => h.hash).filter(Boolean));
 // Only critic rounds count toward the budget: board fixes are cheap and must never eat the rounds of design feedback.
 const criticRounds = history.filter(h => h.critic).length;
 if ((criticRounds >= 8 || round > 20) && !history.some(h => h.stop)) {
@@ -196,13 +198,18 @@ if (!motionError && (!Number.isFinite(motionScore) || motionScore < 0 || motionS
 const motionBlocks = Array.isArray(motion?.violations) ? motion.violations.length : 0;
 // The web judge distinguishes a completed quality failure (exit 1) from a tool failure
 // (exit 2). Require its explicit, internally consistent outcome before accepting any
-// nonzero exit as evidence. Older/native zero-exit results keep their existing contract.
+// nonzero exit as evidence. Native legacy zero-exit results keep their separate contract; unmarked web results require an upgrade.
+if (!motionError && !native && !Object.hasOwn(motion, 'outcome')) motionError = 'legacy web motion result lacks the complete criterion/interaction contract (target 9 per criterion); upgrade the motion judge and rerun';
 let evidenceExit = mj.status === 0;
+let motionFloorFailures = [], motionCoverage = null;
 if (!motionError && Object.hasOwn(motion, 'outcome')) {
   if (!validMotionVerdict(motion.verdict, {annotated: true}) || !motion.violations.every(v => typeof v === 'string')) {
     motionError = 'incomplete or malformed marked motion judgment';
   }
-  const expected = motionScore >= 9 && !motionBlocks ? 'pass' : 'quality-fail';
+  const acceptance = motionAcceptance(motion.verdict, motion.interactions);
+  motionFloorFailures = acceptance.failures; motionCoverage = acceptance.coverage;
+  if (!acceptance.complete) motionError ||= 'incomplete captured interaction coverage';
+  const expected = motionScore >= 9 && !motionBlocks && !motionFloorFailures.length ? 'pass' : 'quality-fail';
   if (motion.outcome !== expected) motionError = 'inconsistent motion outcome';
   evidenceExit = motion.outcome === 'pass' ? mj.status === 0 : motion.outcome === 'quality-fail' && mj.status === 1;
 }
@@ -210,14 +217,14 @@ if (!evidenceExit) motionError = `motion process exited ${mj.status ?? mj.signal
 if (identity.digest !== projectFingerprint().digest) motionError = 'local source changed during review';
 if (motionError) {
   history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks,
-    motionError, motionEvidence: relative(dir, motionDir), hash: fingerprint});
+    motionError, motionEvidence: relative(dir, motionDir), motionPolicy: native ? 'native-video-legacy' : MOTION_ACCEPTANCE_POLICY, motionFloorFailures, motionCoverage, hash: fingerprint});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   if (mj.stderr) process.stderr.write(mj.stderr);
   console.log(`\nUNVERIFIED round ${round}: ${motionError}. A successful, complete motion judgment is required for PASS. Fix the cause and rerun; no quality pass is recorded.`);
   process.exit(2);
 }
 history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks,
-  motionEvidence: relative(dir, motionDir), hash: fingerprint});
+  motionEvidence: relative(dir, motionDir), motionPolicy: native ? 'native-video-legacy' : MOTION_ACCEPTANCE_POLICY, motionFloorFailures, motionCoverage, hash: fingerprint});
 // Keep the page's code as it was when scored, so the best round can be restored after a later round scores worse.
 if (!/^https?:/.test(target) && existsSync(target)) {
   const snap = join(review, `round-${round}`), root = dirname(resolve(target));
@@ -230,9 +237,10 @@ if (!/^https?:/.test(target) && existsSync(target)) {
 }
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
-if (verdict.scores.overall >= goal && !motionBlocks && motionScore >= 9) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Critic trail: ${trail}.`); process.exit(0); }
+if (verdict.scores.overall >= goal && !motionBlocks && !motionFloorFailures.length && motionScore >= 9) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Scope: ${motionCoverage ? "captured interaction labels only; other components unverified" : "legacy overall-only evidence; per-criterion coverage unverified"}. Critic trail: ${trail}.`); process.exit(0); }
 const scored = completedReviews().map(h => h.critic.overall), best = Math.max(...scored);
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
+if (motionFloorFailures.length) console.log('Below the required floor: ' + motionFloorFailures.join(' · '));
 console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
 if (stalled && !history.some(h => h.rootChange)) {
   history[history.length - 1].rootChange = true;

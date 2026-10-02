@@ -38,22 +38,32 @@
     keyframe is replaced by the rendered value, so a new call retargets instead of restarting. Returns a promise that
     resolves true when it finished, false when something newer replaced it. */
  const channels = new WeakMap(), heldStyles = new WeakMap();
+ // Filter is a single visual property: the latest blur companion owns it, together
+ // with the channel that requested it. Unrelated channel stops leave it alone.
  const blurAnims = new WeakMap();
+ function stopBlur(el, key) {
+  const owned = blurAnims.get(el);
+  if (!owned || (key !== undefined && owned.key !== key)) return;
+  blurAnims.delete(el); owned.animation.cancel();
+ }
  function play(el, frames, o = {}) {
   if (!el || !el.animate) return Promise.resolve(true);
   const key = (o.channel || 'main') + (o.pseudo || '');
+  const previousBlur = !o.pseudo && blurAnims.get(el), renderedBlur = previousBlur ? getComputedStyle(el).filter : null;
   let map = channels.get(el); if (!map) channels.set(el, map = new Map());
   const prev = map.get(key);
   let held = heldStyles.get(el); if (!held) heldStyles.set(el, held = new Map());
   const committed = held.get(key);
   // A single keyframe is a target: start it from the rendered value.
-  if (((prev || committed) && o.current !== false) || frames.length === 1) {
+  if (((prev || committed || (previousBlur && frames.some(f => 'filter' in f))) && o.current !== false) || frames.length === 1) {
    const cs = getComputedStyle(el, o.pseudo || null), first = {};
    for (const p of Object.keys(frames[frames.length - 1])) if (p !== 'offset' && p !== 'easing' && p !== 'composite') first[p] = cs[p];
    // clip-path 'none' does not interpolate; start from the equivalent full inset instead.
    if (first.clipPath === 'none') { const r = /round ([\d.]+px)/.exec(String(frames[frames.length - 1].clipPath)); first.clipPath = `inset(0px 0px 0px 0px${r ? ' round ' + r[1] : ''})`; }
    frames = frames.length === 1 ? [first, frames[0]] : [first, ...frames.slice(1)];
   }
+  // Sample a superseded filter before retirement; pseudo-element filters own a separate target.
+  if (!o.pseudo) { if (reduced() || frames.some(f => 'filter' in f)) stopBlur(el); else stopBlur(el, key); }
   prev?.cancel();
   if (committed) { for (const [prop, value] of Object.entries(committed)) el.style[prop] = value; held.delete(key); }
   let duration, easing;
@@ -69,8 +79,11 @@
   // Blur option: inside [data-st-blur], a fade on a small element also pulls focus (blur to sharp on the way in, a
   // softer blur on the way out). Large surfaces never blur; reduced motion already returned above.
   const blurHost = !reduced() && !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
+  // Deliberately animated filters (including another authored WAAPI/CSS effect) own
+  // their property. An opacity fade must not freeze that moving value into a second blur.
+  const ownsFilter = blurHost && ([...(el.getAnimations?.() || [])].some(a => a !== blurAnims.get(el)?.animation && !a.effect?.pseudoElement && a.effect?.target === el && a.effect.getKeyframes().some(f => 'filter' in f)) || [...held.values()].some(saved => 'filter' in saved));
   let blurIn = 0;
-  if (blurHost && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
+  if (blurHost && !ownsFilter && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
    const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 8;
    if (r.width * r.height > 0 && r.width * r.height <= 160000) {
     const a0 = +frames[0].opacity, a1 = +frames[frames.length - 1].opacity;
@@ -78,12 +91,16 @@
     // visibly behind it. On the way out the element defocuses quickly as it leaves.
     blurIn = a1 > a0 ? 1 : a1 < a0 ? -1 : 0;
     if (blurIn) {
-     blurAnims.get(el)?.cancel();
-     const ba = el.animate(blurIn > 0 ? [{filter: `blur(${px}px)`}, {filter: 'blur(0px)'}] : [{filter: 'blur(0px)'}, {filter: `blur(${px * .6}px)`}],
+     stopBlur(el);
+     const baseFilter = getComputedStyle(el).filter || 'none';
+     const blurFilter = px => `${baseFilter === 'none' ? '' : baseFilter + ' '}blur(${px}px)`;
+     // A reversal continues from the actual filter before cancelling its old companion.
+     const firstFilter = renderedBlur || blurFilter(blurIn > 0 ? px : 0);
+     const ba = el.animate([{filter: firstFilter}, {filter: blurFilter(blurIn > 0 ? 0 : px * .6)}],
       {duration: blurIn > 0 ? Math.max(300, duration * 1.4) : Math.max(120, duration), easing: blurIn > 0 ? 'cubic-bezier(.25,.1,.25,1)' : CURVES.X, delay, fill: blurIn > 0 ? 'backwards' : 'both'});
-     blurAnims.set(el, ba);
-     if (blurIn > 0) ba.finished.then(() => { if (blurAnims.get(el) === ba) blurAnims.delete(el); }, () => {});
-     else ba.finished.then(() => { if (blurAnims.get(el) === ba) { ba.cancel(); blurAnims.delete(el); } }, () => {});
+     const owned = {key, animation: ba}; blurAnims.set(el, owned);
+     const release = () => { if (blurAnims.get(el) === owned) blurAnims.delete(el); ba.cancel(); };
+     ba.finished.then(release, release);
     }
    }
   }
@@ -101,11 +118,13 @@
   }, () => { a.cancel(); return false; });
  }
  function stop(el, channel = 'main') {
+  stopBlur(el, channel);
   const map = channels.get(el), a = map?.get(channel); if (a) { a.cancel(); map.delete(channel); }
   const held = heldStyles.get(el), saved = held?.get(channel);
   if (saved) { Object.assign(el.style, saved); held.delete(channel); }
  }
  function stopAll(el) {
+  stopBlur(el);
   const map = channels.get(el); if (map) { for (const a of map.values()) a.cancel(); map.clear(); }
   const held = heldStyles.get(el); if (held) { for (const saved of held.values()) Object.assign(el.style, saved); held.clear(); }
  }

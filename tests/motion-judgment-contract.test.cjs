@@ -6,13 +6,13 @@ const {pathToFileURL}=require('node:url');
 const vm=require('node:vm');
 const {test,before}=require('node:test');
 const source=readFileSync(process.env.SEENRY_JUDGE_SOURCE||path.join(__dirname,'../skills/seenry/scripts/motion_judge.mjs'),'utf8');
-let validMotionVerdict,KEYS;
-before(async()=>{const m=await import(pathToFileURL(path.join(__dirname,'../skills/seenry/scripts/motion_contract.mjs')).href);validMotionVerdict=m.validMotionVerdict;KEYS=m.MOTION_SCORE_KEYS;});
+let validMotionVerdict,KEYS,motionAcceptance;
+before(async()=>{const m=await import(pathToFileURL(path.join(__dirname,'../skills/seenry/scripts/motion_contract.mjs')).href);validMotionVerdict=m.validMotionVerdict;KEYS=m.MOTION_SCORE_KEYS;motionAcceptance=m.motionAcceptance;});
 const marker='// A quality failure is usable review evidence;';
 const tail=source.slice(source.indexOf(marker));
 assert(source.includes(marker),'Explicit producer outcome contract must exist');
-const complete=(score=9)=>({scores:Object.fromEntries(['origin','attachment','choreography','character','exit','continuity','interruption','states','reduced_motion','overall'].map(k=>[k,k==='overall'?score:9])),rows:[{interaction:'Card',score:8,note:'A test row'}],verdict:'A complete fixture',fixes:[{interaction:'Card',problem:'A test finding',fix:'A proposed repair'}]});
-function result(verdict,violations=[]){let data,exit;vm.runInNewContext(tail,{verdict,violations,validMotionVerdict,report:{violations},writeFileSync:(_p,s)=>data=JSON.parse(s),join:(...x)=>x.join('/'),out:'out',pages:[],console:{log(){}},process:{exit:c=>exit=c}});return {data,exit};}
+const complete=(score=9)=>({scores:Object.fromEntries(['origin','attachment','choreography','character','exit','continuity','interruption','states','reduced_motion','overall'].map(k=>[k,k==='overall'?score:9])),rows:[{interaction:'Card',score:score,note:'A test row'}],verdict:'A complete fixture',fixes:[{interaction:'Card',problem:'A test finding',fix:'A proposed repair'}]});
+function result(verdict,violations=[],interactions=[{label:'Card'}]){let data,exit;vm.runInNewContext(tail,{verdict,violations,validMotionVerdict,motionAcceptance,report:{violations,interactions},writeFileSync:(_p,s)=>data=JSON.parse(s),join:(...x)=>x.join('/'),out:'out',pages:[],console:{log(){}},process:{exit:c=>exit=c}});return {data,exit};}
 for(const [name,verdict,violations,outcome,code] of [
  ['target met',complete(),[],'pass',0],['below target',complete(8),[],'quality-fail',1],
  ['hard violation',complete(),['held animation'],'quality-fail',1],['both failed',complete(7),['held animation'],'quality-fail',1],
@@ -33,7 +33,10 @@ const malformed=[
 ];
 for(const [name,change]of malformed)test(`${name} is rejected before completion`,()=>{const v=complete();change(v);assert.equal(validMotionVerdict(v),false);assert.equal(result(v).exit,2);});
 test('Every declared required top-level field is mandatory',()=>{for(const key of ['scores','rows','verdict','fixes']){const v=complete();delete v[key];assert.equal(validMotionVerdict(v),false,key);}});
-test('Schema shapes do not impose new quality thresholds or row-count rules',()=>{const v=complete();v.scores.origin=1;v.rows=[];assert.equal(validMotionVerdict(v),true);assert.equal(result(v).exit,0);});
+test('Every declared criterion and row must reach9 without changing its score',()=>{for(const key of KEYS){const v=complete();v.scores[key]=8;const r=result(v);assert.equal(r.exit,1,key);assert.equal(r.data.verdict.scores[key],8);assert(r.data.acceptance.failures.some(f=>f.includes(key)));}const v=complete();v.rows[0].score=8;assert.equal(result(v).exit,1);});
+test('Empty rows are incomplete instead of high-scoring coverage',()=>{const v=complete();v.rows=[];assert.equal(validMotionVerdict(v),false);assert.equal(result(v).exit,2);});
+test('Missing captured rows, invented rows and absent capture scope are unverified',()=>{for(const captures of [[],null,[{label:'Card'},{label:'Menu'}],[{label:'Another component'}]]){assert.equal(result(complete(),[],captures).exit,2);}});
+test('Scoped pass never represents unobserved catalog components',()=>{const r=result(complete());assert.equal(r.exit,0);assert.equal(r.data.acceptance.coverage.scope,'captured-interaction-labels-only');assert.deepEqual(r.data.acceptance.coverage.capturedLabels,['Card']);assert.deepEqual(r.data.acceptance.coverage.reviewedLabels,['Card']);});
 test('Ten fixes meet the declared maximum',()=>{const v=complete();v.fixes=Array.from({length:10},()=>({...v.fixes[0]}));assert.equal(validMotionVerdict(v),true);});
 test('Only valid known producer annotations are accepted',()=>{const v={...complete(),cli:'codex',runs:[9,8,9],stillOpen:{criteria:['states'],interactions:['Card']}};assert.equal(validMotionVerdict(v),false);assert.equal(validMotionVerdict(v,{annotated:true}),true);assert.equal(result(v).exit,0);});
 for(const [name,annotation]of [['numeric cli',{cli:9}],['empty runs',{runs:[]}],['invalid run',{runs:[11]}],['fractional run',{runs:[8.5]}],['malformed stillOpen',{stillOpen:[]}],['missing stillOpen keys',{stillOpen:{criteria:[]}}],['unknown stillOpen criterion',{stillOpen:{criteria:['bogus'],interactions:[]}}],['nontext interaction',{stillOpen:{criteria:[],interactions:[7]}}],['unknown stillOpen field',{stillOpen:{criteria:[],interactions:[],other:true}}]])test(`${name} is not a valid annotation`,()=>{assert.equal(result({...complete(),...annotation}).exit,2);});

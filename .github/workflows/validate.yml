@@ -46,6 +46,7 @@ jobs:
           node tests/transitions-library-title-boundary.test.cjs
           node tests/transitions-library-control-contrast.test.cjs
           node tests/transitions-library-stream.test.cjs
+          node tests/transitions-library-blur-ownership.test.cjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check examples/seenry-site/app.js
       - run: node --check examples/seenry-site/studies/held/app.js

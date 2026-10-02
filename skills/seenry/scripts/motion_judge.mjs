@@ -18,7 +18,7 @@
  *  4. With --prev (the previous round's motion.json), lists what is still open: every criterion under 9 that did not
  *     rise and every interaction the judge asked to fix again. Those are the ceiling; rounds stall when they are skipped.
  *  Writes motion-board.png (every row), motion-board-N.png (the pages the model reads) and motion.json to --out;
- *  exits 1 on a completed judgment with hard violations or an overall under 9; exits 2 when no complete judgment is available.
+ *  exits 1 on a completed judgment with hard violations or any motion criterion/interaction row under 9; exits 2 when no complete judgment is available.
  *
  *  Scale: 9-10 is indistinguishable from Apple, Linear or Family at their best; 8 is clearly premium; 6-7 is correct
  *  but generic (right tokens, fades and small translates, nothing a top team would call crafted). */
@@ -29,7 +29,7 @@ import {pathToFileURL, fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 import {findCli, askModel} from './model_cli.mjs';
-import {MOTION_SCORE_KEYS, MOTION_VERDICT_SCHEMA, validMotionVerdict} from './motion_contract.mjs';
+import {MOTION_SCORE_KEYS, MOTION_VERDICT_SCHEMA, validMotionVerdict, motionAcceptance} from './motion_contract.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -309,7 +309,7 @@ const RUBRIC = `Calibrated scale. Use the whole range and be strict; most compet
 - 6-7: correct but generic. Right durations and curves, but motion is a fade plus a small translate or scale from a default origin; content fades rather than travels; nothing keeps identity; it could come from any component library.
 - 4-5: visible problems: wrong or centered origins on anchored surfaces, text stretched by a scaling container, jumps or restarts on interruption, sluggish or over-long motion, bounce on exact values.
 - 1-3: broken or distracting.
-The overall is the level of the catalog as a whole, not its best row. If a third of the rows are generic, the overall is at most 7.
+The overall describes only the captured interaction set, not unobserved catalog components or its best row. If a third of the captured rows are generic, the overall is at most 7.
 
 What separates premium from merely correct (score each criterion 1-10 on the same scale):
 - origin: every surface grows from the exact point that caused it (a menu from its trigger's edge, with transform-origin at the trigger; a sheet from its screen edge; a toast from its stack edge; an expanded card from its thumbnail's rect). Centered scale on an anchored popover, or a surface appearing from nowhere, is generic.
@@ -345,7 +345,7 @@ Durations used across the page: ${report.durations.join(', ')}ms. Easing curves 
 Reduced-motion run: ${calm.map(r => `${r.label}: ${r.anims.filter(a => a.duration > 60 && a.iterations !== Infinity).map(a => a.props.join('+') + ' ' + Math.round(a.duration) + 'ms').join(', ') || 'no motion over 60ms'}`).join('; ').slice(0, 3000) || 'no interactions'}.
 Automatic violations: ${violations.join('; ') || 'none'}. Notes: ${notes.join('; ').slice(0, 2000) || 'none'}.
 
-Look at every frame. Score each rubric criterion and each interaction (rows: one entry per interaction, with the score and the single most important observation). Then give the overall on the calibrated scale and up to ten concrete fixes naming the interaction, the problem you saw in specific frames, and the exact change (property, origin, duration, curve or spring, order). Fixes may only animate transform, opacity, clip-path, small filters or SVG strokes; size changes are shown with FLIP or a clipped shell, never by animating width, height or other layout properties. Do not open any files other than the attached images.`;
+Look at every frame. Score each rubric criterion and each interaction (rows: one entry per captured interaction, using its exact measured interaction label, with the score and the single most important observation). Then give the overall on the calibrated scale and up to ten concrete fixes naming the interaction, the problem you saw in specific frames, and the exact change (property, origin, duration, curve or spring, order). Fixes may only animate transform, opacity, clip-path, small filters or SVG strokes; size changes are shown with FLIP or a clipped shell, never by animating width, height or other layout properties. Do not open any files other than the attached images.`;
   const work = mkdtempSync(join(tmpdir(), 'seenry-motion-'));
   const self = fileURLToPath(import.meta.url);
   const results = (await Promise.all(Array.from({length: runs}, (_, k) => new Promise(done => {
@@ -383,8 +383,12 @@ Look at every frame. Score each rubric criterion and each interaction (rows: one
 // A quality failure is usable review evidence; missing judgment is a tool/incomplete
 // outcome. Keep the explicit outcome and exit code in agreement for check.mjs.
 const score = verdict?.scores?.overall;
-const complete = validMotionVerdict(verdict, {annotated: true});
-const outcome = !complete ? 'unverified' : violations.length || score < 9 ? 'quality-fail' : 'pass';
-writeFileSync(join(out, 'motion.json'), JSON.stringify({...report, verdict, outcome}, null, 2));
+const acceptance = motionAcceptance(verdict, report.interactions);
+const complete = acceptance.complete;
+const outcome = !complete ? 'unverified' : violations.length || acceptance.failures.length ? 'quality-fail' : 'pass';
+writeFileSync(join(out, 'motion.json'), JSON.stringify({...report, verdict, outcome, acceptance}, null, 2));
+if (acceptance.failures.length) console.log('Below the required floor: ' + acceptance.failures.join(' · '));
+console.log('Review scope: captured interaction labels only; uncaptured components are unverified.');
+if (!complete) console.log('Incomplete schema or captured-label coverage; no quality acceptance.');
 console.log(`\nWritten to ${join(out, 'motion.json')}, motion-board.png and ${pages.length} board page(s)`);
 process.exit(outcome === 'pass' ? 0 : outcome === 'quality-fail' ? 1 : 2);
