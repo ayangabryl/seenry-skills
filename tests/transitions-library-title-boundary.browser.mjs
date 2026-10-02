@@ -17,8 +17,8 @@ function heldPressObserved(p) {
  if(typeof p?.matches==='function'){const el=p;p={active:el.matches(':active'),hover:el.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches,transform:getComputedStyle(el).transform};}
  const m=/^matrix\(([^)]+)\)$/.exec(p?.transform||'');if(p?.active!==true||!m)return false;
  const v=m[1].split(',').map(Number);if(v.length!==6||!v.every(Number.isFinite))return false;
- // The later fine-pointer hover rule owns transform while hovered; coarse active input uses scale.
- const expected=p.hoverCapable&&p.hover&&!p.coarse?[1,0,0,1,0,-1]:[.98,0,0,.98,0,0];
+ // Hover is stationary. Trusted held input uses the same authored .98 press scale on either pointer.
+ const expected=[.98,0,0,.98,0,0];
  // Translation may retain a subpixel settling residue; paint containment remains a separate strict gate.
  return v.every((n,i)=>Math.abs(n-expected[i])<(i<4?.001:.02));
 }
@@ -75,7 +75,7 @@ try{
     await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});try{await page.waitForTimeout(Math.max(1,pressHoldMs));await observeHeld();}finally{await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await session.detach();}
    }else if(pressHoldMs>0){await target.hover();await page.mouse.down();try{await page.waitForTimeout(pressHoldMs);await observeHeld();}finally{await page.mouse.up();}}
    else await target.click();
-   if(pressHoldMs>=100)assert(heldPressObserved(run.pressed),'Coverage precondition: held input must realize active state and its hover-lift or coarse-scale CSS contract');
+   if(pressHoldMs>=100)assert(heldPressObserved(run.pressed),'Coverage precondition: held input must realize active state and its authored .98 scale CSS contract');
    await page.waitForTimeout(80);run.frameFile=`${contentWidth}-${index}-moving.png`;await page.locator('[data-key="expand"]').screenshot({path:join(out,run.frameFile),animations:'allow'});
    await page.waitForTimeout(650);run.trace=await page.evaluate(()=>window.__titleBoundary);run.initialObservation=await page.evaluate(()=>window.__titleBoundaryInitial);run.pressTiming=await page.evaluate(()=>({down:window.__titleBoundaryPressDown||null,up:window.__titleBoundaryPressUp||null,observedHoldMs:window.__titleBoundaryPressDown&&window.__titleBoundaryPressUp?window.__titleBoundaryPressUp.at-window.__titleBoundaryPressDown.at:null}));run.errors=errors;
    run.settled=await page.evaluate(()=>window.__titleBoundaryFrame());

@@ -1144,6 +1144,38 @@
   state.paintSaved = {background: surface.style.background, boxShadow: surface.style.boxShadow, borderColor: surface.style.borderColor, overflow: surface.style.overflow, isolation: surface.style.isolation};
   Object.assign(surface.style, {background: 'transparent', boxShadow: 'none', borderColor: 'transparent', overflow: 'visible', isolation: 'isolate'}); surface.prepend(paint); state.paint = paint; return paint;
  }
+ // A keyboard-focused dismissal must be visible from its first painted frame. Cancel only
+ // owned paint/motion channels on its ancestor path; sibling and pointer choreography stay intact.
+ const expandCloseFocus = new WeakMap();
+ function revealFocusedExpandClose(control) {
+  const owner = expandCloseFocus.get(control);
+  if (!owner?.state.open || !owner.surface.contains(control) || !control.matches(':focus-visible')) return;
+  stop(control, 'o');
+  // A custom Close may sit inside an animated details wrapper. Reveal only its ancestor
+  // path; sibling details retain their entrance choreography and authored styles.
+  for (let n = control.parentElement; n && n !== owner.surface; n = n.parentElement) { stop(n, 'o'); stop(n, 'clip'); stop(n, 't'); }
+  stop(owner.surface, 'o');
+ }
+ function watchExpandCloseFocus(control, state, surface) {
+  if (!expandCloseFocus.has(control)) {
+   control.addEventListener('focus', () => revealFocusedExpandClose(control));
+   control.addEventListener('keydown', () => revealFocusedExpandClose(control));
+  }
+  expandCloseFocus.set(control, {state, surface});
+ }
+ // Close belongs to the currently painted card, not the final layout box behind it.
+ // Individual translate preserves the control's authored press transform and unchanged hit target.
+ function attachExpandClose(control, surface, from, to, springName, continuing, renderedStart) {
+  if (!control) return;
+  const rendered = renderedStart || box(control.getBoundingClientRect()); stop(control, 'expand-close-position');
+  const rest = box(control.getBoundingClientRect()), savedTranslate = control.style.translate;
+  control.style.translate = 'none'; const home = box(control.getBoundingClientRect()); control.style.translate = savedTranslate;
+  const shell = box(surface.getBoundingClientRect());
+  const right = Math.max(0, shell.x + shell.w - rest.x - rest.w), top = Math.max(0, rest.y - shell.y);
+  const attached = r => ({x: r.x + Math.max(0, r.w - home.w - right), y: r.y + Math.min(top, Math.max(0, r.h - home.h))});
+  const start = continuing ? rendered : attached(from), end = attached(to);
+  return play(control, [{translate: `${start.x - home.x}px ${start.y - home.y}px`}, {translate: `${end.x - home.x}px ${end.y - home.y}px`}], {spring: springName, channel: 'expand-close-position', current: false, fill: 'forwards'});
+ }
  // Details hang from the shared artwork: below it they follow its bottom edge, beside it its top edge.
  function hang(c, pairs, cr = c.getBoundingClientRect()) {
   const p = pairs.find(([, d]) => !d.hasAttribute('data-st-shared-text')); if (!p) return 0;
@@ -1159,20 +1191,34 @@
   if (detail.tagName === 'DIALOG' && !detail.open) detail.showModal();
   s.trigger = source; source.setAttribute('aria-expanded', 'true');
   const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
+  // A closing surface may own a reduced-motion fade even after the preference changes.
+  if (wasClosing) stop(surface, 'o');
   const pairs = sharedPairs(source, detail), rad = parseFloat(getComputedStyle(source).borderRadius) || 12;
   const sr = source.getBoundingClientRect(), dr = surface.getBoundingClientRect(), paint = expandPaint(surface, s);
   const endR = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
   source.style.visibility = 'hidden';
   const content = qa(surface, '[data-st-expand-content]'), closeControl = q(surface, '[data-st-close]');
+  // Preserve the painted start before native-visible focus retires a nested wrapper's motion.
+  const closeStart = wasClosing && closeControl ? box(closeControl.getBoundingClientRect()) : null;
+  if (closeControl) { watchExpandCloseFocus(closeControl, s, surface); closeControl.focus?.({preventScroll: true}); if (s.version !== v || !s.open) return; revealFocusedExpandClose(closeControl); }
   // Measured before the shared parts move: afterwards the artwork already sits on the card it came from.
   const hangs = new Map(content.map(c => [c, hang(c, pairs)]));
   // The rest of the page dims quickly, so it never competes with the opening card.
   if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', fade: true, current: wasClosing}); }
-  if (reduced()) { play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'}); pairs.forEach(([, d]) => d.style.visibility = ''); if (s.travelers) { for (const g of s.travelers.values()) { stopAll(g); g.remove(); } s.travelers.clear(); } s.titleFades?.clear(); }
+  if (reduced()) {
+   // Release every owned visual channel, including geometry held by a normal-motion exit.
+   // The replacement view is opaque immediately; fading it would expose the source cards.
+   content.forEach(c => { stop(c, 'o'); stop(c, 'clip'); stop(c, 't'); });
+   if (closeControl) { stop(closeControl, 'o'); stop(closeControl, 'expand-close-position'); }
+   stop(surface, 'o'); stop(paint, 'clip');
+   pairs.forEach(([, d]) => { stop(d, 'shared'); d.style.visibility = ''; });
+   if (s.travelers) { for (const g of s.travelers.values()) { stopAll(g); g.remove(); } s.travelers.clear(); } s.titleFades?.clear();
+  }
   else {
    // The shell's clip is sampled from the same spring track as the shared parts, so all three move as one.
    { const cur = wasClosing ? parseInset(getComputedStyle(paint).clipPath) : null, a0 = cur || [sr.top - dr.top, dr.right - sr.right, dr.bottom - sr.bottom, sr.left - dr.left], r0 = wasClosing ? endR : rad;
-     play(paint, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false}); }
+     play(paint, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false});
+     if (closeControl) attachExpandClose(closeControl, surface, {x: dr.left + a0[3], y: dr.top + a0[0], w: dr.width - a0[1] - a0[3], h: dr.height - a0[0] - a0[2]}, box(dr), 'expand', wasClosing, closeStart); }
    travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); if (s.titleFades?.has(d)) fadeIn(d, {ms: 80, blur: false}); } s.travelers.clear(); s.titleFades?.clear(); s.moved = false; });
    // Details ride the shell: clipped by the same spring that grows it and drawn a little toward the card they
    // came from, so the surface is never an empty frame. Layouts keep details out of the title's path.
@@ -1187,7 +1233,8 @@
    });
    if (closeControl) play(closeControl, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 150, channel: 'o', current: wasClosing, fade: true});
   }
-  (closeControl || focusFirst(detail))?.focus?.({preventScroll: true});
+  if (!closeControl) focusFirst(detail);
+  if (closeControl) revealFocusedExpandClose(closeControl);
  }
  function collapse(detail) {
   const s = layerState(detail); if (!s.open || !s.source) return;
@@ -1223,9 +1270,10 @@
    play(c, [{clipPath: `inset(${sh.top - cr.top - ty}px ${cr.right - sh.right}px ${cr.bottom + ty - sh.bottom}px ${sh.left - cr.left}px round ${shellR}px)`}, {clipPath: `inset(${sr.top - cr.top - pull}px ${cr.right - sr.right}px ${cr.bottom + pull - sr.bottom}px ${sr.left - cr.left}px round ${rad}px)`}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false});
    play(c, [{transform: `translateY(${pull}px)`}], {spring: 'snappy', channel: 't', fill: 'forwards'});
   });
-  if (reduced()) { play(surface, [{opacity: 0}], {ms: 'quick', fade: true, channel: 'o', fill: 'forwards'}).then(finish); return; }
+  if (reduced()) { if (closeControl) stop(closeControl, 'expand-close-position'); play(surface, [{opacity: 0}], {ms: 'quick', fade: true, channel: 'o', fill: 'forwards'}).then(finish); return; }
   { const a0 = parseInset(getComputedStyle(s.paint || surface).clipPath) || [0, 0, 0, 0], r0 = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
-    play(s.paint || surface, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: cardClip(sr, dr, rad)}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false}); }
+    play(s.paint || surface, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: cardClip(sr, dr, rad)}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false});
+    if (closeControl) attachExpandClose(closeControl, surface, {x: dr.left + a0[3], y: dr.top + a0[0], w: dr.width - a0[1] - a0[3], h: dr.height - a0[0] - a0[2]}, box(sr), 'snappy', true); }
   travel(s, detail, sharedPairs(source, detail), true, v).then(ok => { if (ok) finish(); });
  }
 

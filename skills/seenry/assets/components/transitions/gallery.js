@@ -125,7 +125,7 @@
   detailCard = card; stageHome = card;
   const stage = card.querySelector('.stage');
   $('detail-title').textContent = card.querySelector('.caption h3').textContent;
-  $('detail-description').textContent = card.querySelector('.caption p').textContent;
+  $('detail-description').textContent = card.querySelector('.caption p').textContent + (card.dataset.why ? ' ' + card.dataset.why : '');
   $('detail-preview').replaceChildren(stage);
   $('detail-spec').innerHTML = card.querySelector('.spec').innerHTML;
   $('detail-codes').replaceChildren();

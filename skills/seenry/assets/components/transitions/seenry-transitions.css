@@ -354,6 +354,8 @@ html.st-vt::view-transition-group(root) { animation: none; }
 @media (prefers-reduced-motion: reduce) {
  [data-st], [data-st] *, [data-st]::before, [data-st]::after, [data-st] *::before, [data-st] *::after, .st-button, .st-toggle-thumb, .st-check > svg, .st-check path, .st-toast, .st-plus, .st-real, .st-real * {
   transition-property: opacity, color, background-color, box-shadow, fill, stroke !important; transition-duration: 100ms !important; transition-timing-function: linear !important; transition-delay: 0ms !important; }
+ /* Card-owned opacity restores immediately; do not start a second CSS fade on reopen. */
+ [data-st="expand"], [data-st="expand"] * { transition-property: color, background-color, box-shadow, fill, stroke !important; }
  .st-button:active:not(:disabled), .st-toggle input:active + .st-toggle-track .st-toggle-thumb, .st-check input:active + svg { transform: none; }
  .st-toggle input:checked:active + .st-toggle-track .st-toggle-thumb { transform: translateX(16px); }
  .st-spinner, .st-skeleton-mask i::after, [data-st="thinking"] .st-text-value, [data-st="stream"]::after { animation: none !important; }

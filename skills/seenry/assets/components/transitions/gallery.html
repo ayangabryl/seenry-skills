@@ -127,7 +127,7 @@ pre.install b{color:var(--text);font-weight:500}
 .detail h4{margin:10px 0 6px;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.25;width:max-content;max-width:100%}
 .detail p{color:var(--text-2);font-size:14px;line-height:1.55}
 .covers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(100%,420px)}
-.cover-card{display:block;padding:6px;margin:-6px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:16px;transition:background-color 90ms var(--st-F),transform 70ms var(--st-F)}
+.cover-card{display:block;padding:6px;margin:-6px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:18px;transition:background-color 90ms var(--st-F),transform 70ms var(--st-F)}
 .cover{display:block;aspect-ratio:1;border-radius:12px}
 .c1{background:radial-gradient(90% 90% at 25% 20%,#ffcf99,transparent 60%),linear-gradient(150deg,#ff7a59,#b3246b)}
 .c2{background:radial-gradient(80% 80% at 70% 25%,#b7f0ff,transparent 60%),linear-gradient(160deg,#3a7bd5,#1d2b64)}
@@ -314,7 +314,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 
 .cover-card .cover{position:relative;transition:transform 70ms var(--st-F)}
 .cover-card .cover::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#fff;opacity:0;transition:opacity 100ms var(--st-F)}
-@media (hover:hover) and (pointer:fine){.cover-card:hover{background:var(--hover)}.cover-card:hover .cover::after{opacity:.1}.expand-surface .close-x:hover{background:color-mix(in srgb,var(--text) 12%,transparent)}}
+@media (hover:hover) and (pointer:fine){.cover-card:hover{background:var(--hover)}.cover-card:hover .cover::after{opacity:.1}}
 .cover-card:active{transform:scale(.98)}
 .expand-surface .close-x{transition:background-color 100ms var(--st-F),transform 70ms var(--st-F)}.expand-surface .close-x:active{transform:scale(.94)}
 
@@ -323,12 +323,11 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .stage .replay:active{transform:scale(.96)}
 
 .expand-surface .close-x{background:color-mix(in srgb,var(--text) 6%,transparent);border-radius:99px}
-@media (hover:hover) and (pointer:fine){.expand-surface .close-x:hover{background:color-mix(in srgb,var(--text) 14%,transparent)}}
 .expand-surface .close-x:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .expand-surface .close-x:active{transform:scale(.96);transition-duration:60ms}
 
-@media (hover:hover) and (pointer:fine){.cover-card:hover{transform:translateY(-1px)}}
-.expand-surface .close-x{position:absolute;isolation:isolate;background:transparent}
+/* The original Close stays legible and clickable above the traveling artwork. */
+.expand-surface .close-x{position:absolute;isolation:isolate;background:var(--frame);z-index:3}
 .expand-surface .close-x::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--text);opacity:.06;z-index:-1;transition:opacity 80ms var(--st-F)}
 @media (hover:hover) and (pointer:fine){.expand-surface .close-x:hover::before{opacity:.16}}
 
@@ -480,7 +479,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
    Keep a small measured margin before returning to three covers. */
 @container(max-width:384px){
  .covers{grid-template-columns:1fr;gap:8px}
- .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:0;margin:0;align-items:center}
+ .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
  .cover-card>.cover{grid-row:1/3;width:60px;height:60px}
  .cover-card b{align-self:end;margin:0;width:auto;white-space:normal;overflow-wrap:anywhere}
  .cover-card>span:not(.cover){align-self:start}
@@ -488,7 +487,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .stage .settings-card .field-row:last-child>.st-button{flex:0 0 auto;white-space:nowrap}
 @media(max-width:360px){
  .covers{grid-template-columns:1fr;gap:8px}
- .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:0;margin:0;align-items:center}
+ .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
  .cover-card>.cover{grid-row:1/3;width:60px;height:60px}
  .cover-card b{align-self:end;margin:0;width:auto;white-space:normal;overflow-wrap:anywhere}
  .cover-card>span:not(.cover){align-self:start}
@@ -676,6 +675,9 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .stage .faq summary{min-height:44px;padding:0 14px;border-radius:12px}
 .stage .faq .st-details-body{padding:0 14px 14px;color:var(--text-2);font-size:14px;line-height:21px;background:transparent}
 .stage .faq details[open]{background:var(--surface)}
+/* Three72px album rows plus two8px gaps need232px. Keep the44px Replay target
+   below them even with its16px bottom inset; text growth may increase height naturally. */
+.card[data-key="expand"]>.stage{height:auto;min-height:324px;padding-bottom:72px}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -828,7 +830,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
      <div id="tip-comment" data-st="tooltip" popover>Comment<kbd>⌥⌘M</kbd></div>
     <button class="replay" data-replay="tooltip" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="tooltip">Tooltip</button></h3><p>Context follows focus</p><button class="snippet-copy" data-st="copy" data-snippet="tooltip" aria-label="Copy HTML for Tooltip"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>dwell 400</span><span>glide spring .26</span><span>exit 80 F</span></div></div>
-   </article><article class="card" data-key="expand" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Card expand">
+   </article><article class="card" data-key="expand" data-category="Surfaces" data-why="Why this works: A 6px inset separates artwork from the hover edge, with matching inner and outer curves. Hover changes color without moving the target, and Replay has its own space. The selected artwork, title and track count stay recognizable as the details open." tabindex="0" data-motion-region data-motion-label="Card expand">
     <div class="stage" data-st-preview>
      <div class="covers" id="covers">
       <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></button>
