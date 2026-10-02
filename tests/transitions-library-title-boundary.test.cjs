@@ -44,7 +44,7 @@ assert.equal(observedBlankRuns,1);assert.equal(widthsByTitle.size,3);assert.equa
 const pressScale=.98,clearance=4,longest=Math.max(...widthsByTitle.values());
 const requiredWithoutClearance=3*(longest/pressScale+padding+2*margin)+2*gap;
 const requiredWithClearance=3*((longest+clearance)/pressScale+padding+2*margin)+2*gap;
-assert(threshold>=requiredWithClearance,'Row cutoff must fit the longest observed label plus4px clearance at full press scale');assert(threshold<coverCap,'Genuinely wide420px previews retain three covers');
+assert(threshold>=requiredWithClearance,'Row cutoff must fit the longest observed label plus4px clearance at full press scale');assert(threshold<coverCap,'Generic unanchored breakpoint remains below420px; the anchored catalog opts into rows');
 const labelBoundaries=[];
 for(const contentWidth of [320,360,361,362.625,368,369.904,384,384.01,385,400,420,480])for(const [title,width] of widthsByTitle){
  const rows=contentWidth<=threshold,available=(rows?contentWidth-84:availableTitleWidth(contentWidth))*pressScale;
@@ -63,8 +63,9 @@ assert(heldPressObserved(pointer));assert(heldPressObserved(touch));
 assert(heldPressObserved({...pointer,transform:'matrix(.980019,0,0,.980019,0,0)'}),'Subpixel settling residue still realizes the authored press scale');
 assert.equal(heldPressObserved({...pointer,transform:'matrix(.99,0,0,.99,0,0)'}),false,'A materially incomplete press does not meet the contract');
 for(const p of [{...pointer,active:false},{...pointer,transform:'none'},{...pointer,transform:'matrix(1,0,0,1,0,-1)'},{...touch,transform:'matrix(1,0,0,1,0,-1)'},{...touch,transform:'matrix(.98,0,0,1,0,0)'}])assert.equal(heldPressObserved(p),false,'Unrealized, translated or non-uniform input cannot count as held-state coverage');
+const anchored={...pointer,anchored:true,transform:'none',artworkTransform:'matrix(.98,0,0,.98,0,0)'};assert(heldPressObserved(anchored));for(const p of [{...anchored,active:false},{...anchored,transform:'matrix(.98,0,0,.98,0,0)'},{...anchored,transform:'matrix(1,0,0,1,0,-1)'},{...anchored,artworkTransform:'none'},{...anchored,artworkTransform:'matrix(.99,0,0,.99,0,0)'}])assert.equal(heldPressObserved(p),false,'Anchored input requires genuine active artwork press and a stationary action lane');
 assert(browserHarness.includes('page.waitForFunction(heldPressObserved,await target.elementHandle(),{timeout:100})'),'Only a bounded100ms observable input precondition wait is permitted');
 assert(browserHarness.includes('run.pressedInitial=await pressed()')&&browserHarness.includes('observedHoldMs:'),'Initial/final input measurements and actual hold timing must remain recorded');
 result.heldPressPreconditions='9positive/negative helper checks; hover remains still and held input uses authored .98 scale. Actual pointer evidence does not prove physical coarse-device coverage.';
 if(process.argv[4])fs.writeFileSync(process.argv[4],JSON.stringify(result,null,2)+'\n');
-console.log(`PASS2 observed source-border checks,10 Night Swim boundaries,36 all-label/press-scale boundaries; longest required${requiredWithoutClearance.toFixed(6)}px, +4px clearance${requiredWithClearance.toFixed(6)}px, row cutoff${threshold}px; fresh render pending`);
+console.log(`PASS historical unanchored source-border model plus anchored held-artwork checks:2 observed source-border checks,10 Night Swim boundaries,36 all-label/press-scale boundaries; longest required${requiredWithoutClearance.toFixed(6)}px, +4px clearance${requiredWithClearance.toFixed(6)}px, row cutoff${threshold}px; fresh render pending`);

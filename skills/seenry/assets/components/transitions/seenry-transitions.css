@@ -264,6 +264,14 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 .st-strike::after { content: ""; position: absolute; left: -2px; right: -2px; top: 52%; height: 1.5px; border-radius: 1px; background: currentColor; transform: scaleX(0); transform-origin: 0 50%; transition: transform var(--st-quick) var(--st-X); }
 .st-check:has(input:checked) .st-strike { color: var(--text-2); }
 .st-check:has(input:checked) .st-strike::after { transform: scaleX(1); transition: transform var(--st-surface) var(--st-E) 40ms; }
+/* Retiring a held Card Close opacity must not start another CSS fade on pointer reopen. */
+[data-st="expand"] [data-st-close] { transition-property: color, background-color, box-shadow, transform !important; }
+/* Keep the original transform release clock after removing the opacity slot. */
+[data-st="expand"] [data-st-close]:not(:active) { transition-duration: var(--st-state), var(--st-state), var(--st-state), 100ms; }
+
+/* A keyboard Card change must not start CSS motion when owned styles restore. */
+[data-st="expand"][data-st-instant], [data-st="expand"][data-st-instant] * { transition-property: color, background-color, box-shadow, fill, stroke !important; }
+
 @media (prefers-reduced-motion: reduce) { .st-strike::after { transition: none !important; } }
 .st-check:has(:disabled), .st-toggle:has(:disabled) { opacity: .5; cursor: not-allowed; }
 
@@ -356,6 +364,7 @@ html.st-vt::view-transition-group(root) { animation: none; }
   transition-property: opacity, color, background-color, box-shadow, fill, stroke !important; transition-duration: 100ms !important; transition-timing-function: linear !important; transition-delay: 0ms !important; }
  /* Card-owned opacity restores immediately; do not start a second CSS fade on reopen. */
  [data-st="expand"], [data-st="expand"] * { transition-property: color, background-color, box-shadow, fill, stroke !important; }
+ [data-st="expand"] [data-st-close] { transition-property: color, background-color, box-shadow !important; transform: none !important; }
  .st-button:active:not(:disabled), .st-toggle input:active + .st-toggle-track .st-toggle-thumb, .st-check input:active + svg { transform: none; }
  .st-toggle input:checked:active + .st-toggle-track .st-toggle-thumb { transform: translateX(16px); }
  .st-spinner, .st-skeleton-mask i::after, [data-st="thinking"] .st-text-value, [data-st="stream"]::after { animation: none !important; }

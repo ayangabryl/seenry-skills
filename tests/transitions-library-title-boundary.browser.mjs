@@ -14,7 +14,8 @@ const widths=arg('--widths','361,368,384,384.5,385,400,420').split(',').map(Numb
 const pressHoldMs=Number(arg('--press-hold-ms','0')),inputMode=arg('--input','pointer');
 assert(['pointer','touch'].includes(inputMode),'--input must be pointer or touch');
 function heldPressObserved(p) {
- if(typeof p?.matches==='function'){const el=p;p={active:el.matches(':active'),hover:el.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches,transform:getComputedStyle(el).transform};}
+ if(typeof p?.matches==='function'){const el=p;p={active:el.matches(':active'),hover:el.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches,transform:getComputedStyle(el).transform,anchored:!!el.querySelector('[data-st-close-anchor]'),artworkTransform:getComputedStyle(el.querySelector('.cover')||el).transform};}
+ if(p?.anchored){if(p.active!==true||!['none','matrix(1, 0, 0, 1, 0, 0)'].includes(p.transform))return false;return heldPressObserved({...p,anchored:false,transform:p.artworkTransform});}
  const m=/^matrix\(([^)]+)\)$/.exec(p?.transform||'');if(p?.active!==true||!m)return false;
  const v=m[1].split(',').map(Number);if(v.length!==6||!v.every(Number.isFinite))return false;
  // Hover is stationary. Trusted held input uses the same authored .98 press scale on either pointer.
@@ -63,7 +64,7 @@ try{
    assert(Math.abs(run.layout.contentWidth-contentWidth)<.05,'Explicit fixture must realize requested fractional content width');
    assert.equal(run.layout.sourceComposition,run.layout.detailComposition,'Source and detail must select the same composition, including fractional breakpoint widths');
    const target=page.locator('[data-key="expand"] .cover-card').nth(index);
-   const pressed=()=>target.evaluate(e=>({rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches}));
+   const pressed=()=>target.evaluate(e=>({rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,anchored:!!e.querySelector('[data-st-close-anchor]'),artworkTransform:getComputedStyle(e.querySelector('.cover')||e).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches}));
    const observeHeld=async()=>{
     run.pressedInitial=await pressed();run.pressed=run.pressedInitial;run.pressExtraWaitMs=0;
     if(pressHoldMs>=100&&!heldPressObserved(run.pressedInitial)){

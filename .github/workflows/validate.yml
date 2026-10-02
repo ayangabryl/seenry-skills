@@ -199,6 +199,7 @@ jobs:
               'skills/seenry/assets/components/transitions/seenry-transitions.js',
               'tests/transitions-library-close-attachment.browser.mjs',
               'tests/transitions-library-label-paint.mjs',
+              'tests/transitions-library-card-readable.mjs',
               'tests/transitions-library-reduced-expand-reopen.browser.mjs',
           ]
           out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'seenry-card-evidence'

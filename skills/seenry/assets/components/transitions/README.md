@@ -51,7 +51,7 @@ Why the values changed from the timed spec, measured on the springs: the study p
 | Bottom sheet | `[data-st="sheet"]` (dialog or in-container), `data-st-recede` | y 100%→0 smooth; the page behind scales to .94 and rounds; drag follows the finger 1:1 and dismisses past 30% or on a flick over 0.5px/ms |
 | Drawer | `[data-st="drawer"]`, `data-st-side="left"` | x 100%→0 smooth, content fixed to it; scrim; exit 220 X |
 | Tooltip | `[data-st-tip="id"]` → `[data-st="tooltip"]` | 400ms dwell once, then the bubble glides between neighbours; focus opens at once; long-press on touch; exit 80 F |
-| Card expand | `SeenryTransitions.expand(card, detail)`, `[data-st="expand"]`, `[data-st-shared]` | surface unclips from the card's rect; cover and one unscaled title travel within its changing bounds; detail content begins at +200ms; constrained layouts use an endpoint title fade; collapse returns to the card; generated travelers are excluded from shared-element discovery |
+| Card expand | `SeenryTransitions.expand(card, detail)`, `[data-st="expand"]`, `[data-st-shared]` | pointer input unclips the surface from the card, with shared artwork/title/count and attached readable content; Close is immediately usable; keyboard open/close is instant; reduced motion removes travel and blur; the gallery labels its three shown tracks as a preview; constrained custom layouts may use an endpoint title fade |
 | Tabs | `[data-st="tabs"]` | one underline follows selection across the full scrollable strip; panels stay mounted with inactive panels inert; pointer input uses a short retargetable crossfade and 4px travel; keyboard/reduced updates are immediate; selection is revealed locally after input or resize |
 | Segmented control | `[data-st="segmented"]` | pill on snappy; the selected label is a clipped copy, so its colour changes exactly under the pill |
 | Page transition | `SeenryTransitions.page(dir, update, scope, {shared})` | one shared layer travels by FLIP over 220 E; unrelated content out 65ms, detail body +50ms; names and held styles are released |
@@ -103,7 +103,8 @@ SeenryTransitions.copy(el, text?)   .like(el, on?)   .icon(el, on)   .pop(el)
 SeenryTransitions.tab(root, tab, keyboard?)   .accordion(details, open?)
 SeenryTransitions.resize(el, update)   .flip(elements, mutate, {spring})
 SeenryTransitions.list.add(container, node, index) / .remove(item) / .reorder(container, compareOrNodes)
-SeenryTransitions.expand(source, detail)   .collapse(detail)
+SeenryTransitions.expand(source, detail, {keyboard: true})   .collapse(detail, {keyboard: true})
+// Optional keyboard policy defaults to the last native input; delegated Enter/Escape pass it explicitly.
 SeenryTransitions.page('forward'|'back', update, scopeEl?, {shared: [keys]})
 SeenryTransitions.toast(region, message, {description, action: {label, onClick}, duration})
 SeenryTransitions.skeleton(el, ready)   .stream(el, chunk, {reset, done})
@@ -181,3 +182,9 @@ Every WAAPI completion releases its animation. Forward-held exit values are comm
 ### Copying examples
 
 The gallery copies the HTML usage structure with inline SVGs and real-page popover/dialog markup. The component classes in `seenry-transitions.css` supply motion and basic controls. Classes such as `app`, `field-row`, and `media-card` are application layout examples styled in `gallery.html`; adapt those to your product. Use the JS API block to connect application-owned content changes. Images reference the local `assets` folder. Use unique IDs if placing multiple copies on one page.
+
+### Fixed Card action lane
+
+The gallery opts into a fixed dismissal point with `data-st-close-anchor` on its44px source action cue. The original Close uses CSS anchor positioning to follow that cue through viewport/text reflow inside the expanding shell. Its owned position-visibility:always keeps it painted when the source card becomes visibility:hidden. The runtime restores authored cue/control styles on dismissal. Unsupported CSS anchoring or a missing, zero-sized, uncontained or unresolved anchor uses generic shell attachment instead; that fallback does not promise a fixed action point. Keep the same source/detail horizontal measure, reserve the action lane in every content row, and permit text wrapping before enabling this opt-in. The gallery keeps6px artwork inset, an8px action inset for the visible focus ring, and a52px trailing track reserve. Whole-row activation remains available; the cue describes the stationary action point, not every arbitrary click location.
+
+Group covered album triggers with `data-st-expand-sources` on a wrapper that does not contain the active detail. Card expansion keeps this group inert through opening and closing, preserves its layout for an authored CSS anchor, and restores its original inert state before the last owning detail returns focus. Multiple open details can share the wrapper; each releases only its own hold, including when removed from the document. This is local source ownership, not a page-wide modal trap.

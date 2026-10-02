@@ -43,9 +43,9 @@ record('A moved control cannot cancel opacity outside its recorded surface owner
  const c=new Control(true),surface={contains:()=>false};scope.watchExpandCloseFocus(c,{open:true},surface);scope.revealFocusedExpandClose(c);assert.equal(calls.length,0);
 });
 record('Focus is acquired once before geometry, with no late re-acquisition or timing workaround',()=>{
- const expand=source.slice(source.indexOf(' function expand(source'),source.indexOf(' function collapse(detail)'));
+ const expand=source.slice(source.indexOf(' function expand(source'),source.indexOf(' function collapse(detail'));
  const focus=expand.indexOf('closeControl.focus?.({preventScroll: true})');assert(focus>expand.indexOf('watchExpandCloseFocus(closeControl, s, surface)'));assert(focus<expand.indexOf('const hangs ='));
- assert.equal((expand.match(/closeControl\.focus\?\./g)||[]).length,1);assert(expand.includes('if (!closeControl) focusFirst(detail);\n  if (closeControl) revealFocusedExpandClose(closeControl);'));
+ assert.equal((expand.match(/closeControl\.focus\?\./g)||[]).length,1);assert(expand.includes('if (!closeControl) focusFirst(detail);\n  if (closeControl) revealFocusedExpandClose(closeControl, true);'));
  assert(!helper.includes('setTimeout')&&!helper.includes('requestAnimationFrame'));assert(!helper.includes('.style.'));
 });
 record('Original Close owns hit testing above artwork with an opaque surface backing',()=>{

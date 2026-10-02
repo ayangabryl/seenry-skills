@@ -4,7 +4,7 @@ const root=process.argv[2]?path.dirname(path.resolve(process.argv[2])):path.reso
 const html=fs.readFileSync(path.join(root,'gallery.html'),'utf8'),css=fs.readFileSync(path.join(root,'seenry-transitions.css'),'utf8'),gallery=fs.readFileSync(path.join(root,'gallery.js'),'utf8');
 let completed=false;process.on('beforeExit',()=>{if(!completed){console.error('Rendered-finding regression harness did not complete');process.exitCode=1}});
 const cases=[]; const record=(name,check)=>{check();cases.push({name,pass:true});};
-const collapse=source.slice(source.indexOf(' function collapse(detail) {'),source.indexOf(' /* ---------- Page:',source.indexOf(' function collapse(detail) {')));
+const collapse=source.slice(source.indexOf(' function collapse(detail'),source.indexOf(' /* ---------- Page:',source.indexOf(' function collapse(detail')));
 (async()=>{
  for(const reduced of [false,true]){
   let complete;
@@ -14,7 +14,7 @@ const collapse=source.slice(source.indexOf(' function collapse(detail) {'),sourc
   const state={open:true,closing:false,version:1,source:trigger};
   const active=new Set([detail]);
   const pending=()=>new Promise(resolve=>{complete=resolve});
-  const scope={layerState:()=>state,q:()=>null,qa:()=>[],doc:{activeElement:null},getComputedStyle:()=>({borderRadius:'12px',borderTopLeftRadius:'12px'}),reduced:()=>reduced,active,stopAll(){},parseInset:()=>[0,0,0,0],cardClip:()=>'',sharedPairs:()=>[],travel:pending,play:reduced?pending:()=>Promise.resolve(true)};
+  const scope={keyboardInput:false,holdExpandSources:()=>{},releaseExpandSources:()=>{},retireExpandReveals:()=>{},pinExpandClose:()=>false,restoreExpandClosePin:()=>{},layerState:()=>state,q:()=>null,qa:()=>[],doc:{activeElement:null},getComputedStyle:()=>({borderRadius:'12px',borderTopLeftRadius:'12px'}),reduced:()=>reduced,active,stopAll(){},parseInset:()=>[0,0,0,0],cardClip:()=>'',sharedPairs:()=>[],travel:pending,play:reduced?pending:()=>Promise.resolve(true)};
   vm.createContext(scope);vm.runInContext(collapse,scope);scope.collapse(detail);
   record(`Collapse publishes closed logical state immediately (reduce=${reduced})`,()=>{assert.equal(detail.dataset.stOpen,'false');assert.equal(detail.dataset.stClosing,'true');assert.equal(detail.inert,true);assert.equal(trigger.attrs['aria-expanded'],'false');});
   // Simulate the next open's authoritative state/version while old exit is pending.
