@@ -1527,6 +1527,7 @@
 
  /* ---------- Init ---------- */
  const initialized = new WeakSet();
+ const tabSyncs = new WeakMap();
  function init(root = doc) {
   const nodes = [...(root.matches?.('[data-st]') ? [root] : []), ...qa(root, '[data-st]')].filter(el => !el.closest('[data-st-ghost]'));
   for (const el of nodes) {
@@ -1586,6 +1587,7 @@
     const ro = new ResizeObserver(sync); ro.observe(parts.list); parts.tabs.forEach(t => ro.observe(t));
     tabSelect(el, parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0], true); layoutInk(parts);
     doc.fonts?.ready.then(sync);
+    tabSyncs.set(el, sync);
    }
    if (kind === 'avatars') {
     // Hover lifts the person under the pointer and, with a falloff, their neighbours; one name label glides above
@@ -1706,6 +1708,18 @@
  let frame = 0;
  const reposition = () => { if (frame) return; frame = requestAnimationFrame(() => { frame = 0; for (const el of active) { const s = layers.get(el); if (POP.includes(el.dataset.st) && s?.trigger && el.matches(':popover-open')) place(el, s.trigger); } }); };
  addEventListener('resize', reposition); addEventListener('scroll', reposition, {capture: true, passive: true});
+ // A wide/narrow viewport round trip can end at the last ResizeObserver size while
+ // native overflow clamping has already reset scrollLeft. Recheck after layout even
+ // if no observed box-size change survives. Do not react to ordinary strip scrolling.
+ let tabResizeFrame = 0;
+ addEventListener('resize', () => {
+  if (tabResizeFrame) return;
+  tabResizeFrame = requestAnimationFrame(() => {
+   tabResizeFrame = 0;
+   // Query connected roots at execution time; the WeakMap does not retain removed UI.
+   for (const el of qa(doc, '[data-st="tabs"], [data-st="segmented"]')) tabSyncs.get(el)?.();
+  });
+ });
  mq.addEventListener('change', () => { if (mq.matches) doc.getAnimations().forEach(a => { try { a.finish(); } catch { a.cancel(); } }); });
 
  const mutation = new MutationObserver(records => {

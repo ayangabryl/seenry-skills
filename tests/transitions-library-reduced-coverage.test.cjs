@@ -1,0 +1,10 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
+const input=process.argv[2]?.endsWith('.browser.mjs')?process.argv[2]:path.join(__dirname,'transitions-library-reduced-expand-reopen.browser.mjs');
+const source=fs.readFileSync(input,'utf8');const begin=source.indexOf('function coverageFailures('),end=source.indexOf('\nconst phases=',begin);assert(begin>=0&&end>begin);
+const scope={};vm.createContext(scope);vm.runInContext(source.slice(begin,end)+';this.failures=coverageFailures;',scope);
+for(const [status,required,expected]of [['passed',true,0],['passed',false,0],['blocked',true,1],['blocked',false,0],['failed',false,1],['failed',true,1],['running',false,1],['passed',undefined,1]])assert.equal(scope.failures([{status,required}]).length,expected,`${status}/${required}`);
+assert(source.includes("{name:'natural-80',delay:80,required:false}"));assert(source.includes("{name:'controlled-committed',delay:80,required:true,controlled:true}"));
+assert(source.includes('heldShell.pause()'));assert(source.includes("a.effect?.target===detail"));assert(source.includes("run.preReopen.controlled?.playState,'paused'"));assert(source.includes("run.controlledExit.afterReopen.playState,'idle'"));
+assert(source.includes("if(heldShell.playState==='paused'||heldShell.pending)heldShell.play()"));assert(source.includes("assert.equal(f.nativeReducedMotion,true);assert.equal(f.blurEnabled,true)"));
+assert(source.includes("Natural80ms committed-window diagnostics:"));assert(source.includes('saveReport();await context.close()'));assert(source.includes("e.message.startsWith('Precondition:')&&!run.errors.length?'blocked':'failed'"));
+console.log('Native reduced coverage classifier and controlled-phase source contracts passed; no native execution inferred');

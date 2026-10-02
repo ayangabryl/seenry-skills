@@ -206,7 +206,11 @@ jobs:
       - name: Record normal-motion Close and interruption evidence
         if: ${{ !cancelled() }}
         timeout-minutes: 4
-        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/close" --record-video true
+        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/close"
+      - name: Record representative Card video independently
+        if: ${{ !cancelled() }}
+        timeout-minutes: 2
+        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/video" --video-only true
       - name: Record native reduced-motion opening and reopen evidence
         if: ${{ !cancelled() }}
         timeout-minutes: 4
