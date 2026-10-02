@@ -43,7 +43,7 @@ try{for(const width of [390,1440])for(const keyboard of [false,true])for(const p
     return 'ready';
    }
    window.__reducedReadiness=reopenReadiness;
-   window.__measureReduced=at=>{const surface=detail.querySelector('.expand-surface');return {at,nativeReducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,blurEnabled:document.documentElement.hasAttribute('data-st-blur'),open:detail.dataset.stOpen,inert:detail.inert,focusedClose:document.activeElement===close,focusVisible:close.matches(':focus-visible'),sourceVisibility:getComputedStyle(source).visibility,surface:paint(surface),paint:paint(surface.querySelector('.st-expand-paint')||surface),close:paint(close),content:[...detail.querySelectorAll('[data-st-expand-content]')].map(c=>({...paint(c),text:c.textContent.trim()}))};};
+   window.__measureReduced=at=>{const surface=detail.querySelector('.st-expand-surface,.expand-surface');return {at,nativeReducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,blurEnabled:document.documentElement.hasAttribute('data-st-blur'),open:detail.dataset.stOpen,inert:detail.inert,focusedClose:document.activeElement===close,focusVisible:close.matches(':focus-visible'),sourceVisibility:getComputedStyle(source).visibility,surface:paint(surface),paint:paint(surface.querySelector('.st-expand-paint')||surface),close:paint(close),content:[...detail.querySelectorAll('[data-st-expand-content]')].map(c=>({...paint(c),text:c.textContent.trim()}))};};
    window.__reducedOpening=[];source.addEventListener('click',e=>{window.__reducedInput={trusted:e.isTrusted,detail:e.detail};window.__reducedInitial=window.__measureReduced(0);const start=performance.now();requestAnimationFrame(()=>window.__reducedOpening.push(window.__measureReduced(performance.now()-start)));},{once:true,capture:true});
   });
   const trigger=page.locator('#expand-src');if(keyboard){await trigger.focus();await page.keyboard.press('Enter');}else await trigger.click();
@@ -51,14 +51,18 @@ try{for(const width of [390,1440])for(const keyboard of [false,true])for(const p
   assert(run.opening.input.trusted,'Opening must use trusted input');for(const f of run.opening.trace)assertFrame(f,keyboard);
   await page.evaluate(({delay,controlled})=>new Promise(resolve=>{
    const source=document.querySelector('#expand-src'),detail=document.querySelector('#expand-1'),close=detail.querySelector('[data-st-close]'),content=[...detail.querySelectorAll('[data-st-expand-content]')];
+   function shellExit(detail) {
+    const surface=detail.querySelector('.st-expand-surface,.expand-surface')||detail;
+    return surface.getAnimations().findLast(a=>a.constructor.name==='Animation'&&a.effect?.target===surface&&Number(a.effect.getKeyframes().at(-1)?.opacity)===0);
+   }
    SeenryTransitions.collapse(detail);const closedAt=performance.now();
    // Controlled coverage holds only the real shell exit. Child WAAPI completion and
    // committed styles remain native. This is not evidence of an80ms natural window.
    let heldShell=null;window.__controlledExit=null;
    if(controlled){
-    heldShell=detail.getAnimations().findLast(a=>a.constructor.name==='Animation'&&a.effect?.target===detail&&Number(a.effect.getKeyframes().at(-1)?.opacity)===0);
+    heldShell=shellExit(detail);
     if(!heldShell){window.__reducedPreReopen={readiness:'blocked',error:'No outgoing shell opacity animation for controlled phase'};resolve();return;}
-    heldShell.pause();window.__controlledExit={kind:'native-controlled-shell-pause',duration:heldShell.effect.getTiming().duration,pausedAt:performance.now()-closedAt};
+    heldShell.pause();window.__controlledExit={kind:'native-controlled-shell-pause',target:heldShell.effect.target.className||heldShell.effect.target.id||heldShell.effect.target.tagName,duration:heldShell.effect.getTiming().duration,pausedAt:performance.now()-closedAt};
    }
    // New card details exit in90ms, while the surface exits in100ms. Observe the real
    // child completion promises rather than hoping a RAF lands inside that10ms window.
