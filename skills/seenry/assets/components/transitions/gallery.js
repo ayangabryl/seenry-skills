@@ -38,8 +38,7 @@
  };
  replay.link = () => { const el = $('learn-link'); el.dataset.stHover = el.dataset.stHover !== 'true' ? 'true' : 'false'; };
  replay.reveal = () => S.reveal($('text-reveal'));
- const shine = el => { if (!el.querySelector('.st-shine')) { const s = document.createElement('span'); s.className = 'st-shine'; s.setAttribute('aria-hidden', 'true'); s.textContent = el.textContent; el.append(s); } };
- replay.shimmer = () => { const el = $('shimmer-text'), working = el.dataset.stWorking !== 'true', label = working ? 'Reviewing your draft' : 'Review complete'; shine(el); el.dataset.stWorking = String(working); el.setAttribute('aria-busy', String(working)); const base = el.firstChild; if (base && base.nodeType === 3) base.textContent = label; el.querySelector('.st-shine').textContent = label; S.play(el, [{opacity: .55, transform: 'translateY(2px)'}, {opacity: 1, transform: 'none'}], {ms: 160, curve: 'E', current: false}); };
+ replay.shimmer = () => S.shimmer($('shimmer-text'));
  replay.popover = () => S.toggle($('popover-panel'), $('popover-trigger'));
  replay.progress = () => sequence('progress', [[0, () => { S.progress($('progress'), 'loading'); S.swapText($('progress-label'), 'Syncing changes'); }], [300, () => { progressError = !progressError; S.progress($('progress'), progressError ? 'success' : 'error'); S.swapText($('progress-label'), progressError ? 'All changes synced' : 'Connection lost. Try again.'); }]]);
  replay.image = () => S.image($('image-open'));
@@ -67,7 +66,7 @@
    if (symbol) { const svg=use.parentElement; svg.setAttribute('viewBox',symbol.getAttribute('viewBox')||'0 0 20 20'); use.outerHTML=symbol.innerHTML; }
   });
   stage.querySelectorAll('.app').forEach(n=>n.classList.add('st-surface'));
-  snippets.set(card.dataset.key, stage.innerHTML.trim());
+  snippets.set(card.dataset.key, '<!-- Preview markup, not a standalone component. Include the Seenry CSS/JS, reproduce the gallery-specific styles and assets, and wire application actions. -->\n' + stage.innerHTML.trim());
   const copy = card.querySelector('[data-snippet]'); copy.dataset.stCopy = snippets.get(card.dataset.key);
  }
  const api = {
@@ -76,6 +75,23 @@
 
  let category = 'All', filterVersion = 0, detailCard = null, stageHome = null;
  const search = $('library-search'), filterRoot = document.querySelector('.filter'), detail = $('library-detail');
+ const filterList = filterRoot.querySelector('[role=tablist]'), filterScroll = filterRoot.parentElement;
+ function updateFilterOverflow() {
+  const lastTab = [...filterList.querySelectorAll('[role=tab]')].at(-1);
+  filterScroll.dataset.more = String(!!lastTab && lastTab.getBoundingClientRect().right > filterList.getBoundingClientRect().right + .5);
+ }
+ function revealFilterTab(tab) {
+  tab.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+  updateFilterOverflow();
+ }
+ filterList.addEventListener('scroll', updateFilterOverflow, {passive:true});
+ addEventListener('resize', updateFilterOverflow);
+ if (typeof ResizeObserver !== 'undefined') new ResizeObserver(updateFilterOverflow).observe(filterList);
+ requestAnimationFrame(updateFilterOverflow);
+ const header = document.querySelector('.top');
+ const sizeHeader = () => document.documentElement.style.setProperty('--gallery-header-height', header.getBoundingClientRect().height + 'px');
+ if (typeof ResizeObserver !== 'undefined') new ResizeObserver(sizeHeader).observe(header);
+ sizeHeader();
  async function filter(animate = true) {
   const v = ++filterVersion, query = search.value.trim().toLowerCase();
   const wanted = cards.filter(c => (category === 'All' || c.dataset.category.split(' ').includes(category)) && (c.querySelector('.caption h3').textContent + ' ' + c.querySelector('.caption p').textContent).toLowerCase().includes(query));
@@ -89,7 +105,7 @@
   $('no-results').hidden = wanted.length > 0;
  }
  const setHash = hash => history.replaceState(null,'',location.pathname + location.search + hash);
- filterRoot.addEventListener('st:tab-change', e => { category = e.detail.tab.dataset.categoryChoice; filter(); if (!detailCard) setHash(category === 'All' ? '' : '#f/' + category.toLowerCase()); });
+ filterRoot.addEventListener('st:tab-change', e => { category = e.detail.tab.dataset.categoryChoice; revealFilterTab(e.detail.tab); filter(); if (!detailCard) setHash(category === 'All' ? '' : '#f/' + category.toLowerCase()); });
  search.addEventListener('input', () => filter());
  document.addEventListener('keydown', e => {
   if (e.key === '/' && !e.target.closest('input,textarea,[contenteditable]')) { e.preventDefault(); search.focus(); }
@@ -104,7 +120,7 @@
   $('detail-preview').replaceChildren(stage);
   $('detail-spec').innerHTML = card.querySelector('.spec').innerHTML;
   $('detail-codes').replaceChildren();
-  for (const [label, code] of [['HTML',snippets.get(card.dataset.key)],['JS API',api[card.dataset.key]],['Reduced motion','/* prefers-reduced-motion: reduce */\n// State and focus update immediately.\n// Travel, blur and looping decoration are removed.\n// Opacity handoffs are at most 100ms.']]) {
+  for (const [label, code] of [['Preview HTML (not standalone)',snippets.get(card.dataset.key)],['JS API',api[card.dataset.key]],['Reduced motion','/* prefers-reduced-motion: reduce */\n// State and focus update immediately.\n// Travel, blur and looping decoration are removed.\n// Opacity handoffs are at most 100ms.']]) {
    const section = document.createElement('section'); section.className='detail-code';
    const h = document.createElement('h3'); h.textContent = label;
    const pre = document.createElement('pre'), content = document.createElement('code'); content.textContent=code; pre.append(content);
@@ -118,7 +134,7 @@
  function restoreStage() {
   const stage = $('detail-preview').querySelector('.stage'); if (stage && stageHome) stageHome.prepend(stage);
  }
- detail.addEventListener('st:close', () => { restoreStage(); const c = detailCard; detailCard=null; stageHome=null; c?.querySelector('.title-link').focus({preventScroll:true}); setHash(category === 'All' ? '' : '#f/'+category.toLowerCase()); });
+ detail.addEventListener('st:close', e => { if (e.target !== detail) return; restoreStage(); const c = detailCard; detailCard=null; stageHome=null; c?.querySelector('.title-link').focus({preventScroll:true}); setHash(category === 'All' ? '' : '#f/'+category.toLowerCase()); });
  for (const card of cards) {
   card.querySelector('.title-link').onclick = () => showDetail(card);
   card.addEventListener('keydown', e => { if (e.target === card && e.key === 'Enter') { e.preventDefault(); showDetail(card); } });
@@ -137,15 +153,13 @@
   if (!key) return;
   target.dataset.stPaused=String(!isIntersecting);
   target.querySelectorAll('*').forEach(el => el.getAnimations().filter(a=>a.effect?.getTiming().iterations===Infinity).forEach(a=>isIntersecting&&!reduce()?a.play():a.pause()));
-  if (!isIntersecting) {window.galleryCancel?.(key); runs.get(key)?.forEach(clearTimeout); runs.delete(key); return; }
+  if (!isIntersecting) {if(key==='shimmer')target.querySelector('.st-shine')?.getAnimations().forEach(a=>a.cancel());window.galleryCancel?.(key); runs.get(key)?.forEach(clearTimeout); runs.delete(key); return; }
   if (seen.has(target)) return; seen.add(target);
-  // Opening a top-layer surface on scroll would steal focus. Preview local geometry only.
-  if (['menu','morph','dialog','palette','sheet','drawer','popover','expand','image','avatars','clear','button','copy','ai','toast','progress'].includes(key)) {
-   const object=target.querySelector('.app,.stack-center,.phone,.image-thumb,.clear-demo,.covers');
-   if (object) S.play(object,[{opacity:.7},{opacity:1}],{ms:160,fade:true,channel:'preview'});
-  } else if(key==='reveal') S.reveal($('text-reveal'));
-  else if(key==='shimmer') { shine($('shimmer-text')); $('shimmer-text').dataset.stWorking = 'true'; }
-  else { const object=target.firstElementChild; if(object)S.play(object,[{opacity:.7},{opacity:1}],{ms:160,fade:true,channel:'preview'}); }
+  // Merely entering the viewport is not an accepted UI state change. Keep functional
+  // previews fully opaque so their text, focus and essential control cues retain contrast.
+  // Dedicated reveal/shimmer examples still demonstrate their explicitly requested effect.
+  if(key==='reveal') S.reveal($('text-reveal'));
+  else if(key==='shimmer') S.shimmer($('shimmer-text'));
  }),{threshold:.55});
  cards.forEach(c=>previews.observe(c.querySelector('.stage')));
  window.galleryLibrary = {filter, showDetail, snippets, cards};

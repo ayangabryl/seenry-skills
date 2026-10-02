@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Body-mounted Seenry image modal regression</title>
+  <link rel="stylesheet" href="/component/seenry-transitions.css">
+  <style>
+    body { margin: 24px; background: var(--bg); color: var(--text); font: 16px var(--font); }
+    #modal-image { display: block; padding: 0; border: 0; border-radius: 12px; overflow: hidden; cursor: pointer; }
+    #modal-image img { display: block; width: min(260px, calc(100vw - 48px)); height: auto; }
+  </style>
+  <script defer src="/component/seenry-transitions.js"></script>
+</head>
+<body>
+  <h1>Native modal image</h1>
+  <!-- Intentionally no data-st-preview ancestor: runtime must use showModal(). -->
+  <button id="modal-image" data-st="image-open" aria-label="Open mountain lake photo">
+    <img src="/component/assets/lake.jpg" alt="A mountain lake beside a cabin" width="260" height="164">
+  </button>
+  <button type="button" id="outside-control">Outside control</button>
+</body>
+</html>

@@ -67,7 +67,7 @@
   }
   // Blur option: inside [data-st-blur], a fade on a small element also pulls focus (blur to sharp on the way in, a
   // softer blur on the way out). Large surfaces never blur; reduced motion already returned above.
-  const blurHost = !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
+  const blurHost = !reduced() && !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
   if (blurHost && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
    const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 4;
    if (r.width * r.height > 0 && r.width * r.height <= 40000) {
@@ -123,7 +123,7 @@
  // A non-interactive copy of an element at its rendered place, for content that leaves while layout has moved on.
  function ghost(el, host = el.parentElement) {
   positioned(host);
-  const r = el.getBoundingClientRect(), h = host.getBoundingClientRect(), g = el.cloneNode(true);
+  const r = el.getBoundingClientRect(), h = host.getBoundingClientRect(), scroll = [el, ...qa(el, '*')].map(n => [n.scrollLeft, n.scrollTop]), g = el.cloneNode(true);
   for (const n of [g, ...qa(g, '[id],[data-st]')]) { n.removeAttribute('id'); if (n.dataset.st) { n.dataset.stGhostOf = n.dataset.st; n.removeAttribute('data-st'); } }
   g.classList.add('st-ghost-layer'); g.setAttribute('aria-hidden', 'true'); g.inert = true; g.dataset.stGhost = '';
   Object.assign(g.style, {position: 'absolute', left: r.left - h.left - host.clientLeft + host.scrollLeft + 'px', top: r.top - h.top - host.clientTop + host.scrollTop + 'px', width: r.width + 'px', height: r.height + 'px', margin: '0', boxSizing: 'border-box', pointerEvents: 'none', transform: 'none', clipPath: getComputedStyle(el).clipPath});
@@ -131,6 +131,8 @@
   const ecs = getComputedStyle(el);
   Object.assign(g.style, {backgroundColor: ecs.backgroundColor, backgroundImage: ecs.backgroundImage, color: ecs.color, borderColor: ecs.borderColor, borderRadius: ecs.borderRadius, font: ecs.font});
   host.append(g);
+  // cloneNode copies markup, not the visible scroll position of a reading surface.
+  [g, ...qa(g, '*')].forEach((n, i) => { const [x, y] = scroll[i] || []; if (Number.isFinite(x)) n.scrollLeft = x; if (Number.isFinite(y)) n.scrollTop = y; });
   // A positioned copy no longer collapses its first child's margin; shift it so every line sits where it was drawn.
   const a = el.firstElementChild, b = g.firstElementChild;
   if (a && b) { const d = a.getBoundingClientRect().top - b.getBoundingClientRect().top; if (Math.abs(d) > .5) { g.style.top = parseFloat(g.style.top) + d + 'px'; g.style.height = 'auto'; } }
@@ -218,8 +220,8 @@
    positioned(el); qa(el,'.st-text-exit').forEach(n=>{stopAll(n);n.remove();});
    const current=q(el,'.st-text-value') || letters(previous,'st-text-value'); if(!current.parentElement)el.replaceChildren(current);
    // The outgoing label stays exactly where it was drawn, wherever padding or alignment put it.
-   const cr=current.getBoundingClientRect(), er=el.getBoundingClientRect();
-   current.className='st-text-exit';Object.assign(current.style,{position:'absolute',left:cr.left-er.left-el.clientLeft+'px',top:cr.top-er.top-el.clientTop+'px',width:cr.width+'px',whiteSpace:'nowrap',margin:'0'});
+   const cr=current.getBoundingClientRect(), er=el.getBoundingClientRect(), currentWhiteSpace=getComputedStyle(current).whiteSpace;
+   current.className='st-text-exit';Object.assign(current.style,{position:'absolute',left:cr.left-er.left-el.clientLeft+'px',top:cr.top-er.top-el.clientTop+'px',width:cr.width+'px',whiteSpace:currentWhiteSpace||'nowrap',margin:'0'});
    const next=letters(text,'st-text-value'),sr=doc.createElement('span');sr.className='st-sr';sr.textContent=text;qa(el,':scope>.st-sr').forEach(n=>n.remove());el.append(next,sr);
    // The old label clears before the new one is legible, so the two never read as one doubled word.
    const movement=thinking?{}:{transform:'translateY(-3px)'};
@@ -236,9 +238,9 @@
    if (!current) { el.replaceChildren(); current = letters(previous, 'st-text-value'); el.append(current); }
    let sr = q(el, ':scope > .st-sr'); if (!sr) { sr = doc.createElement('span'); sr.className = 'st-sr'; }
    sr.textContent = text;
-   const cr = current.getBoundingClientRect(), er = el.getBoundingClientRect();
+   const cr = current.getBoundingClientRect(), er = el.getBoundingClientRect(), currentWhiteSpace = getComputedStyle(current).whiteSpace;
    current.className = 'st-text-exit';
-   Object.assign(current.style, {position: 'absolute', left: cr.left - er.left - el.clientLeft + 'px', top: cr.top - er.top - el.clientTop + 'px', width: cr.width + 'px', whiteSpace: 'nowrap', margin: '0'});
+   Object.assign(current.style, {position: 'absolute', left: cr.left - er.left - el.clientLeft + 'px', top: cr.top - er.top - el.clientTop + 'px', width: cr.width + 'px', whiteSpace: currentWhiteSpace || 'nowrap', margin: '0'});
    const next = letters(text, 'st-text-value');
    el.append(next, sr);
    const out = [...current.children], inn = [...next.children];
@@ -309,6 +311,14 @@
  const POP = ['menu', 'plus-menu', 'popover', 'popover-panel', 'tooltip'];
  const layerState = el => { let s = layers.get(el); if (!s) layers.set(el, s = {open: false, version: 0}); return s; };
  const isOpen = el => { const s = layers.get(el); if (s) return s.open; if (el.tagName === 'DIALOG') return el.open; if (el.hasAttribute('popover')) return el.matches(':popover-open'); return el.dataset.stOpen === 'true'; };
+ const persistentPalette = el => el.dataset.st === 'palette' && el.tagName !== 'DIALOG' && el.hasAttribute('data-st-persistent');
+ function paletteExpanded(el, expanded) {
+  if (el.dataset.st !== 'palette') return;
+  const input = q(el, '[data-st-palette-input]') || q(el, 'input');
+  input?.setAttribute('aria-expanded', String(expanded));
+  if (!expanded) input?.removeAttribute('aria-activedescendant');
+  for (const result of qa(el, '[role="listbox"],[data-st-palette-empty]')) result.inert = !expanded;
+ }
  const scrimOf = el => (el.dataset.stScrim && doc.getElementById(el.dataset.stScrim)) || (el.previousElementSibling?.matches('[data-st-scrim]') ? el.previousElementSibling : null);
  const recedeOf = el => el.dataset.stRecede ? doc.querySelector(el.dataset.stRecede) : null;
  function place(el, trigger) {
@@ -335,6 +345,9 @@
   return `inset(${t.top - r.top}px ${r.right - t.right}px ${r.bottom - t.bottom}px ${t.left - r.left}px round ${rad}px)`;
  }
  let keyboardInput = false; doc.addEventListener('keydown', () => { keyboardInput = true; doc.documentElement.dataset.stInputMode='keyboard'; active.forEach(el=>delete el.dataset.stPointerFocus); }, true); doc.addEventListener('pointerdown', () => { keyboardInput = false; doc.documentElement.dataset.stInputMode='pointer'; }, true);
+ // Delayed exits may hide their trigger. Restore only after it is visible and only if no newer focus took ownership.
+ let focusVersion = 0; doc.addEventListener('focusin', () => { ++focusVersion; }, true);
+ function focusReturn(target) { const version = focusVersion; return () => { if (focusVersion === version && target?.isConnected) target.focus?.({preventScroll: true}); }; }
  function focusFirst(el) { const f = q(el, '[autofocus],[data-st-palette-input],[role="menuitem"]:not([disabled]),[role="option"],button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'); f?.focus({preventScroll: true, focusVisible: keyboardInput}); }
 
  function open(el, trigger, o = {}) {
@@ -346,6 +359,7 @@
   s.open = true; s.closing = false; const v = ++s.version;
   el.inert = false; el.dataset.stManaged = ''; el.dataset.stOpen = 'true'; el.hidden = false;
   s.trigger?.setAttribute('aria-expanded', 'true');
+  paletteExpanded(el, true);
   if (el.tagName === 'DIALOG') { if (!el.open) (el.hasAttribute('data-st-contained') ? el.show() : el.showModal()); }
   else if (el.hasAttribute('popover')) { if (!el.matches(':popover-open')) el.showPopover(); }
   if (POP.includes(kind) && kind !== 'tooltip') { for (const other of [...active]) if (other !== el && !other.contains(el) && POP.includes(other.dataset.st)) close(other, {silent: true}); }
@@ -440,15 +454,17 @@
   s.open = false; s.closing = true; const v = ++s.version;
   s.trigger?.setAttribute('aria-expanded', 'false');
   const hadFocus = el.contains(doc.activeElement);
-  el.inert = true;
-  const refocus = (hadFocus || kind === 'palette') && !o.silent && s.trigger?.isConnected;
-  if (refocus && el.tagName !== 'DIALOG') s.trigger.focus({preventScroll: true});
+  const refocus = (hadFocus || kind === 'palette') && !o.silent ? focusReturn(s.trigger) : null;
+  const morph = s.label && s.trigger && el.classList !== undefined && (kind === 'plus-menu' || el.hasAttribute('data-st-morph'));
+  // A persistent search remains a reachable opener; only its collapsed results become inert.
+  el.inert = !persistentPalette(el);
+  paletteExpanded(el, false);
+  if (refocus && !morph && el.tagName !== 'DIALOG') refocus();
   const scrim = scrimOf(el), recede = recedeOf(el);
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', fade: true}); }
   // The page behind comes back in step with the sheet's 220ms exit, not on a longer tail.
   if (recede) play(recede, [{transform: 'none', clipPath:'inset(0px round 0px)', opacity: 1}], {ms: 220, curve: 'E', channel: 'recede'}).then(ok => { if (ok) stop(recede, 'recede'); });
   let done;
-  const morph = s.label && s.trigger && el.classList !== undefined && (kind === 'plus-menu' || el.hasAttribute('data-st-morph'));
   if (morph) {
    el.classList.add('st-morphing');
    [...s.body.children].filter(c => c !== s.label).forEach(c => play(c, [{opacity: 0}], {ms: 'feedback', curve: 'F', fill: 'forwards', fade: true}));
@@ -484,11 +500,12 @@
   const finish = () => {
    if (s.version !== v || s.open) return;
    s.closing = false;
-   if (el.tagName === 'DIALOG' && el.open) { el.close(); if (refocus) s.trigger.focus({preventScroll: true}); }
+   if (s.trigger) s.trigger.style.visibility = '';
+   if (el.tagName === 'DIALOG' && el.open) el.close();
    else if (el.hasAttribute('popover') && el.matches(':popover-open')) el.hidePopover();
    el.dataset.stOpen = 'false'; active.delete(el);
-   if (s.trigger) s.trigger.style.visibility = '';
    stopAll(el); if (s.label) stopAll(s.label); if (s.body) { stopAll(s.body); [...s.body.children].forEach(stopAll); } [...el.children].forEach(stopAll); el.classList.remove('st-morphing');
+   if (morph || el.tagName === 'DIALOG') refocus?.();
    el.dispatchEvent(new CustomEvent('st:close', {bubbles: true}));
   };
   (done || Promise.resolve(true)).then(finish);
@@ -497,18 +514,24 @@
  const toggle = (el, trigger, o) => (isOpen(el) && !layerState(el).closing ? close(el, o) : open(el, trigger, o));
 
  /* ---------- Sheet drag: follows the finger, dismisses on distance or velocity, springs back otherwise. ---------- */
+ const sheetDrags = new WeakSet();
  function sheetDrag(el) {
+  if (sheetDrags.has(el)) return; sheetDrags.add(el);
   let d = null;
   el.addEventListener('pointerdown', e => {
-   if (!e.isPrimary || e.button > 0 || e.target.closest('button,a,input,textarea,select,[data-st-no-drag]')) return;
+   if (el.dataset.st !== 'sheet' || !e.isPrimary || e.button > 0 || e.target.closest('button,a,input,textarea,select,[data-st-no-drag]')) return;
+   // Nested surfaces own their gestures; the gallery detail can opt into handle-only drag.
+   if (e.target.closest('[data-st="sheet"]') !== el) return;
+   if (el.hasAttribute('data-st-drag-handle-only') && !e.target.closest('[data-st-drag-handle]')) return;
    d = {id: e.pointerId, y0: e.clientY, y: 0, h: el.offsetHeight, claimed: false, samples: [[e.timeStamp, 0]]};
   });
   el.addEventListener('pointermove', e => {
    if (!d || d.id !== e.pointerId) return;
+   if (el.dataset.st !== 'sheet') { d = null; el.style.transform = ''; return; }
    let dy = e.clientY - d.y0;
    if (!d.claimed) { if (Math.abs(dy) < 4) return; d.claimed = true; el.setPointerCapture(e.pointerId); const m = new DOMMatrixReadOnly(getComputedStyle(el).transform); d.base = m.m42; d.y0 = e.clientY - d.base; dy = d.base; stop(el, 't'); }
    d.y = dy < 0 ? dy * .2 : dy;
-   el.style.transform = `translateY(${d.y}px)`;
+   el.style.transform = reduced() ? 'none' : `translateY(${d.y}px)`;
    const scrim = scrimOf(el); if (scrim) scrim.style.opacity = String(clamp(1 - d.y / d.h, 0, 1));
    d.samples.push([e.timeStamp, d.y]); if (d.samples.length > 6) d.samples.shift();
   });
@@ -542,12 +565,24 @@
  function layoutInk(parts) {
   if (!parts.ink) return;
   const lr = parts.list.getBoundingClientRect(), ir = parts.ink.getBoundingClientRect();
-  parts.ink.replaceChildren(...parts.tabs.map(t => { const r = t.getBoundingClientRect(), s = doc.createElement('span'); s.textContent = t.textContent.trim(); const f = getComputedStyle(t); Object.assign(s.style, {position: 'absolute', left: r.left - ir.left + 'px', top: r.top - ir.top + 'px', width: r.width + 'px', height: r.height + 'px', font: f.font, letterSpacing: f.letterSpacing}); return s; }));
+  parts.ink.replaceChildren(...parts.tabs.map(t => { const r = t.getBoundingClientRect(), s = doc.createElement('span'); s.textContent = t.textContent.trim(); const f = getComputedStyle(t); Object.assign(s.style, {position: 'absolute', left: r.left - ir.left + 'px', top: r.top - ir.top + 'px', width: r.width + 'px', height: r.height + 'px', font: f.font, letterSpacing: f.letterSpacing, wordSpacing: f.wordSpacing}); return s; }));
   void lr;
+ }
+ function revealTab(list, tab) {
+  // Scroll only the tab strip: selecting a hidden option must not move the page.
+  const lr = list.getBoundingClientRect(), tr = tab.getBoundingClientRect();
+  const left = lr.left + list.clientLeft, right = left + list.clientWidth;
+  const delta = tr.left < left || tr.width > list.clientWidth ? tr.left - left : tr.right > right ? tr.right - right : 0;
+  if (Math.abs(delta) > .5) list.scrollTo({left: list.scrollLeft + delta, behavior: 'instant'});
  }
  function indicate(root, tab, animate, keyboard) {
   const parts = tabParts(root), {list, ind, ink} = parts;
-  const W = list.clientWidth, L = tab.offsetLeft, R = W - (tab.offsetLeft + tab.offsetWidth);
+  // A scrolling strip's indicator owns the content width, not just its viewport.
+  // Derive it from actual tabs so a previous wider indicator cannot preserve overflow.
+  const scrolling = root.dataset.st === 'tabs';
+  const W = scrolling ? Math.max(list.clientWidth, ...parts.tabs.map(t => t.offsetLeft + t.offsetWidth)) : list.clientWidth;
+  if (scrolling) { ind.style.width = W + 'px'; ind.style.right = 'auto'; }
+  const L = tab.offsetLeft, R = W - (tab.offsetLeft + tab.offsetWidth);
   const rad = root.dataset.st === 'segmented' ? 8 : 2;
   const target = `inset(0px ${R}px 0px ${L}px round ${rad}px)`;
   const inkTarget = ink ? (() => { const off = ink.offsetLeft; return `inset(0px ${R - (W - off - ink.clientWidth)}px 0px ${L - off}px round ${rad}px)`; })() : null;
@@ -568,7 +603,7 @@
   if (ink) play(ink, inkFrames, {ms: dur, curve: 'linear', channel: 'clip', current: false});
  }
  function tabSelect(root, tab, keyboard = false) {
-  const {tabs} = tabParts(root);
+  const {list, tabs} = tabParts(root);
   if (!tab) return;
   const prev = tabs.find(t => t.getAttribute('aria-selected') === 'true');
   const dir = prev ? Math.sign(tabs.indexOf(tab) - tabs.indexOf(prev)) : 0;
@@ -592,6 +627,7 @@
     play(panel, [{opacity:alpha},{opacity:0}], {ms:rapid ? 30 : 60,curve:'X',channel:'o',fade:true});
    }
   });
+  if (root.dataset.st === 'tabs') revealTab(list, tab);
   indicate(root, tab, !!prev && prev !== tab, keyboard);
   if (prev !== tab) root.dispatchEvent(new CustomEvent('st:tab-change', {bubbles: true, detail: {tab}}));
  }
@@ -705,23 +741,32 @@
  }
 
  /* ---------- Copy: the glyph swaps in place and the label confirms; it reverts on its own. ---------- */
- function copy(el, text) {
+ async function copy(el, text) {
   const value = text ?? el.dataset.stCopy ?? (el.dataset.stCopyFrom ? doc.querySelector(el.dataset.stCopyFrom)?.textContent : '');
-  const fallback = () => {
-   const focused=doc.activeElement, field=doc.createElement('textarea'); field.value=value;
-   Object.assign(field.style,{position:'fixed',opacity:'0',left:'0',top:'0'}); field.setAttribute('aria-hidden','true');doc.body.append(field);field.select();
-   const copied=doc.execCommand('copy');field.remove();focused?.focus({preventScroll:true,focusVisible:keyboardInput});return copied;
-  };
-  try { if(navigator.clipboard) navigator.clipboard.writeText(value).catch(fallback); else fallback(); } catch { fallback(); }
-  icon(el, true);
-  const label = q(el, '[data-st="text"]'); if (label) { if (!el.dataset.stIdle) el.dataset.stIdle = label.dataset.stLabel || label.textContent.trim(); swapText(label, el.dataset.stCopied || 'Copied', {fit: el}); }
-  announce(el.dataset.stCopied || 'Copied');
+  const version = el._stCopyVersion = (el._stCopyVersion || 0) + 1;
   clearTimeout(el._stCopy);
-  el._stCopy = setTimeout(() => { icon(el, false); if (label) swapText(label, el.dataset.stIdle, {fit: el}); }, 1600);
+  const fallback = () => {
+   if (el._stCopyVersion !== version) return false;
+   const focused = doc.activeElement, field = doc.createElement('textarea'); field.value = value;
+   Object.assign(field.style, {position:'fixed',opacity:'0',left:'0',top:'0'}); field.setAttribute('aria-hidden','true'); doc.body.append(field);
+   try { field.select(); return doc.execCommand('copy') === true; }
+   catch { return false; }
+   finally { field.remove(); focused?.focus({preventScroll:true,focusVisible:keyboardInput}); }
+  };
+  let copied = false;
+  try { if (navigator.clipboard) { await navigator.clipboard.writeText(value); copied = true; } else copied = fallback(); }
+  catch { copied = fallback(); }
+  if (el._stCopyVersion !== version) return copied;
+  icon(el, copied); el.dataset.stCopyStatus = copied ? 'success' : 'error';
+  const label = q(el, '[data-st="text"]');
+  if (label) { if (!el.dataset.stIdle) el.dataset.stIdle = label.dataset.stLabel || label.textContent.trim(); swapText(label, copied ? el.dataset.stCopied || 'Copied' : 'Copy failed', {fit: el}); }
+  announce(copied ? el.dataset.stCopied || 'Copied' : 'Copy failed. Please select and copy the text.');
+  el._stCopy = setTimeout(() => { if (el._stCopyVersion !== version) return; icon(el, false); delete el.dataset.stCopyStatus; if (label) swapText(label, el.dataset.stIdle, {fit: el}); }, 1600);
+  return copied;
  }
  // Icon morph: the path's outline changes shape; matching point counts let the browser interpolate it.
  function morphIcon(el, on) { const path = q(el, 'path[data-st-on]'); if (!path) return; path.style.d = `path("${on ? path.dataset.stOn : path.dataset.stOff}")`; const label = on ? el.dataset.stLabelOn : el.dataset.stLabelOff; if (label) el.setAttribute('aria-label', label); }
- function icon(el, on) { el.dataset.stOn = String(on); const swap = el.matches('[data-st="icon"],[data-st="icon-swap"],.st-swap') ? el : q(el, '.st-swap,[data-st="icon"]'); if (swap && swap !== el) swap.dataset.stOn = String(on); }
+ function icon(el, on) { el.dataset.stOn = String(on); if (el.dataset.st === 'icon-morph') { el.setAttribute('aria-pressed', String(on)); morphIcon(el, on); return; } const swap = el.matches('[data-st="icon"],[data-st="icon-swap"],.st-swap') ? el : q(el, '.st-swap,[data-st="icon"]'); if (swap && swap !== el) swap.dataset.stOn = String(on); }
 
  /* ---------- Lists: add, remove and reorder with FLIP; a removed row fades before its neighbours close the gap. ---------- */
  const rows = container => [...container.children].filter(c => !c.hasAttribute("data-st-ghost") && !c.hidden);
@@ -767,10 +812,19 @@
  // even a capture taken mid-reveal reads.
  function reveal(el) { if ([...el.children].some(x => x.getAnimations().some(a => a.playState === 'running'))) return Promise.resolve(); return Promise.all([...el.children].map((x, i) => Promise.all([play(x, [{clipPath: 'inset(-4px 100% -4px -4px)'}, {clipPath: 'inset(-4px -4px -4px -4px)'}], {ms: 260, curve: 'E', delay: i * 60, current: false, channel: 'clip'}), play(x, [{transform: 'translateX(-6px)'}, {transform: 'none'}], {ms: 260, curve: 'E', delay: i * 60, current: false})]))); }
  function shimmer(el) {
+  if (!el) return Promise.resolve(true);
   let shine = q(el, '.st-shine');
   if (!shine) { shine = doc.createElement('span'); shine.className = 'st-shine'; shine.setAttribute('aria-hidden', 'true'); shine.textContent = el.textContent; el.append(shine); }
-  return play(shine, [{clipPath: 'polygon(-30% 0,-10% 0,-10% 100%,-30% 100%)'}, {clipPath: 'polygon(110% 0,130% 0,130% 100%,110% 100%)'}], {ms: 'spatial', curve: 'M', current: false});
+  // A requested preview is one finite sweep. Apps can separately opt into the
+  // CSS working-state loop while real work is pending by setting data-st-working.
+  return play(shine, [
+   {opacity:0,maskPosition:'-60% 0',webkitMaskPosition:'-60% 0'},
+   {opacity:1,maskPosition:'-60% 0',webkitMaskPosition:'-60% 0',offset:.1},
+   {opacity:1,maskPosition:'160% 0',webkitMaskPosition:'160% 0',offset:.85},
+   {opacity:0,maskPosition:'160% 0',webkitMaskPosition:'160% 0'}
+  ], {ms:2400,curve:'M',current:false,channel:'shimmer'});
  }
+
 
  /* ---------- Streaming text: words sharpen into place as they arrive, batched per frame. ---------- */
  const streams = new WeakMap();
@@ -865,9 +919,70 @@
     title follows the cover and steps around it (the axis that clears the cover leads), so it never crosses the artwork;
     details arrive after the title lands. Every phase is sampled from one clock and restarts from rendered geometry. ---------- */
  function sharedPairs(source, detail) {
-  return qa(detail, '[data-st-shared]').map(d => [q(source, `[data-st-shared="${d.dataset.stShared}"]`), d]).filter(([s]) => s);
+  // Travelers retain the markup they clone. Re-discover only authored destinations, otherwise a
+  // reversal treats the previous title ghost (or its children) as another shared part and clones it again.
+  return qa(detail, '[data-st-shared]').filter(d => !d.closest('[data-st-ghost]')).map(d => [q(source, `[data-st-shared="${d.dataset.stShared}"]`), d]).filter(([s]) => s);
  }
  const box = r => ({x: r.left, y: r.top, w: r.width, h: r.height});
+ // A line box can be narrower than its text (spacing overrides, nested inline runs, or glyph overhang).
+ // Route the complete measured text envelope; never assume a fixed element width contains every letter.
+ function titleBox(el) {
+  const r = el.getBoundingClientRect(), range = el.ownerDocument?.createRange?.();
+  if (!range) return box(r);
+  range.selectNodeContents(el);
+  let left = r.left, top = r.top, right = r.right, bottom = r.bottom;
+  for (const t of range.getClientRects()) if (t.width && t.height) { left = Math.min(left, t.left); top = Math.min(top, t.top); right = Math.max(right, t.right); bottom = Math.max(bottom, t.bottom); }
+  return {x: left, y: top, w: right - left, h: bottom - top};
+ }
+ // A label changes sides through the free corner of the moving cover. The corner must fit in the
+ // painted shell at that same progress; all three edges then share a clock instead of racing each other.
+ function titleRoute(f, t, af, at, sf, st, size, continuing = false) {
+  // A corner cannot rescue an impossible endpoint. A destination-sized title may be wider
+  // than the source card, even when the smaller source label itself fits. Allow only rounding noise.
+  const fits = (r, s) => r.x >= s.x - .05 && r.y >= s.y - .05 && r.x + size.w <= s.x + s.w + .05 && r.y + size.h <= s.y + s.h + .05;
+  if ((!continuing && !fits(f, sf)) || !fits(t, st)) return {kind: 'fade'};
+  const mix = (a, b, p) => a + (b - a) * p;
+  const sides = (r, a) => ({left: a.x - r.x - size.w, right: r.x - a.x - a.w, above: a.y - r.y - size.h, below: r.y - a.y - a.h});
+  const first = sides(f, af), last = sides(t, at), names = Object.keys(first);
+  // A common separating edge also separates every point of a straight interpolation, including reversals.
+  if (names.some(k => first[k] >= 0 && last[k] >= 0)) return {kind: 'direct'};
+  const fs = names.find(k => first[k] >= 0), ts = names.find(k => last[k] >= 0);
+  if (!fs || !ts || ['left', 'right'].includes(fs) === ['left', 'right'].includes(ts)) return {kind: 'fade'};
+  let gap = Math.min(8, Math.max(0, first[fs]), Math.max(0, last[ts]));
+  const horizontal = ['left', 'right'].includes(fs) ? fs : ts, vertical = ['above', 'below'].includes(fs) ? fs : ts;
+  const corner = a => ({x: horizontal === 'right' ? a.x + a.w + gap : a.x - size.w - gap, y: vertical === 'below' ? a.y + a.h + gap : a.y - size.h - gap});
+  const room = (c, s) => [c.x - s.x, c.y - s.y, s.x + s.w - c.x - size.w, s.y + s.h - c.y - size.h];
+  let cf, ct, lo, hi;
+  for (;;) {
+   cf = corner(af); ct = corner(at); const rf = room(cf, sf), rt = room(ct, st); lo = 0; hi = 1;
+   for (let i = 0; i < 4; i++) {
+    const d = rt[i] - rf[i];
+    if (Math.abs(d) < .0000001) { if (rf[i] < 0) { lo = 1; hi = 0; break; } }
+    else if (d > 0) lo = Math.max(lo, -rf[i] / d);
+    else hi = Math.min(hi, -rf[i] / d);
+   }
+   if (lo <= hi && hi > 0 && lo < 1) break;
+   if (!gap) return {kind: 'fade'};
+   // Clearance is a preference, not a reason to reject an otherwise safe tight corner.
+   gap = gap > .25 ? gap / 2 : 0;
+  }
+  // Do not round/clamp to .001/.999: a narrow valid interval can lie beyond those values.
+  const pivot = clamp(.5, lo, hi);
+  const c = {x: mix(cf.x, ct.x, pivot), y: mix(cf.y, ct.y, pivot)};
+  const line = p => { const before = p <= pivot, a = before ? f : c, b = before ? c : t, k = before ? p / pivot : (p - pivot) / (1 - pivot); return {x: mix(a.x, b.x, k), y: mix(a.y, b.y, k)}; };
+  // Round only within the free corner. Its control points also fit the shell, so the quadratic
+  // stays inside the same linearly changing bounds; its tangents join the two straight segments.
+  const clearCorner = p => { const a = {x: mix(af.x, at.x, p), y: mix(af.y, at.y, p), w: mix(af.w, at.w, p), h: mix(af.h, at.h, p)}, edge = sides(line(p), a); return edge[fs] >= 0 && edge[ts] >= 0; };
+  let bend = Math.min(.08, pivot / 2, (1 - pivot) / 2);
+  while (bend > .0001 && (!clearCorner(pivot - bend) || !clearCorner(pivot + bend))) bend /= 2;
+  if (bend <= .0001) bend = 0;
+  const b0 = line(pivot - bend), b1 = line(pivot + bend);
+  return {kind: 'corner', pivot, bend, gap, point(p) {
+   if (!bend || p <= pivot - bend || p >= pivot + bend) return line(p);
+   const u = (p - pivot + bend) / (2 * bend), v = 1 - u;
+   return {x: v * v * b0.x + 2 * v * u * c.x + u * u * b1.x, y: v * v * b0.y + 2 * v * u * c.y + u * u * b1.y};
+  }};
+ }
  function travel(s, detail, pairs, toSource, v) {
   const anchorPair = pairs.find(([, d]) => !d.hasAttribute('data-st-shared-text')), jobs = [];
   if (!s.travelers) s.travelers = new Map();
@@ -881,36 +996,48 @@
   for (const [a, d] of pairs) to.set(d, box((toSource ? a : d).getBoundingClientRect()));
   const springName = toSource ? 'snappy' : 'expand', n = 32;
   const A = anchorPair && anchorPair[1], aFrom = A && from.get(A), aTo = A && to.get(A);
+  const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, shell = box(surface.getBoundingClientRect());
+  const inset = parseInset(getComputedStyle(s.paint || surface).clipPath), sourceBox = box(s.source.getBoundingClientRect());
+  const shellFrom = inset ? {x: shell.x + inset[3], y: shell.y + inset[0], w: shell.w - inset[1] - inset[3], h: shell.h - inset[0] - inset[2]} : toSource || s.moved ? shell : sourceBox;
+  const shellTo = toSource ? sourceBox : shell;
   for (const [, d] of pairs) {
-   const isText = d.hasAttribute('data-st-shared-text'), f = from.get(d), t = to.get(d), home = box(d.getBoundingClientRect());
+   const isText = d.hasAttribute('data-st-shared-text'); let f = from.get(d), t = to.get(d), home = box(d.getBoundingClientRect());
    let layer = d;
    if (isText) {
     layer = s.travelers.get(d);
     if (!layer || !layer.isConnected) {
-     // The title travels under the artwork, so where their paths overlap it slides out from behind it.
+     // One unscaled title follows a clear route around the artwork, rather than losing letters behind it.
      const host = (A && A.parentElement && A.parentElement.contains(d) ? A.parentElement : null) || q(detail, '.st-expand-surface,.expand-surface') || detail;
      layer = ghost(d, host); const cs = getComputedStyle(d);
-     Object.assign(layer.style, {visibility: 'visible', zIndex: '1', font: cs.font, letterSpacing: cs.letterSpacing, color: cs.color, whiteSpace: 'nowrap', maxWidth: 'none', overflow: 'visible', transformOrigin: '0 0'});
+     Object.assign(layer.style, {visibility: 'visible', zIndex: '1', font: cs.font, letterSpacing: cs.letterSpacing, color: cs.color, whiteSpace: cs.whiteSpace || 'nowrap', wordSpacing: cs.wordSpacing || 'normal', overflowWrap: cs.overflowWrap || 'normal', maxWidth: 'none', overflow: 'visible', transformOrigin: '0 0'});
      s.travelers.set(d, layer);
     }
+    // A reused ghost may have a different containing block after layout changes. Its own resting rect is
+    // the transform origin; the rendered start above was captured before cancelling the previous flight.
+    home = box(layer.getBoundingClientRect());
+    const ink = titleBox(layer), dx = ink.x - home.x, dy = ink.y - home.y;
+    f = {...f, x: f.x + dx, y: f.y + dy}; t = {...t, x: t.x + dx, y: t.y + dy}; home = ink;
     d.style.visibility = 'hidden';
    } else Object.assign(d.style, {transformOrigin: '0 0', position: getComputedStyle(d).position === 'static' ? 'relative' : d.style.position, zIndex: '2'});
-   // Relative to the anchor, lead with the axis that takes the text clear of it.
-   const relF = A && isText ? {x: f.x - aFrom.x, y: f.y - aFrom.y} : null, relT = A && isText ? {x: t.x - aTo.x, y: t.y - aTo.y} : null;
-   const leadX = relT && (relT.x >= aTo.w || relF.x >= aFrom.w ? relT.x > relF.x : false);
+   const route = A && isText ? titleRoute(f, t, aFrom, aTo, shellFrom, shellTo, home, s.moved) : null;
+   if (isText && (route?.kind === 'fade' || s.titleFades?.has(d))) {
+    // Some custom layouts have no safe one-corner route. Keep the whole title out of the
+    // moving artwork, including during reversals; fade it in only after the surface lands.
+    if (!s.titleFades) s.titleFades = new Set(); s.titleFades.add(d); layer.style.visibility = 'hidden'; continue;
+   }
+   // Include the bend boundaries: interpolating across them could cut the corner through the cover.
+   const offsets = Array.from({length: n + 1}, (_, i) => i / n);
+   if (route?.kind === 'corner') for (const p of [route.pivot - route.bend, route.pivot - route.bend / 2, route.pivot, route.pivot + route.bend / 2, route.pivot + route.bend]) if (!offsets.includes(p)) offsets.push(p);
+   offsets.sort((a, b) => a - b);
    const frames = [];
-   for (let i = 0; i <= n; i++) {
-    const p = i / n, q2 = p, lerp = (u, w, k) => u + (w - u) * k;
+   for (const p of offsets) {
+    const lerp = (u, w, k) => u + (w - u) * k;
     let x, y, w, h;
-    if (relF) {
-     const ax = lerp(aFrom.x, aTo.x, p), ay = lerp(aFrom.y, aTo.y, p);
-     // Straight to the header, front-loaded (95% of the way by about 60% of the spring), passing under the artwork.
-     const f = 1 - Math.pow(1 - p, 2.4); void q2; void leadX;
-     x = ax + lerp(relF.x, relT.x, f); y = ay + lerp(relF.y, relT.y, f);
-     w = lerp(f.w, t.w, p); h = lerp(f.h, t.h, p);
+    if (route?.kind === 'corner') {
+     ({x, y} = route.point(p)); w = home.w; h = home.h;
     } else { x = lerp(f.x, t.x, p); y = lerp(f.y, t.y, p); w = lerp(f.w, t.w, p); h = lerp(f.h, t.h, p); }
     const sx = isText ? 1 : w / home.w, sy = isText ? 1 : h / home.h;
-    frames.push({transform: `translate(${x - home.x}px, ${y - home.y}px) scale(${sx}, ${sy})`});
+    frames.push({offset: p, transform: `translate(${x - home.x}px, ${y - home.y}px) scale(${sx}, ${sy})`});
    }
    jobs.push(play(layer, frames, {spring: springName, channel: 'shared', current: false, fill: toSource ? 'forwards' : 'backwards'}));
   }
@@ -929,7 +1056,7 @@
   if (!source || !detail) return;
   const s = layerState(detail), wasClosing = s.closing; s.source = source; s.open = true; s.closing = false; const v = ++s.version;
   if (!wasClosing) s.moved = false;
-  detail.dataset.stOpen = 'true'; detail.hidden = false; detail.inert = false; active.add(detail);
+  detail.dataset.stOpen = 'true'; delete detail.dataset.stClosing; detail.hidden = false; detail.inert = false; active.add(detail);
   if (detail.tagName === 'DIALOG' && !detail.open) detail.showModal();
   s.trigger = source; source.setAttribute('aria-expanded', 'true');
   const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
@@ -939,14 +1066,14 @@
   source.style.visibility = 'hidden';
   const content = qa(surface, '[data-st-expand-content]'), closeControl = q(surface, '[data-st-close]');
   if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 'surface', curve: 'F', fade: true, current: wasClosing}); }
-  if (reduced()) { play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'}); pairs.forEach(([, d]) => d.style.visibility = ''); }
+  if (reduced()) { play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'}); pairs.forEach(([, d]) => d.style.visibility = ''); if (s.travelers) { for (const g of s.travelers.values()) { stopAll(g); g.remove(); } s.travelers.clear(); } s.titleFades?.clear(); }
   else {
    // The shell's clip is sampled from the same spring track as the shared parts, so all three move as one.
    { const cur = wasClosing ? parseInset(getComputedStyle(paint).clipPath) : null, a0 = cur || [sr.top - dr.top, dr.right - sr.right, dr.bottom - sr.bottom, sr.left - dr.left], r0 = wasClosing ? endR : rad;
      play(paint, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false}); }
-   travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); } s.travelers.clear(); s.moved = false; });
+   travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); if (s.titleFades?.has(d)) fadeIn(d, {ms: 80, blur: false}); } s.travelers.clear(); s.titleFades?.clear(); s.moved = false; });
    // Details belong to the open state: they arrive once the title has nearly landed.
-   content.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: wasClosing ? 0 : 130, channel: 'o', current: wasClosing, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: wasClosing ? 0 : 130, channel: 't', current: wasClosing}); });
+   content.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 200, channel: 'o', current: wasClosing, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: 200, channel: 't', current: wasClosing}); });
    if (closeControl) play(closeControl, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 150, channel: 'o', current: wasClosing, fade: true});
   }
   (closeControl || focusFirst(detail))?.focus?.({preventScroll: true});
@@ -954,18 +1081,23 @@
  function collapse(detail) {
   const s = layerState(detail); if (!s.open || !s.source) return;
   s.open = false; s.closing = true; const v = ++s.version, source = s.source;
+  // Publish logical state now so Replay/direct toggles can reverse this exit.
+  detail.dataset.stOpen = 'false';
+  detail.dataset.stClosing = 'true';
   source.setAttribute('aria-expanded', 'false');
   const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
-  if (detail.contains(doc.activeElement)) source.focus({preventScroll: true});
+  const refocus = detail.contains(doc.activeElement) ? focusReturn(source) : null;
   detail.inert = true;
   const sr = source.getBoundingClientRect(), dr = surface.getBoundingClientRect(), rad = parseFloat(getComputedStyle(source).borderRadius) || 12;
   const finish = () => {
    if (s.version !== v || s.open) return; s.closing = false; s.moved = false;
    if (s.travelers) { for (const [d, g] of s.travelers) { stopAll(g); g.remove(); d.style.visibility = ''; } s.travelers.clear(); }
    if (s.paint) { stopAll(s.paint); s.paint.remove(); s.paint = null; Object.assign(surface.style, s.paintSaved); }
-   source.style.visibility = ''; detail.dataset.stOpen = 'false'; active.delete(detail);
+   source.style.visibility = ''; detail.dataset.stOpen = 'false'; delete detail.dataset.stClosing; active.delete(detail);
    if (detail.tagName === 'DIALOG' && detail.open) detail.close();
    stopAll(surface); qa(detail, '*').forEach(stopAll); if (scrim) stopAll(scrim);
+   if (s.titleFades?.size) { for (const [a, d] of sharedPairs(source, detail)) if (s.titleFades.has(d)) fadeIn(a, {ms: 80, blur: false}); s.titleFades.clear(); }
+   refocus?.();
   };
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 0}], {ms: 'control', curve: 'F', fade: true, fill: 'forwards'}); }
   const closeControl = q(surface, '[data-st-close]'); if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
@@ -1016,11 +1148,16 @@
  function palette(el) {
   const input = q(el, '[data-st-palette-input]') || q(el, 'input'), box = q(el, '[role="listbox"]'); if (!input || !box) return;
   positioned(box);
+  const persistent = persistentPalette(el); let editing = false;
+  paletteExpanded(el, isOpen(el));
   let hl = q(box, '.st-palette-highlight'); if (!hl) { hl = doc.createElement('span'); hl.className = 'st-palette-highlight'; hl.setAttribute('aria-hidden', 'true'); box.prepend(hl); }
-  const opts = () => qa(box, '[role="option"]').filter(o => !o.hidden);
+  // Leaving FLIP copies keep their role for paint, but never become selectable results.
+  const allOptions = () => qa(box, '[role="option"]').filter(o => !o.closest('[data-st-ghost]'));
+  const opts = () => allOptions().filter(o => !o.hidden);
   let activeOpt = null;
   const setActive = (opt, instant) => {
-   activeOpt = opt; qa(box, '[role="option"]').forEach(o => o.setAttribute('aria-selected', String(o === opt)));
+   if (!isOpen(el) || (opt && !opts().includes(opt))) opt = null;
+   activeOpt = opt; allOptions().forEach(o => o.setAttribute('aria-selected', String(o === opt)));
    if (!opt) { hl.style.opacity = '0'; input.removeAttribute('aria-activedescendant'); return; }
    if (!opt.id) opt.id = 'st-opt-' + Math.random().toString(36).slice(2, 8);
    input.setAttribute('aria-activedescendant', opt.id);
@@ -1031,7 +1168,9 @@
    const lb = opt.closest('[role="listbox"]'); if (lb) { const top = opt.offsetTop - lb.offsetTop * (opt.offsetParent === lb ? 0 : 1); if (top < lb.scrollTop) lb.scrollTop = top; else if (top + h > lb.scrollTop + lb.clientHeight) lb.scrollTop = top + h - lb.clientHeight; }
   };
   input.addEventListener('input', () => {
-   const term = input.value.trim().toLowerCase(), all = qa(box, '[role="option"]');
+   // Typing or pasting after Escape reopens without throwing away the new query.
+   if (persistent && !isOpen(el)) { editing = true; open(el, input, {keyboard: keyboardInput}); editing = false; }
+   const term = input.value.trim().toLowerCase(), all = allOptions();
    const visible = all.filter(o => !o.hidden), leaving = visible.filter(o => !o.textContent.toLowerCase().includes(term));
    const ghosts = reduced() ? [] : leaving.map(o => ghost(o, box));
    flip(visible.filter(o => !leaving.includes(o)), () => { all.forEach(o => { const was = o.hidden; o.hidden = !o.textContent.toLowerCase().includes(term); if (was && !o.hidden) fadeIn(o, {ms: 'control'}); }); }, {spring: 'snappy'});
@@ -1040,15 +1179,26 @@
    setActive(opts()[0] || null);
   });
   input.addEventListener('keydown', e => {
+   if (persistent && !isOpen(el) && ['ArrowDown', 'ArrowUp', 'Enter'].includes(e.key)) { e.preventDefault(); open(el, input, {keyboard: true}); return; }
    const list = opts(); let i = list.indexOf(activeOpt);
    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); i = (i + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length; setActive(list[i]); }
    else if (e.key === 'Enter' && activeOpt) { e.preventDefault(); activeOpt.click(); }
   });
   box.addEventListener('pointermove', e => { const o = e.target.closest('[role="option"]'); if (o && o !== activeOpt) setActive(o); });
-  box.addEventListener('click', e => { const o = e.target.closest('[role="option"]'); if (!o) return; el.dispatchEvent(new CustomEvent('st:palette-select', {bubbles: true, detail: {option: o, value: o.dataset.value || o.textContent.trim()}})); close(el); });
-  el.addEventListener('st:open', () => { if (input.value) { input.value = ''; input.dispatchEvent(new Event('input')); } setActive(opts()[0] || null, true); requestAnimationFrame(() => input.focus({preventScroll:true,focusVisible:keyboardInput})); });
-  setActive(opts()[0] || null, true);
-  if(el.hasAttribute('data-st-persistent')) input.addEventListener('focus',()=>{if(!isOpen(el)&&doc.documentElement.dataset.stInputMode==='keyboard')open(el,input,{keyboard:true});});
+  box.addEventListener('click', e => { const o = e.target.closest('[role="option"]'); if (!isOpen(el) || !opts().includes(o)) return; el.dispatchEvent(new CustomEvent('st:palette-select', {bubbles: true, detail: {option: o, value: o.dataset.value || o.textContent.trim()}})); close(el); });
+  el.addEventListener('st:open', () => {
+   if (input.value && !editing) { input.value = ''; input.dispatchEvent(new Event('input')); } setActive(opts()[0] || null, true);
+   // A delayed open must not reclaim focus after another intent or a later opening.
+   const version = layerState(el).version, focus = focusVersion, owner = doc.activeElement;
+   requestAnimationFrame(() => { if (isOpen(el) && layerState(el).version === version && focusVersion === focus && doc.activeElement === owner) input.focus({preventScroll:true,focusVisible:keyboardInput}); });
+  });
+  setActive(isOpen(el) ? opts()[0] || null : null, true);
+  if (persistent) {
+   // Focus opens for either input mode. Close-time focus restoration must not reopen it.
+   input.addEventListener('focus', () => { if (!isOpen(el) && !layerState(el).closing) open(el, input, {keyboard: keyboardInput}); });
+   // A second click still opens when Escape left focus in the visible search field.
+   input.addEventListener('click', () => { if (!isOpen(el)) open(el, input, {keyboard: keyboardInput}); });
+  }
  }
 
  /* ---------- Tooltips: dwell once, then the bubble glides between neighbours. Focus and long-press work too. ---------- */
@@ -1124,6 +1274,8 @@
    const full = img.cloneNode(); full.removeAttribute('id'); const closeButton = doc.createElement('button'); closeButton.className = 'st-button st-lightbox-close'; closeButton.textContent = 'Close'; const backdrop=doc.createElement('span');backdrop.className='st-lightbox-scrim';backdrop.setAttribute('aria-hidden','true');dialog.append(backdrop,full,closeButton); (source.closest('[data-st-preview]') || doc.body).append(dialog);
    s = {dialog, full, img, source, version: 0, open: false}; images.set(source, s);
    closeButton.onclick = () => closeImage(source); dialog.addEventListener('cancel', e => { e.preventDefault(); closeImage(source); });
+   // show() previews are non-modal, so the browser does not send their native cancel event.
+   dialog.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.defaultPrevented && source.closest('[data-st-preview]')) { e.preventDefault(); e.stopPropagation(); closeImage(source); } });
    dialog.addEventListener('click', e => { if (e.target === dialog || e.target.classList.contains('st-lightbox-scrim')) closeImage(source); });
    let drag;
    full.addEventListener('pointerdown', e => { if (e.pointerType !== 'touch' || !s.open) return; const r = full.getBoundingClientRect(); stop(full, 'image'); const final = full.getBoundingClientRect(); full.style.transform = `translate(${r.left-final.left}px,${r.top-final.top}px) scale(${r.width/final.width})`; drag = {id: e.pointerId, y: e.clientY, last: e.clientY, time: performance.now(), velocity: 0}; full.setPointerCapture(e.pointerId); });
@@ -1163,6 +1315,7 @@
  }
  function closeImage(source = currentImage) {
   const s = images.get(source); if (!s || !s.dialog.open || s.closing) return;
+  const refocus = s.dialog.contains(doc.activeElement) ? focusReturn(source) : null;
   s.open = false; s.closing = true; const v = ++s.version;
   const rendered = s.full.getBoundingClientRect(); stop(s.full, 'image'); s.full.style.transform = 'none';
   const base = s.full.getBoundingClientRect(), target = s.img.getBoundingClientRect();
@@ -1170,8 +1323,8 @@
   play(q(s.dialog, '.st-lightbox-close'), [{opacity: 0}], {ms: 60, curve: 'X', fill: 'forwards', fade: true, channel: 'o'});
   return play(s.full, photoFrames(s, rendered, target, base, 12, thumbRadius(s)), {ms: track('smooth').length - 1, curve: 'linear', channel: 'image', current: false, fill: 'forwards'}).then(ok => {
    if (!ok || v !== s.version) return;
-   s.dialog.close(); s.img.style.visibility = ''; stop(s.full, 'image'); stopAll(s.dialog); qa(s.dialog, '*').forEach(stopAll);
-   s.closing = false; source.focus?.({preventScroll: true}); if (currentImage === source) currentImage = null;
+   s.img.style.visibility = ''; s.dialog.close(); stop(s.full, 'image'); stopAll(s.dialog); qa(s.dialog, '*').forEach(stopAll);
+   s.closing = false; refocus?.(); if (currentImage === source) currentImage = null;
   });
  }
  function bindReorder(root) {
@@ -1191,6 +1344,8 @@
  function init(root = doc) {
   const nodes = [...(root.matches?.('[data-st]') ? [root] : []), ...qa(root, '[data-st]')].filter(el => !el.closest('[data-st-ghost]'));
   for (const el of nodes) {
+   // A responsive surface may become a sheet after its first initialization.
+   if (el.dataset.st === 'sheet') sheetDrag(el);
    if (initialized.has(el)) continue; initialized.add(el);
    const kind = el.dataset.st;
    if (el.hasAttribute('popover') && POP.includes(kind)) el.popover = 'manual';
@@ -1200,7 +1355,6 @@
    }
    if (kind === 'number' || kind === 'badge') number(el, el.dataset.value ?? el.textContent.trim().replace(/[^\d.-]/g, ''));
    if (kind === 'panel' || kind === 'sheet' || kind === 'drawer') { if (el.tagName !== 'DIALOG' && el.dataset.stOpen !== 'true') el.inert = true; }
-   if (kind === 'sheet') sheetDrag(el);
    if (kind === 'badge') el.dataset.stVisible = String(Number(el.dataset.value || el.textContent) > 0);
    if (kind === 'icon-swap') { el.addEventListener('click', () => { const on = el.dataset.stOn !== 'true'; icon(el, on); el.setAttribute('aria-pressed', String(on)); }); }
    if (kind === 'reorder') bindReorder(el);
@@ -1242,8 +1396,8 @@
       tabSelect(el, n, true); n.focus();
      });
     });
-    const sync = () => { if (!el.isConnected) return ro.disconnect(); layoutInk(parts); const sel = parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0]; if (sel) indicate(el, sel, false); };
-    const ro = new ResizeObserver(sync); ro.observe(parts.list);
+    const sync = () => { if (!el.isConnected) return ro.disconnect(); layoutInk(parts); const sel = parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0]; if (sel) { if (el.dataset.st === 'tabs') revealTab(parts.list, sel); indicate(el, sel, false); } };
+    const ro = new ResizeObserver(sync); ro.observe(parts.list); parts.tabs.forEach(t => ro.observe(t));
     tabSelect(el, parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0], true); layoutInk(parts);
     doc.fonts?.ready.then(sync);
    }
@@ -1303,9 +1457,29 @@
     void path;
    }
    if (kind === 'clear') {
-    const input = q(el, 'input'), button = q(el, 'button'); let clearing = 0;
-    const sync = () => { button.disabled = !input.value; if (input.value) { ++clearing; el.dataset.stHasText = 'true'; } else if (!clearing) el.dataset.stHasText = 'false'; }; sync(); input.addEventListener('input', sync);
-    button.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', {bubbles: true})); input.focus(); el.dataset.stHasText = 'false'; clearing = 0; });
+    const input = q(el, 'input'), button = q(el, 'button'); let version = 0, leaving = null, clearing = false;
+    if (!input || !button) continue;
+    const removeLeaving = () => { if (leaving) { stopAll(leaving); leaving.remove(); leaving = null; } };
+    const sync = () => {
+     button.disabled = !input.value;
+     if (input.value) { ++version; clearing = false; removeLeaving(); el.dataset.stHasText = 'true'; }
+     else if (!clearing) el.dataset.stHasText = 'false';
+    };
+    sync(); input.addEventListener('input', sync);
+    button.addEventListener('click', () => {
+     if (!input.value) return;
+     const current = ++version, text = input.value;
+     removeLeaving(); clearing = true;
+     const rect = input.getBoundingClientRect(), host = el.getBoundingClientRect(), cs = getComputedStyle(input);
+     const ink = doc.createElement('span'); ink.className = 'st-clear-exit'; ink.textContent = input.type === 'password' ? '•'.repeat([...text].length) : text; ink.setAttribute('aria-hidden', 'true');
+     Object.assign(ink.style, {position:'absolute',left:rect.left-host.left-el.clientLeft+el.scrollLeft+'px',top:rect.top-host.top-el.clientTop+el.scrollTop+'px',width:rect.width+'px',height:rect.height+'px',boxSizing:'border-box',display:'flex',alignItems:'center',padding:cs.padding,borderStyle:'solid',borderColor:'transparent',borderWidth:cs.borderWidth,font:cs.font,letterSpacing:cs.letterSpacing,color:cs.color,whiteSpace:'pre',overflow:'hidden',pointerEvents:'none'});
+     el.append(ink); leaving = ink;
+     input.value = ''; input.dispatchEvent(new Event('input', {bubbles:true})); input.focus({preventScroll:true});
+     play(ink, [{opacity:1,transform:'none',filter:'blur(0px)'},{opacity:0,transform:'translateX(-8px)',filter:'blur(2px)'}], {ms:'quick',curve:'X',fade:true}).then(() => {
+      ink.remove(); if (current !== version) return;
+      leaving = null; clearing = false; el.dataset.stHasText = String(!!input.value);
+     });
+    });
    }
   }
   qa(root, '[data-st-tip]').forEach(t => { if (!initialized.has(t)) { initialized.add(t); bindTip(t); } });
