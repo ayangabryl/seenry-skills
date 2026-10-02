@@ -201,6 +201,7 @@ jobs:
               'tests/transitions-library-label-paint.mjs',
               'tests/transitions-library-card-readable.mjs',
               'tests/transitions-library-card-anchor-fallback.browser.mjs',
+              'tests/transitions-library-card-focus-transfer-diagnostic.browser.mjs',
               'tests/transitions-library-dialog-raster.browser.mjs',
               'tests/transitions-library-reduced-expand-reopen.browser.mjs',
           ]
@@ -213,7 +214,9 @@ jobs:
               'files': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files},
               'scope': 'Repository Card fixtures only; assertions and native recording are not a subjective quality score',
           }
-          (out / 'source.json').write_text(json.dumps(record, indent=2) + '\n')
+          for folder in [out, *[pathlib.Path(os.environ['RUNNER_TEMP']) / f'seenry-card-close-{i}' for i in range(2)]]:
+              folder.mkdir(parents=True, exist_ok=True)
+              (folder / 'source.json').write_text(json.dumps(record, indent=2) + '\n')
           PY
       - name: Install the pinned browser test runtime
         run: npm install --no-save --package-lock=false playwright@1.63.0
@@ -225,14 +228,48 @@ jobs:
         if: ${{ !cancelled() }}
         timeout-minutes: 1
         run: node tests/transitions-library-card-anchor-diagnostic.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-card-evidence/anchor-diagnostic"
+      - name: Diagnose native Card fallback focus before style reads
+        if: ${{ !cancelled() }}
+        timeout-minutes: 2
+        run: node tests/transitions-library-card-focus-transfer-diagnostic.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-card-evidence/focus-diagnostic"
+      - name: Preserve native Card focus diagnostic and source pins
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-focus-diagnostic-ubuntu
+          path: |
+            ${{ runner.temp }}/seenry-card-evidence/source.json
+            ${{ runner.temp }}/seenry-card-evidence/focus-diagnostic
+          if-no-files-found: error
+          retention-days: 7
       - name: Exercise marked Card fallback and relocated anchors
         if: ${{ !cancelled() }}
         timeout-minutes: 2
         run: node tests/transitions-library-card-anchor-fallback.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/anchor-fallback"
-      - name: Record normal-motion Close and interruption evidence
+      - name: Record normal-motion Close and interruption shard 0
         if: ${{ !cancelled() }}
         timeout-minutes: 4
-        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/close"
+        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-close-0" --shard-index 0 --shard-count 2
+      - name: Preserve normal-motion Card shard 0
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-close-0-ubuntu
+          path: ${{ runner.temp }}/seenry-card-close-0
+          if-no-files-found: error
+          retention-days: 7
+      - name: Record normal-motion Close and interruption shard 1
+        if: ${{ !cancelled() }}
+        timeout-minutes: 4
+        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-close-1" --shard-index 1 --shard-count 2
+      - name: Preserve normal-motion Card shard 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-close-1-ubuntu
+          path: ${{ runner.temp }}/seenry-card-close-1
+          if-no-files-found: error
+          retention-days: 7
       - name: Record representative Card video independently
         if: ${{ !cancelled() }}
         timeout-minutes: 2

@@ -48,7 +48,22 @@ function assertKeyboardObservation(initial,event){
  assert(initial&&event,'Keyboard accepted-state observation is missing');assert.equal(initial.observedAt,'document-bubble');assert.equal(initial.currentTargetIsDocument,true);assert.equal(event.trusted,true);assert.equal(event.detail,0);assert.equal(initial.open,'true');assert.equal(initial.instant,true);
 }
 // End keyboard accepted-state observer.
-const report={mode:videoOnly?'representative-video-only':'native-close-assertions',browser:browser.version(),source:{html:sha(gallery),runtime:sha(join(dirname(gallery),'seenry-transitions.js')),css:sha(join(dirname(gallery),'seenry-transitions.css')),galleryJS:sha(join(dirname(gallery),'gallery.js'))},scope:'Actual Blur-on state, trusted opening click, timed API reversals, RAF geometry, native Escape/Enter and pointer Close during travel. Native viewports320/390/1100/1440 (all three labels with and without user text spacing) plus explicit385px component-width reproduction; fixed Close hit during active shell motion; live open viewport/text reflow; not physical-touch coverage.',runs:[]};
+function selectProfileShard(all,index,count){
+ assert(Number.isInteger(count)&&count>=1&&count<=all.length,'Shard count must be a nonempty bounded integer');
+ assert(Number.isInteger(index)&&index>=0&&index<count,'Shard index must belong to the configured partition');
+ return all.filter((_,i)=>i%count===index);
+}
+function profileCaseKeys(selected){return selected.flatMap(p=>(p.delays||[50,100,150]).map(delay=>`${p.label}-${delay}`));}
+function assertCompleteProfileShard(runs,selected){
+ const expected=profileCaseKeys(selected),actual=runs.map(r=>`${r.label}-${r.delay}`);
+ assert(expected.length>0&&new Set(expected).size===expected.length,'Expected cases must be positive and unique');
+ assert.equal(actual.length,expected.length,'Every selected profile/delay must execute');assert.equal(new Set(actual).size,actual.length,'No duplicate executed cases');
+ assert.deepEqual([...actual].sort(),[...expected].sort(),'Selected and executed case identities must match exactly');
+ assert(runs.every(r=>['passed','failed'].includes(r.status)),'Every attempted case must have terminal evidence');
+}
+const shardIndex=Number(arg('--shard-index','0')),shardCount=Number(arg('--shard-count','1'));
+const selectedProfiles=selectProfileShard(profiles,shardIndex,shardCount);
+const report={mode:videoOnly?'representative-video-only':'native-close-assertions',coverage:{shardIndex,shardCount,totalProfiles:profiles.length,totalCases:profileCaseKeys(profiles).length,selectedProfiles:selectedProfiles.map(p=>p.label),expectedCases:profileCaseKeys(selectedProfiles),executedComplete:false},browser:browser.version(),source:{html:sha(gallery),runtime:sha(join(dirname(gallery),'seenry-transitions.js')),css:sha(join(dirname(gallery),'seenry-transitions.css')),galleryJS:sha(join(dirname(gallery),'gallery.js'))},scope:'Actual Blur-on state, trusted opening click, timed API reversals, RAF geometry, native Escape/Enter and pointer Close during travel. Native viewports320/390/1100/1440 (all three labels with and without user text spacing) plus explicit385px component-width reproduction; fixed Close hit during active shell motion; live open viewport/text reflow; not physical-touch coverage.',runs:[]};
 // Keep completed RAF/leaf evidence in per-case files instead of rewriting the full
 // accumulated report at every phase. The compatible full report is assembled once.
 const savedReportRuns=new WeakSet();
@@ -65,7 +80,7 @@ const saveReport=(final=false)=>{
 saveReport();
 const spacing=':root:not(#seenry-text-spacing-test) *{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}:root:not(#seenry-text-spacing-test) p{margin-block-end:2em!important}';
 try{
- if(!videoOnly)for(const profile of profiles)for(const delay of (profile.delays||[50,100,150])){
+ if(!videoOnly)for(const profile of selectedProfiles)for(const delay of (profile.delays||[50,100,150])){
   const context=await browser.newContext({viewport:{width:profile.viewport,height:1000},colorScheme:profile.theme,reducedMotion:'no-preference',serviceWorkers:'block',acceptDownloads:false}),page=await context.newPage(),run={...profile,delay,status:'running'},errors=[];report.runs.push(run);
   const phase=name=>{run.phase=name;saveReport();};phase('create-context');page.on('pageerror',e=>errors.push(e.message));await page.route(/^https?:/,route=>route.abort());
   try{
@@ -151,6 +166,7 @@ try{
   }catch(e){run.status='failed';run.error=e.stack||e.message;run.errors=errors;console.error(JSON.stringify({profile:profile.label,delay,phase:run.phase,error:run.error}));saveReport();await page.screenshot({path:join(out,`${profile.label}-${delay}-FAILED.png`)}).catch(()=>{});}
   finally{saveReport();await context.close();}
  }
+ if(!videoOnly){assertCompleteProfileShard(report.runs,selectedProfiles);report.coverage.executedComplete=true;saveReport();}
  // Optional single continuous recording runs in its own context after the timing-critical
  // assertions above. It uses the existing Playwright video capability; no dependencies install here.
  if(recordVideo){
