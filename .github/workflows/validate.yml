@@ -35,6 +35,7 @@ jobs:
           node tests/transitions-library-actual-shell.test.cjs
           node tests/transitions-library-focus-escape.test.cjs
           node tests/transitions-library-palette-input.test.cjs
+          node tests/transitions-library-native-ax-assertion.test.cjs
           node tests/transitions-library-snapshot-scroll.test.cjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check examples/seenry-site/app.js

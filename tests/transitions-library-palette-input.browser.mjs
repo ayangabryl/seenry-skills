@@ -29,6 +29,40 @@ const state = page => page.evaluate(() => {
   visibleOptions: [...box.querySelectorAll('[role=option]')].filter(e => !e.hidden && !e.closest('[data-st-ghost]')).map(e => e.dataset.value),
   events: window.paletteEvents, selections: window.paletteSelections};
 });
+// Native Chromium AX is authoritative for inert subtrees. Playwright1.63's
+// DOM-derived ariaSnapshot omits inert from its hidden checks, so retain it only
+// as diagnostic context rather than changing product semantics to match it.
+async function paletteAX(page) {
+ const cdp = await page.context().newCDPSession(page);
+ try {
+  await cdp.send('DOM.enable'); await cdp.send('Accessibility.enable');
+  const {root} = await cdp.send('DOM.getDocument', {depth: 0});
+  const {nodeId} = await cdp.send('DOM.querySelector', {nodeId: root.nodeId, selector: '#palette-1'});
+  assert(nodeId, 'Native AX scope must resolve to the actual palette');
+  const {node} = await cdp.send('DOM.describeNode', {nodeId, depth: -1, pierce: true});
+  const ids = new Set(); const walk = n => { if (n.backendNodeId) ids.add(n.backendNodeId); for (const child of n.children || []) walk(child); }; walk(node);
+  const {nodeId: listId} = await cdp.send('DOM.querySelector', {nodeId, selector: '#palette-list'});
+  assert(listId, 'Native AX scope must contain the actual result list');
+  const {node: listNode} = await cdp.send('DOM.describeNode', {nodeId: listId, depth: -1, pierce: true});
+  const resultIds = new Set(); const walkResults = n => { if (n.backendNodeId) resultIds.add(n.backendNodeId); for (const child of n.children || []) walkResults(child); }; walkResults(listNode);
+  const {nodeIds: optionIds} = await cdp.send('DOM.querySelectorAll', {nodeId: listId, selector: ':scope > [role=option]:not([data-st-ghost])'});
+  assert.equal(optionIds.length, 3, 'Native AX result scope must contain all three authored options');
+  const authoredOptionBackendIds = [];
+  for (const id of optionIds) { const {node: option} = await cdp.send('DOM.describeNode', {nodeId: id}); assert(resultIds.has(option.backendNodeId)); authoredOptionBackendIds.push(option.backendNodeId); }
+  const {nodes} = await cdp.send('Accessibility.getFullAXTree');
+  return {playwrightSnapshot: await page.locator('#palette-1').ariaSnapshot(), native: nodes.filter(n => ids.has(n.backendDOMNodeId)), resultBackendIds: [...resultIds], authoredOptionBackendIds};
+ } finally { await cdp.detach(); }
+}
+function assertPaletteAX(observed, expanded) {
+ const exposed = observed.native.filter(n => !n.ignored);
+ const inputs = exposed.filter(n => n.role?.value === 'combobox');
+ assert.equal(inputs.length, 1, 'Native tree must expose the persistent search input');
+ assert.equal(inputs[0].name?.value, 'Search commands');
+ assert.equal(inputs[0].properties?.find(p => p.name === 'expanded')?.value?.value, expanded, 'Native combobox expanded state must match logical state');
+ assert.equal(exposed.filter(n => n.role?.value === 'listbox').length, expanded ? 1 : 0, 'Native listbox exposure must follow expanded state');
+ assert.equal(exposed.filter(n => n.role?.value === 'option').length, expanded ? 3 : 0, 'Native result exposure must follow expanded state');
+ if (!expanded) assert.equal(exposed.filter(n => observed.resultBackendIds.includes(n.backendDOMNodeId)).length, 0, 'Closed result subtree must expose no native AX nodes, including result text');
+}
 const open = page => page.waitForFunction(() => document.querySelector('#palette-1').dataset.stOpen === 'true');
 const closed = page => page.waitForFunction(() => document.querySelector('#palette-1').dataset.stOpen === 'false');
 const settle = page => page.evaluate(async () => {
@@ -58,10 +92,11 @@ try {
    await input.click(); await open(page); await settle(page); s = await state(page);
    assert.equal(s.focused, true); assert.equal(s.expanded, 'true'); assert.equal(s.resultsInert, false); assert.equal(s.activeValue, 'project');
    assert(s.events.some(e => e.type === 'click' && e.trusted), 'opening must receive a trusted pointer click');
+   run.openAX = await paletteAX(page); assertPaletteAX(run.openAX, true);
    run.checks.push('direct trusted pointer click opens');
    await page.keyboard.press('Escape'); await closed(page); await settle(page); s = await state(page);
    assert.equal(s.inert, false); assert.equal(s.resultsInert, true); assert.equal(s.focused, true); assert.equal(s.expanded, 'false'); assert.equal(s.activeValue, null);
-   assert(!/option/.test(await page.locator('#palette-1').ariaSnapshot()), 'closed results must not remain in accessibility tree');
+   run.closedAX = await paletteAX(page); assertPaletteAX(run.closedAX, false);
    await page.screenshot({path: join(out, `${width}-${theme}-${motion}-closed.png`)});
    await input.click(); await open(page); await settle(page); assert.equal((await state(page)).resultsInert, false);
    run.checks.push('Escape keeps usable focused search; trusted pointer reopens');
