@@ -874,22 +874,30 @@
     and announces itself (st:cite) so its source can answer. ---------- */
  const streams = new WeakMap();
  function stream(el, chunk, {reset = false, done = false, stop = false} = {}) {
-  let s = streams.get(el); if (!s) streams.set(el, s = {buffer: '', frame: 0, t: 0});
+  let s = streams.get(el); if (!s) streams.set(el, s = {buffer: '', frame: 0, t: 0, stopped: false});
   // Stop keeps exactly what is on screen: letters already arriving finish at once, queued ones are dropped.
   if (stop) {
-   cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; el.setAttribute('aria-busy', 'false');
+   cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; s.stopped = true; el.setAttribute('aria-busy', 'false');
    for (const c of qa(el, '.st-word > span, .st-cite')) { const a = c.getAnimations(); if (a.some(x => (x.currentTime ?? 0) < (x.effect?.getTiming().delay || 0))) c.remove(); else a.forEach(x => x.finish()); }
-   qa(el, '.st-word').forEach(w => { if (!w.childElementCount) w.remove(); });
+   // Reduced motion renders text directly, without per-letter child elements.
+   qa(el, '.st-word').forEach(w => { if (!w.textContent) w.remove(); });
    return;
   }
-  if (reset) { cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; el.replaceChildren(); }
+  if (reset) { cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; s.stopped = false; el.replaceChildren(); }
+  // Late producer chunks cannot restart a stopped answer; a new answer explicitly resets.
+  if (s.stopped) return;
   s.buffer += chunk || '';
   el.setAttribute('aria-busy', String(!done));
   // Letters are revealed faster than text arrives, so the soft edge stays a few letters long and never backs up.
   const at = () => { const now = performance.now(); s.t = Math.max(s.t, now) + 3; return s.t - now; };
   const flush = () => {
    s.frame = 0; if (!el.isConnected || !s.buffer) { s.buffer = ''; return; }
-   const words = s.buffer.match(/\[\d+\]|[^\s[]+\s*|\s+/g) || []; s.buffer = '';
+   // Keep an unfinished citation across frame/chunk boundaries. At end-of-stream,
+   // an incomplete token is literal text. The fallback '[' alternative never drops ink.
+   let ready = s.buffer; s.buffer = '';
+   const partial = !done && /\[\d*$/.exec(ready);
+   if (partial) { s.buffer = partial[0]; ready = ready.slice(0, partial.index); }
+   const words = ready.match(/\[\d+\]|[^\s[]+\s*|\s+|\[/g) || [];
    for (const w of words) {
     const cite = /^\[(\d+)\]$/.exec(w);
     if (cite) {

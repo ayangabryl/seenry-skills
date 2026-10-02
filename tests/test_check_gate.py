@@ -14,6 +14,9 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 NODE = shutil.which('node')
 
+def resolved_existing_path(value):
+    return Path(value).resolve(strict=True)
+
 BOARD = r"""import {writeFileSync,mkdirSync,appendFileSync} from 'node:fs';
 import {join} from 'node:path';
 const a=process.argv.slice(2), out=a[a.indexOf('--out')+1];
@@ -188,7 +191,22 @@ class CheckGate(unittest.TestCase):
         previous=str(self.project/'.seenry'/row['motionEvidence']/'motion.json')
         second=self.run_gate();self.assertEqual(second.returncode,1,second.stdout+second.stderr)
         row=self.latest_history();args=json.loads((self.project/'.seenry'/row['motionEvidence']/'args.json').read_text())
-        self.assertIn('--prev',args);self.assertEqual(args[args.index('--prev')+1],previous)
+        self.assertIn('--prev',args)
+        # macOS may spell the same temporary path through /var or /private/var.
+        self.assertEqual(resolved_existing_path(args[args.index('--prev')+1]),resolved_existing_path(previous))
+
+    def test_previous_evidence_alias_resolves_to_the_same_existing_file(self):
+        target=self.root/'evidence.json';target.write_text('{}')
+        alias=self.root/'alias.json'
+        try: alias.symlink_to(target)
+        except (OSError,NotImplementedError) as error: self.skipTest(f'Symlink creation unavailable: {error}')
+        self.assertEqual(resolved_existing_path(alias),resolved_existing_path(target))
+
+    def test_previous_evidence_identity_rejects_different_or_missing_files(self):
+        first=self.root/'first.json';second=self.root/'second.json'
+        first.write_text('{}');second.write_text('{}')
+        self.assertNotEqual(resolved_existing_path(first),resolved_existing_path(second))
+        with self.assertRaises(FileNotFoundError): resolved_existing_path(self.root/'missing.json')
 
     def test_completed_violation_is_failed_quality_not_tool_error(self):
         self.configure(output=self.quality_result(score=9,violations=['held animation']),exit_code=1)
