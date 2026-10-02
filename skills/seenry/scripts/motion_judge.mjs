@@ -18,7 +18,7 @@
  *  4. With --prev (the previous round's motion.json), lists what is still open: every criterion under 9 that did not
  *     rise and every interaction the judge asked to fix again. Those are the ceiling; rounds stall when they are skipped.
  *  Writes motion-board.png (every row), motion-board-N.png (the pages the model reads) and motion.json to --out;
- *  exits 1 on hard violations or an overall under 9.
+ *  exits 1 on a completed judgment with hard violations or an overall under 9; exits 2 when no complete judgment is available.
  *
  *  Scale: 9-10 is indistinguishable from Apple, Linear or Family at their best; 8 is clearly premium; 6-7 is correct
  *  but generic (right tokens, fades and small translates, nothing a top team would call crafted). */
@@ -29,6 +29,7 @@ import {pathToFileURL, fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 import {findCli, askModel} from './model_cli.mjs';
+import {MOTION_SCORE_KEYS, MOTION_VERDICT_SCHEMA, validMotionVerdict} from './motion_contract.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -38,7 +39,11 @@ if (flag('ask')) {
   const job = JSON.parse(readFileSync(flag('ask'), 'utf8'));
   const found = findCli(process.env.SEENRY_CRITIC);
   if (!found) process.exit(2);
-  try { writeFileSync(job.result, JSON.stringify({...askModel(found, job), cli: found.cli})); process.exit(0); }
+  try {
+    const response = askModel(found, job);
+    if (!validMotionVerdict(response)) throw new Error('Motion judge returned an incomplete or malformed judgment');
+    writeFileSync(job.result, JSON.stringify({...response, cli: found.cli})); process.exit(0);
+  }
   catch (e) { process.stderr.write(e.message); process.exit(1); }
 }
 
@@ -321,11 +326,7 @@ let verdict = null;
 const found = !args.includes('--no-critic') && findCli(process.env.SEENRY_CRITIC);
 if (found && normal.length) {
   const brief = flag('brief') && existsSync(flag('brief')) ? readFileSync(flag('brief'), 'utf8') : '';
-  const KEYS = ['origin', 'attachment', 'choreography', 'character', 'exit', 'continuity', 'interruption', 'states', 'reduced_motion', 'overall'];
-  const schema = {type: 'object', additionalProperties: false, required: ['scores', 'rows', 'verdict', 'fixes'], properties: {
-    scores: {type: 'object', additionalProperties: false, required: KEYS, properties: Object.fromEntries(KEYS.map(k => [k, {type: 'integer', minimum: 1, maximum: 10}]))},
-    rows: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['interaction', 'score', 'note'], properties: {interaction: {type: 'string'}, score: {type: 'integer', minimum: 1, maximum: 10}, note: {type: 'string'}}}},
-    verdict: {type: 'string'}, fixes: {type: 'array', minItems: 1, maxItems: 10, items: {type: 'object', additionalProperties: false, required: ['interaction', 'problem', 'fix'], properties: {interaction: {type: 'string'}, problem: {type: 'string'}, fix: {type: 'string'}}}}}};
+  const KEYS = MOTION_SCORE_KEYS, schema = MOTION_VERDICT_SCHEMA;
   const measured = report.interactions.map(i => ({interaction: i.label,
     enter: i.anims.filter(a => a.iterations !== Infinity).slice(0, 8).map(a => ({target: a.target, props: a.props, ms: Math.round(a.duration), ...(a.ms95 ? {visibleMs: a.ms95} : {}), delay: a.delay, easing: a.easing, from: a.from, to: a.to})),
     nextChange: i.reverseAnims.filter(a => a.iterations !== Infinity).slice(0, 6).map(a => ({target: a.target, props: a.props, ms: Math.round(a.duration), easing: a.easing, to: a.to})), layoutShift: i.shift}));
@@ -352,8 +353,8 @@ Look at every frame. Score each rubric criterion and each interaction (rows: one
     writeFileSync(job, JSON.stringify({images: pages, prompt, schema, result}));
     const child = spawn(process.execPath, [self, '--ask', job], {stdio: ['ignore', 'ignore', 'pipe'], env: process.env});
     let err = ''; child.stderr.on('data', d => err += d);
-    child.on('close', code => { try { done(JSON.parse(readFileSync(result, 'utf8'))); } catch { process.stderr.write(`motion judge run ${k + 1} failed (${code}): ${err.slice(0, 600)}\n`); done(null); } });
-  })))).filter(r => r && r.scores);
+    child.on('close', code => { try { if (code !== 0) throw new Error('model child failed'); done(JSON.parse(readFileSync(result, 'utf8'))); } catch { process.stderr.write(`motion judge run ${k + 1} failed (${code}): ${err.slice(0, 600)}\n`); done(null); } });
+  })))).filter(r => validMotionVerdict(r, {annotated: true}));
   if (results.length) {
     const median = xs => [...xs].sort((a, b) => a - b)[Math.floor((xs.length - 1) / 2)];
     const scores = Object.fromEntries(KEYS.map(k => [k, median(results.map(r => r.scores[k]))]));
@@ -379,6 +380,11 @@ Look at every frame. Score each rubric criterion and each interaction (rows: one
     }
   } else console.error('motion judge model failed on every run.');
 }
-writeFileSync(join(out, 'motion.json'), JSON.stringify({...report, verdict}, null, 2));
+// A quality failure is usable review evidence; missing judgment is a tool/incomplete
+// outcome. Keep the explicit outcome and exit code in agreement for check.mjs.
+const score = verdict?.scores?.overall;
+const complete = validMotionVerdict(verdict, {annotated: true});
+const outcome = !complete ? 'unverified' : violations.length || score < 9 ? 'quality-fail' : 'pass';
+writeFileSync(join(out, 'motion.json'), JSON.stringify({...report, verdict, outcome}, null, 2));
 console.log(`\nWritten to ${join(out, 'motion.json')}, motion-board.png and ${pages.length} board page(s)`);
-process.exit(violations.length || (verdict && verdict.scores.overall < 9) ? 1 : 0);
+process.exit(outcome === 'pass' ? 0 : outcome === 'quality-fail' ? 1 : 2);

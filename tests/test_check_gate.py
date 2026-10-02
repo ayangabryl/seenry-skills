@@ -32,6 +32,7 @@ import {join} from 'node:path';
 const a=process.argv.slice(2), out=a[a.indexOf('--out')+1];
 const config=JSON.parse(readFileSync(new URL('./motion-config.json',import.meta.url),'utf8'));
 mkdirSync(out,{recursive:true});
+writeFileSync(join(out,'args.json'),JSON.stringify(a));
 if(config.output !== null) writeFileSync(join(out,'motion.json'),typeof config.output==='string'?config.output:JSON.stringify(config.output));
 process.exit(config.exit);
 """
@@ -46,6 +47,8 @@ class CheckGate(unittest.TestCase):
         for p in [self.scripts, self.project/'.seenry/research', self.project/'.seenry/refs', self.project/'.seenry/explore']:
             p.mkdir(parents=True)
         shutil.copyfile(ROOT/'skills/seenry/scripts/check.mjs',self.scripts/'check.mjs')
+        contract=ROOT/'skills/seenry/scripts/motion_contract.mjs'
+        if contract.exists(): shutil.copyfile(contract,self.scripts/'motion_contract.mjs')
         (self.scripts/'review_board.mjs').write_text(BOARD)
         (self.scripts/'screens.mjs').write_text(BOARD)
         (self.scripts/'critic.mjs').write_text(CRITIC)
@@ -166,6 +169,117 @@ class CheckGate(unittest.TestCase):
     def test_motion_violation_is_not_pass(self):
         self.configure(output={'violations':['unverified keyboard reversal'],'verdict':{'scores':{'overall':9}}})
         self.assert_blocked(self.run_gate())
+
+    def quality_result(self, score=8, violations=None, outcome='quality-fail'):
+        keys=['origin','attachment','choreography','character','exit','continuity','interruption','states','reduced_motion','overall']
+        verdict={'scores':dict.fromkeys(keys,score),'rows':[{'interaction':'Card','score':8,'note':'Review fixture'}],
+                 'verdict':'Complete fixture','fixes':[{'interaction':'Card','problem':'A test finding','fix':'Apply the fixture repair'}]}
+        return {'outcome':outcome,'violations':violations or [],'verdict':verdict}
+
+    def latest_history(self):
+        return json.loads((self.project/'.seenry/review/check.json').read_text())[-1]
+
+    def test_completed_quality_failure_retains_history_snapshot_and_previous_round(self):
+        self.configure(output=self.quality_result(),exit_code=1)
+        first=self.run_gate();self.assertEqual(first.returncode,1,first.stdout+first.stderr)
+        self.assertIn('FAIL round 1',first.stdout);self.assertNotIn('UNVERIFIED',first.stdout)
+        row=self.latest_history();self.assertEqual(row['motion'],8);self.assertNotIn('motionError',row)
+        self.assertTrue((self.project/'.seenry/review/round-1/index.html').exists())
+        previous=str(self.project/'.seenry'/row['motionEvidence']/'motion.json')
+        second=self.run_gate();self.assertEqual(second.returncode,1,second.stdout+second.stderr)
+        row=self.latest_history();args=json.loads((self.project/'.seenry'/row['motionEvidence']/'args.json').read_text())
+        self.assertIn('--prev',args);self.assertEqual(args[args.index('--prev')+1],previous)
+
+    def test_completed_violation_is_failed_quality_not_tool_error(self):
+        self.configure(output=self.quality_result(score=9,violations=['held animation']),exit_code=1)
+        result=self.run_gate();self.assertEqual(result.returncode,1,result.stdout+result.stderr)
+        self.assertIn('FAIL round',result.stdout);self.assertNotIn('motionError',self.latest_history())
+        self.assertEqual(self.latest_history()['motionViolations'],1)
+
+    def test_completed_quality_failures_obey_stopping_budget(self):
+        self.configure(output=self.quality_result(),exit_code=1)
+        for _ in range(3): self.assertEqual(self.run_gate().returncode,1)
+        stopped=self.run_gate();self.assertEqual(stopped.returncode,3,stopped.stdout+stopped.stderr)
+        self.assertIn('quality target was not reached',stopped.stdout)
+        calls=(self.project/'.seenry/review/board-calls.log').read_text()
+        again=self.run_gate();self.assertEqual(again.returncode,3,again.stdout+again.stderr)
+        self.assertIn('STOPPED',again.stdout)
+        self.assertEqual((self.project/'.seenry/review/board-calls.log').read_text(),calls)
+
+    def test_unmarked_nonzero_low_result_still_blocks(self):
+        self.configure(output={'violations':[],'verdict':{'scores':{'overall':8}}},exit_code=1)
+        result=self.run_gate();self.assertEqual(result.returncode,2);self.assertIn('UNVERIFIED',result.stdout)
+        self.assertIn('motionError',self.latest_history())
+
+    def test_quality_marker_never_overrides_tool_exit(self):
+        for code in [0,2,7]:
+            with self.subTest(code=code):
+                self.configure(output=self.quality_result(),exit_code=code)
+                result=self.run_gate();self.assertEqual(result.returncode,2,result.stdout+result.stderr)
+                self.assertIn('motionError',self.latest_history())
+
+    def test_contradictory_or_unknown_motion_outcome_blocks(self):
+        for score,outcome,code in [(9,'quality-fail',1),(8,'pass',0),(9,'unverified',0),(9,'unexpected',0),(9,None,0),(9,'pass',1)]:
+            with self.subTest(score=score,outcome=outcome,code=code):
+                self.configure(output=self.quality_result(score=score,outcome=outcome),exit_code=code)
+                result=self.run_gate();self.assertEqual(result.returncode,2,result.stdout+result.stderr)
+                self.assertIn('UNVERIFIED',result.stdout)
+
+    def test_quality_marker_cannot_complete_missing_or_invalid_evidence(self):
+        for result in [{'outcome':'quality-fail','violations':[],'verdict':None},
+                       {'outcome':'quality-fail','verdict':{'scores':{'overall':8}}},
+                       self.quality_result(score='8'), self.quality_result(score=11)]:
+            with self.subTest(result=result):
+                self.configure(output=result,exit_code=1)
+                gate=self.run_gate();self.assertEqual(gate.returncode,2);self.assertIn('UNVERIFIED',gate.stdout)
+
+    def test_explicit_complete_pass_keeps_zero_exit(self):
+        self.configure(output=self.quality_result(score=9,outcome='pass'),exit_code=0)
+        result=self.run_gate();self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertIn('PASS round',result.stdout)
+
+    def test_native_legacy_low_result_is_completed_quality_failure(self):
+        self.native_fixture();self.configure(output={'violations':[],'verdict':{'scores':{'overall':8}}})
+        result=self.run_native_gate();self.assertEqual(result.returncode,1,result.stdout+result.stderr)
+        self.assertNotIn('motionError',self.latest_history())
+
+    def test_marked_overall_only_judgment_is_never_complete(self):
+        self.configure(output={'outcome':'pass','violations':[],'verdict':{'scores':{'overall':9},'rows':[],'fixes':[],'verdict':'ok'}})
+        gate=self.run_gate();self.assertEqual(gate.returncode,2);self.assertIn('UNVERIFIED',gate.stdout)
+        self.assertIn('malformed marked motion judgment',gate.stdout)
+
+    def test_marked_judgment_requires_every_declared_score(self):
+        for key in ['origin','attachment','choreography','character','exit','continuity','interruption','states','reduced_motion','overall']:
+            with self.subTest(key=key):
+                result=self.quality_result(score=9,outcome='pass');del result['verdict']['scores'][key]
+                self.configure(output=result);gate=self.run_gate();self.assertEqual(gate.returncode,2,gate.stdout+gate.stderr)
+
+    def test_marked_judgment_rejects_malformed_rows_fixes_and_fields(self):
+        cases=[]
+        for field,value in [('rows',None),('rows',[None]),('rows',[{'interaction':'Card','score':9}]),
+                            ('rows',[{'interaction':'Card','score':'9','note':'fixture'}]),
+                            ('fixes',[]),('fixes',[None]),('fixes',[{'interaction':'Card','problem':'fixture'}]),
+                            ('fixes',[{'interaction':'Card','problem':'fixture','fix':42}]),('verdict',42)]:
+            result=self.quality_result(score=9,outcome='pass');result['verdict'][field]=value;cases.append(result)
+        result=self.quality_result(score=9,outcome='pass');result['verdict']['scores']['origin']=8.5;cases.append(result)
+        result=self.quality_result(score=9,outcome='pass');result['verdict']['scores']['origin']=0;cases.append(result)
+        result=self.quality_result(score=9,outcome='pass');result['verdict']['unexpected']=True;cases.append(result)
+        result=self.quality_result(score=9,outcome='pass');result['violations']=[42];cases.append(result)
+        for result in cases:
+            with self.subTest(result=result):
+                self.configure(output=result);gate=self.run_gate();self.assertEqual(gate.returncode,2,gate.stdout+gate.stderr)
+
+    def test_marked_judgment_rejects_invalid_producer_annotations(self):
+        for key,value in [('cli',9),('runs',[]),('runs',[11]),('stillOpen',{'criteria':['bogus'],'interactions':[]})]:
+            with self.subTest(key=key,value=value):
+                result=self.quality_result(score=9,outcome='pass');result['verdict'][key]=value
+                self.configure(output=result);self.assertEqual(self.run_gate().returncode,2)
+
+    def test_complete_marked_judgment_keeps_declared_threshold(self):
+        result=self.quality_result(score=9,outcome='pass');result['verdict']['scores']['origin']=1
+        result['verdict']['cli']='codex';result['verdict']['runs']=[9,8,9]
+        result['verdict']['stillOpen']={'criteria':['origin'],'interactions':['Card']}
+        self.configure(output=result);gate=self.run_gate();self.assertEqual(gate.returncode,0,gate.stdout+gate.stderr)
 
     def test_unchanged_local_source_stays_stopped(self):
         before=self.mark_stopped();result=self.run_gate()

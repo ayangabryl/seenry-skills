@@ -26,6 +26,8 @@ jobs:
           node-version: 22
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
       - run: node --test tests/transition-contracts.test.mjs
+      - name: Validate motion judgment protocol without model calls
+        run: node tests/motion-judgment-contract.test.cjs
       - name: Exercise Transitions3 library logic and rendered-finding regressions
         shell: bash
         run: |

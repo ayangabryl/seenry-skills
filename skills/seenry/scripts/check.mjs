@@ -14,6 +14,7 @@ import {resolve, join, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
+import {validMotionVerdict} from './motion_contract.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -192,9 +193,21 @@ const motionScore = motion?.verdict?.scores?.overall ?? null;
 if (!motionError && (!Number.isFinite(motionScore) || motionScore < 0 || motionScore > 10 || !Array.isArray(motion?.violations))) {
   motionError = 'incomplete motion judgment';
 }
-if (mj.status !== 0) motionError = `motion process exited ${mj.status ?? mj.signal ?? 'without status'}`;
-if (identity.digest !== projectFingerprint().digest) motionError = 'local source changed during review';
 const motionBlocks = Array.isArray(motion?.violations) ? motion.violations.length : 0;
+// The web judge distinguishes a completed quality failure (exit 1) from a tool failure
+// (exit 2). Require its explicit, internally consistent outcome before accepting any
+// nonzero exit as evidence. Older/native zero-exit results keep their existing contract.
+let evidenceExit = mj.status === 0;
+if (!motionError && Object.hasOwn(motion, 'outcome')) {
+  if (!validMotionVerdict(motion.verdict, {annotated: true}) || !motion.violations.every(v => typeof v === 'string')) {
+    motionError = 'incomplete or malformed marked motion judgment';
+  }
+  const expected = motionScore >= 9 && !motionBlocks ? 'pass' : 'quality-fail';
+  if (motion.outcome !== expected) motionError = 'inconsistent motion outcome';
+  evidenceExit = motion.outcome === 'pass' ? mj.status === 0 : motion.outcome === 'quality-fail' && mj.status === 1;
+}
+if (!evidenceExit) motionError = `motion process exited ${mj.status ?? mj.signal ?? 'without status'}`;
+if (identity.digest !== projectFingerprint().digest) motionError = 'local source changed during review';
 if (motionError) {
   history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks,
     motionError, motionEvidence: relative(dir, motionDir), hash: fingerprint});
