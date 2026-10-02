@@ -177,9 +177,10 @@ const verdict = JSON.parse(readFileSync(out, 'utf8'));
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
 // Every attempt owns fresh evidence; a prior result must never satisfy a new run.
 const motionDir = mkdtempSync(join(review, `motion-${round}-`));
+const lastMotion = completedReviews().filter(h => h.motionEvidence).map(h => join(dir, h.motionEvidence, 'motion.json')).filter(existsSync).pop();
 const mj = native
   ? spawnSync('node', [join(here, 'motion_video.mjs'), '--video', video, '--out', motionDir, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
-  : spawnSync('node', [join(here, 'motion_judge.mjs'), target, '--out', motionDir, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
+  : spawnSync('node', [join(here, 'motion_judge.mjs'), target, '--out', motionDir, ...(lastMotion ? ['--prev', lastMotion] : []), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
 process.stdout.write('\n' + mj.stdout);
 let motion = null, motionError = null;
 const motionPath = join(motionDir, 'motion.json');

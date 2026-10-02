@@ -2,7 +2,7 @@
 /** Motion and interaction judge: screenshots cannot show motion, so this plays the page's interactions and judges them.
  *
  *  node motion_judge.mjs <url | file.html> [--out .seenry/review/motion] [--max 8] [--selector "[data-replay]"] [--brief BRIEF.md] [--no-critic]
- *                        [--playwright path] [--runs 3] [--slow 4] [--labels "Menu,Tabs"]
+ *                        [--playwright path] [--runs 3] [--slow 4] [--labels "Menu,Tabs"] [--prev last/motion.json]
  *
  *  1. Plays up to --max interactive controls (every distinct --selector match when a selector is given, up to 40) in
  *     slow motion (--slow 4: the page's animation timeline, timers and requestAnimationFrame clock run 4x slower, so a
@@ -15,8 +15,10 @@
  *  3. Blocks hard violations (layout properties animated, UI transitions over 600ms, motion that ignores reduced
  *     motion, layout shift) and asks three independent model runs to score the filmstrips against a calibrated rubric.
  *     The score is the median of the runs; the fixes come from the run that scored the median.
+ *  4. With --prev (the previous round's motion.json), lists what is still open: every criterion under 9 that did not
+ *     rise and every interaction the judge asked to fix again. Those are the ceiling; rounds stall when they are skipped.
  *  Writes motion-board.png (every row), motion-board-N.png (the pages the model reads) and motion.json to --out;
- *  exits 1 on hard violations or an overall under 8.
+ *  exits 1 on hard violations or an overall under 9.
  *
  *  Scale: 9-10 is indistinguishable from Apple, Linear or Family at their best; 8 is clearly premium; 6-7 is correct
  *  but generic (right tokens, fades and small translates, nothing a top team would call crafted). */
@@ -355,8 +357,21 @@ Look at every frame. Score each rubric criterion and each interaction (rows: one
     console.log(chosen.verdict);
     console.log('Rows: ' + chosen.rows.map(r => `${r.interaction} ${r.score}`).join(' · '));
     chosen.fixes.forEach((f, i) => console.log(`${i + 1}. [${f.interaction}] ${f.problem} → ${f.fix}`));
+    const prevPath = flag('prev');
+    const prev = prevPath && existsSync(prevPath) ? JSON.parse(readFileSync(prevPath, 'utf8')).verdict : null;
+    if (prev?.scores) {
+      const stuck = KEYS.filter(k => k !== 'overall' && s[k] < 9 && s[k] <= (prev.scores[k] ?? 0));
+      const asked = new Set((prev.fixes || []).map(f => f.interaction));
+      const again = [...new Set(chosen.fixes.map(f => f.interaction).filter(i => asked.has(i)))];
+      verdict.stillOpen = {criteria: stuck, interactions: again};
+      if (stuck.length || again.length) {
+        console.log(`\nSTILL OPEN since the last round (the ceiling; fix all of it before the next run):`);
+        if (stuck.length) console.log(`  criteria not rising: ${stuck.map(k => `${k} ${prev.scores[k]}→${s[k]}`).join(', ')}. Apply every fix that names them, including the small ones.`);
+        if (again.length) console.log(`  asked to fix again: ${again.join(', ')}. If a fix was applied and the same problem returns, the structure is wrong (a path that crosses, a layout that differs between states); redesign that part instead of retuning timing.`);
+      }
+    }
   } else console.error('motion judge model failed on every run.');
 }
 writeFileSync(join(out, 'motion.json'), JSON.stringify({...report, verdict}, null, 2));
 console.log(`\nWritten to ${join(out, 'motion.json')}, motion-board.png and ${pages.length} board page(s)`);
-process.exit(violations.length || (verdict && verdict.scores.overall < 8) ? 1 : 0);
+process.exit(violations.length || (verdict && verdict.scores.overall < 9) ? 1 : 0);

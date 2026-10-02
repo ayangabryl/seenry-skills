@@ -68,6 +68,13 @@ Keyboard-triggered actions never wait on animation. If the gate says no, say so 
 - **Release finished animations.** Establish the settled state through CSS or committed styles, then release finite owned WAAPI animations when appropriate. `fill:forwards` must not keep overriding later state changes. Check for unexpected animations after the interaction settles, while allowing a purposeful ongoing loading indicator until its work ends.
 - **Each move explains a relationship.** Menus grow from their trigger, panels from their edge, and related content moves consistently with navigation. Use the duration ranges above as starting points; keep perceived response immediate and justify longer travel. Test interruption and reduced motion rather than treating a fixed duration as proof of quality.
 
+**Reaching 9.** On the motion judge, 7 is correct but generic, 8 is clearly premium and 9 is distinctive at the level of Apple or Linear. Rounds stall at 7–8 for the same few reasons. Handle all of them before spending a run:
+- **One component at a time.** Judge each component alone with `--labels "<Row>"` until it scores 9, and keep the best version of each. A catalog's overall follows its weakest rows, so patching many rows at once never moves it, and a change that lowers a row is reverted even when the judge suggested it.
+- **Apply every fix, not only the headline one.** Small items that recur (hover, press and close-control feedback) hold `states` at 7 round after round. `--prev <last motion.json>` lists the criteria that did not rise and the interactions asked to fix again; `check.mjs` passes it automatically.
+- **A problem that returns after its fix is structural.** Retiming cannot fix a path that crosses. Shared elements keep their relative arrangement between states: a title below its cover stays below it in the detail view, so neither passes through the other.
+- **No empty frames.** At every filmed moment (30–320ms) the changed region shows real content. A shell carries its content as it grows; a streaming answer grows from its first words. Never show a blank answer box or a skeleton that waits and then dissolves.
+- **One crafted idea per component.** What persists travels and what is new is born from its cause. A fade, a 4px translate and a label swap score 7.
+
 **7. Ship reduced motion and input gating with it.** Under `prefers-reduced-motion: reduce`, remove movement, parallax, blur and loops; keep short opacity changes that aid understanding. Gate hover motion with `@media (hover: hover) and (pointer: fine)`. Every animated state change also leaves a static cue (label, icon, color) for when motion does not run.
 
 ## Recipes
