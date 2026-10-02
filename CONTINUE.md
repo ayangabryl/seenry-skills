@@ -128,6 +128,17 @@ interfaces, the success-check tip and the state-transition tip.
     - The avatar and copy demos were called bad.
     - AI must reach 9; it is currently 7 on the judge.
 16. **Shimmer must be premium** (done partly: Thinking states). Verify it with the owner.
+17. **Card expand: the hover state is wrong.**
+    - The hover pill has **no inner padding**: the cover art sits flush against the pill's left, top and bottom
+      edges.
+    - The hover **lifts** the row (`translateY(-1px)`). That contradicts the system: hover never moves things. Hover
+      is a tint or ring change only. Press may scale to `.97–.98`.
+    - Fix: give the row a real inner inset (pill padding of 6–8px around cover and text, with concentric radius
+      equal to the cover radius plus the inset). Remove every hover `translate` in the catalog (search for `hover` +
+      `translateY`).
+    - Review the expand motion again after the hover fix. The owner says card expand "seems bad".
+18. **Every component must be reviewed** for bugs and improvements using the protocol below. Nothing is "done"
+    until it passes every line.
 
 ## Per-component status
 
@@ -140,7 +151,7 @@ interfaces, the success-check tip and the state-transition tip.
 | Bottom sheet | ok; review |
 | Drawer | real rows; review |
 | Tooltip | real text; ok |
-| Card expand | judge 8–9 (prior session); review "why" |
+| Card expand | judge 8–9 (prior session); **hover has no padding and lifts (#17); owner says it seems bad** |
 | Tabs | panel blur swap + hover; **still bad (#6)** |
 | Segmented control | hover only; review |
 | Page transition | back control + timing; **chevron still overlaps title briefly** |
@@ -170,6 +181,48 @@ interfaces, the success-check tip and the state-transition tip.
 | Reorder | rebuilt; review |
 | Thinking states (shimmer) | rebuilt; verify |
 | Tilt card / Text reveal | extras; review |
+
+## Review protocol: run for EVERY component, one at a time
+
+Copy this list into a scratch file per component and tick each line with evidence (film frames or a screenshot).
+
+**Rest state**
+- [ ] One clear idea, centred, with real content: no placeholder bars or lorem.
+- [ ] Inner padding: no content touches the edge of its own pill, card or button. Radii are concentric (outer =
+  inner + inset).
+- [ ] Uses the system surface (ring + soft shadow), radii (controls 10, surfaces 14, card 24, stage 16), type and
+  colour tokens. No divider lines.
+
+**States**
+- [ ] Hover: tint or ring only, `180ms cubic-bezier(.25,0,.06,1)`. **No movement on hover.**
+- [ ] Press: scale `.97–.98`, 100ms.
+- [ ] Focus: a visible ring **only for keyboard** (`:focus-visible` / `data-st-input-mode`). No ring on mouse click.
+- [ ] Disabled, selected and active states are distinct and calm.
+
+**Motion**
+- [ ] Origin: it grows from the thing that caused it (trigger, edge or row), not from the centre of nowhere.
+- [ ] Continuity: what persists travels (shared element). Nothing doubles: old content clears before new content is
+  legible in the same place.
+- [ ] No empty frames: at 30–320ms the region always shows real content. No empty shell or stray shadow.
+- [ ] Nothing snaps: containers that change size use a spring shell (`resize()`), and growing content is anchored at
+  the top of its stage.
+- [ ] Close is designed, not reversed: faster and simpler. The close control sits where the open control was.
+- [ ] Interrupt: a second input 70ms in reverses from the rendered value. No jump, flash or restart.
+- [ ] Timing feels deliberate, not "so fast": entrances 250–450ms on `(.3,1,0,1)` or a spring; exits 120–220ms.
+- [ ] Blur option on (`data-st-blur`): a visible premium focus-pull where it fits, and never on large surfaces.
+- [ ] Reduced motion: no travel, scale, blur or loops; short opacity only; the state is still clear.
+
+**Platforms**
+- [ ] Light and dark both checked.
+- [ ] 1440, 1100, 390 and 320px: no clipping or overlap, and touch targets ≥ 24px (44px on coarse pointers).
+- [ ] No console errors and no held animations (`fill: forwards` left over).
+
+**Proof and teaching**
+- [ ] Filmed in slow motion: open, close and interrupt (`film.mjs`).
+- [ ] Motion judge run twice; 9+ on both counts as done.
+- [ ] A short **"Why this works"** note for the catalog: the scenario, why this motion fits it, and what to avoid.
+- [ ] The rule behind it is captured in the skill (`skills/seenry-motion/SKILL.md` or references), so agents apply it
+  in users' projects.
 
 ## How to test
 
