@@ -201,7 +201,7 @@ jobs:
               'tests/transitions-library-label-paint.mjs',
               'tests/transitions-library-card-readable.mjs',
               'tests/transitions-library-card-anchor-fallback.browser.mjs',
-              'tests/transitions-library-card-focus-transfer-diagnostic.browser.mjs',
+              'tests/transitions-library-card-semantic-visibility.browser.mjs',
               'tests/transitions-library-dialog-raster.browser.mjs',
               'tests/transitions-library-reduced-expand-reopen.browser.mjs',
           ]
@@ -228,18 +228,18 @@ jobs:
         if: ${{ !cancelled() }}
         timeout-minutes: 1
         run: node tests/transitions-library-card-anchor-diagnostic.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-card-evidence/anchor-diagnostic"
-      - name: Diagnose native Card fallback focus before style reads
+      - name: Exercise native Card visibility and focus ownership
         if: ${{ !cancelled() }}
         timeout-minutes: 2
-        run: node tests/transitions-library-card-focus-transfer-diagnostic.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-card-evidence/focus-diagnostic"
-      - name: Preserve native Card focus diagnostic and source pins
+        run: node tests/transitions-library-card-semantic-visibility.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-card-evidence/semantic-visibility"
+      - name: Preserve native Card visibility and source pins
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: card-focus-diagnostic-ubuntu
+          name: card-semantic-visibility-ubuntu
           path: |
             ${{ runner.temp }}/seenry-card-evidence/source.json
-            ${{ runner.temp }}/seenry-card-evidence/focus-diagnostic
+            ${{ runner.temp }}/seenry-card-evidence/semantic-visibility
           if-no-files-found: error
           retention-days: 7
       - name: Exercise marked Card fallback and relocated anchors

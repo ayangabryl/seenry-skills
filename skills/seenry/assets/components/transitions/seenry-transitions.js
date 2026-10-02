@@ -1306,15 +1306,43 @@
   }
   group.inert = true;
  }
+ // The Card owns inherited visibility when it exposes or finally hides its detail.
+ // A host's transition:all must not leave that semantic endpoint waiting on a clock.
+ function transferExpandVisibility(detail, update) {
+  const held = [];
+  for (const el of [detail, ...qa(detail, '*')]) {
+   const cs = getComputedStyle(el), properties = (cs.transitionProperty || '').split(',').map(x => x.trim());
+   if (!properties.some(p => p === 'all' || p === 'visibility')) continue;
+   const saved = expandStyle(el, ['transition-property','transition-duration','transition-delay']);
+   const durations = (cs.transitionDuration || '0s').split(','), delays = (cs.transitionDelay || '0s').split(',');
+   const owned = {'transition-property': [...properties, 'visibility'].join(', '), 'transition-duration': [...properties.map((_, i) => durations[i % durations.length]), '0s'].join(', '), 'transition-delay': [...properties.map((_, i) => delays[i % delays.length]), '0s'].join(', ')};
+   for (const [key, value] of Object.entries(owned)) el.style.setProperty(key, value, 'important');
+   held.push({el, saved, owned: expandStyle(el, Object.keys(owned))});
+  }
+  try {
+   for (const {el} of held) for (const animation of el.getAnimations?.() || []) if (animation.effect?.target === el && !animation.effect.pseudoElement && animation.transitionProperty === 'visibility') animation.cancel();
+   return update();
+  } finally {
+   // Commit the current owner's state, including a synchronous native-focus reopen.
+   for (const {el} of held) getComputedStyle(el).visibility;
+   for (const {el, saved, owned} of held) for (const [key, value] of Object.entries(owned)) {
+    // A host focus handler may intentionally replace a declaration during showModal.
+    if (el.style.getPropertyValue(key) === value.value && el.style.getPropertyPriority(key) === value.priority) el.style.setProperty(key, saved[key].value, saved[key].priority);
+   }
+  }
+ }
  function expand(source, detail, o = {}) {
   if (!source || !detail) return;
   let instant = o.keyboard ?? keyboardInput;
   if (instant) detail.dataset.stInstant = ''; else delete detail.dataset.stInstant;
   const s = layerState(detail), wasClosing = s.closing; s.source = source; s.open = true; s.closing = false; const v = ++s.version;
   if (!wasClosing) s.moved = false;
-  detail.dataset.stOpen = 'true'; delete detail.dataset.stClosing; detail.hidden = false; detail.inert = false; active.add(detail);
   const nativeFocus = detail.tagName === 'DIALOG' && !detail.open;
-  if (nativeFocus) { detail.showModal(); if (s.version !== v || !s.open) return; }
+  transferExpandVisibility(detail, () => {
+   detail.dataset.stOpen = 'true'; delete detail.dataset.stClosing; detail.hidden = false; detail.inert = false; active.add(detail);
+   if (nativeFocus) detail.showModal();
+  });
+  if (nativeFocus && (s.version !== v || !s.open)) return;
   holdExpandSources(source, detail, s);
   s.trigger = source; source.setAttribute('aria-expanded', 'true');
   const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
@@ -1387,7 +1415,8 @@
    restoreExpandPaint(surface, s);
    restoreExpandClosePin(s);
    releaseExpandSources(s);
-   source.style.visibility = ''; detail.dataset.stOpen = 'false'; delete detail.dataset.stClosing; active.delete(detail);
+   source.style.visibility = '';
+   transferExpandVisibility(detail, () => { detail.dataset.stOpen = 'false'; delete detail.dataset.stClosing; active.delete(detail); });
    const titleFades = new Set(s.titleFades); s.titleFades?.clear();
    stopAll(surface); qa(detail, '*').forEach(stopAll); if (scrim) stopAll(scrim);
    if (detail.tagName === 'DIALOG' && detail.open) detail.close();
