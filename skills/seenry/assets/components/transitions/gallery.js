@@ -12,14 +12,20 @@
   runs.set(key, timers);
  };
  let resized = false, badgeValue = 3, progressError = false;
+ const resizeRows = [['Design', '4 updates', '#3e63dd'], ['Engineering', '6 updates', '#12a594'], ['Marketing', '2 updates', '#f76b15']];
  const doResize = () => {
   resized = !resized;
-  S.resize($('resize-card'), () => {
-   $('resize-content').hidden = !resized;
-   $('resize-content').innerHTML = '<p>8 updates across the team.</p><p>Next review: Friday at 10:00.</p>';
-   S.swapText($('resize-action'), resized ? 'Hide details' : 'Show details');
-   $('resize-action').setAttribute('aria-expanded', String(resized));
+  const toggle = $('resize-action'), more = $('resize-content');
+  toggle.setAttribute('aria-expanded', String(resized)); toggle.setAttribute('aria-label', resized ? 'Hide details' : 'Show details');
+  const apply = () => S.resize($('resize-card'), () => {
+   more.hidden = !resized;
+   more.innerHTML = resizeRows.map(([t, n, c]) => `<div class="rz-row" style="--c:${c}"><i></i><span>${t}</span><em>${n}</em></div>`).join('');
   });
+  // Closing: the rows clear (lift, blur, fade) just ahead of the shell, so it never shrinks over live text or sits empty.
+  if (!resized && !reduce() && !more.hidden) { [...more.children].forEach(r => S.play(r, [{opacity: 0, transform: 'translateY(-4px)', filter: 'blur(2px)'}], {ms: 110, curve: 'X', fill: 'forwards', blur: false})); sequence('resize', [[60, apply]]); }
+  else apply();
+  // Rows arrive one after another while the shell is still opening: a 6px rise and a light un-blur.
+  if (resized && !reduce()) [...more.children].forEach((r, i) => S.play(r, [{opacity: 0, transform: 'translateY(6px)', filter: 'blur(3px)'}, {opacity: 1, transform: 'none', filter: 'blur(0px)'}], {ms: 360, curve: 'O', delay: 70 + i * 45, fade: true, blur: false}));
  };
  replay.resize = doResize;
  replay.badge = () => { const el = $('badge'); S.badge(el, Number(el.dataset.value) === 12 ? 3 : 12); };
@@ -38,12 +44,14 @@
  };
  replay.link = () => { const el = $('learn-link'); el.dataset.stHover = el.dataset.stHover !== 'true' ? 'true' : 'false'; };
  replay.reveal = () => S.reveal($('text-reveal'));
- replay.shimmer = () => S.shimmer($('shimmer-text'));
+ // Thinking states: the label shimmers while a step is pending, steps on with a soft blur, and settles unshimmered.
+ replay.shimmer = () => { const t = $('shimmer-text'); delete t.dataset.stDone;
+  sequence('shimmer', [[0, () => S.swapText(t, 'Reading your draft')], [1300, () => S.swapText(t, 'Checking tone')], [2600, () => S.swapText(t, 'Polishing wording')], [3900, () => { t.dataset.stDone = 'true'; S.swapText(t, '3 suggestions ready'); }]]); };
  replay.popover = () => S.toggle($('popover-panel'), $('popover-trigger'));
  S.progress($('progress'), 'idle');
  replay.progress = () => sequence('progress', [[0, () => { S.progress($('progress'), 'loading'); S.swapText($('progress-label'), 'Syncing changes'); }], [900, () => { progressError = !progressError; S.progress($('progress'), progressError ? 'success' : 'error'); S.swapText($('progress-label'), progressError ? 'All changes synced' : 'Connection lost. Try again.'); }]]);
  replay.image = () => S.image($('image-open'));
- replay.reorder = () => { const root = $('reorder-list'); S.list.reorder(root, [...root.children].reverse()); };
+ replay.reorder = () => { const root = $('reorder-list'), all = [...root.children]; S.list.reorder(root, [all[all.length - 1], ...all.slice(0, -1)]); };
  replay.tilt = () => { const t = $('tilt-card'); sequence('tilt', [[0, () => S.tilt(t, -1, -1)], [90, () => S.tilt(t, 0, -1)], [180, () => S.tilt(t, 1, -.6)], [270, () => S.tilt(t, 1, .6)], [360, () => S.tilt(t, 0, 1)], [450, () => S.tilt(t, -1, .6)], [600, () => S.tilt(t)]]); };
  $('resize-action').onclick = doResize;
  $('success-action').onclick = replay.success;

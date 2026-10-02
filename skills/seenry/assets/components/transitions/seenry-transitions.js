@@ -38,6 +38,7 @@
     keyframe is replaced by the rendered value, so a new call retargets instead of restarting. Returns a promise that
     resolves true when it finished, false when something newer replaced it. */
  const channels = new WeakMap(), heldStyles = new WeakMap();
+ const blurAnims = new WeakMap();
  function play(el, frames, o = {}) {
   if (!el || !el.animate) return Promise.resolve(true);
   const key = (o.channel || 'main') + (o.pseudo || '');
@@ -68,12 +69,22 @@
   // Blur option: inside [data-st-blur], a fade on a small element also pulls focus (blur to sharp on the way in, a
   // softer blur on the way out). Large surfaces never blur; reduced motion already returned above.
   const blurHost = !reduced() && !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
+  let blurIn = 0;
   if (blurHost && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
    const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 8;
    if (r.width * r.height > 0 && r.width * r.height <= 160000) {
     const a0 = +frames[0].opacity, a1 = +frames[frames.length - 1].opacity;
-    if (a1 > a0) { frames = frames.map((f, i) => ({...f, filter: i === 0 ? `blur(${px}px)` : i === frames.length - 1 ? 'blur(0px)' : f.filter || `blur(${px * (1 - i / (frames.length - 1))}px)`})); }
-    else if (a1 < a0) { frames = frames.map((f, i) => ({...f, filter: i === frames.length - 1 ? `blur(${px / 2}px)` : i === 0 ? 'blur(0px)' : `blur(${px / 2 * i / (frames.length - 1)}px)`})); }
+    // Blur runs on its own, longer and gentler clock than the fade: opacity arrives fast, and the focus resolves
+    // visibly behind it. On the way out the element defocuses quickly as it leaves.
+    blurIn = a1 > a0 ? 1 : a1 < a0 ? -1 : 0;
+    if (blurIn) {
+     blurAnims.get(el)?.cancel();
+     const ba = el.animate(blurIn > 0 ? [{filter: `blur(${px}px)`}, {filter: 'blur(0px)'}] : [{filter: 'blur(0px)'}, {filter: `blur(${px * .6}px)`}],
+      {duration: blurIn > 0 ? Math.max(300, duration * 1.4) : Math.max(120, duration), easing: blurIn > 0 ? 'cubic-bezier(.25,.1,.25,1)' : CURVES.X, delay, fill: blurIn > 0 ? 'backwards' : 'both'});
+     blurAnims.set(el, ba);
+     if (blurIn > 0) ba.finished.then(() => { if (blurAnims.get(el) === ba) blurAnims.delete(el); }, () => {});
+     else ba.finished.then(() => { if (blurAnims.get(el) === ba) { ba.cancel(); blurAnims.delete(el); } }, () => {});
+    }
    }
   }
   const a = el.animate(frames, {duration, easing, delay, fill: o.fill==='forwards'?'both':o.fill||'backwards', pseudoElement: o.pseudo});
@@ -226,7 +237,8 @@
    // The old label clears before the new one is legible, so the two never read as one doubled word.
    // A status line changes in its own slot with a 2px lift: the old label clears before the new one starts, so two
    // labels are never drawn over each other.
-   const movement={transform:thinking?'translateY(-2px)':'translateY(-3px)'};
+   const movement=thinking?{transform:'translateY(-2px)',filter:'blur(3px)'}:{transform:'translateY(-3px)'};
+   if (thinking && !reduced()) play(next,[{filter:'blur(3px)'},{filter:'blur(0px)'}],{ms:260,curve:'O',delay:o.tight?0:20,channel:'f',current:false});
    play(current,[{opacity:0,...movement}],{ms:thinking?40:50,curve:'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
    const lag = o.tight ? 0 : thinking ? 20 : 30;
    return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:thinking?80:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:thinking?'translateY(2px)':'translateY(3px)'},{transform:'none'}],{ms:thinking?110:160,delay:lag,curve:'E',channel:'t',current:false})]);
@@ -410,12 +422,12 @@
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', channel: 'o', fade: true});
    [...el.children].forEach((c, i) => { play(c, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content-t'}); play(c, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content', fade: true}); });
   } else if (POP.includes(kind)) {
-   // The shell lands first from the trigger point; rows arrive 35ms later while it is still settling.
+   // One piece: the surface and its rows fade, lift and scale together from the trigger, so there is never an empty
+   // frame or a shadow without content. Reopened mid-close, it continues from the rendered values.
    const dy = el.dataset.stSide === 'top' ? 4 : -4;
-   play(el, [{opacity: 0}, {opacity: 1}], {ms: 90, curve: 'F', channel: 'o', fade: true});
+   [...el.children].forEach(c => { stop(c, 'o'); c.style.opacity = ''; });
+   play(el, [{opacity: 0}, {opacity: 1}], {ms: 160, curve: 'O', channel: 'o', fade: true});
    play(el, [{transform: `translateY(${dy}px) scale(.96)`}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
-   // Reopened mid-close: rows return from wherever their fade got to, so the shell is never empty.
-   [...el.children].forEach((c, i) => wasClosing ? play(c, [{opacity: 1}], {ms: 90, curve: 'F', channel: 'o', fade: true}) : play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 20 + Math.min(i * 10, 40), channel: 'o', fade: true}));
   } else if (kind === 'sheet') {
    play(el, [{transform: 'translateY(100%)'}, {transform: 'none'}], {spring: 'smooth', channel: 't'});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fade: true});
@@ -481,9 +493,8 @@
    play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if (POP.includes(kind)) {
    const dy = el.dataset.stSide === 'top' ? 2 : -2;
-   [...el.children].forEach(c => play(c,[{opacity:0}],{ms:65,curve:'F',channel:'o',fill:'forwards',fade:true}));
-   play(el, [{transform: `translateY(${dy}px) scale(.97)`}], {ms: 110, curve: 'X', channel: 't', fill: 'forwards'});
-   done = play(el, [{opacity: 0}], {ms: 110, curve: 'F', channel: 'o', fill: 'forwards', fade: true});
+   play(el, [{transform: `translateY(${dy}px) scale(.97)`}], {ms: 150, curve: 'X', channel: 't', fill: 'forwards'});
+   done = play(el, [{opacity: 0}], {ms: 150, curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if (kind === 'sheet' || kind === 'drawer') {
    const to = kind === 'sheet' ? 'translateY(100%)' : `translateX(${el.dataset.stSide === 'left' ? -100 : 100}%)`;
    done = play(el, [{transform: to}], {ms: o.velocity ? 180 : 220, curve: o.velocity ? 'cubic-bezier(.2,.6,.4,1)' : CURVES.X, channel: 't', fill: 'forwards'});
@@ -621,12 +632,13 @@
    if (on === was || !prev || prev === tab || keyboard || reduced()) { stopAll(panel); return; }
    if (on) {
     // A panel that was just leaving comes straight back from where its fade got to; a fresh one waits for the old to clear.
-    const back = was || +alpha > .05, wait = back ? 0 : rapid ? 20 : 30;
-    play(panel, [{transform: back ? transform : `translateX(${dir * 4}px)`}, {transform:'none'}], {ms:200,curve:'E',delay:wait,channel:'t'});
-    play(panel, [{opacity: back ? alpha : 0},{opacity:1}], {ms:140,curve:'F',delay:wait,channel:'o',fade:true});
+    // The old panel has cleared before this one is readable, so the two never print over each other.
+    const back = was || +alpha > .05, wait = back ? 0 : rapid ? 30 : 80;
+    play(panel, [{transform: back ? transform : `translateX(${dir * 10}px)`}, {transform:'none'}], {ms:320,curve:'O',delay:wait,channel:'t'});
+    play(panel, [{opacity: back ? alpha : 0, filter: back ? 'blur(0px)' : 'blur(4px)'},{opacity:1, filter: 'blur(0px)'}], {ms:240,curve:'O',delay:wait,channel:'o',fade:true,blur:false});
    } else if (was) {
-    play(panel, [{transform},{transform:`translateX(${-dir * 4}px)`}], {ms:rapid ? 30 : 60,curve:'X',channel:'t'});
-    play(panel, [{opacity:alpha},{opacity:0}], {ms:rapid ? 30 : 60,curve:'X',channel:'o',fade:true});
+    play(panel, [{transform},{transform:`translateX(${-dir * 8}px)`}], {ms:rapid ? 40 : 90,curve:'X',channel:'t'});
+    play(panel, [{opacity:alpha, filter: 'blur(0px)'},{opacity:0, filter: 'blur(2px)'}], {ms:rapid ? 40 : 90,curve:'X',channel:'o',fade:true,blur:false});
    }
   });
   if (root.dataset.st === 'tabs') revealTab(list, tab);
@@ -802,10 +814,11 @@
    const kids = rows(container), sorted = typeof order === 'function' ? [...kids].sort(order) : order;
    // Rows stay in their lane: vertical FLIP only, every row retargeting from where it is rendered now. The row that
    // travels furthest lifts above the others, so crossing rows read as one passing over the other.
-   const before = new Map(kids.map(n => [n, n.getBoundingClientRect().top]));
+   // Layout positions, not rects: once FLIP inverts the rows, every rect reads as unmoved.
+   const before = new Map(kids.map(n => [n, n.offsetTop]));
    kids.forEach(n => { delete n.dataset.stMoving; });
    const done = flip(kids, () => sorted.forEach(n => container.append(n)), {spring: 'smooth', axis: 'y'});
-   const far = kids.reduce((m, n) => Math.abs(before.get(n) - n.getBoundingClientRect().top) > Math.abs(before.get(m) - m.getBoundingClientRect().top) ? n : m, kids[0]);
+   const far = kids.reduce((m, n) => Math.abs(before.get(n) - n.offsetTop) > Math.abs(before.get(m) - m.offsetTop) ? n : m, kids[0]);
    const token = (container.__stSort = (container.__stSort || 0) + 1);
    if (far && !reduced()) {
     // Rows are painted with the surface behind them while they cross, so text never shows through text.

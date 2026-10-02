@@ -98,7 +98,8 @@
 [data-st="menu"] [role="menuitem"]:active, [data-st="plus-menu"] [role="menuitem"]:active { background: var(--press); transform: none; }
 [data-st="menu"] [role="menuitem"].st-danger { color: var(--bad); } [data-st="menu"] [role="menuitem"].st-danger .st-icon { color: var(--bad); }
 [data-st="menu"] kbd { margin-left: auto; color: var(--text-2); font: 400 12px var(--font); }
-[data-st="menu"] hr, [data-st="plus-menu"] hr { height: 1px; margin: 5px -5px; border: 0; background: var(--line); }
+/* Groups are separated by space, not a rule. */
+[data-st="menu"] hr, [data-st="plus-menu"] hr { height: 0; margin: 3px 0; border: 0; background: none; }
 @media (hover: hover) and (pointer: fine) { [data-st="menu"] [role="menuitem"]:hover, [data-st="plus-menu"] [role="menuitem"]:hover { background: var(--hover); } }
 @media (pointer: coarse) { [data-st="menu"] [role="menuitem"], [data-st="plus-menu"] [role="menuitem"] { min-height: 44px; } }
 [data-st="plus-menu"] { transform-origin: 0 0; }
@@ -571,3 +572,14 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 [data-st="button"]:not(.st-primary)[data-st-state="error"] { color: var(--bad); }
 [data-st-state="loading"] .st-spinner { animation-duration: .9s; }
 [data-st="button"] .st-state-check { transform-origin: 50% 50%; }
+
+/* Tabs v5: an unselected tab answers hover with its label and a soft pill; the selected underline stays the only line. */
+[data-st="tabs"] [role="tab"] { border-radius: 8px; transition: color var(--st-state), background-color var(--st-state); }
+@media (hover: hover) and (pointer: fine) { [data-st="tabs"] [role="tab"]:not([aria-selected="true"]):hover { color: var(--text); background: var(--hover); } }
+[data-st="segmented"] [role="tab"] { transition: color var(--st-state); }
+@media (hover: hover) and (pointer: fine) { [data-st="segmented"] [role="tab"]:not([aria-selected="true"]):hover { color: var(--text); } }
+
+/* Thinking v5: while work is pending a highlight band sweeps through the label itself (no overlay copy); it stops
+   the moment the work is done. */
+[data-st="thinking"]:not([data-st-done="true"]) .st-text-value { background: linear-gradient(90deg, var(--text-3) 0%, var(--text-3) 38%, var(--text) 50%, var(--text-3) 62%, var(--text-3) 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: st-sheen 1.6s linear infinite; }
+@media (prefers-reduced-motion: reduce) { [data-st="thinking"] .st-text-value { animation: none !important; background: none !important; color: var(--text-2) !important; } }
