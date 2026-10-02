@@ -5,10 +5,10 @@
  const doc = document, mq = matchMedia('(prefers-reduced-motion: reduce)'), reduced = () => mq.matches;
  const q = (el, s) => el.querySelector(s), qa = (el, s) => [...el.querySelectorAll(s)];
  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
- const CURVES = {E: 'cubic-bezier(.16,1,.3,1)', M: 'cubic-bezier(.4,0,.2,1)', F: 'cubic-bezier(.2,0,.2,1)', X: 'cubic-bezier(.4,0,1,1)'};
- const MS = {instant: 0, feedback: 80, quick: 120, control: 160, relocate: 180, surface: 240, spatial: 280, fast: 120, base: 160, slow: 240, page: 280};
+ const CURVES = {E: 'cubic-bezier(.16,1,.3,1)', O: 'cubic-bezier(.3,1,0,1)', S: 'cubic-bezier(.25,0,.06,1)', M: 'cubic-bezier(.4,0,.2,1)', F: 'cubic-bezier(.2,0,.2,1)', X: 'cubic-bezier(.4,0,1,1)'};
+ const MS = {instant: 0, feedback: 120, quick: 180, control: 220, relocate: 260, surface: 320, spatial: 380, fast: 180, base: 220, slow: 320, page: 380};
  // spring(response seconds, bounce), the parameterisation designers know from SwiftUI. lead/trail drive a two-edge indicator.
- const SPRINGS = {expand: [.3, 0], snappy: [.26, .04], smooth: [.36, 0], gentle: [.34, .08], bouncy: [.34, .42], thumb: [.28, .28], lead: [.16, 0], trail: [.23, 0]};
+ const SPRINGS = {expand: [0.36,0], snappy: [0.32,0.04], smooth: [0.42,0], gentle: [0.4,0.08], bouncy: [0.4,0.42], thumb: [0.32,0.28], lead: [0.2,0], trail: [0.28,0]};
  const tracks = {};
  function track(name) {
   if (tracks[name]) return tracks[name];
@@ -69,8 +69,8 @@
   // softer blur on the way out). Large surfaces never blur; reduced motion already returned above.
   const blurHost = !reduced() && !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
   if (blurHost && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
-   const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 4;
-   if (r.width * r.height > 0 && r.width * r.height <= 40000) {
+   const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 8;
+   if (r.width * r.height > 0 && r.width * r.height <= 160000) {
     const a0 = +frames[0].opacity, a1 = +frames[frames.length - 1].opacity;
     if (a1 > a0) { frames = frames.map((f, i) => ({...f, filter: i === 0 ? `blur(${px}px)` : i === frames.length - 1 ? 'blur(0px)' : f.filter || `blur(${px * (1 - i / (frames.length - 1))}px)`})); }
     else if (a1 < a0) { frames = frames.map((f, i) => ({...f, filter: i === frames.length - 1 ? `blur(${px / 2}px)` : i === 0 ? 'blur(0px)' : `blur(${px / 2 * i / (frames.length - 1)}px)`})); }
@@ -696,15 +696,24 @@
   if (icon && next !== 'idle' && (prev === 'idle' || prev === undefined)) play(icon, [{opacity: 0, transform: 'scale(.4)', filter: 'blur(2px)'}, {opacity: 1, transform: 'none', filter: 'blur(0px)'}], {spring: 'snappy', fade: true});
   else if (icon && next !== 'idle') play(icon, [{transform: 'scale(.7)'}, {transform: 'none'}], {spring: 'bouncy', current: false});
   if (next === 'error') shake(el);
+  if (next === 'success' && prev !== 'success') tickIn(q(el, '.st-state-check'));
   if (next === 'success' || next === 'error') announce(label || text?.dataset.stLabel || next);
   el.dispatchEvent(new CustomEvent('st:state', {bubbles: true, detail: {state: next}}));
  }
  function success(el) {
   if (!el) return Promise.resolve();
   if (el.dataset.st === 'button') { state(el, 'success'); return Promise.resolve(); }
-  el.dataset.stDone = 'true';const label=q(el,'[data-st-success-text]');if(label)label.textContent=el.dataset.stSuccessLabel||'Completed';
+  el.dataset.stDone = 'true'; const label = q(el, '[data-st-success-text]'); if (label) swapText(label, el.dataset.stSuccessLabel || 'Completed');
   const svg = q(el, 'svg') || el;
-  el.setAttribute('role', 'status'); el.setAttribute('aria-label', el.dataset.stSuccessLabel || 'Completed'); return play(svg, [{transform: 'scale(.98)'}, {transform: 'none'}], {ms: 'control', delay: 160, curve: 'E'});
+  el.setAttribute('role', 'status'); el.setAttribute('aria-label', el.dataset.stSuccessLabel || 'Completed');
+  const tick = q(el, '.st-success-tick'), disc = q(el, '.st-success-disc');
+  if (!tick) return play(svg, [{transform: 'scale(.98)'}, {transform: 'none'}], {ms: 'control', delay: 160, curve: 'E'});
+  if (reduced()) return play(tick, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true});
+  // After Jakub Antalik's checkmark study: the tick arrives rotated and blurred, dips 4px and settles while it draws.
+  if (disc) play(disc, [{transform: 'scale(.86)'}, {transform: 'none'}], {spring: 'bouncy', channel: 'pop', current: false});
+  return Promise.all([
+   play(tick, [{opacity: 0, filter: 'blur(6px)'}, {opacity: 1, filter: 'blur(0px)'}], {ms: 450, curve: 'O', channel: 'o', current: false, blur: false}),
+   play(tick, [{transform: 'rotate(-20deg) translateY(0px)'}, {transform: 'rotate(-11deg) translateY(4px)', offset: .44}, {transform: 'rotate(0deg) translateY(0px)'}], {ms: 450, curve: 'cubic-bezier(.2,0,0,1)', channel: 't', current: false})]);
  }
 
  /* ---------- Form error: the field frame shakes with a decaying spring; the message drops into reserved space. ---------- */
@@ -1297,11 +1306,28 @@
   if (visible && !was) play(el, [{transform: 'scale(.5)', opacity: 0}, {transform: 'none', opacity: 1}], {spring: 'bouncy', channel: 'badge', fade: true});
   else if (!visible) play(el, [{transform: 'scale(.5)', opacity: 0}], {ms: 'quick', curve: 'X', channel: 'badge', fill: 'forwards', fade: true});
  }
+ // A status mark: one disc that is idle, loading (an arc runs round its edge), done (the arc closes, the tick arrives
+ // rotated and blurred and dips into place) or failed (the cross draws and the disc gives a small shake).
+ function tickIn(tick) {
+  if (!tick) return Promise.resolve();
+  if (reduced()) return play(tick, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true});
+  return Promise.all([
+   play(tick, [{opacity: 0, filter: 'blur(6px)'}, {opacity: 1, filter: 'blur(0px)'}], {ms: 450, curve: 'O', channel: 'o', current: false, blur: false}),
+   play(tick, [{transform: 'rotate(-20deg) translateY(0px)'}, {transform: 'rotate(-11deg) translateY(4px)', offset: .44}, {transform: 'rotate(0deg) translateY(0px)'}], {ms: 450, curve: 'cubic-bezier(.2,0,0,1)', channel: 't', current: false})]);
+ }
+ const STATUS_MARK = '<span class="st-status-mark" aria-hidden="true"><svg class="st-status-disc" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20"/></svg>' +
+  '<svg class="st-status-ring" viewBox="0 0 40 40"><circle class="st-status-arc" cx="20" cy="20" r="18.5" pathLength="100"/></svg>' +
+  '<svg class="st-status-idle" viewBox="0 0 40 40"><path d="M14 18.5a6.5 6.5 0 0 1 11.6-3.4M26 21.5a6.5 6.5 0 0 1-11.6 3.4M25.8 11.8v3.6h-3.6M14.2 28.2v-3.6h3.6"/></svg>' +
+  '<svg class="st-success-tick" viewBox="0 0 40 40"><path d="m12.5 20.5 5 5 10-11" pathLength="100"/></svg>' +
+  '<svg class="st-status-cross" viewBox="0 0 40 40"><path d="m15 15 10 10M25 15 15 25" pathLength="100"/></svg></span>';
  function progress(el, next) {
-  if (!el || !['loading', 'success', 'error'].includes(next)) return;
-  if (!q(el, '.st-progress-ring')) el.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="st-progress-ring" cx="20" cy="20" r="14" pathLength="100"/><path class="st-progress-check" d="m12 20 5 5 11-11" pathLength="100"/><path class="st-progress-cross" d="m14 14 12 12m0-12L14 26" pathLength="100"/></svg>';
-  el.dataset.stProgress = next; el.setAttribute('role', 'status'); el.setAttribute('aria-label', next === 'loading' ? 'Loading' : next === 'success' ? 'Completed' : 'Failed'); el.setAttribute('aria-busy', String(next === 'loading'));
-  if (next !== 'loading') announce(next === 'success' ? 'Completed' : 'Failed');
+  if (!el || !['idle', 'loading', 'success', 'error'].includes(next)) return;
+  if (!q(el, '.st-status-mark')) el.innerHTML = STATUS_MARK;
+  const prev = el.dataset.stProgress;
+  el.dataset.stProgress = next; el.setAttribute('role', 'status'); el.setAttribute('aria-label', {idle: 'Ready', loading: 'Loading', success: 'Completed', error: 'Failed'}[next]); el.setAttribute('aria-busy', String(next === 'loading'));
+  if (next === 'success' && prev !== 'success') tickIn(q(el, '.st-success-tick'));
+  if (next === 'error' && prev !== 'error' && !reduced()) play(q(el, '.st-status-mark'), SHAKE.map(f => ({transform: f.transform.replace(/(-?[\d.]+)px/, (m, v) => (v * .6).toFixed(2) + 'px')})), {ms: 360, curve: 'linear', channel: 'shake', current: false});
+  if (next === 'success' || next === 'error') announce(next === 'success' ? 'Completed' : 'Failed');
  }
  function tilt(el, x = 0, y = 0) {
   if (reduced() || !finePointer.matches) { el.style.transform = ''; return; }

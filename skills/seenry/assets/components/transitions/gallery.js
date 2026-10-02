@@ -40,7 +40,8 @@
  replay.reveal = () => S.reveal($('text-reveal'));
  replay.shimmer = () => S.shimmer($('shimmer-text'));
  replay.popover = () => S.toggle($('popover-panel'), $('popover-trigger'));
- replay.progress = () => sequence('progress', [[0, () => { S.progress($('progress'), 'loading'); S.swapText($('progress-label'), 'Syncing changes'); }], [300, () => { progressError = !progressError; S.progress($('progress'), progressError ? 'success' : 'error'); S.swapText($('progress-label'), progressError ? 'All changes synced' : 'Connection lost. Try again.'); }]]);
+ S.progress($('progress'), 'idle');
+ replay.progress = () => sequence('progress', [[0, () => { S.progress($('progress'), 'loading'); S.swapText($('progress-label'), 'Syncing changes'); }], [900, () => { progressError = !progressError; S.progress($('progress'), progressError ? 'success' : 'error'); S.swapText($('progress-label'), progressError ? 'All changes synced' : 'Connection lost. Try again.'); }]]);
  replay.image = () => S.image($('image-open'));
  replay.reorder = () => { const root = $('reorder-list'); S.list.reorder(root, [...root.children].reverse()); };
  replay.tilt = () => { const t = $('tilt-card'); sequence('tilt', [[0, () => S.tilt(t, -1, -1)], [90, () => S.tilt(t, 0, -1)], [180, () => S.tilt(t, 1, -.6)], [270, () => S.tilt(t, 1, .6)], [360, () => S.tilt(t, 0, 1)], [450, () => S.tilt(t, -1, .6)], [600, () => S.tilt(t)]]); };
