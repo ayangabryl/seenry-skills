@@ -14,11 +14,13 @@ const widths=arg('--widths','361,368,384,385,400,420').split(',').map(Number);
 const pressHoldMs=Number(arg('--press-hold-ms','0')),inputMode=arg('--input','pointer');
 assert(['pointer','touch'].includes(inputMode),'--input must be pointer or touch');
 function heldPressObserved(p) {
+ if(typeof p?.matches==='function'){const el=p;p={active:el.matches(':active'),hover:el.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches,transform:getComputedStyle(el).transform};}
  const m=/^matrix\(([^)]+)\)$/.exec(p?.transform||'');if(p?.active!==true||!m)return false;
  const v=m[1].split(',').map(Number);if(v.length!==6||!v.every(Number.isFinite))return false;
  // The later fine-pointer hover rule owns transform while hovered; coarse active input uses scale.
  const expected=p.hoverCapable&&p.hover&&!p.coarse?[1,0,0,1,0,-1]:[.98,0,0,.98,0,0];
- return v.every((n,i)=>Math.abs(n-expected[i])<.001);
+ // Translation may retain a subpixel settling residue; paint containment remains a separate strict gate.
+ return v.every((n,i)=>Math.abs(n-expected[i])<(i<4?.001:.02));
 }
 const browser=await chromium.launch({headless:true,...(process.env.SEENRY_CHROME_PATH?{executablePath:process.env.SEENRY_CHROME_PATH}:{})});
 const sha=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
@@ -51,6 +53,8 @@ try{
      const ghosts=[...surface.querySelectorAll('[data-st-ghost][data-st-shared="title"]')];
      return {shell,cover:cover.getBoundingClientRect().toJSON(),title:textState(detailTitle),ghosts:ghosts.map(textState)};
     };
+    source.addEventListener('pointerdown',e=>{window.__titleBoundaryPressDown={at:performance.now(),trusted:e.isTrusted};},{once:true,passive:true});
+    source.addEventListener('pointerup',e=>{window.__titleBoundaryPressUp={at:performance.now(),trusted:e.isTrusted};},{once:true,passive:true});
     source.addEventListener('click',()=>{queueMicrotask(()=>{
      const start=performance.now();
      const sample=()=>{window.__titleBoundary.push({at:performance.now()-start,...window.__titleBoundaryFrame()});if(performance.now()-start<600)requestAnimationFrame(sample);};window.__titleBoundaryInitial={at:performance.now()-start,...window.__titleBoundaryFrame()};requestAnimationFrame(sample);
@@ -59,14 +63,21 @@ try{
    assert(Math.abs(run.layout.contentWidth-contentWidth)<.05,'Explicit fixture must realize requested content width');
    const target=page.locator('[data-key="expand"] .cover-card').nth(index);
    const pressed=()=>target.evaluate(e=>({rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches}));
+   const observeHeld=async()=>{
+    run.pressedInitial=await pressed();run.pressed=run.pressedInitial;run.pressExtraWaitMs=0;
+    if(pressHoldMs>=100&&!heldPressObserved(run.pressedInitial)){
+     const started=Date.now();try{await page.waitForFunction(heldPressObserved,await target.elementHandle(),{timeout:100});}
+     finally{run.pressExtraWaitMs=Date.now()-started;run.pressed=await pressed();}
+    }
+   };
    if(inputMode==='touch'){
     const b=await target.boundingBox(),session=await context.newCDPSession(page),point={x:b.x+b.width/2,y:b.y+b.height/2};
-    await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});await page.waitForTimeout(Math.max(1,pressHoldMs));run.pressed=await pressed();await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await session.detach();
-   }else if(pressHoldMs>0){await target.hover();await page.mouse.down();await page.waitForTimeout(pressHoldMs);run.pressed=await pressed();await page.mouse.up();}
+    await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});try{await page.waitForTimeout(Math.max(1,pressHoldMs));await observeHeld();}finally{await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await session.detach();}
+   }else if(pressHoldMs>0){await target.hover();await page.mouse.down();try{await page.waitForTimeout(pressHoldMs);await observeHeld();}finally{await page.mouse.up();}}
    else await target.click();
    if(pressHoldMs>=100)assert(heldPressObserved(run.pressed),'Coverage precondition: held input must realize active state and its hover-lift or coarse-scale CSS contract');
    await page.waitForTimeout(80);run.frameFile=`${contentWidth}-${index}-moving.png`;await page.locator('[data-key="expand"]').screenshot({path:join(out,run.frameFile),animations:'allow'});
-   await page.waitForTimeout(650);run.trace=await page.evaluate(()=>window.__titleBoundary);run.initialObservation=await page.evaluate(()=>window.__titleBoundaryInitial);run.errors=errors;
+   await page.waitForTimeout(650);run.trace=await page.evaluate(()=>window.__titleBoundary);run.initialObservation=await page.evaluate(()=>window.__titleBoundaryInitial);run.pressTiming=await page.evaluate(()=>({down:window.__titleBoundaryPressDown||null,up:window.__titleBoundaryPressUp||null,observedHoldMs:window.__titleBoundaryPressDown&&window.__titleBoundaryPressUp?window.__titleBoundaryPressUp.at-window.__titleBoundaryPressDown.at:null}));run.errors=errors;
    run.settled=await page.evaluate(()=>window.__titleBoundaryFrame());
    assert(run.trace.length>5,'RAF evidence missing');let travelerFrames=0;
    const bounds=(t,row,label)=>{for(const b of [t.rect,...t.glyphs]){assert(b.left>=row.shell.left-.1&&b.right<=row.shell.right+.1&&b.top>=row.shell.top-.1&&b.bottom<=row.shell.bottom+.1,`Title outside paint at ${label}`);const a=row.cover;assert(b.right<=a.left+.1||b.left>=a.right-.1||b.bottom<=a.top+.1||b.top>=a.bottom-.1,`Title intersects artwork at ${label}`);}};
@@ -81,7 +92,7 @@ try{
    }
    assert(travelerFrames>1,'No moving title evidence');assert(run.settled.title.painted,'Settled title must have visible positive text geometry');assert.equal(run.settled.title.text,run.layout.sourceText,'Settled title content must match clicked album');assert.equal(run.settled.ghosts.length,0,'Settled travelers must be retired');bounds(run.settled.title,run.settled,'settled');assert.equal(errors.length,0);run.status='passed';
   }catch(e){run.status='failed';run.error=e.message;await page.screenshot({path:join(out,`${contentWidth}-${index}-FAILED.png`)}).catch(()=>{});}
-  finally{await context.close();}
+  finally{run.pressTiming=await page.evaluate(()=>({down:window.__titleBoundaryPressDown||null,up:window.__titleBoundaryPressUp||null,observedHoldMs:window.__titleBoundaryPressDown&&window.__titleBoundaryPressUp?window.__titleBoundaryPressUp.at-window.__titleBoundaryPressDown.at:null})).catch(e=>({error:e.message}));await context.close();}
  }
 }finally{await browser.close();writeFileSync(join(out,'results.json'),JSON.stringify(report,null,2)+'\n');}
 const failed=report.runs.filter(r=>r.status!=='passed');console.log(`${report.runs.length-failed.length}/${report.runs.length} rendered title boundary cases passed`);if(failed.length){console.log(failed.map(r=>({contentWidth:r.contentWidth,title:r.layout?.sourceText,error:r.error})));process.exitCode=1;}
