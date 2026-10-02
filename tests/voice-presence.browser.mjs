@@ -5,6 +5,14 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const argument = name => { const i = process.argv.indexOf(name); return i < 0 ? null : process.argv[i + 1]; };
+function generatedDemoHasResponded(closed) {
+  const svg=document.querySelector('#presence svg'),shell=document.querySelector('#presence .vp-shell');
+  const sample={at:performance.now(),level:Number(document.querySelector('#level')?.value),path:shell?.getAttribute('d')??null,state:window.voicePresenceDemo?.presence.state,presentation:svg?.dataset.presentation,status:document.querySelector('#status')?.textContent,toggle:document.querySelector('#toggle')?.textContent,focus:document.activeElement?.id,visibility:document.visibilityState,animating:window.voicePresenceDemo?.presence.isAnimating};
+  // Diagnostic state belongs to this test; do not alter the generated signal or animation.
+  const trace=window.__voiceDemoResponseTrace??(window.__voiceDemoResponseTrace=[]);trace.push(sample);if(trace.length>60)trace.shift();
+  const responded=sample.visibility==='visible'&&sample.state==='listening'&&sample.status==='Demo listening'&&sample.toggle==='Stop demo'&&sample.presentation==='responsive'&&sample.focus==='toggle'&&sample.level>0&&sample.level<=1&&typeof sample.path==='string'&&sample.path.length>0&&sample.path!==closed;
+  return responded?sample:false;
+}
 const modulePath = argument('--playwright');
 if (!modulePath) throw new Error('Pass --playwright /absolute/path/to/playwright/index.mjs');
 const { chromium } = await import(pathToFileURL(path.resolve(modulePath)).href);
@@ -105,8 +113,21 @@ try {
   await page.locator('#toggle').focus();
   await page.keyboard.press('Enter');
   assert.equal(await page.locator('#toggle').textContent(), 'Stop demo');
-  await page.waitForTimeout(450);
-  assert.notEqual(await geometry(), closed);
+  // The demo begins with two zero samples on chained 120ms timers. Observe an actual
+  // positive generated sample and its geometry response, not one assumed timer phase.
+  let demoResponse;
+  try {
+    const response=await page.waitForFunction(generatedDemoHasResponded, closed, {timeout:5000,polling:'raf'});
+    demoResponse=await response.jsonValue();await response.dispose();
+  }
+  catch(error){
+    console.error('VOICE_DEMO_RESPONSE_FAILURE '+JSON.stringify(await page.evaluate(()=>({trace:window.__voiceDemoResponseTrace??[],visibility:document.visibilityState,focus:document.activeElement?.id}))));
+    throw error;
+  }
+  // Assert the geometry sampled with the positive signal. A later valid zero sample
+  // must not invalidate the response merely because transport to the test was delayed.
+  assert.notEqual(demoResponse.path, closed);
+  console.log('VOICE_DEMO_RESPONSE '+JSON.stringify(demoResponse));
   assert.equal(await page.evaluate(() => document.activeElement.id), 'toggle');
   await page.keyboard.press('Space');
   assert.equal(await page.locator('#status').textContent(), 'Demo idle');
