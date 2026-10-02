@@ -93,7 +93,7 @@
 [data-st="menu"] [role="menuitem"]:focus-visible, [data-st="plus-menu"] [role="menuitem"]:focus-visible { outline: 0; background: var(--hover); }
 [data-st="menu"] [role="menuitem"]:active, [data-st="plus-menu"] [role="menuitem"]:active { background: var(--press); transform: none; }
 [data-st="menu"] [role="menuitem"].st-danger { color: var(--bad); } [data-st="menu"] [role="menuitem"].st-danger .st-icon { color: var(--bad); }
-[data-st="menu"] kbd { margin-left: auto; color: var(--text-3); font: 400 12px var(--font); }
+[data-st="menu"] kbd { margin-left: auto; color: var(--text-2); font: 400 12px var(--font); }
 [data-st="menu"] hr, [data-st="plus-menu"] hr { height: 1px; margin: 5px -5px; border: 0; background: var(--line); }
 @media (hover: hover) and (pointer: fine) { [data-st="menu"] [role="menuitem"]:hover, [data-st="plus-menu"] [role="menuitem"]:hover { background: var(--hover); } }
 @media (pointer: coarse) { [data-st="menu"] [role="menuitem"], [data-st="plus-menu"] [role="menuitem"] { min-height: 44px; } }
@@ -131,12 +131,12 @@ dialog[data-st="drawer"] { width: min(380px, 100vw); max-width: none; height: 10
 .st-palette-search { display: flex; align-items: center; gap: 10px; padding: 0 16px;  }
 .st-palette-search .st-icon { color: var(--text-3); }
 .st-palette-search input { flex: 1; min-width: 0; height: 52px; border: 0; outline: 0; background: transparent; color: var(--text); font: 400 16px/24px var(--font); }
-.st-palette-search input::placeholder { color: var(--text-3); }
+.st-palette-search input::placeholder { color: var(--text-2); }
 dialog[data-st="palette"] [role="listbox"] { position: relative; max-height: 320px; margin: 0; padding: 6px; overflow: auto; list-style: none; }
 .st-palette-highlight { position: absolute; left: 6px; right: 6px; top: 0; border-radius: 8px; background: var(--hover); pointer-events: none; transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy), opacity var(--st-quick) var(--st-F); }
 dialog[data-st="palette"] [role="option"] { position: relative; display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 10px; border-radius: 8px; color: var(--text); font: 400 14px/20px var(--font); cursor: pointer; }
 dialog[data-st="palette"] [role="option"] .st-icon { color: var(--text-2); width: 16px; height: 16px; }
-dialog[data-st="palette"] [role="option"] kbd { margin-left: auto; color: var(--text-3); font: 400 12px var(--font); }
+dialog[data-st="palette"] [role="option"] kbd { margin-left: auto; color: var(--text-2); font: 400 12px var(--font); }
 dialog[data-st="palette"] [role="option"][hidden] { display: none; }
 [data-st-palette-empty] { padding: 18px 16px; color: var(--text-2); font: 400 14px/20px var(--font); }
 @media (pointer: coarse) { dialog[data-st="palette"] [role="option"] { min-height: 44px; } }
@@ -157,7 +157,7 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 [data-st="tabs"] [role="tab"][aria-selected="true"] { color: var(--text); }
 [data-st="segmented"] [role="tablist"], [data-st="segmented"][role="tablist"] { padding: 3px; border-radius: 11px; background: var(--surface-2); }
 [data-st="segmented"] [role="tab"] { position: relative; z-index: 1; flex: 1; min-height: 34px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--text-2); font: 500 13.5px/20px var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
-@media (pointer: coarse) { [data-st="segmented"] [role="tab"] { min-height: 40px; } [data-st="tabs"] [role="tab"] { min-height: 44px; } }
+@media (pointer: coarse) { [data-st="segmented"] [role="tab"] { min-height: 44px; } [data-st="tabs"] [role="tab"] { min-height: 44px; } }
 .st-tab-indicator { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--text); pointer-events: none; z-index: 0; border-radius: 2px; }
 [data-st="segmented"] .st-tab-indicator { top: 3px; bottom: 3px; left: 0; right: 0; height: auto; border-radius: 8px; background: var(--surface); box-shadow: 0 1px 2px #0000001f, 0 0 0 .5px #0000000f; }
 [data-theme="dark"] [data-st="segmented"] .st-tab-indicator { background: #2c2c30; }
@@ -242,14 +242,14 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 /* Toggle and checkbox */
 .st-toggle, .st-check { position: relative; display: inline-flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .st-toggle input, .st-check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.st-toggle-track { position: relative; display: block; flex: none; width: 42px; height: 26px; border-radius: 99px; background: var(--line-strong); transition: background-color var(--st-control) var(--st-F); }
-.st-toggle-thumb { position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 99px; background: #fff; box-shadow: 0 1px 3px #00000033, 0 0 0 .5px #0000000f; transform-origin: 0 50%;
+.st-toggle-track { position: relative; display: block; flex: none; width: 42px; height: 26px; border-radius: 99px; background: var(--text-3); transition: background-color var(--st-control) var(--st-F); }
+.st-toggle-thumb { position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 99px; background: var(--on-accent); box-shadow: 0 1px 3px #00000033, 0 0 0 .5px #0000000f; transform-origin: 0 50%;
  transition: transform var(--st-spring-thumb-ms) var(--st-spring-thumb); }
 .st-toggle input:checked + .st-toggle-track { background: var(--ok); }
 .st-toggle input:checked + .st-toggle-track .st-toggle-thumb { transform: translateX(16px); transform-origin: 100% 50%; }
 .st-toggle input:active + .st-toggle-track .st-toggle-thumb { transform: scaleX(1.22); transition-duration: var(--st-control); transition-timing-function: var(--st-E); }
 .st-toggle input:checked:active + .st-toggle-track .st-toggle-thumb { transform: translateX(16px) scaleX(1.22); }
-.st-check > svg { width: 20px; height: 20px; padding: 3px; flex: none; border-radius: 6px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--line-strong); fill: none; stroke: var(--on-accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: background-color var(--st-quick) var(--st-F), box-shadow var(--st-quick) var(--st-F), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+.st-check > svg { width: 20px; height: 20px; padding: 3px; flex: none; border-radius: 6px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--text-3); fill: none; stroke: var(--on-accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: background-color var(--st-quick) var(--st-F), box-shadow var(--st-quick) var(--st-F), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
 .st-check path { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset var(--st-control) var(--st-E); }
 .st-check input:checked + svg, .st-check input:indeterminate + svg { background: var(--accent); box-shadow: none; }
 .st-check input:checked + svg path { stroke-dashoffset: 0; }
@@ -318,7 +318,7 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 
 /* Card expand */
 [data-st="expand"] { position: absolute; inset: 0; z-index: 10; }
-[data-st="expand"]:not([data-st-open="true"]) { visibility: hidden; }
+[data-st="expand"]:not([data-st-open="true"]):not([data-st-closing="true"]) { visibility: hidden; }
 
 /* Legacy groups kept for v1 pages */
 [data-st="avatars"] { display: flex; padding: 8px; }
@@ -382,8 +382,8 @@ html.st-vt::view-transition-group(root) { animation: none; }
 [data-st="progress"]{display:inline-grid;place-items:center;width:40px;height:40px;color:var(--text);}
 [data-st="progress"] svg{width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .st-progress-ring{stroke-dasharray:72 28;transform-origin:20px 20px;opacity:0;transform:scale(.8);transition:opacity 60ms var(--st-X),transform var(--st-quick) var(--st-X),stroke-dashoffset var(--st-control) var(--st-E);}
-/* The ring keeps turning while it fades, so finishing never snaps its rotation back to zero. */
-[data-st-progress] .st-progress-ring{animation:st-spin .8s linear infinite;}
+/* Only active work rotates. Terminal success/error rings settle with no retained loop. */
+[data-st-progress="loading"] .st-progress-ring{animation:st-spin .8s linear infinite;}
 [data-st-progress="loading"] .st-progress-ring{opacity:1;transform:scale(1);}
 .st-progress-check,.st-progress-cross{stroke-dasharray:100;stroke-dashoffset:100;opacity:0;transition:stroke-dashoffset 140ms var(--st-E) 40ms,opacity 60ms var(--st-F) 40ms;}
 [data-st-progress="success"] .st-progress-check,[data-st-progress="error"] .st-progress-cross{stroke-dashoffset:0;opacity:1;}

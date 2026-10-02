@@ -1,0 +1,24 @@
+{
+  "source": "family-cases.json v5",
+  "sourceSha256": "0ff99e3afc1e9c49f6b763af4b11abd1490ef0bea8796baf77ff1c41e1f614d5",
+  "cases": {
+    "morph": {
+      "stage": "article[data-key=\"morph\"] .stage",
+      "trigger": "#morph-trigger",
+      "close": "#morph-1 [role=\"menuitem\"]:first-child",
+      "layer": "#morph-1"
+    },
+    "expand": {
+      "stage": "article[data-key=\"expand\"] .stage",
+      "trigger": "#expand-src",
+      "close": "#expand-1 [data-st-close]",
+      "layer": "#expand-1"
+    },
+    "image": {
+      "stage": "article[data-key=\"image\"] .stage",
+      "trigger": "#image-open",
+      "close": "article[data-key=\"image\"] .st-lightbox-close",
+      "layer": "article[data-key=\"image\"] .st-lightbox"
+    }
+  }
+}

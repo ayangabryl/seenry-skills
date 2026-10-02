@@ -460,5 +460,50 @@
     "request": "Run a design benchmark where AGY denies terminal access.",
     "check": "Preserve the denied attempt and report blocked. Do not turn provider SUCCESS with empty output into a pass or bypass the denial.",
     "calls": []
+  },
+  {
+    "id": "motion-internal-fit",
+    "request": "Polish the motion in our existing settings panel without redesigning it; include its narrow layout and long action labels.",
+    "skills": [
+      "seenry-motion"
+    ],
+    "calls": [],
+    "check": "Inspect component-local text/control bounds and affected states, not only document overflow. Preserve labels and actions; reflow or reserve room rather than hide defects. Keep verification scoped to the touched flow."
+  },
+  {
+    "id": "motion-mid-exit-reopen",
+    "request": "This expandable card closes, but a quick reopen sometimes disappears. Repair it and show what you verified.",
+    "skills": [
+      "seenry-motion"
+    ],
+    "calls": [],
+    "check": "Assert latest logical and accessible state at input time, preserve the painted exit separately, and test direct API plus real control during reversal. An old completion cannot hide a newer open state. Observe moving image/title layers rather than a fixed container."
+  },
+  {
+    "id": "motion-nested-sheet-ownership",
+    "request": "Our scrollable detail sheet contains a share-sheet preview. Make their drag and dismissal behavior reliable.",
+    "skills": [
+      "seenry-motion"
+    ],
+    "calls": [],
+    "check": "Only the intended nested surface captures a drag; reading content still scrolls. Child Close/Escape does not tear down the parent. Verify focus restoration and reduced-motion parity, and distinguish touch emulation from real-device evidence."
+  },
+  {
+    "id": "motion-capture-precision",
+    "request": "This 25fps recording looks fine. Can we say a 50ms rapid reversal and reduced-motion behavior are perfect?",
+    "skills": [
+      "seenry-motion"
+    ],
+    "calls": [],
+    "check": "Do not infer temporal precision or unrecorded motion preferences. Retain source/capture identity, actual input timestamps and appropriate moving-layer traces; report missing evidence and avoid a fabricated perfect score."
+  },
+  {
+    "id": "motion-initial-page-position",
+    "request": "Opening our component gallery starts halfway down the page although no component has been activated. Find the cause without masking it.",
+    "skills": [
+      "seenry-motion"
+    ],
+    "calls": [],
+    "check": "Check initialization focus/scroll side effects and closed palette selection. Scroll the relevant list rather than the document; preserve intentional deep links. Do not conceal the cause with an unconditional scroll-to-top reset."
   }
 ]

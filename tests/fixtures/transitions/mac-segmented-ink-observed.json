@@ -1,0 +1,139 @@
+{
+  "source": {
+    "html": "65ed9ab63d894db629150a54fbf328ba52b4725e31d3b1f663055bef6080593c",
+    "runtime": "addc1a668375d433ad0693a94d2b1ef423886df91ea0bfc9ef5800f64e2aa076"
+  },
+  "renderer": "Mac Chrome154.0.8037.93",
+  "width": 960,
+  "theme": "light",
+  "userSpacing": true,
+  "rawSHA256": "f0a13f293a680be689e5234945e8c14bd1b35efd0e5e207a67552655f962e23a",
+  "pairs": [
+    {
+      "text": "System",
+      "original": {
+        "text": "System",
+        "tag": "BUTTON",
+        "className": "",
+        "rect": {
+          "x": 735,
+          "y": 15,
+          "width": 87.234375,
+          "height": 34,
+          "top": 15,
+          "right": 822.234375,
+          "bottom": 49,
+          "left": 735
+        },
+        "glyphRects": [
+          {
+            "x": 749,
+            "y": 23.5,
+            "width": 59.234375,
+            "height": 17,
+            "top": 23.5,
+            "right": 808.234375,
+            "bottom": 40.5,
+            "left": 749
+          }
+        ],
+        "color": "rgb(92, 94, 102)",
+        "opacity": "1",
+        "clipPath": "none"
+      },
+      "copy": {
+        "text": "System",
+        "tag": "SPAN",
+        "className": "",
+        "rect": {
+          "x": 735,
+          "y": 15,
+          "width": 77.15625,
+          "height": 34,
+          "top": 15,
+          "right": 812.15625,
+          "bottom": 49,
+          "left": 735
+        },
+        "glyphRects": [
+          {
+            "x": 743.953125,
+            "y": 23.5,
+            "width": 59.234375,
+            "height": 17,
+            "top": 23.5,
+            "right": 803.1875,
+            "bottom": 40.5,
+            "left": 743.953125
+          }
+        ],
+        "color": "rgb(17, 17, 19)",
+        "opacity": "1",
+        "clipPath": "none"
+      }
+    },
+    {
+      "text": "All",
+      "original": {
+        "text": "All",
+        "tag": "BUTTON",
+        "className": "",
+        "rect": {
+          "x": 29,
+          "y": 588.203125,
+          "width": 45.78125,
+          "height": 40,
+          "top": 588.203125,
+          "right": 74.78125,
+          "bottom": 628.203125,
+          "left": 29
+        },
+        "glyphRects": [
+          {
+            "x": 41,
+            "y": 599.703125,
+            "width": 21.78125,
+            "height": 17,
+            "top": 599.703125,
+            "right": 62.78125,
+            "bottom": 616.703125,
+            "left": 41
+          }
+        ],
+        "color": "rgb(17, 17, 19)",
+        "opacity": "1",
+        "clipPath": "none"
+      },
+      "copy": {
+        "text": "All",
+        "tag": "SPAN",
+        "className": "",
+        "rect": {
+          "x": 29,
+          "y": 588.203125,
+          "width": 40.734375,
+          "height": 40,
+          "top": 588.203125,
+          "right": 69.734375,
+          "bottom": 628.203125,
+          "left": 29
+        },
+        "glyphRects": [
+          {
+            "x": 38.46875,
+            "y": 599.703125,
+            "width": 21.78125,
+            "height": 17,
+            "top": 599.703125,
+            "right": 60.25,
+            "bottom": 616.703125,
+            "left": 38.46875
+          }
+        ],
+        "color": "rgb(17, 17, 19)",
+        "opacity": "1",
+        "clipPath": "none"
+      }
+    }
+  ]
+}
