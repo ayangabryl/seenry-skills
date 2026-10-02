@@ -168,7 +168,7 @@
   // previews fully opaque so their text, focus and essential control cues retain contrast.
   // Dedicated reveal/shimmer examples still demonstrate their explicitly requested effect.
   if(key==='reveal') S.reveal($('text-reveal'));
-  else if(key==='shimmer') S.shimmer($('shimmer-text'));
+  else if(key==='shimmer') window.galleryReplay?.shimmer?.();
  }),{threshold:.55});
  cards.forEach(c=>previews.observe(c.querySelector('.stage')));
  window.galleryLibrary = {filter, showDetail, snippets, cards};

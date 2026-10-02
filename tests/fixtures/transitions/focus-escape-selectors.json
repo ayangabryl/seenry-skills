@@ -5,7 +5,7 @@
     "morph": {
       "stage": "article[data-key=\"morph\"] .stage",
       "trigger": "#morph-trigger",
-      "close": "#morph-1 [role=\"menuitem\"]:first-child",
+      "close": "#morph-1 [role=\"menuitem\"]:nth-child(3)",
       "layer": "#morph-1"
     },
     "expand": {

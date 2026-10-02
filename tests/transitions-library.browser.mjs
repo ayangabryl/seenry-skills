@@ -135,7 +135,7 @@ try {
         if(getComputedStyle(avatar.closest('.msg')).display==='none') continue;
         const a=rect(avatar);if(Math.abs(a.width-32)>1||Math.abs(a.height-32)>1) failures.push('page: avatar lost circular geometry');
       }
-      const tip=document.querySelector('[data-key="tooltip"]'),line=tip.querySelector('.editor-line'),stage=tip.querySelector('.stage');
+      const tip=document.querySelector('[data-key="tooltip"]'),line=tip.querySelector('.editor-text'),stage=tip.querySelector('.stage');
       if (!inside(rect(line),rect(stage))) failures.push('tooltip: placeholder lines clipped');
       const albums=document.querySelector('[data-key="expand"]'),albumStage=rect(albums.querySelector('.stage'));
       for (const card of albums.querySelectorAll('.cover-card')) {

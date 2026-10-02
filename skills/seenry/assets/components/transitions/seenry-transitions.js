@@ -348,7 +348,7 @@
   if (el.hasAttribute('data-st-contained')) {
    const host = el.offsetParent.getBoundingClientRect();
    x = clamp(x, host.left + 8, Math.max(host.left + 8, host.right - w - 8));
-   y = clamp(y, host.top + 8, Math.max(host.top + 8, host.bottom - h - 52));
+   y = clamp(y, host.top + 8, Math.max(host.top + 8, host.bottom - h - (morph ? 8 : 52)));
    el.style.left = x - host.left + 'px'; el.style.top = y - host.top + 'px';
   } else { el.style.left = x + 'px'; el.style.top = y + 'px'; }
   el.style.transformOrigin = `${clamp(t.left + t.width / 2 - x, 0, w)}px ${side === 'bottom' ? 0 : h}px`;
@@ -400,7 +400,12 @@
    // The label layer is a painted copy of the trigger, so the first frame is the button itself.
    Object.assign(s.label.style, {position: 'absolute', zIndex: '3', left: t.left - mr.left + 'px', top: t.top - mr.top + 'px', width: t.width + 'px', height: t.height + 'px', display: 'flex', alignItems: 'center', justifyContent: tcs.justifyContent, padding: tcs.padding, boxSizing: 'border-box', gap: tcs.gap, color: tcs.color, font: tcs.font, letterSpacing: tcs.letterSpacing, pointerEvents: 'none', borderRadius: tcs.borderRadius, background: tcs.backgroundColor, boxShadow: tcs.boxShadow});
    s.trigger.style.visibility = 'hidden';
-   const content = [...s.body.children].filter(c => c !== s.label);
+   // Open and close are one control in one place: a close pill shaped like the trigger sits exactly where the trigger
+   // was, so the same spot that opened the menu closes it.
+   const closer = q(s.body, '[data-st-morph-close]');
+   if (closer) Object.assign(closer.style, {position: 'absolute', zIndex: '4', margin: '0', left: t.left - mr.left + 'px', top: t.top - mr.top + 'px', height: t.height + 'px', minWidth: t.width + 'px'});
+   const content = [...s.body.children].filter(c => c !== s.label && c !== closer);
+   if (closer) play(closer, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'O', delay: 30, channel: 'o', fade: true, blur: false});
    play(s.body, [{clipPath: triggerInset(el, s.trigger)}, {clipPath: 'inset(0px 0px 0px 0px round 14px)'}], {spring: 'snappy', channel: 'clip'}).then(ok => { if (ok && s.version === v) el.classList.remove('st-morphing'); });
    play(s.label, [{opacity: 1}, {opacity: 0}], {ms: 70, curve: 'F', fill: 'forwards', fade: true});
    content.forEach((c, i) => i === 0 && el.tagName === 'DIALOG' ? null : play(c, [{opacity: 0, transform: 'translateY(-4px)'}, {opacity: 1, transform: 'none'}], {spring: 'snappy', delay: el.tagName === 'DIALOG' ? 40 : 30, fade: true}));
@@ -501,7 +506,7 @@
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true});
    if (reduced()) done = play(el, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if(kind==='palette' && el.hasAttribute('data-st-persistent')){
-   const height=q(el,'.st-palette-search')?.offsetHeight||46;done=play(el,[{clipPath:`inset(0px 0px calc(100% - ${height}px) 0px round 12px)`}],{ms:120,curve:'X',channel:'clip',fill:'forwards'});const results=q(el,'[role=listbox]');if(results)play(results,[{opacity:0}],{ms:65,channel:'o',fill:'forwards',fade:true});
+   const height=q(el,'.st-palette-search')?.offsetHeight||46;done=play(el,[{clipPath:`inset(0px 0px calc(100% - ${height}px) 0px round 12px)`}],{ms:200,curve:'O',channel:'clip',fill:'forwards'});const results=q(el,'[role=listbox]');if(results)play(results,[{opacity:0}],{ms:65,channel:'o',fill:'forwards',fade:true});
   } else if (kind === 'panel') {
    play(el, [{transform: 'translateY(-4px) scale(.98)'}], {ms: 'quick', curve: 'X', channel: 't', fill: 'forwards'});
    done = play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
@@ -648,29 +653,43 @@
 
  /* ---------- Accordion: content is revealed by a clip that tracks the rows sliding below it. ---------- */
  function accordion(d, want) {
-  const opening = want ?? !d.open;
-  if (opening === d.open && !d._stGhost) return;
+  const current = d.dataset.stExpanded ? d.dataset.stExpanded === 'true' : d.open;
+  const opening = want ?? !current;
+  if (opening === current && !d._stGhost) return;
+  d.dataset.stExpanded = String(opening);
   const body = q(d, '.st-details-body') || d.lastElementChild, host = d.parentElement;
   const g0 = d._stGhost; let startClip = null;
   if (g0) { startClip = getComputedStyle(g0).clipPath; stopAll(g0); g0.remove(); d._stGhost = null; }
   const after = [...host.children].filter(n=>!n.hasAttribute("data-st-ghost"));
   if (reduced()) { d.open = opening; if (body) body.inert = !opening; return; }
+  // An item that is its own surface (a card with a background) grows as one shell on a spring, with the content
+  // and the items below following it, instead of snapping to its new height.
+  const bg = getComputedStyle(d).backgroundColor;
+  if (!g0 && bg && bg !== 'transparent' && !/rgba\(0, 0, 0, 0\)/.test(bg)) {
+   // A closed <details> stops rendering everything but its summary, shell included, so it stays open while the
+   // body collapses and closes for real once the shell has landed.
+   if (opening) { d._stAcc = (d._stAcc || 0) + 1; resize(d, () => { if (body) body.style.display = ''; d.open = true; if (body) body.inert = false; }); }
+   else { const v = d._stAcc = (d._stAcc || 0) + 1; if (body) body.inert = true;
+    Promise.resolve(resize(d, () => { if (body) body.style.display = 'none'; })).then(() => { if (d._stAcc === v) { d.open = false; if (body) body.style.display = ''; } }); }
+   d.dispatchEvent(new CustomEvent('st:accordion', {bubbles: true, detail: {open: opening}}));
+   return;
+  }
   if (opening) {
    if (startClip) after.forEach(f => stop(f, 'flip'));
-   flip(after, () => { d.open = true; }, {ms:220,curve:'E'});
+   flip(after, () => { d.open = true; }, {ms:300,curve:'O'});
    if (body) {
     body.inert = false;
-    play(body, [{clipPath: startClip && startClip !== 'none' ? startClip : 'inset(0px 0px 100% 0px)'}, {clipPath: 'inset(0px 0px 0% 0px)'}], {ms:220,curve:'E',channel:'clip'});
-    play(body, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms:220,curve:'E',channel:'t'});
-    play(body, [{opacity: startClip ? +getComputedStyle(body).opacity : 0}, {opacity: 1}], {ms:120,curve:'F',channel:'o',fade:true});
+    play(body, [{clipPath: startClip && startClip !== 'none' ? startClip : 'inset(0px 0px 100% 0px)'}, {clipPath: 'inset(0px 0px 0% 0px)'}], {ms:300,curve:'O',channel:'clip'});
+    play(body, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms:300,curve:'O',channel:'t'});
+    play(body, [{opacity: startClip ? +getComputedStyle(body).opacity : 0}, {opacity: 1}], {ms:200,curve:'O',channel:'o',fade:true});
    }
   } else {
    let g = null;
    if (body && host) { const cur = getComputedStyle(body).clipPath; g = ghost(body, host); d._stGhost = g; g.style.clipPath = cur === 'none' ? 'inset(0px 0px 0% 0px)' : cur; g.style.opacity = getComputedStyle(body).opacity; }
-   flip(after, () => { d.open = false; if (body) { stopAll(body); body.inert = true; } }, {ms:220,curve:'E'});
+   flip(after, () => { d.open = false; if (body) { stopAll(body); body.inert = true; } }, {ms:300,curve:'O'});
    if (g) {
-    play(g, [{clipPath: 'inset(0px 0px 100% 0px)'}], {ms:220,curve:'E',fill:'forwards'}).then(ok => { if (ok && d._stGhost === g) { g.remove(); d._stGhost = null; } });
-    play(g, [{opacity: 0}], {ms:65,curve:'F',channel:'o',fill:'forwards'});
+    play(g, [{clipPath: 'inset(0px 0px 100% 0px)'}], {ms:260,curve:'O',fill:'forwards'}).then(ok => { if (ok && d._stGhost === g) { g.remove(); d._stGhost = null; } });
+    play(g, [{opacity: 0}], {ms:120,curve:'F',channel:'o',fill:'forwards'});
    }
   }
   d.dispatchEvent(new CustomEvent('st:accordion', {bubbles: true, detail: {open: opening}}));
@@ -1212,8 +1231,8 @@
   const loose = root => [...root.children].flatMap(c => isShared(c) ? [] : qa(c, '[data-st-shared]').some(isShared) ? loose(c) : [c]);
   for (const n of loose(scope)) {
    // A beat after the shared parts have nearly landed, so nothing arrives underneath them.
-   const wait = before.size ? (n === loose(scope)[0] ? 40 : 70) : 40;
-   jobs.push(play(n, [{opacity: 0}, {opacity: 1}], {ms: n === loose(scope)[0] ? 100 : 140, curve: 'F', delay: wait, channel: 'o', current: false, fade: true}));
+   const wait = before.size ? (n === loose(scope)[0] ? 140 : 170) : 60;
+   jobs.push(play(n, [{opacity: 0}, {opacity: 1}], {ms: 220, curve: 'O', delay: wait, channel: 'o', current: false, fade: true}));
    jobs.push(play(n, [{transform: `translateX(${16 * dir}px)`}, {transform: 'none'}], {spring: 'smooth', delay: wait, channel: 't', current: false}));
   }
   await Promise.all(jobs); if (v === pageVersion) pageCleanup = null;
@@ -1591,7 +1610,7 @@
    if (el && el.dataset.st) { e.preventDefault(); if (el.dataset.st === 'expand') { isOpen(el) && !layerState(el).closing ? collapse(el) : expand(trigger, el); } else toggle(el, trigger, {keyboard: e.detail === 0}); return; }
   }
   const dismiss = e.target.closest('[data-st-close]');
-  if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer); else close(dismiss.closest('dialog,[popover],[data-st="popover-panel"],[data-st="palette"],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
+  if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer); else close(dismiss.closest('dialog,[popover],[data-st="menu"],[data-st="plus-menu"],[data-st="popover-panel"],[data-st="palette"],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
   const scrim = e.target.closest('[data-st-scrim]');
   if (scrim) { const layer = [...active].reverse().find(l => scrimOf(l) === scrim || l.contains(scrim)); if (layer) layer.dataset.st === 'expand' ? collapse(layer) : close(layer); }
  });

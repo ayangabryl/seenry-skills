@@ -180,7 +180,7 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 [data-st="accordion"] summary::-webkit-details-marker { display: none; }
 [data-st="accordion"] summary::after { content: ""; flex: none; width: 8px; height: 8px; margin-right: 4px; border: solid var(--text-2); border-width: 0 1.6px 1.6px 0; transform: translateY(-2px) rotate(45deg);
  transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
-[data-st="accordion"][open] summary::after { transform: translateY(2px) rotate(225deg); }
+[data-st="accordion"][open]:not([data-st-expanded="false"]) summary::after, [data-st="accordion"][data-st-expanded="true"] summary::after { transform: translateY(2px) rotate(225deg); }
 [data-st="accordion"] .st-details-body { padding: 0 0 16px; color: var(--text-2); font: 400 14.5px/22px var(--font); }
 
 /* Numbers and text: digits roll within a masked cell; letters move as glyphs. */
@@ -583,3 +583,13 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
    the moment the work is done. */
 [data-st="thinking"]:not([data-st-done="true"]) .st-text-value { background: linear-gradient(90deg, var(--text-3) 0%, var(--text-3) 38%, var(--text) 50%, var(--text-3) 62%, var(--text-3) 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: st-sheen 1.6s linear infinite; }
 @media (prefers-reduced-motion: reduce) { [data-st="thinking"] .st-text-value { animation: none !important; background: none !important; color: var(--text-2) !important; } }
+
+/* Morph menu v5: a header row reserves the trigger's height; the close pill (same shape as the trigger) turns its
+   plus into a cross on the same spring that opens the menu. */
+.st-morph-head { display: flex; align-items: center; height: 40px; padding: 0 10px; margin-bottom: 2px; font: 500 13px/18px var(--font); color: var(--text-2); }
+[data-st-morph-close] .st-icon { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+[data-st-open="true"] [data-st-morph-close] .st-icon { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { [data-st-morph-close] .st-icon { transition: none; } }
+[data-st="plus-menu"] [data-st-morph-close].st-button.st-primary { display: inline-flex; justify-content: center; gap: 8px; width: auto; padding: 0 14px; background: var(--accent); color: var(--on-accent); box-shadow: none; font-weight: 500; }
+[data-st="plus-menu"] [data-st-morph-close].st-button.st-primary .st-icon { color: inherit; }
+@media (hover: hover) and (pointer: fine) { [data-st="plus-menu"] [data-st-morph-close].st-button.st-primary:hover { background: var(--accent-hover); } }
