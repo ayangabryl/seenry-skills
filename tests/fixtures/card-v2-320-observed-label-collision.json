@@ -1,0 +1,85 @@
+{
+  "provenance": {
+    "actualPauseMs": 100.70000000298025,
+    "input": "trusted-keyboard-click",
+    "source": "Card v2 runtime sha256 ce43a59d5b0d8e213554e3814abb51f81ac06218ff7582e2eb8bcde630403c23",
+    "viewport": {
+      "height": 780,
+      "width": 320
+    }
+  },
+  "nodes": [
+    {
+      "className": "",
+      "glyphRects": [
+        {
+          "height": 17,
+          "width": 40.078125,
+          "x": 128,
+          "y": 360.25
+        },
+        {
+          "height": 17,
+          "width": 41.15625,
+          "x": 128,
+          "y": 382.25
+        }
+      ],
+      "id": "expand-title",
+      "opacity": "1",
+      "text": "Night Swim",
+      "visibility": "hidden"
+    },
+    {
+      "className": "",
+      "glyphRects": [
+        {
+          "height": 16,
+          "width": 49.015625,
+          "x": 128,
+          "y": 404.25
+        }
+      ],
+      "id": "expand-count",
+      "opacity": "1",
+      "text": "9 tracks",
+      "visibility": "hidden"
+    },
+    {
+      "className": "st-ghost-layer",
+      "glyphRects": [
+        {
+          "height": 17,
+          "width": 40.078125,
+          "x": 126.1324462890625,
+          "y": 402.7367858886719
+        },
+        {
+          "height": 17,
+          "width": 41.15625,
+          "x": 126.1324462890625,
+          "y": 424.7367858886719
+        }
+      ],
+      "id": "",
+      "opacity": "1",
+      "text": "Night Swim",
+      "visibility": "visible"
+    },
+    {
+      "className": "st-ghost-layer",
+      "glyphRects": [
+        {
+          "height": 16,
+          "width": 49.015625,
+          "x": 126.1324462890625,
+          "y": 436.46527099609375
+        }
+      ],
+      "id": "",
+      "opacity": "1",
+      "text": "9 tracks",
+      "visibility": "visible"
+    }
+  ]
+}

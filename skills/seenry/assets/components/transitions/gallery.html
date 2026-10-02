@@ -588,7 +588,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
  .expand-surface .ex-name{padding-right:52px}
  .stage .expand-surface .ex-name h4{white-space:normal;overflow-wrap:anywhere}
 }
-@container(min-width:385px){
+@container(width > 384px){
  .stage .expand-surface{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;align-items:start}
  .expand-surface .ex-head{flex-direction:column;align-items:flex-start;gap:8px}
  .expand-surface .ex-head .cover{width:120px;height:120px}
@@ -678,6 +678,28 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 /* Three72px album rows plus two8px gaps need232px. Keep the44px Replay target
    below them even with its16px bottom inset; text growth may increase height naturally. */
 .card[data-key="expand"]>.stage{height:auto;min-height:324px;padding-bottom:72px}
+/* Row albums use the same authored label measure at both ends of the flight.
+   The trailing action lane is real in both states; text never has to rewrap mid-flight. */
+.stage:has(.covers){--album-gutter:20px;padding-inline:var(--album-gutter)}
+@media(max-width:650px){.stage:has(.covers){--album-gutter:8px}}
+.cover-card .cover-label{display:block;min-width:0;color:var(--text)}
+.cover-card .cover-open{display:none}
+.stage #covers .cover-label b{font-size:16px;line-height:22px;font-weight:600;letter-spacing:-.01em}
+.stage #covers .cover-label [data-st-shared=meta]{font-size:14px;line-height:20px;letter-spacing:normal}
+.stage .expand-surface .ex-name p{letter-spacing:normal}
+@container(max-width:384px){
+ .covers .cover-card{position:relative;grid-template-columns:60px minmax(0,1fr);column-gap:12px}
+ .covers .cover-card>.cover{grid-row:auto;width:60px;height:60px}
+ .covers .cover-card>.cover-label{align-self:center;padding-right:52px}
+ .covers .cover-card .cover-label b{width:auto;white-space:normal;overflow-wrap:anywhere}
+ .covers .cover-card>.cover-open{position:absolute;top:4px;right:4px;width:44px;height:44px;display:grid;place-items:center;color:var(--text-2)}
+ .stage .expand-surface{inset-inline:var(--album-gutter);padding:6px;border-radius:18px}
+ .stage .expand-surface .ex-head{gap:12px}
+ .stage .expand-surface .ex-head .cover{width:60px;height:60px;border-radius:12px}
+ .stage .expand-surface .ex-name{padding-right:52px}
+ .stage .expand-surface .ex-name h4{white-space:normal;overflow-wrap:anywhere}
+ .stage .expand-surface .close-x{width:44px;height:44px;min-width:44px;min-height:44px}
+}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -833,9 +855,9 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
    </article><article class="card" data-key="expand" data-category="Surfaces" data-why="Why this works: A 6px inset separates artwork from the hover edge, with matching inner and outer curves. Hover changes color without moving the target, and Replay has its own space. The selected artwork, title and track count stay recognizable as the details open." tabindex="0" data-motion-region data-motion-label="Card expand">
     <div class="stage" data-st-preview>
      <div class="covers" id="covers">
-      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></button>
-      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><b data-st-shared="title">Night Swim</b><span data-st-shared="meta">9 tracks</span></button>
-      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><b data-st-shared="title">Greenhouse</b><span data-st-shared="meta">11 tracks</span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Night Swim</b><span data-st-shared="meta">9 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Greenhouse</b><span data-st-shared="meta">11 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
      </div>
      <div id="expand-1" data-st="expand" role="dialog" aria-label="Album details">
       <div data-st-scrim style="border-radius:0"></div>

@@ -10,7 +10,7 @@ const runtime=arg('--playwright');if(!runtime)throw new Error('Pass --playwright
 const {chromium}=await import(pathToFileURL(resolve(runtime)).href);
 const gallery=resolve(arg('--gallery',fileURLToPath(new URL('../skills/seenry/assets/components/transitions/gallery.html',import.meta.url))));
 const out=resolve(arg('--out','title-boundary-results'));mkdirSync(out,{recursive:true});
-const widths=arg('--widths','361,368,384,385,400,420').split(',').map(Number);
+const widths=arg('--widths','361,368,384,384.5,385,400,420').split(',').map(Number);
 const pressHoldMs=Number(arg('--press-hold-ms','0')),inputMode=arg('--input','pointer');
 assert(['pointer','touch'].includes(inputMode),'--input must be pointer or touch');
 function heldPressObserved(p) {
@@ -37,7 +37,7 @@ try{
    await page.locator('[data-key="expand"]').scrollIntoViewIfNeeded();await page.waitForTimeout(300);
    run.layout=await page.evaluate(({index})=>{
     const card=document.querySelector('[data-key="expand"]'),stage=card.querySelector('.stage'),source=card.querySelectorAll('.cover-card')[index],title=source.querySelector('b'),css=getComputedStyle(stage),rect=e=>e.getBoundingClientRect().toJSON();
-    const result={contentWidth:stage.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight),stage:rect(stage),source:rect(source),title:rect(title),sourceText:title.textContent.trim(),gridColumns:getComputedStyle(card.querySelector('.covers')).gridTemplateColumns,sourcePadding:getComputedStyle(source).paddingLeft,sourceMargin:getComputedStyle(source).marginLeft};
+    const result={contentWidth:stage.getBoundingClientRect().width-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)-parseFloat(css.borderLeftWidth)-parseFloat(css.borderRightWidth),sourceComposition:getComputedStyle(source).display==='grid'?'row':'tile',detailComposition:getComputedStyle(card.querySelector('.expand-surface')).display==='grid'?'tile':'row',stage:rect(stage),source:rect(source),title:rect(title),sourceText:title.textContent.trim(),gridColumns:getComputedStyle(card.querySelector('.covers')).gridTemplateColumns,sourcePadding:getComputedStyle(source).paddingLeft,sourceMargin:getComputedStyle(source).marginLeft};
     window.__titleBoundary=[];
     const textState=e=>{
      const range=document.createRange();range.selectNodeContents(e);const c=getComputedStyle(e),r=e.getBoundingClientRect(),glyphs=[...range.getClientRects()].filter(r=>r.width>0&&r.height>0).map(r=>r.toJSON());
@@ -60,7 +60,8 @@ try{
      const sample=()=>{window.__titleBoundary.push({at:performance.now()-start,...window.__titleBoundaryFrame()});if(performance.now()-start<600)requestAnimationFrame(sample);};window.__titleBoundaryInitial={at:performance.now()-start,...window.__titleBoundaryFrame()};requestAnimationFrame(sample);
     });},{once:true});return result;
    },{index});
-   assert(Math.abs(run.layout.contentWidth-contentWidth)<.05,'Explicit fixture must realize requested content width');
+   assert(Math.abs(run.layout.contentWidth-contentWidth)<.05,'Explicit fixture must realize requested fractional content width');
+   assert.equal(run.layout.sourceComposition,run.layout.detailComposition,'Source and detail must select the same composition, including fractional breakpoint widths');
    const target=page.locator('[data-key="expand"] .cover-card').nth(index);
    const pressed=()=>target.evaluate(e=>({rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches}));
    const observeHeld=async()=>{
