@@ -1051,6 +1051,12 @@
   state.paintSaved = {background: surface.style.background, boxShadow: surface.style.boxShadow, borderColor: surface.style.borderColor, overflow: surface.style.overflow, isolation: surface.style.isolation};
   Object.assign(surface.style, {background: 'transparent', boxShadow: 'none', borderColor: 'transparent', overflow: 'visible', isolation: 'isolate'}); surface.prepend(paint); state.paint = paint; return paint;
  }
+ // Details hang from the shared artwork: below it they follow its bottom edge, beside it its top edge.
+ function hang(c, pairs, cr = c.getBoundingClientRect()) {
+  const p = pairs.find(([, d]) => !d.hasAttribute('data-st-shared-text')); if (!p) return 0;
+  const a = p[0].getBoundingClientRect(), d = p[1].getBoundingClientRect();
+  return Math.max(-80, Math.min(80, cr.top >= d.bottom - 1 ? a.bottom - d.bottom : a.top - d.top));
+ }
  const cardClip = (sr, dr, rad) => `inset(${sr.top - dr.top}px ${dr.right - sr.right}px ${dr.bottom - sr.bottom}px ${sr.left - dr.left}px round ${rad}px)`;
  function expand(source, detail) {
   if (!source || !detail) return;
@@ -1065,15 +1071,27 @@
   const endR = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
   source.style.visibility = 'hidden';
   const content = qa(surface, '[data-st-expand-content]'), closeControl = q(surface, '[data-st-close]');
-  if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 'surface', curve: 'F', fade: true, current: wasClosing}); }
+  // Measured before the shared parts move: afterwards the artwork already sits on the card it came from.
+  const hangs = new Map(content.map(c => [c, hang(c, pairs)]));
+  // The rest of the page dims quickly, so it never competes with the opening card.
+  if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', fade: true, current: wasClosing}); }
   if (reduced()) { play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'}); pairs.forEach(([, d]) => d.style.visibility = ''); if (s.travelers) { for (const g of s.travelers.values()) { stopAll(g); g.remove(); } s.travelers.clear(); } s.titleFades?.clear(); }
   else {
    // The shell's clip is sampled from the same spring track as the shared parts, so all three move as one.
    { const cur = wasClosing ? parseInset(getComputedStyle(paint).clipPath) : null, a0 = cur || [sr.top - dr.top, dr.right - sr.right, dr.bottom - sr.bottom, sr.left - dr.left], r0 = wasClosing ? endR : rad;
      play(paint, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false}); }
    travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); if (s.titleFades?.has(d)) fadeIn(d, {ms: 80, blur: false}); } s.travelers.clear(); s.titleFades?.clear(); s.moved = false; });
-   // Details belong to the open state: they arrive once the title has nearly landed.
-   content.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 200, channel: 'o', current: wasClosing, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: 200, channel: 't', current: wasClosing}); });
+   // Details ride the shell: clipped by the same spring that grows it and drawn a little toward the card they
+   // came from, so the surface is never an empty frame. Layouts keep details out of the title's path.
+   content.forEach(c => {
+    const cr = c.getBoundingClientRect(), cur = wasClosing ? parseInset(getComputedStyle(c).clipPath) : null;
+    // The clip lives in the content's own (translated) space, so offset it by the same pull.
+    const pull = hangs.get(c), c0 = cur || [sr.top - cr.top - pull, cr.right - sr.right, cr.bottom + pull - sr.bottom, sr.left - cr.left];
+    // Ends on the surface's own edges: start, end and translation together track the shell's clip exactly.
+    play(c, [{clipPath: `inset(${c0[0]}px ${c0[1]}px ${c0[2]}px ${c0[3]}px round ${rad}px)`}, {clipPath: `inset(${dr.top - cr.top}px ${cr.right - dr.right}px ${cr.bottom - dr.bottom}px ${dr.left - cr.left}px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false});
+    play(c, [{transform: `translateY(${pull}px)`}, {transform: 'none'}], {spring: 'expand', channel: 't', current: wasClosing});
+    play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 70, channel: 'o', current: wasClosing, fade: true});
+   });
    if (closeControl) play(closeControl, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 150, channel: 'o', current: wasClosing, fade: true});
   }
   (closeControl || focusFirst(detail))?.focus?.({preventScroll: true});
@@ -1101,7 +1119,17 @@
   };
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 0}], {ms: 'control', curve: 'F', fade: true, fill: 'forwards'}); }
   const closeControl = q(surface, '[data-st-close]'); if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
-  qa(surface, '[data-st-expand-content]').forEach(c => play(c, [{opacity: 0}], {ms: 45, curve: 'X', channel: 'o', fill: 'forwards', fade: true}));
+  // Details shrink back with the shell rather than leaving it empty, and are gone before it lands.
+  const backPairs = sharedPairs(source, detail), ap = parseInset(getComputedStyle(s.paint || surface).clipPath) || [0, 0, 0, 0];
+  const shellNow = {top: dr.top + ap[0], right: dr.right - ap[1], bottom: dr.bottom - ap[2], left: dr.left + ap[3]}, shellR = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
+  qa(surface, '[data-st-expand-content]').forEach(c => {
+   play(c, [{opacity: 0}], {ms: 90, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
+   if (reduced()) return;
+   const ty = new DOMMatrix(getComputedStyle(c).transform).m42, r = c.getBoundingClientRect(), cr = {top: r.top - ty, bottom: r.bottom - ty, left: r.left, right: r.right};
+   const pull = hang(c, backPairs, cr), sh = shellNow;
+   play(c, [{clipPath: `inset(${sh.top - cr.top - ty}px ${cr.right - sh.right}px ${cr.bottom + ty - sh.bottom}px ${sh.left - cr.left}px round ${shellR}px)`}, {clipPath: `inset(${sr.top - cr.top - pull}px ${cr.right - sr.right}px ${cr.bottom + pull - sr.bottom}px ${sr.left - cr.left}px round ${rad}px)`}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false});
+   play(c, [{transform: `translateY(${pull}px)`}], {spring: 'snappy', channel: 't', fill: 'forwards'});
+  });
   if (reduced()) { play(surface, [{opacity: 0}], {ms: 'quick', fade: true, channel: 'o', fill: 'forwards'}).then(finish); return; }
   { const a0 = parseInset(getComputedStyle(s.paint || surface).clipPath) || [0, 0, 0, 0], r0 = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
     play(s.paint || surface, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: cardClip(sr, dr, rad)}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false}); }

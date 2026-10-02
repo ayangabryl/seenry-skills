@@ -222,8 +222,6 @@ pre.install b{color:var(--text);font-weight:500}
  .caption{padding:16px}
  .facts b{font-size:17px}
  .facts span{font-size:13px}
- .expand-surface{grid-template-columns:1fr;grid-template-rows:auto 1fr;overflow:hidden}
- .expand-surface .cover{width:100%;height:110px}
  .covers{gap:8px}
  .desk{height:240px}
  .app .small,.file-meta span,.msg span,.task span,.set-row span,.stage p.small,.cover-card span,.share-row div{font-size:14px}
@@ -573,6 +571,26 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
  .cover-card,.cover-card .cover{transition-property:background-color,opacity,box-shadow}
  .cover-card:hover,.cover-card:active{transform:none}
 }
+/* Card expand: the detail keeps the card's arrangement (title and count beside the artwork in rows, under it in tiles),
+   so nothing travels through the cover, and the track list rides the growing shell instead of waiting for it. */
+.stage .covers .cover-card b,.stage .expand-surface h4{font-size:16px;line-height:22px;font-weight:600;letter-spacing:-.01em;margin:0}
+.stage .covers .cover-card [data-st-shared=meta],.stage .expand-surface .ex-name p{font-size:14px;line-height:20px;color:var(--text-2);margin:0}
+.stage .expand-surface{display:flex;flex-direction:column;gap:10px;padding:12px;grid-template-columns:none}
+.expand-surface .ex-head{display:flex;align-items:center;gap:14px;min-width:0}
+.expand-surface .ex-head .cover{width:88px;height:88px;border-radius:12px;flex:none}
+.expand-surface .ex-name{flex:1;min-width:0;padding-right:40px}
+.stage .expand-surface .ex-name h4{width:auto;max-width:none;white-space:nowrap}
+.ex-tracks{list-style:none;margin:0;padding:0;display:grid}
+.ex-tracks li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;height:32px;padding:0 10px;border-radius:8px;font-size:14px}
+.ex-tracks li>span:first-child,.ex-tracks li>span:last-child{color:var(--text-2);font-variant-numeric:tabular-nums}
+.ex-tracks li:first-child{background:var(--hover)}
+@container(min-width:385px){
+ .stage .expand-surface{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;align-items:start}
+ .expand-surface .ex-head{flex-direction:column;align-items:flex-start;gap:8px}
+ .expand-surface .ex-head .cover{width:120px;height:120px}
+ .expand-surface .ex-name{padding-right:0}
+ .expand-surface .ex-tracks{margin-top:40px}
+}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -726,26 +744,23 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
    </article><article class="card" data-key="expand" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Card expand">
     <div class="stage" data-st-preview>
      <div class="covers" id="covers">
-      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><b data-st-shared="title">Golden Hour</b><span>12 tracks</span></button>
-      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><b data-st-shared="title">Night Swim</b><span>9 tracks</span></button>
-      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><b data-st-shared="title">Greenhouse</b><span>11 tracks</span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></button>
+      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><b data-st-shared="title">Night Swim</b><span data-st-shared="meta">9 tracks</span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><b data-st-shared="title">Greenhouse</b><span data-st-shared="meta">11 tracks</span></button>
      </div>
      <div id="expand-1" data-st="expand" role="dialog" aria-label="Album details">
       <div data-st-scrim style="border-radius:0"></div>
       <div class="expand-surface" style="z-index:20">
-       <span class="cover" data-st-shared="cover" id="expand-cover"></span>
-       <div style="min-width:0">
-        <h4 data-st-shared="title" data-st-shared-text id="expand-title">Night Swim</h4>
-        <div data-st-expand-content>
-         <p id="expand-meta">9 tracks · 34 min</p>
-         <div class="tracks"><div><span>Low tide</span><span>3:41</span></div><div><span>Harbour lights</span><span>4:02</span></div><div><span>Undertow</span><span>3:18</span></div></div>
-        </div>
+       <div class="ex-head">
+        <span class="cover" data-st-shared="cover" id="expand-cover"></span>
+        <div class="ex-name"><h4 data-st-shared="title" data-st-shared-text id="expand-title">Night Swim</h4><p data-st-shared="meta" data-st-shared-text id="expand-count">9 tracks</p></div>
        </div>
+       <ol class="ex-tracks" data-st-expand-content id="expand-tracks"><li><span>1</span><span>Low tide</span><span>3:41</span></li><li><span>2</span><span>Harbour lights</span><span>4:02</span></li><li><span>3</span><span>Undertow</span><span>3:18</span></li></ol>
        <button class="icon-btn close-x" data-st-close aria-label="Close album"><svg class="st-icon"><use href="#i-x"/></svg></button>
       </div>
      </div>
     <button class="replay" data-replay="expand" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="expand">Card expand</button></h3><p>Card to detail</p><button class="snippet-copy" data-st="copy" data-snippet="expand" aria-label="Copy HTML for Card expand"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shared FLIP</span><span>clip from card rect</span><span>content +200ms</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="expand">Card expand</button></h3><p>Card to detail</p><button class="snippet-copy" data-st="copy" data-snippet="expand" aria-label="Copy HTML for Card expand"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shared FLIP</span><span>clip from card rect</span><span>details ride the shell</span></div></div>
    </article><article class="card" data-key="tabs" data-category="Navigation" tabindex="0" data-motion-region data-motion-label="Tabs">
     <div class="stage" data-st-preview>
      <div class="app settings-card" data-st="tabs" id="tabs-1" style="padding-top:8px">
@@ -957,10 +972,11 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
  $('mail').addEventListener('click', e => { const o = e.target.closest('[data-open]'); if (o) go(mails.find(m => m.id === o.dataset.open)); if (e.target.closest('[data-back]')) go(null, true); });
 
  // Card expand: fill the detail from the card that opened it.
- const covers = {c1: ['Golden Hour', '12 tracks · 41 min'], c2: ['Night Swim', '9 tracks · 34 min'], c3: ['Greenhouse', '11 tracks · 38 min']};
+ const covers = {c1: ['Golden Hour', '12 tracks', [['First light', '3:12'], ['Amber', '4:20'], ['Long shadows', '3:55']]], c2: ['Night Swim', '9 tracks', [['Low tide', '3:41'], ['Harbour lights', '4:02'], ['Undertow', '3:18']]], c3: ['Greenhouse', '11 tracks', [['Fern', '2:58'], ['Glass roof', '4:11'], ['Humid', '3:27']]]};
  document.querySelectorAll('.cover-card').forEach(card => card.addEventListener('click', () => {
-  const c = card.querySelector('.cover').classList[1]; const [title, meta] = covers[c];
-  $('expand-cover').className = 'cover ' + c; $('expand-title').textContent = title; $('expand-meta').textContent = meta;
+  const c = card.querySelector('.cover').classList[1]; const [title, count, tracks] = covers[c];
+  $('expand-cover').className = 'cover ' + c; $('expand-title').textContent = title; $('expand-count').textContent = count;
+  $('expand-tracks').innerHTML = tracks.map(([t, d], i) => `<li><span>${i + 1}</span><span>${t}</span><span>${d}</span></li>`).join('');
  }, true));
 
  // Button states
