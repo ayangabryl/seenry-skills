@@ -146,7 +146,7 @@ Colours, radii, shadows and fonts are custom properties on `:root`. Dark mode fo
 - Button states set `aria-busy` and announce success or error through a polite live region.
 - Numbers keep a screen-reader copy of the formatted value, and the rolling digits are `aria-hidden`.
 - Toasts are `role=status` in a polite region, and collapsed toasts are inert.
-- The palette uses `aria-activedescendant`.
+- The palette uses `aria-activedescendant`. A persistent non-dialog preview keeps its search usable after Escape or selection while collapsed results are inert. Pointer click, Tab focus, editing, and ArrowDown/ArrowUp/Enter reopen results; production dialog palettes continue to use native `showModal`.
 - Motion is never the only signal: every state also changes text, colour or shape.
 
 ## Verification

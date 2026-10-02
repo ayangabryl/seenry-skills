@@ -93,7 +93,7 @@
 [data-st="menu"] [role="menuitem"]:focus-visible, [data-st="plus-menu"] [role="menuitem"]:focus-visible { outline: 0; background: var(--hover); }
 [data-st="menu"] [role="menuitem"]:active, [data-st="plus-menu"] [role="menuitem"]:active { background: var(--press); transform: none; }
 [data-st="menu"] [role="menuitem"].st-danger { color: var(--bad); } [data-st="menu"] [role="menuitem"].st-danger .st-icon { color: var(--bad); }
-[data-st="menu"] kbd { margin-left: auto; color: var(--text-3); font: 400 12px var(--font); }
+[data-st="menu"] kbd { margin-left: auto; color: var(--text-2); font: 400 12px var(--font); }
 [data-st="menu"] hr, [data-st="plus-menu"] hr { height: 1px; margin: 5px -5px; border: 0; background: var(--line); }
 @media (hover: hover) and (pointer: fine) { [data-st="menu"] [role="menuitem"]:hover, [data-st="plus-menu"] [role="menuitem"]:hover { background: var(--hover); } }
 @media (pointer: coarse) { [data-st="menu"] [role="menuitem"], [data-st="plus-menu"] [role="menuitem"] { min-height: 44px; } }
@@ -131,12 +131,12 @@ dialog[data-st="drawer"] { width: min(380px, 100vw); max-width: none; height: 10
 .st-palette-search { display: flex; align-items: center; gap: 10px; padding: 0 16px;  }
 .st-palette-search .st-icon { color: var(--text-3); }
 .st-palette-search input { flex: 1; min-width: 0; height: 52px; border: 0; outline: 0; background: transparent; color: var(--text); font: 400 16px/24px var(--font); }
-.st-palette-search input::placeholder { color: var(--text-3); }
+.st-palette-search input::placeholder { color: var(--text-2); }
 dialog[data-st="palette"] [role="listbox"] { position: relative; max-height: 320px; margin: 0; padding: 6px; overflow: auto; list-style: none; }
 .st-palette-highlight { position: absolute; left: 6px; right: 6px; top: 0; border-radius: 8px; background: var(--hover); pointer-events: none; transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy), opacity var(--st-quick) var(--st-F); }
 dialog[data-st="palette"] [role="option"] { position: relative; display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 10px; border-radius: 8px; color: var(--text); font: 400 14px/20px var(--font); cursor: pointer; }
 dialog[data-st="palette"] [role="option"] .st-icon { color: var(--text-2); width: 16px; height: 16px; }
-dialog[data-st="palette"] [role="option"] kbd { margin-left: auto; color: var(--text-3); font: 400 12px var(--font); }
+dialog[data-st="palette"] [role="option"] kbd { margin-left: auto; color: var(--text-2); font: 400 12px var(--font); }
 dialog[data-st="palette"] [role="option"][hidden] { display: none; }
 [data-st-palette-empty] { padding: 18px 16px; color: var(--text-2); font: 400 14px/20px var(--font); }
 @media (pointer: coarse) { dialog[data-st="palette"] [role="option"] { min-height: 44px; } }

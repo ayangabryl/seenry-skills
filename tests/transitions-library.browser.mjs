@@ -65,6 +65,38 @@ try {
     assert.equal(result.scrollY,0,`${width}/${theme} initialization unexpectedly scrolled`);
     assert.ok(result.overflow<=1,`${width}/${theme} document overflow ${result.overflow}`);
     assert.deepEqual(result.failures,[],`${width}/${theme} internal preview fit`);
+    await page.locator('#menu-trigger').click();
+    await page.waitForTimeout(120);
+    const shortcutRatios=await page.locator('#menu-1 kbd').evaluateAll(nodes=>{
+      const color=s=>{const m=s.match(/^(?:rgba?\((.*)\)|color\(srgb (.*)\))$/);if(!m)throw new Error('Unsupported measured color '+s);const p=(m[1]||m[2]).replace(/[,/]/g,' ').trim().split(/\s+/).map(Number);return {rgb:p.slice(0,3).map(v=>m[1]?v/255:v),a:p[3]??1};};
+      const lum=rgb=>rgb.map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
+      return nodes.map(n=>{const fg=color(getComputedStyle(n).color),base=color(getComputedStyle(n.closest('[data-st="menu"]')).backgroundColor),over=color(getComputedStyle(n.closest('[role="menuitem"]')).backgroundColor);const bg=over.rgb.map((v,i)=>v*over.a+base.rgb[i]*(1-over.a)),ink=fg.rgb.map((v,i)=>v*fg.a+bg[i]*(1-fg.a));const a=lum(ink),b=lum(bg);return {text:n.textContent,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};});
+    });
+    assert.ok(shortcutRatios.length>=2&&shortcutRatios.every(x=>x.ratio>=4.5),`${width}/${theme} informative menu shortcut contrast: ${JSON.stringify(shortcutRatios)}`);
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(()=>document.querySelector('#menu-1').dataset.stOpen==='false');
+    await page.locator('#mail [data-open="m2"]').click();
+    const mailDetail=page.locator('#mail .detail');
+    await mailDetail.waitFor({state:'visible'});
+    assert.equal(await mailDetail.getAttribute('tabindex'),'0',`${width}/${theme} message scroll region is keyboard reachable`);
+    const mailMetrics=await mailDetail.evaluate(el=>({overflow:getComputedStyle(el).overflowY,height:el.clientHeight,scrollHeight:el.scrollHeight,parentHeight:el.parentElement.clientHeight,viewClass:el.parentElement.classList.contains('mail-view')}));
+    assert.equal(mailMetrics.overflow,'auto',`${width}/${theme} message detail owns vertical scrolling`);
+    assert.ok(mailMetrics.viewClass&&mailMetrics.height>0&&mailMetrics.height<mailMetrics.parentHeight,`${width}/${theme} real mail-view reserves the header outside its scroll region`);
+    const mailOverflow=mailMetrics.scrollHeight-mailMetrics.height;
+    if(mailOverflow>1){await mailDetail.hover();await page.mouse.wheel(0,600);await page.waitForFunction(()=>{const el=document.querySelector('#mail .detail'),r=document.createRange();r.selectNodeContents(el.querySelector('p'));return el.scrollTop>0&&r.getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1;});}
+    const mailFit=await mailDetail.evaluate(el=>{const range=document.createRange();range.selectNodeContents(el.querySelector('p'));const text=range.getBoundingClientRect(),frame=el.getBoundingClientRect();return text.bottom<=frame.bottom+1;});
+    assert.equal(mailFit,true,`${width}/${theme} complete message body can be revealed`);
+    await mailDetail.press('Home');
+    await page.waitForFunction(()=>document.querySelector('#mail .detail').scrollTop<=1);
+    await mailDetail.press('End');
+    await page.waitForFunction(()=>{const el=document.querySelector('#mail .detail'),r=document.createRange();r.selectNodeContents(el.querySelector('p'));return r.getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1;});
+    assert.equal(await mailDetail.evaluate(el=>{const r=document.createRange();r.selectNodeContents(el.querySelector('p'));return r.getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1;}),true,`${width}/${theme} keyboard End reveals message tail`);
+    await page.locator('#mail [data-back]').click();
+    await page.locator('#mail .mail-list').waitFor({state:'visible'});
+    const cover=page.locator('[data-key="expand"] .cover-card').first();
+    await cover.hover();
+    await page.waitForTimeout(120);
+    assert.equal(await cover.evaluate(el=>{const t=getComputedStyle(el).transform;return t==='none'||new DOMMatrix(t).isIdentity;}),true,`${width}/${theme} reduced source-card hover must not translate/scale`);
     // Reach the last embedded Settings tab through the real keyboard path.
     await page.locator('#t-acc').focus();
     await page.keyboard.press('End');

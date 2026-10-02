@@ -123,7 +123,7 @@
  // A non-interactive copy of an element at its rendered place, for content that leaves while layout has moved on.
  function ghost(el, host = el.parentElement) {
   positioned(host);
-  const r = el.getBoundingClientRect(), h = host.getBoundingClientRect(), g = el.cloneNode(true);
+  const r = el.getBoundingClientRect(), h = host.getBoundingClientRect(), scroll = [el, ...qa(el, '*')].map(n => [n.scrollLeft, n.scrollTop]), g = el.cloneNode(true);
   for (const n of [g, ...qa(g, '[id],[data-st]')]) { n.removeAttribute('id'); if (n.dataset.st) { n.dataset.stGhostOf = n.dataset.st; n.removeAttribute('data-st'); } }
   g.classList.add('st-ghost-layer'); g.setAttribute('aria-hidden', 'true'); g.inert = true; g.dataset.stGhost = '';
   Object.assign(g.style, {position: 'absolute', left: r.left - h.left - host.clientLeft + host.scrollLeft + 'px', top: r.top - h.top - host.clientTop + host.scrollTop + 'px', width: r.width + 'px', height: r.height + 'px', margin: '0', boxSizing: 'border-box', pointerEvents: 'none', transform: 'none', clipPath: getComputedStyle(el).clipPath});
@@ -131,6 +131,8 @@
   const ecs = getComputedStyle(el);
   Object.assign(g.style, {backgroundColor: ecs.backgroundColor, backgroundImage: ecs.backgroundImage, color: ecs.color, borderColor: ecs.borderColor, borderRadius: ecs.borderRadius, font: ecs.font});
   host.append(g);
+  // cloneNode copies markup, not the visible scroll position of a reading surface.
+  [g, ...qa(g, '*')].forEach((n, i) => { const [x, y] = scroll[i] || []; if (Number.isFinite(x)) n.scrollLeft = x; if (Number.isFinite(y)) n.scrollTop = y; });
   // A positioned copy no longer collapses its first child's margin; shift it so every line sits where it was drawn.
   const a = el.firstElementChild, b = g.firstElementChild;
   if (a && b) { const d = a.getBoundingClientRect().top - b.getBoundingClientRect().top; if (Math.abs(d) > .5) { g.style.top = parseFloat(g.style.top) + d + 'px'; g.style.height = 'auto'; } }
@@ -309,6 +311,14 @@
  const POP = ['menu', 'plus-menu', 'popover', 'popover-panel', 'tooltip'];
  const layerState = el => { let s = layers.get(el); if (!s) layers.set(el, s = {open: false, version: 0}); return s; };
  const isOpen = el => { const s = layers.get(el); if (s) return s.open; if (el.tagName === 'DIALOG') return el.open; if (el.hasAttribute('popover')) return el.matches(':popover-open'); return el.dataset.stOpen === 'true'; };
+ const persistentPalette = el => el.dataset.st === 'palette' && el.tagName !== 'DIALOG' && el.hasAttribute('data-st-persistent');
+ function paletteExpanded(el, expanded) {
+  if (el.dataset.st !== 'palette') return;
+  const input = q(el, '[data-st-palette-input]') || q(el, 'input');
+  input?.setAttribute('aria-expanded', String(expanded));
+  if (!expanded) input?.removeAttribute('aria-activedescendant');
+  for (const result of qa(el, '[role="listbox"],[data-st-palette-empty]')) result.inert = !expanded;
+ }
  const scrimOf = el => (el.dataset.stScrim && doc.getElementById(el.dataset.stScrim)) || (el.previousElementSibling?.matches('[data-st-scrim]') ? el.previousElementSibling : null);
  const recedeOf = el => el.dataset.stRecede ? doc.querySelector(el.dataset.stRecede) : null;
  function place(el, trigger) {
@@ -335,6 +345,9 @@
   return `inset(${t.top - r.top}px ${r.right - t.right}px ${r.bottom - t.bottom}px ${t.left - r.left}px round ${rad}px)`;
  }
  let keyboardInput = false; doc.addEventListener('keydown', () => { keyboardInput = true; doc.documentElement.dataset.stInputMode='keyboard'; active.forEach(el=>delete el.dataset.stPointerFocus); }, true); doc.addEventListener('pointerdown', () => { keyboardInput = false; doc.documentElement.dataset.stInputMode='pointer'; }, true);
+ // Delayed exits may hide their trigger. Restore only after it is visible and only if no newer focus took ownership.
+ let focusVersion = 0; doc.addEventListener('focusin', () => { ++focusVersion; }, true);
+ function focusReturn(target) { const version = focusVersion; return () => { if (focusVersion === version && target?.isConnected) target.focus?.({preventScroll: true}); }; }
  function focusFirst(el) { const f = q(el, '[autofocus],[data-st-palette-input],[role="menuitem"]:not([disabled]),[role="option"],button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'); f?.focus({preventScroll: true, focusVisible: keyboardInput}); }
 
  function open(el, trigger, o = {}) {
@@ -346,6 +359,7 @@
   s.open = true; s.closing = false; const v = ++s.version;
   el.inert = false; el.dataset.stManaged = ''; el.dataset.stOpen = 'true'; el.hidden = false;
   s.trigger?.setAttribute('aria-expanded', 'true');
+  paletteExpanded(el, true);
   if (el.tagName === 'DIALOG') { if (!el.open) (el.hasAttribute('data-st-contained') ? el.show() : el.showModal()); }
   else if (el.hasAttribute('popover')) { if (!el.matches(':popover-open')) el.showPopover(); }
   if (POP.includes(kind) && kind !== 'tooltip') { for (const other of [...active]) if (other !== el && !other.contains(el) && POP.includes(other.dataset.st)) close(other, {silent: true}); }
@@ -440,15 +454,17 @@
   s.open = false; s.closing = true; const v = ++s.version;
   s.trigger?.setAttribute('aria-expanded', 'false');
   const hadFocus = el.contains(doc.activeElement);
-  el.inert = true;
-  const refocus = (hadFocus || kind === 'palette') && !o.silent && s.trigger?.isConnected;
-  if (refocus && el.tagName !== 'DIALOG') s.trigger.focus({preventScroll: true});
+  const refocus = (hadFocus || kind === 'palette') && !o.silent ? focusReturn(s.trigger) : null;
+  const morph = s.label && s.trigger && el.classList !== undefined && (kind === 'plus-menu' || el.hasAttribute('data-st-morph'));
+  // A persistent search remains a reachable opener; only its collapsed results become inert.
+  el.inert = !persistentPalette(el);
+  paletteExpanded(el, false);
+  if (refocus && !morph && el.tagName !== 'DIALOG') refocus();
   const scrim = scrimOf(el), recede = recedeOf(el);
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', fade: true}); }
   // The page behind comes back in step with the sheet's 220ms exit, not on a longer tail.
   if (recede) play(recede, [{transform: 'none', clipPath:'inset(0px round 0px)', opacity: 1}], {ms: 220, curve: 'E', channel: 'recede'}).then(ok => { if (ok) stop(recede, 'recede'); });
   let done;
-  const morph = s.label && s.trigger && el.classList !== undefined && (kind === 'plus-menu' || el.hasAttribute('data-st-morph'));
   if (morph) {
    el.classList.add('st-morphing');
    [...s.body.children].filter(c => c !== s.label).forEach(c => play(c, [{opacity: 0}], {ms: 'feedback', curve: 'F', fill: 'forwards', fade: true}));
@@ -484,11 +500,12 @@
   const finish = () => {
    if (s.version !== v || s.open) return;
    s.closing = false;
-   if (el.tagName === 'DIALOG' && el.open) { el.close(); if (refocus) s.trigger.focus({preventScroll: true}); }
+   if (s.trigger) s.trigger.style.visibility = '';
+   if (el.tagName === 'DIALOG' && el.open) el.close();
    else if (el.hasAttribute('popover') && el.matches(':popover-open')) el.hidePopover();
    el.dataset.stOpen = 'false'; active.delete(el);
-   if (s.trigger) s.trigger.style.visibility = '';
    stopAll(el); if (s.label) stopAll(s.label); if (s.body) { stopAll(s.body); [...s.body.children].forEach(stopAll); } [...el.children].forEach(stopAll); el.classList.remove('st-morphing');
+   if (morph || el.tagName === 'DIALOG') refocus?.();
    el.dispatchEvent(new CustomEvent('st:close', {bubbles: true}));
   };
   (done || Promise.resolve(true)).then(finish);
@@ -1053,7 +1070,7 @@
   detail.dataset.stClosing = 'true';
   source.setAttribute('aria-expanded', 'false');
   const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
-  if (detail.contains(doc.activeElement)) source.focus({preventScroll: true});
+  const refocus = detail.contains(doc.activeElement) ? focusReturn(source) : null;
   detail.inert = true;
   const sr = source.getBoundingClientRect(), dr = surface.getBoundingClientRect(), rad = parseFloat(getComputedStyle(source).borderRadius) || 12;
   const finish = () => {
@@ -1064,6 +1081,7 @@
    if (detail.tagName === 'DIALOG' && detail.open) detail.close();
    stopAll(surface); qa(detail, '*').forEach(stopAll); if (scrim) stopAll(scrim);
    if (s.titleFades?.size) { for (const [a, d] of sharedPairs(source, detail)) if (s.titleFades.has(d)) fadeIn(a, {ms: 80, blur: false}); s.titleFades.clear(); }
+   refocus?.();
   };
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 0}], {ms: 'control', curve: 'F', fade: true, fill: 'forwards'}); }
   const closeControl = q(surface, '[data-st-close]'); if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
@@ -1114,11 +1132,16 @@
  function palette(el) {
   const input = q(el, '[data-st-palette-input]') || q(el, 'input'), box = q(el, '[role="listbox"]'); if (!input || !box) return;
   positioned(box);
+  const persistent = persistentPalette(el); let editing = false;
+  paletteExpanded(el, isOpen(el));
   let hl = q(box, '.st-palette-highlight'); if (!hl) { hl = doc.createElement('span'); hl.className = 'st-palette-highlight'; hl.setAttribute('aria-hidden', 'true'); box.prepend(hl); }
-  const opts = () => qa(box, '[role="option"]').filter(o => !o.hidden);
+  // Leaving FLIP copies keep their role for paint, but never become selectable results.
+  const allOptions = () => qa(box, '[role="option"]').filter(o => !o.closest('[data-st-ghost]'));
+  const opts = () => allOptions().filter(o => !o.hidden);
   let activeOpt = null;
   const setActive = (opt, instant) => {
-   activeOpt = opt; qa(box, '[role="option"]').forEach(o => o.setAttribute('aria-selected', String(o === opt)));
+   if (!isOpen(el) || (opt && !opts().includes(opt))) opt = null;
+   activeOpt = opt; allOptions().forEach(o => o.setAttribute('aria-selected', String(o === opt)));
    if (!opt) { hl.style.opacity = '0'; input.removeAttribute('aria-activedescendant'); return; }
    if (!opt.id) opt.id = 'st-opt-' + Math.random().toString(36).slice(2, 8);
    input.setAttribute('aria-activedescendant', opt.id);
@@ -1129,7 +1152,9 @@
    const lb = opt.closest('[role="listbox"]'); if (lb) { const top = opt.offsetTop - lb.offsetTop * (opt.offsetParent === lb ? 0 : 1); if (top < lb.scrollTop) lb.scrollTop = top; else if (top + h > lb.scrollTop + lb.clientHeight) lb.scrollTop = top + h - lb.clientHeight; }
   };
   input.addEventListener('input', () => {
-   const term = input.value.trim().toLowerCase(), all = qa(box, '[role="option"]');
+   // Typing or pasting after Escape reopens without throwing away the new query.
+   if (persistent && !isOpen(el)) { editing = true; open(el, input, {keyboard: keyboardInput}); editing = false; }
+   const term = input.value.trim().toLowerCase(), all = allOptions();
    const visible = all.filter(o => !o.hidden), leaving = visible.filter(o => !o.textContent.toLowerCase().includes(term));
    const ghosts = reduced() ? [] : leaving.map(o => ghost(o, box));
    flip(visible.filter(o => !leaving.includes(o)), () => { all.forEach(o => { const was = o.hidden; o.hidden = !o.textContent.toLowerCase().includes(term); if (was && !o.hidden) fadeIn(o, {ms: 'control'}); }); }, {spring: 'snappy'});
@@ -1138,15 +1163,26 @@
    setActive(opts()[0] || null);
   });
   input.addEventListener('keydown', e => {
+   if (persistent && !isOpen(el) && ['ArrowDown', 'ArrowUp', 'Enter'].includes(e.key)) { e.preventDefault(); open(el, input, {keyboard: true}); return; }
    const list = opts(); let i = list.indexOf(activeOpt);
    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); i = (i + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length; setActive(list[i]); }
    else if (e.key === 'Enter' && activeOpt) { e.preventDefault(); activeOpt.click(); }
   });
   box.addEventListener('pointermove', e => { const o = e.target.closest('[role="option"]'); if (o && o !== activeOpt) setActive(o); });
-  box.addEventListener('click', e => { const o = e.target.closest('[role="option"]'); if (!o) return; el.dispatchEvent(new CustomEvent('st:palette-select', {bubbles: true, detail: {option: o, value: o.dataset.value || o.textContent.trim()}})); close(el); });
-  el.addEventListener('st:open', () => { if (input.value) { input.value = ''; input.dispatchEvent(new Event('input')); } setActive(opts()[0] || null, true); requestAnimationFrame(() => input.focus({preventScroll:true,focusVisible:keyboardInput})); });
-  setActive(opts()[0] || null, true);
-  if(el.hasAttribute('data-st-persistent')) input.addEventListener('focus',()=>{if(!isOpen(el)&&doc.documentElement.dataset.stInputMode==='keyboard')open(el,input,{keyboard:true});});
+  box.addEventListener('click', e => { const o = e.target.closest('[role="option"]'); if (!isOpen(el) || !opts().includes(o)) return; el.dispatchEvent(new CustomEvent('st:palette-select', {bubbles: true, detail: {option: o, value: o.dataset.value || o.textContent.trim()}})); close(el); });
+  el.addEventListener('st:open', () => {
+   if (input.value && !editing) { input.value = ''; input.dispatchEvent(new Event('input')); } setActive(opts()[0] || null, true);
+   // A delayed open must not reclaim focus after another intent or a later opening.
+   const version = layerState(el).version, focus = focusVersion, owner = doc.activeElement;
+   requestAnimationFrame(() => { if (isOpen(el) && layerState(el).version === version && focusVersion === focus && doc.activeElement === owner) input.focus({preventScroll:true,focusVisible:keyboardInput}); });
+  });
+  setActive(isOpen(el) ? opts()[0] || null : null, true);
+  if (persistent) {
+   // Focus opens for either input mode. Close-time focus restoration must not reopen it.
+   input.addEventListener('focus', () => { if (!isOpen(el) && !layerState(el).closing) open(el, input, {keyboard: keyboardInput}); });
+   // A second click still opens when Escape left focus in the visible search field.
+   input.addEventListener('click', () => { if (!isOpen(el)) open(el, input, {keyboard: keyboardInput}); });
+  }
  }
 
  /* ---------- Tooltips: dwell once, then the bubble glides between neighbours. Focus and long-press work too. ---------- */
@@ -1222,6 +1258,8 @@
    const full = img.cloneNode(); full.removeAttribute('id'); const closeButton = doc.createElement('button'); closeButton.className = 'st-button st-lightbox-close'; closeButton.textContent = 'Close'; const backdrop=doc.createElement('span');backdrop.className='st-lightbox-scrim';backdrop.setAttribute('aria-hidden','true');dialog.append(backdrop,full,closeButton); (source.closest('[data-st-preview]') || doc.body).append(dialog);
    s = {dialog, full, img, source, version: 0, open: false}; images.set(source, s);
    closeButton.onclick = () => closeImage(source); dialog.addEventListener('cancel', e => { e.preventDefault(); closeImage(source); });
+   // show() previews are non-modal, so the browser does not send their native cancel event.
+   dialog.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.defaultPrevented && source.closest('[data-st-preview]')) { e.preventDefault(); e.stopPropagation(); closeImage(source); } });
    dialog.addEventListener('click', e => { if (e.target === dialog || e.target.classList.contains('st-lightbox-scrim')) closeImage(source); });
    let drag;
    full.addEventListener('pointerdown', e => { if (e.pointerType !== 'touch' || !s.open) return; const r = full.getBoundingClientRect(); stop(full, 'image'); const final = full.getBoundingClientRect(); full.style.transform = `translate(${r.left-final.left}px,${r.top-final.top}px) scale(${r.width/final.width})`; drag = {id: e.pointerId, y: e.clientY, last: e.clientY, time: performance.now(), velocity: 0}; full.setPointerCapture(e.pointerId); });
@@ -1261,6 +1299,7 @@
  }
  function closeImage(source = currentImage) {
   const s = images.get(source); if (!s || !s.dialog.open || s.closing) return;
+  const refocus = s.dialog.contains(doc.activeElement) ? focusReturn(source) : null;
   s.open = false; s.closing = true; const v = ++s.version;
   const rendered = s.full.getBoundingClientRect(); stop(s.full, 'image'); s.full.style.transform = 'none';
   const base = s.full.getBoundingClientRect(), target = s.img.getBoundingClientRect();
@@ -1268,8 +1307,8 @@
   play(q(s.dialog, '.st-lightbox-close'), [{opacity: 0}], {ms: 60, curve: 'X', fill: 'forwards', fade: true, channel: 'o'});
   return play(s.full, photoFrames(s, rendered, target, base, 12, thumbRadius(s)), {ms: track('smooth').length - 1, curve: 'linear', channel: 'image', current: false, fill: 'forwards'}).then(ok => {
    if (!ok || v !== s.version) return;
-   s.dialog.close(); s.img.style.visibility = ''; stop(s.full, 'image'); stopAll(s.dialog); qa(s.dialog, '*').forEach(stopAll);
-   s.closing = false; source.focus?.({preventScroll: true}); if (currentImage === source) currentImage = null;
+   s.img.style.visibility = ''; s.dialog.close(); stop(s.full, 'image'); stopAll(s.dialog); qa(s.dialog, '*').forEach(stopAll);
+   s.closing = false; refocus?.(); if (currentImage === source) currentImage = null;
   });
  }
  function bindReorder(root) {

@@ -8,12 +8,14 @@ Select the checks relevant to the change. A hover adjustment does not require au
 - Reopen while an exit is running, then alternate inputs rapidly. The latest accepted input wins. Logical state and its public representation (ARIA, state attributes or framework state) change when input is accepted; a separate closing/presentation state may keep the exit painted
 - Finish an old animation or async request after a newer one. It must not hide the reopened surface, replace newer content, overwrite a newer clipboard result, or announce stale success
 - Check both the direct API and the real control that invokes it when they branch on different state. For example, a Replay button can read a stale attribute even when the underlying animation code supports reversal
+- Keep paint copies out of semantic discovery. A cloned row or title must not become a new selectable option, be counted again, or receive an active-descendant reference. Test a second filter or reversal before the first copy retires, including an empty result
 - Preserve immediate feedback, keyboard behavior and the same result under reduced motion. Optional blur, particles or other enhancement layers must not reintroduce effects after reduction has removed them
 
 ## Visible fit and moving layers
 
 - Inspect the affected component at its supported narrow width with actual labels and relevant loading, error and success states. Check text against the button's interior, media against its card, and controls against the local clipping region. Zero document overflow can coexist with clipped labels, an off-surface action or an overlapping Replay control
 - Let long content reflow or give it an appropriate scroll region. Do not conceal a required action or truncate an essential label merely to pass an overflow check. If a category strip scrolls, keep the selected category visible and do not let an overflow cue cover the final option
+- A rendered snapshot of a scrolling view needs the current nested scroll positions and stable styling after IDs are removed. Check a return transition after reading the bottom, not only the initial top position
 - For shared-element motion, follow the visible cover, title and temporary traveler/ghost through the transition. A fixed detail rectangle cannot prove that those layers move smoothly. Look for partial-word occlusion, text outside the moving shell, scaling, double paint and discontinuities on retarget
 - Keep copy consistent with material. A photograph of mountains does not support a specific city caption without provenance. Functional demonstrations still need accurate, readable content
 
@@ -22,6 +24,8 @@ Select the checks relevant to the change. A hover adjustment does not require au
 - Give a pointer gesture one owner. Dragging an inner sheet must not let a containing sheet capture the pointer or dismiss itself
 - Scrollable details need a usable scroll path. A dedicated drag handle can separate dismissal from reading code or interacting with an embedded preview; avoid making the whole scrollable document a dismiss gesture
 - Test nested Close and Escape independently. A bubbled child-close event must not tear down the parent, restore focus behind an open modal, or change an unrelated URL state
+- Restore focus only after the return target is visible and connected, and do not steal it from a newer user action. A non-modal preview does not automatically receive the native Escape/cancel behavior of a modal dialog; test the actual route and keep a child Escape from dismissing its parent too
+- A persistent search field remains a usable opener while results are collapsed. Make the results inactive rather than disabling the whole visible field, and keep expanded state and active-descendant references consistent with the logical state
 - Traverse the changed flow with the keyboard and verify sensible focus restoration. Distinguish a browser/document focus boundary from a concrete focus escape to an actionable background control; preserve the observation rather than silently dropping the failed assertion
 - On a fresh default load, confirm that initialization does not move the document unexpectedly. Highlighting an option inside a closed palette should scroll its own list, not the page. Respect an intentional deep link instead of always forcing scroll to zero
 

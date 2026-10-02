@@ -33,6 +33,9 @@ jobs:
           node tests/transitions-library-title-motion.test.cjs
           node tests/transitions-library-tabs.test.cjs
           node tests/transitions-library-actual-shell.test.cjs
+          node tests/transitions-library-focus-escape.test.cjs
+          node tests/transitions-library-palette-input.test.cjs
+          node tests/transitions-library-snapshot-scroll.test.cjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check examples/seenry-site/app.js
       - run: node --check examples/seenry-site/studies/held/app.js
@@ -43,6 +46,26 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Exercise Transitions3 responsive gallery bounds
         run: node tests/transitions-library.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+      - name: Exercise trusted focus recovery and image Escape
+        run: node tests/transitions-library-focus-escape.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-focus-escape"
+      - name: Preserve focus and Escape traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: focus-escape-${{ matrix.os }}
+          path: ${{ runner.temp }}/seenry-focus-escape
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Exercise trusted palette input and native-modal recovery
+        run: node tests/transitions-library-palette-input.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-palette-input"
+      - name: Preserve palette input traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: palette-input-${{ matrix.os }}
+          path: ${{ runner.temp }}/seenry-palette-input
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Exercise geometry, icons and rendered evidence
         run: |
           node tests/geometry-transition.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"

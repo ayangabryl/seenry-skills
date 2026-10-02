@@ -1,6 +1,6 @@
 // Regression checks for actual Mac-rendered findings. Timing/render claims require browser rerun.
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'../skills/seenry/assets/components/transitions'),source=fs.readFileSync(path.join(root,'seenry-transitions.js'),'utf8');
+const root=process.argv[2]?path.dirname(path.resolve(process.argv[2])):path.resolve(__dirname,'../skills/seenry/assets/components/transitions'),source=fs.readFileSync(path.join(root,'seenry-transitions.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'gallery.html'),'utf8'),css=fs.readFileSync(path.join(root,'seenry-transitions.css'),'utf8'),gallery=fs.readFileSync(path.join(root,'gallery.js'),'utf8');
 let completed=false;process.on('beforeExit',()=>{if(!completed){console.error('Rendered-finding regression harness did not complete');process.exitCode=1}});
 const cases=[]; const record=(name,check)=>{check();cases.push({name,pass:true});};

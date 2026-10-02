@@ -1,6 +1,6 @@
 // Deterministic strip geometry contracts; browser input/rendering is checked separately.
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.resolve(__dirname,'../skills/seenry/assets/components/transitions/seenry-transitions.js'),'utf8');
+const source=fs.readFileSync(process.argv[2]||path.resolve(__dirname,'../skills/seenry/assets/components/transitions/seenry-transitions.js'),'utf8');
 let parts,stops=0;
 const scope={tabParts:()=>parts,getComputedStyle:()=>({clipPath:'none'}),reduced:()=>false,stop:()=>stops++};
 vm.createContext(scope);
