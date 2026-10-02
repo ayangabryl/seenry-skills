@@ -83,7 +83,9 @@ try {
     assert.match(snippet, /#73a9b9/);
     await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.locator('#copy').click();
-    assert.equal(await page.evaluate(() => navigator.clipboard.readText()), snippet);
+    // Windows clipboard text uses CRLF. Preserve exact code and whitespace apart from that platform newline encoding.
+    const clipboard = await page.evaluate(() => navigator.clipboard.readText());
+    assert.equal(clipboard.replace(/\r\n/g, '\n'), snippet.replace(/\r\n/g, '\n'));
     await page.locator('#preview').click();
     await page.waitForFunction(() => Boolean(document.querySelector('[data-confirmation-burst]')));
     if (output) { await page.waitForTimeout(170); await page.screenshot({ path: path.join(output, `${viewport.name}-workbench-burst.png`) }); }
