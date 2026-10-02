@@ -74,6 +74,7 @@ Keyboard-triggered actions never wait on animation. If the gate says no, say so 
 - **A problem that returns after its fix is structural.** Retiming cannot fix a path that crosses. Shared elements keep their relative arrangement between states: a title below its cover stays below it in the detail view, so neither passes through the other.
 - **No empty frames.** At every filmed moment (30–320ms) the changed region shows real content. A shell carries its content as it grows; a streaming answer grows from its first words. Never show a blank answer box or a skeleton that waits and then dissolves.
 - **One crafted idea per component.** What persists travels and what is new is born from its cause. A fade, a 4px translate and a label swap score 7.
+- **Close where it opened.** A surface that opens from a control closes from the same spot: the control becomes (or is replaced in place by) its close, so the hand never travels. It need not keep the same colour; it keeps the place and the size.
 - **A single run is not a score.** One judge run (itself a median of three) moves by a point on unchanged code. Accept a 9 only when two separate runs both reach it, and compare versions on the same number of runs.
 
 **7. Ship reduced motion and input gating with it.** Under `prefers-reduced-motion: reduce`, remove movement, parallax, blur and loops; keep short opacity changes that aid understanding. Gate hover motion with `@media (hover: hover) and (pointer: fine)`. Every animated state change also leaves a static cue (label, icon, color) for when motion does not run.

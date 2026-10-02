@@ -42,11 +42,24 @@ const collapse=source.slice(source.indexOf(' function collapse(detail) {'),sourc
  record('Medium search repair includes the entire inherited180px range',()=>{assert(html.includes('@media(min-width:701px) and (max-width:1000px){'));});
  for(const preference of [false,true]) record(`First-view previews never dim functional content (reduce=${preference})`,()=>{
   const block=gallery.slice(gallery.indexOf(' // One first-view preview.'),gallery.indexOf(' window.galleryLibrary'));
-  let callback;const calls=[];const scope={WeakSet,IntersectionObserver:class{constructor(fn){callback=fn;}observe(){}},cards:[],runs:new Map(),window:{galleryCancel:key=>calls.push(['cancel',key])},clearTimeout:id=>calls.push(['timer',id]),reduce:()=>preference,$:id=>id,S:{play:(...args)=>calls.push(['play',...args]),reveal:id=>calls.push(['reveal',id]),shimmer:id=>calls.push(['shimmer',id])}};
+  let callback;const calls=[];const scope={WeakSet,IntersectionObserver:class{constructor(fn){callback=fn;}observe(){}},cards:[],runs:new Map(),window:{galleryCancel:key=>calls.push(['cancel',key]),galleryReplay:{shimmer:()=>calls.push(['thinking'])}},clearTimeout:id=>calls.push(['timer',id]),reduce:()=>preference,$:id=>id,S:{play:(...args)=>calls.push(['play',...args]),reveal:id=>calls.push(['reveal',id]),shimmer:id=>calls.push(['shimmer',id])}};
   vm.createContext(scope);vm.runInContext(block,scope);
   const keys=[...new Set([...html.matchAll(/data-key="([a-z-]+)"/g)].map(m=>m[1]))];assert.equal(keys.length,38);assert(keys.includes('switch')&&keys.includes('checkbox'));
   for(const key of keys){let plays=0,pauses=0;const object={},loop={effect:{getTiming:()=>({iterations:Infinity})},play:()=>plays++,pause:()=>pauses++,cancel:()=>{}};const target={dataset:{},closest:()=>({dataset:{key}}),querySelectorAll:()=>[{getAnimations:()=>[loop]}],querySelector:()=>({getAnimations:()=>[]}),firstElementChild:object};scope.runs.set(key,[key]);callback([{isIntersecting:true,target}]);assert.equal(target.dataset.stPaused,'false');callback([{isIntersecting:false,target}]);assert.equal(target.dataset.stPaused,'true');assert.equal(scope.runs.has(key),false);callback([{isIntersecting:true,target}]);assert.equal(plays,preference?0:2);assert.equal(pauses,preference?3:1);assert(calls.some(c=>c[0]==='cancel'&&c[1]===key));assert(calls.some(c=>c[0]==='timer'&&c[1]===key));}
-  assert.equal(calls.filter(c=>c[0]==='play').length,0,'Viewport entry must not reduce whole-preview opacity');assert(calls.some(c=>c[0]==='reveal'));assert(calls.some(c=>c[0]==='shimmer'));
+  assert.equal(calls.filter(c=>c[0]==='play').length,0,'Viewport entry must not reduce whole-preview opacity');assert(calls.some(c=>c[0]==='reveal'));assert.equal(calls.filter(c=>c[0]==='thinking').length,1,'First entry must invoke the Thinking replay exactly once; reentry must not restart it');assert.equal(calls.filter(c=>c[0]==='shimmer').length,0,'Thinking preview is owned by galleryReplay, not the old direct kit sweep');
+ });
+ record('Thinking replay owns a finite, cancellable status sequence',()=>{
+  const begin=gallery.indexOf(' const sequence = '),end=gallery.indexOf(' let resized',begin);
+  const thinking=gallery.slice(gallery.indexOf(' replay.shimmer = '),gallery.indexOf(' replay.popover = '));
+  assert(begin>=0&&end>begin&&thinking.includes("3 suggestions ready"));
+  let next=0;const timers=new Map(),calls=[],label={dataset:{stDone:'true'}};
+  const scope={runs:new Map(),setTimeout:(fn,ms)=>{const id=++next;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),replay:{},$:id=>{assert.equal(id,'shimmer-text');return label;},S:{swapText:(target,text)=>{assert.equal(target,label);calls.push(text);}}};
+  vm.createContext(scope);vm.runInContext(gallery.slice(begin,end)+thinking,scope);
+  scope.replay.shimmer();assert.equal(label.dataset.stDone,undefined);assert.deepEqual(calls,['Reading your draft']);
+  assert.deepEqual([...timers.values()].map(t=>t.ms),[1300,2600,3900]);
+  const oldIds=[...timers.keys()];scope.replay.shimmer();assert(oldIds.every(id=>!timers.has(id)),'Replay retires all previous step timers');assert.equal(timers.size,3);
+  for(const [id,timer] of [...timers]){timers.delete(id);timer.fn();}
+  assert.deepEqual(calls,['Reading your draft','Reading your draft','Checking tone','Polishing wording','3 suggestions ready']);assert.equal(label.dataset.stDone,'true');assert.equal(timers.size,0);
  });
  completed=true;console.log(`${cases.length}/${cases.length} rendered-finding logic/static regressions passed; browser retest pending`);
 })().catch(e=>{console.error(e);process.exitCode=1});

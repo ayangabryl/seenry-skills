@@ -5,10 +5,10 @@
  const doc = document, mq = matchMedia('(prefers-reduced-motion: reduce)'), reduced = () => mq.matches;
  const q = (el, s) => el.querySelector(s), qa = (el, s) => [...el.querySelectorAll(s)];
  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
- const CURVES = {E: 'cubic-bezier(.16,1,.3,1)', M: 'cubic-bezier(.4,0,.2,1)', F: 'cubic-bezier(.2,0,.2,1)', X: 'cubic-bezier(.4,0,1,1)'};
- const MS = {instant: 0, feedback: 80, quick: 120, control: 160, relocate: 180, surface: 240, spatial: 280, fast: 120, base: 160, slow: 240, page: 280};
+ const CURVES = {E: 'cubic-bezier(.16,1,.3,1)', O: 'cubic-bezier(.3,1,0,1)', S: 'cubic-bezier(.25,0,.06,1)', M: 'cubic-bezier(.4,0,.2,1)', F: 'cubic-bezier(.2,0,.2,1)', X: 'cubic-bezier(.4,0,1,1)'};
+ const MS = {instant: 0, feedback: 120, quick: 180, control: 220, relocate: 260, surface: 320, spatial: 380, fast: 180, base: 220, slow: 320, page: 380};
  // spring(response seconds, bounce), the parameterisation designers know from SwiftUI. lead/trail drive a two-edge indicator.
- const SPRINGS = {expand: [.3, 0], snappy: [.26, .04], smooth: [.36, 0], gentle: [.34, .08], bouncy: [.34, .42], thumb: [.28, .28], lead: [.16, 0], trail: [.23, 0]};
+ const SPRINGS = {expand: [0.36,0], snappy: [0.32,0.04], smooth: [0.42,0], gentle: [0.4,0.08], bouncy: [0.4,0.42], thumb: [0.32,0.28], lead: [0.2,0], trail: [0.28,0]};
  const tracks = {};
  function track(name) {
   if (tracks[name]) return tracks[name];
@@ -38,6 +38,7 @@
     keyframe is replaced by the rendered value, so a new call retargets instead of restarting. Returns a promise that
     resolves true when it finished, false when something newer replaced it. */
  const channels = new WeakMap(), heldStyles = new WeakMap();
+ const blurAnims = new WeakMap();
  function play(el, frames, o = {}) {
   if (!el || !el.animate) return Promise.resolve(true);
   const key = (o.channel || 'main') + (o.pseudo || '');
@@ -68,12 +69,22 @@
   // Blur option: inside [data-st-blur], a fade on a small element also pulls focus (blur to sharp on the way in, a
   // softer blur on the way out). Large surfaces never blur; reduced motion already returned above.
   const blurHost = !reduced() && !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
+  let blurIn = 0;
   if (blurHost && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
-   const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 4;
-   if (r.width * r.height > 0 && r.width * r.height <= 40000) {
+   const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 8;
+   if (r.width * r.height > 0 && r.width * r.height <= 160000) {
     const a0 = +frames[0].opacity, a1 = +frames[frames.length - 1].opacity;
-    if (a1 > a0) { frames = frames.map((f, i) => ({...f, filter: i === 0 ? `blur(${px}px)` : i === frames.length - 1 ? 'blur(0px)' : f.filter || `blur(${px * (1 - i / (frames.length - 1))}px)`})); }
-    else if (a1 < a0) { frames = frames.map((f, i) => ({...f, filter: i === frames.length - 1 ? `blur(${px / 2}px)` : i === 0 ? 'blur(0px)' : `blur(${px / 2 * i / (frames.length - 1)}px)`})); }
+    // Blur runs on its own, longer and gentler clock than the fade: opacity arrives fast, and the focus resolves
+    // visibly behind it. On the way out the element defocuses quickly as it leaves.
+    blurIn = a1 > a0 ? 1 : a1 < a0 ? -1 : 0;
+    if (blurIn) {
+     blurAnims.get(el)?.cancel();
+     const ba = el.animate(blurIn > 0 ? [{filter: `blur(${px}px)`}, {filter: 'blur(0px)'}] : [{filter: 'blur(0px)'}, {filter: `blur(${px * .6}px)`}],
+      {duration: blurIn > 0 ? Math.max(300, duration * 1.4) : Math.max(120, duration), easing: blurIn > 0 ? 'cubic-bezier(.25,.1,.25,1)' : CURVES.X, delay, fill: blurIn > 0 ? 'backwards' : 'both'});
+     blurAnims.set(el, ba);
+     if (blurIn > 0) ba.finished.then(() => { if (blurAnims.get(el) === ba) blurAnims.delete(el); }, () => {});
+     else ba.finished.then(() => { if (blurAnims.get(el) === ba) { ba.cancel(); blurAnims.delete(el); } }, () => {});
+    }
    }
   }
   const a = el.animate(frames, {duration, easing, delay, fill: o.fill==='forwards'?'both':o.fill||'backwards', pseudoElement: o.pseudo});
@@ -226,7 +237,8 @@
    // The old label clears before the new one is legible, so the two never read as one doubled word.
    // A status line changes in its own slot with a 2px lift: the old label clears before the new one starts, so two
    // labels are never drawn over each other.
-   const movement={transform:thinking?'translateY(-2px)':'translateY(-3px)'};
+   const movement=thinking?{transform:'translateY(-2px)',filter:'blur(3px)'}:{transform:'translateY(-3px)'};
+   if (thinking && !reduced()) play(next,[{filter:'blur(3px)'},{filter:'blur(0px)'}],{ms:260,curve:'O',delay:o.tight?0:20,channel:'f',current:false});
    play(current,[{opacity:0,...movement}],{ms:thinking?40:50,curve:'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
    const lag = o.tight ? 0 : thinking ? 20 : 30;
    return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:thinking?80:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:thinking?'translateY(2px)':'translateY(3px)'},{transform:'none'}],{ms:thinking?110:160,delay:lag,curve:'E',channel:'t',current:false})]);
@@ -336,7 +348,7 @@
   if (el.hasAttribute('data-st-contained')) {
    const host = el.offsetParent.getBoundingClientRect();
    x = clamp(x, host.left + 8, Math.max(host.left + 8, host.right - w - 8));
-   y = clamp(y, host.top + 8, Math.max(host.top + 8, host.bottom - h - 52));
+   y = clamp(y, host.top + 8, Math.max(host.top + 8, host.bottom - h - (morph ? 8 : 52)));
    el.style.left = x - host.left + 'px'; el.style.top = y - host.top + 'px';
   } else { el.style.left = x + 'px'; el.style.top = y + 'px'; }
   el.style.transformOrigin = `${clamp(t.left + t.width / 2 - x, 0, w)}px ${side === 'bottom' ? 0 : h}px`;
@@ -388,7 +400,12 @@
    // The label layer is a painted copy of the trigger, so the first frame is the button itself.
    Object.assign(s.label.style, {position: 'absolute', zIndex: '3', left: t.left - mr.left + 'px', top: t.top - mr.top + 'px', width: t.width + 'px', height: t.height + 'px', display: 'flex', alignItems: 'center', justifyContent: tcs.justifyContent, padding: tcs.padding, boxSizing: 'border-box', gap: tcs.gap, color: tcs.color, font: tcs.font, letterSpacing: tcs.letterSpacing, pointerEvents: 'none', borderRadius: tcs.borderRadius, background: tcs.backgroundColor, boxShadow: tcs.boxShadow});
    s.trigger.style.visibility = 'hidden';
-   const content = [...s.body.children].filter(c => c !== s.label);
+   // Open and close are one control in one place: a close pill shaped like the trigger sits exactly where the trigger
+   // was, so the same spot that opened the menu closes it.
+   const closer = q(s.body, '[data-st-morph-close]');
+   if (closer) Object.assign(closer.style, {position: 'absolute', zIndex: '4', margin: '0', left: t.left - mr.left + 'px', top: t.top - mr.top + 'px', height: t.height + 'px', minWidth: t.width + 'px'});
+   const content = [...s.body.children].filter(c => c !== s.label && c !== closer);
+   if (closer) play(closer, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'O', delay: 30, channel: 'o', fade: true, blur: false});
    play(s.body, [{clipPath: triggerInset(el, s.trigger)}, {clipPath: 'inset(0px 0px 0px 0px round 14px)'}], {spring: 'snappy', channel: 'clip'}).then(ok => { if (ok && s.version === v) el.classList.remove('st-morphing'); });
    play(s.label, [{opacity: 1}, {opacity: 0}], {ms: 70, curve: 'F', fill: 'forwards', fade: true});
    content.forEach((c, i) => i === 0 && el.tagName === 'DIALOG' ? null : play(c, [{opacity: 0, transform: 'translateY(-4px)'}, {opacity: 1, transform: 'none'}], {spring: 'snappy', delay: el.tagName === 'DIALOG' ? 40 : 30, fade: true}));
@@ -410,12 +427,12 @@
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', channel: 'o', fade: true});
    [...el.children].forEach((c, i) => { play(c, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content-t'}); play(c, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content', fade: true}); });
   } else if (POP.includes(kind)) {
-   // The shell lands first from the trigger point; rows arrive 35ms later while it is still settling.
+   // One piece: the surface and its rows fade, lift and scale together from the trigger, so there is never an empty
+   // frame or a shadow without content. Reopened mid-close, it continues from the rendered values.
    const dy = el.dataset.stSide === 'top' ? 4 : -4;
-   play(el, [{opacity: 0}, {opacity: 1}], {ms: 90, curve: 'F', channel: 'o', fade: true});
+   [...el.children].forEach(c => { stop(c, 'o'); c.style.opacity = ''; });
+   play(el, [{opacity: 0}, {opacity: 1}], {ms: 160, curve: 'O', channel: 'o', fade: true});
    play(el, [{transform: `translateY(${dy}px) scale(.96)`}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
-   // Reopened mid-close: rows return from wherever their fade got to, so the shell is never empty.
-   [...el.children].forEach((c, i) => wasClosing ? play(c, [{opacity: 1}], {ms: 90, curve: 'F', channel: 'o', fade: true}) : play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 20 + Math.min(i * 10, 40), channel: 'o', fade: true}));
   } else if (kind === 'sheet') {
    play(el, [{transform: 'translateY(100%)'}, {transform: 'none'}], {spring: 'smooth', channel: 't'});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fade: true});
@@ -481,16 +498,15 @@
    play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if (POP.includes(kind)) {
    const dy = el.dataset.stSide === 'top' ? 2 : -2;
-   [...el.children].forEach(c => play(c,[{opacity:0}],{ms:65,curve:'F',channel:'o',fill:'forwards',fade:true}));
-   play(el, [{transform: `translateY(${dy}px) scale(.97)`}], {ms: 110, curve: 'X', channel: 't', fill: 'forwards'});
-   done = play(el, [{opacity: 0}], {ms: 110, curve: 'F', channel: 'o', fill: 'forwards', fade: true});
+   play(el, [{transform: `translateY(${dy}px) scale(.97)`}], {ms: 150, curve: 'X', channel: 't', fill: 'forwards'});
+   done = play(el, [{opacity: 0}], {ms: 150, curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if (kind === 'sheet' || kind === 'drawer') {
    const to = kind === 'sheet' ? 'translateY(100%)' : `translateX(${el.dataset.stSide === 'left' ? -100 : 100}%)`;
    done = play(el, [{transform: to}], {ms: o.velocity ? 180 : 220, curve: o.velocity ? 'cubic-bezier(.2,.6,.4,1)' : CURVES.X, channel: 't', fill: 'forwards'});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true});
    if (reduced()) done = play(el, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if(kind==='palette' && el.hasAttribute('data-st-persistent')){
-   const height=q(el,'.st-palette-search')?.offsetHeight||46;done=play(el,[{clipPath:`inset(0px 0px calc(100% - ${height}px) 0px round 12px)`}],{ms:120,curve:'X',channel:'clip',fill:'forwards'});const results=q(el,'[role=listbox]');if(results)play(results,[{opacity:0}],{ms:65,channel:'o',fill:'forwards',fade:true});
+   const height=q(el,'.st-palette-search')?.offsetHeight||46;done=play(el,[{clipPath:`inset(0px 0px calc(100% - ${height}px) 0px round 12px)`}],{ms:200,curve:'O',channel:'clip',fill:'forwards'});const results=q(el,'[role=listbox]');if(results)play(results,[{opacity:0}],{ms:65,channel:'o',fill:'forwards',fade:true});
   } else if (kind === 'panel') {
    play(el, [{transform: 'translateY(-4px) scale(.98)'}], {ms: 'quick', curve: 'X', channel: 't', fill: 'forwards'});
    done = play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
@@ -621,12 +637,13 @@
    if (on === was || !prev || prev === tab || keyboard || reduced()) { stopAll(panel); return; }
    if (on) {
     // A panel that was just leaving comes straight back from where its fade got to; a fresh one waits for the old to clear.
-    const back = was || +alpha > .05, wait = back ? 0 : rapid ? 20 : 30;
-    play(panel, [{transform: back ? transform : `translateX(${dir * 4}px)`}, {transform:'none'}], {ms:200,curve:'E',delay:wait,channel:'t'});
-    play(panel, [{opacity: back ? alpha : 0},{opacity:1}], {ms:140,curve:'F',delay:wait,channel:'o',fade:true});
+    // The old panel has cleared before this one is readable, so the two never print over each other.
+    const back = was || +alpha > .05, wait = back ? 0 : rapid ? 30 : 80;
+    play(panel, [{transform: back ? transform : `translateX(${dir * 10}px)`}, {transform:'none'}], {ms:320,curve:'O',delay:wait,channel:'t'});
+    play(panel, [{opacity: back ? alpha : 0, filter: back ? 'blur(0px)' : 'blur(4px)'},{opacity:1, filter: 'blur(0px)'}], {ms:240,curve:'O',delay:wait,channel:'o',fade:true,blur:false});
    } else if (was) {
-    play(panel, [{transform},{transform:`translateX(${-dir * 4}px)`}], {ms:rapid ? 30 : 60,curve:'X',channel:'t'});
-    play(panel, [{opacity:alpha},{opacity:0}], {ms:rapid ? 30 : 60,curve:'X',channel:'o',fade:true});
+    play(panel, [{transform},{transform:`translateX(${-dir * 8}px)`}], {ms:rapid ? 40 : 90,curve:'X',channel:'t'});
+    play(panel, [{opacity:alpha, filter: 'blur(0px)'},{opacity:0, filter: 'blur(2px)'}], {ms:rapid ? 40 : 90,curve:'X',channel:'o',fade:true,blur:false});
    }
   });
   if (root.dataset.st === 'tabs') revealTab(list, tab);
@@ -636,29 +653,43 @@
 
  /* ---------- Accordion: content is revealed by a clip that tracks the rows sliding below it. ---------- */
  function accordion(d, want) {
-  const opening = want ?? !d.open;
-  if (opening === d.open && !d._stGhost) return;
+  const current = d.dataset.stExpanded ? d.dataset.stExpanded === 'true' : d.open;
+  const opening = want ?? !current;
+  if (opening === current && !d._stGhost) return;
+  d.dataset.stExpanded = String(opening);
   const body = q(d, '.st-details-body') || d.lastElementChild, host = d.parentElement;
   const g0 = d._stGhost; let startClip = null;
   if (g0) { startClip = getComputedStyle(g0).clipPath; stopAll(g0); g0.remove(); d._stGhost = null; }
   const after = [...host.children].filter(n=>!n.hasAttribute("data-st-ghost"));
   if (reduced()) { d.open = opening; if (body) body.inert = !opening; return; }
+  // An item that is its own surface (a card with a background) grows as one shell on a spring, with the content
+  // and the items below following it, instead of snapping to its new height.
+  const bg = getComputedStyle(d).backgroundColor;
+  if (!g0 && bg && bg !== 'transparent' && !/rgba\(0, 0, 0, 0\)/.test(bg)) {
+   // A closed <details> stops rendering everything but its summary, shell included, so it stays open while the
+   // body collapses and closes for real once the shell has landed.
+   if (opening) { d._stAcc = (d._stAcc || 0) + 1; resize(d, () => { if (body) body.style.display = ''; d.open = true; if (body) body.inert = false; }); }
+   else { const v = d._stAcc = (d._stAcc || 0) + 1; if (body) body.inert = true;
+    Promise.resolve(resize(d, () => { if (body) body.style.display = 'none'; })).then(() => { if (d._stAcc === v) { d.open = false; if (body) body.style.display = ''; } }); }
+   d.dispatchEvent(new CustomEvent('st:accordion', {bubbles: true, detail: {open: opening}}));
+   return;
+  }
   if (opening) {
    if (startClip) after.forEach(f => stop(f, 'flip'));
-   flip(after, () => { d.open = true; }, {ms:220,curve:'E'});
+   flip(after, () => { d.open = true; }, {ms:300,curve:'O'});
    if (body) {
     body.inert = false;
-    play(body, [{clipPath: startClip && startClip !== 'none' ? startClip : 'inset(0px 0px 100% 0px)'}, {clipPath: 'inset(0px 0px 0% 0px)'}], {ms:220,curve:'E',channel:'clip'});
-    play(body, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms:220,curve:'E',channel:'t'});
-    play(body, [{opacity: startClip ? +getComputedStyle(body).opacity : 0}, {opacity: 1}], {ms:120,curve:'F',channel:'o',fade:true});
+    play(body, [{clipPath: startClip && startClip !== 'none' ? startClip : 'inset(0px 0px 100% 0px)'}, {clipPath: 'inset(0px 0px 0% 0px)'}], {ms:300,curve:'O',channel:'clip'});
+    play(body, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms:300,curve:'O',channel:'t'});
+    play(body, [{opacity: startClip ? +getComputedStyle(body).opacity : 0}, {opacity: 1}], {ms:200,curve:'O',channel:'o',fade:true});
    }
   } else {
    let g = null;
    if (body && host) { const cur = getComputedStyle(body).clipPath; g = ghost(body, host); d._stGhost = g; g.style.clipPath = cur === 'none' ? 'inset(0px 0px 0% 0px)' : cur; g.style.opacity = getComputedStyle(body).opacity; }
-   flip(after, () => { d.open = false; if (body) { stopAll(body); body.inert = true; } }, {ms:220,curve:'E'});
+   flip(after, () => { d.open = false; if (body) { stopAll(body); body.inert = true; } }, {ms:300,curve:'O'});
    if (g) {
-    play(g, [{clipPath: 'inset(0px 0px 100% 0px)'}], {ms:220,curve:'E',fill:'forwards'}).then(ok => { if (ok && d._stGhost === g) { g.remove(); d._stGhost = null; } });
-    play(g, [{opacity: 0}], {ms:65,curve:'F',channel:'o',fill:'forwards'});
+    play(g, [{clipPath: 'inset(0px 0px 100% 0px)'}], {ms:260,curve:'O',fill:'forwards'}).then(ok => { if (ok && d._stGhost === g) { g.remove(); d._stGhost = null; } });
+    play(g, [{opacity: 0}], {ms:120,curve:'F',channel:'o',fill:'forwards'});
    }
   }
   d.dispatchEvent(new CustomEvent('st:accordion', {bubbles: true, detail: {open: opening}}));
@@ -696,15 +727,24 @@
   if (icon && next !== 'idle' && (prev === 'idle' || prev === undefined)) play(icon, [{opacity: 0, transform: 'scale(.4)', filter: 'blur(2px)'}, {opacity: 1, transform: 'none', filter: 'blur(0px)'}], {spring: 'snappy', fade: true});
   else if (icon && next !== 'idle') play(icon, [{transform: 'scale(.7)'}, {transform: 'none'}], {spring: 'bouncy', current: false});
   if (next === 'error') shake(el);
+  if (next === 'success' && prev !== 'success') tickIn(q(el, '.st-state-check'));
   if (next === 'success' || next === 'error') announce(label || text?.dataset.stLabel || next);
   el.dispatchEvent(new CustomEvent('st:state', {bubbles: true, detail: {state: next}}));
  }
  function success(el) {
   if (!el) return Promise.resolve();
   if (el.dataset.st === 'button') { state(el, 'success'); return Promise.resolve(); }
-  el.dataset.stDone = 'true';const label=q(el,'[data-st-success-text]');if(label)label.textContent=el.dataset.stSuccessLabel||'Completed';
+  el.dataset.stDone = 'true'; const label = q(el, '[data-st-success-text]'); if (label) swapText(label, el.dataset.stSuccessLabel || 'Completed');
   const svg = q(el, 'svg') || el;
-  el.setAttribute('role', 'status'); el.setAttribute('aria-label', el.dataset.stSuccessLabel || 'Completed'); return play(svg, [{transform: 'scale(.98)'}, {transform: 'none'}], {ms: 'control', delay: 160, curve: 'E'});
+  el.setAttribute('role', 'status'); el.setAttribute('aria-label', el.dataset.stSuccessLabel || 'Completed');
+  const tick = q(el, '.st-success-tick'), disc = q(el, '.st-success-disc');
+  if (!tick) return play(svg, [{transform: 'scale(.98)'}, {transform: 'none'}], {ms: 'control', delay: 160, curve: 'E'});
+  if (reduced()) return play(tick, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true});
+  // After Jakub Antalik's checkmark study: the tick arrives rotated and blurred, dips 4px and settles while it draws.
+  if (disc) play(disc, [{transform: 'scale(.86)'}, {transform: 'none'}], {spring: 'bouncy', channel: 'pop', current: false});
+  return Promise.all([
+   play(tick, [{opacity: 0, filter: 'blur(6px)'}, {opacity: 1, filter: 'blur(0px)'}], {ms: 450, curve: 'O', channel: 'o', current: false, blur: false}),
+   play(tick, [{transform: 'rotate(-20deg) translateY(0px)'}, {transform: 'rotate(-11deg) translateY(4px)', offset: .44}, {transform: 'rotate(0deg) translateY(0px)'}], {ms: 450, curve: 'cubic-bezier(.2,0,0,1)', channel: 't', current: false})]);
  }
 
  /* ---------- Form error: the field frame shakes with a decaying spring; the message drops into reserved space. ---------- */
@@ -793,10 +833,11 @@
    const kids = rows(container), sorted = typeof order === 'function' ? [...kids].sort(order) : order;
    // Rows stay in their lane: vertical FLIP only, every row retargeting from where it is rendered now. The row that
    // travels furthest lifts above the others, so crossing rows read as one passing over the other.
-   const before = new Map(kids.map(n => [n, n.getBoundingClientRect().top]));
+   // Layout positions, not rects: once FLIP inverts the rows, every rect reads as unmoved.
+   const before = new Map(kids.map(n => [n, n.offsetTop]));
    kids.forEach(n => { delete n.dataset.stMoving; });
    const done = flip(kids, () => sorted.forEach(n => container.append(n)), {spring: 'smooth', axis: 'y'});
-   const far = kids.reduce((m, n) => Math.abs(before.get(n) - n.getBoundingClientRect().top) > Math.abs(before.get(m) - m.getBoundingClientRect().top) ? n : m, kids[0]);
+   const far = kids.reduce((m, n) => Math.abs(before.get(n) - n.offsetTop) > Math.abs(before.get(m) - m.offsetTop) ? n : m, kids[0]);
    const token = (container.__stSort = (container.__stSort || 0) + 1);
    if (far && !reduced()) {
     // Rows are painted with the surface behind them while they cross, so text never shows through text.
@@ -1190,8 +1231,8 @@
   const loose = root => [...root.children].flatMap(c => isShared(c) ? [] : qa(c, '[data-st-shared]').some(isShared) ? loose(c) : [c]);
   for (const n of loose(scope)) {
    // A beat after the shared parts have nearly landed, so nothing arrives underneath them.
-   const wait = before.size ? (n === loose(scope)[0] ? 40 : 70) : 40;
-   jobs.push(play(n, [{opacity: 0}, {opacity: 1}], {ms: n === loose(scope)[0] ? 100 : 140, curve: 'F', delay: wait, channel: 'o', current: false, fade: true}));
+   const wait = before.size ? (n === loose(scope)[0] ? 140 : 170) : 60;
+   jobs.push(play(n, [{opacity: 0}, {opacity: 1}], {ms: 220, curve: 'O', delay: wait, channel: 'o', current: false, fade: true}));
    jobs.push(play(n, [{transform: `translateX(${16 * dir}px)`}, {transform: 'none'}], {spring: 'smooth', delay: wait, channel: 't', current: false}));
   }
   await Promise.all(jobs); if (v === pageVersion) pageCleanup = null;
@@ -1297,11 +1338,28 @@
   if (visible && !was) play(el, [{transform: 'scale(.5)', opacity: 0}, {transform: 'none', opacity: 1}], {spring: 'bouncy', channel: 'badge', fade: true});
   else if (!visible) play(el, [{transform: 'scale(.5)', opacity: 0}], {ms: 'quick', curve: 'X', channel: 'badge', fill: 'forwards', fade: true});
  }
+ // A status mark: one disc that is idle, loading (an arc runs round its edge), done (the arc closes, the tick arrives
+ // rotated and blurred and dips into place) or failed (the cross draws and the disc gives a small shake).
+ function tickIn(tick) {
+  if (!tick) return Promise.resolve();
+  if (reduced()) return play(tick, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true});
+  return Promise.all([
+   play(tick, [{opacity: 0, filter: 'blur(6px)'}, {opacity: 1, filter: 'blur(0px)'}], {ms: 450, curve: 'O', channel: 'o', current: false, blur: false}),
+   play(tick, [{transform: 'rotate(-20deg) translateY(0px)'}, {transform: 'rotate(-11deg) translateY(4px)', offset: .44}, {transform: 'rotate(0deg) translateY(0px)'}], {ms: 450, curve: 'cubic-bezier(.2,0,0,1)', channel: 't', current: false})]);
+ }
+ const STATUS_MARK = '<span class="st-status-mark" aria-hidden="true"><svg class="st-status-disc" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20"/></svg>' +
+  '<svg class="st-status-ring" viewBox="0 0 40 40"><circle class="st-status-arc" cx="20" cy="20" r="18.5" pathLength="100"/></svg>' +
+  '<svg class="st-status-idle" viewBox="0 0 40 40"><path d="M14 18.5a6.5 6.5 0 0 1 11.6-3.4M26 21.5a6.5 6.5 0 0 1-11.6 3.4M25.8 11.8v3.6h-3.6M14.2 28.2v-3.6h3.6"/></svg>' +
+  '<svg class="st-success-tick" viewBox="0 0 40 40"><path d="m12.5 20.5 5 5 10-11" pathLength="100"/></svg>' +
+  '<svg class="st-status-cross" viewBox="0 0 40 40"><path d="m15 15 10 10M25 15 15 25" pathLength="100"/></svg></span>';
  function progress(el, next) {
-  if (!el || !['loading', 'success', 'error'].includes(next)) return;
-  if (!q(el, '.st-progress-ring')) el.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="st-progress-ring" cx="20" cy="20" r="14" pathLength="100"/><path class="st-progress-check" d="m12 20 5 5 11-11" pathLength="100"/><path class="st-progress-cross" d="m14 14 12 12m0-12L14 26" pathLength="100"/></svg>';
-  el.dataset.stProgress = next; el.setAttribute('role', 'status'); el.setAttribute('aria-label', next === 'loading' ? 'Loading' : next === 'success' ? 'Completed' : 'Failed'); el.setAttribute('aria-busy', String(next === 'loading'));
-  if (next !== 'loading') announce(next === 'success' ? 'Completed' : 'Failed');
+  if (!el || !['idle', 'loading', 'success', 'error'].includes(next)) return;
+  if (!q(el, '.st-status-mark')) el.innerHTML = STATUS_MARK;
+  const prev = el.dataset.stProgress;
+  el.dataset.stProgress = next; el.setAttribute('role', 'status'); el.setAttribute('aria-label', {idle: 'Ready', loading: 'Loading', success: 'Completed', error: 'Failed'}[next]); el.setAttribute('aria-busy', String(next === 'loading'));
+  if (next === 'success' && prev !== 'success') tickIn(q(el, '.st-success-tick'));
+  if (next === 'error' && prev !== 'error' && !reduced()) play(q(el, '.st-status-mark'), SHAKE.map(f => ({transform: f.transform.replace(/(-?[\d.]+)px/, (m, v) => (v * .6).toFixed(2) + 'px')})), {ms: 360, curve: 'linear', channel: 'shake', current: false});
+  if (next === 'success' || next === 'error') announce(next === 'success' ? 'Completed' : 'Failed');
  }
  function tilt(el, x = 0, y = 0) {
   if (reduced() || !finePointer.matches) { el.style.transform = ''; return; }
@@ -1552,7 +1610,7 @@
    if (el && el.dataset.st) { e.preventDefault(); if (el.dataset.st === 'expand') { isOpen(el) && !layerState(el).closing ? collapse(el) : expand(trigger, el); } else toggle(el, trigger, {keyboard: e.detail === 0}); return; }
   }
   const dismiss = e.target.closest('[data-st-close]');
-  if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer); else close(dismiss.closest('dialog,[popover],[data-st="popover-panel"],[data-st="palette"],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
+  if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer); else close(dismiss.closest('dialog,[popover],[data-st="menu"],[data-st="plus-menu"],[data-st="popover-panel"],[data-st="palette"],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
   const scrim = e.target.closest('[data-st-scrim]');
   if (scrim) { const layer = [...active].reverse().find(l => scrimOf(l) === scrim || l.contains(scrim)); if (layer) layer.dataset.st === 'expand' ? collapse(layer) : close(layer); }
  });

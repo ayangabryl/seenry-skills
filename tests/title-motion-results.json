@@ -1,5 +1,5 @@
 {
-  "sourceSha256": "6322451bb806d9a070a892d555e6320286013330c067aaca11fa149cbc8e4b77",
+  "sourceSha256": "2a2dc028a427889d68140d6c575b802285d94da11135912e446dcd3510db961d",
   "scope": "Deterministic geometry and state only; fresh browser capture required",
   "cases": [
     {
