@@ -39,5 +39,14 @@ const collapse=source.slice(source.indexOf(' function collapse(detail) {'),sourc
  record('Narrow list actions can wrap without ejecting Add',()=>{assert(html.includes('.stage .tasks .app-bar{height:auto;min-height:40px;padding:8px;flex-wrap:wrap;gap:6px}'));assert(html.includes('.tasks #sort-btn{min-width:0;flex:1}'));});
  record('Trailing padding cannot cover the final category with a cue',()=>{filterList.scrollLeft=330;filterScope.updateFilterOverflow();assert.equal(filterScroll.dataset.more,'false');});
  record('Palette initialization scrolls only its result list',()=>{assert(!source.includes("opt.scrollIntoView?.({block: 'nearest'})"));assert(source.includes("const lb = opt.closest('[role=\"listbox\"]')"));});
+ record('Medium search repair includes the entire inherited180px range',()=>{assert(html.includes('@media(min-width:701px) and (max-width:1000px){'));});
+ for(const preference of [false,true]) record(`First-view previews never dim functional content (reduce=${preference})`,()=>{
+  const block=gallery.slice(gallery.indexOf(' // One first-view preview.'),gallery.indexOf(' window.galleryLibrary'));
+  let callback;const calls=[];const scope={WeakSet,IntersectionObserver:class{constructor(fn){callback=fn;}observe(){}},cards:[],runs:new Map(),window:{galleryCancel:key=>calls.push(['cancel',key])},clearTimeout:id=>calls.push(['timer',id]),reduce:()=>preference,$:id=>id,S:{play:(...args)=>calls.push(['play',...args]),reveal:id=>calls.push(['reveal',id]),shimmer:id=>calls.push(['shimmer',id])}};
+  vm.createContext(scope);vm.runInContext(block,scope);
+  const keys=[...new Set([...html.matchAll(/data-key="([a-z-]+)"/g)].map(m=>m[1]))];assert.equal(keys.length,38);assert(keys.includes('switch')&&keys.includes('checkbox'));
+  for(const key of keys){let plays=0,pauses=0;const object={},loop={effect:{getTiming:()=>({iterations:Infinity})},play:()=>plays++,pause:()=>pauses++,cancel:()=>{}};const target={dataset:{},closest:()=>({dataset:{key}}),querySelectorAll:()=>[{getAnimations:()=>[loop]}],querySelector:()=>({getAnimations:()=>[]}),firstElementChild:object};scope.runs.set(key,[key]);callback([{isIntersecting:true,target}]);assert.equal(target.dataset.stPaused,'false');callback([{isIntersecting:false,target}]);assert.equal(target.dataset.stPaused,'true');assert.equal(scope.runs.has(key),false);callback([{isIntersecting:true,target}]);assert.equal(plays,preference?0:2);assert.equal(pauses,preference?3:1);assert(calls.some(c=>c[0]==='cancel'&&c[1]===key));assert(calls.some(c=>c[0]==='timer'&&c[1]===key));}
+  assert.equal(calls.filter(c=>c[0]==='play').length,0,'Viewport entry must not reduce whole-preview opacity');assert(calls.some(c=>c[0]==='reveal'));assert(calls.some(c=>c[0]==='shimmer'));
+ });
  completed=true;console.log(`${cases.length}/${cases.length} rendered-finding logic/static regressions passed; browser retest pending`);
 })().catch(e=>{console.error(e);process.exitCode=1});

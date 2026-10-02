@@ -924,9 +924,23 @@
   return qa(detail, '[data-st-shared]').filter(d => !d.closest('[data-st-ghost]')).map(d => [q(source, `[data-st-shared="${d.dataset.stShared}"]`), d]).filter(([s]) => s);
  }
  const box = r => ({x: r.left, y: r.top, w: r.width, h: r.height});
+ // A line box can be narrower than its text (spacing overrides, nested inline runs, or glyph overhang).
+ // Route the complete measured text envelope; never assume a fixed element width contains every letter.
+ function titleBox(el) {
+  const r = el.getBoundingClientRect(), range = el.ownerDocument?.createRange?.();
+  if (!range) return box(r);
+  range.selectNodeContents(el);
+  let left = r.left, top = r.top, right = r.right, bottom = r.bottom;
+  for (const t of range.getClientRects()) if (t.width && t.height) { left = Math.min(left, t.left); top = Math.min(top, t.top); right = Math.max(right, t.right); bottom = Math.max(bottom, t.bottom); }
+  return {x: left, y: top, w: right - left, h: bottom - top};
+ }
  // A label changes sides through the free corner of the moving cover. The corner must fit in the
  // painted shell at that same progress; all three edges then share a clock instead of racing each other.
- function titleRoute(f, t, af, at, sf, st, size) {
+ function titleRoute(f, t, af, at, sf, st, size, continuing = false) {
+  // A corner cannot rescue an impossible endpoint. A destination-sized title may be wider
+  // than the source card, even when the smaller source label itself fits. Allow only rounding noise.
+  const fits = (r, s) => r.x >= s.x - .05 && r.y >= s.y - .05 && r.x + size.w <= s.x + s.w + .05 && r.y + size.h <= s.y + s.h + .05;
+  if ((!continuing && !fits(f, sf)) || !fits(t, st)) return {kind: 'fade'};
   const mix = (a, b, p) => a + (b - a) * p;
   const sides = (r, a) => ({left: a.x - r.x - size.w, right: r.x - a.x - a.w, above: a.y - r.y - size.h, below: r.y - a.y - a.h});
   const first = sides(f, af), last = sides(t, at), names = Object.keys(first);
@@ -987,7 +1001,7 @@
   const shellFrom = inset ? {x: shell.x + inset[3], y: shell.y + inset[0], w: shell.w - inset[1] - inset[3], h: shell.h - inset[0] - inset[2]} : toSource || s.moved ? shell : sourceBox;
   const shellTo = toSource ? sourceBox : shell;
   for (const [, d] of pairs) {
-   const isText = d.hasAttribute('data-st-shared-text'), f = from.get(d), t = to.get(d); let home = box(d.getBoundingClientRect());
+   const isText = d.hasAttribute('data-st-shared-text'); let f = from.get(d), t = to.get(d), home = box(d.getBoundingClientRect());
    let layer = d;
    if (isText) {
     layer = s.travelers.get(d);
@@ -1001,9 +1015,11 @@
     // A reused ghost may have a different containing block after layout changes. Its own resting rect is
     // the transform origin; the rendered start above was captured before cancelling the previous flight.
     home = box(layer.getBoundingClientRect());
+    const ink = titleBox(layer), dx = ink.x - home.x, dy = ink.y - home.y;
+    f = {...f, x: f.x + dx, y: f.y + dy}; t = {...t, x: t.x + dx, y: t.y + dy}; home = ink;
     d.style.visibility = 'hidden';
    } else Object.assign(d.style, {transformOrigin: '0 0', position: getComputedStyle(d).position === 'static' ? 'relative' : d.style.position, zIndex: '2'});
-   const route = A && isText ? titleRoute(f, t, aFrom, aTo, shellFrom, shellTo, home) : null;
+   const route = A && isText ? titleRoute(f, t, aFrom, aTo, shellFrom, shellTo, home, s.moved) : null;
    if (isText && (route?.kind === 'fade' || s.titleFades?.has(d))) {
     // Some custom layouts have no safe one-corner route. Keep the whole title out of the
     // moving artwork, including during reversals; fade it in only after the surface lands.

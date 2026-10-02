@@ -242,14 +242,14 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 /* Toggle and checkbox */
 .st-toggle, .st-check { position: relative; display: inline-flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .st-toggle input, .st-check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.st-toggle-track { position: relative; display: block; flex: none; width: 42px; height: 26px; border-radius: 99px; background: var(--line-strong); transition: background-color var(--st-control) var(--st-F); }
-.st-toggle-thumb { position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 99px; background: #fff; box-shadow: 0 1px 3px #00000033, 0 0 0 .5px #0000000f; transform-origin: 0 50%;
+.st-toggle-track { position: relative; display: block; flex: none; width: 42px; height: 26px; border-radius: 99px; background: var(--text-3); transition: background-color var(--st-control) var(--st-F); }
+.st-toggle-thumb { position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 99px; background: var(--on-accent); box-shadow: 0 1px 3px #00000033, 0 0 0 .5px #0000000f; transform-origin: 0 50%;
  transition: transform var(--st-spring-thumb-ms) var(--st-spring-thumb); }
 .st-toggle input:checked + .st-toggle-track { background: var(--ok); }
 .st-toggle input:checked + .st-toggle-track .st-toggle-thumb { transform: translateX(16px); transform-origin: 100% 50%; }
 .st-toggle input:active + .st-toggle-track .st-toggle-thumb { transform: scaleX(1.22); transition-duration: var(--st-control); transition-timing-function: var(--st-E); }
 .st-toggle input:checked:active + .st-toggle-track .st-toggle-thumb { transform: translateX(16px) scaleX(1.22); }
-.st-check > svg { width: 20px; height: 20px; padding: 3px; flex: none; border-radius: 6px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--line-strong); fill: none; stroke: var(--on-accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: background-color var(--st-quick) var(--st-F), box-shadow var(--st-quick) var(--st-F), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+.st-check > svg { width: 20px; height: 20px; padding: 3px; flex: none; border-radius: 6px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--text-3); fill: none; stroke: var(--on-accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: background-color var(--st-quick) var(--st-F), box-shadow var(--st-quick) var(--st-F), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
 .st-check path { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset var(--st-control) var(--st-E); }
 .st-check input:checked + svg, .st-check input:indeterminate + svg { background: var(--accent); box-shadow: none; }
 .st-check input:checked + svg path { stroke-dashoffset: 0; }

@@ -10,9 +10,10 @@ const runtime=arg('--playwright');if(!runtime)throw new Error('Pass --playwright
 const {chromium}=await import(pathToFileURL(resolve(runtime)).href);
 const gallery=resolve(arg('--gallery',fileURLToPath(new URL('../skills/seenry/assets/components/transitions/gallery.html',import.meta.url))));
 const out=resolve(arg('--out','reflow-browser-results'));mkdirSync(out,{recursive:true});
+const widths=arg('--widths','320,390,720,960,1000,1440').split(',').map(Number);assert(widths.length>0&&widths.every(w=>Number.isFinite(w)&&w>=195&&w<=4000),'Widths must be CSS pixels in195–4000');
 const browser=await chromium.launch({headless:true,...(process.env.SEENRY_CHROME_PATH?{executablePath:process.env.SEENRY_CHROME_PATH}:{})});
 const sha=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
-const report={browser:browser.version(),source:{html:sha(gallery),runtime:sha(join(dirname(gallery),'seenry-transitions.js'))},scope:'Exact local fixture; normal and four-property spaced text, reduced motion, trusted input. Not actual zoom or a quality score.',runs:[]};
+const report={browser:browser.version(),source:{html:sha(gallery),runtime:sha(join(dirname(gallery),'seenry-transitions.js'))},scope:'Exact local fixture;960/1000 are focused search-boundary profiles, other requested widths run full reflow; normal/four-property text spacing and reduced motion. Not actual zoom or a quality score.',runs:[]};
 const spacingCSS=':root:not(#seenry-text-spacing-test) *{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}:root:not(#seenry-text-spacing-test) p{margin-block-end:2em!important}';
 const settle=async page=>{await page.waitForTimeout(700);};
 async function bounds(page,{key,content}){return page.evaluate(({key,content})=>{
@@ -42,16 +43,17 @@ async function titleFits(page){return page.evaluate(()=>{
  return {close:c,surface:s,titleVisible,titleText:title.textContent.trim(),lines,overlap:lines.reduce((sum,r)=>sum+area(r,c),0),inside:lines.every(r=>r.right>r.left&&r.bottom>r.top&&r.left>=s.left-1&&r.right<=s.right+1&&r.top>=s.top-1&&r.bottom<=s.bottom+1),detailRuns,detailsBottom:dr.getBoundingClientRect().bottom};
  });}
 try{
- for(const width of [320,390,720,1440])for(const theme of ['light','dark'])for(const spaced of [false,true]){
+ for(const width of widths)for(const theme of ['light','dark'])for(const spaced of [false,true]){
   const context=await browser.newContext({viewport:{width,height:1000},colorScheme:theme,reducedMotion:'reduce',serviceWorkers:'block',acceptDownloads:false});
   const page=await context.newPage(),errors=[];page.setDefaultTimeout(5000);page.on('pageerror',e=>errors.push(e.message));await page.route(/^https?:/,route=>route.abort());
-  const run={width,theme,spaced,status:'running',checks:[],cases:[]};report.runs.push(run);
+  const run={width,theme,spaced,scope:[960,1000].includes(width)?'search-boundary-only':'full-reflow',status:'running',checks:[],cases:[]};report.runs.push(run);
   const task=async(name,fn)=>{try{const data=await fn();run.cases.push({name,status:'passed',data});}catch(e){run.cases.push({name,status:'failed',error:e.message});await page.screenshot({path:join(out,`${width}-${theme}-${spaced?'spacing':'normal'}-${name}-FAILED.png`)}).catch(()=>{});}};
   try{
    await page.goto(pathToFileURL(gallery).href);await page.evaluate(()=>document.fonts.ready);
    if(spaced){assert.notEqual(await page.evaluate(()=>document.documentElement.id),'seenry-text-spacing-test');await page.addStyleTag({content:spacingCSS});}
    await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
-   await task('search',async()=>{const x=await page.locator('#library-search').evaluate(e=>({width:e.clientWidth,placeholder:e.placeholder}));assert(x.width>=Math.min(240,width-32),'Search field must retain a readable placeholder width');assert.equal(x.placeholder,'Search transitions');return x;});
+   await task('search',async()=>{const x=await page.locator('#library-search').evaluate(e=>{const s=getComputedStyle(e),ctx=document.createElement('canvas').getContext('2d');ctx.font=s.font;const letter=parseFloat(s.letterSpacing)||0,word=parseFloat(s.wordSpacing)||0;let extra=0;if('letterSpacing'in ctx)ctx.letterSpacing=`${letter}px`;else extra+=letter*e.placeholder.length;if('wordSpacing'in ctx)ctx.wordSpacing=`${word}px`;else extra+=word*(e.placeholder.match(/ /g)||[]).length;return {width:e.clientWidth,placeholder:e.placeholder,available:e.clientWidth-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight),textWidth:ctx.measureText(e.placeholder).width+extra,spacing:{lineHeight:parseFloat(s.lineHeight)/parseFloat(s.fontSize),letterSpacing:(parseFloat(s.letterSpacing)||0)/parseFloat(s.fontSize),wordSpacing:(parseFloat(s.wordSpacing)||0)/parseFloat(s.fontSize)}};});if(spaced){for(const [key,value] of Object.entries({lineHeight:1.5,letterSpacing:.12,wordSpacing:.16}))assert(Number.isFinite(x.spacing[key])&&Math.abs(x.spacing[key]-value)<.001,`Search ${key} spacing override must be applied`);}assert(x.width>=Math.min(240,width-32),'Search field must retain a readable placeholder width');assert.equal(x.placeholder,'Search transitions');assert(x.textWidth<=x.available,'Complete search placeholder must fit its usable interior');return x;});
+   if(run.scope==='search-boundary-only'){assert.deepEqual(errors,[]);run.status=run.cases.every(c=>c.status==='passed')?'passed':'failed';continue;}
    await task('photo-label',async()=>{
     const data=await page.locator('.photo-bar>span,.photo-bar>button').evaluateAll(nodes=>nodes.map(e=>{const s=getComputedStyle(e);return {text:e.textContent.trim(),color:s.color,background:s.backgroundColor};}));
     assert.equal(data.length,2);for(const x of data){

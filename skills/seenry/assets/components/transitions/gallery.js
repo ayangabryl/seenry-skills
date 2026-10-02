@@ -155,13 +155,11 @@
   target.querySelectorAll('*').forEach(el => el.getAnimations().filter(a=>a.effect?.getTiming().iterations===Infinity).forEach(a=>isIntersecting&&!reduce()?a.play():a.pause()));
   if (!isIntersecting) {if(key==='shimmer')target.querySelector('.st-shine')?.getAnimations().forEach(a=>a.cancel());window.galleryCancel?.(key); runs.get(key)?.forEach(clearTimeout); runs.delete(key); return; }
   if (seen.has(target)) return; seen.add(target);
-  // Opening a top-layer surface on scroll would steal focus. Preview local geometry only.
-  if (['menu','morph','dialog','palette','sheet','drawer','popover','expand','image','avatars','clear','button','copy','ai','toast','progress'].includes(key)) {
-   const object=target.querySelector('.app,.stack-center,.phone,.image-thumb,.clear-demo,.covers');
-   if (object) S.play(object,[{opacity:.7},{opacity:1}],{ms:160,fade:true,channel:'preview'});
-  } else if(key==='reveal') S.reveal($('text-reveal'));
+  // Merely entering the viewport is not an accepted UI state change. Keep functional
+  // previews fully opaque so their text, focus and essential control cues retain contrast.
+  // Dedicated reveal/shimmer examples still demonstrate their explicitly requested effect.
+  if(key==='reveal') S.reveal($('text-reveal'));
   else if(key==='shimmer') S.shimmer($('shimmer-text'));
-  else { const object=target.firstElementChild; if(object)S.play(object,[{opacity:.7},{opacity:1}],{ms:160,fade:true,channel:'preview'}); }
  }),{threshold:.55});
  cards.forEach(c=>previews.observe(c.querySelector('.stage')));
  window.galleryLibrary = {filter, showDetail, snippets, cards};

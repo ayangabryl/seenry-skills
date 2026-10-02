@@ -39,6 +39,9 @@ jobs:
           node tests/transitions-library-reading-keys.test.cjs
           node tests/transitions-library-reflow-assertions.test.cjs
           node tests/transitions-library-snapshot-scroll.test.cjs
+          node tests/transitions-library-spaced-title.test.cjs
+          node tests/transitions-library-title-boundary.test.cjs
+          node tests/transitions-library-control-contrast.test.cjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check examples/seenry-site/app.js
       - run: node --check examples/seenry-site/studies/held/app.js
@@ -57,6 +60,27 @@ jobs:
         with:
           name: content-reflow-${{ matrix.os }}
           path: ${{ runner.temp }}/seenry-reflow
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Exercise actual shared-title content boundaries
+        timeout-minutes: 3
+        run: node tests/transitions-library-title-boundary.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --widths 360,361,384,385,400,420 --press-hold-ms 160 --out "${{ runner.temp }}/seenry-title-boundary"
+      - name: Preserve shared-title boundary traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: title-boundary-${{ matrix.os }}
+          path: ${{ runner.temp }}/seenry-title-boundary
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Exercise essential control contrast
+        run: node tests/transitions-library-control-contrast.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-control-contrast"
+      - name: Preserve essential control contrast evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: control-contrast-${{ matrix.os }}
+          path: ${{ runner.temp }}/seenry-control-contrast
           if-no-files-found: ignore
           retention-days: 7
       - name: Exercise trusted focus recovery and image Escape
