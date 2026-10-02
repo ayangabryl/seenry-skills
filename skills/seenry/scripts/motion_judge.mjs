@@ -118,8 +118,9 @@ const regionOf = i => {
   const r = (region || el).getBoundingClientRect(), pad = region ? 0 : 160;
   return {x: r.left - pad, y: r.top - pad, w: r.width + pad * 2, h: r.height + pad * 2};
 };
-const layerRects = () => [...document.querySelectorAll('dialog[open],[popover]:popover-open,[aria-modal=true],[role=dialog]:not([hidden]),[role=menu]:not([hidden]),[role=listbox]:not([hidden]),[role=tooltip]:not([hidden])')]
-  .filter(el => { const s = getComputedStyle(el); return s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0.05 && !el.closest('[inert]:not(dialog)'); })
+const LAYER_SEL = 'dialog[open],[popover]:popover-open,[aria-modal=true],[role=dialog]:not([hidden]),[role=menu]:not([hidden]),[role=listbox]:not([hidden]),[role=tooltip]:not([hidden])';
+const layerRects = sel => [...document.querySelectorAll(sel)]
+  .filter(el => { const s = getComputedStyle(el); return !el.hasAttribute('data-seenry-preopen') && s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0.05 && !el.closest('[inert]:not(dialog)'); })
   .map(el => el.getBoundingClientRect()).filter(r => r.width > 4 && r.height > 4 && r.width < innerWidth * 0.95 && r.bottom > 0 && r.top < innerHeight).map(r => ({x: r.left, y: r.top, w: r.width, h: r.height}));
 const snapAnimations = () => document.getAnimations().filter(a => a.playState === 'running' || a.playState === 'pending' || a.playState === 'paused').map(a => {
   const t = a.effect?.getTiming?.() || {}, kf = a.effect?.getKeyframes?.() || [];
@@ -190,13 +191,17 @@ async function run(reduced) {
       await page.evaluate(() => document.activeElement?.blur()); await wait(200);
       await shoot('states', 'rest');
     }
+    // Only layers this input opens widen the crop; layers already open elsewhere (a header listbox, another demo's
+    // popover) would shrink the component to a thumbnail on the board.
+    await page.evaluate(sel => document.querySelectorAll(sel).forEach(el => { const s = getComputedStyle(el), r = el.getBoundingClientRect();
+      if (s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0.05 && r.width > 4 && r.height > 4) el.setAttribute('data-seenry-preopen', ''); }), LAYER_SEL);
     const t0 = Date.now();
     await press();
     anims = await page.evaluate(snapAnimations);
     if (!reduced) {
       for (const ms of [30, 60, 100, 150, 220, 320]) { const w = ms * SLOW - (Date.now() - t0); if (w > 0) await page.waitForTimeout(w); await shoot('enter', 'enter', t0); }
       await wait(380); await shoot('enter', 'settled');
-      layers = await page.evaluate(layerRects);
+      layers = await page.evaluate(layerRects, LAYER_SEL);
       const inside = await page.evaluate(({i}) => {
         const self = document.querySelector(`[data-seenry-probe="${i}"]`);
         const layer = document.querySelector('dialog[open],[popover]:popover-open');
@@ -211,13 +216,14 @@ async function run(reduced) {
       reverseAnims = await page.evaluate(snapAnimations);
       const w1 = 70 * SLOW - (Date.now() - t1); if (w1 > 0) await page.waitForTimeout(w1);
       await shoot('interrupt', 'next change', t1);
-      layers.push(...await page.evaluate(layerRects));
+      layers.push(...await page.evaluate(layerRects, LAYER_SEL));
       const t2 = Date.now();
       await press();
       for (const ms of [40, 100, 200]) { const w = ms * SLOW - (Date.now() - t2); if (w > 0) await page.waitForTimeout(w); await shoot('interrupt', '2nd input +', t2); }
       await wait(420); await shoot('interrupt', 'settled');
     } else await page.waitForTimeout(700);
     await slow(false);
+    await page.evaluate(() => document.querySelectorAll('[data-seenry-preopen]').forEach(el => el.removeAttribute('data-seenry-preopen')));
     for (const l of layers) box = union(box, l);
     const crop = clampBox({x: box.x - 12, y: box.y - 12, w: box.w + 24, h: box.h + 24});
     await page.waitForTimeout(500);
@@ -265,9 +271,9 @@ const durations = normal.flatMap(r => r.anims.filter(a => a.iterations !== Infin
 const easings = [...new Set(normal.flatMap(r => r.anims.map(a => a.easing)))];
 
 // Boards: one block per interaction with three labelled strips, cropped to the same region in every frame.
-const THUMB = 232;
+const THUMB = 260;
 const block = r => {
-  const scale = Math.min(THUMB / r.crop.w, 190 / r.crop.h), w = Math.round(r.crop.w * scale), h = Math.round(r.crop.h * scale);
+  const scale = Math.min(THUMB / r.crop.w, 260 / r.crop.h), w = Math.round(r.crop.w * scale), h = Math.round(r.crop.h * scale);
   const frame = s => `<figure><div class="f" style="width:${w}px;height:${h}px"><img src="data:image/jpeg;base64,${s.buf.toString('base64')}" style="width:${VW * scale}px;left:${-r.crop.x * scale}px;top:${-r.crop.y * scale}px"></div><figcaption>${s.label}</figcaption></figure>`;
   const strip = (g, name) => { const s = r.shots.filter(x => x.group === g); return s.length ? `<div class="strip"><b>${name}</b>${s.map(frame).join('')}</div>` : ''; };
   const ms = [...new Set(r.anims.filter(a => a.iterations !== Infinity).map(a => Math.round(a.duration) + 'ms'))].slice(0, 5).join(' ');
