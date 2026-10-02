@@ -5,7 +5,7 @@ const file=path.join(__dirname,'transitions-library-dialog.browser.mjs'),source=
 const slice=(a,b)=>{const x=source.indexOf(a),y=source.indexOf(b,x);assert(x>=0&&y>x);return source.slice(x,y);};
 const scope={assert};vm.createContext(scope);vm.runInContext(slice('function assertInstantAnimations(','function inspect(')+slice('function naturalCoverage(','async function controlledInterruption(')+slice('function assertImmediateCycle(','function assertPaint(')+'\nthis.helpers={naturalCoverage,selectMotionJobs,assertControlled,assertImmediateCycle,isDialogExitScale};',scope);
 const {naturalCoverage,selectMotionJobs,assertControlled,assertImmediateCycle,isDialogExitScale}=scope.helpers;
-const active=(opacity=1)=>({modal:true,open:true,inert:false,expanded:'true',focus:'Cancel',opacity,transform:'matrix(0.995, 0, 0, 0.995, 0, 1)',filter:'none',reduce:false,backdropOpacity:1,animations:[{target:'dialog-1',pseudo:null,properties:['transform'],playState:'running',currentTime:10,endTime:100}]});
+const active=(opacity=1)=>({modal:true,open:true,inert:false,expanded:'true',focus:'Cancel',opacity,transform:'matrix(0.995, 0, 0, 0.995, 0, 1)',filter:'none',reduce:false,backdropOpacity:1,animations:[{target:'dialog-1',pseudo:null,properties:['transform'],playState:'running',pending:false,currentTime:10,endTime:100}]});
 const outgoing=()=>({...active(1),inert:true,expanded:'false'});
 const complete=()=>({modal:false,open:false,inert:true,expanded:'false',opacity:0,animations:[]});
 const midpoints=()=>[null,'::backdrop'].map(pseudo=>({target:'dialog-1',pseudo,properties:[pseudo?'opacity':'transform'],playState:'paused',pending:false,currentTime:50,requestedMidpoint:50}));

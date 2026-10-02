@@ -113,11 +113,11 @@ function inspectMotion(){
  return {at:performance.now(),modal:d.matches(':modal'),open:d.open,inert:d.inert,expanded:trigger.getAttribute('aria-expanded'),focus:document.activeElement===cancel?'Cancel':document.activeElement.id||document.activeElement.tagName,opacity:Number(style.opacity),transform:style.transform,filter:style.filter,backdropOpacity:Number(getComputedStyle(d,'::backdrop').opacity),reduce:matchMedia('(prefers-reduced-motion: reduce)').matches,animations:d.getAnimations({subtree:true}).map(a=>{const t=a.effect.getComputedTiming();return {playState:a.playState,pending:a.pending,currentTime:a.currentTime,endTime:t.endTime,duration:t.duration,...dialogAnimationEvidence(a,d)};})};
 }
 function naturalCoverage(reversal){
- const action=k=>reversal.actions.find(a=>a.kind===k),active=s=>s?.animations?.some(a=>a.target==='dialog-1'&&!a.pseudo&&a.properties?.includes('transform')&&a.playState==='running'&&Number.isFinite(a.currentTime)&&Number.isFinite(a.endTime)&&a.currentTime<a.endTime);
+ const action=k=>reversal.actions.find(a=>a.kind===k),active=s=>s?.animations?.some(a=>a.target==='dialog-1'&&!a.pseudo&&a.properties?.includes('transform')&&a.playState==='running'&&a.pending===false&&Number.isFinite(a.currentTime)&&a.currentTime>0&&Number.isFinite(a.endTime)&&a.currentTime<a.endTime);
  const beforeClose=action('before-close'),beforeReopen=action('before-reopen');
  if(action('trusted-open')?.reduce){const result={beforeClose,afterClose:action('after-close'),afterReopen:action('after-reopen')};try{assertImmediateCycle(result);return {status:'immediate',scope:'Reduced fresh close/open cycle; no entry or outgoing interruption interval exists'};}catch{return {status:'blocked',scope:'Reduced synchronous final-state contract failed'};}}
  const openingInterrupted=!!(beforeClose?.modal&&beforeClose.open&&!beforeClose.inert&&active(beforeClose)),exitInterrupted=!!(beforeReopen?.modal&&beforeReopen.open&&beforeReopen.inert&&beforeReopen.expanded==='false'&&active(beforeReopen));
- return {status:openingInterrupted&&exitInterrupted?'covered':'blocked',openingInterrupted,exitInterrupted,scope:'Natural requested70ms API timings with actual surface geometry ownership; a missed window is unaccepted diagnostic coverage, never a product pass'};
+ return {status:openingInterrupted&&exitInterrupted?'covered':'blocked',openingInterrupted,exitInterrupted,scope:'Natural requested70ms API timings require nonpending, positively progressed surface geometry; pending, unstarted or missed windows remain unaccepted diagnostic coverage'};
 }
 function isDialogExitScale(value){
  if(typeof value!=='string')return false;
