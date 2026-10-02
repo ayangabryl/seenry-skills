@@ -43,6 +43,41 @@ async function reportMailKeyFailure(page, profile, error) {
   console.error('MAIL_KEY_FAILURE '+JSON.stringify({profile,error:error.message,playwrightViewport:page.viewportSize(),nativeWindow,...dom}));
 }
 
+
+// Observe the existing wheel/key/resize sequence without changing focus or scrolling.
+async function observeSecurityResize(page) {
+  await page.evaluate(() => {
+    const list=document.querySelector('#tabs-1>[role=tablist]');
+    const rect=e=>{const r=e.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
+    const describe=e=>e?{tag:e.tagName,id:e.id}:null;
+    window.__securityResizeEvents=[];
+    window.__securityResizeState=()=>({at:performance.now(),active:describe(document.activeElement),documentHasFocus:document.hasFocus(),
+      viewport:{innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,scrollX,scrollY,
+        visualViewport:visualViewport?{width:visualViewport.width,height:visualViewport.height,offsetLeft:visualViewport.offsetLeft,offsetTop:visualViewport.offsetTop,scale:visualViewport.scale}:null},
+      list:{rect:rect(list),clientWidth:list.clientWidth,clientLeft:list.clientLeft,scrollWidth:list.scrollWidth,scrollLeft:list.scrollLeft,
+        overflowX:getComputedStyle(list).overflowX,scrollBehavior:getComputedStyle(list).scrollBehavior,scrollSnapType:getComputedStyle(list).scrollSnapType,
+        animations:list.getAnimations({subtree:true}).map(a=>({playState:a.playState,pending:a.pending}))},
+      tabs:[...list.querySelectorAll('[role=tab]')].map(t=>({id:t.id,selected:t.getAttribute('aria-selected'),rect:rect(t),offsetLeft:t.offsetLeft,offsetWidth:t.offsetWidth,
+        font:getComputedStyle(t).font,letterSpacing:getComputedStyle(t).letterSpacing,wordSpacing:getComputedStyle(t).wordSpacing})),
+      indicator:(()=>{const e=list.querySelector('.st-tab-indicator');return e?{rect:rect(e),width:e.style.width,clip:getComputedStyle(e).clipPath}:null;})()});
+    const record=event=>{const row={event:event.type,key:event.key||null,trusted:event.isTrusted,target:describe(event.target),defaultPreventedAtCapture:event.defaultPrevented,resizeTargets:event.resizeTargets||null,...window.__securityResizeState()};
+      window.__securityResizeEvents.push(row);if(window.__securityResizeEvents.length>100)window.__securityResizeEvents.shift();setTimeout(()=>{row.defaultPreventedAfterDispatch=event.defaultPrevented;},0);};
+    for(const type of ['scroll','scrollend','wheel','keydown','keyup','focusin','focusout'])list.addEventListener(type,record,{capture:true,passive:true});
+    window.addEventListener('resize',record,{passive:true});
+    const observer=new ResizeObserver(entries=>record({type:'resize-observer',target:list,isTrusted:false,resizeTargets:entries.map(e=>({id:e.target.id,rect:rect(e.target)}))}));
+    observer.observe(list);for(const tab of list.querySelectorAll('[role=tab]'))observer.observe(tab);
+    window.__securityResizeObserver=observer;
+    window.__securityResizeInitial=window.__securityResizeState();
+  });
+}
+async function reportSecurityResizeFailure(page,profile,error) {
+  const state=await page.evaluate(()=>({initial:window.__securityResizeInitial,current:window.__securityResizeState(),events:window.__securityResizeEvents}));
+  const cdp=await page.context().newCDPSession(page);let nativeWindow;
+  try { nativeWindow={window:await cdp.send('Browser.getWindowForTarget'),version:await cdp.send('Browser.getVersion')}; }
+  catch(nativeError){nativeWindow={error:nativeError.message};}finally{await cdp.detach();}
+  console.error('SECURITY_RESIZE_FAILURE '+JSON.stringify({profile,error:error.message,playwrightViewport:page.viewportSize(),nativeWindow,...state}));
+}
+
 try {
   for (const width of [320,390,720,1440]) for (const theme of ['light','dark']) {
     const context = await browser.newContext({viewport:{width,height:1000},colorScheme:theme,reducedMotion:'reduce'});
@@ -168,20 +203,27 @@ try {
     assert.equal(lastTab.visible,true,`${width}/${theme} Security tab visible after End`);
     assert.equal(lastTab.canScroll,true,`${width}/${theme} embedded strip permits pointer scrolling`);
     assert.ok(lastTab.indicatorContentWidth>=lastTab.tabEnd-1,`${width}/${theme} last tab underline has a painted surface`);
-    await page.keyboard.press('Home');
-    await page.locator('#tabs-1>[role=tablist]').hover();
-    await page.mouse.wheel(500,0);
-    await page.waitForFunction(()=>{const list=document.querySelector('#tabs-1>[role=tablist]');return list.scrollWidth<=list.clientWidth+1||list.scrollLeft>0;});
-    await page.locator('#t-sec').click();
-    assert.equal(await page.locator('#t-sec').getAttribute('aria-selected'),'true',`${width}/${theme} Security pointer selection after local wheel`);
-    assert.equal(await page.evaluate(()=>scrollX),0,`${width}/${theme} embedded tab navigation does not pan document`);
-    await page.setViewportSize({width:1440,height:1000});
-    await page.locator('#t-sec').focus();
-    await page.keyboard.press('End');
-    await page.setViewportSize({width:320,height:1000});
-    await page.waitForFunction(()=>{const tab=document.querySelector('#t-sec'),list=tab.parentElement,a=tab.getBoundingClientRect(),b=list.getBoundingClientRect();return a.left>=b.left+list.clientLeft-1&&a.right<=b.left+list.clientLeft+list.clientWidth+1;});
-    assert.equal(await page.locator('#t-sec').getAttribute('aria-selected'),'true',`${width}/${theme} selected tab survives narrowing`);
-    await page.setViewportSize({width,height:1000});
+    await observeSecurityResize(page);
+    try {
+      await page.keyboard.press('Home');
+      await page.locator('#tabs-1>[role=tablist]').hover();
+      await page.mouse.wheel(500,0);
+      await page.waitForFunction(()=>{const list=document.querySelector('#tabs-1>[role=tablist]');return list.scrollWidth<=list.clientWidth+1||list.scrollLeft>0;});
+      await page.locator('#t-sec').click();
+      assert.equal(await page.locator('#t-sec').getAttribute('aria-selected'),'true',`${width}/${theme} Security pointer selection after local wheel`);
+      assert.equal(await page.evaluate(()=>scrollX),0,`${width}/${theme} embedded tab navigation does not pan document`);
+      await page.setViewportSize({width:1440,height:1000});
+      await page.locator('#t-sec').focus();
+      await page.keyboard.press('End');
+      await page.setViewportSize({width:320,height:1000});
+      await page.waitForFunction(()=>{const tab=document.querySelector('#t-sec'),list=tab.parentElement,a=tab.getBoundingClientRect(),b=list.getBoundingClientRect();return a.left>=b.left+list.clientLeft-1&&a.right<=b.left+list.clientLeft+list.clientWidth+1;});
+      assert.equal(await page.locator('#t-sec').getAttribute('aria-selected'),'true',`${width}/${theme} selected tab survives narrowing`);
+      await page.setViewportSize({width,height:1000});
+    } catch (error) {
+      try { await reportSecurityResizeFailure(page,{width,theme},error); }
+      catch(diagnosticError){console.error('SECURITY_RESIZE_DIAGNOSTICS_ERROR '+diagnosticError.message);}
+      throw error;
+    }
     // The gallery moves the real stage into its detail surface. Recheck there:
     // ancestor-card-only styles otherwise disappear even though the DOM survives.
     for(const key of ['checkbox','dialog','list']) {
