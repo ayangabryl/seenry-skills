@@ -657,6 +657,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;width:min(360px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);padding:24px;overflow:auto;overscroll-behavior:contain;border-radius:var(--r-xl)}
 .project-dialog h3{margin:0;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.35}
 .project-dialog p{margin:12px 0 20px;font-size:15px;line-height:1.5;color:var(--text-2)}
+@media(max-width:650px){.project-dialog #dlg-description{font-size:15px}}
 .project-dialog .dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .project-dialog .st-button{min-height:44px;font-size:15px}
 .project-dialog .dialog-destructive{background:var(--dialog-danger-surface);color:var(--dialog-danger-ink);box-shadow:none}
@@ -806,7 +807,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      </div>
     <button class="replay" data-replay="morph" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="morph">Button to menu</button></h3><p>A button unfolds</p><button class="snippet-copy" data-st="copy" data-snippet="morph" aria-label="Copy HTML for Button to menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>clip-path morph</span><span>content +50ms</span><span>return to rect</span></div></div>
-   </article><article class="card" data-key="dialog" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Dialog" data-why="A compact surface keeps the project, consequences and safe Cancel action together. The page-wide backdrop marks a focused decision; dismissal returns to the opening control. Keyboard opening and dismissal are immediate; reduced motion keeps the decision readable without travel or blur.">
+   </article><article class="card" data-key="dialog" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Dialog" data-why="A compact surface keeps the project, consequences and safe Cancel action together. The page-wide backdrop marks a focused decision; dismissal returns to the opening control. The decision stays opaque through pointer exit and reversal, so page text cannot show through it. Keyboard and reduced-motion changes put both the surface and backdrop in their final state immediately.">
     <div class="stage" data-st-preview>
      <div class="app settings-card">
       <div class="app-bar" style="margin:0 -18px 14px"><span class="app-title">Project settings</span></div>
@@ -820,7 +821,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
       <div class="dialog-actions"><button class="st-button" type="button" data-st-close autofocus>Cancel</button><button class="st-button dialog-destructive" type="button" data-st-close>Delete project</button></div>
      </dialog>
     <button class="replay" data-replay="dialog" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="dialog">Dialog</button></h3><p>A focused task</p><button class="snippet-copy" data-st="copy" data-snippet="dialog" aria-label="Copy HTML for Dialog"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>220ms ease-out</span><span>native modal</span><span>pointer exit 140ms</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="dialog">Dialog</button></h3><p>A focused task.</p><button class="snippet-copy" data-st="copy" data-snippet="dialog" aria-label="Copy HTML for Dialog"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>220ms ease-out</span><span>native modal</span><span>pointer exit 140ms</span></div></div>
    </article><article class="card" data-key="palette" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Command palette">
     <div class="stage" data-st-preview>
      <div data-st-contained role="dialog" id="palette-1" data-st-persistent data-st="palette" data-st-palette-gallery aria-label="Command palette">

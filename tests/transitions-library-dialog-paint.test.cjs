@@ -54,7 +54,7 @@ function fixture() {
   const scope = {assert,document,NodeFilter:{SHOW_TEXT:4},innerWidth:390,innerHeight:780,
     CSS:{supports:(property)=>property==='backdrop-filter'},performance:{now:()=>0},matchMedia:query=>({matches:query.includes('prefers-reduced-motion')}),
     getComputedStyle:(el,pseudo)=>pseudo==='::backdrop'?{
-      backgroundColor:'rgba(0, 0, 0, 0.5)',filter:'none',backdropFilter:'none',
+      opacity:'1',backgroundColor:'rgba(0, 0, 0, 0.5)',filter:'none',backdropFilter:'none',
       getPropertyValue:property=>property==='backdrop-filter'?'none':'',position:'fixed',inset:'0px',
     }:el.style};
   vm.createContext(scope);vm.runInContext(extracted,scope,{filename:filename+' (extracted functions)'});
@@ -76,5 +76,9 @@ test('reject unanalyzed image backing beneath decision copy',()=>{const f=fixtur
 test('retain rejection of hidden action',()=>{const f=fixture();f.cancel.style.visibility='hidden';assert.throws(()=>accepted(f));});
 test('retain positive modal and content geometry requirement',()=>{const f=fixture();f.heading.getBoundingClientRect=()=>{const r=rectangle(900,225,280,25);return {...r,toJSON:()=>r};};assert.throws(()=>accepted(f));});
 test('retain native modality requirement',()=>{const f=fixture();f.dialog.matches=()=>false;assert.throws(()=>accepted(f));});
+test('reject consequence copy below the15px phone floor',()=>{const f=fixture();f.description.style.fontSize='14px';assert.throws(()=>accepted(f));});
+test('reject a translucent outgoing shell despite positive text geometry',()=>{const f=fixture(),s=f.scope.actualInspect();s.inert=true;s.expanded='false';s.dialog.opacity=.5;assert.throws(()=>f.scope.actualAssertPaint(s,{motion:'no-preference',input:'pointer',outgoing:true}));});
+for(const delayed of ['opacity','job'])test('keyboard/reduced instant contract rejects backdrop '+delayed,()=>{const f=fixture(),s=f.scope.actualInspect();s.cancel.focusVisible=true;s.cancel.outlineWidth='2px';s.cancel.outlineStyle='solid';if(delayed==='opacity')s.backdrop.opacity=0;else s.animations=[{pseudo:'::backdrop',properties:['opacity'],duration:100}];assert.throws(()=>f.scope.actualAssertPaint(s,{motion:'reduce',input:'keyboard'}));});
+test('positive keyboard surface and backdrop final paint has no jobs',()=>{const f=fixture(),s=f.scope.actualInspect();s.cancel.focusVisible=true;s.cancel.outlineWidth='2px';s.cancel.outlineStyle='solid';f.scope.actualAssertPaint(s,{motion:'reduce',input:'keyboard'});});
 test('parser accepts equivalent classic, modern RGB and sRGB serializations',()=>{const f=fixture();const samples=['rgb(255, 0, 128)','rgb(100% 0% 50.19607843137255% / 100%)','color(srgb 1 0 0.5019607843137255 / 1)'];const parsed=samples.map(v=>Array.from(f.scope.actualParse(v)));for(const p of parsed){assert.equal(p[3],1);assert(Math.abs(p[2]-128/255)<1e-12);}assert.equal(f.scope.actualParse('rgba(0, 0, 0, 0)')[3],0);assert.throws(()=>f.scope.actualParse('color(display-p3 1 0 0)'));assert.throws(()=>f.scope.actualParse('rgb(NaN, 0, 0)'));});
 const report={harnessSha256:crypto.createHash('sha256').update(source).digest('hex'),scope:'Actual harness helpers executed against modeled DOM/CSS/Range data; not native/render acceptance',passed:results.filter(x=>x.pass).length,total:results.length,results};if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));if(report.passed!==report.total)process.exitCode=1;

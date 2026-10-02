@@ -474,13 +474,13 @@
    // A decision and its safe initial focus are readable from the first painted frame.
    // The backdrop establishes scope; do not fade or blur the focused content on entry.
    const instant = o.keyboard || keyboardInput || reduced();
-   if (instant) { stop(el, 'o'); stop(el, 't'); }
+   stop(el, 'o'); // The decision shell stays opaque through exit and reversal.
+   if (instant) { stop(el, 't'); stop(el, 'main::backdrop'); }
    else {
-    if (wasClosing) play(el, [{opacity: 1}], {ms: 80, curve: 'F', channel: 'o', fade: true, blur: false});
     if (t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
     play(el, [{transform: 'translateY(4px) scale(.97)'}, {transform: 'none'}], {ms: 220, curve: 'E', channel: 't'});
    }
-   if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
+   if (!instant && el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
   } else if (el.tagName === 'DIALOG' || kind === 'palette') {
    if (kind !== 'palette' && t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
    if (kind === 'palette') {
@@ -546,10 +546,10 @@
   } else if(kind==='palette' && el.hasAttribute('data-st-persistent')){
    const height=q(el,'.st-palette-search')?.offsetHeight||46;done=play(el,[{clipPath:`inset(0px 0px calc(100% - ${height}px) 0px round 12px)`}],{ms:200,curve:'O',channel:'clip',fill:'forwards'});const results=q(el,'[role=listbox]');if(results)play(results,[{opacity:0}],{ms:65,channel:'o',fill:'forwards',fade:true});
   } else if (kind === 'modal') {
-   // Pointer exit keeps the native scope until every owned job finishes. Keyboard
-   // dismissal returns to the task immediately rather than waiting for decoration.
-   if (!keyboardInput) {
-    const jobs = [play(el, [{opacity: 0}], {ms: 120, curve: 'F', channel: 'o', fill: 'forwards', fade: true, blur: false}), play(el, [{transform: 'scale(.97)'}], {ms: 120, curve: 'X', channel: 't', fill: 'forwards'})];
+   // Keep an opaque decision shell until the native scope retires: fading the
+   // shell mixes its copy with the page beneath. Keyboard/reduced paths are instant.
+   if (!o.keyboard && !keyboardInput && !reduced()) {
+    const jobs = [play(el, [{transform: 'scale(.97)'}], {ms: 120, curve: 'X', channel: 't', fill: 'forwards'})];
     if (el.tagName === 'DIALOG') jobs.push(play(el, [{opacity: 0}], {ms: 140, curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true}));
     done = Promise.all(jobs);
    }
@@ -580,7 +580,7 @@
    if (kind === 'modal' && (s.version !== v || s.open)) return;
    el.dispatchEvent(new CustomEvent('st:close', {bubbles: true}));
   };
-  if (kind === 'modal' && keyboardInput) { finish(); return; }
+  if (kind === 'modal' && (o.keyboard || keyboardInput || reduced())) { finish(); return; }
   (done || Promise.resolve(true)).then(finish);
   if (reduced() && !done) finish();
  }

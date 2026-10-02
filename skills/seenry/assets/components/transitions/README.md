@@ -46,7 +46,7 @@ Why the values changed from the timed spec, measured on the springs: the study p
 | --- | --- | --- |
 | Menu | `[data-st-target]` → `[data-st="menu"][popover]` | scale .96→1 and y ∓4 from the trigger point, snappy; opacity 120 F; rows attached; exit 110ms X to .97 |
 | Button to menu | `[data-st="plus-menu"]` or `data-st-morph` | clip-path from the button's rect with its radius, snappy; a painted copy of the button fades over it; items +50ms; closes back into the rect |
-| Dialog | `dialog[data-st="modal"]` | native viewport modal, compact surface; pointer y4/scale .97→1 over 220 E; content and safe focus readable immediately; backdrop 100 F; pointer exit finishes its 120ms surface + 140ms backdrop jobs; keyboard opening/dismissal are immediate; reduced entry has no travel |
+| Dialog | `dialog[data-st="modal"]` | native viewport modal, compact surface; pointer y4/scale .97→1 over 220 E; opaque decision shell and safe focus readable immediately; pointer backdrop 100 F; opaque pointer exit finishes its 120ms transform + 140ms backdrop jobs; keyboard and reduced opening/dismissal put both layers in their final state immediately, without travel or blur under reduction |
 | Command palette | `dialog[data-st="palette"]` with `[data-st-palette-input]` and `[role=listbox]` | y −8, scale .98 from the top edge; results reflow by FLIP; one highlight travels (snappy); arrows, Enter, Escape |
 | Bottom sheet | `[data-st="sheet"]` (dialog or in-container), `data-st-recede` | y 100%→0 smooth; the page behind scales to .94 and rounds; drag follows the finger 1:1 and dismisses past 30% or on a flick over 0.5px/ms |
 | Drawer | `[data-st="drawer"]`, `data-st-side="left"` | x 100%→0 smooth, content fixed to it; scrim; exit 220 X |
