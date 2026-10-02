@@ -3,8 +3,9 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const SOURCE=process.argv[2] || require('path').resolve(__dirname, '../skills/seenry/assets/components/transitions/seenry-transitions.js');
 let completed=false;process.on('beforeExit',()=>{if(!completed){console.error('Transition regression harness did not complete');process.exitCode=1}});
 let reduce=false, active=null, timers=[], animations=[], copied=false;
+function cssStyle(){const values={},priorities={};Object.defineProperties(values,{getPropertyValue:{value:key=>values[key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]??''},getPropertyPriority:{value:key=>priorities[key]||''},setProperty:{value:(key,value,priority='')=>{values[key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=value;priorities[key]=priority;}}});return values;}
 class E {
- constructor(tag='div'){this.tagName=tag.toUpperCase();this.dataset={};this.style={};this.attrs={};this.handlers={};this.children=[];this.classList={add(){},remove(){},contains(){return false}};this.queries={};this.textContent='';this.isConnected=true;this.clientLeft=this.clientTop=this.scrollLeft=this.scrollTop=0;this.offsetHeight=200;}
+ constructor(tag='div'){this.tagName=tag.toUpperCase();this.dataset={};this.style=cssStyle();this.attrs={};this.handlers={};this.children=[];this.classList={add(){},remove(){},contains(){return false}};this.queries={};this.textContent='';this.isConnected=true;this.clientLeft=this.clientTop=this.scrollLeft=this.scrollTop=0;this.offsetHeight=200;}
  setAttribute(k,v){this.attrs[k]=v;}getAttribute(k){return this.attrs[k]??null;}hasAttribute(k){return k in this.attrs;}removeAttribute(k){delete this.attrs[k];}
  addEventListener(t,f){(this.handlers[t]??=[]).push(f);}dispatchEvent(e){if(!e.target)e.target=this;for(const f of this.handlers[e.type]??[])f(e);if(e.bubbles&&this.parentElement)this.parentElement.dispatchEvent(e);}
  querySelector(s){return this.queries[s]??(s==='.st-shine'?this.children.find(n=>n.className==='st-shine'):null)??null;}querySelectorAll(){return [];}matches(s){return s==='[data-st]'&&!!this.dataset.st;}closest(){return null;}

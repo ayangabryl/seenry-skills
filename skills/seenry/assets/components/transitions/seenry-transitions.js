@@ -1176,12 +1176,43 @@
  function retireExpandReveals(pairs) {
   for (const [a, d] of pairs) { stop(a, 'expand-reveal'); stop(d, 'expand-reveal'); }
  }
+ const expandPaintProperties = ['background-color','background-image','background-position-x','background-position-y','background-size','box-shadow','border-top-color','border-right-color','border-bottom-color','border-left-color'];
+ const expandStyle = (el, keys) => Object.fromEntries(keys.map(key => [key, {value: el.style.getPropertyValue(key), priority: el.style.getPropertyPriority(key)}]));
+ const restoreExpandStyle = (el, saved) => { for (const [key, entry] of Object.entries(saved)) el.style.setProperty(key, entry.value, entry.priority); };
+ function transferExpandPaint(surface, update) {
+  const saved = expandStyle(surface, ['transition-property','transition-duration','transition-delay']);
+  const cs = getComputedStyle(surface), properties = (cs.transitionProperty || 'all').split(',').map(x => x.trim());
+  const durations = (cs.transitionDuration || '0s').split(','), delays = (cs.transitionDelay || '0s').split(',');
+  // Later matching entries win, including when the authored list uses "all".
+  // Only transferred paint properties get zero time; unrelated color/geometry clocks survive.
+  surface.style.setProperty('transition-property', [...properties, ...expandPaintProperties].join(', '), 'important');
+  surface.style.setProperty('transition-duration', [...properties.map((_, i) => durations[i % durations.length]), ...expandPaintProperties.map(() => '0s')].join(', '), 'important');
+  surface.style.setProperty('transition-delay', [...properties.map((_, i) => delays[i % delays.length]), ...expandPaintProperties.map(() => '0s')].join(', '), 'important');
+  try {
+   for (const animation of surface.getAnimations?.() || []) if (animation.effect?.target === surface && !animation.effect.pseudoElement && expandPaintProperties.includes(animation.transitionProperty)) animation.cancel();
+   const result = update();
+   // Commit the transferred endpoint before restoring transition declarations. Otherwise
+   // an immediate reopen can sample a half-restored background as its permanent backing.
+   getComputedStyle(surface).backgroundColor;
+   return result;
+  } finally { restoreExpandStyle(surface, saved); }
+ }
  function expandPaint(surface, state) {
   if (state.paint?.isConnected) return state.paint;
-  const cs = getComputedStyle(surface), paint = doc.createElement('span'); paint.setAttribute('aria-hidden', 'true'); paint.className = 'st-expand-paint';
-  Object.assign(paint.style, {position: 'absolute', inset: '0', background: cs.background, boxShadow: cs.boxShadow, border: cs.border, borderRadius: cs.borderRadius, pointerEvents: 'none', zIndex: '-1'});
-  state.paintSaved = {background: surface.style.background, boxShadow: surface.style.boxShadow, borderColor: surface.style.borderColor, overflow: surface.style.overflow, isolation: surface.style.isolation};
-  Object.assign(surface.style, {background: 'transparent', boxShadow: 'none', borderColor: 'transparent', overflow: 'visible', isolation: 'isolate'}); surface.prepend(paint); state.paint = paint; return paint;
+  return transferExpandPaint(surface, () => {
+   const cs = getComputedStyle(surface), paint = doc.createElement('span'); paint.setAttribute('aria-hidden', 'true'); paint.className = 'st-expand-paint';
+   Object.assign(paint.style, {position: 'absolute', inset: '0', background: cs.background, boxShadow: cs.boxShadow, border: cs.border, borderRadius: cs.borderRadius, pointerEvents: 'none', zIndex: '-1'});
+   state.paintSaved = expandStyle(surface, ['background','background-color','background-image','background-position-x','background-position-y','background-size','background-repeat','background-attachment','background-origin','background-clip','box-shadow','border-color','border-top-color','border-right-color','border-bottom-color','border-left-color','overflow','overflow-x','overflow-y','isolation']);
+   for (const [key, value] of Object.entries({background: 'transparent', 'box-shadow': 'none', 'border-color': 'transparent', overflow: 'visible', isolation: 'isolate'})) surface.style.setProperty(key, value, state.paintSaved[key].priority);
+   surface.prepend(paint); state.paint = paint; return paint;
+  });
+ }
+ function restoreExpandPaint(surface, state) {
+  if (!state.paint) return;
+  transferExpandPaint(surface, () => {
+   stopAll(state.paint); state.paint.remove(); state.paint = null;
+   restoreExpandStyle(surface, state.paintSaved);
+  });
  }
  // A dismissal must be usable from its first accepted frame. Card entry forces this
  // handoff for pointer input too; later native focus can reuse it without touching siblings.
@@ -1241,9 +1272,12 @@
    const authored = getComputedStyle(anchor).anchorName;
    anchor.style.setProperty('anchor-name', authored && authored !== 'none' ? `${authored}, ${s.closePin.name}` : s.closePin.name, s.closePin.anchorName.priority);
   }
-  for (const [key, value] of Object.entries({position: 'absolute', translate: 'none', 'position-anchor': s.closePin.name, 'position-visibility': 'always', top: 'anchor(top)', left: 'anchor(left)', right: 'auto', bottom: 'auto'})) control.style.setProperty(key, value, s.closePin.style[key].priority);
+  for (const [key, value] of Object.entries({position: 'fixed', translate: 'none', 'position-anchor': s.closePin.name, 'position-visibility': 'always', top: 'anchor(top)', left: 'anchor(left)', right: 'auto', bottom: 'auto'})) control.style.setProperty(key, value, s.closePin.style[key].priority);
   const placed = control.getBoundingClientRect();
-  if (getComputedStyle(control).positionVisibility !== 'always' || Math.abs(placed.left - target.left) > .5 || Math.abs(placed.top - target.top) > .5 || Math.abs(placed.width - target.width) > .5 || Math.abs(placed.height - target.height) > .5) { restoreExpandClosePin(s); return false; }
+  const footprint = {width: control.offsetWidth, height: control.offsetHeight};
+  // Press feedback can scale the real control around its center. Validate the layout
+  // footprint and anchor center, while keeping the rendered button inside that footprint.
+  if (getComputedStyle(control).positionVisibility !== 'always' || Math.abs((placed.left + placed.right) - (target.left + target.right)) > 1 || Math.abs((placed.top + placed.bottom) - (target.top + target.bottom)) > 1 || Math.abs(footprint.width - target.width) > .5 || Math.abs(footprint.height - target.height) > .5 || placed.left < target.left - .5 || placed.top < target.top - .5 || placed.right > target.right + .5 || placed.bottom > target.bottom + .5 || !placed.width || !placed.height) { restoreExpandClosePin(s); return false; }
   control.dataset.stClosePinned = 'css'; return true;
  }
  // Details hang from the shared artwork: below it they follow its bottom edge, beside it its top edge.
@@ -1274,7 +1308,7 @@
  }
  function expand(source, detail, o = {}) {
   if (!source || !detail) return;
-  const instant = o.keyboard ?? keyboardInput;
+  let instant = o.keyboard ?? keyboardInput;
   if (instant) detail.dataset.stInstant = ''; else delete detail.dataset.stInstant;
   const s = layerState(detail), wasClosing = s.closing; s.source = source; s.open = true; s.closing = false; const v = ++s.version;
   if (!wasClosing) s.moved = false;
@@ -1296,6 +1330,8 @@
   if (closeControl) { watchExpandCloseFocus(closeControl, s, surface); if (!nativeFocus) closeControl.focus?.({preventScroll: true}); if (s.version !== v || !s.open) return; revealFocusedExpandClose(closeControl, true); }
   // Measured before the shared parts move: afterwards the artwork already sits on the card it came from.
   const closePinned = pinExpandClose(closeControl, surface, source, s);
+  s.closePinFallback = !!q(source, '[data-st-close-anchor]') && !closePinned;
+  if (s.closePinFallback) { instant = true; detail.dataset.stInstant = ''; }
   const hangs = new Map(content.map(c => [c, hang(c, pairs)]));
   // The rest of the page dims quickly, so it never competes with the opening card.
   if (scrim) { scrim.dataset.stOpen = 'true'; if (instant) stop(scrim); else play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', fade: true, current: wasClosing}); }
@@ -1333,7 +1369,7 @@
   if (closeControl) revealFocusedExpandClose(closeControl, true);
  }
  function collapse(detail, o = {}) {
-  const instant = o.keyboard ?? keyboardInput;
+  let instant = o.keyboard ?? keyboardInput;
   if (instant) detail.dataset.stInstant = '';
   const s = layerState(detail); if (!s.open || !s.source) return;
   s.open = false; s.closing = true; const v = ++s.version, source = s.source;
@@ -1348,7 +1384,7 @@
   const finish = () => {
    if (s.version !== v || s.open) return; s.closing = false; s.moved = false;
    if (s.travelers) { for (const [d, g] of s.travelers) { stopAll(g); g.remove(); d.style.visibility = ''; } s.travelers.clear(); }
-   if (s.paint) { stopAll(s.paint); s.paint.remove(); s.paint = null; Object.assign(surface.style, s.paintSaved); }
+   restoreExpandPaint(surface, s);
    restoreExpandClosePin(s);
    releaseExpandSources(s);
    source.style.visibility = ''; detail.dataset.stOpen = 'false'; delete detail.dataset.stClosing; active.delete(detail);
@@ -1359,9 +1395,12 @@
    if (titleFades.size && !instant) { for (const [a, d] of sharedPairs(source, detail)) if (titleFades.has(d)) fadeIn(a, {ms: 80, blur: false, channel: 'expand-reveal'}); }
    refocus?.();
   };
+  const closeControl = q(surface, '[data-st-close]');
+  const closePinned = !instant && pinExpandClose(closeControl, surface, source, s);
+  if (s.closePinFallback || (q(source, '[data-st-close-anchor]') && !closePinned)) { instant = true; detail.dataset.stInstant = ''; }
   if (instant) { if (scrim) scrim.dataset.stOpen = 'false'; retireExpandReveals(sharedPairs(source, detail)); finish(); return; }
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 0}], {ms: 'control', curve: 'F', fade: true, fill: 'forwards'}); }
-  const closeControl = q(surface, '[data-st-close]'), closePinned = pinExpandClose(closeControl, surface, source, s); if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
+  if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
   // Details shrink back with the shell rather than leaving it empty, and are gone before it lands.
   const backPairs = sharedPairs(source, detail), ap = parseInset(getComputedStyle(s.paint || surface).clipPath) || [0, 0, 0, 0];
   const shellNow = {top: dr.top + ap[0], right: dr.right - ap[1], bottom: dr.bottom - ap[2], left: dr.left + ap[3]}, shellR = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;

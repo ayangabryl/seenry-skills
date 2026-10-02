@@ -23,6 +23,31 @@ function heldPressObserved(p) {
  // Translation may retain a subpixel settling residue; paint containment remains a separate strict gate.
  return v.every((n,i)=>Math.abs(n-expected[i])<(i<4?.001:.02));
 }
+function readHeldPress(e){
+ const feedback=e.querySelector('[data-st-close-anchor]')?(e.querySelector('.cover')||e):e;
+ return {rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,anchored:feedback!==e,artworkTransform:getComputedStyle(feedback).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches};
+}
+async function waitForNativeHeldPress(el,{readSource,matchSource}){
+ const read=eval('('+readSource+')'),matches=eval('('+matchSource+')'),startedAt=performance.now(),before=read(el),feedback=el.querySelector('[data-st-close-anchor]')?(el.querySelector('.cover')||el):el;
+ const inventory=a=>{const timing=a.effect.getComputedTiming();return {type:a.constructor.name,target:a.effect.target===feedback?'held-feedback':'other',property:a.transitionProperty,playState:a.playState,pending:a.pending,currentTime:a.currentTime,duration:timing.duration,endTime:timing.endTime};};
+ const jobs=feedback.getAnimations().filter(a=>{const t=a.effect.getComputedTiming();return a.effect.target===feedback&&!a.effect.pseudoElement&&a.transitionProperty==='transform'&&a.playState==='running'&&Number.isFinite(t.duration)&&t.duration>0&&Number.isFinite(t.endTime)&&t.endTime>0;});
+ const result={mode:'actual-native-held-transform-completion',before,jobsBefore:jobs.map(inventory),startedAt};
+ if(matches(before))result.outcome='already-held';
+ else if(!before.active)result.outcome='blocked-not-active';
+ else if(!jobs.length)result.outcome='blocked-no-owned-transform';
+ else{
+  let timeout;
+  try{result.outcome=await Promise.race([Promise.all(jobs.map(a=>a.finished)).then(()=>new Promise(r=>requestAnimationFrame(()=>r('native-completed')))),new Promise(r=>{timeout=setTimeout(()=>r('blocked-native-deadline'),1000);})]);}
+  catch(error){result.outcome='blocked-native-cancelled';result.error=String(error);}
+  finally{clearTimeout(timeout);}
+ }
+ result.after=read(el);result.jobsAfter=jobs.map(inventory);result.finishedAt=performance.now();result.elapsedMs=result.finishedAt-startedAt;return result;
+}
+function assertNativeHeldPress(result){
+ assert(result&&['already-held','native-completed'].includes(result.outcome),'Coverage precondition: actual held transform must complete within its native bound');
+ assert(heldPressObserved(result.after),'Coverage precondition: active stationary lane and authored .98 artwork scale remain required');
+ if(result.outcome==='native-completed'){assert(result.jobsBefore.length>0&&result.jobsBefore.every(a=>a.target==='held-feedback'&&a.property==='transform'&&a.playState==='running'&&Number.isFinite(a.duration)&&a.duration>0),'Actual finite owned transform evidence required');assert(result.jobsAfter.length===result.jobsBefore.length&&result.jobsAfter.every(a=>['finished','idle'].includes(a.playState)&&a.pending===false),'Selected native feedback must no longer be running or pending after completion');}
+}
 const browser=await chromium.launch({headless:true,...(process.env.SEENRY_CHROME_PATH?{executablePath:process.env.SEENRY_CHROME_PATH}:{})});
 const sha=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
 const report={browser:browser.version(),source:{html:sha(gallery),runtime:sha(join(dirname(gallery),'seenry-transitions.js'))},scope:'Fresh component-boundary RAF captures at explicit CSS content widths, all three album titles, four-property spacing. Touch input is browser emulation, not physical-device coverage. Dirty immediate input observation is retained separately.',inputMode,pressHoldMs,runs:[]};
@@ -64,12 +89,11 @@ try{
    assert(Math.abs(run.layout.contentWidth-contentWidth)<.05,'Explicit fixture must realize requested fractional content width');
    assert.equal(run.layout.sourceComposition,run.layout.detailComposition,'Source and detail must select the same composition, including fractional breakpoint widths');
    const target=page.locator('[data-key="expand"] .cover-card').nth(index);
-   const pressed=()=>target.evaluate(e=>({rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,anchored:!!e.querySelector('[data-st-close-anchor]'),artworkTransform:getComputedStyle(e.querySelector('.cover')||e).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches}));
+   const pressed=()=>target.evaluate(readHeldPress);
    const observeHeld=async()=>{
     run.pressedInitial=await pressed();run.pressed=run.pressedInitial;run.pressExtraWaitMs=0;
     if(pressHoldMs>=100&&!heldPressObserved(run.pressedInitial)){
-     const started=Date.now();try{await page.waitForFunction(heldPressObserved,await target.elementHandle(),{timeout:100});}
-     finally{run.pressExtraWaitMs=Date.now()-started;run.pressed=await pressed();}
+     run.nativeHeldWait=await target.evaluate(waitForNativeHeldPress,{readSource:readHeldPress.toString(),matchSource:heldPressObserved.toString()});run.pressExtraWaitMs=run.nativeHeldWait.elapsedMs;run.pressed=run.nativeHeldWait.after;assertNativeHeldPress(run.nativeHeldWait);
     }
    };
    if(inputMode==='touch'){

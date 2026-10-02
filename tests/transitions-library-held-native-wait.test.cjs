@@ -1,0 +1,28 @@
+// Executes the actual held-state collector and keeps the first native timeout as causal evidence.
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const candidate=process.argv[2]?.endsWith('.browser.mjs')?process.argv[2]:path.join(__dirname,'transitions-library-title-boundary.browser.mjs'),source=fs.readFileSync(candidate,'utf8');
+const start=source.indexOf('function heldPressObserved('),end=source.indexOf('const browser=await chromium.launch',start),code=source.slice(start,end);assert(start>=0&&end>start);
+const actual=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/title-held-native-2cff.json'),'utf8')).case;
+const scope={assert,performance:{now:()=>0},clearTimeout:()=>{},setTimeout:()=>1,requestAnimationFrame:fn=>fn()};vm.createContext(scope);vm.runInContext(code+';this.helpers={heldPressObserved,waitForNativeHeldPress,assertNativeHeldPress};',scope);
+const {heldPressObserved,waitForNativeHeldPress,assertNativeHeldPress}=scope.helpers;
+let passed=0;const test=async(name,fn)=>{await fn();passed++;console.log('PASS '+name);};
+const make=(mode='complete')=>{
+ const feedback={},el={currentState:JSON.parse(JSON.stringify(actual.pressedInitial)),querySelector:s=>s==='[data-st-close-anchor]'?{}:feedback};
+ const job={constructor:{name:'CSSTransition'},transitionProperty:'transform',playState:'running',pending:false,currentTime:20,effect:{target:feedback,pseudoElement:null,getComputedTiming:()=>({duration:60,endTime:60})}};
+ job.finished=mode==='cancel'?Promise.reject(new Error('native cancelled')):mode==='timeout'?new Promise(()=>{}):Promise.resolve().then(()=>{el.currentState=JSON.parse(JSON.stringify(actual.pressed));job.playState='finished';job.currentTime=60;});
+ feedback.getAnimations=()=>[job];return {el,feedback,job};
+};
+const sources={readSource:'e=>e.currentState',matchSource:heldPressObserved.toString()};
+(async()=>{
+ await test('frozen native Mac evidence preserves incomplete then completed real held state',()=>{assert(!heldPressObserved(actual.pressedInitial));assert(heldPressObserved(actual.pressed));assert.match(actual.error,/Timeout 100ms/);assert(actual.pressTiming.down.trusted&&actual.pressTiming.up.trusted);assert(actual.pressTiming.observedHoldMs>100);});
+ await test('actual native completion replaces the wall-clock phase assumption',async()=>{const {el}=make();const result=await waitForNativeHeldPress(el,sources);assert.equal(result.outcome,'native-completed');assertNativeHeldPress(result);assert.equal(result.jobsBefore[0].currentTime,20);assert.equal(result.jobsAfter[0].currentTime,60);});
+ for(const [name,mutate]of [['still running',r=>r.jobsAfter[0].playState='running'],['pending finish',r=>r.jobsAfter[0].pending=true],['missing selected job',r=>r.jobsAfter=[]]])await test('native completion evidence rejects '+name,async()=>{const {el}=make();const result=await waitForNativeHeldPress(el,sources);mutate(result);assert.throws(()=>assertNativeHeldPress(result));});
+ await test('settled held state requires no additional native wait',async()=>{const {el}=make();el.currentState=JSON.parse(JSON.stringify(actual.pressed));const result=await waitForNativeHeldPress(el,sources);assert.equal(result.outcome,'already-held');assertNativeHeldPress(result);});
+ await test('no owned native transform cannot manufacture held coverage',async()=>{const {el,feedback}=make('timeout');feedback.getAnimations=()=>[];const result=await waitForNativeHeldPress(el,sources);assert.equal(result.outcome,'blocked-no-owned-transform');assert.throws(()=>assertNativeHeldPress(result));});
+ for(const [name,mutate]of [['wrong target',x=>x.job.effect.target={}],['pseudo element',x=>x.job.effect.pseudoElement='::before'],['wrong property',x=>x.job.transitionProperty='opacity'],['paused timeline',x=>x.job.playState='paused'],['unbounded timeline',x=>x.job.effect.getComputedTiming=()=>({duration:Infinity,endTime:Infinity})]])await test('reject '+name,async()=>{const f=make('timeout');mutate(f);const result=await waitForNativeHeldPress(f.el,sources);assert.equal(result.outcome,'blocked-no-owned-transform');assert.throws(()=>assertNativeHeldPress(result));});
+ await test('lost active state is blocked before waiting',async()=>{const {el}=make('timeout');el.currentState.active=false;const result=await waitForNativeHeldPress(el,sources);assert.equal(result.outcome,'blocked-not-active');assert.throws(()=>assertNativeHeldPress(result));});
+ await test('cancelled native animation is retained as blocked',async()=>{const {el}=make('cancel');const result=await waitForNativeHeldPress(el,sources);assert.equal(result.outcome,'blocked-native-cancelled');assert.throws(()=>assertNativeHeldPress(result));});
+ await test('bounded native deadline cannot become a pass',async()=>{scope.setTimeout=(fn,ms)=>{assert.equal(ms,1000);queueMicrotask(fn);return 1;};const {el}=make('timeout');const result=await waitForNativeHeldPress(el,sources);assert.equal(result.outcome,'blocked-native-deadline');assert.throws(()=>assertNativeHeldPress(result));scope.setTimeout=()=>1;});
+ await test('completion without authored scale is rejected',async()=>{const f=make('timeout');f.job.finished=Promise.resolve();const result=await waitForNativeHeldPress(f.el,sources);assert.equal(result.outcome,'native-completed');assert.throws(()=>assertNativeHeldPress(result));});
+ assert(source.includes('assertNativeHeldPress(run.nativeHeldWait);'));assert(!source.includes('page.waitForFunction(heldPressObserved,await target.elementHandle(),{timeout:100})'));console.log(`${passed}/${passed} actual held-native controls passed; original blocked attempt remains fixture evidence`);
+})().catch(e=>{console.error(e);process.exitCode=1;});
