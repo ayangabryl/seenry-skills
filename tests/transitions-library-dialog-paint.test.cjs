@@ -4,7 +4,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
 const filename=process.argv[2]||path.join(__dirname,'transitions-library-dialog.browser.mjs'),source=fs.readFileSync(filename,'utf8');
 function section(from,to){const start=source.indexOf(from),end=source.indexOf(to,start);assert(start>=0&&end>start,'Actual harness helper boundary missing');return source.slice(start,end);}
-const extracted=section('const parse=v=>','const settle=')+section('function inspect(){','async function earlyOpen(')+'\nthis.actualInspect=inspect;this.actualAssertPaint=assertPaint;this.actualParse=parse;this.actualContrast=contrast;';
+const extracted=section('const parse=v=>','const settle=')+section('function backdropState(style){','async function earlyOpen(')+'\nthis.actualInspect=inspect;this.actualAssertPaint=assertPaint;this.actualParse=parse;this.actualContrast=contrast;';
 const rectangle = (left, top, width, height) => ({left, top, width, height, right:left+width, bottom:top+height, x:left, y:top});
 function fixture() {
   const baseStyle = {
@@ -52,10 +52,10 @@ function fixture() {
       getClientRects:()=>[selected.parentElement.getBoundingClientRect()]};},
   };
   const scope = {assert,document,NodeFilter:{SHOW_TEXT:4},innerWidth:390,innerHeight:780,
-    performance:{now:()=>0},matchMedia:query=>({matches:query.includes('prefers-reduced-motion')}),
+    CSS:{supports:(property)=>property==='backdrop-filter'},performance:{now:()=>0},matchMedia:query=>({matches:query.includes('prefers-reduced-motion')}),
     getComputedStyle:(el,pseudo)=>pseudo==='::backdrop'?{
       backgroundColor:'rgba(0, 0, 0, 0.5)',filter:'none',backdropFilter:'none',
-      webkitBackdropFilter:'none',position:'fixed',inset:'0px',
+      getPropertyValue:property=>property==='backdrop-filter'?'none':'',position:'fixed',inset:'0px',
     }:el.style};
   vm.createContext(scope);vm.runInContext(extracted,scope,{filename:filename+' (extracted functions)'});
   return {scope,dialog,heading,description,cancel,confirm,texts,element};

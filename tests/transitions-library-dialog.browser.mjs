@@ -28,13 +28,26 @@ const contrast=(fg,bg)=>{const a=Array.isArray(fg)?fg:parse(fg),b=Array.isArray(
 const inside=(a,b)=>a.width>0&&a.height>0&&a.left>=b.left-1&&a.right<=b.right+1&&a.top>=b.top-1&&a.bottom<=b.bottom+1;
 const settle=page=>page.evaluate(async()=>{const d=document.querySelector('#dialog-1');await Promise.all(d.getAnimations({subtree:true}).filter(a=>a.effect.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
 const waitClosed=page=>page.waitForFunction(()=>!document.querySelector('#dialog-1').open&&document.querySelector('#dialog-1').dataset.stOpen==='false');
+function backdropState(style){
+ const standard=style.getPropertyValue('backdrop-filter'),prefixed=style.getPropertyValue('-webkit-backdrop-filter');
+ return {background:style.backgroundColor,filter:style.filter,backdropFilter:standard,webkitBackdropFilter:prefixed,standardSupported:CSS.supports('backdrop-filter','none'),webkitSupported:CSS.supports('-webkit-backdrop-filter','none'),webkitGetterSupported:'webkitBackdropFilter' in style,position:style.position,inset:style.inset};
+}
+function assertBackdrop(s,motion){
+ assert.equal(typeof s.backdropFilter,'string');assert.equal(typeof s.webkitBackdropFilter,'string');
+ assert.equal(typeof s.standardSupported,'boolean');assert.equal(typeof s.webkitSupported,'boolean');
+ assert(s.standardSupported||s.webkitSupported,'A supported native backdrop filter property must be measured');
+ if(motion==='reduce'){
+  for(const [value,supported] of [[s.backdropFilter,s.standardSupported],[s.webkitBackdropFilter,s.webkitSupported]])assert(supported?value==='none':['','none'].includes(value),'Reduced backdrop must not retain a supported or measured blur');
+  assert.equal(s.filter,'none');
+ }else assert((s.standardSupported&&s.backdropFilter.includes('6px'))||(s.webkitSupported&&s.webkitBackdropFilter.includes('6px')),'Normal backdrop has measured 6px blur');
+}
 function inspect(){
  const d=document.querySelector('#dialog-1'),trigger=document.querySelector('#dialog-trigger'),cancel=d.querySelector('[autofocus]'),confirm=d.querySelector('.dialog-destructive'),heading=d.querySelector('#dlg-title'),description=d.querySelector('#dlg-description'),stage=d.closest('.stage'),bg=stage.querySelector('.app');
  const rect=e=>e.getBoundingClientRect().toJSON();
  const paint=e=>{const s=getComputedStyle(e),chain=[];for(let n=e;n;n=n.parentElement){const c=getComputedStyle(n);chain.push({tag:n.tagName,id:n.id,opacity:Number(c.opacity),filter:c.filter,visibility:c.visibility,display:c.display,blend:c.mixBlendMode,background:c.backgroundColor,backgroundImage:c.backgroundImage});}return {text:e.textContent,rect:rect(e),layoutWidth:e.offsetWidth,layoutHeight:e.offsetHeight,color:s.color,background:s.backgroundColor,fontSize:s.fontSize,opacity:Number(s.opacity),filter:s.filter,transform:s.transform,outlineWidth:s.outlineWidth,outlineStyle:s.outlineStyle,outlineColor:s.outlineColor,focusVisible:e.matches(':focus-visible'),chain};};
  const texts=[],walk=document.createTreeWalker(d,NodeFilter.SHOW_TEXT);let n;while((n=walk.nextNode()))if(n.textContent.trim()){const r=document.createRange();r.selectNode(n);for(const b of r.getClientRects())if(b.width&&b.height)texts.push({text:n.textContent.trim(),rect:b.toJSON(),paint:paint(n.parentElement)});}
  const backdrop=getComputedStyle(d,'::backdrop');
- return {at:performance.now(),modal:d.matches(':modal'),open:d.open,inert:d.inert,presentation:d.dataset.stOpen,expanded:trigger.getAttribute('aria-expanded'),focus:document.activeElement===cancel?'Cancel':document.activeElement===confirm?'Delete':document.activeElement.id||document.activeElement.tagName,viewport:{left:0,top:0,right:innerWidth,bottom:innerHeight,width:innerWidth,height:innerHeight},dialog:paint(d),cancel:paint(cancel),confirm:paint(confirm),heading:paint(heading),description:paint(description),texts,backdrop:{background:backdrop.backgroundColor,filter:backdrop.filter,backdropFilter:backdrop.backdropFilter,webkitBackdropFilter:backdrop.webkitBackdropFilter,position:backdrop.position,inset:backdrop.inset},background:{filter:getComputedStyle(bg).filter,opacity:Number(getComputedStyle(bg).opacity)},reduce:matchMedia('(prefers-reduced-motion: reduce)').matches,coarse:matchMedia('(pointer: coarse)').matches,blur:document.documentElement.hasAttribute('data-st-blur'),animations:d.getAnimations({subtree:true}).map(a=>({playState:a.playState,pseudo:a.effect.pseudoElement||null,target:a.effect.target.id||a.effect.target.className,properties:[...new Set(a.effect.getKeyframes().flatMap(k=>Object.keys(k).filter(p=>!['offset','computedOffset','easing','composite'].includes(p))))],duration:a.effect.getComputedTiming().duration}))};
+ return {at:performance.now(),modal:d.matches(':modal'),open:d.open,inert:d.inert,presentation:d.dataset.stOpen,expanded:trigger.getAttribute('aria-expanded'),focus:document.activeElement===cancel?'Cancel':document.activeElement===confirm?'Delete':document.activeElement.id||document.activeElement.tagName,viewport:{left:0,top:0,right:innerWidth,bottom:innerHeight,width:innerWidth,height:innerHeight},dialog:paint(d),cancel:paint(cancel),confirm:paint(confirm),heading:paint(heading),description:paint(description),texts,backdrop:backdropState(backdrop),background:{filter:getComputedStyle(bg).filter,opacity:Number(getComputedStyle(bg).opacity)},reduce:matchMedia('(prefers-reduced-motion: reduce)').matches,coarse:matchMedia('(pointer: coarse)').matches,blur:document.documentElement.hasAttribute('data-st-blur'),animations:d.getAnimations({subtree:true}).map(a=>({playState:a.playState,pseudo:a.effect.pseudoElement||null,target:a.effect.target.id||a.effect.target.className,properties:[...new Set(a.effect.getKeyframes().flatMap(k=>Object.keys(k).filter(p=>!['offset','computedOffset','easing','composite'].includes(p))))],duration:a.effect.getComputedTiming().duration}))};
 }
 function assertPaint(s,{motion,input,settled=false}){
  assert(s.modal&&s.open&&!s.inert,'Must be active native top-layer modal');assert.equal(s.expanded,'true');assert(inside(s.dialog.rect,s.viewport),'Positive compact dialog must fit the viewport');assert(s.dialog.rect.width<=361,'Dialog remains compact');assert(inside(s.cancel.rect,s.dialog.rect)&&inside(s.confirm.rect,s.dialog.rect),'Positive actions inside dialog');
@@ -48,8 +61,8 @@ function assertPaint(s,{motion,input,settled=false}){
  assert(s.texts.length>=4);const text=s.texts.map(x=>x.text).join(' ');for(const word of ['Delete Aurora website?','24 pages','318 assets','30 days','Cancel','Delete project'])assert(text.includes(word),'Missing positive content: '+word);for(const t of s.texts){assert(inside(t.rect,s.dialog.rect),'Content outside modal: '+t.text);clearPaint(t.paint);assert(contrast(t.paint.color,backingFor(t.paint))>=4.5,'Actual text-run foreground contrast');}
  assert(contrast(s.confirm.color,s.confirm.background)>=4.5,'Destructive action text contrast');assert(contrast(s.cancel.color,s.cancel.background)>=4.5,'Cancel text contrast');assert.equal(s.coarse,false,'This matrix uses a fine pointer, not device/touch emulation');for(const action of [s.cancel,s.confirm]){assert(action.layoutHeight>=44&&action.layoutWidth>=44,'Authored action footprint is at least44px');assert(action.rect.height>=24&&action.rect.width>=24,'Moving fine-pointer target remains at least24px');if(input==='keyboard'||motion==='reduce'||settled)assert(action.rect.height>=43.99&&action.rect.width>=43.99,'Untransformed action retains44px rendered bounds');}
  assert.equal(s.reduce,motion==='reduce');assert.equal(s.background.filter,'none');assert.equal(s.background.opacity,1,'Native backdrop replaces the old stage-only dim');
- if(motion==='reduce'){assert(['none',''].includes(s.backdrop.backdropFilter));assert(['none',''].includes(s.backdrop.webkitBackdropFilter));assert.equal(s.backdrop.filter,'none');assert.equal(s.dialog.transform,'none');assert(!s.animations.some(a=>a.properties.some(p=>['transform','translate','scale','filter','backdropFilter'].includes(p))));}
- else assert(s.backdrop.backdropFilter.includes('6px')||s.backdrop.webkitBackdropFilter.includes('6px'));
+ assertBackdrop(s.backdrop,motion);
+ if(motion==='reduce'){assert.equal(s.dialog.transform,'none');assert(!s.animations.some(a=>a.properties.some(p=>['transform','translate','scale','filter','backdropFilter'].includes(p))));}
  if(input==='pointer')assert(s.cancel.outlineStyle==='none'||parseFloat(s.cancel.outlineWidth)===0,'Pointer autofocus must not paint a keyboard-only ring');
  if(input==='keyboard'){assert.equal(s.focus,'Cancel');assert(s.cancel.focusVisible&&parseFloat(s.cancel.outlineWidth)>=2&&s.cancel.outlineStyle!=='none','Keyboard focus visible on first paint');assert.equal(s.dialog.transform,'none');}
  if(settled)assert.equal(s.animations.length,0,'No owned effects remain after settlement');
@@ -63,25 +76,37 @@ async function earlyOpen(page,input,path){
  await page.waitForFunction(()=>window.__early!==null);const s=await page.evaluate(()=>window.__early);assert(s.input.trusted);assert(input==='keyboard'?s.input.detail===0:s.input.detail>0);
  await page.screenshot({path,animations:'allow'});await page.evaluate(()=>window.__paused.forEach(a=>a.play()));return s;
 }
-async function tabCycle(page){
- const path=[];for(let i=0;i<4;i++){await page.keyboard.press('Tab');const step=await page.evaluate(()=>{const d=document.querySelector('#dialog-1'),a=document.activeElement;return {name:a.textContent.trim().slice(0,30),tag:a.tagName,id:a.id,inside:d.contains(a),documentBoundary:a===document.body};});path.push(step);assert(step.inside||step.documentBoundary,'Tab reached actionable background content');if(i>0&&step.name==='Cancel')break;}
- assert(path.some(x=>x.name==='Delete project'));assert.equal(path.at(-1).name,'Cancel','Native tab sequence must return to Cancel');return path;
+function assertFocusStep(step){
+ assert(step.modal&&step.open&&!step.inert,'Traversal must retain the active native modal');
+ assert(step.inside||step.documentBoundary,'Tab reached actionable background content');
+ assert(['Cancel','Delete',null].includes(step.control),'Unexpected control identity');
+ if(step.control)assert(step.inside,'Target control must belong to this dialog');
 }
+async function traverseFocus(page,key,target,path,onStep=()=>{}){
+ assert(['Tab','Shift+Tab'].includes(key));assert(['Cancel','Delete'].includes(target));
+ for(let i=0;i<4;i++){
+  await page.keyboard.press(key);
+  const step=await page.evaluate(()=>{const d=document.querySelector('#dialog-1'),a=document.activeElement,cancel=d.querySelector('[autofocus]'),confirm=d.querySelector('.dialog-destructive');return {name:a.textContent.trim().slice(0,30),tag:a.tagName,id:a.id,inside:d.contains(a),documentBoundary:a===document.body,control:a===cancel?'Cancel':a===confirm?'Delete':null,modal:d.matches(':modal'),open:d.open,inert:d.inert};});
+  path.push({key,...step});onStep();assertFocusStep(step);if(step.control===target)return path;
+ }
+ assert.fail('Native '+key+' traversal did not reach '+target+' within four steps');
+}
+
 try{
  for(const width of widths)for(const theme of ['light','dark'])for(const motion of ['no-preference','reduce']){
   const label=`${width}-${theme}-${motion}`,run={width,height:780,theme,motion,status:'running',routes:[]};report.runs.push(run);save();
   const context=await browser.newContext({viewport:{width,height:780},colorScheme:theme,reducedMotion:motion,serviceWorkers:'block',acceptDownloads:false}),page=await context.newPage(),errors=[];page.setDefaultTimeout(4000);page.on('pageerror',e=>errors.push(e.message));await page.route(/^https?:/,r=>r.abort());
   try{
-   await page.goto(pathToFileURL(gallery).href);await page.evaluate(()=>document.fonts.ready);await page.evaluate(fn=>{window.__dialogInspect=eval('('+fn+')');},inspect.toString());
+   await page.goto(pathToFileURL(gallery).href);await page.evaluate(()=>document.fonts.ready);await page.evaluate(({inspectSource,backdropSource})=>{window.backdropState=eval('('+backdropSource+')');window.__dialogInspect=eval('('+inspectSource+')');},{inspectSource:inspect.toString(),backdropSource:backdropState.toString()});
    const snippet=await page.evaluate(()=>window.galleryLibrary.snippets.get('dialog'));assert(/<dialog[^>]*id="dialog-1"/.test(snippet)&&!snippet.includes('data-st-contained'),'Copied markup must use the same native modal contract');run.snippetNative=true;
    await page.locator('#library-search').fill('Dialog');if(!await page.locator('#blur-toggle').isChecked())await page.locator('label.blur-switch').click();
    for(const route of ['gallery','detail']){
     run.phase=route;save();if(route==='detail'){await page.locator('[data-detail=dialog]').click();await page.waitForFunction(()=>document.querySelector('#library-detail').matches(':modal'));await page.locator('#library-detail').evaluate(async d=>{await Promise.all(d.getAnimations({subtree:true}).filter(a=>a.effect.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});}
     const r={route,inputs:[]};run.routes.push(r);
     for(const input of ['pointer','keyboard']){
-     run.phase=`${route}/${input}`;save();const png=`${label}-${route}-${input}-first-raf.png`,first=await earlyOpen(page,input,join(out,png));assertPaint(first,{motion,input});assert.equal(first.focus,'Cancel');r.inputs.push({input,png,first});await settle(page);const settled=await page.evaluate(()=>window.__dialogInspect());assertPaint(settled,{motion,input,settled:true});
-     const rejection=await page.evaluate(()=>{document.querySelector('[data-replay=dialog]').focus();return document.querySelector('#dialog-1').contains(document.activeElement);});assert(rejection,'Native modal must reject programmatic background focus');r.inputs.at(-1).backgroundFocusRejected=rejection;r.inputs.at(-1).tabs=await tabCycle(page);
-     await page.keyboard.press('Shift+Tab');assert.equal(await page.locator('#dialog-1 .dialog-destructive').evaluate(e=>e===document.activeElement),true,'Reverse tab reaches Delete');await page.keyboard.press('Tab');
+     run.phase=`${route}/${input}`;save();const png=`${label}-${route}-${input}-first-raf.png`,first=await earlyOpen(page,input,join(out,png));r.inputs.push({input,png,first});save();assertPaint(first,{motion,input});assert.equal(first.focus,'Cancel');await settle(page);const settled=await page.evaluate(()=>window.__dialogInspect());r.inputs.at(-1).settled=settled;save();assertPaint(settled,{motion,input,settled:true});
+     const rejection=await page.evaluate(()=>{document.querySelector('[data-replay=dialog]').focus();return document.querySelector('#dialog-1').contains(document.activeElement);});assert(rejection,'Native modal must reject programmatic background focus');r.inputs.at(-1).backgroundFocusRejected=rejection;const traversal=r.inputs.at(-1).traversal={forwardToDelete:[],forwardToCancel:[],reverseToDelete:[],returnToCancel:[]};save();
+     await traverseFocus(page,'Tab','Delete',traversal.forwardToDelete,save);await traverseFocus(page,'Tab','Cancel',traversal.forwardToCancel,save);await traverseFocus(page,'Shift+Tab','Delete',traversal.reverseToDelete,save);await traverseFocus(page,'Tab','Cancel',traversal.returnToCancel,save);
      await page.evaluate(()=>{window.__keyboardExit=null;document.querySelector('#dialog-1').addEventListener('cancel',()=>{window.__keyboardExit=window.__dialogInspect();},{once:true});});await page.keyboard.press('Escape');const keyboardExit=await page.evaluate(()=>window.__keyboardExit);assert(keyboardExit&&!keyboardExit.open&&!keyboardExit.modal,'Keyboard cancellation must synchronously remove native modality');assert.equal(keyboardExit.focus,'dialog-trigger','Keyboard cancellation returns focus without animation wait');assert.equal(keyboardExit.animations.length,0);r.inputs.at(-1).keyboardExit=keyboardExit;assert.equal(await page.locator('#dialog-trigger').evaluate(e=>e===document.activeElement),true,'Escape restores meaningful invoker');if(route==='detail')assert(await page.locator('#library-detail').evaluate(e=>e.matches(':modal')),'Child Escape must retain parent');
     }
     // Native backdrop cancellation is a real outside pointer event, never fixture CSS.
