@@ -134,3 +134,51 @@ export async function finalizeSupplementReport(report,closeBrowser){
  report.status=failed?'failed':'collected';
  return {status:report.status,exitCode:failed?1:0};
 }
+
+// Setup only: a local control can be still while its gallery card is mid-FLIP.
+// Read semantic filtering first, then await only the invoker/actual ancestor owners.
+export function prepareDialogSupplement({expectedQuery='Dialog',timeoutMs=2500,maxObservations=240}={}){
+ if(typeof expectedQuery!=='string'||!expectedQuery.trim()||!Number.isFinite(timeoutMs)||timeoutMs<=0||!Number.isInteger(maxObservations)||maxObservations<3)throw Error('Invalid Dialog preparation bounds');
+ const result=window.__dialogSupplementPreparation={mode:'semantic-filter-and-native-ancestor-settlement',status:'preparing',expectedQuery,startedAt:performance.now(),timeoutMs,maxObservations,semanticObservedAt:null,observations:[],jobs:[],quietRAFAt:[],final:null};
+ return new Promise((resolve,reject)=>{
+  const invoker=document.querySelector('#dialog-trigger'),search=document.querySelector('#library-search'),noResults=document.querySelector('#no-results'),grid=document.querySelector('#library-grid'),extras=document.querySelector('#extras-grid');
+  const seen=new Map();let done=false,raf=null,timer=null,quietRAFAt=[],quietRect=null,lastRAFAt=null;
+  const identity=n=>({tag:n?.tagName||null,id:n?.id||null,key:n?.dataset?.key||null});
+  const chain=()=>{const owners=[];for(let n=invoker;n;n=n.parentElement)owners.push(n);return owners;};
+  const rect=n=>n.getBoundingClientRect().toJSON();
+  const equalRect=(a,b)=>!!a&&!!b&&['x','y','width','height'].every(k=>Number.isFinite(a[k])&&Number.isFinite(b[k])&&Math.abs(a[k]-b[k])<=.25);
+  const semantic=()=>{
+   if(!invoker?.isConnected||!search||!grid||!extras||!noResults)throw Error('Dialog preparation fixture is incomplete');
+   const selected=document.querySelector('.filter [data-category-choice][aria-selected="true"]'),category=selected?.dataset.categoryChoice,cards=[...grid.children,...extras.children],query=search.value.trim().toLowerCase();
+   if(!category||!cards.length)throw Error('Dialog preparation filter inventory is unavailable');
+   const rows=cards.map(c=>{const heading=c.querySelector('.caption h3'),description=c.querySelector('.caption p');if(!heading||!description||!c.dataset.key)throw Error('Dialog preparation card metadata is incomplete');const wanted=(category==='All'||c.dataset.category.split(' ').includes(category))&&(heading.textContent+' '+description.textContent).toLowerCase().includes(query);return {key:c.dataset.key,wanted,hidden:c.hidden,isInvokerCard:c.contains(invoker)};});
+   const wantedKeys=rows.filter(r=>r.wanted).map(r=>r.key),visibleKeys=rows.filter(r=>!r.hidden).map(r=>r.key),mismatchKeys=rows.filter(r=>r.hidden===r.wanted).map(r=>r.key),invokerCards=rows.filter(r=>r.isInvokerCard),excludedCount=rows.filter(r=>!r.wanted).length;
+   return {query,category,total:rows.length,wantedKeys,visibleKeys,mismatchKeys,excludedCount,noResultsHidden:noResults.hidden,invokerKey:invokerCards[0]?.key||null,committed:query===expectedQuery.trim().toLowerCase()&&category==='All'&&excludedCount>0&&invokerCards.length===1&&invokerCards[0].wanted&&!invokerCards[0].hidden&&mismatchKeys.length===0&&noResults.hidden===(wantedKeys.length>0)};
+  };
+  const inventory=()=>{const owners=chain(),jobs=new Map();for(const [ownerIndex,n]of owners.entries())for(const a of n.getAnimations({subtree:false}))if(!jobs.has(a)){const effect=a.effect,timing=effect?.getComputedTiming();jobs.set(a,{kind:a.constructor?.name||null,ownerIndex,owner:identity(n),relationship:effect?.target===n?(n===invoker?'invoker':'ancestor'):'unknown',pseudo:effect?.pseudoElement||null,properties:[...new Set((effect?.getKeyframes()||[]).flatMap(k=>Object.keys(k).filter(p=>!['offset','computedOffset','easing','composite'].includes(p))))],playState:a.playState,pending:a.pending,currentTime:a.currentTime,duration:timing?.duration,endTime:timing?.endTime});}return jobs;};
+  const jobFinal=a=>{const effect=a.effect,timing=effect?.getComputedTiming();return {playState:a.playState,pending:a.pending,currentTime:a.currentTime,duration:timing?.duration,endTime:timing?.endTime};};
+  const register=jobs=>{for(const [a,evidence]of jobs)if(!seen.has(a)){const row={...evidence,firstObservedAt:performance.now(),outcome:'pending'};seen.set(a,row);a.finished.then(()=>{if(done)return;Object.assign(row,jobFinal(a),{outcome:'finished',completedAt:performance.now()});},error=>{if(done)return;Object.assign(row,jobFinal(a),{outcome:'cancelled',completedAt:performance.now(),error:String(error)});});}};
+  const snapshot=()=>{const snapshotStartAt=performance.now(),state={snapshotStartAt,semantic:semantic(),invokerRect:rect(invoker),invokerTransform:getComputedStyle(invoker).transform,ancestors:chain().slice(1).map(n=>({owner:identity(n),transform:getComputedStyle(n).transform})),jobs:[...inventory().values()]};state.snapshotEndAt=performance.now();return state;};
+  const finish=(status,error)=>{if(done)return;done=true;cancelAnimationFrame(raf);clearTimeout(timer);result.status=status;result.finishedAt=performance.now();result.error=error?String(error):null;result.quietRAFAt=[...quietRAFAt];result.jobs=[...seen.values()];if(status!=='prepared')try{result.lastSnapshot=snapshot();}catch(e){result.lastSnapshotError=String(e);}if(status==='prepared')resolve(result);else reject(new Error(result.error||'Dialog preparation failed'));};
+  const check=(rafAt=null)=>{if(done)return;try{
+   if(performance.now()-result.startedAt>=timeoutMs)throw Error('Dialog preparation deadline exceeded');
+   const sample=snapshot(),jobs=inventory();register(jobs);sample.at=performance.now();sample.boundary=rafAt===null?'synchronous-inventory':'actual-RAF';sample.rafAt=rafAt;
+   if(result.observations.length>=maxObservations)throw Error('Dialog preparation observation budget exceeded');result.observations.push(sample);
+   if(sample.semantic.committed&&result.semanticObservedAt===null)result.semanticObservedAt=sample.at;
+   for(const row of seen.values()){if(row.relationship==='unknown'||!row.properties.length||!Number.isFinite(row.duration)||row.duration<0||!Number.isFinite(row.endTime)||row.endTime<0)throw Error('Dialog preparation native owner/timing is unverified');if(row.outcome==='cancelled')throw Error('Relevant native ancestor/control animation cancelled during preparation');}
+   const clean=sample.semantic.committed&&sample.jobs.length===0&&jobs.size===0&&[...seen.values()].every(j=>j.outcome==='finished'&&!j.pending&&['finished','idle'].includes(j.playState));
+   if(!clean){quietRAFAt=[];quietRect=null;}else if(Number.isFinite(rafAt)&&(lastRAFAt===null||rafAt>lastRAFAt)){quietRAFAt=quietRect&&equalRect(quietRect,sample.invokerRect)?[...quietRAFAt,rafAt]:[rafAt];quietRect=sample.invokerRect;}
+   if(Number.isFinite(rafAt))lastRAFAt=lastRAFAt===null?rafAt:Math.max(lastRAFAt,rafAt);
+   if(quietRAFAt.length>=2){const final=snapshot(),after=inventory();register(after);if(performance.now()-result.startedAt>=timeoutMs)throw Error('Dialog preparation deadline exceeded during final inventory');if(final.semantic.committed&&after.size===0&&equalRect(quietRect,final.invokerRect)){result.final=final;result.lastSnapshot=final;result.finalInventoryAt=performance.now();finish('prepared');return;}quietRAFAt=[];quietRect=null;}
+   raf=requestAnimationFrame(check);
+  }catch(error){finish('failed',error);}};
+  timer=setTimeout(()=>finish('failed','Dialog preparation deadline exceeded'),timeoutMs);check();
+ });
+}
+export function assertDialogSupplementPreparation(result){
+ assert.equal(result?.mode,'semantic-filter-and-native-ancestor-settlement','Missing semantic/ancestor setup evidence');assert.equal(result.status,'prepared');assert(Number.isFinite(result.semanticObservedAt)&&result.semanticObservedAt>=result.startedAt);assert(Number.isFinite(result.finishedAt)&&result.finishedAt-result.startedAt<result.timeoutMs);assert(result.final?.semantic?.committed===true&&result.final.semantic.mismatchKeys.length===0&&result.final.semantic.excludedCount>0);assert(result.lastSnapshot?.semantic?.committed===true);assert.equal(result.final.jobs.length,0);assert.equal(result.lastSnapshot.jobs.length,0);assert(result.final.ancestors.length>0);
+ assert(Array.isArray(result.quietRAFAt)&&result.quietRAFAt.length>=2&&result.quietRAFAt.every((t,i)=>Number.isFinite(t)&&(i===0||t>result.quietRAFAt[i-1])));assert(Array.isArray(result.observations)&&result.observations.length>0);
+ const samples=result.quietRAFAt.map(at=>result.observations.find(s=>s.boundary==='actual-RAF'&&s.rafAt===at));assert(samples.every(s=>s?.semantic?.committed&&s.jobs.length===0),'Each counted quiet RAF must be after semantic commit with no relevant owner jobs');
+ for(const s of [...samples,result.final,result.lastSnapshot]){const r=s.invokerRect;assert(r.width>0&&r.height>0);for(const key of ['x','y','width','height'])assert(Number.isFinite(r[key])&&Math.abs(r[key]-result.final.invokerRect[key])<=.25,'Prepared geometry must stay stable');}
+ for(const j of result.jobs){assert(['invoker','ancestor'].includes(j.relationship)&&Number.isInteger(j.ownerIndex)&&j.ownerIndex>=0);assert(j.properties.length>0&&Number.isFinite(j.duration)&&j.duration>=0&&Number.isFinite(j.endTime)&&j.endTime>=0);assert.equal(j.outcome,'finished');assert.equal(j.pending,false);assert(['finished','idle'].includes(j.playState));}
+}
