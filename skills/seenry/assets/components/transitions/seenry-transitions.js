@@ -220,8 +220,8 @@
    positioned(el); qa(el,'.st-text-exit').forEach(n=>{stopAll(n);n.remove();});
    const current=q(el,'.st-text-value') || letters(previous,'st-text-value'); if(!current.parentElement)el.replaceChildren(current);
    // The outgoing label stays exactly where it was drawn, wherever padding or alignment put it.
-   const cr=current.getBoundingClientRect(), er=el.getBoundingClientRect();
-   current.className='st-text-exit';Object.assign(current.style,{position:'absolute',left:cr.left-er.left-el.clientLeft+'px',top:cr.top-er.top-el.clientTop+'px',width:cr.width+'px',whiteSpace:'nowrap',margin:'0'});
+   const cr=current.getBoundingClientRect(), er=el.getBoundingClientRect(), currentWhiteSpace=getComputedStyle(current).whiteSpace;
+   current.className='st-text-exit';Object.assign(current.style,{position:'absolute',left:cr.left-er.left-el.clientLeft+'px',top:cr.top-er.top-el.clientTop+'px',width:cr.width+'px',whiteSpace:currentWhiteSpace||'nowrap',margin:'0'});
    const next=letters(text,'st-text-value'),sr=doc.createElement('span');sr.className='st-sr';sr.textContent=text;qa(el,':scope>.st-sr').forEach(n=>n.remove());el.append(next,sr);
    // The old label clears before the new one is legible, so the two never read as one doubled word.
    const movement=thinking?{}:{transform:'translateY(-3px)'};
@@ -238,9 +238,9 @@
    if (!current) { el.replaceChildren(); current = letters(previous, 'st-text-value'); el.append(current); }
    let sr = q(el, ':scope > .st-sr'); if (!sr) { sr = doc.createElement('span'); sr.className = 'st-sr'; }
    sr.textContent = text;
-   const cr = current.getBoundingClientRect(), er = el.getBoundingClientRect();
+   const cr = current.getBoundingClientRect(), er = el.getBoundingClientRect(), currentWhiteSpace = getComputedStyle(current).whiteSpace;
    current.className = 'st-text-exit';
-   Object.assign(current.style, {position: 'absolute', left: cr.left - er.left - el.clientLeft + 'px', top: cr.top - er.top - el.clientTop + 'px', width: cr.width + 'px', whiteSpace: 'nowrap', margin: '0'});
+   Object.assign(current.style, {position: 'absolute', left: cr.left - er.left - el.clientLeft + 'px', top: cr.top - er.top - el.clientTop + 'px', width: cr.width + 'px', whiteSpace: currentWhiteSpace || 'nowrap', margin: '0'});
    const next = letters(text, 'st-text-value');
    el.append(next, sr);
    const out = [...current.children], inn = [...next.children];
@@ -995,7 +995,7 @@
      // One unscaled title follows a clear route around the artwork, rather than losing letters behind it.
      const host = (A && A.parentElement && A.parentElement.contains(d) ? A.parentElement : null) || q(detail, '.st-expand-surface,.expand-surface') || detail;
      layer = ghost(d, host); const cs = getComputedStyle(d);
-     Object.assign(layer.style, {visibility: 'visible', zIndex: '1', font: cs.font, letterSpacing: cs.letterSpacing, color: cs.color, whiteSpace: 'nowrap', maxWidth: 'none', overflow: 'visible', transformOrigin: '0 0'});
+     Object.assign(layer.style, {visibility: 'visible', zIndex: '1', font: cs.font, letterSpacing: cs.letterSpacing, color: cs.color, whiteSpace: cs.whiteSpace || 'nowrap', wordSpacing: cs.wordSpacing || 'normal', overflowWrap: cs.overflowWrap || 'normal', maxWidth: 'none', overflow: 'visible', transformOrigin: '0 0'});
      s.travelers.set(d, layer);
     }
     // A reused ghost may have a different containing block after layout changes. Its own resting rect is
