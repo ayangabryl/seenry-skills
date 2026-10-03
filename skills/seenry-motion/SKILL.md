@@ -119,6 +119,9 @@ Select only the guide and helper needed for this change. The bundled original as
 | No reduced-motion variant | Opacity-only or instant |
 | A long list entering item by item | 30–50ms stagger capped at ~300ms total, or none |
 | Motion as the only sign of a state change | A static cue as well |
+| A token that holds `duration easing` inside `transition-duration` (the whole declaration is dropped and every state change becomes instant) | Plain durations in duration lists; confirm in computed style that `transitionDuration` is not `0s` |
+| A `display` rule on a filterable item that beats the `[hidden]` attribute | `:not([hidden])` on the layout rule; check that hidden items are neither painted nor tabbable |
+| A colour change crossfading a second shape over a morphing surface | One surface whose own fill changes while it unfolds |
 
 ## Output
 
