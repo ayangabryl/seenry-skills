@@ -607,3 +607,10 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 [data-st="plus-menu"] [data-st-morph-close].st-button.st-primary { display: inline-flex; justify-content: center; gap: 8px; width: auto; padding: 0 14px; background: var(--accent); color: var(--on-accent); box-shadow: none; font-weight: 500; }
 [data-st="plus-menu"] [data-st-morph-close].st-button.st-primary .st-icon { color: inherit; }
 @media (hover: hover) and (pointer: fine) { [data-st="plus-menu"] [data-st-morph-close].st-button.st-primary:hover { background: var(--accent-hover); } }
+
+/* Avatar group v5: the first person sits on top so every face (or initial) stays readable; the group opens on one
+   spring when hovered or focused and closes on the same spring, so nothing jumps to the pointer. */
+[data-st="avatars"] > *:not(.st-avatar-name) { position: relative; z-index: var(--st-z, auto); transform: translateX(var(--st-shift, 0px)); transition: transform var(--st-spring-smooth-ms) var(--st-spring-smooth), background-color var(--st-state), box-shadow var(--st-state); }
+[data-st="avatars"][data-st-returning="true"] > *:not(.st-avatar-name) { transition: transform var(--st-spring-smooth-ms) var(--st-spring-smooth); }
+.st-avatar-name { transition: opacity 160ms var(--st-O), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+@media (prefers-reduced-motion: reduce) { [data-st="avatars"] > *:not(.st-avatar-name) { transform: none !important; } }

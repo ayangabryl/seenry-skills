@@ -777,6 +777,16 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
  .stage #menu-rename.menu-demo-editor :is(label,input,.st-button){font-size:16px}
 }
 @media(max-width:360px){.stage.menu-demo,#library-detail .stage.menu-demo{padding-left:12px;padding-right:12px}.menu-demo .file-icon{display:none}#menu-rename{padding:20px}#menu-rename .menu-demo-actions .st-button{flex:1}}
+/* Cards in one row share a height: the stage grows to fill, so captions always sit on the card's bottom edge. */
+#library-grid>.card,#extras-grid>.card{display:flex;flex-direction:column}
+#library-grid>.card>.stage,#extras-grid>.card>.stage{flex:1 0 auto}
+/* A focused text field shows a calm ink ring, not an alarm-blue one; keyboard focus elsewhere keeps the blue ring. */
+.stage .st-input:focus,.stage .st-input:focus-visible{box-shadow:0 0 0 1px color-mix(in srgb,var(--text) 55%,transparent),0 0 0 4px color-mix(in srgb,var(--text) 8%,transparent)}
+/* Toast stack: the stack sits clear of Replay, so a new message never slides through another control. */
+.stage .toast-host{bottom:84px}
+.toast-stage .stack-center{padding-top:8px!important;align-self:start}
+#avatar-group>*:not(.st-avatar-name){margin-left:-8px;border:2.5px solid var(--stage)}
+#avatar-group>:first-child{margin-left:0}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -1062,7 +1072,6 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
     <div class="stage toast-stage">
      <div class="stack-center" style="padding-top:28px">
       <div class="row"><button class="st-button" id="toast-save">Save draft</button><button class="st-button" id="toast-archive">Archive</button></div>
-      <p class="muted small">Hover, focus or tap the stack to fan it out. Swipe to dismiss.</p>
      </div>
      <ol class="toast-host" data-st="toasts" id="toasts" aria-label="Notifications"></ol>
     <button class="replay" data-replay="toast" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
@@ -1204,6 +1213,8 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
  const pushToast = (i = toastN++ % toastMsgs.length) => S.toast($('toasts'), toastMsgs[i][0], {description: toastMsgs[i][1], action: i === 1 ? {label: 'Undo'} : undefined});
  $('toast-save').addEventListener('click', () => pushToast(0)); $('toast-archive').addEventListener('click', () => pushToast(1));
  $('toasts')._stTrigger = $('toast-save');
+ // The stack is the subject, so it is present at rest: two messages that stay until dismissed.
+ requestAnimationFrame(() => { S.toast($('toasts'), toastMsgs[2][0], {description: toastMsgs[2][1], duration: Infinity}); S.toast($('toasts'), toastMsgs[0][0], {description: toastMsgs[0][1], duration: Infinity}); });
 
  // Seats and price
  let seats = 12; const setSeats = n => { seats = Math.max(1, Math.min(999, n)); S.number($('seats'), seats); S.number($('price'), seats * 8, {frequent: false}); };

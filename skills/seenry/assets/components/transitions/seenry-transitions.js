@@ -1788,21 +1788,25 @@
     tabSyncs.set(el, sync);
    }
    if (kind === 'avatars') {
-    // Hover lifts the person under the pointer and, with a falloff, their neighbours; one name label glides above
-    // whoever is lifted. Leaving springs everything back with a small settle (a different curve from the lift).
+    // Hover opens the whole group on one spring (everyone moves together, nothing jumps to the pointer), and one name
+    // label glides above whoever is under the pointer. Leaving closes the group again.
     let name = q(el, ':scope > .st-avatar-name');
     if (!name) { name = doc.createElement('span'); name.className = 'st-avatar-name'; name.setAttribute('aria-hidden', 'true'); el.append(name); }
     const people = () => [...el.children].filter(c => !c.hidden && !c.classList.contains('st-avatar-name') && !c.hasAttribute('data-st-ghost'));
+    const GAP = 10;
     const lift = index => {
-     const list = people(); el.dataset.stReturning = String(index < 0);
-     list.forEach((x, i) => { const d = Math.abs(index - i), on = index >= 0; x.style.setProperty('--st-lift', on ? (-4 * Math.pow(.45, d)).toFixed(2) + 'px' : '0px'); x.style.setProperty('--st-scale', on && d === 0 ? '1.06' : '1'); x.style.setProperty('--st-z', on && d === 0 ? '5' : ''); });
+     const list = people(), on = index >= 0, mid = (list.length - 1) / 2;
+     el.dataset.stSpread = String(on);
+     list.forEach((x, i) => { x.style.setProperty('--st-shift', on ? ((i - mid) * GAP).toFixed(1) + 'px' : '0px'); x.style.setProperty('--st-z', String(list.length - i)); });
      const t = list[index], label = t && !t.hasAttribute('data-st-avatar-more') ? t.getAttribute('aria-label') : '';
      if (!label) { name.dataset.stShow = 'false'; return; }
-     const er = el.getBoundingClientRect(), r = t.getBoundingClientRect(), first = name.dataset.stShow !== 'true';
-     name.textContent = label; name.style.setProperty('--x', (r.left + r.width / 2 - er.left) + 'px');
+     // Where the person will be once the group has opened (layout position plus their share of the spread).
+     const first = name.dataset.stShow !== 'true';
+     name.textContent = label; name.style.setProperty('--x', (t.offsetLeft + t.offsetWidth / 2 + (index - mid) * GAP) + 'px');
      if (first) { name.style.transition = 'none'; void name.offsetWidth; name.style.transition = ''; }
      name.dataset.stShow = 'true';
     };
+    people().forEach((x, i, list) => x.style.setProperty('--st-z', String(list.length - i)));
     el.__stLift = lift;
     el.addEventListener('pointerover', e => { const i = people().indexOf(e.target.closest('[data-st="avatars"] > *')); if (finePointer.matches && i >= 0) lift(i); });
     el.addEventListener('focusin', e => { const i = people().indexOf(e.target); if (i >= 0) lift(i); });
@@ -1831,6 +1835,7 @@
        const e1 = el.getBoundingClientRect(); leaving.forEach(g => { g.style.left = parseFloat(g.style.left) + e0.left - e1.left + 'px'; g.style.top = parseFloat(g.style.top) + e0.top - e1.top + 'px'; });
        leaving.forEach(g => { const r = g.getBoundingClientRect(); play(g, [{transform: `translateX(${m.left - r.left}px) scale(.7)`, opacity: 0}], {ms: 180, curve: 'X', fill: 'forwards'}).then(() => g.remove()); });
       }
+      people().forEach((x, i, list) => x.style.setProperty('--st-z', String(list.length - i)));
       swapText(more, on ? 'Less' : collapsedLabel);
       announce(on ? `Showing all ${visible().length - 1} people` : 'Showing fewer people');
      });
