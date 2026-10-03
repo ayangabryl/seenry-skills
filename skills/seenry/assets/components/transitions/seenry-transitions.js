@@ -342,6 +342,10 @@
  /* ---------- Layers ---------- */
  const layers = new WeakMap(), active = new Set();
  const POP = ['menu', 'plus-menu', 'popover', 'popover-panel', 'tooltip'];
+ const plainMenu = el => el.dataset.st === 'menu' && !el.hasAttribute('data-st-morph');
+ // Ordinary menus own only these surface channels. Keep host-authored effects and
+ // row styles intact when keyboard input takes over or an action opens another UI.
+ function stopMenu(el) { stop(el, 'o'); stop(el, 't'); }
  const layerState = el => { let s = layers.get(el); if (!s) layers.set(el, s = {open: false, version: 0}); return s; };
  const isOpen = el => { const s = layers.get(el); if (s) return s.open; if (el.tagName === 'DIALOG') return el.open; if (el.hasAttribute('popover')) return el.matches(':popover-open'); return el.dataset.stOpen === 'true'; };
  const persistentPalette = el => el.dataset.st === 'palette' && el.tagName !== 'DIALOG' && el.hasAttribute('data-st-persistent');
@@ -377,22 +381,25 @@
   const t = trigger.getBoundingClientRect(), r = el.getBoundingClientRect(), rad = parseFloat(getComputedStyle(trigger).borderTopLeftRadius) || 8;
   return `inset(${t.top - r.top}px ${r.right - t.right}px ${r.bottom - t.bottom}px ${t.left - r.left}px round ${rad}px)`;
  }
- let keyboardInput = false; doc.addEventListener('keydown', () => { keyboardInput = true; doc.documentElement.dataset.stInputMode='keyboard'; active.forEach(el=>delete el.dataset.stPointerFocus); }, true); doc.addEventListener('pointerdown', () => { keyboardInput = false; doc.documentElement.dataset.stInputMode='pointer'; }, true);
+ let keyboardInput = false; doc.addEventListener('keydown', () => { keyboardInput = true; doc.documentElement.dataset.stInputMode='keyboard'; active.forEach(el=>{ delete el.dataset.stPointerFocus; if (plainMenu(el) && layerState(el).open) stopMenu(el); }); }, true); doc.addEventListener('pointerdown', () => { keyboardInput = false; doc.documentElement.dataset.stInputMode='pointer'; }, true);
  // Delayed exits may hide their trigger. Restore only after it is visible and only if no newer focus took ownership.
  let focusVersion = 0; doc.addEventListener('focusin', () => { ++focusVersion; }, true);
  function focusReturn(target) { const version = focusVersion; return () => { if (focusVersion === version && target?.isConnected) target.focus?.({preventScroll: true}); }; }
- function focusFirst(el) { const f = q(el, '[autofocus],[data-st-palette-input],[role="menuitem"]:not([disabled]),[role="option"],button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'); f?.focus({preventScroll: true, focusVisible: keyboardInput}); }
+ function focusFirst(el, keyboard = keyboardInput) { const f = q(el, '[autofocus],[data-st-palette-input],[role="menuitem"]:not([disabled]),[role="option"],button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'); f?.focus({preventScroll: true, focusVisible: keyboard}); }
 
  function open(el, trigger, o = {}) {
   if (!el) return;
   const s = layerState(el), kind = el.dataset.st;
+  const menu = plainMenu(el), menuKeyboard = o.keyboard ?? keyboardInput, menuInstant = menu && (o.instant || menuKeyboard || reduced());
   if (trigger) s.trigger = trigger; else if (!s.trigger && doc.activeElement !== doc.body) s.trigger = doc.activeElement;
   el._stTrigger = s.trigger;
-  const wasOpen = s.open, wasClosing = s.closing; if (wasOpen && !wasClosing) return;
+  const wasOpen = s.open, wasClosing = s.closing; if (wasOpen && !wasClosing) { if (menuInstant) stopMenu(el); return; }
   s.open = true; s.closing = false; const v = ++s.version;
   el.inert = false; el.dataset.stManaged = ''; el.dataset.stOpen = 'true'; el.hidden = false;
   s.trigger?.setAttribute('aria-expanded', 'true');
   paletteExpanded(el, true);
+  const openingFocus = focusVersion;
+  if (menu) { active.add(el); el.scrollLeft = el.scrollTop = 0; if (menuInstant) stopMenu(el); }
   if (el.tagName === 'DIALOG') {
    // Autofocus may request an animated close before open resumes. Own that interval.
    if (kind === 'modal') active.add(el);
@@ -400,7 +407,15 @@
   }
   else if (el.hasAttribute('popover')) { if (!el.matches(':popover-open')) el.showPopover(); }
   // Native autofocus can synchronously close or reopen the layer through host code.
-  if (s.version !== v || !s.open || (el.tagName === 'DIALOG' && !el.open)) return;
+  if (s.version !== v || !s.open || (el.tagName === 'DIALOG' && !el.open)) {
+   // beforetoggle(open) runs before native visibility changes. A newer instant
+   // close may already have finished there; retire only that stranded show.
+   // Pending pointer exits keep their presentation. Native hide can call host
+   // code again, so do not change managed state, focus or events after it returns.
+   if (menu && !s.open && !s.closing && el.hasAttribute('popover') && el.matches(':popover-open')) el.hidePopover();
+   return;
+  }
+  if (menu && el.hasAttribute('popover') && !el.matches(':popover-open')) { close(el, {instant: true, silent: true}); return; }
   if (POP.includes(kind) && kind !== 'tooltip') { for (const other of [...active]) if (other !== el && !other.contains(el) && POP.includes(other.dataset.st)) close(other, {silent: true}); }
   if (POP.includes(kind) && s.trigger) { place(el, s.trigger); active.add(el); }
   else if (!POP.includes(kind)) active.add(el);
@@ -451,11 +466,13 @@
    play(el, [{clipPath: 'inset(0 0 100% 0 round 14px)'}, {clipPath: 'inset(0 0 0% 0 round 14px)'}], {ms: 220, curve: 'E', channel: 'clip'});
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', channel: 'o', fade: true});
    [...el.children].forEach((c, i) => { play(c, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content-t'}); play(c, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content', fade: true}); });
+  } else if (menuInstant) {
+   stopMenu(el);
   } else if (POP.includes(kind)) {
    // One piece: the surface and its rows fade, lift and scale together from the trigger, so there is never an empty
    // frame or a shadow without content. Reopened mid-close, it continues from the rendered values.
    const dy = el.dataset.stSide === 'top' ? 4 : -4;
-   [...el.children].forEach(c => { stop(c, 'o'); c.style.opacity = ''; });
+   if (!menu) [...el.children].forEach(c => { stop(c, 'o'); c.style.opacity = ''; });
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 160, curve: 'O', channel: 'o', fade: true});
    play(el, [{transform: `translateY(${dy}px) scale(.96)`}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
   } else if (kind === 'sheet') {
@@ -493,21 +510,27 @@
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
    if (kind === 'modal') [...el.children].forEach(c => fadeIn(c,{ms:100,delay:c.matches('.row,.st-actions')?45:25}));
   }
-  if (o.keyboard || (kind === 'modal' && keyboardInput)) delete el.dataset.stPointerFocus; else el.dataset.stPointerFocus = '';
-  if (!wasOpen && o.focus !== false && kind !== 'tooltip') {
-   if (kind === 'menu' || kind === 'plus-menu') { if (o.keyboard) focusFirst(el); else { el.dataset.stPointerFocus = ''; el.focus?.({preventScroll: true, focusVisible: false}); } }
+  if ((menu ? menuKeyboard : o.keyboard) || (kind === 'modal' && keyboardInput)) delete el.dataset.stPointerFocus; else el.dataset.stPointerFocus = '';
+  // Native popover autofocus may already have transferred focus, including a host
+  // redirect. Do not acquire it again after that synchronous callback boundary.
+  if (!wasOpen && o.focus !== false && kind !== 'tooltip' && (!menu || focusVersion === openingFocus)) {
+   if (kind === 'menu' || kind === 'plus-menu') { if (menu ? menuKeyboard : o.keyboard) focusFirst(el, menu ? menuKeyboard : keyboardInput); else { el.dataset.stPointerFocus = ''; el.focus?.({preventScroll: true, focusVisible: false}); } }
    else if (el.tagName !== 'DIALOG' || kind === 'palette' || (kind === 'modal' && wasClosing)) focusFirst(el);
   }
   // Explicit focus on a reversal is another synchronous host callback boundary.
   if (s.version !== v || !s.open || (el.tagName === 'DIALOG' && !el.open)) return;
+  if (menu && el.hasAttribute('popover') && !el.matches(':popover-open')) { close(el, {instant: true, silent: true}); return; }
   el.dispatchEvent(new CustomEvent('st:open', {bubbles: true}));
  }
 
  function close(el, o = {}) {
   if (!el) return;
   const s = layerState(el), kind = el.dataset.st;
-  if (!s.open && !isOpen(el)) return;
-  if (!s.open && s.closing) return;
+  const menu = plainMenu(el), menuInstant = menu && (o.instant || (o.keyboard ?? keyboardInput) || reduced());
+  // A gallery action can follow the generic menuitem listener in the same event.
+  // Its instant handoff must retire an exit that has already been accepted.
+  if (!s.open && !isOpen(el) && !(menuInstant && s.closing)) return;
+  if (!s.open && s.closing && !menuInstant) return;
   s.open = false; s.closing = true; const v = ++s.version;
   s.trigger?.setAttribute('aria-expanded', 'false');
   const hadFocus = el.contains(doc.activeElement);
@@ -517,12 +540,15 @@
   el.inert = !persistentPalette(el);
   paletteExpanded(el, false);
   if (refocus && !morph && el.tagName !== 'DIALOG') refocus();
+  if (menu && (s.version !== v || s.open)) return;
   const scrim = scrimOf(el), recede = recedeOf(el);
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', fade: true}); }
   // The page behind comes back in step with the sheet's 220ms exit, not on a longer tail.
   if (recede) play(recede, [{transform: 'none', clipPath:'inset(0px round 0px)', opacity: 1}], {ms: 220, curve: 'E', channel: 'recede'}).then(ok => { if (ok) stop(recede, 'recede'); });
   let done;
-  if (morph) {
+  if (menuInstant) {
+   // finish() below removes the native surface synchronously, without a fake job.
+  } else if (morph) {
    el.classList.add('st-morphing');
    [...s.body.children].filter(c => c !== s.label).forEach(c => play(c, [{opacity: 0}], {ms: 'feedback', curve: 'F', fill: 'forwards', fade: true}));
    play(s.label, [{opacity: 1}], {ms: 'quick', curve: 'F', delay: 50, fill: 'forwards', fade: true});
@@ -564,23 +590,24 @@
   const finish = () => {
    if (s.version !== v || s.open) return;
    s.closing = false;
-   if (s.trigger) s.trigger.style.visibility = '';
+   if (s.trigger && !menu) s.trigger.style.visibility = '';
    const clean = () => {
     el.dataset.stOpen = 'false'; active.delete(el);
-    stopAll(el); if (s.label) stopAll(s.label); if (s.body) { stopAll(s.body); [...s.body.children].forEach(stopAll); } [...el.children].forEach(stopAll); el.classList.remove('st-morphing');
+    if (menu) stopMenu(el);
+    else { stopAll(el); if (s.label) stopAll(s.label); if (s.body) { stopAll(s.body); [...s.body.children].forEach(stopAll); } [...el.children].forEach(stopAll); el.classList.remove('st-morphing'); }
    };
-   // Native close may restore focus synchronously. Retire only this modal's old
+   // Native close may restore focus synchronously. Retire this surface's old
    // presentation first, so a host reopen cannot be erased by the old finish.
-   if (kind === 'modal') clean();
+   if (kind === 'modal' || menu) clean();
    if (el.tagName === 'DIALOG' && el.open) el.close();
    else if (el.hasAttribute('popover') && el.matches(':popover-open')) el.hidePopover();
-   if (kind === 'modal' && (s.version !== v || s.open)) return;
-   if (kind !== 'modal') clean();
+   if ((kind === 'modal' || menu) && (s.version !== v || s.open)) return;
+   if (kind !== 'modal' && !menu) clean();
    if (morph || el.tagName === 'DIALOG') refocus?.();
-   if (kind === 'modal' && (s.version !== v || s.open)) return;
+   if ((kind === 'modal' || menu) && (s.version !== v || s.open)) return;
    el.dispatchEvent(new CustomEvent('st:close', {bubbles: true}));
   };
-  if (kind === 'modal' && (o.keyboard || keyboardInput || reduced())) { finish(); return; }
+  if (menuInstant || (kind === 'modal' && (o.keyboard || keyboardInput || reduced()))) { finish(); return; }
   (done || Promise.resolve(true)).then(finish);
   if (reduced() && !done) finish();
  }
@@ -1737,7 +1764,7 @@
      if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) { e.preventDefault(); i = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : i < 0 ? (e.key === 'ArrowDown' ? 0 : items.length - 1) : (i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; items[i]?.focus(); }
      if (e.key === 'Tab') close(el);
     });
-    el.addEventListener('click', e => { if (e.target.closest('[role="menuitem"]') && !e.target.closest('[data-st-keep-open]')) close(el); });
+    el.addEventListener('click', e => { if (e.target.closest('[role="menuitem"]') && !e.target.closest('[data-st-keep-open]')) close(el, plainMenu(el) ? {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput} : undefined); });
    }
    if (kind === 'tabs' || kind === 'segmented') {
     const parts = tabParts(el);
@@ -1855,7 +1882,7 @@
   const trigger = e.target.closest('[data-st-target],[popovertarget]');
   if (trigger && !trigger.disabled) {
    const el = doc.getElementById(trigger.dataset.stTarget || trigger.getAttribute('popovertarget'));
-   if (el && el.dataset.st) { e.preventDefault(); if (el.dataset.st === 'expand') { isOpen(el) && !layerState(el).closing ? collapse(el, {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput}) : expand(trigger, el, {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput}); } else toggle(el, trigger, {keyboard: e.detail === 0}); return; }
+   if (el && el.dataset.st) { e.preventDefault(); if (el.dataset.st === 'expand') { isOpen(el) && !layerState(el).closing ? collapse(el, {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput}) : expand(trigger, el, {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput}); } else toggle(el, trigger, {keyboard: plainMenu(el) && !e.isTrusted ? keyboardInput : e.detail === 0}); return; }
   }
   const dismiss = e.target.closest('[data-st-close]');
   if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer, {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput}); else close(dismiss.closest('dialog,[popover],[data-st="menu"],[data-st="plus-menu"],[data-st="popover-panel"],[data-st="palette"],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
@@ -1878,7 +1905,7 @@
   // cancellation owns Escape; a later manual child menu still gets the first Escape.
   const top = [...active].reverse().find(el => el.dataset.st !== 'tooltip' && (el.tagName !== 'DIALOG' || el.open) && (isOpen(el) || layerState(el).closing));
   if (top?.tagName === 'DIALOG' && !top.hasAttribute('data-st-contained')) return;
-  if (top) { e.preventDefault(); if (!layerState(top).closing) top.dataset.st === 'expand' ? collapse(top, {keyboard: true}) : close(top); }
+  if (top) { e.preventDefault(); if (!layerState(top).closing || plainMenu(top)) top.dataset.st === 'expand' ? collapse(top, {keyboard: true}) : close(top); }
  });
  let frame = 0;
  const reposition = () => { if (frame) return; frame = requestAnimationFrame(() => { frame = 0; for (const el of active) { const s = layers.get(el); if (POP.includes(el.dataset.st) && s?.trigger && el.matches(':popover-open')) place(el, s.trigger); } }); };

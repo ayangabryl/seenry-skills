@@ -729,6 +729,54 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 @media(prefers-reduced-motion:reduce){.stage .covers:has([data-st-close-anchor]) .cover-card:active .cover{transform:none}}
 /* Reserve the wrapped preview before interaction, so opening never shifts the source anchor. */
 @media(max-width:360px){.card[data-key="expand"]>.stage,#library-detail .stage:has([data-st-close-anchor]){min-height:368px}}
+
+/* Menu preview: real local outcomes; rows and feedback grow with their content. */
+.card[data-key="menu"] .caption p{white-space:normal;overflow:visible}
+.stage.menu-demo,#library-detail .stage.menu-demo{height:auto;min-height:376px;padding:16px 16px 76px;align-content:center;gap:12px}
+.menu-demo .menu-demo-app{width:100%;max-width:440px;border-radius:12px}
+.menu-demo .app-bar{height:auto;min-height:56px;padding:8px 12px;gap:8px;flex-wrap:wrap}
+.menu-demo .app-title{margin-right:auto;font-size:15px;font-weight:600}
+.menu-demo .menu-demo-count{font-size:14px;color:var(--text-2);white-space:nowrap}
+.menu-demo .app-bar .st-button{min-height:44px;padding:0 8px;border-radius:8px;font-size:14px}
+.menu-demo [data-menu-files]{padding:0 4px}
+.menu-demo .file{min-height:72px;gap:8px;padding:8px;border-radius:8px;align-items:center}
+.menu-demo .file-icon{flex:none;width:28px;height:32px;background:transparent}
+.menu-demo .file-meta b{font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.menu-demo .file-meta span{display:block;font-size:14px;line-height:1.4}
+.menu-demo .icon-btn{flex:none;width:44px;height:44px;border-radius:8px}
+.menu-demo .file:has([aria-expanded="true"]){background:var(--hover)}
+.menu-demo .menu-demo-feedback{padding:12px 12px 16px;display:grid;gap:8px;color:var(--text-2);font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.menu-demo [data-menu-status]:empty{display:none}
+.menu-demo .menu-demo-recovery{display:grid;justify-items:start;gap:8px}
+.menu-demo .menu-demo-recovery[hidden],.menu-demo [hidden]{display:none}
+.menu-demo .menu-demo-recovery .st-button{min-height:44px;border-radius:8px;font-size:14px}
+.menu-demo .menu-demo-empty{padding:16px 12px;font-size:15px;color:var(--text-2)}
+.menu-demo .menu-demo-disclosure{width:100%;max-width:440px;font-size:14px;line-height:1.5;color:var(--text-2)}
+.menu-demo .replay{min-height:44px;bottom:16px;border-radius:8px}
+.menu-demo #menu-1{width:228px;max-width:calc(100vw - 16px)}
+.menu-demo #menu-1 [role="menuitem"]{min-height:44px;font-size:15px;white-space:normal}
+.menu-demo #menu-1 [role="menuitem"]:disabled{opacity:.55;cursor:not-allowed;background:transparent}
+.menu-demo #menu-copy-limit{padding:8px 10px;font-size:14px;line-height:1.4;color:var(--text-2)}
+#menu-rename{width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:24px;border:0;border-radius:16px;background:var(--surface);color:var(--text);box-shadow:var(--shadow-layer)}
+#menu-rename::backdrop{background:rgb(0 0 0 / .4)}
+#menu-rename h2{font-size:20px;line-height:1.3;font-weight:600;letter-spacing:-.015em;padding:0}
+#menu-rename p{font-size:15px;line-height:1.5;color:var(--text-2);overflow-wrap:anywhere}
+#menu-rename #menu-rename-description{margin:8px 0 20px}
+#menu-rename label{display:block;margin-bottom:8px;font-size:16px;font-weight:500}
+#menu-rename input{display:block;width:100%;min-height:44px;font-size:16px;border-radius:8px}
+#menu-rename #menu-name-help,#menu-rename #menu-name-error{margin-top:8px}
+#menu-rename [aria-invalid="true"]{outline:2px solid var(--bad);outline-offset:2px}
+#menu-rename #menu-name-error{color:var(--bad)}
+#menu-rename .menu-demo-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:24px}
+#menu-rename .st-button{min-height:44px;border-radius:8px;font-size:16px;transform:none;transition:none}
+/* Rename and accepted fixture results are instant, including keyboard/reduction. */
+#menu-rename,#menu-rename::backdrop{animation:none;transition:none}
+/* One phone type contract also outranks the gallery's ID-specific :is/:not floor. */
+@media(max-width:650px){
+ .stage.menu-demo[data-menu-demo] :is([data-menu-count],[data-menu-reset],[data-menu-file-note],[data-menu-budget],[data-menu-status],[data-menu-deleted],[data-menu-undo],[data-menu-empty],.menu-demo-disclosure,#menu-copy-limit){font-size:15px}
+ .stage #menu-rename.menu-demo-editor :is(label,input,.st-button){font-size:16px}
+}
+@media(max-width:360px){.stage.menu-demo,#library-detail .stage.menu-demo{padding-left:12px;padding-right:12px}.menu-demo .file-icon{display:none}#menu-rename{padding:20px}#menu-rename .menu-demo-actions .st-button{flex:1}}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -771,24 +819,43 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
   </nav>
  </div>
 </header><main id="top" class="wrap"><section class="hero"><h1>Motion that explains what changed.</h1><p class="hero-lead">Motion patterns for product interfaces. Explore cause-led transitions, reversible states, and reduced-motion alternatives. Two files, no build step.</p><div class="hero-install"><code><span class="tok">&lt;link</span> rel="stylesheet" href="seenry-transitions.css"<span class="tok">&gt;</span></code><button class="install-copy" data-st="copy" data-st-copy='&lt;link rel="stylesheet" href="seenry-transitions.css"&gt;
-&lt;script src="seenry-transitions.js" defer&gt;&lt;/script&gt;' aria-label="Copy install snippet"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text">Copy</span></button></div></section><div class="library-tools"><div class="filter-scroll"><div class="filter" data-st="segmented"><div role="tablist" aria-label="Transition category"><button role="tab" data-category-choice="All" aria-selected="true">All</button><button role="tab" data-category-choice="Surfaces" aria-selected="false">Surfaces</button><button role="tab" data-category-choice="Navigation" aria-selected="false">Navigation</button><button role="tab" data-category-choice="Feedback" aria-selected="false">Feedback</button><button role="tab" data-category-choice="Content" aria-selected="false">Content</button><button role="tab" data-category-choice="Text" aria-selected="false">Text</button><button role="tab" data-category-choice="AI" aria-selected="false">AI</button></div></div></div><label class="cat-select"><span class="st-sr">Category</span><select id="cat-select"><option>All</option><option>Surfaces</option><option>Navigation</option><option>Feedback</option><option>Content</option><option>Text</option><option>AI</option></select><svg class="st-icon" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></label><label class="search-box"><svg class="st-icon" aria-hidden="true"><use href="#i-search"/></svg><input id="library-search" type="search" aria-label="Search transitions" placeholder="Search transitions" autocomplete="off"><kbd>/</kbd></label></div><div class="grid" id="library-grid" data-seenry-signature="live-motion-library"><article class="card" data-key="menu" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Menu">
-    <div class="stage" data-st-preview>
-     <div class="app">
-      <div class="app-bar"><span class="app-title">Planning</span><span class="chip">4 files</span></div>
-      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-doc"/></svg></span><span class="file-meta"><b>Q3 roadmap</b><span>Edited 2 hours ago by Mara</span></span>
-       <button class="icon-btn" id="menu-trigger" data-st-target="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Q3 roadmap"><svg class="st-icon"><use href="#i-dots"/></svg></button></div>
-      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-table"/></svg></span><span class="file-meta"><b>Hiring plan</b><span>Edited yesterday</span></span><button class="icon-btn" aria-label="More actions for Hiring plan"><svg class="st-icon"><use href="#i-dots"/></svg></button></div>
+&lt;script src="seenry-transitions.js" defer&gt;&lt;/script&gt;' aria-label="Copy install snippet"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text">Copy</span></button></div></section><div class="library-tools"><div class="filter-scroll"><div class="filter" data-st="segmented"><div role="tablist" aria-label="Transition category"><button role="tab" data-category-choice="All" aria-selected="true">All</button><button role="tab" data-category-choice="Surfaces" aria-selected="false">Surfaces</button><button role="tab" data-category-choice="Navigation" aria-selected="false">Navigation</button><button role="tab" data-category-choice="Feedback" aria-selected="false">Feedback</button><button role="tab" data-category-choice="Content" aria-selected="false">Content</button><button role="tab" data-category-choice="Text" aria-selected="false">Text</button><button role="tab" data-category-choice="AI" aria-selected="false">AI</button></div></div></div><label class="cat-select"><span class="st-sr">Category</span><select id="cat-select"><option>All</option><option>Surfaces</option><option>Navigation</option><option>Feedback</option><option>Content</option><option>Text</option><option>AI</option></select><svg class="st-icon" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></label><label class="search-box"><svg class="st-icon" aria-hidden="true"><use href="#i-search"/></svg><input id="library-search" type="search" aria-label="Search transitions" placeholder="Search transitions" autocomplete="off"><kbd>/</kbd></label></div><div class="grid" id="library-grid" data-seenry-signature="live-motion-library"><article class="card" data-key="menu" data-why="Actions stay tied to the selected sample file. Pointer motion explains the menu’s origin; keyboard and reduced-motion actions are immediate. Visible local results and Undo support recovery. Avoid delaying accepted results or showing unwired actions." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Menu">
+    <div class="stage menu-demo" data-st-preview data-menu-demo>
+     <div class="app menu-demo-app">
+      <div class="app-bar"><span class="app-title">Planning</span><span class="menu-demo-count" data-menu-count>2 files</span><button type="button" class="st-button st-ghost" data-menu-reset aria-label="Reset Menu preview">Reset</button></div>
+      <ul data-menu-files aria-label="Sample planning files">
+       <li class="file" data-menu-file="roadmap"><span class="file-icon"><svg class="st-icon" aria-hidden="true"><use href="#i-doc"/></svg></span><span class="file-meta"><b data-menu-file-name>Q3 roadmap</b><span data-menu-file-note>Sample document</span></span><button type="button" class="icon-btn" id="menu-trigger" data-menu-trigger data-st-target="menu-1" aria-controls="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Q3 roadmap"><svg class="st-icon" aria-hidden="true"><use href="#i-dots"/></svg></button></li>
+       <li class="file" data-menu-file="hiring"><span class="file-icon"><svg class="st-icon" aria-hidden="true"><use href="#i-table"/></svg></span><span class="file-meta"><b data-menu-file-name>Hiring plan</b><span data-menu-file-note>Sample spreadsheet</span></span><button type="button" class="icon-btn" id="menu-trigger-hiring" data-menu-trigger data-st-target="menu-1" aria-controls="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Hiring plan"><svg class="st-icon" aria-hidden="true"><use href="#i-dots"/></svg></button></li>
+      </ul>
+      <p class="menu-demo-empty" data-menu-empty hidden>No sample files remain. Undo a deletion or Reset to start again.</p>
+      <div class="menu-demo-feedback">
+       <p data-menu-budget>Copies: 0 of 2. Reset to start again.</p>
+       <p data-menu-status role="status" aria-live="polite" aria-atomic="true"></p>
+       <div class="menu-demo-recovery" data-menu-recovery hidden><p data-menu-deleted></p><button type="button" class="st-button" data-menu-undo>Undo last delete</button></div>
+      </div>
      </div>
-     <div id="menu-1" data-st="menu" data-st-placement="bottom-end" data-st-contained role="menu" aria-label="Q3 roadmap actions">
-      <button role="menuitem"><svg class="st-icon"><use href="#i-pen"/></svg>Rename<kbd>R</kbd></button>
-      <button role="menuitem"><svg class="st-icon"><use href="#i-dup"/></svg>Duplicate<kbd>⌘D</kbd></button>
-      <button role="menuitem"><svg class="st-icon"><use href="#i-move"/></svg>Move to…</button>
-      <button role="menuitem"><svg class="st-icon"><use href="#i-share"/></svg>Share</button>
+     <p class="menu-demo-disclosure">Local preview. Sample files only; changes last until Reset or reload.</p>
+     <div id="menu-1" data-st="menu" data-st-placement="bottom-end" popover="manual" role="menu" aria-label="Q3 roadmap actions">
+      <button type="button" role="menuitem" data-menu-action="rename"><svg class="st-icon" aria-hidden="true"><use href="#i-pen"/></svg>Rename</button>
+      <button type="button" role="menuitem" data-menu-action="duplicate" aria-describedby="menu-copy-limit"><svg class="st-icon" aria-hidden="true"><use href="#i-dup"/></svg>Duplicate</button>
+      <p id="menu-copy-limit" data-menu-limit hidden>Two copies per preview. Reset to duplicate again.</p>
       <hr>
-      <button role="menuitem" class="st-danger"><svg class="st-icon"><use href="#i-trash"/></svg>Delete</button>
+      <button type="button" role="menuitem" data-menu-action="delete" class="st-danger"><svg class="st-icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete</button>
      </div>
-    <button class="replay" data-replay="menu" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Trigger to actions</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .26 / .04</span><span>scale .96 → 1</span><span>exit 110 X</span></div></div>
+     <dialog id="menu-rename" class="menu-demo-editor" data-menu-editor aria-labelledby="menu-rename-title" aria-describedby="menu-rename-description">
+      <form data-menu-form novalidate>
+       <h2 id="menu-rename-title">Rename sample file</h2>
+       <p id="menu-rename-description">Change the name in this local preview.</p>
+       <label for="menu-rename-name">File name</label>
+       <input class="st-input" id="menu-rename-name" data-menu-name required autocomplete="off" spellcheck="false" aria-describedby="menu-name-help menu-name-error">
+       <p id="menu-name-help">Use 1–60 characters. Names may repeat.</p>
+       <p id="menu-name-error" data-menu-error role="alert" hidden></p>
+       <div class="menu-demo-actions"><button type="button" class="st-button" data-menu-cancel>Cancel</button><button type="submit" class="st-button st-primary">Save</button></div>
+      </form>
+     </dialog>
+     <button type="button" class="replay" data-replay="menu" data-st-keep><svg class="st-icon" aria-hidden="true"><use href="#i-replay"/></svg>Open menu</button>
+    </div>
+    <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Rename, duplicate and undo a local delete</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>trigger-relative menu</span><span>instant keyboard input</span><span>local actions + Undo</span></div></div>
    </article><article class="card" data-key="morph" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Button to menu">
     <div class="stage" data-st-preview>
      <div class="app" style="width:min(100%,380px)">
@@ -1221,4 +1288,4 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
  // The chat starts answered; Replay asks again.
  $('think').dataset.stLabel = $('think').textContent;
 })();
-</script><script src="gallery.js"></script></body></html>
+</script><script src="gallery-menu.js"></script><script src="gallery.js"></script></body></html>

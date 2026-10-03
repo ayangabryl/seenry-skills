@@ -95,6 +95,7 @@
 [data-st="menu"] [role="menuitem"]::after, [data-st="plus-menu"] [role="menuitem"]::after { display: none; }
 [data-st="menu"] [role="menuitem"] .st-icon, [data-st="plus-menu"] [role="menuitem"] .st-icon { color: var(--text-2); width: 16px; height: 16px; }
 [data-st="menu"] [role="menuitem"]:focus-visible, [data-st="plus-menu"] [role="menuitem"]:focus-visible { outline: 0; background: var(--hover); }
+[data-st="menu"]:not([data-st-morph]) [role="menuitem"]:focus-visible { box-shadow: inset 0 0 0 2px var(--focus-ring); }
 [data-st="menu"] [role="menuitem"]:active, [data-st="plus-menu"] [role="menuitem"]:active { background: var(--press); transform: none; }
 [data-st="menu"] [role="menuitem"].st-danger { color: var(--bad); } [data-st="menu"] [role="menuitem"].st-danger .st-icon { color: var(--bad); }
 [data-st="menu"] kbd { margin-left: auto; color: var(--text-2); font: 400 12px var(--font); }

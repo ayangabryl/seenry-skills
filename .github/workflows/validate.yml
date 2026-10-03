@@ -195,6 +195,7 @@ jobs:
           files = [
               'skills/seenry/assets/components/transitions/gallery.html',
               'skills/seenry/assets/components/transitions/gallery.js',
+              'skills/seenry/assets/components/transitions/gallery-menu.js',
               'skills/seenry/assets/components/transitions/seenry-transitions.css',
               'skills/seenry/assets/components/transitions/seenry-transitions.js',
               'tests/transitions-library-close-attachment.browser.mjs',
@@ -311,65 +312,14 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  component_discovery:
-    name: Record bounded component discovery
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Verify current discovery pins and source contracts
-        id: contracts
-        timeout-minutes: 2
-        shell: bash
-        run: |
-          node tests/transitions-library-menu-discovery.browser.mjs --verify-only --gallery skills/seenry/assets/components/transitions/gallery.html
-          node --test tests/transitions-library-menu-discovery.test.mjs tests/transitions-library-dialog-supplement.test.mjs
-      - name: Install the pinned browser test runtime
-        run: npm install --no-save --package-lock=false playwright@1.63.0
-      - name: Install Chromium and host dependencies
-        id: browser
-        run: npx playwright install --with-deps chromium
-      - name: Record three-case Menu discovery
-        if: ${{ !cancelled() && steps.contracts.outcome == 'success' && steps.browser.outcome == 'success' }}
-        timeout-minutes: 2
-        run: node tests/transitions-library-menu-discovery.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-menu-discovery"
-      - name: Preserve Menu discovery and source identities
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: menu-discovery-ubuntu
-          path: ${{ runner.temp }}/seenry-menu-discovery
-          compression-level: 6
-          if-no-files-found: error
-          retention-days: 7
-      - name: Record targeted Dialog evidence supplement
-        if: ${{ !cancelled() && steps.contracts.outcome == 'success' && steps.browser.outcome == 'success' }}
-        timeout-minutes: 3
-        run: node tests/transitions-library-dialog-supplement.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-dialog-supplement"
-      - name: Preserve targeted Dialog evidence and source identities
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dialog-supplement-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-supplement
-          compression-level: 6
-          if-no-files-found: error
-          retention-days: 7
-
-  dialog_lossless:
-    name: Record Dialog PNG evidence (${{ matrix.width }}px)
+  menu_native:
+    name: Exercise Menu flow shard ${{ matrix.shard }}
     if: github.event_name == 'pull_request'
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
-        width: [320, 1440]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, callback]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -380,107 +330,68 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Verify lossless and artifact retention contracts
-        id: contracts
-        timeout-minutes: 2
-        shell: bash
+      - name: Verify immutable Menu sources and contracts
         run: |
-          node --test tests/dialog-lossless-contract.test.mjs
-          python -m unittest discover -s tests -p test_pack_native_evidence.py -v
+          node --test tests/transitions-library-menu-native.test.mjs tests/transitions-library-menu-runtime.test.cjs tests/transitions-gallery-menu.test.cjs tests/transitions-gallery-menu-filter.test.cjs tests/transitions-gallery-menu-typography.test.cjs
+          node tests/transitions-library-menu-native.browser.mjs --verify-only --gallery skills/seenry/assets/components/transitions/gallery.html --pins tests/transitions-library-menu-native.pins.json
       - name: Install the pinned browser test runtime
         run: npm install --no-save --package-lock=false playwright@1.63.0
       - name: Install Chromium and host dependencies
-        id: browser
         run: npx playwright install --with-deps chromium
-      - name: Record bounded native Dialog PNGs
-        if: ${{ !cancelled() && steps.contracts.outcome == 'success' && steps.browser.outcome == 'success' }}
-        timeout-minutes: 2
-        run: node tests/transitions-library-dialog-lossless.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --width ${{ matrix.width }} --out "${{ runner.temp }}/seenry-dialog-lossless-${{ matrix.width }}"
-      - name: Pack raw evidence into independently retrievable parts
-        if: always()
-        timeout-minutes: 2
-        run: python scripts/pack_native_evidence.py --source "${{ runner.temp }}/seenry-dialog-lossless-${{ matrix.width }}" --out "${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}"
-      - name: Preserve Dialog PNG partition manifest
+      - name: Exercise bounded native Menu flow
+        timeout-minutes: 4
+        shell: bash
+        env:
+          MENU_SHARD: ${{ matrix.shard }}
+        run: |
+          if [ "$MENU_SHARD" = callback ]; then
+            node tests/transitions-library-menu-native.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --pins tests/transitions-library-menu-native.pins.json --callback-only --out "${{ runner.temp }}/seenry-menu-native"
+          else
+            node tests/transitions-library-menu-native.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --pins tests/transitions-library-menu-native.pins.json --shard "$MENU_SHARD" --out "${{ runner.temp }}/seenry-menu-native"
+          fi
+      - name: Preserve native Menu cases and media
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dialog-lossless-${{ matrix.width }}-index-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/manifest.json
-          compression-level: 0
+          name: menu-native-${{ matrix.shard }}-ubuntu
+          path: ${{ runner.temp }}/seenry-menu-native
           if-no-files-found: error
+          compression-level: 6
           retention-days: 7
-      - name: Preserve Dialog PNG part 000
+
+  menu_native_union:
+    name: Verify complete Menu evidence union
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    needs: menu_native
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: menu-native-*-ubuntu
+          path: ${{ runner.temp }}/seenry-menu-received
+      - name: Reconcile every required case and native evidence file
+        shell: bash
+        run: |
+          menu_received="${{ runner.temp }}/seenry-menu-received"
+          menu_indices=""
+          for shard in 0 1 2 3 4 5 6 7; do
+            if [ -n "$menu_indices" ]; then menu_indices="$menu_indices,"; fi
+            menu_indices="$menu_indices$menu_received/menu-native-$shard-ubuntu/index.json"
+          done
+          node tests/transitions-library-menu-native.browser.mjs --merge "$menu_indices" --callback "$menu_received/menu-native-callback-ubuntu/index.json" --out "${{ runner.temp }}/menu-native-union.json"
+      - name: Preserve Menu union verdict and remaining gaps
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dialog-lossless-${{ matrix.width }}-part-000-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/part-000.zip
-          compression-level: 0
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Preserve Dialog PNG part 001
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dialog-lossless-${{ matrix.width }}-part-001-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/part-001.zip
-          compression-level: 0
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Preserve Dialog PNG part 002
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dialog-lossless-${{ matrix.width }}-part-002-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/part-002.zip
-          compression-level: 0
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Preserve Dialog PNG part 003
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dialog-lossless-${{ matrix.width }}-part-003-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/part-003.zip
-          compression-level: 0
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Preserve Dialog PNG part 004
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dialog-lossless-${{ matrix.width }}-part-004-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/part-004.zip
-          compression-level: 0
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Preserve Dialog PNG part 005
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dialog-lossless-${{ matrix.width }}-part-005-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/part-005.zip
-          compression-level: 0
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Preserve Dialog PNG part 006
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dialog-lossless-${{ matrix.width }}-part-006-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/part-006.zip
-          compression-level: 0
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Preserve Dialog PNG part 007
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dialog-lossless-${{ matrix.width }}-part-007-ubuntu
-          path: ${{ runner.temp }}/seenry-dialog-lossless-packed-${{ matrix.width }}/part-007.zip
-          compression-level: 0
-          if-no-files-found: ignore
+          name: menu-native-union-ubuntu
+          path: ${{ runner.temp }}/menu-native-union.json
+          if-no-files-found: error
           retention-days: 7

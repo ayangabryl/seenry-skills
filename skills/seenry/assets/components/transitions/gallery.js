@@ -4,6 +4,9 @@
  const S = SeenryTransitions, $ = id => document.getElementById(id);
  const grid = $('library-grid'), cards = [...grid.children, ...$('extras-grid').children], replay = window.galleryReplay;
  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const menuDemo = window.SeenryMenuDemo.mount(document.querySelector('[data-menu-demo]'), S);
+ window.galleryMenuDemo = menuDemo;
+ replay.menu = () => menuDemo.replay();
  const runs = new Map();
  const sequence = (key, steps) => {
   runs.get(key)?.forEach(clearTimeout);
@@ -79,7 +82,7 @@
   const copy = card.querySelector('[data-snippet]'); copy.dataset.stCopy = snippets.get(card.dataset.key);
  }
  const api = {
-  menu:"SeenryTransitions.toggle(menu, trigger)", morph:"SeenryTransitions.toggle(menu, trigger)", dialog:"SeenryTransitions.open(dialog, trigger)", palette:"SeenryTransitions.open(palette, trigger)", sheet:"SeenryTransitions.toggle(sheet, trigger)", drawer:"SeenryTransitions.toggle(drawer, trigger)", tooltip:"SeenryTransitions.tooltip.show(trigger)", expand:"SeenryTransitions.expand(card, detail)", tabs:"SeenryTransitions.tab(tabs, selectedTab)", segmented:"SeenryTransitions.tab(control, selectedTab)", page:"SeenryTransitions.page('forward', renderDetail, scope, {shared: ['sender']})", accordion:"SeenryTransitions.accordion(details, true)", button:"SeenryTransitions.state(button, 'success', 'Saved')", copy:"SeenryTransitions.copy(button, 'Text to copy')", like:"SeenryTransitions.like(button)", switch:"input.checked = !input.checked", checkbox:"input.checked = !input.checked", error:"SeenryTransitions.shake(form, 'Enter a valid email')", toast:"SeenryTransitions.toast(region, 'Changes saved')", number:"SeenryTransitions.number(readout, 125)", text:"SeenryTransitions.swapText(label, 'In review')", list:"SeenryTransitions.list.reorder(list, compare)", skeleton:"SeenryTransitions.skeleton(profile, true)", ai:"SeenryTransitions.swapText(status, 'Searching 4 entries…')\nSeenryTransitions.stream(answer, chunk, {done: true})", resize:"SeenryTransitions.resize(card, () => renderContent())", badge:"SeenryTransitions.badge(badge, 12)", icon:"SeenryTransitions.icon(button, true)", success:"SeenryTransitions.success(confirmation)", avatars:"SeenryTransitions.init(group) // hover, focus and names disclosure", clear:"SeenryTransitions.init(field) // text, caret and clear control", link:"SeenryTransitions.init(link) // hover and keyboard focus", reveal:"SeenryTransitions.reveal(section)", shimmer:"SeenryTransitions.shimmer(label) // one finite sweep", popover:"SeenryTransitions.toggle(panel, trigger)", progress:"SeenryTransitions.progress(indicator, 'loading')\nSeenryTransitions.progress(indicator, 'success') // or 'error'", image:"SeenryTransitions.image(thumbnail)\nSeenryTransitions.closeImage(thumbnail)", reorder:"SeenryTransitions.list.reorder(list, orderedNodes)", tilt:"SeenryTransitions.tilt(card, x, y) // normalized -1…1"
+  menu:"SeenryTransitions.toggle(menu, trigger, {keyboard})\n// Before handing a selected action to the host:\nSeenryTransitions.close(menu, {instant: true, silent: true})\n// The application owns Rename, Duplicate, Delete, Undo and Reset.\n// gallery-menu.js supplies this bounded local preview.", morph:"SeenryTransitions.toggle(menu, trigger)", dialog:"SeenryTransitions.open(dialog, trigger)", palette:"SeenryTransitions.open(palette, trigger)", sheet:"SeenryTransitions.toggle(sheet, trigger)", drawer:"SeenryTransitions.toggle(drawer, trigger)", tooltip:"SeenryTransitions.tooltip.show(trigger)", expand:"SeenryTransitions.expand(card, detail)", tabs:"SeenryTransitions.tab(tabs, selectedTab)", segmented:"SeenryTransitions.tab(control, selectedTab)", page:"SeenryTransitions.page('forward', renderDetail, scope, {shared: ['sender']})", accordion:"SeenryTransitions.accordion(details, true)", button:"SeenryTransitions.state(button, 'success', 'Saved')", copy:"SeenryTransitions.copy(button, 'Text to copy')", like:"SeenryTransitions.like(button)", switch:"input.checked = !input.checked", checkbox:"input.checked = !input.checked", error:"SeenryTransitions.shake(form, 'Enter a valid email')", toast:"SeenryTransitions.toast(region, 'Changes saved')", number:"SeenryTransitions.number(readout, 125)", text:"SeenryTransitions.swapText(label, 'In review')", list:"SeenryTransitions.list.reorder(list, compare)", skeleton:"SeenryTransitions.skeleton(profile, true)", ai:"SeenryTransitions.swapText(status, 'Searching 4 entries…')\nSeenryTransitions.stream(answer, chunk, {done: true})", resize:"SeenryTransitions.resize(card, () => renderContent())", badge:"SeenryTransitions.badge(badge, 12)", icon:"SeenryTransitions.icon(button, true)", success:"SeenryTransitions.success(confirmation)", avatars:"SeenryTransitions.init(group) // hover, focus and names disclosure", clear:"SeenryTransitions.init(field) // text, caret and clear control", link:"SeenryTransitions.init(link) // hover and keyboard focus", reveal:"SeenryTransitions.reveal(section)", shimmer:"SeenryTransitions.shimmer(label) // one finite sweep", popover:"SeenryTransitions.toggle(panel, trigger)", progress:"SeenryTransitions.progress(indicator, 'loading')\nSeenryTransitions.progress(indicator, 'success') // or 'error'", image:"SeenryTransitions.image(thumbnail)\nSeenryTransitions.closeImage(thumbnail)", reorder:"SeenryTransitions.list.reorder(list, orderedNodes)", tilt:"SeenryTransitions.tilt(card, x, y) // normalized -1…1"
  };
 
  let category = 'All', filterVersion = 0, detailCard = null, stageHome = null;
@@ -108,6 +111,8 @@
   const leaving = cards.filter(c => !c.hidden && !wanted.includes(c));
   if (animate && !reduce()) await Promise.all(leaving.map(c => S.play(c, [{opacity:0}], {ms:65,curve:'X',channel:'filter',fill:'forwards',fade:true})));
   if (v !== filterVersion) return;
+  // Retire a top-layer preview before its accepted host hide, but keep a moved detail stage alive.
+  if (leaving.some(c => c.dataset.key === 'menu' && c.querySelector('[data-menu-demo]'))) menuDemo.suspend();
   // The same kit FLIP used by list.reorder commits layout once, with no stagger.
   S.flip(cards.filter(c => !c.hidden && wanted.includes(c)), () => cards.forEach(c => { c.hidden = !wanted.includes(c); c.style.opacity = ''; }), {spring:'smooth'});
   for (const c of entering) if (animate) S.play(c,[{opacity:0},{opacity:1}],{ms:120,fade:true,channel:'filter',current:false});
@@ -122,6 +127,7 @@
  function showDetail(card) {
   if (detailCard === card) return;
   if (detailCard) restoreStage();
+  if (card.dataset.key === 'menu') menuDemo.suspend();
   detailCard = card; stageHome = card;
   const stage = card.querySelector('.stage');
   $('detail-title').textContent = card.querySelector('.caption h3').textContent;
@@ -141,6 +147,7 @@
   setHash('#t/' + card.dataset.key);
  }
  function restoreStage() {
+  if (detailCard?.dataset.key === 'menu') menuDemo.suspend();
   const stage = $('detail-preview').querySelector('.stage'); if (stage && stageHome) stageHome.prepend(stage);
  }
  detail.addEventListener('st:close', e => { if (e.target !== detail) return; restoreStage(); const c = detailCard; detailCard=null; stageHome=null; c?.querySelector('.title-link').focus({preventScroll:true}); setHash(category === 'All' ? '' : '#f/'+category.toLowerCase()); });

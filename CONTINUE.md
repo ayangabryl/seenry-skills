@@ -15,6 +15,20 @@ not, and how to test it.
 - The **Seenry skill** must teach agents this too. Any project built with it should check its transitions against
   this bar and know *why* each transition works.
 
+### Current scope clarification (2026-10-03)
+
+- Review the **UI/UX flow of every component**, including its purpose, entry, meaningful actions and visible outcomes,
+  discoverability, appropriate return/dismissal, focus restoration, relevant empty/error/disabled states, repeated or
+  interrupted use, and mobile layout. Motion is one part of the review.
+- **Dismissal is specific to the flow.** The confirmation Dialog already has Cancel and Escape; it should not gain a
+  redundant X or Close button. Navigation can use Back. The source-point Close requirement applies to the directly
+  expanding Card/toggle flow, not every dialog. This clarifies the earlier close-button note below.
+- An enabled demo action needs a meaningful local outcome or a clear explanation of its limited scope. Keep demo
+  wiring findings separate from a reusable component API whose application actions are host-owned. Do not connect
+  destructive examples to real user data merely to demonstrate a result.
+- The target remains **9 in every applicable criterion**, with source-specific evidence and independent review.
+  Missing coverage is unverified; global CI and motion scores alone do not establish complete UI/UX quality.
+
 ## Files
 
 - Kit: `skills/seenry/assets/components/transitions/seenry-transitions.js` and `seenry-transitions.css`.
@@ -186,6 +200,15 @@ interfaces, the success-check tip and the state-transition tip.
 
 Copy this list into a scratch file per component and tick each line with evidence (film frames or a screenshot).
 
+**Flow**
+- [ ] Purpose and entry are clear without explaining the implementation.
+- [ ] Each enabled meaningful action produces the expected visible local result; labels agree with outcomes.
+- [ ] Back, Cancel, Done, Escape or dismissal match the scenario. Do not require a redundant Close/X on a dialog.
+- [ ] Focus is usable after entry, cancellation, completion and return; background controls are reachable only when appropriate.
+- [ ] Relevant empty, error, disabled and recovery paths work. Mark genuinely inapplicable states with a reason.
+- [ ] Repeated and interrupted actions leave one coherent result, with no stale update or lost user input.
+- [ ] The flow remains discoverable and usable on phone layouts, with spacing and genuine browser zoom checked where applicable.
+
 **Rest state**
 - [ ] One clear idea, centred, with real content: no placeholder bars or lorem.
 - [ ] Inner padding: no content touches the edge of its own pill, card or button. Radii are concentric (outer =
@@ -200,13 +223,13 @@ Copy this list into a scratch file per component and tick each line with evidenc
 - [ ] Disabled, selected and active states are distinct and calm.
 
 **Motion**
-- [ ] Origin: it grows from the thing that caused it (trigger, edge or row), not from the centre of nowhere.
+- [ ] Origin: anchored surfaces explain their relationship to the trigger, edge or row; a centered confirmation Dialog may use its own centered origin and native backdrop.
 - [ ] Continuity: what persists travels (shared element). Nothing doubles: old content clears before new content is
   legible in the same place.
 - [ ] No empty frames: at 30–320ms the region always shows real content. No empty shell or stray shadow.
 - [ ] Nothing snaps: containers that change size use a spring shell (`resize()`), and growing content is anchored at
   the top of its stage.
-- [ ] Close is designed, not reversed: faster and simpler. The close control sits where the open control was.
+- [ ] Exit and dismissal suit the flow. A directly expanding Card preserves its source-point return control; a confirmation Dialog uses its safe Cancel and appropriate Escape path. Dismissal controls remain usable during entry and while the flow is active; an accepted exit may make outgoing controls inert while preserving appropriate interruption, cancellation ownership and focus return.
 - [ ] Interrupt: a second input 70ms in reverses from the rendered value. No jump, flash or restart.
 - [ ] Timing feels deliberate, not "so fast": entrances 250–450ms on `(.3,1,0,1)` or a spring; exits 120–220ms.
 - [ ] Blur option on (`data-st-blur`): a visible premium focus-pull where it fits, and never on large surfaces.
@@ -219,7 +242,7 @@ Copy this list into a scratch file per component and tick each line with evidenc
 
 **Proof and teaching**
 - [ ] Filmed in slow motion: open, close and interrupt (`film.mjs`).
-- [ ] Motion judge run twice; 9+ on both counts as done.
+- [ ] Two independent reviews of the same current evidence reach 9+ in every applicable UI/UX and motion criterion. A motion-only result does not certify the complete flow; missing criteria or untested states remain unverified.
 - [ ] A short **"Why this works"** note for the catalog: the scenario, why this motion fits it, and what to avoid.
 - [ ] The rule behind it is captured in the skill (`skills/seenry-motion/SKILL.md` or references), so agents apply it
   in users' projects.
