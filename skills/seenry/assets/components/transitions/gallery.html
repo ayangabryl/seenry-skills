@@ -778,7 +778,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 }
 @media(max-width:360px){.stage.menu-demo,#library-detail .stage.menu-demo{padding-left:12px;padding-right:12px}.menu-demo .file-icon{display:none}#menu-rename{padding:20px}#menu-rename .menu-demo-actions .st-button{flex:1}}
 /* Cards in one row share a height: the stage grows to fill, so captions always sit on the card's bottom edge. */
-#library-grid>.card,#extras-grid>.card{display:flex;flex-direction:column}
+#library-grid>.card:not([hidden]),#extras-grid>.card:not([hidden]){display:flex;flex-direction:column}
 #library-grid>.card>.stage,#extras-grid>.card>.stage{flex:1 0 auto}
 /* A focused text field shows a calm ink ring, not an alarm-blue one; keyboard focus elsewhere keeps the blue ring. */
 .stage .st-input:focus,.stage .st-input:focus-visible{box-shadow:0 0 0 1px color-mix(in srgb,var(--text) 55%,transparent),0 0 0 4px color-mix(in srgb,var(--text) 8%,transparent)}
@@ -800,6 +800,8 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 .title-link{scroll-margin:156px 0 16px}
 @media(max-width:650px){.title-link{scroll-margin:194px 0 16px}}
 .detail-why{margin:20px 0 24px;max-width:62ch}.detail-why h3{margin:0 0 4px;font-size:14px;font-weight:600}.detail-why p{margin:0;color:var(--text-2);font-size:14px;line-height:22px}
+/* The description tucks under the 44px title target on phones; it is not interactive, so it never takes the title’s hits. */
+.caption p{pointer-events:none}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
