@@ -804,6 +804,8 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 .detail-why{margin:20px 0 24px;max-width:62ch}.detail-why h3{margin:0 0 4px;font-size:14px;font-weight:600}.detail-why p{margin:0;color:var(--text-2);font-size:14px;line-height:22px}
 /* The description tucks under the 44px title target on phones; it is not interactive, so it never takes the title’s hits. */
 .caption p{pointer-events:none}
+/* The inbox shows whole rows only: two messages fit the stage above Replay, so the third never peeks in half-cut. */
+.stage .mail{height:186px}.stage .mail-list .msg:nth-child(n+3){display:none}.stage .mail .detail p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
