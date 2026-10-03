@@ -1,0 +1,22 @@
+{
+  "schema": "menu-native-v4",
+  "frozen": false,
+  "reconstructionBaseCommit": "7c5fc8fd175f5de224406f793ea5c842b52a8c0d",
+  "bundleSHA256": null,
+  "assets": {
+    "gallery.html": null,
+    "gallery.js": null,
+    "gallery-menu.js": null,
+    "seenry-transitions.js": null,
+    "seenry-transitions.css": null,
+    "assets/morning.jpg": null,
+    "assets/lake.jpg": null,
+    "assets/forest.jpg": null
+  },
+  "harness": {
+    "transitions-library-menu-native.browser.mjs": null,
+    "transitions-library-menu-native-contract.mjs": null,
+    "transitions-library-menu-native-observer.mjs": null,
+    "transitions-library-menu-discovery-helpers.mjs": null
+  }
+}

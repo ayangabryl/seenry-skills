@@ -18,7 +18,7 @@
  *  4. With --prev (the previous round's motion.json), lists what is still open: every criterion under 9 that did not
  *     rise and every interaction the judge asked to fix again. Those are the ceiling; rounds stall when they are skipped.
  *  Writes motion-board.png (every row), motion-board-N.png (the pages the model reads) and motion.json to --out;
- *  exits 1 on hard violations or an overall under 9.
+ *  exits 1 on a completed judgment with hard violations or any motion criterion/interaction row under 9; exits 2 when no complete judgment is available.
  *
  *  Scale: 9-10 is indistinguishable from Apple, Linear or Family at their best; 8 is clearly premium; 6-7 is correct
  *  but generic (right tokens, fades and small translates, nothing a top team would call crafted). */
@@ -29,6 +29,7 @@ import {pathToFileURL, fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 import {findCli, askModel} from './model_cli.mjs';
+import {MOTION_SCORE_KEYS, MOTION_VERDICT_SCHEMA, validMotionVerdict, motionAcceptance} from './motion_contract.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -38,7 +39,11 @@ if (flag('ask')) {
   const job = JSON.parse(readFileSync(flag('ask'), 'utf8'));
   const found = findCli(process.env.SEENRY_CRITIC);
   if (!found) process.exit(2);
-  try { writeFileSync(job.result, JSON.stringify({...askModel(found, job), cli: found.cli})); process.exit(0); }
+  try {
+    const response = askModel(found, job);
+    if (!validMotionVerdict(response)) throw new Error('Motion judge returned an incomplete or malformed judgment');
+    writeFileSync(job.result, JSON.stringify({...response, cli: found.cli})); process.exit(0);
+  }
   catch (e) { process.stderr.write(e.message); process.exit(1); }
 }
 
@@ -304,10 +309,11 @@ const RUBRIC = `Calibrated scale. Use the whole range and be strict; most compet
 - 6-7: correct but generic. Right durations and curves, but motion is a fade plus a small translate or scale from a default origin; content fades rather than travels; nothing keeps identity; it could come from any component library.
 - 4-5: visible problems: wrong or centered origins on anchored surfaces, text stretched by a scaling container, jumps or restarts on interruption, sluggish or over-long motion, bounce on exact values.
 - 1-3: broken or distracting.
-The overall is the level of the catalog as a whole, not its best row. If a third of the rows are generic, the overall is at most 7.
+The overall describes only the captured interaction set, not unobserved catalog components or its best row. If a third of the captured rows are generic, the overall is at most 7.
+Interpret each criterion in the context of the actual flow. A confirmation dialog can correctly use Cancel and Escape without a separate Close or X button; a navigation flow can use Back. Do not require every dialog to add a close icon or put its dismissal action at the launcher's coordinates. The source-point return rule applies to directly expanding cards or toggle surfaces where that relationship is intended. Judge the available dismissal's clarity, usability and focus return. A motion-only capture does not establish complete UI/UX flow coverage.
 
 What separates premium from merely correct (score each criterion 1-10 on the same scale):
-- origin: every surface grows from the exact point that caused it (a menu from its trigger's edge, with transform-origin at the trigger; a sheet from its screen edge; a toast from its stack edge; an expanded card from its thumbnail's rect). Centered scale on an anchored popover, or a surface appearing from nowhere, is generic.
+- origin: the origin explains the surface's role (a menu from its trigger's edge, with transform-origin at the trigger; a sheet from its screen edge; a toast from its stack edge; an expanded card from its thumbnail's rect). A centered confirmation dialog can use a centered origin and native backdrop. Centered scale on an anchored popover, or an unexplained origin, is generic.
 - attachment: content rides its container. Text inside a moving or resizing surface moves with it and is never squashed, stretched or left behind; a container that scales must counter-scale or clip its content. Content that fades in place while its container flies is generic. A uniform entrance scale of 0.95 or more on a whole surface, as Apple and Linear use for menus and dialogs, is not squashing; non-uniform scale on text is.
 - choreography: container and content are coordinated. The container establishes where, new content arrives while the container is still finishing (overlap of 40-80ms, never a serial wait), outgoing content clears before space collapses, and siblings make room smoothly. Everything starting and ending together is generic; serial waits are worse.
 - character: the motion has physical character suited to its job. Springs or strongly front-loaded curves on things the hand moved or that retarget (indicators, sheets, toggles, dragged items), a small settle or overshoot only where the material earns it (a thumb, a like, a sheet release), and never on exact values, text or data. Uniform ease-out on everything is generic; bouncy data is wrong.
@@ -321,11 +327,7 @@ let verdict = null;
 const found = !args.includes('--no-critic') && findCli(process.env.SEENRY_CRITIC);
 if (found && normal.length) {
   const brief = flag('brief') && existsSync(flag('brief')) ? readFileSync(flag('brief'), 'utf8') : '';
-  const KEYS = ['origin', 'attachment', 'choreography', 'character', 'exit', 'continuity', 'interruption', 'states', 'reduced_motion', 'overall'];
-  const schema = {type: 'object', additionalProperties: false, required: ['scores', 'rows', 'verdict', 'fixes'], properties: {
-    scores: {type: 'object', additionalProperties: false, required: KEYS, properties: Object.fromEntries(KEYS.map(k => [k, {type: 'integer', minimum: 1, maximum: 10}]))},
-    rows: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['interaction', 'score', 'note'], properties: {interaction: {type: 'string'}, score: {type: 'integer', minimum: 1, maximum: 10}, note: {type: 'string'}}}},
-    verdict: {type: 'string'}, fixes: {type: 'array', minItems: 1, maxItems: 10, items: {type: 'object', additionalProperties: false, required: ['interaction', 'problem', 'fix'], properties: {interaction: {type: 'string'}, problem: {type: 'string'}, fix: {type: 'string'}}}}}};
+  const KEYS = MOTION_SCORE_KEYS, schema = MOTION_VERDICT_SCHEMA;
   const measured = report.interactions.map(i => ({interaction: i.label,
     enter: i.anims.filter(a => a.iterations !== Infinity).slice(0, 8).map(a => ({target: a.target, props: a.props, ms: Math.round(a.duration), ...(a.ms95 ? {visibleMs: a.ms95} : {}), delay: a.delay, easing: a.easing, from: a.from, to: a.to})),
     nextChange: i.reverseAnims.filter(a => a.iterations !== Infinity).slice(0, 6).map(a => ({target: a.target, props: a.props, ms: Math.round(a.duration), easing: a.easing, to: a.to})), layoutShift: i.shift}));
@@ -344,7 +346,7 @@ Durations used across the page: ${report.durations.join(', ')}ms. Easing curves 
 Reduced-motion run: ${calm.map(r => `${r.label}: ${r.anims.filter(a => a.duration > 60 && a.iterations !== Infinity).map(a => a.props.join('+') + ' ' + Math.round(a.duration) + 'ms').join(', ') || 'no motion over 60ms'}`).join('; ').slice(0, 3000) || 'no interactions'}.
 Automatic violations: ${violations.join('; ') || 'none'}. Notes: ${notes.join('; ').slice(0, 2000) || 'none'}.
 
-Look at every frame. Score each rubric criterion and each interaction (rows: one entry per interaction, with the score and the single most important observation). Then give the overall on the calibrated scale and up to ten concrete fixes naming the interaction, the problem you saw in specific frames, and the exact change (property, origin, duration, curve or spring, order). Fixes may only animate transform, opacity, clip-path, small filters or SVG strokes; size changes are shown with FLIP or a clipped shell, never by animating width, height or other layout properties. Do not open any files other than the attached images.`;
+Look at every frame. Score each rubric criterion and each interaction (rows: one entry per captured interaction, using its exact measured interaction label, with the score and the single most important observation). Then give the overall on the calibrated scale and up to ten concrete fixes naming the interaction, the problem you saw in specific frames, and the exact change (property, origin, duration, curve or spring, order). Fixes may only animate transform, opacity, clip-path, small filters or SVG strokes; size changes are shown with FLIP or a clipped shell, never by animating width, height or other layout properties. Do not open any files other than the attached images.`;
   const work = mkdtempSync(join(tmpdir(), 'seenry-motion-'));
   const self = fileURLToPath(import.meta.url);
   const results = (await Promise.all(Array.from({length: runs}, (_, k) => new Promise(done => {
@@ -352,8 +354,8 @@ Look at every frame. Score each rubric criterion and each interaction (rows: one
     writeFileSync(job, JSON.stringify({images: pages, prompt, schema, result}));
     const child = spawn(process.execPath, [self, '--ask', job], {stdio: ['ignore', 'ignore', 'pipe'], env: process.env});
     let err = ''; child.stderr.on('data', d => err += d);
-    child.on('close', code => { try { done(JSON.parse(readFileSync(result, 'utf8'))); } catch { process.stderr.write(`motion judge run ${k + 1} failed (${code}): ${err.slice(0, 600)}\n`); done(null); } });
-  })))).filter(r => r && r.scores);
+    child.on('close', code => { try { if (code !== 0) throw new Error('model child failed'); done(JSON.parse(readFileSync(result, 'utf8'))); } catch { process.stderr.write(`motion judge run ${k + 1} failed (${code}): ${err.slice(0, 600)}\n`); done(null); } });
+  })))).filter(r => validMotionVerdict(r, {annotated: true}));
   if (results.length) {
     const median = xs => [...xs].sort((a, b) => a - b)[Math.floor((xs.length - 1) / 2)];
     const scores = Object.fromEntries(KEYS.map(k => [k, median(results.map(r => r.scores[k]))]));
@@ -379,6 +381,15 @@ Look at every frame. Score each rubric criterion and each interaction (rows: one
     }
   } else console.error('motion judge model failed on every run.');
 }
-writeFileSync(join(out, 'motion.json'), JSON.stringify({...report, verdict}, null, 2));
+// A quality failure is usable review evidence; missing judgment is a tool/incomplete
+// outcome. Keep the explicit outcome and exit code in agreement for check.mjs.
+const score = verdict?.scores?.overall;
+const acceptance = motionAcceptance(verdict, report.interactions);
+const complete = acceptance.complete;
+const outcome = !complete ? 'unverified' : violations.length || acceptance.failures.length ? 'quality-fail' : 'pass';
+writeFileSync(join(out, 'motion.json'), JSON.stringify({...report, verdict, outcome, acceptance}, null, 2));
+if (acceptance.failures.length) console.log('Below the required floor: ' + acceptance.failures.join(' · '));
+console.log('Review scope: captured interaction labels only; uncaptured components are unverified.');
+if (!complete) console.log('Incomplete schema or captured-label coverage; no quality acceptance.');
 console.log(`\nWritten to ${join(out, 'motion.json')}, motion-board.png and ${pages.length} board page(s)`);
-process.exit(violations.length || (verdict && verdict.scores.overall < 9) ? 1 : 0);
+process.exit(outcome === 'pass' ? 0 : outcome === 'quality-fail' ? 1 : 2);

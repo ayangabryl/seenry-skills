@@ -38,22 +38,32 @@
     keyframe is replaced by the rendered value, so a new call retargets instead of restarting. Returns a promise that
     resolves true when it finished, false when something newer replaced it. */
  const channels = new WeakMap(), heldStyles = new WeakMap();
+ // Filter is a single visual property: the latest blur companion owns it, together
+ // with the channel that requested it. Unrelated channel stops leave it alone.
  const blurAnims = new WeakMap();
+ function stopBlur(el, key) {
+  const owned = blurAnims.get(el);
+  if (!owned || (key !== undefined && owned.key !== key)) return;
+  blurAnims.delete(el); owned.animation.cancel();
+ }
  function play(el, frames, o = {}) {
   if (!el || !el.animate) return Promise.resolve(true);
   const key = (o.channel || 'main') + (o.pseudo || '');
+  const previousBlur = !o.pseudo && blurAnims.get(el), renderedBlur = previousBlur ? getComputedStyle(el).filter : null;
   let map = channels.get(el); if (!map) channels.set(el, map = new Map());
   const prev = map.get(key);
   let held = heldStyles.get(el); if (!held) heldStyles.set(el, held = new Map());
   const committed = held.get(key);
   // A single keyframe is a target: start it from the rendered value.
-  if (((prev || committed) && o.current !== false) || frames.length === 1) {
+  if (((prev || committed || (previousBlur && frames.some(f => 'filter' in f))) && o.current !== false) || frames.length === 1) {
    const cs = getComputedStyle(el, o.pseudo || null), first = {};
    for (const p of Object.keys(frames[frames.length - 1])) if (p !== 'offset' && p !== 'easing' && p !== 'composite') first[p] = cs[p];
    // clip-path 'none' does not interpolate; start from the equivalent full inset instead.
    if (first.clipPath === 'none') { const r = /round ([\d.]+px)/.exec(String(frames[frames.length - 1].clipPath)); first.clipPath = `inset(0px 0px 0px 0px${r ? ' round ' + r[1] : ''})`; }
    frames = frames.length === 1 ? [first, frames[0]] : [first, ...frames.slice(1)];
   }
+  // Sample a superseded filter before retirement; pseudo-element filters own a separate target.
+  if (!o.pseudo) { if (reduced() || frames.some(f => 'filter' in f)) stopBlur(el); else stopBlur(el, key); }
   prev?.cancel();
   if (committed) { for (const [prop, value] of Object.entries(committed)) el.style[prop] = value; held.delete(key); }
   let duration, easing;
@@ -69,8 +79,11 @@
   // Blur option: inside [data-st-blur], a fade on a small element also pulls focus (blur to sharp on the way in, a
   // softer blur on the way out). Large surfaces never blur; reduced motion already returned above.
   const blurHost = !reduced() && !o.pseudo && o.blur !== false && el.closest?.('[data-st-blur]');
+  // Deliberately animated filters (including another authored WAAPI/CSS effect) own
+  // their property. An opacity fade must not freeze that moving value into a second blur.
+  const ownsFilter = blurHost && ([...(el.getAnimations?.() || [])].some(a => a !== blurAnims.get(el)?.animation && !a.effect?.pseudoElement && a.effect?.target === el && a.effect.getKeyframes().some(f => 'filter' in f)) || [...held.values()].some(saved => 'filter' in saved));
   let blurIn = 0;
-  if (blurHost && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
+  if (blurHost && !ownsFilter && frames.length >= 2 && 'opacity' in frames[0] && 'opacity' in frames[frames.length - 1] && !frames.some(f => 'filter' in f)) {
    const r = el.getBoundingClientRect(), px = parseFloat(blurHost.dataset.stBlur) || 8;
    if (r.width * r.height > 0 && r.width * r.height <= 160000) {
     const a0 = +frames[0].opacity, a1 = +frames[frames.length - 1].opacity;
@@ -78,12 +91,16 @@
     // visibly behind it. On the way out the element defocuses quickly as it leaves.
     blurIn = a1 > a0 ? 1 : a1 < a0 ? -1 : 0;
     if (blurIn) {
-     blurAnims.get(el)?.cancel();
-     const ba = el.animate(blurIn > 0 ? [{filter: `blur(${px}px)`}, {filter: 'blur(0px)'}] : [{filter: 'blur(0px)'}, {filter: `blur(${px * .6}px)`}],
+     stopBlur(el);
+     const baseFilter = getComputedStyle(el).filter || 'none';
+     const blurFilter = px => `${baseFilter === 'none' ? '' : baseFilter + ' '}blur(${px}px)`;
+     // A reversal continues from the actual filter before cancelling its old companion.
+     const firstFilter = renderedBlur || blurFilter(blurIn > 0 ? px : 0);
+     const ba = el.animate([{filter: firstFilter}, {filter: blurFilter(blurIn > 0 ? 0 : px * .6)}],
       {duration: blurIn > 0 ? Math.max(300, duration * 1.4) : Math.max(120, duration), easing: blurIn > 0 ? 'cubic-bezier(.25,.1,.25,1)' : CURVES.X, delay, fill: blurIn > 0 ? 'backwards' : 'both'});
-     blurAnims.set(el, ba);
-     if (blurIn > 0) ba.finished.then(() => { if (blurAnims.get(el) === ba) blurAnims.delete(el); }, () => {});
-     else ba.finished.then(() => { if (blurAnims.get(el) === ba) { ba.cancel(); blurAnims.delete(el); } }, () => {});
+     const owned = {key, animation: ba}; blurAnims.set(el, owned);
+     const release = () => { if (blurAnims.get(el) === owned) blurAnims.delete(el); ba.cancel(); };
+     ba.finished.then(release, release);
     }
    }
   }
@@ -101,11 +118,13 @@
   }, () => { a.cancel(); return false; });
  }
  function stop(el, channel = 'main') {
+  stopBlur(el, channel);
   const map = channels.get(el), a = map?.get(channel); if (a) { a.cancel(); map.delete(channel); }
   const held = heldStyles.get(el), saved = held?.get(channel);
   if (saved) { Object.assign(el.style, saved); held.delete(channel); }
  }
  function stopAll(el) {
+  stopBlur(el);
   const map = channels.get(el); if (map) { for (const a of map.values()) a.cancel(); map.clear(); }
   const held = heldStyles.get(el); if (held) { for (const saved of held.values()) Object.assign(el.style, saved); held.clear(); }
  }
@@ -323,6 +342,10 @@
  /* ---------- Layers ---------- */
  const layers = new WeakMap(), active = new Set();
  const POP = ['menu', 'plus-menu', 'popover', 'popover-panel', 'tooltip'];
+ const plainMenu = el => el.dataset.st === 'menu' && !el.hasAttribute('data-st-morph');
+ // Ordinary menus own only these surface channels. Keep host-authored effects and
+ // row styles intact when keyboard input takes over or an action opens another UI.
+ function stopMenu(el) { stop(el, 'o'); stop(el, 't'); }
  const layerState = el => { let s = layers.get(el); if (!s) layers.set(el, s = {open: false, version: 0}); return s; };
  const isOpen = el => { const s = layers.get(el); if (s) return s.open; if (el.tagName === 'DIALOG') return el.open; if (el.hasAttribute('popover')) return el.matches(':popover-open'); return el.dataset.stOpen === 'true'; };
  const persistentPalette = el => el.dataset.st === 'palette' && el.tagName !== 'DIALOG' && el.hasAttribute('data-st-persistent');
@@ -358,24 +381,41 @@
   const t = trigger.getBoundingClientRect(), r = el.getBoundingClientRect(), rad = parseFloat(getComputedStyle(trigger).borderTopLeftRadius) || 8;
   return `inset(${t.top - r.top}px ${r.right - t.right}px ${r.bottom - t.bottom}px ${t.left - r.left}px round ${rad}px)`;
  }
- let keyboardInput = false; doc.addEventListener('keydown', () => { keyboardInput = true; doc.documentElement.dataset.stInputMode='keyboard'; active.forEach(el=>delete el.dataset.stPointerFocus); }, true); doc.addEventListener('pointerdown', () => { keyboardInput = false; doc.documentElement.dataset.stInputMode='pointer'; }, true);
+ let keyboardInput = false; doc.addEventListener('keydown', () => { keyboardInput = true; doc.documentElement.dataset.stInputMode='keyboard'; active.forEach(el=>{ delete el.dataset.stPointerFocus; if (plainMenu(el) && layerState(el).open) stopMenu(el); }); }, true); doc.addEventListener('pointerdown', () => { keyboardInput = false; doc.documentElement.dataset.stInputMode='pointer'; }, true);
  // Delayed exits may hide their trigger. Restore only after it is visible and only if no newer focus took ownership.
  let focusVersion = 0; doc.addEventListener('focusin', () => { ++focusVersion; }, true);
  function focusReturn(target) { const version = focusVersion; return () => { if (focusVersion === version && target?.isConnected) target.focus?.({preventScroll: true}); }; }
- function focusFirst(el) { const f = q(el, '[autofocus],[data-st-palette-input],[role="menuitem"]:not([disabled]),[role="option"],button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'); f?.focus({preventScroll: true, focusVisible: keyboardInput}); }
+ function focusFirst(el, keyboard = keyboardInput) { const f = q(el, '[autofocus],[data-st-palette-input],[role="menuitem"]:not([disabled]),[role="option"],button:not([disabled]),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'); f?.focus({preventScroll: true, focusVisible: keyboard}); }
 
  function open(el, trigger, o = {}) {
   if (!el) return;
   const s = layerState(el), kind = el.dataset.st;
+  const menu = plainMenu(el), menuKeyboard = o.keyboard ?? keyboardInput, menuInstant = menu && (o.instant || menuKeyboard || reduced());
   if (trigger) s.trigger = trigger; else if (!s.trigger && doc.activeElement !== doc.body) s.trigger = doc.activeElement;
   el._stTrigger = s.trigger;
-  const wasOpen = s.open, wasClosing = s.closing; if (wasOpen && !wasClosing) return;
+  const wasOpen = s.open, wasClosing = s.closing; if (wasOpen && !wasClosing) { if (menuInstant) stopMenu(el); return; }
   s.open = true; s.closing = false; const v = ++s.version;
   el.inert = false; el.dataset.stManaged = ''; el.dataset.stOpen = 'true'; el.hidden = false;
   s.trigger?.setAttribute('aria-expanded', 'true');
   paletteExpanded(el, true);
-  if (el.tagName === 'DIALOG') { if (!el.open) (el.hasAttribute('data-st-contained') ? el.show() : el.showModal()); }
+  const openingFocus = focusVersion;
+  if (menu) { active.add(el); el.scrollLeft = el.scrollTop = 0; if (menuInstant) stopMenu(el); }
+  if (el.tagName === 'DIALOG') {
+   // Autofocus may request an animated close before open resumes. Own that interval.
+   if (kind === 'modal') active.add(el);
+   if (!el.open) (el.hasAttribute('data-st-contained') ? el.show() : el.showModal());
+  }
   else if (el.hasAttribute('popover')) { if (!el.matches(':popover-open')) el.showPopover(); }
+  // Native autofocus can synchronously close or reopen the layer through host code.
+  if (s.version !== v || !s.open || (el.tagName === 'DIALOG' && !el.open)) {
+   // beforetoggle(open) runs before native visibility changes. A newer instant
+   // close may already have finished there; retire only that stranded show.
+   // Pending pointer exits keep their presentation. Native hide can call host
+   // code again, so do not change managed state, focus or events after it returns.
+   if (menu && !s.open && !s.closing && el.hasAttribute('popover') && el.matches(':popover-open')) el.hidePopover();
+   return;
+  }
+  if (menu && el.hasAttribute('popover') && !el.matches(':popover-open')) { close(el, {instant: true, silent: true}); return; }
   if (POP.includes(kind) && kind !== 'tooltip') { for (const other of [...active]) if (other !== el && !other.contains(el) && POP.includes(other.dataset.st)) close(other, {silent: true}); }
   if (POP.includes(kind) && s.trigger) { place(el, s.trigger); active.add(el); }
   else if (!POP.includes(kind)) active.add(el);
@@ -426,11 +466,13 @@
    play(el, [{clipPath: 'inset(0 0 100% 0 round 14px)'}, {clipPath: 'inset(0 0 0% 0 round 14px)'}], {ms: 220, curve: 'E', channel: 'clip'});
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', channel: 'o', fade: true});
    [...el.children].forEach((c, i) => { play(c, [{transform: 'translateY(-4px)'}, {transform: 'none'}], {ms: 200, curve: 'E', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content-t'}); play(c, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 25 + i * 15, channel: 'content', fade: true}); });
+  } else if (menuInstant) {
+   stopMenu(el);
   } else if (POP.includes(kind)) {
    // One piece: the surface and its rows fade, lift and scale together from the trigger, so there is never an empty
    // frame or a shadow without content. Reopened mid-close, it continues from the rendered values.
    const dy = el.dataset.stSide === 'top' ? 4 : -4;
-   [...el.children].forEach(c => { stop(c, 'o'); c.style.opacity = ''; });
+   if (!menu) [...el.children].forEach(c => { stop(c, 'o'); c.style.opacity = ''; });
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 160, curve: 'O', channel: 'o', fade: true});
    play(el, [{transform: `translateY(${dy}px) scale(.96)`}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
   } else if (kind === 'sheet') {
@@ -445,7 +487,18 @@
   } else if (kind === 'panel') {
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', channel: 'o', fade: true});
    play(el, [{transform: 'translateY(-6px) scale(.98)'}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
-  } else if (el.tagName === 'DIALOG' || kind === 'modal' || kind === 'palette') {
+  } else if (kind === 'modal') {
+   // A decision and its safe initial focus are readable from the first painted frame.
+   // The backdrop establishes scope; do not fade or blur the focused content on entry.
+   const instant = o.keyboard || keyboardInput || reduced();
+   stop(el, 'o'); // The decision shell stays opaque through exit and reversal.
+   if (instant) { stop(el, 't'); stop(el, 'main::backdrop'); }
+   else {
+    if (t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
+    play(el, [{transform: 'translateY(4px) scale(.97)'}, {transform: 'none'}], {ms: 220, curve: 'E', channel: 't'});
+   }
+   if (!instant && el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
+  } else if (el.tagName === 'DIALOG' || kind === 'palette') {
    if (kind !== 'palette' && t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
    if (kind === 'palette') {
     el.style.transformOrigin = '50% 0';
@@ -457,19 +510,27 @@
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
    if (kind === 'modal') [...el.children].forEach(c => fadeIn(c,{ms:100,delay:c.matches('.row,.st-actions')?45:25}));
   }
-  if (o.keyboard) delete el.dataset.stPointerFocus; else el.dataset.stPointerFocus = '';
-  if (!wasOpen && o.focus !== false && kind !== 'tooltip') {
-   if (kind === 'menu' || kind === 'plus-menu') { if (o.keyboard) focusFirst(el); else { el.dataset.stPointerFocus = ''; el.focus?.({preventScroll: true, focusVisible: false}); } }
-   else if (el.tagName !== 'DIALOG' || kind === 'palette') focusFirst(el);
+  if ((menu ? menuKeyboard : o.keyboard) || (kind === 'modal' && keyboardInput)) delete el.dataset.stPointerFocus; else el.dataset.stPointerFocus = '';
+  // Native popover autofocus may already have transferred focus, including a host
+  // redirect. Do not acquire it again after that synchronous callback boundary.
+  if (!wasOpen && o.focus !== false && kind !== 'tooltip' && (!menu || focusVersion === openingFocus)) {
+   if (kind === 'menu' || kind === 'plus-menu') { if (menu ? menuKeyboard : o.keyboard) focusFirst(el, menu ? menuKeyboard : keyboardInput); else { el.dataset.stPointerFocus = ''; el.focus?.({preventScroll: true, focusVisible: false}); } }
+   else if (el.tagName !== 'DIALOG' || kind === 'palette' || (kind === 'modal' && wasClosing)) focusFirst(el);
   }
+  // Explicit focus on a reversal is another synchronous host callback boundary.
+  if (s.version !== v || !s.open || (el.tagName === 'DIALOG' && !el.open)) return;
+  if (menu && el.hasAttribute('popover') && !el.matches(':popover-open')) { close(el, {instant: true, silent: true}); return; }
   el.dispatchEvent(new CustomEvent('st:open', {bubbles: true}));
  }
 
  function close(el, o = {}) {
   if (!el) return;
   const s = layerState(el), kind = el.dataset.st;
-  if (!s.open && !isOpen(el)) return;
-  if (!s.open && s.closing) return;
+  const menu = plainMenu(el), menuInstant = menu && (o.instant || (o.keyboard ?? keyboardInput) || reduced());
+  // A gallery action can follow the generic menuitem listener in the same event.
+  // Its instant handoff must retire an exit that has already been accepted.
+  if (!s.open && !isOpen(el) && !(menuInstant && s.closing)) return;
+  if (!s.open && s.closing && !menuInstant) return;
   s.open = false; s.closing = true; const v = ++s.version;
   s.trigger?.setAttribute('aria-expanded', 'false');
   const hadFocus = el.contains(doc.activeElement);
@@ -479,12 +540,15 @@
   el.inert = !persistentPalette(el);
   paletteExpanded(el, false);
   if (refocus && !morph && el.tagName !== 'DIALOG') refocus();
+  if (menu && (s.version !== v || s.open)) return;
   const scrim = scrimOf(el), recede = recedeOf(el);
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', fade: true}); }
   // The page behind comes back in step with the sheet's 220ms exit, not on a longer tail.
   if (recede) play(recede, [{transform: 'none', clipPath:'inset(0px round 0px)', opacity: 1}], {ms: 220, curve: 'E', channel: 'recede'}).then(ok => { if (ok) stop(recede, 'recede'); });
   let done;
-  if (morph) {
+  if (menuInstant) {
+   // finish() below removes the native surface synchronously, without a fake job.
+  } else if (morph) {
    el.classList.add('st-morphing');
    [...s.body.children].filter(c => c !== s.label).forEach(c => play(c, [{opacity: 0}], {ms: 'feedback', curve: 'F', fill: 'forwards', fade: true}));
    play(s.label, [{opacity: 1}], {ms: 'quick', curve: 'F', delay: 50, fill: 'forwards', fade: true});
@@ -507,6 +571,14 @@
    if (reduced()) done = play(el, [{opacity: 1}, {opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
   } else if(kind==='palette' && el.hasAttribute('data-st-persistent')){
    const height=q(el,'.st-palette-search')?.offsetHeight||46;done=play(el,[{clipPath:`inset(0px 0px calc(100% - ${height}px) 0px round 12px)`}],{ms:200,curve:'O',channel:'clip',fill:'forwards'});const results=q(el,'[role=listbox]');if(results)play(results,[{opacity:0}],{ms:65,channel:'o',fill:'forwards',fade:true});
+  } else if (kind === 'modal') {
+   // Keep an opaque decision shell until the native scope retires: fading the
+   // shell mixes its copy with the page beneath. Keyboard/reduced paths are instant.
+   if (!o.keyboard && !keyboardInput && !reduced()) {
+    const jobs = [play(el, [{transform: 'scale(.97)'}], {ms: 120, curve: 'X', channel: 't', fill: 'forwards'})];
+    if (el.tagName === 'DIALOG') jobs.push(play(el, [{opacity: 0}], {ms: 140, curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true}));
+    done = Promise.all(jobs);
+   }
   } else if (kind === 'panel') {
    play(el, [{transform: 'translateY(-4px) scale(.98)'}], {ms: 'quick', curve: 'X', channel: 't', fill: 'forwards'});
    done = play(el, [{opacity: 0}], {ms: 'quick', curve: 'F', channel: 'o', fill: 'forwards', fade: true});
@@ -518,14 +590,24 @@
   const finish = () => {
    if (s.version !== v || s.open) return;
    s.closing = false;
-   if (s.trigger) s.trigger.style.visibility = '';
+   if (s.trigger && !menu) s.trigger.style.visibility = '';
+   const clean = () => {
+    el.dataset.stOpen = 'false'; active.delete(el);
+    if (menu) stopMenu(el);
+    else { stopAll(el); if (s.label) stopAll(s.label); if (s.body) { stopAll(s.body); [...s.body.children].forEach(stopAll); } [...el.children].forEach(stopAll); el.classList.remove('st-morphing'); }
+   };
+   // Native close may restore focus synchronously. Retire this surface's old
+   // presentation first, so a host reopen cannot be erased by the old finish.
+   if (kind === 'modal' || menu) clean();
    if (el.tagName === 'DIALOG' && el.open) el.close();
    else if (el.hasAttribute('popover') && el.matches(':popover-open')) el.hidePopover();
-   el.dataset.stOpen = 'false'; active.delete(el);
-   stopAll(el); if (s.label) stopAll(s.label); if (s.body) { stopAll(s.body); [...s.body.children].forEach(stopAll); } [...el.children].forEach(stopAll); el.classList.remove('st-morphing');
+   if ((kind === 'modal' || menu) && (s.version !== v || s.open)) return;
+   if (kind !== 'modal' && !menu) clean();
    if (morph || el.tagName === 'DIALOG') refocus?.();
+   if ((kind === 'modal' || menu) && (s.version !== v || s.open)) return;
    el.dispatchEvent(new CustomEvent('st:close', {bubbles: true}));
   };
+  if (menuInstant || (kind === 'modal' && (o.keyboard || keyboardInput || reduced()))) { finish(); return; }
   (done || Promise.resolve(true)).then(finish);
   if (reduced() && !done) finish();
  }
@@ -874,22 +956,30 @@
     and announces itself (st:cite) so its source can answer. ---------- */
  const streams = new WeakMap();
  function stream(el, chunk, {reset = false, done = false, stop = false} = {}) {
-  let s = streams.get(el); if (!s) streams.set(el, s = {buffer: '', frame: 0, t: 0});
+  let s = streams.get(el); if (!s) streams.set(el, s = {buffer: '', frame: 0, t: 0, stopped: false});
   // Stop keeps exactly what is on screen: letters already arriving finish at once, queued ones are dropped.
   if (stop) {
-   cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; el.setAttribute('aria-busy', 'false');
+   cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; s.stopped = true; el.setAttribute('aria-busy', 'false');
    for (const c of qa(el, '.st-word > span, .st-cite')) { const a = c.getAnimations(); if (a.some(x => (x.currentTime ?? 0) < (x.effect?.getTiming().delay || 0))) c.remove(); else a.forEach(x => x.finish()); }
-   qa(el, '.st-word').forEach(w => { if (!w.childElementCount) w.remove(); });
+   // Reduced motion renders text directly, without per-letter child elements.
+   qa(el, '.st-word').forEach(w => { if (!w.textContent) w.remove(); });
    return;
   }
-  if (reset) { cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; el.replaceChildren(); }
+  if (reset) { cancelAnimationFrame(s.frame); s.frame = 0; s.buffer = ''; s.t = 0; s.stopped = false; el.replaceChildren(); }
+  // Late producer chunks cannot restart a stopped answer; a new answer explicitly resets.
+  if (s.stopped) return;
   s.buffer += chunk || '';
   el.setAttribute('aria-busy', String(!done));
   // Letters are revealed faster than text arrives, so the soft edge stays a few letters long and never backs up.
   const at = () => { const now = performance.now(); s.t = Math.max(s.t, now) + 3; return s.t - now; };
   const flush = () => {
    s.frame = 0; if (!el.isConnected || !s.buffer) { s.buffer = ''; return; }
-   const words = s.buffer.match(/\[\d+\]|[^\s[]+\s*|\s+/g) || []; s.buffer = '';
+   // Keep an unfinished citation across frame/chunk boundaries. At end-of-stream,
+   // an incomplete token is literal text. The fallback '[' alternative never drops ink.
+   let ready = s.buffer; s.buffer = '';
+   const partial = !done && /\[\d*$/.exec(ready);
+   if (partial) { s.buffer = partial[0]; ready = ready.slice(0, partial.index); }
+   const words = ready.match(/\[\d+\]|[^\s[]+\s*|\s+|\[/g) || [];
    for (const w of words) {
     const cite = /^\[(\d+)\]$/.exec(w);
     if (cite) {
@@ -1110,12 +1200,112 @@
   s.moved = true;
   return Promise.all(jobs).then(r => r.every(Boolean) && s.version === v);
  }
+ function retireExpandReveals(pairs) {
+  for (const [a, d] of pairs) { stop(a, 'expand-reveal'); stop(d, 'expand-reveal'); }
+ }
+ const expandPaintProperties = ['background-color','background-image','background-position-x','background-position-y','background-size','box-shadow','border-top-color','border-right-color','border-bottom-color','border-left-color'];
+ const expandStyle = (el, keys) => Object.fromEntries(keys.map(key => [key, {value: el.style.getPropertyValue(key), priority: el.style.getPropertyPriority(key)}]));
+ const restoreExpandStyle = (el, saved) => { for (const [key, entry] of Object.entries(saved)) el.style.setProperty(key, entry.value, entry.priority); };
+ function transferExpandPaint(surface, update) {
+  const saved = expandStyle(surface, ['transition-property','transition-duration','transition-delay']);
+  const cs = getComputedStyle(surface), properties = (cs.transitionProperty || 'all').split(',').map(x => x.trim());
+  const durations = (cs.transitionDuration || '0s').split(','), delays = (cs.transitionDelay || '0s').split(',');
+  // Later matching entries win, including when the authored list uses "all".
+  // Only transferred paint properties get zero time; unrelated color/geometry clocks survive.
+  surface.style.setProperty('transition-property', [...properties, ...expandPaintProperties].join(', '), 'important');
+  surface.style.setProperty('transition-duration', [...properties.map((_, i) => durations[i % durations.length]), ...expandPaintProperties.map(() => '0s')].join(', '), 'important');
+  surface.style.setProperty('transition-delay', [...properties.map((_, i) => delays[i % delays.length]), ...expandPaintProperties.map(() => '0s')].join(', '), 'important');
+  try {
+   for (const animation of surface.getAnimations?.() || []) if (animation.effect?.target === surface && !animation.effect.pseudoElement && expandPaintProperties.includes(animation.transitionProperty)) animation.cancel();
+   const result = update();
+   // Commit the transferred endpoint before restoring transition declarations. Otherwise
+   // an immediate reopen can sample a half-restored background as its permanent backing.
+   getComputedStyle(surface).backgroundColor;
+   return result;
+  } finally { restoreExpandStyle(surface, saved); }
+ }
  function expandPaint(surface, state) {
   if (state.paint?.isConnected) return state.paint;
-  const cs = getComputedStyle(surface), paint = doc.createElement('span'); paint.setAttribute('aria-hidden', 'true'); paint.className = 'st-expand-paint';
-  Object.assign(paint.style, {position: 'absolute', inset: '0', background: cs.background, boxShadow: cs.boxShadow, border: cs.border, borderRadius: cs.borderRadius, pointerEvents: 'none', zIndex: '-1'});
-  state.paintSaved = {background: surface.style.background, boxShadow: surface.style.boxShadow, borderColor: surface.style.borderColor, overflow: surface.style.overflow, isolation: surface.style.isolation};
-  Object.assign(surface.style, {background: 'transparent', boxShadow: 'none', borderColor: 'transparent', overflow: 'visible', isolation: 'isolate'}); surface.prepend(paint); state.paint = paint; return paint;
+  return transferExpandPaint(surface, () => {
+   const cs = getComputedStyle(surface), paint = doc.createElement('span'); paint.setAttribute('aria-hidden', 'true'); paint.className = 'st-expand-paint';
+   Object.assign(paint.style, {position: 'absolute', inset: '0', background: cs.background, boxShadow: cs.boxShadow, border: cs.border, borderRadius: cs.borderRadius, pointerEvents: 'none', zIndex: '-1'});
+   state.paintSaved = expandStyle(surface, ['background','background-color','background-image','background-position-x','background-position-y','background-size','background-repeat','background-attachment','background-origin','background-clip','box-shadow','border-color','border-top-color','border-right-color','border-bottom-color','border-left-color','overflow','overflow-x','overflow-y','isolation']);
+   for (const [key, value] of Object.entries({background: 'transparent', 'box-shadow': 'none', 'border-color': 'transparent', overflow: 'visible', isolation: 'isolate'})) surface.style.setProperty(key, value, state.paintSaved[key].priority);
+   surface.prepend(paint); state.paint = paint; return paint;
+  });
+ }
+ function restoreExpandPaint(surface, state) {
+  if (!state.paint) return;
+  transferExpandPaint(surface, () => {
+   stopAll(state.paint); state.paint.remove(); state.paint = null;
+   restoreExpandStyle(surface, state.paintSaved);
+  });
+ }
+ // A dismissal must be usable from its first accepted frame. Card entry forces this
+ // handoff for pointer input too; later native focus can reuse it without touching siblings.
+ const expandCloseFocus = new WeakMap();
+ function revealFocusedExpandClose(control, force = false) {
+  const owner = expandCloseFocus.get(control);
+  if (!owner?.state.open || !owner.surface.contains(control) || (!force && !control.matches(':focus-visible'))) return;
+  stop(control, 'o');
+  // A custom Close may sit inside an animated details wrapper. Reveal only its ancestor
+  // path; sibling details retain their entrance choreography and authored styles.
+  for (let n = control.parentElement; n && n !== owner.surface; n = n.parentElement) { stop(n, 'o'); stop(n, 'clip'); stop(n, 't'); }
+  stop(owner.surface, 'o');
+ }
+ function watchExpandCloseFocus(control, state, surface) {
+  if (!expandCloseFocus.has(control)) {
+   control.addEventListener('focus', () => revealFocusedExpandClose(control));
+   control.addEventListener('keydown', () => revealFocusedExpandClose(control));
+  }
+  expandCloseFocus.set(control, {state, surface});
+ }
+ // Close belongs to the currently painted card, not the final layout box behind it.
+ // Individual translate preserves the control's authored press transform and unchanged hit target.
+ function attachExpandClose(control, surface, from, to, springName, continuing, renderedStart) {
+  if (!control) return;
+  const rendered = renderedStart || box(control.getBoundingClientRect()); stop(control, 'expand-close-position');
+  const rest = box(control.getBoundingClientRect()), savedTranslate = control.style.translate;
+  control.style.translate = 'none'; const home = box(control.getBoundingClientRect()); control.style.translate = savedTranslate;
+  const shell = box(surface.getBoundingClientRect());
+  const right = Math.max(0, shell.x + shell.w - rest.x - rest.w), top = Math.max(0, rest.y - shell.y);
+  const attached = r => ({x: r.x + Math.max(0, r.w - home.w - right), y: r.y + Math.min(top, Math.max(0, r.h - home.h))});
+  const start = continuing ? rendered : attached(from), end = attached(to);
+  return play(control, [{translate: `${start.x - home.x}px ${start.y - home.y}px`}, {translate: `${end.x - home.x}px ${end.y - home.y}px`}], {spring: springName, channel: 'expand-close-position', current: false, fill: 'forwards'});
+ }
+ // Opt-in source action lane: CSS keeps the relationship through resize/reflow.
+ // Unsupported or invalid anchors retain generic shell attachment, never a stale pixel pin.
+ let expandAnchorId = 0;
+ function restoreExpandClosePin(s) {
+  const pin = s.closePin; if (!pin) return;
+  for (const [key, saved] of Object.entries(pin.style)) pin.control.style.setProperty(key, saved.value, saved.priority);
+  pin.anchor.style.setProperty('anchor-name', pin.anchorName.value, pin.anchorName.priority);
+  if (pin.marker === undefined) delete pin.control.dataset.stClosePinned; else pin.control.dataset.stClosePinned = pin.marker;
+  s.closePin = null;
+ }
+ function pinExpandClose(control, surface, source, s) {
+  const anchor = q(source, '[data-st-close-anchor]');
+  if (!control || !anchor) { restoreExpandClosePin(s); return false; }
+  const supported = typeof CSS !== 'undefined' && CSS.supports('position-anchor', '--st-close-test') && CSS.supports('top', 'anchor(top)') && CSS.supports('position-visibility', 'always');
+  if (!supported) { restoreExpandClosePin(s); return false; }
+  const target = anchor.getBoundingClientRect(), shell = surface.getBoundingClientRect(), origin = source.getBoundingClientRect();
+  const fits = r => target.left >= r.left - .05 && target.top >= r.top - .05 && target.right <= r.right + .05 && target.bottom <= r.bottom + .05;
+  if (!target.width || !target.height || !fits(shell) || !fits(origin)) { restoreExpandClosePin(s); return false; }
+  stop(control, 'expand-close-position');
+  if (s.closePin && (s.closePin.control !== control || s.closePin.anchor !== anchor)) restoreExpandClosePin(s);
+  if (!s.closePin) {
+   const style = {}; for (const key of ['position','translate','position-anchor','position-visibility','top','right','bottom','left']) style[key] = {value: control.style.getPropertyValue(key), priority: control.style.getPropertyPriority(key)};
+   s.closePin = {control, anchor, style, anchorName: {value: anchor.style.getPropertyValue('anchor-name'), priority: anchor.style.getPropertyPriority('anchor-name')}, marker: control.dataset.stClosePinned, name: `--st-expand-close-${++expandAnchorId}`};
+   const authored = getComputedStyle(anchor).anchorName;
+   anchor.style.setProperty('anchor-name', authored && authored !== 'none' ? `${authored}, ${s.closePin.name}` : s.closePin.name, s.closePin.anchorName.priority);
+  }
+  for (const [key, value] of Object.entries({position: 'fixed', translate: 'none', 'position-anchor': s.closePin.name, 'position-visibility': 'always', top: 'anchor(top)', left: 'anchor(left)', right: 'auto', bottom: 'auto'})) control.style.setProperty(key, value, s.closePin.style[key].priority);
+  const placed = control.getBoundingClientRect();
+  const footprint = {width: control.offsetWidth, height: control.offsetHeight};
+  // Press feedback can scale the real control around its center. Validate the layout
+  // footprint and anchor center, while keeping the rendered button inside that footprint.
+  if (getComputedStyle(control).positionVisibility !== 'always' || Math.abs((placed.left + placed.right) - (target.left + target.right)) > 1 || Math.abs((placed.top + placed.bottom) - (target.top + target.bottom)) > 1 || Math.abs(footprint.width - target.width) > .5 || Math.abs(footprint.height - target.height) > .5 || placed.left < target.left - .5 || placed.top < target.top - .5 || placed.right > target.right + .5 || placed.bottom > target.bottom + .5 || !placed.width || !placed.height) { restoreExpandClosePin(s); return false; }
+  control.dataset.stClosePinned = 'css'; return true;
  }
  // Details hang from the shared artwork: below it they follow its bottom edge, beside it its top edge.
  function hang(c, pairs, cr = c.getBoundingClientRect()) {
@@ -1124,29 +1314,98 @@
   return Math.max(-80, Math.min(80, cr.top >= d.bottom - 1 ? a.bottom - d.bottom : a.top - d.top));
  }
  const cardClip = (sr, dr, rad) => `inset(${sr.top - dr.top}px ${dr.right - sr.right}px ${dr.bottom - sr.bottom}px ${sr.left - dr.left}px round ${rad}px)`;
- function expand(source, detail) {
+ const expandSourceOwners = new WeakMap();
+ function releaseExpandSources(s) {
+  const group = s?.sourceGroup?.element; if (!group) return;
+  s.sourceGroup = null;
+  const held = expandSourceOwners.get(group); if (!held) return;
+  held.owners.delete(s);
+  if (!held.owners.size) { group.inert = held.inert; expandSourceOwners.delete(group); }
+ }
+ function holdExpandSources(source, detail, s) {
+  const group = source.closest?.('[data-st-expand-sources]');
+  if (!group || group.contains(detail)) { releaseExpandSources(s); return; }
+  if (s.sourceGroup?.element !== group) {
+   releaseExpandSources(s);
+   let held = expandSourceOwners.get(group);
+   if (!held) { held = {inert: group.inert, owners: new Set()}; expandSourceOwners.set(group, held); }
+   held.owners.add(s); s.sourceGroup = {element: group};
+  }
+  group.inert = true;
+ }
+ // The Card owns inherited visibility when it exposes or finally hides its detail.
+ // A host's transition:all must not leave that semantic endpoint waiting on a clock.
+ function transferExpandVisibility(detail, update) {
+  const held = [];
+  for (const el of [detail, ...qa(detail, '*')]) {
+   const cs = getComputedStyle(el), properties = (cs.transitionProperty || '').split(',').map(x => x.trim());
+   if (!properties.some(p => p === 'all' || p === 'visibility')) continue;
+   const saved = expandStyle(el, ['transition-property','transition-duration','transition-delay']);
+   const durations = (cs.transitionDuration || '0s').split(','), delays = (cs.transitionDelay || '0s').split(',');
+   const owned = {'transition-property': [...properties, 'visibility'].join(', '), 'transition-duration': [...properties.map((_, i) => durations[i % durations.length]), '0s'].join(', '), 'transition-delay': [...properties.map((_, i) => delays[i % delays.length]), '0s'].join(', ')};
+   for (const [key, value] of Object.entries(owned)) el.style.setProperty(key, value, 'important');
+   held.push({el, saved, owned: expandStyle(el, Object.keys(owned))});
+  }
+  try {
+   for (const {el} of held) for (const animation of el.getAnimations?.() || []) if (animation.effect?.target === el && !animation.effect.pseudoElement && animation.transitionProperty === 'visibility') animation.cancel();
+   return update();
+  } finally {
+   // Commit the current owner's state, including a synchronous native-focus reopen.
+   for (const {el} of held) getComputedStyle(el).visibility;
+   for (const {el, saved, owned} of held) for (const [key, value] of Object.entries(owned)) {
+    // A host focus handler may intentionally replace a declaration during showModal.
+    if (el.style.getPropertyValue(key) === value.value && el.style.getPropertyPriority(key) === value.priority) el.style.setProperty(key, saved[key].value, saved[key].priority);
+   }
+  }
+ }
+ function expand(source, detail, o = {}) {
   if (!source || !detail) return;
+  let instant = o.keyboard ?? keyboardInput;
+  if (instant) detail.dataset.stInstant = ''; else delete detail.dataset.stInstant;
   const s = layerState(detail), wasClosing = s.closing; s.source = source; s.open = true; s.closing = false; const v = ++s.version;
   if (!wasClosing) s.moved = false;
-  detail.dataset.stOpen = 'true'; delete detail.dataset.stClosing; detail.hidden = false; detail.inert = false; active.add(detail);
-  if (detail.tagName === 'DIALOG' && !detail.open) detail.showModal();
+  const nativeFocus = detail.tagName === 'DIALOG' && !detail.open;
+  transferExpandVisibility(detail, () => {
+   detail.dataset.stOpen = 'true'; delete detail.dataset.stClosing; detail.hidden = false; detail.inert = false; active.add(detail);
+   if (nativeFocus) detail.showModal();
+  });
+  if (nativeFocus && (s.version !== v || !s.open)) return;
+  holdExpandSources(source, detail, s);
   s.trigger = source; source.setAttribute('aria-expanded', 'true');
   const surface = q(detail, '.st-expand-surface,.expand-surface') || detail, scrim = q(detail, '[data-st-scrim]');
+  // A closing surface may own a reduced-motion fade even after the preference changes.
+  if (wasClosing) stop(surface, 'o');
   const pairs = sharedPairs(source, detail), rad = parseFloat(getComputedStyle(source).borderRadius) || 12;
   const sr = source.getBoundingClientRect(), dr = surface.getBoundingClientRect(), paint = expandPaint(surface, s);
   const endR = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
   source.style.visibility = 'hidden';
   const content = qa(surface, '[data-st-expand-content]'), closeControl = q(surface, '[data-st-close]');
+  // Preserve the painted start before native-visible focus retires a nested wrapper's motion.
+  const closeStart = wasClosing && closeControl ? box(closeControl.getBoundingClientRect()) : null;
+  if (closeControl) { watchExpandCloseFocus(closeControl, s, surface); if (!nativeFocus) closeControl.focus?.({preventScroll: true}); if (s.version !== v || !s.open) return; revealFocusedExpandClose(closeControl, true); }
   // Measured before the shared parts move: afterwards the artwork already sits on the card it came from.
+  const closePinned = pinExpandClose(closeControl, surface, source, s);
+  s.closePinFallback = !!q(source, '[data-st-close-anchor]') && !closePinned;
+  if (s.closePinFallback) { instant = true; detail.dataset.stInstant = ''; }
   const hangs = new Map(content.map(c => [c, hang(c, pairs)]));
   // The rest of the page dims quickly, so it never competes with the opening card.
-  if (scrim) { scrim.dataset.stOpen = 'true'; play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', fade: true, current: wasClosing}); }
-  if (reduced()) { play(surface, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true, channel: 'o'}); pairs.forEach(([, d]) => d.style.visibility = ''); if (s.travelers) { for (const g of s.travelers.values()) { stopAll(g); g.remove(); } s.travelers.clear(); } s.titleFades?.clear(); }
+  if (scrim) { scrim.dataset.stOpen = 'true'; if (instant) stop(scrim); else play(scrim, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', fade: true, current: wasClosing}); }
+  if (instant || reduced()) {
+   // Release every owned visual channel, including geometry held by a normal-motion exit.
+   // The replacement view is opaque immediately; fading it would expose the source cards.
+   content.forEach(c => { stop(c, 'o'); stop(c, 'clip'); stop(c, 't'); });
+   if (closeControl) { stop(closeControl, 'o'); stop(closeControl, 'expand-close-position'); }
+   stop(surface, 'o'); stop(paint, 'clip');
+   retireExpandReveals(pairs);
+   pairs.forEach(([, d]) => { stop(d, 'shared'); d.style.visibility = ''; });
+   if (s.travelers) { for (const g of s.travelers.values()) { stopAll(g); g.remove(); } s.travelers.clear(); } s.titleFades?.clear(); s.moved = false;
+  }
   else {
    // The shell's clip is sampled from the same spring track as the shared parts, so all three move as one.
    { const cur = wasClosing ? parseInset(getComputedStyle(paint).clipPath) : null, a0 = cur || [sr.top - dr.top, dr.right - sr.right, dr.bottom - sr.bottom, sr.left - dr.left], r0 = wasClosing ? endR : rad;
-     play(paint, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false}); }
-   travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); if (s.titleFades?.has(d)) fadeIn(d, {ms: 80, blur: false}); } s.travelers.clear(); s.titleFades?.clear(); s.moved = false; });
+     play(paint, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: `inset(0px 0px 0px 0px round ${endR}px)`}], {spring: 'expand', channel: 'clip', current: false});
+     if (closeControl && !closePinned) attachExpandClose(closeControl, surface, {x: dr.left + a0[3], y: dr.top + a0[0], w: dr.width - a0[1] - a0[3], h: dr.height - a0[0] - a0[2]}, box(dr), 'expand', wasClosing, closeStart); }
+   travel(s, detail, pairs, false, v).then(ok => { if (!ok || !s.open) return; for (const [d, g] of s.travelers) { d.style.visibility = ''; stopAll(g); g.remove(); if (s.titleFades?.has(d)) fadeIn(d, {ms: 80, blur: false, channel: 'expand-reveal'}); } s.travelers.clear(); s.titleFades?.clear(); s.moved = false; });
    // Details ride the shell: clipped by the same spring that grows it and drawn a little toward the card they
    // came from, so the surface is never an empty frame. Layouts keep details out of the title's path.
    content.forEach(c => {
@@ -1158,11 +1417,15 @@
     play(c, [{transform: `translateY(${pull}px)`}, {transform: 'none'}], {spring: 'expand', channel: 't', current: wasClosing});
     play(c, [{opacity: 0}, {opacity: 1}], {ms: 110, curve: 'F', delay: 70, channel: 'o', current: wasClosing, fade: true});
    });
-   if (closeControl) play(closeControl, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'F', delay: wasClosing ? 0 : 150, channel: 'o', current: wasClosing, fade: true});
+   // The original dismissal is usable from the first accepted frame, even for pointer input.
+   if (closeControl) revealFocusedExpandClose(closeControl, true);
   }
-  (closeControl || focusFirst(detail))?.focus?.({preventScroll: true});
+  if (!closeControl) focusFirst(detail);
+  if (closeControl) revealFocusedExpandClose(closeControl, true);
  }
- function collapse(detail) {
+ function collapse(detail, o = {}) {
+  let instant = o.keyboard ?? keyboardInput;
+  if (instant) detail.dataset.stInstant = '';
   const s = layerState(detail); if (!s.open || !s.source) return;
   s.open = false; s.closing = true; const v = ++s.version, source = s.source;
   // Publish logical state now so Replay/direct toggles can reverse this exit.
@@ -1176,15 +1439,24 @@
   const finish = () => {
    if (s.version !== v || s.open) return; s.closing = false; s.moved = false;
    if (s.travelers) { for (const [d, g] of s.travelers) { stopAll(g); g.remove(); d.style.visibility = ''; } s.travelers.clear(); }
-   if (s.paint) { stopAll(s.paint); s.paint.remove(); s.paint = null; Object.assign(surface.style, s.paintSaved); }
-   source.style.visibility = ''; detail.dataset.stOpen = 'false'; delete detail.dataset.stClosing; active.delete(detail);
-   if (detail.tagName === 'DIALOG' && detail.open) detail.close();
+   restoreExpandPaint(surface, s);
+   restoreExpandClosePin(s);
+   releaseExpandSources(s);
+   source.style.visibility = '';
+   transferExpandVisibility(detail, () => { detail.dataset.stOpen = 'false'; delete detail.dataset.stClosing; active.delete(detail); });
+   const titleFades = new Set(s.titleFades); s.titleFades?.clear();
    stopAll(surface); qa(detail, '*').forEach(stopAll); if (scrim) stopAll(scrim);
-   if (s.titleFades?.size) { for (const [a, d] of sharedPairs(source, detail)) if (s.titleFades.has(d)) fadeIn(a, {ms: 80, blur: false}); s.titleFades.clear(); }
+   if (detail.tagName === 'DIALOG' && detail.open) detail.close();
+   if (s.version !== v || s.open) return;
+   if (titleFades.size && !instant) { for (const [a, d] of sharedPairs(source, detail)) if (titleFades.has(d)) fadeIn(a, {ms: 80, blur: false, channel: 'expand-reveal'}); }
    refocus?.();
   };
+  const closeControl = q(surface, '[data-st-close]');
+  const closePinned = !instant && pinExpandClose(closeControl, surface, source, s);
+  if (s.closePinFallback || (q(source, '[data-st-close-anchor]') && !closePinned)) { instant = true; detail.dataset.stInstant = ''; }
+  if (instant) { if (scrim) scrim.dataset.stOpen = 'false'; retireExpandReveals(sharedPairs(source, detail)); finish(); return; }
   if (scrim) { scrim.dataset.stOpen = 'false'; play(scrim, [{opacity: 0}], {ms: 'control', curve: 'F', fade: true, fill: 'forwards'}); }
-  const closeControl = q(surface, '[data-st-close]'); if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
+  if (closeControl) play(closeControl, [{opacity: 0}], {ms: 60, curve: 'X', channel: 'o', fill: 'forwards', fade: true});
   // Details shrink back with the shell rather than leaving it empty, and are gone before it lands.
   const backPairs = sharedPairs(source, detail), ap = parseInset(getComputedStyle(s.paint || surface).clipPath) || [0, 0, 0, 0];
   const shellNow = {top: dr.top + ap[0], right: dr.right - ap[1], bottom: dr.bottom - ap[2], left: dr.left + ap[3]}, shellR = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
@@ -1196,9 +1468,10 @@
    play(c, [{clipPath: `inset(${sh.top - cr.top - ty}px ${cr.right - sh.right}px ${cr.bottom + ty - sh.bottom}px ${sh.left - cr.left}px round ${shellR}px)`}, {clipPath: `inset(${sr.top - cr.top - pull}px ${cr.right - sr.right}px ${cr.bottom + pull - sr.bottom}px ${sr.left - cr.left}px round ${rad}px)`}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false});
    play(c, [{transform: `translateY(${pull}px)`}], {spring: 'snappy', channel: 't', fill: 'forwards'});
   });
-  if (reduced()) { play(surface, [{opacity: 0}], {ms: 'quick', fade: true, channel: 'o', fill: 'forwards'}).then(finish); return; }
+  if (reduced()) { if (closeControl) stop(closeControl, 'expand-close-position'); play(surface, [{opacity: 0}], {ms: 'quick', fade: true, channel: 'o', fill: 'forwards'}).then(finish); return; }
   { const a0 = parseInset(getComputedStyle(s.paint || surface).clipPath) || [0, 0, 0, 0], r0 = parseFloat(getComputedStyle(surface).borderTopLeftRadius) || 16;
-    play(s.paint || surface, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: cardClip(sr, dr, rad)}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false}); }
+    play(s.paint || surface, [{clipPath: `inset(${a0[0]}px ${a0[1]}px ${a0[2]}px ${a0[3]}px round ${r0}px)`}, {clipPath: cardClip(sr, dr, rad)}], {spring: 'snappy', channel: 'clip', fill: 'forwards', current: false});
+    if (closeControl && !closePinned) attachExpandClose(closeControl, surface, {x: dr.left + a0[3], y: dr.top + a0[0], w: dr.width - a0[1] - a0[3], h: dr.height - a0[0] - a0[2]}, box(sr), 'snappy', true); }
   travel(s, detail, sharedPairs(source, detail), true, v).then(ok => { if (ok) finish(); });
  }
 
@@ -1452,6 +1725,7 @@
 
  /* ---------- Init ---------- */
  const initialized = new WeakSet();
+ const tabSyncs = new WeakMap();
  function init(root = doc) {
   const nodes = [...(root.matches?.('[data-st]') ? [root] : []), ...qa(root, '[data-st]')].filter(el => !el.closest('[data-st-ghost]'));
   for (const el of nodes) {
@@ -1490,7 +1764,7 @@
      if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) { e.preventDefault(); i = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : i < 0 ? (e.key === 'ArrowDown' ? 0 : items.length - 1) : (i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; items[i]?.focus(); }
      if (e.key === 'Tab') close(el);
     });
-    el.addEventListener('click', e => { if (e.target.closest('[role="menuitem"]') && !e.target.closest('[data-st-keep-open]')) close(el); });
+    el.addEventListener('click', e => { if (e.target.closest('[role="menuitem"]') && !e.target.closest('[data-st-keep-open]')) close(el, plainMenu(el) ? {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput} : undefined); });
    }
    if (kind === 'tabs' || kind === 'segmented') {
     const parts = tabParts(el);
@@ -1511,6 +1785,7 @@
     const ro = new ResizeObserver(sync); ro.observe(parts.list); parts.tabs.forEach(t => ro.observe(t));
     tabSelect(el, parts.tabs.find(t => t.getAttribute('aria-selected') === 'true') || parts.tabs[0], true); layoutInk(parts);
     doc.fonts?.ready.then(sync);
+    tabSyncs.set(el, sync);
    }
    if (kind === 'avatars') {
     // Hover lifts the person under the pointer and, with a falloff, their neighbours; one name label glides above
@@ -1607,10 +1882,10 @@
   const trigger = e.target.closest('[data-st-target],[popovertarget]');
   if (trigger && !trigger.disabled) {
    const el = doc.getElementById(trigger.dataset.stTarget || trigger.getAttribute('popovertarget'));
-   if (el && el.dataset.st) { e.preventDefault(); if (el.dataset.st === 'expand') { isOpen(el) && !layerState(el).closing ? collapse(el) : expand(trigger, el); } else toggle(el, trigger, {keyboard: e.detail === 0}); return; }
+   if (el && el.dataset.st) { e.preventDefault(); if (el.dataset.st === 'expand') { isOpen(el) && !layerState(el).closing ? collapse(el, {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput}) : expand(trigger, el, {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput}); } else toggle(el, trigger, {keyboard: plainMenu(el) && !e.isTrusted ? keyboardInput : e.detail === 0}); return; }
   }
   const dismiss = e.target.closest('[data-st-close]');
-  if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer); else close(dismiss.closest('dialog,[popover],[data-st="menu"],[data-st="plus-menu"],[data-st="popover-panel"],[data-st="palette"],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
+  if (dismiss) { const layer = dismiss.closest('[data-st="expand"]'); if (layer) collapse(layer, {keyboard: e.isTrusted ? e.detail === 0 : keyboardInput}); else close(dismiss.closest('dialog,[popover],[data-st="menu"],[data-st="plus-menu"],[data-st="popover-panel"],[data-st="palette"],[data-st="panel"],[data-st="sheet"],[data-st="drawer"],[data-st="modal"]')); return; }
   const scrim = e.target.closest('[data-st-scrim]');
   if (scrim) { const layer = [...active].reverse().find(l => scrimOf(l) === scrim || l.contains(scrim)); if (layer) layer.dataset.st === 'expand' ? collapse(layer) : close(layer); }
  });
@@ -1625,12 +1900,28 @@
  doc.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (tipOpen) { hideTip(); }
-  const top = [...active].reverse().find(el => el.tagName !== 'DIALOG' && el.dataset.st !== 'tooltip' && isOpen(el) && !layerState(el).closing);
-  if (top) { e.preventDefault(); top.dataset.st === 'expand' ? collapse(top) : close(top); }
+  if (e.defaultPrevented) return;
+  // Respect the actual top layer, including its outgoing interval. Native modal
+  // cancellation owns Escape; a later manual child menu still gets the first Escape.
+  const top = [...active].reverse().find(el => el.dataset.st !== 'tooltip' && (el.tagName !== 'DIALOG' || el.open) && (isOpen(el) || layerState(el).closing));
+  if (top?.tagName === 'DIALOG' && !top.hasAttribute('data-st-contained')) return;
+  if (top) { e.preventDefault(); if (!layerState(top).closing || plainMenu(top)) top.dataset.st === 'expand' ? collapse(top, {keyboard: true}) : close(top); }
  });
  let frame = 0;
  const reposition = () => { if (frame) return; frame = requestAnimationFrame(() => { frame = 0; for (const el of active) { const s = layers.get(el); if (POP.includes(el.dataset.st) && s?.trigger && el.matches(':popover-open')) place(el, s.trigger); } }); };
  addEventListener('resize', reposition); addEventListener('scroll', reposition, {capture: true, passive: true});
+ // A wide/narrow viewport round trip can end at the last ResizeObserver size while
+ // native overflow clamping has already reset scrollLeft. Recheck after layout even
+ // if no observed box-size change survives. Do not react to ordinary strip scrolling.
+ let tabResizeFrame = 0;
+ addEventListener('resize', () => {
+  if (tabResizeFrame) return;
+  tabResizeFrame = requestAnimationFrame(() => {
+   tabResizeFrame = 0;
+   // Query connected roots at execution time; the WeakMap does not retain removed UI.
+   for (const el of qa(doc, '[data-st="tabs"], [data-st="segmented"]')) tabSyncs.get(el)?.();
+  });
+ });
  mq.addEventListener('change', () => { if (mq.matches) doc.getAnimations().forEach(a => { try { a.finish(); } catch { a.cancel(); } }); });
 
  const mutation = new MutationObserver(records => {
@@ -1639,7 +1930,7 @@
    // A badge changed from outside rolls like one changed through the API; its own updates are already drawn.
    if (r.type === 'attributes' && r.target.dataset.st === 'badge' && r.target.dataset.stLabel !== r.target.dataset.value) badge(r.target, r.target.dataset.value);
    for (const n of r.addedNodes) if (n.nodeType === 1 && !n.hasAttribute("data-st-ghost")) init(n);
-   for (const n of r.removedNodes) if (n.nodeType === 1 && !n.isConnected) { for (const l of [...active]) if (n === l || n.contains(l)) active.delete(l); }
+   for (const n of r.removedNodes) if (n.nodeType === 1 && !n.isConnected) { for (const l of [...active]) if (n === l || n.contains(l)) { releaseExpandSources(layers.get(l)); active.delete(l); } }
   }
  });
  const start = () => { init(); mutation.observe(doc.body, {childList: true, subtree: true, attributes: true, attributeFilter: ['data-value']}); };

@@ -127,7 +127,7 @@ pre.install b{color:var(--text);font-weight:500}
 .detail h4{margin:10px 0 6px;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.25;width:max-content;max-width:100%}
 .detail p{color:var(--text-2);font-size:14px;line-height:1.55}
 .covers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(100%,420px)}
-.cover-card{display:block;padding:6px;margin:-6px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:16px;transition:background-color 90ms var(--st-F),transform 70ms var(--st-F)}
+.cover-card{display:block;padding:6px;margin:-6px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:18px;transition:background-color 90ms var(--st-F),transform 70ms var(--st-F)}
 .cover{display:block;aspect-ratio:1;border-radius:12px}
 .c1{background:radial-gradient(90% 90% at 25% 20%,#ffcf99,transparent 60%),linear-gradient(150deg,#ff7a59,#b3246b)}
 .c2{background:radial-gradient(80% 80% at 70% 25%,#b7f0ff,transparent 60%),linear-gradient(160deg,#3a7bd5,#1d2b64)}
@@ -304,9 +304,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 
 .msg .body{overflow:visible;width:auto;white-space:normal}
 
-/* Demo stages: a contained dialog dims the app under it, as a real dialog's backdrop would. */
 .stage .app{transition:opacity 100ms var(--st-F)}
-.stage:has(> [data-st="modal"][data-st-open="true"]) > .app,.stage:has([data-st="modal"][data-st-open="true"]) .app:not([data-st]){opacity:.28}
 /* The popover's trigger sits high in its stage so the panel opens below it, attached, never over it. */
 .stage:has(#popover-trigger) > .stack-center{align-self:start;margin-top:28px}
 
@@ -314,7 +312,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 
 .cover-card .cover{position:relative;transition:transform 70ms var(--st-F)}
 .cover-card .cover::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#fff;opacity:0;transition:opacity 100ms var(--st-F)}
-@media (hover:hover) and (pointer:fine){.cover-card:hover{background:var(--hover)}.cover-card:hover .cover::after{opacity:.1}.expand-surface .close-x:hover{background:color-mix(in srgb,var(--text) 12%,transparent)}}
+@media (hover:hover) and (pointer:fine){.cover-card:hover{background:var(--hover)}.cover-card:hover .cover::after{opacity:.1}}
 .cover-card:active{transform:scale(.98)}
 .expand-surface .close-x{transition:background-color 100ms var(--st-F),transform 70ms var(--st-F)}.expand-surface .close-x:active{transform:scale(.94)}
 
@@ -323,12 +321,11 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .stage .replay:active{transform:scale(.96)}
 
 .expand-surface .close-x{background:color-mix(in srgb,var(--text) 6%,transparent);border-radius:99px}
-@media (hover:hover) and (pointer:fine){.expand-surface .close-x:hover{background:color-mix(in srgb,var(--text) 14%,transparent)}}
 .expand-surface .close-x:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .expand-surface .close-x:active{transform:scale(.96);transition-duration:60ms}
 
-@media (hover:hover) and (pointer:fine){.cover-card:hover{transform:translateY(-1px)}}
-.expand-surface .close-x{position:absolute;isolation:isolate;background:transparent}
+/* The original Close stays legible and clickable above the traveling artwork. */
+.expand-surface .close-x{position:absolute;isolation:isolate;background:var(--frame);z-index:3}
 .expand-surface .close-x::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--text);opacity:.06;z-index:-1;transition:opacity 80ms var(--st-F)}
 @media (hover:hover) and (pointer:fine){.expand-surface .close-x:hover::before{opacity:.16}}
 
@@ -480,7 +477,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
    Keep a small measured margin before returning to three covers. */
 @container(max-width:384px){
  .covers{grid-template-columns:1fr;gap:8px}
- .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:0;margin:0;align-items:center}
+ .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
  .cover-card>.cover{grid-row:1/3;width:60px;height:60px}
  .cover-card b{align-self:end;margin:0;width:auto;white-space:normal;overflow-wrap:anywhere}
  .cover-card>span:not(.cover){align-self:start}
@@ -488,7 +485,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .stage .settings-card .field-row:last-child>.st-button{flex:0 0 auto;white-space:nowrap}
 @media(max-width:360px){
  .covers{grid-template-columns:1fr;gap:8px}
- .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:0;margin:0;align-items:center}
+ .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
  .cover-card>.cover{grid-row:1/3;width:60px;height:60px}
  .cover-card b{align-self:end;margin:0;width:auto;white-space:normal;overflow-wrap:anywhere}
  .cover-card>span:not(.cover){align-self:start}
@@ -580,6 +577,8 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .expand-surface .ex-head .cover{width:88px;height:88px;border-radius:12px;flex:none}
 .expand-surface .ex-name{flex:1;min-width:0;padding-right:40px}
 .stage .expand-surface .ex-name h4{width:auto;max-width:none;white-space:nowrap}
+.ex-preview{display:grid;gap:4px;min-width:0}
+.ex-preview-label{font-size:14px;line-height:20px;color:var(--text-2)}
 .ex-tracks{list-style:none;margin:0;padding:0;display:grid}
 .ex-tracks li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;height:32px;padding:0 10px;border-radius:8px;font-size:14px}
 .ex-tracks li>span:first-child,.ex-tracks li>span:last-child{color:var(--text-2);font-variant-numeric:tabular-nums}
@@ -589,12 +588,12 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
  .expand-surface .ex-name{padding-right:52px}
  .stage .expand-surface .ex-name h4{white-space:normal;overflow-wrap:anywhere}
 }
-@container(min-width:385px){
+@container(width > 384px){
  .stage .expand-surface{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;align-items:start}
  .expand-surface .ex-head{flex-direction:column;align-items:flex-start;gap:8px}
  .expand-surface .ex-head .cover{width:120px;height:120px}
  .expand-surface .ex-name{padding-right:0}
- .expand-surface .ex-tracks{margin-top:40px}
+ .expand-surface .ex-preview{margin-top:40px}
 }
 /* Replay is the control every demo is filmed from: its hover, press and focus answer immediately and visibly. */
 .stage .replay svg{transition:transform 160ms var(--st-F)}
@@ -653,13 +652,18 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .think-demo .spark{width:16px;height:16px;color:var(--text-2)}
 /* Growing content is anchored at the top of its stage, so it only grows downward and nothing above it moves. */
 .stage:has(.faq){place-items:start center;padding-top:36px}
-/* Dialog v5: a compact dialog sized to its content, centred above the page it belongs to; the page dims behind it
-   on the same clock, so the two layers never compete. */
-.stage [data-st-contained][data-st=modal]{inset:0 0 48px 0;margin:auto;width:min(300px,calc(100% - 32px));height:fit-content;padding:18px;border-radius:16px}
-.stage [data-st-contained][data-st=modal] h3{margin:0}
-.stage:has([data-st=modal]) .app:not([data-st]){transition:opacity 240ms cubic-bezier(.3,1,0,1),filter 240ms cubic-bezier(.3,1,0,1)}
-.stage:has([data-st=modal]) .app:not([data-st]){transition-delay:90ms}
-.stage:has([data-st="modal"][data-st-open="true"]) .app:not([data-st]){opacity:.35;filter:blur(1px);transition-delay:0ms}
+/* Dialog: native top-layer presentation spans the viewport; the decision stays compact.
+   Destructive action colors are a paired role, independent of the brighter dark-mode status color. */
+dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;width:min(360px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);padding:24px;overflow:auto;overscroll-behavior:contain;border-radius:var(--r-xl)}
+.project-dialog h3{margin:0;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.35}
+.project-dialog p{margin:12px 0 20px;font-size:15px;line-height:1.5;color:var(--text-2)}
+@media(max-width:650px){.project-dialog #dlg-description{font-size:15px}}
+.project-dialog .dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.project-dialog .st-button{min-height:44px;font-size:15px}
+.project-dialog .dialog-destructive{background:var(--dialog-danger-surface);color:var(--dialog-danger-ink);box-shadow:none}
+@media(hover:hover) and (pointer:fine){.project-dialog .dialog-destructive:hover{background:color-mix(in srgb,var(--dialog-danger-surface) 88%,#000)}}
+.project-dialog::backdrop{background:var(--st-backdrop);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+@media(prefers-reduced-motion:reduce){.project-dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}}
 .orders{display:grid;padding:2px 8px 8px}
 .order{display:grid;grid-template-columns:52px 1fr auto;align-items:center;height:32px;padding:0 6px;border-radius:8px;font-size:13px}
 .stage .order span{font-size:13px}.stage .order .o-id{color:var(--text-3);font-variant-numeric:tabular-nums}.stage .order .o-amt{font-variant-numeric:tabular-nums;color:var(--text)}
@@ -676,6 +680,103 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .stage .faq summary{min-height:44px;padding:0 14px;border-radius:12px}
 .stage .faq .st-details-body{padding:0 14px 14px;color:var(--text-2);font-size:14px;line-height:21px;background:transparent}
 .stage .faq details[open]{background:var(--surface)}
+/* Three72px album rows plus two8px gaps need232px. Keep the44px Replay target
+   below them even with its16px bottom inset; text growth may increase height naturally. */
+.card[data-key="expand"]>.stage{height:auto;min-height:324px;padding-bottom:72px}
+/* Row albums use the same authored label measure at both ends of the flight.
+   The trailing action lane is real in both states; text never has to rewrap mid-flight. */
+.stage:has(.covers){--album-gutter:20px;padding-inline:var(--album-gutter)}
+@media(max-width:650px){.stage:has(.covers){--album-gutter:8px}}
+.cover-card .cover-label{display:block;min-width:0;color:var(--text)}
+.cover-card .cover-open{display:none}
+.stage #covers .cover-label b{font-size:16px;line-height:22px;font-weight:600;letter-spacing:-.01em}
+.stage #covers .cover-label [data-st-shared=meta]{font-size:14px;line-height:20px;letter-spacing:normal}
+.stage .expand-surface .ex-name p{letter-spacing:normal}
+@container(max-width:384px){
+ .covers .cover-card{position:relative;grid-template-columns:60px minmax(0,1fr);column-gap:12px}
+ .covers .cover-card>.cover{grid-row:auto;width:60px;height:60px}
+ .covers .cover-card>.cover-label{align-self:center;padding-right:52px}
+ .covers .cover-card .cover-label b{width:auto;white-space:normal;overflow-wrap:anywhere}
+ .covers .cover-card>.cover-open{position:absolute;top:4px;right:4px;width:44px;height:44px;display:grid;place-items:center;color:var(--text-2)}
+ .stage .expand-surface{inset-inline:var(--album-gutter);padding:6px;border-radius:18px}
+ .stage .expand-surface .ex-head{gap:12px}
+ .stage .expand-surface .ex-head .cover{width:60px;height:60px;border-radius:12px}
+ .stage .expand-surface .ex-name{padding-right:52px}
+ .stage .expand-surface .ex-name h4{white-space:normal;overflow-wrap:anywhere}
+ .stage .expand-surface .close-x{width:44px;height:44px;min-width:44px;min-height:44px}
+}
+/* Anchored Card prototype: one explicit action lane, including wide catalogue tiles.
+   Source and detail share a capped row measure; the full shell contains every source row. */
+.stage:has([data-st-close-anchor]) .covers{grid-template-columns:1fr;gap:8px;width:min(100%,420px)}
+.stage .covers:has([data-st-close-anchor]) .cover-card{position:relative;display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
+.stage .covers:has([data-st-close-anchor]) .cover-card>.cover{grid-row:auto;width:60px;height:60px}
+.stage .covers:has([data-st-close-anchor]) .cover-label{align-self:center;padding-right:52px}
+.stage .covers:has([data-st-close-anchor]) .cover-label b{width:auto;white-space:normal;overflow-wrap:anywhere}
+.stage .covers:has([data-st-close-anchor]) .cover-open{position:absolute;top:8px;right:8px;width:44px;height:44px;display:grid;place-items:center}
+.stage:has([data-st-close-anchor]) .expand-surface{inset-inline:max(var(--album-gutter),calc(50% - 210px));display:flex;flex-direction:column;align-items:stretch;padding:6px;gap:10px;border-radius:18px}
+.stage:has([data-st-close-anchor]) .ex-head{flex-direction:row;align-items:center;gap:12px}
+.stage:has([data-st-close-anchor]) .ex-head .cover{width:60px;height:60px;border-radius:12px}
+.stage:has([data-st-close-anchor]) .ex-name{padding-right:52px}
+.stage:has([data-st-close-anchor]) .ex-name h4{white-space:normal;overflow-wrap:anywhere}
+.stage:has([data-st-close-anchor]) .close-x{top:8px;right:8px;width:44px;height:44px;min-width:44px;min-height:44px}
+.stage:has([data-st-close-anchor]) .ex-preview{padding-right:52px;margin-top:0}
+.stage:has([data-st-close-anchor]) .ex-tracks li{height:auto;min-height:32px;padding-block:4px;align-items:start}
+.stage:has([data-st-close-anchor]) .ex-tracks li>span:nth-child(2){min-width:0;overflow-wrap:anywhere}
+.stage:has([data-st-close-anchor]) .ex-tracks li>span:last-child{white-space:nowrap}
+/* The action point stays put on press; only its artwork gives the small tactile response. */
+.stage .covers:has([data-st-close-anchor]) .cover-card:active{transform:none}
+.stage .covers:has([data-st-close-anchor]) .cover-card:active .cover{transform:scale(.98)}
+@media(prefers-reduced-motion:reduce){.stage .covers:has([data-st-close-anchor]) .cover-card:active .cover{transform:none}}
+/* Reserve the wrapped preview before interaction, so opening never shifts the source anchor. */
+@media(max-width:360px){.card[data-key="expand"]>.stage,#library-detail .stage:has([data-st-close-anchor]){min-height:368px}}
+
+/* Menu preview: real local outcomes; rows and feedback grow with their content. */
+.card[data-key="menu"] .caption p{white-space:normal;overflow:visible}
+.stage.menu-demo,#library-detail .stage.menu-demo{height:auto;min-height:376px;padding:16px 16px 76px;align-content:center;gap:12px}
+.menu-demo .menu-demo-app{width:100%;max-width:440px;border-radius:12px}
+.menu-demo .app-bar{height:auto;min-height:56px;padding:8px 12px;gap:8px;flex-wrap:wrap}
+.menu-demo .app-title{margin-right:auto;font-size:15px;font-weight:600}
+.menu-demo .menu-demo-count{font-size:14px;color:var(--text-2);white-space:nowrap}
+.menu-demo .app-bar .st-button{min-height:44px;padding:0 8px;border-radius:8px;font-size:14px}
+.menu-demo [data-menu-files]{padding:0 4px}
+.menu-demo .file{min-height:72px;gap:8px;padding:8px;border-radius:8px;align-items:center}
+.menu-demo .file-icon{flex:none;width:28px;height:32px;background:transparent}
+.menu-demo .file-meta b{font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.menu-demo .file-meta span{display:block;font-size:14px;line-height:1.4}
+.menu-demo .icon-btn{flex:none;width:44px;height:44px;border-radius:8px}
+.menu-demo .file:has([aria-expanded="true"]){background:var(--hover)}
+.menu-demo .menu-demo-feedback{padding:12px 12px 16px;display:grid;gap:8px;color:var(--text-2);font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.menu-demo [data-menu-status]:empty{display:none}
+.menu-demo .menu-demo-recovery{display:grid;justify-items:start;gap:8px}
+.menu-demo .menu-demo-recovery[hidden],.menu-demo [hidden]{display:none}
+.menu-demo .menu-demo-recovery .st-button{min-height:44px;border-radius:8px;font-size:14px}
+.menu-demo .menu-demo-empty{padding:16px 12px;font-size:15px;color:var(--text-2)}
+.menu-demo .menu-demo-disclosure{width:100%;max-width:440px;font-size:14px;line-height:1.5;color:var(--text-2)}
+.menu-demo .replay{min-height:44px;bottom:16px;border-radius:8px}
+.menu-demo #menu-1{width:228px;max-width:calc(100vw - 16px)}
+.menu-demo #menu-1 [role="menuitem"]{min-height:44px;font-size:15px;white-space:normal}
+.menu-demo #menu-1 [role="menuitem"]:disabled{opacity:.55;cursor:not-allowed;background:transparent}
+.menu-demo #menu-copy-limit{padding:8px 10px;font-size:14px;line-height:1.4;color:var(--text-2)}
+#menu-rename{width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:24px;border:0;border-radius:16px;background:var(--surface);color:var(--text);box-shadow:var(--shadow-layer)}
+#menu-rename::backdrop{background:rgb(0 0 0 / .4)}
+#menu-rename h2{font-size:20px;line-height:1.3;font-weight:600;letter-spacing:-.015em;padding:0}
+#menu-rename p{font-size:15px;line-height:1.5;color:var(--text-2);overflow-wrap:anywhere}
+#menu-rename #menu-rename-description{margin:8px 0 20px}
+#menu-rename label{display:block;margin-bottom:8px;font-size:16px;font-weight:500}
+#menu-rename input{display:block;width:100%;min-height:44px;font-size:16px;border-radius:8px}
+#menu-rename #menu-name-help,#menu-rename #menu-name-error{margin-top:8px}
+#menu-rename [aria-invalid="true"]{outline:2px solid var(--bad);outline-offset:2px}
+#menu-rename #menu-name-error{color:var(--bad)}
+#menu-rename .menu-demo-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:24px}
+#menu-rename .st-button{min-height:44px;border-radius:8px;font-size:16px;transform:none;transition:none}
+/* Rename and accepted fixture results are instant, including keyboard/reduction. */
+#menu-rename,#menu-rename::backdrop{animation:none;transition:none}
+/* One phone type contract also outranks the gallery's ID-specific :is/:not floor. */
+@media(max-width:650px){
+ .stage.menu-demo[data-menu-demo] :is([data-menu-count],[data-menu-reset],[data-menu-file-note],[data-menu-budget],[data-menu-status],[data-menu-deleted],[data-menu-undo],[data-menu-empty],.menu-demo-disclosure,#menu-copy-limit){font-size:15px}
+ .stage #menu-rename.menu-demo-editor :is(label,input,.st-button){font-size:16px}
+}
+@media(max-width:360px){.stage.menu-demo,#library-detail .stage.menu-demo{padding-left:12px;padding-right:12px}.menu-demo .file-icon{display:none}#menu-rename{padding:20px}#menu-rename .menu-demo-actions .st-button{flex:1}}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -718,24 +819,43 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
   </nav>
  </div>
 </header><main id="top" class="wrap"><section class="hero"><h1>Motion that explains what changed.</h1><p class="hero-lead">Motion patterns for product interfaces. Explore cause-led transitions, reversible states, and reduced-motion alternatives. Two files, no build step.</p><div class="hero-install"><code><span class="tok">&lt;link</span> rel="stylesheet" href="seenry-transitions.css"<span class="tok">&gt;</span></code><button class="install-copy" data-st="copy" data-st-copy='&lt;link rel="stylesheet" href="seenry-transitions.css"&gt;
-&lt;script src="seenry-transitions.js" defer&gt;&lt;/script&gt;' aria-label="Copy install snippet"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text">Copy</span></button></div></section><div class="library-tools"><div class="filter-scroll"><div class="filter" data-st="segmented"><div role="tablist" aria-label="Transition category"><button role="tab" data-category-choice="All" aria-selected="true">All</button><button role="tab" data-category-choice="Surfaces" aria-selected="false">Surfaces</button><button role="tab" data-category-choice="Navigation" aria-selected="false">Navigation</button><button role="tab" data-category-choice="Feedback" aria-selected="false">Feedback</button><button role="tab" data-category-choice="Content" aria-selected="false">Content</button><button role="tab" data-category-choice="Text" aria-selected="false">Text</button><button role="tab" data-category-choice="AI" aria-selected="false">AI</button></div></div></div><label class="cat-select"><span class="st-sr">Category</span><select id="cat-select"><option>All</option><option>Surfaces</option><option>Navigation</option><option>Feedback</option><option>Content</option><option>Text</option><option>AI</option></select><svg class="st-icon" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></label><label class="search-box"><svg class="st-icon" aria-hidden="true"><use href="#i-search"/></svg><input id="library-search" type="search" aria-label="Search transitions" placeholder="Search transitions" autocomplete="off"><kbd>/</kbd></label></div><div class="grid" id="library-grid" data-seenry-signature="live-motion-library"><article class="card" data-key="menu" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Menu">
-    <div class="stage" data-st-preview>
-     <div class="app">
-      <div class="app-bar"><span class="app-title">Planning</span><span class="chip">4 files</span></div>
-      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-doc"/></svg></span><span class="file-meta"><b>Q3 roadmap</b><span>Edited 2 hours ago by Mara</span></span>
-       <button class="icon-btn" id="menu-trigger" data-st-target="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Q3 roadmap"><svg class="st-icon"><use href="#i-dots"/></svg></button></div>
-      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-table"/></svg></span><span class="file-meta"><b>Hiring plan</b><span>Edited yesterday</span></span><button class="icon-btn" aria-label="More actions for Hiring plan"><svg class="st-icon"><use href="#i-dots"/></svg></button></div>
+&lt;script src="seenry-transitions.js" defer&gt;&lt;/script&gt;' aria-label="Copy install snippet"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text">Copy</span></button></div></section><div class="library-tools"><div class="filter-scroll"><div class="filter" data-st="segmented"><div role="tablist" aria-label="Transition category"><button role="tab" data-category-choice="All" aria-selected="true">All</button><button role="tab" data-category-choice="Surfaces" aria-selected="false">Surfaces</button><button role="tab" data-category-choice="Navigation" aria-selected="false">Navigation</button><button role="tab" data-category-choice="Feedback" aria-selected="false">Feedback</button><button role="tab" data-category-choice="Content" aria-selected="false">Content</button><button role="tab" data-category-choice="Text" aria-selected="false">Text</button><button role="tab" data-category-choice="AI" aria-selected="false">AI</button></div></div></div><label class="cat-select"><span class="st-sr">Category</span><select id="cat-select"><option>All</option><option>Surfaces</option><option>Navigation</option><option>Feedback</option><option>Content</option><option>Text</option><option>AI</option></select><svg class="st-icon" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></label><label class="search-box"><svg class="st-icon" aria-hidden="true"><use href="#i-search"/></svg><input id="library-search" type="search" aria-label="Search transitions" placeholder="Search transitions" autocomplete="off"><kbd>/</kbd></label></div><div class="grid" id="library-grid" data-seenry-signature="live-motion-library"><article class="card" data-key="menu" data-why="Actions stay tied to the selected sample file. Pointer motion explains the menu’s origin; keyboard and reduced-motion actions are immediate. Visible local results and Undo support recovery. Avoid delaying accepted results or showing unwired actions." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Menu">
+    <div class="stage menu-demo" data-st-preview data-menu-demo>
+     <div class="app menu-demo-app">
+      <div class="app-bar"><span class="app-title">Planning</span><span class="menu-demo-count" data-menu-count>2 files</span><button type="button" class="st-button st-ghost" data-menu-reset aria-label="Reset Menu preview">Reset</button></div>
+      <ul data-menu-files aria-label="Sample planning files">
+       <li class="file" data-menu-file="roadmap"><span class="file-icon"><svg class="st-icon" aria-hidden="true"><use href="#i-doc"/></svg></span><span class="file-meta"><b data-menu-file-name>Q3 roadmap</b><span data-menu-file-note>Sample document</span></span><button type="button" class="icon-btn" id="menu-trigger" data-menu-trigger data-st-target="menu-1" aria-controls="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Q3 roadmap"><svg class="st-icon" aria-hidden="true"><use href="#i-dots"/></svg></button></li>
+       <li class="file" data-menu-file="hiring"><span class="file-icon"><svg class="st-icon" aria-hidden="true"><use href="#i-table"/></svg></span><span class="file-meta"><b data-menu-file-name>Hiring plan</b><span data-menu-file-note>Sample spreadsheet</span></span><button type="button" class="icon-btn" id="menu-trigger-hiring" data-menu-trigger data-st-target="menu-1" aria-controls="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Hiring plan"><svg class="st-icon" aria-hidden="true"><use href="#i-dots"/></svg></button></li>
+      </ul>
+      <p class="menu-demo-empty" data-menu-empty hidden>No sample files remain. Undo a deletion or Reset to start again.</p>
+      <div class="menu-demo-feedback">
+       <p data-menu-budget>Copies: 0 of 2. Reset to start again.</p>
+       <p data-menu-status role="status" aria-live="polite" aria-atomic="true"></p>
+       <div class="menu-demo-recovery" data-menu-recovery hidden><p data-menu-deleted></p><button type="button" class="st-button" data-menu-undo>Undo last delete</button></div>
+      </div>
      </div>
-     <div id="menu-1" data-st="menu" data-st-placement="bottom-end" data-st-contained role="menu" aria-label="Q3 roadmap actions">
-      <button role="menuitem"><svg class="st-icon"><use href="#i-pen"/></svg>Rename<kbd>R</kbd></button>
-      <button role="menuitem"><svg class="st-icon"><use href="#i-dup"/></svg>Duplicate<kbd>⌘D</kbd></button>
-      <button role="menuitem"><svg class="st-icon"><use href="#i-move"/></svg>Move to…</button>
-      <button role="menuitem"><svg class="st-icon"><use href="#i-share"/></svg>Share</button>
+     <p class="menu-demo-disclosure">Local preview. Sample files only; changes last until Reset or reload.</p>
+     <div id="menu-1" data-st="menu" data-st-placement="bottom-end" popover="manual" role="menu" aria-label="Q3 roadmap actions">
+      <button type="button" role="menuitem" data-menu-action="rename"><svg class="st-icon" aria-hidden="true"><use href="#i-pen"/></svg>Rename</button>
+      <button type="button" role="menuitem" data-menu-action="duplicate" aria-describedby="menu-copy-limit"><svg class="st-icon" aria-hidden="true"><use href="#i-dup"/></svg>Duplicate</button>
+      <p id="menu-copy-limit" data-menu-limit hidden>Two copies per preview. Reset to duplicate again.</p>
       <hr>
-      <button role="menuitem" class="st-danger"><svg class="st-icon"><use href="#i-trash"/></svg>Delete</button>
+      <button type="button" role="menuitem" data-menu-action="delete" class="st-danger"><svg class="st-icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete</button>
      </div>
-    <button class="replay" data-replay="menu" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Trigger to actions</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .26 / .04</span><span>scale .96 → 1</span><span>exit 110 X</span></div></div>
+     <dialog id="menu-rename" class="menu-demo-editor" data-menu-editor aria-labelledby="menu-rename-title" aria-describedby="menu-rename-description">
+      <form data-menu-form novalidate>
+       <h2 id="menu-rename-title">Rename sample file</h2>
+       <p id="menu-rename-description">Change the name in this local preview.</p>
+       <label for="menu-rename-name">File name</label>
+       <input class="st-input" id="menu-rename-name" data-menu-name required autocomplete="off" spellcheck="false" aria-describedby="menu-name-help menu-name-error">
+       <p id="menu-name-help">Use 1–60 characters. Names may repeat.</p>
+       <p id="menu-name-error" data-menu-error role="alert" hidden></p>
+       <div class="menu-demo-actions"><button type="button" class="st-button" data-menu-cancel>Cancel</button><button type="submit" class="st-button st-primary">Save</button></div>
+      </form>
+     </dialog>
+     <button type="button" class="replay" data-replay="menu" data-st-keep><svg class="st-icon" aria-hidden="true"><use href="#i-replay"/></svg>Open menu</button>
+    </div>
+    <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Rename, duplicate and undo a local delete</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>trigger-relative menu</span><span>instant keyboard input</span><span>local actions + Undo</span></div></div>
    </article><article class="card" data-key="morph" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Button to menu">
     <div class="stage" data-st-preview>
      <div class="app" style="width:min(100%,380px)">
@@ -754,21 +874,21 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
      </div>
     <button class="replay" data-replay="morph" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="morph">Button to menu</button></h3><p>A button unfolds</p><button class="snippet-copy" data-st="copy" data-snippet="morph" aria-label="Copy HTML for Button to menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>clip-path morph</span><span>content +50ms</span><span>return to rect</span></div></div>
-   </article><article class="card" data-key="dialog" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Dialog">
+   </article><article class="card" data-key="dialog" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Dialog" data-why="A compact surface keeps the project, consequences and safe Cancel action together. The page-wide backdrop marks a focused decision; dismissal returns to the opening control. The decision stays opaque through pointer exit and reversal, so page text cannot show through it. Keyboard and reduced-motion changes put both the surface and backdrop in their final state immediately.">
     <div class="stage" data-st-preview>
      <div class="app settings-card">
       <div class="app-bar" style="margin:0 -18px 14px"><span class="app-title">Project settings</span></div>
       <div class="field-row"><span>Name</span><span>Aurora website</span></div>
       <div class="field-row"><span>Visibility</span><span>Team</span></div>
-      <div class="field-row" style="margin-top:8px"><span class="muted small">Deletes pages and assets</span><button class="st-button" style="color:var(--bad)" id="dialog-trigger" data-st-target="dialog-1">Delete project</button></div>
+      <div class="field-row" style="margin-top:8px"><span class="muted small">Deletes pages and assets</span><button class="st-button" style="color:var(--bad)" id="dialog-trigger" data-st-target="dialog-1" aria-controls="dialog-1" aria-haspopup="dialog" aria-expanded="false">Delete project</button></div>
      </div>
-     <div data-st-contained role="dialog" id="dialog-1" data-st="modal" aria-labelledby="dlg-title">
-      <h3 id="dlg-title" style="font-size:17px;font-weight:600;letter-spacing:-.01em">Delete Aurora website?</h3>
-      <p class="muted" style="margin:8px 0 20px;font-size:14.5px">This removes 24 pages and 318 assets. You can restore it from the trash for 30 days.</p>
-      <div class="row" style="justify-content:flex-end"><button class="st-button" data-st-close autofocus>Cancel</button><button class="st-button" style="background:var(--bad);color:#fff;box-shadow:none" data-st-close>Delete project</button></div>
-     </div>
+     <dialog class="project-dialog" id="dialog-1" data-st="modal" aria-labelledby="dlg-title" aria-describedby="dlg-description">
+      <h3 id="dlg-title">Delete Aurora website?</h3>
+      <p id="dlg-description">This removes 24 pages and 318 assets. You can restore it from the trash for 30 days.</p>
+      <div class="dialog-actions"><button class="st-button" type="button" data-st-close autofocus>Cancel</button><button class="st-button dialog-destructive" type="button" data-st-close>Delete project</button></div>
+     </dialog>
     <button class="replay" data-replay="dialog" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="dialog">Dialog</button></h3><p>A focused task</p><button class="snippet-copy" data-st="copy" data-snippet="dialog" aria-label="Copy HTML for Dialog"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .34 / .08</span><span>origin: trigger</span><span>exit 140 X</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="dialog">Dialog</button></h3><p>A focused task.</p><button class="snippet-copy" data-st="copy" data-snippet="dialog" aria-label="Copy HTML for Dialog"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>220ms ease-out</span><span>native modal</span><span>pointer exit 140ms</span></div></div>
    </article><article class="card" data-key="palette" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Command palette">
     <div class="stage" data-st-preview>
      <div data-st-contained role="dialog" id="palette-1" data-st-persistent data-st="palette" data-st-palette-gallery aria-label="Command palette">
@@ -828,12 +948,12 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
      <div id="tip-comment" data-st="tooltip" popover>Comment<kbd>⌥⌘M</kbd></div>
     <button class="replay" data-replay="tooltip" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="tooltip">Tooltip</button></h3><p>Context follows focus</p><button class="snippet-copy" data-st="copy" data-snippet="tooltip" aria-label="Copy HTML for Tooltip"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>dwell 400</span><span>glide spring .26</span><span>exit 80 F</span></div></div>
-   </article><article class="card" data-key="expand" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Card expand">
+   </article><article class="card" data-key="expand" data-category="Surfaces" data-why="Why this works: A 6px inset keeps artwork clear of the still hover edge. Pointer motion preserves the album and keeps Close in the indicated action lane. Layouts that cannot preserve that point open and close instantly. Keyboard changes are instant; reduced motion removes travel and blur. Covered album choices leave the focus order until close. The 3-track preview keeps the album’s total count, and Replay has its own space." tabindex="0" data-motion-region data-motion-label="Card expand">
     <div class="stage" data-st-preview>
-     <div class="covers" id="covers">
-      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></button>
-      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><b data-st-shared="title">Night Swim</b><span data-st-shared="meta">9 tracks</span></button>
-      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><b data-st-shared="title">Greenhouse</b><span data-st-shared="meta">11 tracks</span></button>
+     <div class="covers" id="covers" data-st-expand-sources>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></span><span class="cover-open" data-st-close-anchor aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Night Swim</b><span data-st-shared="meta">9 tracks</span></span><span class="cover-open" data-st-close-anchor aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Greenhouse</b><span data-st-shared="meta">11 tracks</span></span><span class="cover-open" data-st-close-anchor aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
      </div>
      <div id="expand-1" data-st="expand" role="dialog" aria-label="Album details">
       <div data-st-scrim style="border-radius:0"></div>
@@ -842,7 +962,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
         <span class="cover" data-st-shared="cover" id="expand-cover"></span>
         <div class="ex-name"><h4 data-st-shared="title" data-st-shared-text id="expand-title">Night Swim</h4><p data-st-shared="meta" data-st-shared-text id="expand-count">9 tracks</p></div>
        </div>
-       <ol class="ex-tracks" data-st-expand-content id="expand-tracks"><li><span>1</span><span>Low tide</span><span>3:41</span></li><li><span>2</span><span>Harbour lights</span><span>4:02</span></li><li><span>3</span><span>Undertow</span><span>3:18</span></li></ol>
+       <div class="ex-preview" data-st-expand-content><div class="ex-preview-label" id="expand-preview-label">3-track preview</div><ol class="ex-tracks" id="expand-tracks" aria-labelledby="expand-preview-label"><li><span>1</span><span>Low tide</span><span>3:41</span></li><li><span>2</span><span>Harbour lights</span><span>4:02</span></li><li><span>3</span><span>Undertow</span><span>3:18</span></li></ol></div>
        <button class="icon-btn close-x" data-st-close aria-label="Close album"><svg class="st-icon"><use href="#i-x"/></svg></button>
       </div>
      </div>
@@ -1168,4 +1288,4 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
  // The chat starts answered; Replay asks again.
  $('think').dataset.stLabel = $('think').textContent;
 })();
-</script><script src="gallery.js"></script></body></html>
+</script><script src="gallery-menu.js"></script><script src="gallery.js"></script></body></html>

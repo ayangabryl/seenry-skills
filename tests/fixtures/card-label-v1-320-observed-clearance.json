@@ -1,0 +1,267 @@
+{
+  "source": "Label proposal HTML sha256 da2ce0cd70369a6690915e596f856278d6158928b47bad5dee8c60d9d81b5840",
+  "raw_sha256": "13d0cc7a6ecc7d8c2d3c6271975052ef4e3f1bb2eabaa234dd8cb3b6e15f0d43",
+  "input": "trusted-keyboard-click",
+  "scope": "Six actual early RAF samples and a100.8ms paused snapshot; not a complete motion run or video.",
+  "samples": [
+    {
+      "ms": 21.5,
+      "travelers": [
+        {
+          "text": "Night Swim",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 17,
+              "width": 85.515625,
+              "x": 112,
+              "y": 451.25
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 88)"
+        },
+        {
+          "text": "9 tracks",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 16,
+              "width": 49.015625,
+              "x": 112,
+              "y": 473.25
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 88)"
+        }
+      ]
+    },
+    {
+      "ms": 29.80000000447035,
+      "travelers": [
+        {
+          "text": "Night Swim",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 17,
+              "width": 85.515625,
+              "x": 112,
+              "y": 451.25
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 88)"
+        },
+        {
+          "text": "9 tracks",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 16,
+              "width": 49.015625,
+              "x": 112,
+              "y": 473.25
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 88)"
+        }
+      ]
+    },
+    {
+      "ms": 36.30000000447035,
+      "travelers": [
+        {
+          "text": "Night Swim",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 17,
+              "width": 85.515625,
+              "x": 112,
+              "y": 447.75579833984375
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 84.5058)"
+        },
+        {
+          "text": "9 tracks",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 16,
+              "width": 49.015625,
+              "x": 112,
+              "y": 469.75579833984375
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 84.5058)"
+        }
+      ]
+    },
+    {
+      "ms": 63.39999999850989,
+      "travelers": [
+        {
+          "text": "Night Swim",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 17,
+              "width": 85.515625,
+              "x": 112,
+              "y": 440.5946044921875
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 77.3446)"
+        },
+        {
+          "text": "9 tracks",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 16,
+              "width": 49.015625,
+              "x": 112,
+              "y": 462.5946044921875
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 77.3446)"
+        }
+      ]
+    },
+    {
+      "ms": 69.10000000149012,
+      "travelers": [
+        {
+          "text": "Night Swim",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 17,
+              "width": 85.515625,
+              "x": 112,
+              "y": 431.3699035644531
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 68.1199)"
+        },
+        {
+          "text": "9 tracks",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 16,
+              "width": 49.015625,
+              "x": 112,
+              "y": 453.3699035644531
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 68.1199)"
+        }
+      ]
+    },
+    {
+      "ms": 92.89999999850988,
+      "travelers": [
+        {
+          "text": "Night Swim",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 17,
+              "width": 85.515625,
+              "x": 112,
+              "y": 421.73431396484375
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 58.4843)"
+        },
+        {
+          "text": "9 tracks",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 16,
+              "width": 49.015625,
+              "x": 112,
+              "y": 443.73431396484375
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 58.4843)"
+        }
+      ]
+    },
+    {
+      "ms": 100.80000000447036,
+      "travelers": [
+        {
+          "text": "Night Swim",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 17,
+              "width": 85.515625,
+              "x": 112,
+              "y": 421.73431396484375
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 58.4843)"
+        },
+        {
+          "text": "9 tracks",
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "filter": "none",
+          "glyphRects": [
+            {
+              "height": 16,
+              "width": 49.015625,
+              "x": 112,
+              "y": 443.73431396484375
+            }
+          ],
+          "transform": "matrix(1, 0, 0, 1, 0, 58.4843)"
+        }
+      ]
+    }
+  ]
+}

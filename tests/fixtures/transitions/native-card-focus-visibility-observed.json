@@ -1,0 +1,104 @@
+{
+  "browser": "153.0.8010.12",
+  "source": {
+    "gallery.html": "39551a459e9d12a60c7478e0c140c6fb3fa7d1ad03112056c021ed5f4bd41ff6",
+    "gallery.js": "c18397f5d7cb07cb9b7df9b86e34196a5e2f8ade7c32b1766173df02d6b18763",
+    "seenry-transitions.js": "4105cbddf552c049e13493cd1f9fc5551778ec4a9242d5f50c96f20faf356f09",
+    "seenry-transitions.css": "f406e5bc49f5fa7f991336c8c433386f4f19597100ed8b8b93dd0ccc35c7cf4f"
+  },
+  "scope": "Selected native post-focus fields from063592c focus diagnostic; original full JSON/PNGs preserved separately. Instrumented evidence is diagnostic, not acceptance.",
+  "cases": [
+    {
+      "id": "authored-all-color",
+      "focusedCloseAfterNative": false,
+      "sourceFocusedAfterNative": true,
+      "surfaceVisibility": "hidden",
+      "closeVisibility": "hidden",
+      "instant": false,
+      "visibilityTransitions": [
+        {
+          "target": {
+            "tag": "DIV",
+            "id": null,
+            "classes": "expand-surface",
+            "isSource": false,
+            "isClose": false
+          },
+          "type": "CSSTransition",
+          "property": "visibility",
+          "pseudo": null,
+          "playState": "running",
+          "pending": true,
+          "currentTime": 0,
+          "startTime": null,
+          "timelineTime": 563.2,
+          "timing": {
+            "delay": 0,
+            "direction": "normal",
+            "duration": 100,
+            "easing": "ease",
+            "endDelay": 0,
+            "fill": "backwards",
+            "iterationStart": 0,
+            "iterations": 1
+          },
+          "computedTiming": {
+            "delay": 0,
+            "direction": "normal",
+            "duration": 100,
+            "easing": "ease",
+            "endDelay": 0,
+            "fill": "backwards",
+            "iterationStart": 0,
+            "iterations": 1,
+            "activeDuration": 100,
+            "currentIteration": 0,
+            "endTime": 100,
+            "localTime": 0,
+            "progress": 0
+          },
+          "keyframes": [
+            {
+              "offset": 0,
+              "easing": "linear",
+              "composite": "auto",
+              "visibility": "hidden",
+              "computedOffset": 0
+            },
+            {
+              "offset": 1,
+              "easing": "linear",
+              "composite": "auto",
+              "visibility": "visible",
+              "computedOffset": 1
+            }
+          ]
+        }
+      ],
+      "documentBubbleFocusedClose": false,
+      "firstRAFFocusedClose": false
+    },
+    {
+      "id": "visibility-zero-clock",
+      "focusedCloseAfterNative": true,
+      "sourceFocusedAfterNative": false,
+      "surfaceVisibility": "visible",
+      "closeVisibility": "visible",
+      "instant": false,
+      "visibilityTransitions": [],
+      "documentBubbleFocusedClose": true,
+      "firstRAFFocusedClose": true
+    },
+    {
+      "id": "named-paint-color",
+      "focusedCloseAfterNative": true,
+      "sourceFocusedAfterNative": false,
+      "surfaceVisibility": "visible",
+      "closeVisibility": "visible",
+      "instant": false,
+      "visibilityTransitions": [],
+      "documentBubbleFocusedClose": true,
+      "firstRAFFocusedClose": true
+    }
+  ]
+}

@@ -26,6 +26,8 @@ jobs:
           node-version: 22
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
       - run: node --test tests/transition-contracts.test.mjs
+      - name: Validate motion judgment protocol without model calls
+        run: node tests/motion-judgment-contract.test.cjs
       - name: Exercise Transitions3 library logic and rendered-finding regressions
         shell: bash
         run: |
@@ -35,6 +37,9 @@ jobs:
           node tests/transitions-library-tabs.test.cjs
           node tests/transitions-library-actual-shell.test.cjs
           node tests/transitions-library-focus-escape.test.cjs
+          node tests/transitions-library-dialog.test.cjs
+          node tests/transitions-library-dialog-paint.test.cjs
+          node tests/transitions-library-dialog-observer.test.cjs
           node tests/transitions-library-palette-input.test.cjs
           node tests/transitions-library-native-ax-assertion.test.cjs
           node tests/transitions-library-reading-keys.test.cjs
@@ -43,6 +48,8 @@ jobs:
           node tests/transitions-library-spaced-title.test.cjs
           node tests/transitions-library-title-boundary.test.cjs
           node tests/transitions-library-control-contrast.test.cjs
+          node tests/transitions-library-stream.test.cjs
+          node tests/transitions-library-blur-ownership.test.cjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check examples/seenry-site/app.js
       - run: node --check examples/seenry-site/studies/held/app.js
@@ -51,6 +58,17 @@ jobs:
         run: npm install --no-save --package-lock=false playwright@1.63.0
       - name: Install Chromium and host dependencies
         run: npx playwright install --with-deps chromium
+      - name: Exercise native streaming text and Stop contracts
+        timeout-minutes: 2
+        run: node tests/transitions-library-stream.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-stream-contract"
+      - name: Preserve native streaming evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stream-contract-${{ matrix.os }}
+          path: ${{ runner.temp }}/seenry-stream-contract
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Exercise Transitions3 responsive gallery bounds
         run: node tests/transitions-library.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
       - name: Exercise content reflow and user text spacing
@@ -65,7 +83,7 @@ jobs:
           retention-days: 7
       - name: Exercise actual shared-title content boundaries
         timeout-minutes: 3
-        run: node tests/transitions-library-title-boundary.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --widths 360,361,384,385,400,420 --press-hold-ms 160 --out "${{ runner.temp }}/seenry-title-boundary"
+        run: node tests/transitions-library-title-boundary.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --widths 360,361,384,384.5,385,400,420 --press-hold-ms 160 --out "${{ runner.temp }}/seenry-title-boundary"
       - name: Preserve shared-title boundary traces
         if: always()
         uses: actions/upload-artifact@v4
@@ -103,6 +121,17 @@ jobs:
         with:
           name: focus-escape-${{ matrix.os }}
           path: ${{ runner.temp }}/seenry-focus-escape
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Exercise native Dialog scenario and early focus paint
+        timeout-minutes: 4
+        run: node tests/transitions-library-dialog.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-dialog"
+      - name: Preserve Dialog native preference, focus and first-frame evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialog-${{ matrix.os }}
+          path: ${{ runner.temp }}/seenry-dialog
           if-no-files-found: ignore
           retention-days: 7
       - name: Exercise trusted palette input and native-modal recovery
@@ -144,3 +173,225 @@ jobs:
           node tests/scroll-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/transition-evidence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
           node tests/voice-presence.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs"
+
+  card_evidence:
+    name: Record Card browser evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Record exact fixture and harness sources
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          root = pathlib.Path('.')
+          files = [
+              'skills/seenry/assets/components/transitions/gallery.html',
+              'skills/seenry/assets/components/transitions/gallery.js',
+              'skills/seenry/assets/components/transitions/gallery-menu.js',
+              'skills/seenry/assets/components/transitions/seenry-transitions.css',
+              'skills/seenry/assets/components/transitions/seenry-transitions.js',
+              'tests/transitions-library-close-attachment.browser.mjs',
+              'tests/transitions-library-label-paint.mjs',
+              'tests/transitions-library-card-readable.mjs',
+              'tests/transitions-library-card-anchor-fallback.browser.mjs',
+              'tests/transitions-library-card-semantic-visibility.browser.mjs',
+              'tests/transitions-library-dialog-raster.browser.mjs',
+              'tests/transitions-library-reduced-expand-reopen.browser.mjs',
+          ]
+          out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'seenry-card-evidence'
+          out.mkdir(parents=True, exist_ok=True)
+          record = {
+              'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'runId': os.environ['GITHUB_RUN_ID'],
+              'runAttempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'files': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files},
+              'scope': 'Repository Card fixtures only; assertions and native recording are not a subjective quality score',
+          }
+          for folder in [out, *[pathlib.Path(os.environ['RUNNER_TEMP']) / f'seenry-card-close-{i}' for i in range(2)]]:
+              folder.mkdir(parents=True, exist_ok=True)
+              (folder / 'source.json').write_text(json.dumps(record, indent=2) + '\n')
+          PY
+      - name: Install the pinned browser test runtime
+        run: npm install --no-save --package-lock=false playwright@1.63.0
+      - name: Install Chromium and host dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Exercise Transitions library source contracts
+        run: node --test tests/transitions-library-*.test.cjs tests/transitions-library-*.test.mjs
+      - name: Diagnose actual Card anchor resolution independently
+        if: ${{ !cancelled() }}
+        timeout-minutes: 1
+        run: node tests/transitions-library-card-anchor-diagnostic.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-card-evidence/anchor-diagnostic"
+      - name: Exercise native Card visibility and focus ownership
+        if: ${{ !cancelled() }}
+        timeout-minutes: 2
+        run: node tests/transitions-library-card-semantic-visibility.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-card-evidence/semantic-visibility"
+      - name: Preserve native Card visibility and source pins
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-semantic-visibility-ubuntu
+          path: |
+            ${{ runner.temp }}/seenry-card-evidence/source.json
+            ${{ runner.temp }}/seenry-card-evidence/semantic-visibility
+          if-no-files-found: error
+          retention-days: 7
+      - name: Exercise marked Card fallback and relocated anchors
+        if: ${{ !cancelled() }}
+        timeout-minutes: 2
+        run: node tests/transitions-library-card-anchor-fallback.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/anchor-fallback"
+      - name: Record normal-motion Close and interruption shard 0
+        if: ${{ !cancelled() }}
+        timeout-minutes: 4
+        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-close-0" --shard-index 0 --shard-count 2
+      - name: Preserve normal-motion Card shard 0
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-close-0-ubuntu
+          path: ${{ runner.temp }}/seenry-card-close-0
+          if-no-files-found: error
+          retention-days: 7
+      - name: Record normal-motion Close and interruption shard 1
+        if: ${{ !cancelled() }}
+        timeout-minutes: 4
+        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-close-1" --shard-index 1 --shard-count 2
+      - name: Preserve normal-motion Card shard 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-close-1-ubuntu
+          path: ${{ runner.temp }}/seenry-card-close-1
+          if-no-files-found: error
+          retention-days: 7
+      - name: Record representative Card video independently
+        if: ${{ !cancelled() }}
+        timeout-minutes: 2
+        run: node tests/transitions-library-close-attachment.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/video" --video-only true --video-width 320
+      - name: Record native reduced-motion opening and reopen evidence
+        if: ${{ !cancelled() }}
+        timeout-minutes: 4
+        run: node tests/transitions-library-reduced-expand-reopen.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-card-evidence/reduced"
+      - name: Record unpaused Dialog video independently
+        if: ${{ !cancelled() }}
+        timeout-minutes: 3
+        run: node tests/transitions-library-dialog-video.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-dialog-video"
+      - name: Corroborate reduced Dialog raster captures independently
+        if: ${{ !cancelled() }}
+        timeout-minutes: 2
+        run: node tests/transitions-library-dialog-raster.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --out "${{ runner.temp }}/seenry-dialog-raster"
+      - name: Preserve Dialog raster corroboration and source pins
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialog-raster-ubuntu
+          path: ${{ runner.temp }}/seenry-dialog-raster
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve unpaused Dialog recordings and source pins
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialog-video-ubuntu
+          path: ${{ runner.temp }}/seenry-dialog-video
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve Card source pins, traces, screenshots and recording
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-evidence-ubuntu
+          path: ${{ runner.temp }}/seenry-card-evidence
+          if-no-files-found: error
+          retention-days: 7
+
+  menu_native:
+    name: Exercise Menu flow shard ${{ matrix.shard }}
+    if: github.event_name == 'pull_request'
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, callback]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify immutable Menu sources and contracts
+        run: |
+          node --test tests/transitions-library-menu-native.test.mjs tests/transitions-library-menu-runtime.test.cjs tests/transitions-gallery-menu.test.cjs tests/transitions-gallery-menu-filter.test.cjs tests/transitions-gallery-menu-typography.test.cjs
+          node tests/transitions-library-menu-native.browser.mjs --verify-only --gallery skills/seenry/assets/components/transitions/gallery.html --pins tests/transitions-library-menu-native.pins.json
+      - name: Install the pinned browser test runtime
+        run: npm install --no-save --package-lock=false playwright@1.63.0
+      - name: Install Chromium and host dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Exercise bounded native Menu flow
+        timeout-minutes: 4
+        shell: bash
+        env:
+          MENU_SHARD: ${{ matrix.shard }}
+        run: |
+          if [ "$MENU_SHARD" = callback ]; then
+            node tests/transitions-library-menu-native.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --pins tests/transitions-library-menu-native.pins.json --callback-only --out "${{ runner.temp }}/seenry-menu-native"
+          else
+            node tests/transitions-library-menu-native.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --gallery skills/seenry/assets/components/transitions/gallery.html --pins tests/transitions-library-menu-native.pins.json --shard "$MENU_SHARD" --out "${{ runner.temp }}/seenry-menu-native"
+          fi
+      - name: Preserve native Menu cases and media
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-native-${{ matrix.shard }}-ubuntu
+          path: ${{ runner.temp }}/seenry-menu-native
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 7
+
+  menu_native_union:
+    name: Verify complete Menu evidence union
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    needs: menu_native
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: menu-native-*-ubuntu
+          path: ${{ runner.temp }}/seenry-menu-received
+      - name: Reconcile every required case and native evidence file
+        shell: bash
+        run: |
+          menu_received="${{ runner.temp }}/seenry-menu-received"
+          menu_indices=""
+          for shard in 0 1 2 3 4 5 6 7; do
+            if [ -n "$menu_indices" ]; then menu_indices="$menu_indices,"; fi
+            menu_indices="$menu_indices$menu_received/menu-native-$shard-ubuntu/index.json"
+          done
+          node tests/transitions-library-menu-native.browser.mjs --merge "$menu_indices" --callback "$menu_received/menu-native-callback-ubuntu/index.json" --out "${{ runner.temp }}/menu-native-union.json"
+      - name: Preserve Menu union verdict and remaining gaps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-native-union-ubuntu
+          path: ${{ runner.temp }}/menu-native-union.json
+          if-no-files-found: error
+          retention-days: 7

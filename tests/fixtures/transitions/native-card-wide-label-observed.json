@@ -1,0 +1,320 @@
+{
+  "provenance": "Actual uninstrumented Chromium CI at PR65 commit 4c92806, source runtime4105cbdd and HTMLa3f7afca; extracted failing rows only. Original raw files remain preserved in native-4c92806-card-push/close.",
+  "cases": [
+    {
+      "case": "1100-light-0-100-case.json",
+      "sha256": "00e2e62a070fc40c8c9df62c390c07ef9b4a2ba76af54884e3ef3e39b3e6f980",
+      "viewport": 1100,
+      "contentWidth": null,
+      "spaced": false,
+      "sourceTitle": {
+        "x": 688,
+        "y": 503.390625,
+        "width": 284,
+        "height": 22,
+        "top": 503.390625,
+        "right": 972,
+        "bottom": 525.390625,
+        "left": 688
+      },
+      "destinationTitle": {
+        "x": 688,
+        "y": 495.390625,
+        "width": 95.125,
+        "height": 22,
+        "top": 495.390625,
+        "right": 783.125,
+        "bottom": 517.390625,
+        "left": 688
+      },
+      "destinationHeader": {
+        "x": 616,
+        "y": 486.390625,
+        "width": 219.125,
+        "height": 60,
+        "top": 486.390625,
+        "right": 835.125,
+        "bottom": 546.390625,
+        "left": 616
+      },
+      "surface": {
+        "left": 610,
+        "top": 480.390625,
+        "right": 1030,
+        "bottom": 732.390625
+      },
+      "sourceFont": "16px",
+      "destinationFont": "16px"
+    },
+    {
+      "case": "1100-light-0-spaced-100-case.json",
+      "sha256": "bd20846cf499aa423012f9dec147bdf0d06a13f322ff61600d7785153a3f1b67",
+      "viewport": 1100,
+      "contentWidth": null,
+      "spaced": true,
+      "sourceTitle": {
+        "x": 688,
+        "y": 486.171875,
+        "width": 284,
+        "height": 24,
+        "top": 486.171875,
+        "right": 972,
+        "bottom": 510.171875,
+        "left": 688
+      },
+      "destinationTitle": {
+        "x": 688,
+        "y": 470.671875,
+        "width": 120.578125,
+        "height": 24,
+        "top": 470.671875,
+        "right": 808.578125,
+        "bottom": 494.671875,
+        "left": 688
+      },
+      "destinationHeader": {
+        "x": 616,
+        "y": 470.671875,
+        "width": 244.578125,
+        "height": 73,
+        "top": 470.671875,
+        "right": 860.578125,
+        "bottom": 543.671875,
+        "left": 616
+      },
+      "surface": {
+        "left": 610,
+        "top": 464.671875,
+        "right": 1030,
+        "bottom": 716.671875
+      },
+      "sourceFont": "16px",
+      "destinationFont": "16px"
+    },
+    {
+      "case": "1100-light-1-100-case.json",
+      "sha256": "1eb35cbd4f54bf723853cfe748a59e0c70e3c14cdfeca20bd221d6ba2062a211",
+      "viewport": 1100,
+      "contentWidth": null,
+      "spaced": false,
+      "sourceTitle": {
+        "x": 688,
+        "y": 583.390625,
+        "width": 284,
+        "height": 22,
+        "top": 583.390625,
+        "right": 972,
+        "bottom": 605.390625,
+        "left": 688
+      },
+      "destinationTitle": {
+        "x": 688,
+        "y": 495.390625,
+        "width": 85.515625,
+        "height": 22,
+        "top": 495.390625,
+        "right": 773.515625,
+        "bottom": 517.390625,
+        "left": 688
+      },
+      "destinationHeader": {
+        "x": 616,
+        "y": 486.390625,
+        "width": 209.515625,
+        "height": 60,
+        "top": 486.390625,
+        "right": 825.515625,
+        "bottom": 546.390625,
+        "left": 616
+      },
+      "surface": {
+        "left": 610,
+        "top": 480.390625,
+        "right": 1030,
+        "bottom": 732.390625
+      },
+      "sourceFont": "16px",
+      "destinationFont": "16px"
+    },
+    {
+      "case": "1100-light-1-spaced-100-case.json",
+      "sha256": "14406aa2796928a373887d10c3408f91a1510f4a6013ae5255205d4049df07ea",
+      "viewport": 1100,
+      "contentWidth": null,
+      "spaced": true,
+      "sourceTitle": {
+        "x": 688,
+        "y": 566.171875,
+        "width": 284,
+        "height": 24,
+        "top": 566.171875,
+        "right": 972,
+        "bottom": 590.171875,
+        "left": 688
+      },
+      "destinationTitle": {
+        "x": 688,
+        "y": 470.671875,
+        "width": 108.875,
+        "height": 24,
+        "top": 470.671875,
+        "right": 796.875,
+        "bottom": 494.671875,
+        "left": 688
+      },
+      "destinationHeader": {
+        "x": 616,
+        "y": 470.671875,
+        "width": 232.875,
+        "height": 73,
+        "top": 470.671875,
+        "right": 848.875,
+        "bottom": 543.671875,
+        "left": 616
+      },
+      "surface": {
+        "left": 610,
+        "top": 464.671875,
+        "right": 1030,
+        "bottom": 716.671875
+      },
+      "sourceFont": "16px",
+      "destinationFont": "16px"
+    },
+    {
+      "case": "1100-light-2-100-case.json",
+      "sha256": "901799b141e5acacc2f871e85e575c6d7424b287eabef8f81ab0c17cfc8aaa6a",
+      "viewport": 1100,
+      "contentWidth": null,
+      "spaced": false,
+      "sourceTitle": {
+        "x": 688,
+        "y": 663.390625,
+        "width": 284,
+        "height": 22,
+        "top": 663.390625,
+        "right": 972,
+        "bottom": 685.390625,
+        "left": 688
+      },
+      "destinationTitle": {
+        "x": 688,
+        "y": 495.390625,
+        "width": 91.765625,
+        "height": 22,
+        "top": 495.390625,
+        "right": 779.765625,
+        "bottom": 517.390625,
+        "left": 688
+      },
+      "destinationHeader": {
+        "x": 616,
+        "y": 486.390625,
+        "width": 215.765625,
+        "height": 60,
+        "top": 486.390625,
+        "right": 831.765625,
+        "bottom": 546.390625,
+        "left": 616
+      },
+      "surface": {
+        "left": 610,
+        "top": 480.390625,
+        "right": 1030,
+        "bottom": 732.390625
+      },
+      "sourceFont": "16px",
+      "destinationFont": "16px"
+    },
+    {
+      "case": "1100-light-2-spaced-100-case.json",
+      "sha256": "a30ba6fa9826ee7507f49c1ec023d5a1a79ae5793ff40445fc17d071f92f5ca5",
+      "viewport": 1100,
+      "contentWidth": null,
+      "spaced": true,
+      "sourceTitle": {
+        "x": 688,
+        "y": 646.171875,
+        "width": 284,
+        "height": 24,
+        "top": 646.171875,
+        "right": 972,
+        "bottom": 670.171875,
+        "left": 688
+      },
+      "destinationTitle": {
+        "x": 688,
+        "y": 470.671875,
+        "width": 112.5625,
+        "height": 24,
+        "top": 470.671875,
+        "right": 800.5625,
+        "bottom": 494.671875,
+        "left": 688
+      },
+      "destinationHeader": {
+        "x": 616,
+        "y": 470.671875,
+        "width": 236.5625,
+        "height": 73,
+        "top": 470.671875,
+        "right": 852.5625,
+        "bottom": 543.671875,
+        "left": 616
+      },
+      "surface": {
+        "left": 610,
+        "top": 464.671875,
+        "right": 1030,
+        "bottom": 716.671875
+      },
+      "sourceFont": "16px",
+      "destinationFont": "16px"
+    },
+    {
+      "case": "385-content-light-spaced-100-case.json",
+      "sha256": "a1bb4c4843036a54437b50322abdb0eed0b26bc06c84a9259937bdab9b9e69c8",
+      "viewport": 1440,
+      "contentWidth": 385,
+      "spaced": true,
+      "sourceTitle": {
+        "x": 228,
+        "y": 608,
+        "width": 249,
+        "height": 24,
+        "top": 608,
+        "right": 477,
+        "bottom": 632,
+        "left": 228
+      },
+      "destinationTitle": {
+        "x": 228,
+        "y": 592.5,
+        "width": 120.578125,
+        "height": 24,
+        "top": 592.5,
+        "right": 348.578125,
+        "bottom": 616.5,
+        "left": 228
+      },
+      "destinationHeader": {
+        "x": 156,
+        "y": 592.5,
+        "width": 244.578125,
+        "height": 73,
+        "top": 592.5,
+        "right": 400.578125,
+        "bottom": 665.5,
+        "left": 156
+      },
+      "surface": {
+        "left": 150,
+        "top": 586.5,
+        "right": 535,
+        "bottom": 838.5
+      },
+      "sourceFont": "16px",
+      "destinationFont": "16px"
+    }
+  ]
+}
