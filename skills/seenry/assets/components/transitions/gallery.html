@@ -827,11 +827,11 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
        <li class="file" data-menu-file="roadmap"><span class="file-icon"><svg class="st-icon" aria-hidden="true"><use href="#i-doc"/></svg></span><span class="file-meta"><b data-menu-file-name>Q3 roadmap</b><span data-menu-file-note>Sample document</span></span><button type="button" class="icon-btn" id="menu-trigger" data-menu-trigger data-st-target="menu-1" aria-controls="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Q3 roadmap"><svg class="st-icon" aria-hidden="true"><use href="#i-dots"/></svg></button></li>
        <li class="file" data-menu-file="hiring"><span class="file-icon"><svg class="st-icon" aria-hidden="true"><use href="#i-table"/></svg></span><span class="file-meta"><b data-menu-file-name>Hiring plan</b><span data-menu-file-note>Sample spreadsheet</span></span><button type="button" class="icon-btn" id="menu-trigger-hiring" data-menu-trigger data-st-target="menu-1" aria-controls="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Hiring plan"><svg class="st-icon" aria-hidden="true"><use href="#i-dots"/></svg></button></li>
       </ul>
-      <p class="menu-demo-empty" data-menu-empty hidden>No sample files remain. Undo a deletion or Reset to start again.</p>
+      <p class="menu-demo-empty" data-menu-empty hidden>No sample files remain.</p>
       <div class="menu-demo-feedback">
-       <p data-menu-budget>Copies: 0 of 2. Reset to start again.</p>
+       <div class="menu-demo-recovery" data-menu-recovery hidden><button type="button" class="st-button" data-menu-undo>Undo last delete</button><p data-menu-deleted></p></div>
        <p data-menu-status role="status" aria-live="polite" aria-atomic="true"></p>
-       <div class="menu-demo-recovery" data-menu-recovery hidden><p data-menu-deleted></p><button type="button" class="st-button" data-menu-undo>Undo last delete</button></div>
+       <p data-menu-budget>Copies: 0 of 2.</p>
       </div>
      </div>
      <p class="menu-demo-disclosure">Local preview. Sample files only; changes last until Reset or reload.</p>
@@ -855,7 +855,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      </dialog>
      <button type="button" class="replay" data-replay="menu" data-st-keep><svg class="st-icon" aria-hidden="true"><use href="#i-replay"/></svg>Open menu</button>
     </div>
-    <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Rename, duplicate and undo a local delete</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>trigger-relative menu</span><span>instant keyboard input</span><span>local actions + Undo</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Rename, duplicate and undo a local delete.</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>trigger-relative menu</span><span>instant keyboard input</span><span>local actions + Undo</span></div></div>
    </article><article class="card" data-key="morph" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Button to menu">
     <div class="stage" data-st-preview>
      <div class="app" style="width:min(100%,380px)">

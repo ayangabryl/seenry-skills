@@ -1,5 +1,5 @@
 {
-  "schema": "menu-native-v4",
+  "schema": "menu-native-v5",
   "frozen": false,
   "reconstructionBaseCommit": "7c5fc8fd175f5de224406f793ea5c842b52a8c0d",
   "bundleSHA256": null,
@@ -17,6 +17,7 @@
     "transitions-library-menu-native.browser.mjs": null,
     "transitions-library-menu-native-contract.mjs": null,
     "transitions-library-menu-native-observer.mjs": null,
-    "transitions-library-menu-discovery-helpers.mjs": null
+    "transitions-library-menu-discovery-helpers.mjs": null,
+    "transitions-library-menu-native-collection.mjs": null
   }
 }

@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import {dirname,join} from 'node:path';
-import {sha256,identityValue,rectInside,effectivePaint,parseColor,contrast} from './transitions-library-menu-discovery-helpers.mjs';
+import {sha256,identityValue,rectInside,effectivePaint,parseColor,contrast,nativeClipGeometry} from './transitions-library-menu-discovery-helpers.mjs';
+import {reconcileMenuEvents,menuCollectionGroups} from './transitions-library-menu-native-collection.mjs';
 
-export const VERSION = 'menu-native-v4';
+export const VERSION = 'menu-native-v5';
 export const ASSETS = ['gallery.html','gallery.js','gallery-menu.js','seenry-transitions.js','seenry-transitions.css','assets/morning.jpg','assets/lake.jpg','assets/forest.jpg'];
-export const HARNESS = ['transitions-library-menu-native.browser.mjs','transitions-library-menu-native-contract.mjs','transitions-library-menu-native-observer.mjs','transitions-library-menu-discovery-helpers.mjs'];
+export const HARNESS = ['transitions-library-menu-native.browser.mjs','transitions-library-menu-native-contract.mjs','transitions-library-menu-native-observer.mjs','transitions-library-menu-discovery-helpers.mjs','transitions-library-menu-native-collection.mjs'];
 export const WIDTHS = [320,390,1100,1440], THEMES = ['light','dark'];
 export const PROFILES = WIDTHS.flatMap((width,w)=>THEMES.flatMap((theme,t)=>['pointer','keyboard','reduced','detail'].map(suite=>({
  id:`${width}-${theme}-${suite}`,width,height:780,theme,suite,shard:w*2+t,
@@ -22,7 +23,9 @@ export const PHONE_TEXT_TARGETS=[
  ...['.menu-demo [data-menu-count]','.menu-demo [data-menu-reset]','.menu-demo [data-menu-file-note]','.menu-demo [data-menu-budget]','.menu-demo [data-menu-status]','.menu-demo [data-menu-deleted]','.menu-demo [data-menu-undo]','.menu-demo [data-menu-empty]','.menu-demo .menu-demo-disclosure','#menu-copy-limit'].map(selector=>({selector,minFontSize:15})),
  ...['#menu-rename label','#menu-rename input','#menu-rename .st-button'].map(selector=>({selector,minFontSize:16}))
 ];
-export function typographyPlan(profile){return !profile||profile.width>650||profile.suite==='controlled-callback'?[]:actionPlan(profile).filter(step=>['initial','rename-begin','invalid-blank-save','hiring-save','limit-open','empty-recovery-persistent','search-rename-begin','search-save','search-reset','detail-rename-begin','detail-delete','detail-return-reset','final-reset'].includes(step.id)).map(step=>step.id);}
+export function typographyPlan(profile){return !profile||profile.width>650||profile.suite==='controlled-callback'?[]:actionPlan(profile).filter(step=>['initial','rename-begin','invalid-blank-save','hiring-save','limit-open','empty-recovery-persistent','empty-recovery-undo-visible','search-rename-begin','search-save','search-reset','detail-rename-begin','detail-delete','detail-return-reset','final-reset'].includes(step.id)).map(step=>step.id);}
+export const eventBatchPlan=profile=>['setup',...menuCollectionGroups(actionPlan(profile)).map(group=>group.length===1?group[0].id:`rapid:${group[0].id}`)];
+export const eventBatchLimit=profile=>eventBatchPlan(profile).length; // Setup, then one checkpoint per stable action/group; recovery retains the final bounded tail.
 export const SHARDS = WIDTHS.flatMap((_,w)=>THEMES.map((_,t)=>({id:w*2+t,profiles:PROFILES.filter(p=>p.shard===w*2+t).map(p=>p.id)})));
 
 export function exactSet(actual,expected,label) {
@@ -95,6 +98,7 @@ export function actionPlan(p) {
  open('limit-open','roadmap',{check:'limit'});key('limit-end','End',{check:'focused-delete'});key('limit-home','Home',{check:'focused-rename'});key('limit-skip-disabled','ArrowDown',{check:'focused-delete'});key('limit-escape','Escape',{check:'closed-focus',row:'roadmap'});
  for(const row of ['roadmap','copy-1','hiring','copy-2']){open(`delete-${row}-open`,row);click(`delete-${row}`,'action:delete',{check:'delete',row});}
  push('empty-recovery-persistent','observe-duration',{durationMs:6000,check:'empty-persistent'});
+ if(p.width<=650)push('empty-recovery-undo-visible','reach',{control:'undo',mode:'keyboard',check:'undo-visible'});
  for(const row of ['copy-2','hiring','copy-1','roadmap'])click(`undo-${row}`,'undo',{check:'undo',row});
  open('restored-budget-open','hiring',{check:'limit'});key('restored-budget-escape','Escape',{check:'closed-focus',row:'hiring'});
  click('reset','reset',{check:'reset'});open('repeat-copy-open','hiring');click('repeat-copy','action:duplicate',{check:'copy1'});
@@ -152,7 +156,7 @@ function focusCue(paint) {
 }
 export function immediateIssues(state,expectedFocus) {
  const issues=[],bad=(ok,reason)=>{if(!ok)issues.push(issue('immediate-semantics',reason));};
- bad(state?.menu?.open===true&&state.menu.nativeOpen===true&&state.menu.inert===false&&state.menu.ariaHidden!=='true','Open native popover with accessible enabled semantics required');
+ bad(state?.menu?.open===true&&state.menu.presentationOpen===true&&state.menu.nativeOpen===true&&state.menu.inert===false&&state.menu.ariaHidden!=='true','Open native popover with accessible enabled semantics required');
  bad(state?.trigger?.expanded==='true'&&state.trigger.hit===true,'Original trigger must remain expanded and own its original point');
  bad(state?.focus===expectedFocus,'Expected immediate focus owner missing');
  bad(state?.items?.length===3&&state.items.map(x=>x.action).join(',')==='rename,duplicate,delete','Exact action set missing');
@@ -189,16 +193,23 @@ export function firstPaintResult(action,expectedFocus) {
 export function progressed(snapshot) {
  return (snapshot?.animations||[]).some(a=>a.owner==='menu'&&a.target==='menu'&&a.pseudo===null&&a.properties?.includes('transform')&&a.playState==='running'&&a.pending===false&&Number.isFinite(a.currentTime)&&a.currentTime>0&&Number.isFinite(a.progress)&&a.progress>0&&a.progress<1);
 }
-export const closeState=s=>s.menu.open===false&&s.menu.nativeOpen===false&&s.menu.inert===true&&s.rows.every(r=>r.expanded==='false');
+export const closeState=s=>s.menu.open===false&&s.menu.presentationOpen===false&&s.menu.nativeOpen===false&&s.menu.inert===true&&s.rows.every(r=>r.expanded==='false');
 export const parentOpen=s=>s.stageOwner==='detail'&&s.hash==='#t/menu'&&s.parent.nativeOpen===true&&s.parent.modal===true&&s.parent.presentation==='true'&&!s.parent.hidden&&!s.parent.inert&&s.parent.display!=='none'&&s.parent.visibility==='visible';
 export function assertSnapshot(s,label='snapshot') {
  assert(s&&Number.isFinite(s.snapshotStartedAt)&&Number.isFinite(s.snapshotCompletedAt)&&s.snapshotCompletedAt>=s.snapshotStartedAt,`${label}: actual snapshot clocks required`);
  assert(Array.isArray(s.rows)&&new Set(s.rows.map(r=>r.id)).size===s.rows.length&&s.rows.every(r=>typeof r.id==='string'&&typeof r.name==='string'),`${label}: rendered rows required`);
- assert(typeof s.focus==='string'&&typeof s.count==='string'&&s.menu&&['open','nativeOpen','inert'].every(k=>typeof s.menu[k]==='boolean'),`${label}: focus/Menu semantics required`);
+ assert(typeof s.focus==='string'&&typeof s.count==='string'&&s.menu&&['open','presentationOpen','nativeOpen','inert'].every(k=>typeof s.menu[k]==='boolean'),`${label}: explicit logical/presentation/native Menu semantics required`);
+ const expanded=s.rows.filter(r=>r.expanded==='true');assert(expanded.length<=1&&s.rows.every(r=>['true','false'].includes(r.expanded)),`${label}: expanded trigger inventory invalid`);
+ assert.equal(s.menu.open,expanded.length===1,`${label}: logical state disagrees with expanded trigger`);
+ if(s.menu.open)assert(!s.menu.inert&&s.menu.presentationOpen,`${label}: logical open lacks enabled presentation`);
+ assert(s.trigger&&typeof s.trigger.exists==='boolean',`${label}: originating trigger presence evidence required`);
+ const origin=s.rows.find(row=>row.id===s.trigger.row);
+ if(s.trigger.exists){assert(origin&&s.trigger.expanded===origin.expanded,`${label}: connected origin trigger signals disagree`);assert.equal(s.menu.logicalStateSource,'connected-trigger-inventory',`${label}: logical signal provenance missing`);if(s.menu.open)assert.equal(s.trigger.expanded,'true',`${label}: active Menu belongs to another trigger`);}
+ else {assert(!origin&&s.trigger.expanded===null,`${label}: absent origin must not fabricate aria-expanded`);assert.equal(s.menu.logicalStateSource,'no-connected-origin-trigger',`${label}: missing-origin provenance required`);assert(closeState(s),`${label}: missing origin is allowed only after complete native/presentation retirement`);}
  assert(s.editor&&typeof s.editor.open==='boolean'&&s.parent&&typeof s.parent.nativeOpen==='boolean'&&Array.isArray(s.animations),`${label}: native ownership/animation inventory required`);
  return s;
 }
-const semanticState=s=>({rows:s.rows.map(r=>[r.id,r.name]),count:s.count,statusText:s.statusText,budgetText:s.budgetText,recovery:s.recovery,empty:s.empty,focus:s.focus,editor:{open:s.editor.open,modal:s.editor.modal,value:s.editor.value,error:s.editor.error,errorVisible:s.editor.errorVisible,invalid:s.editor.invalid},menu:{open:s.menu.open,nativeOpen:s.menu.nativeOpen,inert:s.menu.inert},stageOwner:s.stageOwner,hash:s.hash,search:s.search,menuCard:s.menuCard?{hidden:s.menuCard.hidden,containsStage:s.menuCard.containsStage}:undefined});
+const semanticState=s=>({rows:s.rows.map(r=>[r.id,r.name]),count:s.count,statusText:s.statusText,budgetText:s.budgetText,recovery:s.recovery,empty:s.empty,focus:s.focus,editor:{open:s.editor.open,modal:s.editor.modal,value:s.editor.value,error:s.editor.error,errorVisible:s.editor.errorVisible,invalid:s.editor.invalid},menu:{open:s.menu.open,presentationOpen:s.menu.presentationOpen,nativeOpen:s.menu.nativeOpen,inert:s.menu.inert},stageOwner:s.stageOwner,hash:s.hash,search:s.search,menuCard:s.menuCard?{hidden:s.menuCard.hidden,containsStage:s.menuCard.containsStage}:undefined});
 export function assertAccepted(a,event,phases) {
  const accepted=a.accepted?.find(row=>row.eventId===event.eventId&&phases.includes(row.phase));
  assert(accepted,`Missing post-production observation of event ${event.eventId}`);
@@ -271,6 +282,7 @@ export function assertStepEvidence(step,a,audit) {
   if(step.check==='parent-escape'){const native=a.events.find(e=>e.trusted&&e.control==='parent'&&['cancel','close'].includes(e.type));assert(native&&native.eventAt>=primary.eventAt,'Native parent lifecycle must follow its own Escape');assertAccepted({...a,accepted:a.lifecycle},native,['native-dialog-lifecycle']);}
  }
  if(step.op==='type'){primary=primaryEvent(a,{type:'input',control:'editor-input'});assertAccepted(a,primary,['post-production-stage-input']);assert.equal(a.after.editor.value,step.value,'Actual input value differs');}
+ if(step.op==='reach'){assert.equal(a.targetControl,step.control);assert(a.events.some(e=>e.trusted&&e.type==='keydown'&&e.key==='Tab'),'Settled reach requires actual trusted Tab traversal');assert.equal(a.after.focus,step.control,'Actual keyboard reach did not focus intended control');}
  if(step.op==='search'){
   assert.equal(a.before.focus,'search','Search input must follow a real focus handoff');primary=primaryEvent(a,{type:'input',control:'search'});assert.equal(primary.value,step.value,'Trusted Search input value mismatch');accepted=assertAccepted(a,primary,['post-production-document-input']);assert.equal(accepted.state.search?.value,step.value);assert.equal(a.after.search?.value,step.value);
  }
@@ -283,11 +295,70 @@ export function assertStepEvidence(step,a,audit) {
   assert.equal(primary.interruptionState.menu.open,step.direction==='entry','Interruption did not occur in the required entry/exit phase');
   assert.equal(a.progressEvidence?.eventId,primary.eventId,'Positive progress evidence is not linked to actual dispatch');assert.deepEqual(a.progressEvidence.state,primary.interruptionState);
   const open=step.direction==='exit'||step.key==='ArrowDown';assert.equal(accepted.state.menu.open,open,'Interruption did not publish requested logical state');assert.equal(accepted.state.menu.inert,!open);
+  assert.equal(accepted.state.trigger.expanded,String(open),'Interruption expanded trigger disagrees with accepted logical state');
+  if(step.input==='original-click'){
+   assert(primary.interruptionState.menu.presentationOpen&&primary.interruptionState.menu.nativeOpen,'Pointer interruption lost its native presentation');
+   assert(accepted.state.menu.presentationOpen&&accepted.state.menu.nativeOpen,'Pointer reversal must retain native outgoing/incoming presentation');
+   assert(accepted.state.animations.some(x=>x.owner==='menu'&&x.target==='menu'&&x.pseudo===null&&x.properties?.includes('transform')&&(x.pending||x.playState==='running')),'Pointer interruption must retain a real owned transform');
+  }
  }
  if(primary){assert(primary.eventAt>=a.before.snapshotCompletedAt,'Input preceded prepared snapshot');if(accepted)assert(accepted.snapshotCompletedAt<=a.after.snapshotStartedAt,'Accepted snapshot followed terminal snapshot');}
  assertStepOutcome(step,a,audit);
  if(typographyPlan(audit.profile).includes(step.id))assertSettledTypography(a.settledTypography,a,audit.profile);
+ if(step.check==='undo-visible')assert(a.settledTypography.rows.some(r=>r.selector==='.menu-demo [data-menu-undo]'),'Reached Undo still lacks unchanged visible typography evidence');
+ if(step.check==='undo')assertPostUndoFocusEvidence(step,a,audit.deleted.length);
  audit.lastRows=a.after.rows.map(row=>[row.id,row.name]);
+}
+
+function postUndoCueBounds(paint){
+ const model=effectivePaint(paint),cue=paint.cue,r=paint.rect,result=[],backgrounds=model.samples?.map(s=>s.background)||[];
+ const strong=color=>{try{const c=parseColor(color);return c[3]===1&&backgrounds.length>0&&backgrounds.every(bg=>contrast(c,bg)>=3);}catch{return false;}};
+ const width=Number.parseFloat(cue?.outlineWidth),offset=Number.parseFloat(cue?.outlineOffset);
+ if(width>=2&&Number.isFinite(offset)&&['solid','double','dotted','dashed'].includes(cue.outlineStyle)&&strong(cue.outlineColor)){
+  const outward=Math.max(0,width+offset);result.push({left:r.left-outward,top:r.top-outward,right:r.right+outward,bottom:r.bottom+outward,width:r.width+outward*2,height:r.height+outward*2});
+ }
+ const color=/rgba?\([^)]*\)|color\(srgb\s+[^)]*\)/.exec(cue?.boxShadow||'')?.[0];
+ const shadow=color?cue.boxShadow.replace(color,'').replace(/inset/g,'').trim().split(/\s+/).map(Number.parseFloat):[];
+ if(color&&cue.boxShadow.includes('inset')&&shadow.length===4&&shadow[0]===0&&shadow[1]===0&&shadow[2]===0&&shadow[3]>=2&&strong(color))result.push(r);
+ return result;
+}
+export function assertPostUndoFocusEvidence(step,a,remainingDeletes){
+ assert(step.check==='undo'&&Number.isInteger(remainingDeletes)&&remainingDeletes>=0,'Post-Undo guard requires the observed remaining deletion count');
+ assert(['keyboard','pointer'].includes(step.mode)&&a.mode===step.mode,'Post-Undo input mode missing');
+ const click=primaryEvent(a,{type:'click',control:'undo'}),key=step.mode==='keyboard'?a.events.find(e=>e.type==='keydown'&&e.control==='undo'&&e.trusted&&['Enter',' '].includes(e.key)&&e.eventAt<=click.eventAt):null;
+ assert(step.mode==='keyboard'?click.detail===0&&!!key:click.detail>0,'Post-Undo focus requirement must follow actual trusted activation');
+ const inputEvidence={mode:step.mode,focusCueRequired:step.mode==='keyboard',clickEventId:click.eventId,clickTrusted:true,clickDetail:click.detail,keyEventId:key?.eventId??null};
+ const expected=remainingDeletes>0?'undo':`trigger:${step.row}`,accepted=assertAccepted(a,click,['post-production-stage-bubble']);
+ assert.equal(accepted.state.focus,expected,'Undo must immediately retain recovery focus or reveal the final restored row');
+ assert.equal(accepted.state.recovery.visible,remainingDeletes>0,'Accepted recovery state differs from remaining observed deletions');
+ assert.equal(accepted.state.recovery.undoVisible,remainingDeletes>0,'Accepted Undo availability differs from remaining observed deletions');
+ if(remainingDeletes===0){
+  const trigger=accepted.state.trigger,viewport={left:0,top:0,right:accepted.state.viewport.width,bottom:accepted.state.viewport.height};
+  assert(trigger.exists&&trigger.row===step.row&&rectInside(trigger.rect,viewport),'Final Undo must reveal the restored trigger at acceptance');
+  // trigger.hit is deliberately not used: it may refer to an earlier action point.
+ }
+ const s=a.settledUndoFocus;
+ assert(s&&s.actionId===a.id&&s.row===step.row&&s.phase==='settled-post-undo-focus'&&s.actionInactive===true,'Missing separate post-Undo focus sample');
+ assert(Number.isFinite(s.sampleStartedAt)&&Number.isFinite(s.sampleCompletedAt)&&s.sampleStartedAt>=a.after.snapshotCompletedAt&&s.sampleCompletedAt>=s.sampleStartedAt,'Post-Undo sample must follow the finished action');
+ assert.equal(s.remainingDeletes,remainingDeletes);assert.deepEqual(s.inputEvidence,inputEvidence,'Post-Undo cue requirement lacks linked trusted input');
+ assert(s.exists&&s.connected&&s.targetControl===expected&&s.focus===expected&&s.paint?.focused===true,'Post-Undo focus sample has the wrong or disconnected target');
+ assert(s.viewport&&s.viewport.left===0&&s.viewport.top===0&&s.viewport.width===a.after.viewport.width&&s.viewport.height===a.after.viewport.height&&s.viewport.right===s.viewport.width&&s.viewport.bottom===s.viewport.height,'Post-Undo viewport mismatch');
+ assert(Array.isArray(s.clipAncestors)&&s.clipAncestors.length>0,'Post-Undo ancestor clip inventory missing');
+ const base={node:'viewport',rect:s.viewport,offsetWidth:s.viewport.width,offsetHeight:s.viewport.height,clientLeft:0,clientTop:0,clientWidth:s.viewport.width,clientHeight:s.viewport.height,axisAligned:true,unsupportedClip:false};
+ assert.deepEqual(s.geometry,nativeClipGeometry(base,s.clipAncestors,s.viewport),'Post-Undo clip differs from measured ancestor geometry');
+ assert(s.geometry.status==='measured-axis-aligned-intersection'&&rectInside(s.rect,s.viewport)&&rectInside(s.rect,s.geometry.rect),'Post-Undo focused control leaves viewport or ancestor scroll clip');
+ assert.deepEqual(s.paint.rect,s.rect,'Post-Undo paint belongs to another rectangle');
+ const model=effectivePaint(s.paint);assert(model.status==='modeled-only'&&model.visible&&Math.abs(model.effectiveOpacity-1)<.001,'Post-Undo target is hidden, faded or has unsupported paint');
+ assert(Array.isArray(s.paint.glyphs)&&s.paint.glyphs.length>0&&s.paint.glyphs.every(g=>rectInside(g,s.rect)&&rectInside(g,s.geometry.rect)),'Post-Undo target ink is missing or clipped');
+ assert(model.samples.every(sample=>sample.ratio>=(remainingDeletes>0?4.5:3)),'Post-Undo label/icon paint is not distinguishable on its actual surface');
+ assert(s.paint.chain.every(n=>identityValue('transform',n.transform)&&identityValue('translate',n.translate)&&identityValue('scale',n.scale)&&identityValue('rotate',n.rotate)),'Post-Undo target/ancestor movement prevents a settled cue measurement');
+ const center={x:s.rect.left+s.rect.width/2,y:s.rect.top+s.rect.height/2};
+ assert(s.currentCenter?.source==='current-focus-target-center'&&s.currentCenter.role==='center'&&Number.isFinite(s.currentCenter.measuredAt)&&s.currentCenter.measuredAt>=s.sampleStartedAt&&s.currentCenter.measuredAt<=s.sampleCompletedAt,'Post-Undo current-center provenance missing');
+ assert.deepEqual(s.currentCenter.point,center,'Post-Undo hit point is not the actual current center');assert(s.currentCenter.hit===true&&s.currentCenter.hitControl===expected,'Post-Undo current center is occluded or owned by another control');
+ const edges=[['top',{x:center.x,y:s.rect.top+1}],['right',{x:s.rect.right-1,y:center.y}],['bottom',{x:center.x,y:s.rect.bottom-1}],['left',{x:s.rect.left+1,y:center.y}]];
+ assert(Array.isArray(s.edgeHits)&&s.edgeHits.length===edges.length,'Post-Undo edge hit inventory missing');
+ edges.forEach(([role,point],i)=>{const hit=s.edgeHits[i];assert.equal(hit.role,role);assert.deepEqual(hit.point,point);assert(hit.hit===true&&hit.hitControl===expected,'Post-Undo focus target is partially occluded');});
+ if(inputEvidence.focusCueRequired){assert(s.paint.focusVisible===true,'Keyboard Undo needs an actual visible focus state');assert(postUndoCueBounds(s.paint).some(bounds=>rectInside(bounds,s.viewport)&&rectInside(bounds,s.geometry.rect)),'Keyboard Undo needs a strong visible focus cue wholly inside viewport/scroll clip');}
 }
 export function assertSettledTypography(sample,action,profile) {
  assert(sample&&sample.actionId===action.id&&sample.phase==='settled-phone-typography'&&sample.actionInactive===true,'Settled typography must be separate from active input/rAF observation');
@@ -341,8 +412,9 @@ export function assertStepOutcome(step,a,run){
   run.deleted.push({row:before.rows[at],index:at});
  }
  if(check==='empty-persistent'){assert.equal(s.rows.length,0);assert(s.empty&&s.recovery.visible&&s.recovery.undoVisible);assert.equal(s.focus,'reset');assert(a.observedDurationMs>=step.durationMs,'Persistence window not observed');}
+ if(check==='undo-visible'){assert.equal(s.rows.length,0);assert(s.empty&&s.recovery.visible&&s.recovery.undoVisible);assert.equal(s.focus,'undo');assert.deepEqual(s.rows,before.rows);assert.equal(s.recovery.text,before.recovery.text);}
  if(check==='undo'){
-  const last=run.deleted.at(-1);assert(last&&last.row.id===step.row);const expected=before.rows.map(r=>({id:r.id,name:r.name}));expected.splice(Math.min(last.index,expected.length),0,{id:last.row.id,name:last.row.name});assert.deepEqual(s.rows.map(r=>({id:r.id,name:r.name})),expected);assert.equal(s.focus,`trigger:${step.row}`);assert.match(s.statusText,/Restored/);run.deleted.pop();assert.equal(s.recovery.visible,run.deleted.length>0);
+  const last=run.deleted.at(-1);assert(last&&last.row.id===step.row);assert(before.recovery.visible&&before.recovery.undoVisible,'Undo requires an actually available recovery action');const expected=before.rows.map(r=>({id:r.id,name:r.name}));expected.splice(Math.min(last.index,expected.length),0,{id:last.row.id,name:last.row.name});assert.deepEqual(s.rows.map(r=>({id:r.id,name:r.name})),expected);const remaining=run.deleted.length-1;assert.equal(s.focus,remaining>0?'undo':`trigger:${step.row}`);assert.match(s.statusText,/Restored/);run.deleted.pop();assert.equal(s.recovery.visible,remaining>0);assert.equal(s.recovery.undoVisible,remaining>0);
  }
  if(check==='parent-open')assert(parentOpen(s));
  if(['search-focused','search-kept','search-retired','search-escape','search-restored','detail-search-blocked'].includes(check)){
@@ -391,11 +463,13 @@ export function reconcileCase(run) {
  }
  try{
   const inv=run.recoveredInventory;assert(inv&&inv.active===null&&inv.dropped===0&&Array.isArray(inv.events),'Completed native inventory missing, active, or overflowed');
+  const completeEvents=reconcileMenuEvents(run.eventBatches,inv,eventBatchLimit(profile));
+  assert.deepEqual(run.eventBatches.map(batch=>batch.label),eventBatchPlan(profile),'Required stable checkpoint sequence is incomplete or reordered');
   const terminal=assertSnapshot(inv.final,'terminal inventory'),last=run.actions?.at(-1)?.after;assert(last&&terminal.snapshotStartedAt>=last.snapshotCompletedAt,'Terminal inventory predates final action');
   assert(closeState(terminal)&&!terminal.editor.open&&!terminal.parent.nativeOpen&&!terminal.parent.modal,'Terminal inventory retained native ownership');
   assert(!terminal.animations.some(x=>x.owner==='menu'||x.pending||x.playState==='running'),'Terminal inventory retained motion');
   assert.deepEqual(semanticState(terminal),semanticState(last),'Terminal inventory differs from final accepted flow state');
-  const events=new Map();for(const e of inv.events){assert(!events.has(e.eventId),'Duplicate terminal input event');events.set(e.eventId,e);}
+  const events=new Map();for(const e of completeEvents){assert(!events.has(e.eventId),'Duplicate terminal input event');events.set(e.eventId,e);}
   for(const a of run.actions||[])for(const e of a.events||[]){const retained=events.get(e.eventId);assert(retained,'Action event absent from terminal inventory');for(const key of ['actionId','eventAt','type','control','trusted'])assert.equal(retained[key],e[key],`Terminal input ${key} mismatch`);}
  }catch(error){issues.push(issue('terminal-inventory',String(error)));}
  if(!run.collectionComplete)issues.push(issue('collection','Case did not finish'));

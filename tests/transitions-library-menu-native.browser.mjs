@@ -7,9 +7,10 @@ import {join,dirname,resolve,basename} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {platform,release} from 'node:os';
-import {VERSION,ASSETS,HARNESS,PROFILES,SHARDS,CALLBACK_PROFILE,STILL_STEPS,PHONE_TEXT_TARGETS,typographyPlan,verifyPlan,actionPlan,verifyManifest,assertRunIdentity,firstPaintResult,immediateIssues,progressed,exactSet,reconcileCase,assertStepEvidence,assertVideoProbe,videoProbeFailure,functionalSuccess,closeState,parentOpen,finalizeCase,finalizeReport,mergeReports} from './transitions-library-menu-native-contract.mjs';
+import {VERSION,ASSETS,HARNESS,PROFILES,SHARDS,CALLBACK_PROFILE,STILL_STEPS,PHONE_TEXT_TARGETS,typographyPlan,eventBatchLimit,verifyPlan,actionPlan,verifyManifest,assertRunIdentity,firstPaintResult,immediateIssues,progressed,exactSet,reconcileCase,assertStepEvidence,assertVideoProbe,videoProbeFailure,functionalSuccess,closeState,parentOpen,finalizeCase,finalizeReport,mergeReports} from './transitions-library-menu-native-contract.mjs';
 import {sha256,nativeClipGeometry,boundedOperation} from './transitions-library-menu-discovery-helpers.mjs';
-import {installMenuCaptureClock,installMenuObserver,captureSettledMenuTypography} from './transitions-library-menu-native-observer.mjs';
+import {installMenuCaptureClock,installMenuObserver,captureSettledMenuTypography,captureSettledMenuUndoFocus,logicalMenuEvidence} from './transitions-library-menu-native-observer.mjs';
+import {createMenuSaveGate,menuCollectionGroups,checkpointMenuEvents,observeMinimumDuration,collectMenuRapidGroup} from './transitions-library-menu-native-collection.mjs';
 
 const here=dirname(fileURLToPath(import.meta.url));
 const arg=(name,fallback)=>{const i=process.argv.indexOf(name);if(i<0)return fallback;assert(process.argv[i+1]&&!process.argv[i+1].startsWith('--'),`${name}: value required`);return process.argv[i+1];};
@@ -57,13 +58,18 @@ const report={version:VERSION,shard,status:'running',source:sources,manifestSHA2
 try{report.checkoutHead=execFileSync('git',['rev-parse','HEAD'],{cwd:dirname(gallery),encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{report.checkoutHead=null;}
 report.runIdentity={checkoutHead:report.checkoutHead,githubRunId:process.env.GITHUB_RUN_ID??null,githubRunAttempt:process.env.GITHUB_RUN_ATTEMPT??null};
 let browser,server,origin,current,activeCapture,stopping=false,executionEnded=false;
-const save=run=>{if(run)atomic(join(out,run.id,'case.json'),run);for(const e of report.cases){const r=runs.find(x=>x.id===e.id);if(r){e.status=r.status;e.failures=r.failures.length;e.errors=r.errors.length;}}atomic(join(out,'index.json'),report);};
+const {save,setDeferred}=createMenuSaveGate(run=>{if(run)atomic(join(out,run.id,'case.json'),run);for(const e of report.cases){const r=runs.find(x=>x.id===e.id);if(r){e.status=r.status;e.failures=r.failures.length;e.errors=r.errors.length;}}atomic(join(out,'index.json'),report);});
 save();
 const ensureRunning=()=>{if(stopping)throw Error('Shard collection stopped; no new inputs allowed');};
 const inventoryFiles=()=>{const walk=(dir,depth=0)=>depth>3?[]:readdirSync(dir,{withFileTypes:true}).flatMap(e=>{const file=join(dir,e.name);return e.isDirectory()?walk(file,depth+1):[{file:file.slice(out.length+1),bytes:statSync(file).size}];});try{return walk(out).slice(0,250);}catch(e){return [{error:String(e)}];}};
 let rejectDeadline;const deadline=new Promise((_,reject)=>{rejectDeadline=reject;});
-const watchdog=setTimeout(()=>{stopping=true;report.status='failed';report.errors.push({kind:'deadline',reason:'165-second collection window exhausted'});report.diagnosticInventory=inventoryFiles();save(current);rejectDeadline(Error('Shard deadline'));},165000);
-const hardStop=setTimeout(()=>{stopping=true;report.status='failed';report.errors.push({kind:'hard-deadline',reason:'190-second cap; unfinished evidence/finalization remains failed'});report.diagnosticInventory=inventoryFiles();save(current);process.exit(2);},190000);
+const watchdog=setTimeout(()=>{stopping=true;report.status='failed';report.errors.push({kind:'deadline',reason:'165-second collection window exhausted'});report.diagnosticInventory=inventoryFiles();setDeferred(current,false);save(current);rejectDeadline(Error('Shard deadline'));},165000);
+const hardStop=setTimeout(()=>{stopping=true;report.status='failed';report.errors.push({kind:'hard-deadline',reason:'190-second cap; unfinished evidence/finalization remains failed'});report.diagnosticInventory=inventoryFiles();setDeferred(current,false);save(current);process.exit(2);},190000);
+
+async function checkpointEvents(page,run,label){
+ try{return await checkpointMenuEvents(run,label,{maxBatches:eventBatchLimit(run.profile),peek:()=>page.evaluate(()=>window.__menuNative.peekEvents()),persist:()=>save(run),acknowledge:token=>page.evaluate(t=>window.__menuNative.acknowledgeEvents(t),token)});}
+ catch(error){run.failures.push({kind:'event-checkpoint',reason:error.stack||String(error),label});save(run);throw error;}
+}
 
 const sel=control=>control.startsWith('trigger:')?`[data-menu-file="${control.slice(8)}"] [data-menu-trigger]`:control.startsWith('action:')?`#menu-1 [data-menu-action="${control.slice(7)}"]`:({save:'#menu-rename [type="submit"]',cancel:'[data-menu-cancel]',reset:'[data-menu-reset]',undo:'[data-menu-undo]',detail:'[data-detail="menu"]','editor-input':'#menu-rename-name',blur:'label.blur-switch'})[control];
 async function tabTo(page,selector){for(let i=0;i<40;i++){ensureRunning();if(await page.locator(selector).evaluate(e=>document.activeElement===e))return;await page.keyboard.press('Tab');}throw Error(`Real Tab traversal could not reach ${selector}`);}
@@ -73,7 +79,7 @@ async function focusAction(page,control){
 }
 async function prepare(page,run){
  page.setDefaultTimeout(3000);page.setDefaultNavigationTimeout(6000);
- await page.addInitScript({content:`(${installMenuCaptureClock.toString()})();window.__menuNativeClipGeometry=${nativeClipGeometry.toString()};window.__menuNativeProgressed=${progressed.toString()};window.__menuPhoneTypographyTargets=${JSON.stringify(PHONE_TEXT_TARGETS)};window.__menuCaptureSettledTypography=${captureSettledMenuTypography.toString()};`});
+ await page.addInitScript({content:`(${installMenuCaptureClock.toString()})();window.__menuNativeLogicalEvidence=${logicalMenuEvidence.toString()};window.__menuNativeClipGeometry=${nativeClipGeometry.toString()};window.__menuNativeProgressed=${progressed.toString()};window.__menuPhoneTypographyTargets=${JSON.stringify(PHONE_TEXT_TARGETS)};window.__menuCaptureSettledTypography=${captureSettledMenuTypography.toString()};`});
  const log=(kind,message)=>{if(run.errors.length<80)run.errors.push({kind,message:String(message).slice(0,1200),hostAt:performance.now()});else run.inventoryOverflow=true;save(run);};
  page.on('pageerror',e=>log('pageerror',e.stack||e.message));page.on('crash',()=>log('page-crash','Native page crashed'));
  page.on('console',m=>{if(m.type()==='error')log('console-error',m.text());else if(m.type()==='warning'&&run.warnings.length<30)run.warnings.push(m.text().slice(0,500));});
@@ -104,7 +110,8 @@ async function inputStep(page,step,a,run){
    finally{menu.removeEventListener('beforetoggle',callback);}
   });return;
  }
- if(step.op==='observe-duration'){const t=performance.now();await new Promise(r=>setTimeout(r,step.durationMs));a.observedDurationMs=performance.now()-t;return;}
+ if(step.op==='observe-duration'){a.observedDurationMs=await observeMinimumDuration(step.durationMs,{check:ensureRunning});return;}
+ if(step.op==='reach'){await tabTo(page,sel(step.control));return;}
  if(step.op==='type'){await page.keyboard.press('ControlOrMeta+A');if(step.value)await page.keyboard.insertText(step.value);else await page.keyboard.press('Backspace');return;}
  if(step.op==='search'){
   assert.equal(await page.evaluate(()=>window.__menuNative.snapshot(false).focus),'search','Trusted Search handoff missing');
@@ -126,8 +133,9 @@ async function inputStep(page,step,a,run){
 }
 async function collectStep(page,run,step){
  ensureRunning();assert(!run.stopped,'Case stopped; new action withheld');
- const a={id:`${run.id}/${step.id}`,stepId:step.id,status:'requested',op:step.op,mode:step.mode,row:step.row,targetControl:step.op==='open'||step.op==='original-click'||step.op==='interrupt'&&step.input==='original-click'?`trigger:${step.row}`:step.control??null,events:[],accepted:[],frames:[],lifecycle:[],hostRequest:{at:performance.now(),utc:new Date().toISOString()}};
- run.actions.push(a);save(run); // Durable stub before traversal, arming, or dispatch.
+ const a=run.actions.find(action=>action.stepId===step.id)||{};
+ Object.assign(a,{id:`${run.id}/${step.id}`,stepId:step.id,status:'requested',op:step.op,mode:step.mode,row:step.row,targetControl:step.op==='open'||step.op==='original-click'||step.op==='interrupt'&&step.input==='original-click'?`trigger:${step.row}`:step.control??null,events:[],accepted:[],frames:[],lifecycle:[],hostRequest:{at:performance.now(),utc:new Date().toISOString()}});
+ if(!run.actions.includes(a))run.actions.push(a);save(run); // Rapid stubs are already durable; their writes defer until the group terminates.
  try{
   if(step.op==='open'){await page.locator(sel(`trigger:${step.row}`)).scrollIntoViewIfNeeded();if(step.mode==='keyboard')await tabTo(page,sel(`trigger:${step.row}`));}
   if(step.op==='activate'&&step.mode==='keyboard')await focusAction(page,step.control);
@@ -138,6 +146,11 @@ async function collectStep(page,run,step){
   if(step.settle!==false){a.settlement=await page.evaluate(()=>window.__menuNative.settle());assert.equal(a.settlement.status,'native-finite-settlement-observed');}
   const observed=await page.evaluate(()=>window.__menuNative.finish());assert.equal(observed.id,a.id);Object.assign(a,observed);
   if(typographyPlan(run.profile).includes(step.id))a.settledTypography=await page.evaluate(actionId=>window.__menuNative.typography({actionId}),a.id);
+  if(step.check==='undo'){
+   const click=a.events.find(e=>e.type==='click'&&e.control==='undo'&&e.trusted),key=step.mode==='keyboard'?a.events.find(e=>e.type==='keydown'&&e.control==='undo'&&e.trusted&&['Enter',' '].includes(e.key)):null;
+   const inputEvidence={mode:step.mode,focusCueRequired:step.mode==='keyboard',clickEventId:click?.eventId??null,clickTrusted:click?.trusted??null,clickDetail:click?.detail??null,keyEventId:key?.eventId??null};
+   a.settledUndoFocus=await page.evaluate(captureSettledMenuUndoFocus,{actionId:a.id,row:step.row,remainingDeletes:run.deleted.length-1,inputEvidence});
+  }
   if(step.op==='open')run.originalPoints[step.row]=a.originalPoint;
   if(step.op==='open'||step.op==='activate'||step.op==='original-click'||step.op==='blur'){
    const control=step.op==='blur'?'blur':a.targetControl;assert(a.events.some(e=>e.type==='click'&&e.trusted&&e.control===control),'Target-owned trusted click missing');
@@ -183,9 +196,23 @@ async function execute(){
   let c,caseTimer;
   try{
    c=await makeCapture(run);await prepare(c.page,run);
-   const scenario=(async()=>{for(const step of actionPlan(profile)){await collectStep(c.page,run,step);if(STILL_STEPS.includes(step.id))await still(c.page,run,step.id);}await still(c.page,run,'final-state');run.collectionComplete=true;})();
+   const scenario=(async()=>{
+    await checkpointEvents(c.page,run,'setup');
+    for(const group of menuCollectionGroups(actionPlan(profile))){
+     if(group.length===1){const step=group[0];await collectStep(c.page,run,step);await checkpointEvents(c.page,run,step.id);if(STILL_STEPS.includes(step.id))await still(c.page,run,step.id);continue;}
+     const sequence={stepIds:group.map(step=>step.id),status:'predeclared',declaredAt:{at:performance.now(),utc:new Date().toISOString()}};(run.rapidSequences??=[]).push(sequence);
+     await collectMenuRapidGroup(group,{
+      declare:steps=>{for(const step of steps)run.actions.push({id:`${run.id}/${step.id}`,stepId:step.id,op:step.op,status:'predeclared',declaredAt:sequence.declaredAt});},
+      persist:()=>save(run),setDeferred:value=>setDeferred(run,value),
+      collect:async step=>{await collectStep(c.page,run,step);if(step===group.at(-1))sequence.status='observed';},
+      recover:async error=>{sequence.status='failed';sequence.error=error.stack||String(error);const inventory=await boundedOperation(()=>c.page.evaluate(()=>window.__menuNative.inventory()),1200,'rapid-partial-inventory');sequence.recoveredInventory=inventory;if(inventory.active){const action=run.actions.find(a=>a.id===inventory.active.id);if(action)action.interruptedTrace=inventory.active;}},
+      checkpoint:()=>checkpointEvents(c.page,run,`rapid:${group[0].id}`)
+     });
+    }
+    await still(c.page,run,'final-state');run.collectionComplete=true;
+   })();
    await Promise.race([scenario,new Promise((_,reject)=>{caseTimer=setTimeout(()=>reject(Error('60-second case deadline')),60000);})]);
-  }catch(error){run.stopped=true;run.failures.push({kind:'case',reason:error.stack||String(error)});run.status='failed';run.diagnosticInventory=inventoryFiles();}
+  }catch(error){run.stopped=true;run.failures.push({kind:'case',reason:error.stack||String(error)});for(const extra of error.finalizationErrors||[])run.failures.push({kind:'rapid-finalization',reason:extra.stack||String(extra)});if(error.recoveryError)run.failures.push({kind:'rapid-recovery',reason:error.recoveryError.stack||String(error.recoveryError)});run.status='failed';run.diagnosticInventory=inventoryFiles();setDeferred(run,false);}
   finally{clearTimeout(caseTimer);if(c)await c.finish();else if(activeCapture)await activeCapture.finish();reconcileCase(run);save(run);}
   console.log(`${run.id}: ${run.status}; visual and motion score unverified`);
  }

@@ -1,0 +1,250 @@
+{
+  "scope": "Exact original native measurements; evidence of the old offscreen-return behavior, not a completed v2 focus sample or a rewritten native result.",
+  "sourceCase": "menu-native-0-ubuntu/320-light-keyboard/case.json",
+  "sourceSHA256": "455dc89677653e15315fd78a62297d43dec15454b6326e06569ff627904df084",
+  "runIdentity": {
+    "checkoutHead": "10997a545cc5a5373b743cec02d7f1dcbe54e7aa",
+    "githubRunId": "37133514988",
+    "githubRunAttempt": "1"
+  },
+  "source": {
+    "schema": "menu-native-v4",
+    "reconstructionBaseCommit": "7c5fc8fd175f5de224406f793ea5c842b52a8c0d",
+    "bundleSHA256": "6482e1d1072b9493720a2b4c022b2823f4022b9a1adca37d524cbcb538e6e162",
+    "assets": {
+      "gallery.html": "7fd51cd17c03dd2c3b71af97be0514f7f4f998f97198edbfe2be46a4dc8f1083",
+      "gallery.js": "58f08f0bd4a3396bf3fe1e151fefc38d50c5807975d846fd65fa5ccbaf18cc09",
+      "gallery-menu.js": "ac71a55c0bb083149851bb3cd57823ee0928922b37dcbc4b472cb185327f254a",
+      "seenry-transitions.js": "1fac22445fc72f11f473ad39e6ec4f04142ca27ac242c7a420f2e23c68c9c25d",
+      "seenry-transitions.css": "8268058e200c6e750451aba01bc2bd4049d67d2d45f83a4bc2399819edd6aee1",
+      "assets/morning.jpg": "8d489f3ba1698592863b06b02ba34f4d697e87e227be92d1244c12f4f7dc9a25",
+      "assets/lake.jpg": "26f1167b6c07e4d67cd90c469390ebb310bfa082a7d86e0e3758f616176378c7",
+      "assets/forest.jpg": "b944abd87e265d383d021181a00eb153babf605d2746d859be6be910a2deb1ed"
+    },
+    "harness": {
+      "transitions-library-menu-native.browser.mjs": "f589ab8d65b8a6070eb3e1a261661554062a3113c3dcc9fc5cf96924b65a5fdc",
+      "transitions-library-menu-native-contract.mjs": "5738de9aa9f4b1dec2d93596844bc702955ab63dfaf6cbdc0de5463eb7bd690b",
+      "transitions-library-menu-native-observer.mjs": "7210ab16d4536b1eb2637eed3b8783dfd6863d66b1f4d6d12b7b5fc5e47f74ae",
+      "transitions-library-menu-discovery-helpers.mjs": "8ac6f83198c0308dc921abc8dc6e32a3206878f8fa70bdff885f1dad36019cfb"
+    },
+    "frozen": true
+  },
+  "observations": [
+    {
+      "stepId": "undo-hiring",
+      "actionIndex": 39,
+      "acceptedEventId": 519,
+      "acceptedPhase": "post-production-stage-bubble",
+      "acceptedAt": [
+        12502.600000000006,
+        12503
+      ],
+      "acceptedFocus": "trigger:hiring",
+      "acceptedTrigger": {
+        "row": "hiring",
+        "exists": true,
+        "rect": {
+          "x": 226,
+          "y": -121.1875,
+          "width": 44,
+          "height": 44,
+          "top": -121.1875,
+          "right": 270,
+          "bottom": -77.1875,
+          "left": 226
+        },
+        "expanded": "false",
+        "point": {
+          "x": 248,
+          "y": -99.1875
+        },
+        "hit": false,
+        "hitControl": "outside"
+      },
+      "afterAt": [
+        12548.200000000012,
+        12548.5
+      ],
+      "afterFocus": "trigger:hiring",
+      "afterTrigger": {
+        "row": "hiring",
+        "exists": true,
+        "rect": {
+          "x": 226,
+          "y": -121.1875,
+          "width": 44,
+          "height": 44,
+          "top": -121.1875,
+          "right": 270,
+          "bottom": -77.1875,
+          "left": 226
+        },
+        "expanded": "false",
+        "point": {
+          "x": 248,
+          "y": -99.1875
+        },
+        "hit": false,
+        "hitControl": "outside"
+      },
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "beforeRecovery": {
+        "visible": true,
+        "text": "3 deleted. Restore \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW\u201d.",
+        "undoVisible": true
+      },
+      "afterRecovery": {
+        "visible": true,
+        "text": "2 deleted. Restore \u201cQ4 roadmap copy\u201d.",
+        "undoVisible": true
+      }
+    },
+    {
+      "stepId": "undo-copy-1",
+      "actionIndex": 40,
+      "acceptedEventId": 532,
+      "acceptedPhase": "post-production-stage-bubble",
+      "acceptedAt": [
+        12678,
+        12678.299999999988
+      ],
+      "acceptedFocus": "trigger:copy-1",
+      "acceptedTrigger": {
+        "row": "copy-1",
+        "exists": true,
+        "rect": {
+          "x": 226,
+          "y": -180.9375,
+          "width": 44,
+          "height": 44,
+          "top": -180.9375,
+          "right": 270,
+          "bottom": -136.9375,
+          "left": 226
+        },
+        "expanded": "false",
+        "point": {
+          "x": 248,
+          "y": -158.9375
+        },
+        "hit": false,
+        "hitControl": "outside"
+      },
+      "afterAt": [
+        12714.899999999994,
+        12715.200000000012
+      ],
+      "afterFocus": "trigger:copy-1",
+      "afterTrigger": {
+        "row": "copy-1",
+        "exists": true,
+        "rect": {
+          "x": 226,
+          "y": -180.9375,
+          "width": 44,
+          "height": 44,
+          "top": -180.9375,
+          "right": 270,
+          "bottom": -136.9375,
+          "left": 226
+        },
+        "expanded": "false",
+        "point": {
+          "x": 248,
+          "y": -158.9375
+        },
+        "hit": false,
+        "hitControl": "outside"
+      },
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "beforeRecovery": {
+        "visible": true,
+        "text": "2 deleted. Restore \u201cQ4 roadmap copy\u201d.",
+        "undoVisible": true
+      },
+      "afterRecovery": {
+        "visible": true,
+        "text": "1 deleted. Restore \u201cQ4 roadmap\u201d.",
+        "undoVisible": true
+      }
+    },
+    {
+      "stepId": "undo-roadmap",
+      "actionIndex": 41,
+      "acceptedEventId": 549,
+      "acceptedPhase": "post-production-stage-bubble",
+      "acceptedAt": [
+        12854.799999999988,
+        12855.100000000006
+      ],
+      "acceptedFocus": "trigger:roadmap",
+      "acceptedTrigger": {
+        "row": "roadmap",
+        "exists": true,
+        "rect": {
+          "x": 226,
+          "y": -152.9375,
+          "width": 44,
+          "height": 44,
+          "top": -152.9375,
+          "right": 270,
+          "bottom": -108.9375,
+          "left": 226
+        },
+        "expanded": "false",
+        "point": {
+          "x": 248,
+          "y": -130.9375
+        },
+        "hit": false,
+        "hitControl": "outside"
+      },
+      "afterAt": [
+        12881.700000000012,
+        12882
+      ],
+      "afterFocus": "trigger:roadmap",
+      "afterTrigger": {
+        "row": "roadmap",
+        "exists": true,
+        "rect": {
+          "x": 226,
+          "y": -152.9375,
+          "width": 44,
+          "height": 44,
+          "top": -152.9375,
+          "right": 270,
+          "bottom": -108.9375,
+          "left": 226
+        },
+        "expanded": "false",
+        "point": {
+          "x": 248,
+          "y": -130.9375
+        },
+        "hit": false,
+        "hitControl": "outside"
+      },
+      "viewport": {
+        "width": 320,
+        "height": 780
+      },
+      "beforeRecovery": {
+        "visible": true,
+        "text": "1 deleted. Restore \u201cQ4 roadmap\u201d.",
+        "undoVisible": true
+      },
+      "afterRecovery": {
+        "visible": false,
+        "text": "",
+        "undoVisible": false
+      }
+    }
+  ]
+}

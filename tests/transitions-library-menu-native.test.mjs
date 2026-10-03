@@ -5,24 +5,24 @@ import {tmpdir} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {dirname,join} from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {VERSION,PROFILES,SHARDS,CALLBACK_PROFILE,ASSETS,HARNESS,sourceBundleSHA256,assertSourceIdentity,assertRunIdentity,verifyPlan,actionPlan,stillPlan,exactSet,verifyManifest,firstPaintResult,immediateIssues,progressed,reconcileCase,assertStepEvidence,assertCallbackEvidence,videoProbeFailure,assessVideoProbe,functionalSuccess,aggregateMedia,PHONE_TEXT_TARGETS,typographyPlan,assertSettledTypography,finalizeCase,finalizeReport,mergeReports} from './transitions-library-menu-native-contract.mjs';
+import {VERSION,PROFILES,SHARDS,CALLBACK_PROFILE,ASSETS,HARNESS,sourceBundleSHA256,assertSourceIdentity,assertRunIdentity,verifyPlan,actionPlan,stillPlan,exactSet,verifyManifest,firstPaintResult,immediateIssues,progressed,reconcileCase,assertStepEvidence,assertCallbackEvidence,videoProbeFailure,assessVideoProbe,functionalSuccess,aggregateMedia,PHONE_TEXT_TARGETS,typographyPlan,assertSettledTypography,assertSnapshot,closeState,finalizeCase,finalizeReport,mergeReports} from './transitions-library-menu-native-contract.mjs';
 import {boundedOperation} from './transitions-library-menu-discovery-helpers.mjs';
-import {installMenuCaptureClock,captureSettledMenuTypography} from './transitions-library-menu-native-observer.mjs';
+import {installMenuCaptureClock,captureSettledMenuTypography,logicalMenuEvidence} from './transitions-library-menu-native-observer.mjs';
 
 const here=dirname(fileURLToPath(import.meta.url)),clone=x=>structuredClone(x);
 const rect={left:10,top:10,right:210,bottom:170,width:200,height:160};
 function paint(focused=false){return {focused,focusVisible:focused,color:'rgb(0, 0, 0)',glyphs:[{left:20,top:20,right:100,bottom:40,width:80,height:20}],cue:{background:'rgb(255, 255, 255)',adjacentBackground:'rgb(255, 255, 255)',outlineColor:'rgb(0, 0, 0)',outlineWidth:'0px',outlineStyle:'none',boxShadow:focused?'rgb(0, 0, 0) 0px 0px 0px 2px inset':'none'},chain:[{node:'item',background:'rgb(255, 255, 255)',backgroundImage:'none',opacity:'1',filter:'none',backdropFilter:'none',mixBlendMode:'normal',visibility:'visible',display:'flex',transform:'none',translate:'none',scale:'none',rotate:'none'}]};}
-function state(){return {menu:{open:true,nativeOpen:true,inert:false,ariaHidden:null},trigger:{expanded:'true',hit:true},focus:'action:rename',items:['rename','duplicate','delete'].map((action,i)=>({action,disabled:false,paint:paint(i===0)})),geometry:{status:'measured-axis-aligned-intersection',rect},animations:[]};}
+function state(){return {menu:{open:true,logicalStateSource:'connected-trigger-inventory',presentationOpen:true,nativeOpen:true,inert:false,ariaHidden:null},trigger:{expanded:'true',hit:true},focus:'action:rename',items:['rename','duplicate','delete'].map((action,i)=>({action,disabled:false,paint:paint(i===0)})),geometry:{status:'measured-axis-aligned-intersection',rect},animations:[]};}
 function instant(){const s=nativeState(101.2,{open:true,focus:'action:rename'});return {id:'case/open',targetControl:'trigger:roadmap',mode:'keyboard',events:[{actionId:'case/open',eventId:6,eventAt:90,type:'keydown',key:'Enter',trusted:true,control:'trigger:roadmap'},{actionId:'case/open',eventId:7,eventAt:100,type:'click',detail:0,trusted:true,control:'trigger:roadmap'}],accepted:[{actionId:'case/open',eventId:7,eventAt:100,type:'click',detail:0,trusted:true,control:'trigger:roadmap',phase:'post-production-stage-bubble',observerAt:100.1,snapshotStartedAt:101,snapshotCompletedAt:102,state:clone(s)}],firstRAF:{actionId:'case/open',eventId:7,sequence:1,rafTimestamp:109,callbackAt:110,snapshotStartedAt:111,snapshotCompletedAt:112,state:{...clone(s),snapshotStartedAt:111.2,snapshotCompletedAt:111.3}}};}
 function caseFixture(profile=CALLBACK_PROFILE){if(profile.id===CALLBACK_PROFILE.id)return callbackFixture();return {id:profile.id,profile:clone(profile),source:sourceFixture(),runIdentity:runIdentityFixture(),status:'running',actions:actionPlan(profile).map(s=>{const a={stepId:s.id,status:'observed'};if(s.op==='open'&&s.instant){Object.assign(a,instant());if(s.mode==='pointer'){a.mode='pointer';a.events[0]={...a.events[0],type:'pointerdown',key:null};a.events[1].detail=1;a.accepted[0].detail=1;a.accepted[0].state.focus='menu';a.firstRAF.state.focus='menu';}}a.id=`${profile.id}/${s.id}`;if(s.op==='open'){a.targetControl=`trigger:${s.row}`;a.mode=s.mode;for(const row of [...(a.events||[]),...(a.accepted||[])]){row.actionId=a.id;row.control=a.targetControl;}if(a.firstRAF)a.firstRAF.actionId=a.id;}return a;}),failures:[],errors:[],collectionComplete:true,pageClosed:true,contextClosed:true,video:{file:'native-speed.webm',sha256:'0'.repeat(64),finalized:true,bytes:20,probe:{status:'observed',packets:[{pts_time:'0.000'},{pts_time:'0.040'}]}},stills:stillPlan(profile).map(label=>({label,status:'captured',before:{},after:{},bytes:10}))};}
 
 function runIdentityFixture(){return {checkoutHead:'1'.repeat(40),githubRunId:'12345',githubRunAttempt:'1'};}
 function sourceFixture(){const value={schema:VERSION,frozen:true,reconstructionBaseCommit:'a'.repeat(40),assets:Object.fromEntries(ASSETS.map(name=>[name,'b'.repeat(64)])),harness:Object.fromEntries(HARNESS.map(name=>[name,'c'.repeat(64)]))};value.bundleSHA256=sourceBundleSHA256(value);return value;}
-function nativeState(t,{open=false,nativeOpen=open,inert=!open,focus='reset'}={}) {
+function nativeState(t,{open=false,presentationOpen=open,nativeOpen=open,inert=!open,focus='reset'}={}) {
  const s=state();Object.assign(s,{snapshotStartedAt:t,snapshotCompletedAt:t+.1,focus,viewport:{width:320,height:780},hash:'',stageOwner:'gallery',search:{value:'Menu',focused:focus==='search'},menuCard:{hidden:false,containsStage:true,visible:true,opacity:'1'},count:'2 files',statusText:'',budgetText:'Copies: 0 of 2. Reset to start again.',recovery:{visible:false,text:'',undoVisible:false},empty:false,blur:{checked:false,rootOn:false},editor:{open:false,modal:false,inert:false,value:'',error:'',errorVisible:false,invalid:null},parent:{nativeOpen:false,modal:false,presentation:'false',hidden:false,inert:false,display:'none',visibility:'visible'}});
  s.rows=[['roadmap','Q3 roadmap'],['hiring','Hiring plan']].map(([id,name])=>({id,name,nameFits:true,accessibleName:`More actions for ${name}`,expanded:open&&id==='roadmap'?'true':'false'}));
- s.trigger={row:'roadmap',expanded:open?'true':'false',hit:true,rect:{left:180,right:212,top:50,bottom:82,width:32,height:32},point:{x:196,y:66}};
- Object.assign(s.menu,{open,nativeOpen,inert,side:'bottom',rect:{left:12,right:212,top:88,bottom:248,width:200,height:160}});return s;
+ s.trigger={row:'roadmap',exists:true,expanded:open?'true':'false',hit:true,rect:{left:180,right:212,top:50,bottom:82,width:32,height:32},point:{x:196,y:66}};
+ Object.assign(s.menu,{open,presentationOpen,nativeOpen,inert,side:'bottom',rect:{left:12,right:212,top:88,bottom:248,width:200,height:160}});return s;
 }
 const settlement=(t,s)=>({status:'native-finite-settlement-observed',rafAt:t-.2,elapsedMs:5,state:s||nativeState(t)});
 function callbackFixture(){
@@ -31,14 +31,15 @@ function callbackFixture(){
  const callbackEvidence={kind:'controlled-production-API-callback',actionId:id,requestedAt:29,returnedAt:34,closeCalls:1,closeRequestedAt:31,closeReturnedAt:32,afterClose:nativeState(32.1),beforetoggle:[{...events[0],callbackAt:30.2,state:nativeState(30.3,{open:true,nativeOpen:false})},{...events[1],callbackAt:33.2,state:nativeState(33.3,{open:false,nativeOpen:true})}],sync:nativeState(34.1),firstRAF:{actionId:id,sequence:1,rafTimestamp:39,callbackAt:40,state:nativeState(40.1)}};
  const initial={id:`${p.id}/initial`,stepId:'initial',op:'inspect',status:'observed',requestedAt:1,before:nativeState(2),after:nativeState(11),events:[],accepted:[],settlement:settlement(10)};
  const callback={id,stepId:'native-beforetoggle-open-close',op:'callback',status:'observed',requestedAt:20,before:nativeState(21),after:nativeState(51),events,accepted:[],callbackEvidence,settlement:settlement(50)};
- return {id:p.id,profile:clone(p),source:sourceFixture(),runIdentity:runIdentityFixture(),status:'running',actions:[initial,callback],failures:[],errors:[],collectionComplete:true,pageClosed:true,contextClosed:true,video:{file:'native-speed.webm',sha256:'0'.repeat(64),finalized:true,bytes:20,probe:{status:'observed',packets:[{pts_time:'0.000'},{pts_time:'0.040'}]}},stills:[{label:'final-state',status:'captured',before:nativeState(52),after:nativeState(53),bytes:10,hostRequest:{at:10},hostCompleted:{at:20}}],recoveredInventory:{active:null,dropped:0,events:clone(events),final:nativeState(60)}};
+ return {id:p.id,profile:clone(p),source:sourceFixture(),runIdentity:runIdentityFixture(),status:'running',actions:[initial,callback],failures:[],errors:[],collectionComplete:true,pageClosed:true,contextClosed:true,video:{file:'native-speed.webm',sha256:'0'.repeat(64),finalized:true,bytes:20,probe:{status:'observed',packets:[{pts_time:'0.000'},{pts_time:'0.040'}]}},stills:[{label:'final-state',status:'captured',before:nativeState(52),after:nativeState(53),bytes:10,hostRequest:{at:10},hostCompleted:{at:20}}],eventBatches:['setup','initial','native-beforetoggle-open-close'].map((label,index)=>({index,label,afterEventId:0,throughEventId:index===2?2:0,events:index===2?clone(events):[],dropped:0,status:'acknowledged',acknowledgment:{acknowledgedThrough:index===2?2:0,removed:index===2?2:0}})),recoveredInventory:{active:null,dropped:0,acknowledgedThrough:2,nextEventId:2,events:[],final:nativeState(60)}};
 }
 function pointerFixture(interruption=false){
  const profile=PROFILES[0],step=actionPlan(profile).find(s=>s.id===(interruption?'entry-progress-close':'roadmap-pointer-open')),id=`${profile.id}/${step.id}`;
  const a={id,stepId:step.id,op:step.op,mode:step.mode,row:'roadmap',targetControl:'trigger:roadmap',status:'observed',requestedAt:1,before:nativeState(2,{open:interruption,focus:interruption?'menu':'reset'}),after:nativeState(50,{open:!interruption,focus:'menu'}),originalPoint:{x:196,y:66},accepted:[],events:['pointerdown','pointerup','click'].map((type,i)=>({actionId:id,eventId:i+1,type,control:'trigger:roadmap',trusted:true,detail:type==='click'?1:0,eventAt:10+i,captureCompletedAt:10.1+i,nativeTimeStamp:10+i}))};
  if(!interruption)a.settlement=settlement(49,nativeState(49,{open:true,focus:'menu'}));
  if(interruption){const s=nativeState(12.01,{open:true,focus:'menu'});s.snapshotCompletedAt=12.08;s.animations=[{owner:'menu',target:'menu',pseudo:null,properties:['transform'],playState:'running',pending:false,currentTime:50,progress:.2,iterations:1,fill:'both'}];a.events[2].interruptionState=s;a.progressEvidence={eventId:3,state:clone(s)};}
- a.accepted=[{...a.events[2],phase:'post-production-stage-bubble',observerAt:12.2,snapshotStartedAt:12.3,snapshotCompletedAt:12.6,state:nativeState(12.4,{open:!interruption,nativeOpen:true,focus:'menu'})}];
+ a.accepted=[{...a.events[2],phase:'post-production-stage-bubble',observerAt:12.2,snapshotStartedAt:12.3,snapshotCompletedAt:12.6,state:nativeState(12.4,{open:!interruption,presentationOpen:true,nativeOpen:true,focus:'menu'})}];
+ if(interruption)a.accepted[0].state.animations=[{owner:'menu',target:'menu',pseudo:null,properties:['transform'],playState:'running',pending:true,currentTime:0,progress:0,iterations:1,fill:'forwards'}];
  return {step,a,audit:{id:profile.id,profile,deleted:[],originalPoints:{roadmap:{x:196,y:66}}}};
 }
 
@@ -106,7 +107,7 @@ test('missing/synthetic/duplicated/wrong-order callback evidence never reconcile
  for(const mutate of mutations){const run=callbackFixture();mutate(run);assert.equal(reconcileCase(run),'failed');assert(run.issues.some(i=>i.kind==='action-evidence'));}
 });
 test('missing final snapshot, unmatched terminal event, active inventory and empty action list fail closed',()=>{
- for(const mutate of [r=>delete r.recoveredInventory,r=>delete r.recoveredInventory.final,r=>r.recoveredInventory.events.pop(),r=>r.recoveredInventory.active={id:'unfinished'},r=>r.recoveredInventory.final.menu.nativeOpen=true,r=>r.recoveredInventory.final.rows[0].name='stale',r=>r.actions=[]]){const run=callbackFixture();mutate(run);assert.equal(reconcileCase(run),'failed');}
+ for(const mutate of [r=>delete r.recoveredInventory,r=>delete r.recoveredInventory.final,r=>r.eventBatches[2].events.pop(),r=>r.recoveredInventory.active={id:'unfinished'},r=>r.recoveredInventory.final.menu.nativeOpen=true,r=>r.recoveredInventory.final.rows[0].name='stale',r=>r.actions=[]]){const run=callbackFixture();mutate(run);assert.equal(reconcileCase(run),'failed');}
 });
 test('the v1 forged ordinary/callback reproductions now fail even with complete IDs and media labels',()=>{
  for(const profile of [PROFILES[0],CALLBACK_PROFILE]){const run=caseFixture(profile);for(const a of run.actions){delete a.before;delete a.after;delete a.callbackEvidence;delete a.progressEvidence;a.events=[];a.accepted=[];}assert.equal(reconcileCase(run),'failed');assert(run.issues.some(i=>i.kind==='action-evidence'));}
@@ -245,4 +246,52 @@ test('actual phone sampler limits nested Rename samples to active modal leaves',
  const outer=scrollDialog({left:0,top:62,right:320,bottom:780,width:320,height:718}),inner=scrollDialog({left:16,top:100,right:304,bottom:600,width:288,height:500});
  const background=typographyGeometry({left:20,top:100,right:100,bottom:120,width:80,height:20},{parent:outer}),label=typographyGeometry({left:36,top:140,right:250,bottom:160,width:214,height:20},{parent:inner,fontSize:'16px',selector:'#menu-rename label'});
  const sample=executeTypography([background,label],inner);assert.equal(sample.rows.length,1);assert.equal(sample.rows[0].selector,'#menu-rename label');assert(sample.skipped.some(s=>s.reason==='outside-active-native-modal'));assert.doesNotThrow(()=>assertSettledTypography(sample,{id:'detail/sample',after:{snapshotCompletedAt:0}},{width:320,height:780}));
+});
+
+test('v5 rejects historical or contradictory logical/presentation fields without defaults',()=>{
+ const f=pointerFixture(true);assert.doesNotThrow(()=>assertStepEvidence(f.step,clone(f.a),clone(f.audit)));
+ for(const mutate of [a=>delete a.accepted[0].state.menu.presentationOpen,a=>a.accepted[0].state.menu.open=true,a=>a.accepted[0].state.menu.inert=false,a=>a.accepted[0].state.trigger.expanded='true',a=>a.accepted[0].state.menu.presentationOpen=false,a=>a.accepted[0].state.menu.nativeOpen=false,a=>a.accepted[0].state.animations=[]]){
+  const bad=clone(f.a);mutate(bad);assert.throws(()=>assertStepEvidence(f.step,bad,clone(f.audit)));
+ }
+ for(const mutate of [r=>delete r.eventBatches,r=>delete r.recoveredInventory.acknowledgedThrough,r=>delete r.recoveredInventory.nextEventId,r=>delete r.actions[0].after.menu.presentationOpen,r=>r.eventBatches.shift(),r=>r.eventBatches[0].label='foreign']){const run=callbackFixture();mutate(run);assert.equal(reconcileCase(run),'failed');}
+});
+test('phone Undo sampling adds a real bounded keyboard reach after persistence and before activation',()=>{
+ for(const p of PROFILES.filter(p=>['keyboard','reduced'].includes(p.suite))){
+  const steps=actionPlan(p),at=steps.findIndex(s=>s.id==='empty-recovery-persistent'),reach=steps[at+1];
+  if(p.width>650){assert.equal(reach.id,'undo-copy-2');continue;}
+  assert.deepEqual(reach,{id:'empty-recovery-undo-visible',op:'reach',control:'undo',mode:'keyboard',check:'undo-visible'});assert.equal(steps[at+2].id,'undo-copy-2');assert(typographyPlan(p).includes(reach.id));
+ }
+ const profile=PROFILES.find(p=>p.id==='320-light-keyboard'),step=actionPlan(profile).find(s=>s.op==='reach'),id=`${profile.id}/${step.id}`;
+ const before=nativeState(2),after=nativeState(50,{focus:'undo'});
+ for(const s of [before,after]){s.rows=[];s.trigger.exists=false;s.trigger.expanded=null;s.menu.logicalStateSource='no-connected-origin-trigger';s.count='0 files';s.empty=true;s.recovery={visible:true,text:'4 deleted. Restore file.',undoVisible:true};}
+ const event={actionId:id,eventId:1,type:'keydown',key:'Tab',control:'reset',trusted:true,eventAt:10,captureCompletedAt:10.1,nativeTimeStamp:10};
+ const leaf={selector:'.menu-demo [data-menu-undo]',text:'Undo delete',fontSize:15,painted:true,paintChain:[{display:'block',visibility:'visible',opacity:'1'}],fits:true,topLayer:false,rect:{left:20,top:20,right:100,bottom:40,width:80,height:20},containerRect:rect,visibleClip:rect,glyphs:[{left:22,top:22,right:98,bottom:38,width:76,height:16}]};
+ const a={id,stepId:step.id,op:step.op,mode:'keyboard',targetControl:'undo',requestedAt:1,before,after,events:[event],accepted:[],settlement:settlement(49,{...clone(after),snapshotStartedAt:49,snapshotCompletedAt:49.1}),settledTypography:{actionId:id,phase:'settled-phone-typography',actionInactive:true,viewportWidth:320,sampleStartedAt:51,sampleCompletedAt:52,overflow:false,rows:[leaf]}};
+ const audit={id:profile.id,profile,deleted:[],originalPoints:{}};assert.doesNotThrow(()=>assertStepEvidence(step,clone(a),clone(audit)));
+ for(const mutate of [a=>a.events=[],a=>a.events[0].trusted=false,a=>a.after.focus='reset',a=>a.settledTypography.rows[0].selector='.menu-demo [data-menu-count]',a=>a.settledTypography.rows[0].fontSize=14,a=>a.settledTypography.rows[0].rect.bottom=900]){const bad=clone(a);mutate(bad);assert.throws(()=>assertStepEvidence(step,bad,clone(audit)));}
+});
+test('actual capture buffer acknowledges only saved contiguous prefixes and never discards overflow',()=>{
+ const previous={window:globalThis.window,document:globalThis.document,performance:globalThis.performance};let now=100;const listeners=new Map();
+ try{
+  globalThis.window={};globalThis.document={addEventListener:(type,fn)=>listeners.set(type,fn)};globalThis.performance={now:()=>now++};installMenuCaptureClock();const trace=window.__menuNative;
+  const row={dataset:{menuFile:'roadmap'}},button={closest:s=>s==='[data-menu-file]'?row:button};const emit=()=>listeners.get('click')({type:'click',target:button,isTrusted:true,detail:1,timeStamp:now});
+  emit();emit();const first=structuredClone(trace.peekEvents());emit();
+  assert.deepEqual(trace.acknowledgeEvents({afterEventId:0,throughEventId:first.nextEventId,count:first.events.length}),{acknowledgedThrough:2,removed:2});assert.deepEqual(trace.events.map(e=>e.eventId),[3]);
+  assert.throws(()=>trace.acknowledgeEvents({afterEventId:0,throughEventId:2,count:2}));assert.throws(()=>trace.acknowledgeEvents({afterEventId:2,throughEventId:4,count:2}));
+  for(let i=0;i<800;i++)emit();assert.equal(trace.events.length,800);assert.equal(trace.dropped,1);assert.throws(()=>trace.acknowledgeEvents({afterEventId:2,throughEventId:802,count:800}));assert.equal(trace.events.length,800);
+ }finally{Object.assign(globalThis,previous);}
+});
+test('original completed keyboard flow recognizes removed/empty origins without fabricating aria-expanded',()=>{
+ const observed=JSON.parse(readFileSync(join(here,'fixtures/transitions/menu-native-v4-missing-origin-observed.json'),'utf8'));
+ assert.equal(observed.runIdentity.checkoutHead,'10997a545cc5a5373b743cec02d7f1dcbe54e7aa');assert(observed.snapshots.some(row=>row.snapshot.rows.length===0));assert(observed.snapshots.some(row=>row.snapshot.rows.length>0));
+ for(const row of observed.snapshots){
+  const original=row.snapshot,s=clone(original);assert.equal(s.trigger.exists,false);assert.equal(s.trigger.expanded,null);
+  // Replay the observer's pure derivation against the preserved raw native facts.
+  // This builds a source-model assertion fixture, never a replacement native run.
+  Object.assign(s.menu,{presentationOpen:original.menu.open},logicalMenuEvidence(s.rows,s.menu.inert,s.trigger.exists));
+  assert.equal(s.menu.logicalStateSource,'no-connected-origin-trigger');assert.equal(s.trigger.expanded,null);assert(closeState(s));assert.doesNotThrow(()=>assertSnapshot(s,row.jsonPath));
+  for(const mutate of [s=>s.menu.presentationOpen=true,s=>s.menu.nativeOpen=true,s=>s.menu.inert=false,s=>s.trigger.expanded='false',s=>delete s.menu.logicalStateSource]){const bad=clone(s);mutate(bad);assert.throws(()=>assertSnapshot(bad,row.jsonPath));}
+ }
+ const connected=nativeState(2,{open:true});
+ for(const mutate of [s=>s.trigger.expanded=null,s=>s.trigger.exists=false,s=>s.rows[0].expanded='false',s=>s.menu.logicalStateSource='no-connected-origin-trigger',s=>{s.trigger.expanded='false';s.rows[0].expanded='false';s.rows[1].expanded='true';}]){const bad=clone(connected);mutate(bad);assert.throws(()=>assertSnapshot(bad));}
 });

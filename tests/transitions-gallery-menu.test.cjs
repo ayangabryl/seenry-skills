@@ -37,7 +37,7 @@ test('two-copy budget is deterministic and cannot be replenished by deleting', (
  assert.deepEqual(state.files.slice(1, 3).map(file => file.name), ['Q3 roadmap copy 2', 'Q3 roadmap copy']);
  state = update(state, {type: 'delete', id: 'copy-1'});
  const blocked = update(state, {type: 'duplicate', id: 'hiring'});
- assert.equal(blocked.files, state.files); assert.equal(blocked.copies, 2); assert.match(blocked.message, /Reset/);
+ assert.equal(blocked.files, state.files); assert.equal(blocked.copies, 2); assert.match(blocked.message, /Copy limit/);
 });
 test('long Unicode names retain a complete copy suffix inside the name limit', () => {
  let state = update(demo.initialState(), {type: 'rename', id: 'roadmap', name: '🙂'.repeat(60)});
@@ -80,6 +80,7 @@ function fixture() {
    part = part.trim();
    if (part.includes(' ')) { const parts = part.split(/\s+/), last = parts.pop(); return this.matches(last) && !!this.parentElement?.closest(parts.join(' ')); }
    if (part.startsWith('#')) return this.id === part.slice(1);
+   if (part === ':modal') return this.tagName === 'DIALOG' && this.open && this.modal;
    if (part === '[disabled]') return !!this.disabled;
    return originalMatches.call(this, part);
   });
@@ -217,7 +218,236 @@ test('empty state keeps Reset and Undo reachable; Open menu does not use a detac
  assert.equal(f.doc.activeElement, f.find('[data-menu-reset]'));
  f.controller.replay(); assert.match(f.find('[data-menu-status]').textContent, /No sample files/);
  f.click(f.find('[data-menu-undo]')); assert.equal(f.find('[data-menu-count]').textContent, '1 file');
- assert.equal(f.doc.activeElement, f.find('#menu-trigger-hiring'));
+ assert.equal(f.doc.activeElement, f.find('[data-menu-undo]'));
+});
+
+// Causal geometry replay through the complete runtime and gallery controller.
+// Rectangles below come from PR65 10997a5 native case.json actions 38–41,
+// menu-native-{0..3}-ubuntu/{320,390}-{light,dark}-keyboard. This deterministic
+// scroll model proves the host response, not browser layout or native acceptance.
+function focusViewport(f, width = 320) {
+ const scrolls = [], view = {innerHeight: 780, getComputedStyle: node => ({position: 'static', overflowX: 'visible', overflowY: 'visible', ...node.style})};
+ f.doc.defaultView = view; f.doc.documentElement.clientWidth = width;
+ f.doc.querySelectorAll = selector => f.doc.documentElement.querySelectorAll(selector);
+ const shift = (node, left, top) => {
+  node.rect = {...node.rect, left: node.rect.left - left, top: node.rect.top - top};
+  for (const child of node.children) shift(child, left, top);
+ };
+ const installScroll = (node, children) => { node.scrollBy = options => {
+  scrolls.push({node, ...options});
+  for (const child of children()) shift(child, options.left, options.top);
+ }; };
+ installScroll(view, () => [f.host]);
+ const chrome = (name, top, height) => {
+  const node = new f.E(); node.className = name; node.style.position = 'sticky'; node.style.top = `${top}px`;
+  node.rect = {left: 0, top, width, height}; f.doc.body.append(node); return node;
+ };
+ chrome('top', 0, 65); const tools = chrome('library-tools', 64, 124);
+ return {scrolls, view, tools, installScroll};
+}
+for (const width of [320, 390]) for (const theme of ['light', 'dark']) {
+ test(`${width} ${theme}: repeated Undo keeps its action point until the last restored file`, () => {
+  const f = fixture(); f.action('duplicate'); f.action('rename', 'hiring'); f.submit('W'.repeat(60)); f.action('duplicate', 'hiring');
+  const order = ['roadmap', 'copy-1', 'hiring', 'copy-2'];
+  const triggers = new Map(order.map(id => [id, f.find(`#${id === 'roadmap' ? 'menu-trigger' : `menu-trigger-${id}`}`)]));
+  for (const id of order) f.action('delete', id);
+  const g = focusViewport(f, width); f.doc.documentElement.dataset.theme = theme;
+  const tops = width === 320 ? [429.8125, -121.1875, -180.9375, -152.9375] : [456.9375, -49.0625, 265.0625, 265.0625];
+  for (const [index, id] of order.slice().reverse().entries()) {
+   const target = triggers.get(id), before = g.scrolls.length;
+   target.rect = {left: width === 320 ? 226 : 292, top: tops[index], width: 44, height: 44};
+   const undo = f.find('[data-menu-undo]'); undo.rect = {left: 50, top: 600, width: 160, height: 44};
+   undo.focus(); f.click(undo, 0, true);
+   assert.equal(f.doc.activeElement, index < 3 ? undo : target); assert.equal(f.controller.getState().files[0].id, id);
+   const rect = f.doc.activeElement.getBoundingClientRect(); assert(rect.top >= 192 && rect.bottom <= 776);
+   assert.equal(g.scrolls.length - before, index === 3 && tops[index] < 0 ? 1 : 0);
+   assert(g.scrolls.every(scroll => scroll.behavior === 'instant'));
+  }
+ });
+}
+for (const [width, top] of [[320, -121.1875], [320, -180.9375], [320, -152.9375], [390, -49.0625]]) {
+ test(`${width}: final Undo immediately reveals the native-observed row at ${top}px`, () => {
+  const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+  const g = focusViewport(f, width); target.rect = {left: width === 320 ? 226 : 292, top, width: 44, height: 44};
+  f.click(f.find('[data-menu-undo]'), 0, true);
+  assert.equal(f.doc.activeElement, target); assert.equal(target.rect.top, 192);
+  assert.equal(g.scrolls.length, 1); assert.equal(g.scrolls[0].behavior, 'instant');
+ });
+}
+test('non-final Undo reveals the persistent recovery control if result reflow moved it offscreen', () => {
+ const f = fixture(); f.action('delete'); f.action('delete', 'hiring');
+ const g = focusViewport(f), undo = f.find('[data-menu-undo]'); undo.rect = {left: 50, top: 810, width: 160, height: 44};
+ f.click(undo, 0, true);
+ assert.equal(f.doc.activeElement, undo); assert.equal(undo.getBoundingClientRect().bottom, 776);
+ assert.equal(g.scrolls.length, 1); assert.equal(g.scrolls[0].behavior, 'instant');
+});
+test('recovery leads feedback and preserves the next complete name once, with concise status', () => {
+ const f = fixture(), name = 'W'.repeat(60); f.action('rename', 'hiring'); f.submit(name);
+ assert.equal(f.find('[data-menu-status]').textContent, 'Renamed file.');
+ assert.equal(f.find('#menu-trigger-hiring').getAttribute('aria-label'), `More actions for ${name}`);
+ f.action('delete', 'hiring');
+ const recovery = f.find('[data-menu-recovery]');
+ assert.equal(recovery.parentElement.firstElementChild, recovery);
+ assert.equal(recovery.firstElementChild, f.find('[data-menu-undo]'));
+ assert.equal(f.find('[data-menu-deleted]').textContent, `1 deleted. Next: “${name}”.`);
+ assert.equal(f.find('[data-menu-undo]').getAttribute('aria-label'), `Undo delete of ${name}`);
+ assert.equal(f.find('[data-menu-status]').textContent, 'Deleted file.');
+ assert.equal(f.find('[data-menu-budget]').textContent, 'Copies: 0 of 2.');
+ assert.equal(recovery.parentElement.textContent.split(name).length - 1, 1);
+ f.click(f.find('[data-menu-undo]'));
+ assert.equal(f.find('#menu-trigger-hiring').closest('[data-menu-file]').querySelector('[data-menu-file-name]').textContent, name);
+ assert.equal(f.find('[data-menu-status]').textContent, 'Restored file.');
+ f.action('duplicate', 'hiring'); f.action('duplicate', 'hiring');
+ assert.equal(f.find('[data-menu-status]').textContent, 'Created a copy. Copy limit reached.');
+ assert.equal(f.find('[data-menu-budget]').textContent, 'Copies: 2 of 2.');
+ assert.match(f.find('[data-menu-limit]').textContent, /Reset to duplicate again/);
+ assert(markup.includes('<p>Rename, duplicate and undo a local delete.</p>'));
+});
+test('Undo reveals a viewport-visible trigger hidden behind sticky tools, with its focus ring', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f); target.rect = {left: 226, top: 140, width: 44, height: 44};
+ f.click(f.find('[data-menu-undo]'), 0, true);
+ assert.equal(f.doc.activeElement, target); assert.equal(target.getBoundingClientRect().top, 192);
+ assert.deepEqual(g.scrolls.map(({left, top, behavior}) => ({left, top, behavior})), [{left: 0, top: -52, behavior: 'instant'}]);
+});
+test('Undo preserves already visible row position and focus even with CSS smooth scrolling', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f); f.doc.documentElement.style.scrollBehavior = 'smooth'; target.rect = {left: 226, top: 220, width: 44, height: 44};
+ f.click(f.find('[data-menu-undo]'), 0, true);
+ assert.equal(f.doc.activeElement, target); assert.equal(target.rect.top, 220); assert.equal(g.scrolls.length, 0);
+});
+test('Undo respects the visual viewport and ignores gallery tools that are not stuck', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f); g.view.visualViewport = {offsetLeft: 20, offsetTop: 80, width: 280, height: 400};
+ g.tools.rect.top = 540; target.rect = {left: 280, top: 470, width: 44, height: 44};
+ f.click(f.find('[data-menu-undo]'), 0, true);
+ assert.equal(target.getBoundingClientRect().right, 296); assert.equal(target.getBoundingClientRect().bottom, 476);
+ assert.equal(g.scrolls.length, 1);
+});
+test('Undo never scrolls a target rejected by focus or synchronously redirected by its host', () => {
+ for (const unavailable of ['hidden', 'detached', 'redirect']) {
+  const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+  const g = focusViewport(f), other = new f.E('input'); f.doc.body.append(other); other.focus();
+  target.rect = {left: 226, top: -121.1875, width: 44, height: 44};
+  if (unavailable === 'hidden') target.hidden = true;
+  if (unavailable === 'detached') { const focus = target.focus.bind(target); target.focus = options => { target.remove(); focus(options); }; }
+  if (unavailable === 'redirect') f.doc.addEventListener('focusin', event => { if (event.target === target) other.focus(); });
+  f.click(f.find('[data-menu-undo]'), 0, true);
+  assert.equal(f.doc.activeElement, other); assert.equal(g.scrolls.length, 0); assert.equal(f.controller.getState().files.length, 2);
+ }
+});
+test('Undo reveals through a scroll ancestor before the gallery viewport', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f), scroller = new f.E(); f.host.append(scroller); scroller.append(f.stage);
+ scroller.style.overflowY = 'auto'; scroller.rect = {left: 16, top: 250, width: 288, height: 240}; scroller.clientTop = 2; scroller.clientHeight = 236;
+ g.installScroll(scroller, () => scroller.children); target.rect = {left: 226, top: 210, width: 44, height: 44};
+ f.click(f.find('[data-menu-undo]'), 0, true);
+ assert.equal(f.doc.activeElement, target); assert.equal(target.rect.top, 256); assert.equal(g.scrolls.length, 1); assert.equal(g.scrolls[0].node, scroller);
+});
+test('Undo in moved native detail scrolls only that modal and ignores background sticky tools', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f), detail = new f.E('dialog'); detail.id = 'library-detail'; f.doc.body.append(detail);
+ detail.open = detail.modal = true; detail.style.overflowY = 'auto'; detail.rect = {left: 0, top: 60, width: 320, height: 720}; detail.clientHeight = 720;
+ detail.append(f.stage); g.installScroll(detail, () => detail.children); target.rect = {left: 226, top: -49.0625, width: 44, height: 44};
+ f.click(f.find('[data-menu-undo]'), 0, true);
+ assert.equal(f.doc.activeElement, target); assert.equal(target.rect.top, 64);
+ assert.equal(g.scrolls.length, 1); assert.equal(g.scrolls[0].node, detail); assert(detail.open);
+});
+test('a newer focus redirect during ancestor reveal prevents a later gallery scroll', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f), scroller = new f.E(), other = new f.E('input'); f.doc.body.append(other); f.host.append(scroller); scroller.append(f.stage);
+ scroller.style.overflowY = 'auto'; scroller.rect = {left: 16, top: 10, width: 288, height: 240}; scroller.clientHeight = 240;
+ g.installScroll(scroller, () => scroller.children); const scroll = scroller.scrollBy; scroller.scrollBy = options => { scroll(options); other.focus(); };
+ target.rect = {left: 226, top: -121.1875, width: 44, height: 44}; f.click(f.find('[data-menu-undo]'), 0, true);
+ assert.equal(f.doc.activeElement, other); assert.equal(g.scrolls.length, 1); assert.equal(g.scrolls[0].node, scroller);
+});
+for (const missing of ['modal selector', 'target geometry', 'computed style', 'window scroll', 'ancestor scroll', 'default view']) {
+ test(`accepted Undo stays focus-only when ${missing} is unavailable`, () => {
+  const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+  const g = focusViewport(f), native = []; target.rect = {left: 226, top: -121.1875, width: 44, height: 44};
+  target.scrollIntoView = options => native.push(options);
+  if (missing === 'modal selector') { const closest = target.closest.bind(target); target.closest = selector => { if (selector === ':modal') throw new SyntaxError('Unsupported selector'); return closest(selector); }; }
+  if (missing === 'target geometry') target.getBoundingClientRect = undefined;
+  if (missing === 'computed style') g.view.getComputedStyle = undefined;
+  if (missing === 'window scroll') g.view.scrollBy = undefined;
+  if (missing === 'ancestor scroll') { f.stage.style.overflowY = 'auto'; f.stage.rect = {left: 16, top: 200, width: 288, height: 400}; f.stage.scrollBy = undefined; }
+  if (missing === 'default view') f.doc.defaultView = null;
+  assert.doesNotThrow(() => f.click(f.find('[data-menu-undo]'), 0, true));
+  assert.equal(f.controller.getState().files.length, 2); assert.equal(f.doc.activeElement, target);
+  assert.equal(native.length, 0);
+  assert.equal(g.scrolls.length, 0);
+ });
+}
+test('unsupported geometry never calls an absent or rejecting native reveal API', () => {
+ for (const rejected of [false, true]) {
+  const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+  focusViewport(f); target.getBoundingClientRect = undefined;
+  if (rejected) target.scrollIntoView = () => { throw new Error('Unsupported native reveal'); };
+  assert.doesNotThrow(() => f.click(f.find('[data-menu-undo]'), 0, true));
+  assert.equal(f.doc.activeElement, target); assert.equal(f.controller.getState().files.length, 2);
+ }
+});
+test('empty and nonfinite target geometry never provoke a phantom manual or native scroll', () => {
+ for (const rect of [{left: 0, top: 0, width: 0, height: 0}, {left: 226, top: NaN, width: 44, height: 44}]) {
+  const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+  const g = focusViewport(f), native = []; target.rect = rect; target.scrollIntoView = options => native.push(options);
+  f.click(f.find('[data-menu-undo]'), 0, true);
+  assert.equal(f.doc.activeElement, target); assert.equal(g.scrolls.length, 0); assert.equal(native.length, 0);
+ }
+});
+test('scaled ancestor geometry stays focus-only without unscaled manual clip/delta arithmetic', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f), clip = new f.E(), native = []; f.host.append(clip); clip.append(f.stage);
+ clip.style.overflowY = 'auto'; clip.style.transform = 'matrix(0.5, 0, 0, 0.5, 0, 0)';
+ clip.rect = {left: 16, top: 250, width: 144, height: 200}; clip.clientWidth = 288; clip.clientHeight = 400;
+ g.installScroll(clip, () => clip.children); target.rect = {left: 100, top: 460, width: 22, height: 22};
+ target.scrollIntoView = options => native.push(options);
+ f.click(f.find('[data-menu-undo]'), 0, true);
+ assert.equal(f.doc.activeElement, target); assert.equal(g.scrolls.length, 0); assert.equal(native.length, 0);
+});
+test('unsupported geometry fallback cannot reclaim newer host focus', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f), other = new f.E('input'), native = []; f.doc.body.append(other);
+ target.scrollIntoView = options => native.push(options);
+ target.getBoundingClientRect = () => { other.focus(); throw new Error('Geometry invalidated by host'); };
+ assert.doesNotThrow(() => f.click(f.find('[data-menu-undo]'), 0, true));
+ assert.equal(f.doc.activeElement, other); assert.equal(g.scrolls.length, 0); assert.equal(native.length, 0);
+});
+test('outer scale is rejected before an inner scroller can use mixed coordinate spaces', () => {
+ for (const transformed of ['wrapper', 'body']) {
+  const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+  const g = focusViewport(f), outer = new f.E(), inner = new f.E(), native = [];
+  f.host.append(outer); outer.append(inner); inner.append(f.stage);
+  (transformed === 'body' ? f.doc.body : outer).style.transform = 'matrix(0.5, 0, 0, 0.5, 0, 0)';
+  inner.style.overflowY = 'auto'; inner.rect = {left: 16, top: 250, width: 144, height: 200}; inner.clientWidth = 288; inner.clientHeight = 400;
+  inner.scrollBy = options => { g.scrolls.push({node: inner, ...options}); target.rect.top -= options.top * .5; };
+  target.rect = {left: 100, top: 660, width: 22, height: 22}; target.scrollIntoView = options => native.push(options);
+  f.click(f.find('[data-menu-undo]'), 0, true);
+  assert.equal(f.doc.activeElement, target); assert.equal(target.rect.top, 660);
+  assert.equal(g.scrolls.length, 0); assert.equal(native.length, 0);
+ }
+});
+for (const failure of ['missing view', 'unsupported modal selector']) {
+ test(`empty target is rejected before fallible ${failure} access`, () => {
+  const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+  const g = focusViewport(f), native = []; let viewReads = 0, modalReads = 0;
+  target.rect = {left: 0, top: 0, width: 0, height: 0}; target.scrollIntoView = options => native.push(options);
+  Object.defineProperty(f.doc, 'defaultView', {get() { viewReads++; return failure === 'missing view' ? null : g.view; }});
+  const closest = target.closest.bind(target); target.closest = selector => { if (selector === ':modal') { modalReads++; throw new SyntaxError('Unsupported selector'); } return closest(selector); };
+  assert.doesNotThrow(() => f.click(f.find('[data-menu-undo]'), 0, true));
+  assert.equal(f.controller.getState().files.length, 2); assert.equal(f.doc.activeElement, target);
+  assert.equal(viewReads, 0); assert.equal(modalReads, 0); assert.equal(native.length, 0); assert.equal(g.scrolls.length, 0);
+ });
+}
+test('uncertain modal geometry cannot invoke a native fallback that might scroll the background', () => {
+ const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
+ const g = focusViewport(f), dialog = new f.E('dialog'); dialog.id = 'library-detail'; dialog.open = dialog.modal = true;
+ dialog.style.overflowY = 'auto'; dialog.style.transform = 'matrix(.5, 0, 0, .5, 0, 0)';
+ dialog.rect = {left: 0, top: 60, width: 320, height: 720}; dialog.clientHeight = 1440;
+ f.doc.body.append(dialog); dialog.append(f.stage); target.rect = {left: 100, top: 850, width: 22, height: 22};
+ let backgroundScroll = 0; target.scrollIntoView = () => { backgroundScroll++; };
+ f.click(f.find('[data-menu-undo]'), 0, true);
+ assert.equal(f.doc.activeElement, target); assert(dialog.open); assert.equal(g.scrolls.length, 0); assert.equal(backgroundScroll, 0);
 });
 test('Reset clears drafts, validation, deletions and copy budget as well as visible rows', () => {
  const f = fixture(); f.action('duplicate'); f.action('delete', 'hiring'); f.action('rename'); f.submit('');

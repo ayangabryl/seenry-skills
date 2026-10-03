@@ -363,6 +363,8 @@ html.st-vt::view-transition-group(root) { animation: none; }
 @media (prefers-reduced-motion: reduce) {
  [data-st], [data-st] *, [data-st]::before, [data-st]::after, [data-st] *::before, [data-st] *::after, .st-button, .st-toggle-thumb, .st-check > svg, .st-check path, .st-toast, .st-plus, .st-real, .st-real * {
   transition-property: opacity, color, background-color, box-shadow, fill, stroke !important; transition-duration: 100ms !important; transition-timing-function: linear !important; transition-delay: 0ms !important; }
+ /* Ordinary Menu rows keep focus acquisition and release on the accepted state. */
+ [data-st="menu"]:not([data-st-morph]) [role="menuitem"] { transition: none !important; }
  /* Card-owned opacity restores immediately; do not start a second CSS fade on reopen. */
  [data-st="expand"], [data-st="expand"] * { transition-property: color, background-color, box-shadow, fill, stroke !important; }
  [data-st="expand"] [data-st-close] { transition-property: color, background-color, box-shadow !important; transform: none !important; }

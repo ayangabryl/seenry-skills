@@ -31,22 +31,22 @@
    const last = state.deleted.at(-1);
    if (!last) return state;
    const files = state.files.slice(); files.splice(Math.min(last.index, files.length), 0, last.file);
-   return {...state, files, deleted: state.deleted.slice(0, -1), message: `Restored “${last.file.name}”.`};
+   return {...state, files, deleted: state.deleted.slice(0, -1), message: 'Restored file.'};
   }
   const index = state.files.findIndex(file => file.id === action.id), file = state.files[index];
   if (!file) return state; // A stale activation cannot mutate a different row.
   if (action.type === 'rename') {
    if (nameError(action.name)) return state;
    const name = action.name.trim();
-   return {...state, files: state.files.map(row => row.id === file.id ? {...row, name} : row), message: name === file.name ? 'File name unchanged.' : `Renamed “${file.name}” to “${name}”.`};
+   return {...state, files: state.files.map(row => row.id === file.id ? {...row, name} : row), message: name === file.name ? 'File name unchanged.' : 'Renamed file.'};
   }
   if (action.type === 'duplicate') {
-   if (state.copies >= COPY_LIMIT) return {...state, message: 'Two copies created in this preview. Reset to duplicate again.'};
+   if (state.copies >= COPY_LIMIT) return {...state, message: 'Copy limit reached.'};
    const copy = {...file, id: `copy-${state.copies + 1}`, name: duplicateName(state.files, file.name), note: 'Local sample copy'};
    const files = state.files.slice(); files.splice(index + 1, 0, copy);
-   return {...state, files, copies: state.copies + 1, message: `Created “${copy.name}”.${state.copies + 1 === COPY_LIMIT ? ' Copy limit reached; Reset to duplicate again.' : ''}`};
+   return {...state, files, copies: state.copies + 1, message: `Created a copy.${state.copies + 1 === COPY_LIMIT ? ' Copy limit reached.' : ''}`};
   }
-  if (action.type === 'delete') return {...state, files: state.files.filter(row => row.id !== file.id), deleted: [...state.deleted, {file, index}], message: `Deleted “${file.name}” from this preview. Undo is available.`};
+  if (action.type === 'delete') return {...state, files: state.files.filter(row => row.id !== file.id), deleted: [...state.deleted, {file, index}], message: 'Deleted file.'};
   return state;
  }
 
@@ -60,7 +60,68 @@
   let state = initialState(), selectedId = state.files[0].id, editingId = null;
   const acceptedClicks = new WeakSet();
   const triggerFor = id => state.files.some(file => file.id === id) ? rows.get(id)?.querySelector('[data-menu-trigger]') : null;
-  const focusRow = id => (triggerFor(id) || triggerFor(state.files[0]?.id) || reset).focus({preventScroll: true});
+  const focusRow = id => focusAndReveal(triggerFor(id) || triggerFor(state.files[0]?.id) || reset);
+  function focusAndReveal(target) {
+   target.focus({preventScroll: true});
+   // Keep visible rows still. An accepted result must reveal its keyboard focus
+   // immediately, but a synchronous host focus redirect owns the next view.
+   const ownsFocus = () => target.isConnected && doc.activeElement === target;
+   if (!ownsFocus()) return;
+   const validBox = box => box && [box.left, box.top, box.right, box.bottom].every(Number.isFinite) && box.right > box.left && box.bottom > box.top;
+   try {
+   // An empty/nonfinite target has no usable painted box to reveal.
+   if (!validBox(target.getBoundingClientRect())) return;
+   const view = doc.defaultView, modal = target.closest(':modal');
+   if (!view || !modal && typeof view.scrollBy !== 'function') return;
+   const viewport = view.visualViewport;
+   const visible = {left: viewport?.offsetLeft || 0, top: viewport?.offsetTop || 0};
+   visible.right = visible.left + (viewport?.width || doc.documentElement.clientWidth);
+   visible.bottom = visible.top + (viewport?.height || view.innerHeight);
+   if (!validBox(visible)) return;
+   const reveal = (scroller, box, x = true, y = true) => {
+    if (!ownsFocus()) return;
+    const rect = target.getBoundingClientRect(), gap = 4; // Include the focus ring.
+    if (!validBox(rect) || !validBox(box)) return;
+    const offset = (start, end, low, high) => start < low + gap ? start - low - gap : end > high - gap ? end - high + gap : 0;
+    const left = x ? offset(rect.left, rect.right, box.left, box.right) : 0;
+    const top = y ? offset(rect.top, rect.bottom, box.top, box.bottom) : 0;
+    if (left || top) scroller.scrollBy({left, top, behavior: 'instant'});
+   };
+   // Preflight the entire applicable chain before scrolling any inner clip.
+   // Unsupported geometry/APIs stay focus-only; an unverified native fallback
+   // could scroll behind a modal or mix layout and transformed viewport spaces.
+   const clips = [];
+   for (let node = target.parentElement; node; node = node.parentElement) {
+    const style = view.getComputedStyle(node);
+    if (style.transform && style.transform !== 'none' || style.scale && style.scale !== 'none' || style.rotate && style.rotate !== 'none' || style.zoom && style.zoom !== 'normal' && Number(style.zoom) !== 1) return;
+    if (node === doc.body || node === doc.documentElement) continue;
+    const x = /^(auto|scroll|hidden)$/.test(style.overflowX), y = /^(auto|scroll|hidden)$/.test(style.overflowY);
+    if (x || y) {
+     const rect = node.getBoundingClientRect();
+     const box = {left: rect.left + node.clientLeft, top: rect.top + node.clientTop};
+     box.right = box.left + node.clientWidth; box.bottom = box.top + node.clientHeight;
+     if (node === modal) {
+      box.left = Math.max(box.left, visible.left); box.top = Math.max(box.top, visible.top);
+      box.right = Math.min(box.right, visible.right); box.bottom = Math.min(box.bottom, visible.bottom);
+     }
+     if (!validBox(box) || typeof node.scrollBy !== 'function') return;
+     clips.push({node, box, x, y});
+    }
+    if (node === modal) break;
+   }
+   // Reveal inside-out, stopping at the native modal's proven boundary.
+   for (const {node, box, x, y} of clips) reveal(node, box, x, y);
+   if (modal) return;
+   if (!ownsFocus()) return;
+   const rect = target.getBoundingClientRect();
+   for (const chrome of doc.querySelectorAll('.top, .library-tools')) {
+    const style = view.getComputedStyle(chrome), box = chrome.getBoundingClientRect();
+    if ((style.position === 'fixed' || style.position === 'sticky' && box.top <= Math.max(visible.top, parseFloat(style.top) || 0) + 1)
+     && box.right > rect.left && box.left < rect.right && box.bottom > visible.top && box.top < visible.bottom) visible.top = Math.max(visible.top, box.bottom);
+   }
+   reveal(view, visible);
+   } catch (_) { /* Optional reveal failure leaves accepted state and focus intact. */ }
+  }
   const closeMenu = () => S.close(menu, {instant: true, silent: true});
   const clearError = () => { error.textContent = ''; error.hidden = true; input.removeAttribute('aria-invalid'); };
   function render() {
@@ -82,13 +143,13 @@
    find('[data-menu-count]').textContent = `${state.files.length} ${state.files.length === 1 ? 'file' : 'files'}`;
    find('[data-menu-empty]').hidden = state.files.length !== 0;
    find('[data-menu-status]').textContent = state.message;
-   find('[data-menu-budget]').textContent = `Copies: ${state.copies} of ${COPY_LIMIT}. Reset to start again.`;
+   find('[data-menu-budget]').textContent = `Copies: ${state.copies} of ${COPY_LIMIT}.`;
    const duplicate = menu.querySelector('[data-menu-action="duplicate"]');
    duplicate.disabled = state.copies >= COPY_LIMIT;
    find('[data-menu-limit]').hidden = !duplicate.disabled;
    const last = state.deleted.at(-1);
    find('[data-menu-recovery]').hidden = !last;
-   find('[data-menu-deleted]').textContent = last ? `${state.deleted.length} deleted. Restore “${last.file.name}”.` : '';
+   find('[data-menu-deleted]').textContent = last ? `${state.deleted.length} deleted. Next: “${last.file.name}”.` : '';
    undo.setAttribute('aria-label', last ? `Undo delete of ${last.file.name}` : 'Undo last delete');
    const selected = state.files.find(file => file.id === selectedId);
    if (selected) menu.setAttribute('aria-label', `${selected.name} actions`);
@@ -163,7 +224,9 @@
   undo.addEventListener('click', () => {
    const id = state.deleted.at(-1)?.file.id;
    if (!id) return;
-   closeMenu(); state = update(state, {type: 'undo'}); render(); focusRow(id);
+   closeMenu(); state = update(state, {type: 'undo'}); render();
+   // Repeated recovery keeps its action point; the last Undo returns to the file.
+   if (state.deleted.length) focusAndReveal(undo); else focusRow(id);
   });
   reset.addEventListener('click', () => {
    closeMenu(); finishEdit(false); state = update(state, {type: 'reset'}); selectedId = state.files[0].id; render(); reset.focus({preventScroll: true});

@@ -1,6 +1,14 @@
 // These exported functions run verbatim in the native browser. They never drive UI.
+export function logicalMenuEvidence(rows,inert,originTriggerExists){
+ return {open:rows.some(row=>row.expanded==='true')&&!inert,logicalStateSource:originTriggerExists?'connected-trigger-inventory':'no-connected-origin-trigger'};
+}
 export function installMenuCaptureClock() {
- const trace=window.__menuNative={active:null,events:[],eventMap:new WeakMap(),nextEventId:0,dropped:0};
+ const trace=window.__menuNative={active:null,events:[],eventMap:new WeakMap(),nextEventId:0,acknowledgedThrough:0,dropped:0};
+ trace.peekEvents=()=>({events:trace.events,nextEventId:trace.nextEventId,acknowledgedThrough:trace.acknowledgedThrough,dropped:trace.dropped});
+ trace.acknowledgeEvents=({afterEventId,throughEventId,count})=>{
+  if(trace.active||trace.dropped||afterEventId!==trace.acknowledgedThrough||!Number.isInteger(count)||count<0||count>800||throughEventId!==afterEventId+count||trace.events.length<count||trace.events.slice(0,count).some((e,i)=>e.eventId!==afterEventId+i+1))throw Error('Native event checkpoint acknowledgement mismatch');
+  trace.events.splice(0,count);trace.acknowledgedThrough=throughEventId;return {acknowledgedThrough:trace.acknowledgedThrough,removed:count};
+ };
  trace.control=node=>{
   if(!node?.closest)return 'outside';
   const trigger=node.closest('[data-menu-trigger]');if(trigger)return `trigger:${trigger.closest('[data-menu-file]')?.dataset.menuFile}`;
@@ -64,7 +72,7 @@ export function installMenuObserver() {
   const result={snapshotStartedAt,focus:trace.control(document.activeElement),viewport:{width:innerWidth,height:innerHeight},hash:location.hash,stageOwner:parent.contains(stage)?'detail':'gallery',search:{value:search.value,focused:document.activeElement===search},menuCard:{hidden:menuCard.hidden,containsStage:menuCard.contains(stage),visible:visible(menuCard),opacity:getComputedStyle(menuCard).opacity},blur:{checked:document.querySelector('#blur-toggle').checked,rootOn:document.documentElement.hasAttribute('data-st-blur')},rows,count:stage.querySelector('[data-menu-count]').textContent,statusText:stage.querySelector('[data-menu-status]').textContent,budgetText:stage.querySelector('[data-menu-budget]').textContent,
    recovery:{visible:visible(stage.querySelector('[data-menu-recovery]')),text:stage.querySelector('[data-menu-deleted]').textContent,undoVisible:visible(stage.querySelector('[data-menu-undo]'))},empty:visible(stage.querySelector('[data-menu-empty]')),
    trigger:{row,exists:!!trigger,rect:tr,expanded:trigger?.getAttribute('aria-expanded')??null,point,hit:!!trigger&&(hit===trigger||trigger.contains(hit)),hitControl:trace.control(hit)},
-   menu:{open:menu.dataset.stOpen==='true',nativeOpen:menu.matches(':popover-open'),inert:menu.inert,ariaHidden:menu.getAttribute('aria-hidden'),display:s.display,visibility:s.visibility,opacity:s.opacity,filter:s.filter,transform:s.transform,origin:s.transformOrigin,side:menu.dataset.stSide,rect:rect(menu),limitVisible:visible(stage.querySelector('[data-menu-limit]'))},geometry:menuClip(),
+   menu:{...window.__menuNativeLogicalEvidence(rows,menu.inert,!!trigger),presentationOpen:menu.dataset.stOpen==='true',nativeOpen:menu.matches(':popover-open'),inert:menu.inert,ariaHidden:menu.getAttribute('aria-hidden'),display:s.display,visibility:s.visibility,opacity:s.opacity,filter:s.filter,transform:s.transform,origin:s.transformOrigin,side:menu.dataset.stSide,rect:rect(menu),limitVisible:visible(stage.querySelector('[data-menu-limit]'))},geometry:menuClip(),
    items:[...menu.querySelectorAll('[data-menu-action]')].map(e=>({action:e.dataset.menuAction,disabled:e.disabled,role:e.getAttribute('role'),text:e.textContent.trim(),...(withPaint?{paint:paint(e)}:{})})),
    editor:{open:editor.open,modal:editor.matches(':modal'),inert:editor.inert,display:es.display,visibility:es.visibility,value:stage.querySelector('[data-menu-name]').value,error:stage.querySelector('[data-menu-error]').textContent,errorVisible:visible(stage.querySelector('[data-menu-error]')),invalid:stage.querySelector('[data-menu-name]').getAttribute('aria-invalid'),rect:rect(editor)},
    parent:{nativeOpen:parent.open,modal:parent.matches(':modal'),presentation:parent.dataset.stOpen,hidden:parent.hidden,inert:parent.inert,display:ps.display,visibility:ps.visibility},animations:animations()};
@@ -112,7 +120,7 @@ export function installMenuObserver() {
   return {requestedAt:a.requestedAt,originalPoint:a.originalPoint,before:a.before};
  };
  trace.finish=()=>{const a=trace.active;if(!a)return null;if(a.raf)cancelAnimationFrame(a.raf);a.after=snapshot(true);trace.active=null;delete a.raf;return a;};
- trace.inventory=()=>({active:trace.active?{...trace.active,raf:undefined}:null,final:snapshot(true),events:trace.events,dropped:trace.dropped});
+ trace.inventory=()=>({active:trace.active?{...trace.active,raf:undefined}:null,final:snapshot(true),...trace.peekEvents()});
  trace.settle=()=>new Promise(resolve=>{
   const start=performance.now();let stable=0,raf=null,done=false;
   const finish=result=>{if(done)return;done=true;cancelAnimationFrame(raf);clearTimeout(timer);resolve({...result,elapsedMs:performance.now()-start});};
@@ -157,4 +165,31 @@ export function captureSettledMenuTypography({actionId}) {
   rows.push({selector:target.selector,nodeId:node.id||null,text:text.slice(0,200),fontSize:Number.parseFloat(style.fontSize),painted,paintChain,fits,topLayer:!!top,rect:r,containerRect:box,visibleClip:clip,glyphs});
  }
  return {actionId,phase:'settled-phone-typography',actionInactive:window.__menuNative.active===null,viewportWidth:innerWidth,sampleStartedAt,sampleCompletedAt:performance.now(),overflow,rows,skipped};
+}
+
+// Read-only and post-settlement only. Never scroll/focus the page to satisfy this
+// sample, and never use action.originalPoint as the restored trigger's hit point.
+export function captureSettledMenuUndoFocus({actionId,row,remainingDeletes,inputEvidence}){
+ const trace=window.__menuNative,sampleStartedAt=performance.now(),rect=node=>node?.getBoundingClientRect().toJSON()??null;
+ const viewport={left:0,top:0,right:innerWidth,bottom:innerHeight,width:innerWidth,height:innerHeight};
+ const targetControl=remainingDeletes>0?'undo':`trigger:${row}`,target=document.querySelector(remainingDeletes>0?'[data-menu-demo] [data-menu-undo]':`[data-menu-demo] [data-menu-file="${row}"] [data-menu-trigger]`);
+ const result={actionId,row,remainingDeletes,inputEvidence,targetControl,phase:'settled-post-undo-focus',actionInactive:trace.active===null,sampleStartedAt,viewport,focus:trace.control(document.activeElement),exists:!!target,connected:!!target?.isConnected};
+ if(!target)return {...result,sampleCompletedAt:performance.now()};
+ const r=rect(target),style=getComputedStyle(target),top=target.closest('[popover]:popover-open,dialog:modal'),chain=[],ancestors=[];
+ for(let node=target;node;node=node.parentElement){
+  const s=getComputedStyle(node),bounds=rect(node),matrix=new DOMMatrixReadOnly(s.transform==='none'?undefined:s.transform);
+  chain.push({node:node.id||node.tagName,background:s.backgroundColor,backgroundImage:s.backgroundImage,opacity:s.opacity,filter:s.filter,backdropFilter:s.backdropFilter,mixBlendMode:s.mixBlendMode,visibility:s.visibility,display:s.display,transform:s.transform,translate:s.translate,scale:s.scale,rotate:s.rotate});
+  if(node!==target)ancestors.push({node:node.id||node.tagName,rect:bounds,offsetWidth:node.offsetWidth,offsetHeight:node.offsetHeight,clientLeft:node.clientLeft,clientTop:node.clientTop,clientWidth:node.clientWidth,clientHeight:node.clientHeight,clipX:/hidden|clip|scroll|auto/.test(s.overflowX),clipY:/hidden|clip|scroll|auto/.test(s.overflowY),axisAligned:matrix.is2D&&Math.abs(matrix.b)<1e-8&&Math.abs(matrix.c)<1e-8&&matrix.a>0&&matrix.d>0&&['none','0deg'].includes(s.rotate),unsupportedClip:s.clipPath!=='none'||s.maskImage!=='none'});
+  if(node===top)break;
+ }
+ const base={node:'viewport',rect:viewport,offsetWidth:innerWidth,offsetHeight:innerHeight,clientLeft:0,clientTop:0,clientWidth:innerWidth,clientHeight:innerHeight,axisAligned:true,unsupportedClip:false};
+ const geometry=window.__menuNativeClipGeometry(base,ancestors,viewport),center={x:r.left+r.width/2,y:r.top+r.height/2};
+ const hitAt=(point,role)=>{const hit=document.elementFromPoint(point.x,point.y);return {role,point,hit:hit===target||target.contains(hit),hitControl:trace.control(hit)};};
+ const currentCenter={source:'current-focus-target-center',measuredAt:performance.now(),...hitAt(center,'center')};
+ // Edge midpoints also expose partial sticky-header occlusion while preserving
+// rounded corners. These are bounded hit probes, not a claim of pixel coverage.
+ const edgeHits=[hitAt({x:center.x,y:r.top+1},'top'),hitAt({x:r.right-1,y:center.y},'right'),hitAt({x:center.x,y:r.bottom-1},'bottom'),hitAt({x:r.left+1,y:center.y},'left')];
+ const range=document.createRange();range.selectNodeContents(target);
+ const paint={rect:r,focused:document.activeElement===target,focusVisible:target.matches(':focus-visible'),color:style.color,glyphs:[...range.getClientRects()].filter(g=>g.width>0&&g.height>0).map(g=>g.toJSON()),cue:{background:style.backgroundColor,adjacentBackground:getComputedStyle(target.parentElement).backgroundColor,outlineColor:style.outlineColor,outlineWidth:style.outlineWidth,outlineStyle:style.outlineStyle,outlineOffset:style.outlineOffset,boxShadow:style.boxShadow},chain};
+ return {...result,rect:r,geometry,clipAncestors:ancestors,currentCenter,edgeHits,paint,sampleCompletedAt:performance.now()};
 }
