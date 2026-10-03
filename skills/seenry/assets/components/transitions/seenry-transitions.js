@@ -334,7 +334,8 @@
   const ms = t.length - 1, state = {shell, cleanup() { stopAll(shell); stop(el, 'resize-clip'); shell.remove(); leaving.forEach(g => { stopAll(g); g.remove(); }); Object.assign(el.style, saved); if (resizing.get(el) === state) resizing.delete(el); }};
   resizing.set(el, state);
   play(el, clipFrames, {ms, curve: 'linear', channel: 'resize-clip', current: false});
-  leaving.forEach(g => { g.style.visibility = ''; play(g, [{opacity: 1}, {opacity: 0}], {ms: 70, curve: 'X', fill: 'forwards'}); });
+  // Leaving content is clipped by the closing shell and fades across the first half of it, so the shell never shrinks empty.
+  leaving.forEach(g => { g.style.visibility = ''; play(g, [{opacity: 1, filter: 'blur(0px)'}, {opacity: 0, filter: 'blur(2px)'}], {ms: Math.min(220, Math.max(120, ms * .45)), curve: 'F', fill: 'forwards', blur: false}); });
   entering.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', delay: 60, channel: 'o', current: false, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 220, curve: 'E', delay: 60, channel: 't', current: false}); });
   return play(shell, shellFrames, {ms, curve: 'linear', current: false}).then(ok => { if (ok && resizing.get(el) === state) state.cleanup(); });
  }

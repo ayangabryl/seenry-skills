@@ -20,13 +20,18 @@
   resized = !resized;
   const toggle = $('resize-action'), more = $('resize-content');
   toggle.setAttribute('aria-expanded', String(resized)); toggle.setAttribute('aria-label', resized ? 'Hide details' : 'Show details');
-  const apply = () => S.resize($('resize-card'), () => {
+  // Width and height change together: the compact card widens into the detailed one, and the toggle rides the right
+  // edge on the same spring instead of jumping there. Closing rows are clipped by the shrinking shell as they fade.
+  const card = $('resize-card'), head = toggle.parentElement, inHead = () => toggle.getBoundingClientRect().left - head.getBoundingClientRect().left;
+  let from = 0;
+  S.resize(card, () => {
+   from = inHead();
+   card.classList.toggle('rz-open', resized);
    more.hidden = !resized;
    more.innerHTML = resizeRows.map(([t, n, c]) => `<div class="rz-row" style="--c:${c}"><i></i><span>${t}</span><em>${n}</em></div>`).join('');
   });
-  // Closing: the rows clear (lift, blur, fade) just ahead of the shell, so it never shrinks over live text or sits empty.
-  if (!resized && !reduce() && !more.hidden) { [...more.children].forEach(r => S.play(r, [{opacity: 0, transform: 'translateY(-4px)', filter: 'blur(2px)'}], {ms: 110, curve: 'X', fill: 'forwards', blur: false})); sequence('resize', [[60, apply]]); }
-  else apply();
+  const dx = from - inHead();
+  if (Math.abs(dx) > .5 && !reduce()) S.play(toggle, [{translate: `${dx}px 0`}, {translate: '0 0'}], {spring: 'smooth', channel: 'ride', current: false});
   // Rows arrive one after another while the shell is still opening: a 6px rise and a light un-blur.
   if (resized && !reduce()) [...more.children].forEach((r, i) => S.play(r, [{opacity: 0, transform: 'translateY(6px)', filter: 'blur(3px)'}, {opacity: 1, transform: 'none', filter: 'blur(0px)'}], {ms: 360, curve: 'O', delay: 70 + i * 45, fade: true, blur: false}));
  };
