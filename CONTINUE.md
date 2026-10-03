@@ -154,19 +154,26 @@ interfaces, the success-check tip and the state-transition tip.
 18. **Every component must be reviewed** for bugs and improvements using the protocol below. Nothing is "done"
     until it passes every line.
 
+## Session 2026-10-04 (Claude, PR #65 branch `fix/voice-demo-response-test`)
+- Every card has a `data-why` note shown as its own "Why this works" block in the detail view (#9 done). Notes were checked against each card's spec chips; keep them true when a component changes.
+- Fixed: `#library-grid>.card{display:flex}` overrode `[hidden]`, so filtered cards stayed visible and focusable (broke the native keyboard Tab path). Now `:not([hidden])`.
+- Fixed: `transition-duration: var(--st-state)` is invalid (the token carries an easing). Stage buttons/tabs/menu items and Card Close had 0ms state changes. Never put `--st-state` in a duration list; use 180ms.
+- After any gallery/kit edit: `node /tmp/claude-501/pins.mjs <abs repo path>` (recomputes tests/transitions-library-menu-native.pins.json), then the full node test suite.
+- Still open: #14 full consistency pass on the unreviewed rows below, AI demo to 9, final release (version bump + changelog) once PR #65 CI is green.
+
 ## Per-component status
 
 | Component | Status |
 |---|---|
-| Menu | one-piece open/close done; **anchoring to trigger (#5) open** |
-| Button to menu | close pill in trigger spot done; **redesign to seenry.design header morph (#2)** |
-| Dialog | compact + scrim done; **owner wants full-screen preview (#4)** |
+| Menu | anchoring verified: right edges align, 6px below trigger at 1300 and 390 (#5 done). PR #65 native evidence: detail heading scroll-margin + caption hit fix pushed |
+| Button to menu | one surface: clip from the trigger while its fill turns from the button colour to the surface and back on close (#2 done) |
+| Dialog | native modal over the whole page with blurred backdrop (#4 done) |
 | Command palette | close fixed; review |
 | Bottom sheet | ok; review |
 | Drawer | real rows; review |
 | Tooltip | real text; ok |
 | Card expand | judge 8–9 (prior session); **hover has no padding and lifts (#17); owner says it seems bad** |
-| Tabs | panel blur swap + hover; **still bad (#6)** |
+| Tabs | labels now ease with the underline (root cause: an invalid transition-duration voided every stage state transition); catalog filter is the segmented control (#6 done, re-judge) |
 | Segmented control | hover only; review |
 | Page transition | back control + timing; **chevron still overlaps title briefly** |
 | Accordion | spring shell done; review |
@@ -175,22 +182,22 @@ interfaces, the success-check tip and the state-transition tip.
 | Like | not reviewed |
 | Switch | not reviewed; the off track is a heavy dark grey |
 | Form error | not reviewed |
-| Toast stack | **empty at rest after replay**; not reviewed |
-| Number | **no blur (#1)**; not reviewed |
+| Toast stack | two toasts present at rest; not reviewed |
+| Number | 3px directional motion blur, 100ms exit, frequent updates stay sharp (#1 done) |
 | Text change | not reviewed |
 | List | not reviewed |
-| Skeleton to content | **not premium (#8)** |
+| Skeleton to content | content-as-skeleton: crisp sweeping bars, media disc, blur only on resolve, 45ms reading-order stagger (#8 done) |
 | AI thinking and streaming | judge 7; needs transitions.dev-style focused demos (streaming text, reasoning stream, thinking states) |
 | Checkbox | not reviewed |
-| Card resize | **height-only (#13)** |
+| Card resize | compact to detailed in width + height on one spring, toggle rides the edge, leaving rows fade inside the closing shell (#13 done) |
 | Notification badge | not reviewed (Jakub tip: scale from the bottom-left origin, subtle bounce, animate position) |
 | Icon swap | not reviewed |
-| Success check | **not premium (#12)** |
-| Avatar group | **bad UX (#11)** |
+| Success check | hairline ring closes green, tick lands, single halo; no disc (#12 done) |
+| Avatar group | group spreads as one around the hovered face, name above it (#11 done) |
 | Input clear | not reviewed |
 | Link arrow | not reviewed |
 | Popover panel | not reviewed |
-| Spinner to check | **not premium (#12)** |
+| Spinner to check | ring-only, same halo on success/error (#12 done) |
 | Image open | not reviewed |
 | Reorder | rebuilt; review |
 | Thinking states (shimmer) | rebuilt; verify |
