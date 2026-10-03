@@ -2,13 +2,13 @@
   "schema": "menu-native-v5",
   "frozen": true,
   "reconstructionBaseCommit": "ccbf13127596d0941e151b2bdac7a4e14a69e3f0",
-  "bundleSHA256": "058aa28f24dfe072930bf4ba44b08cc858197d152cb21bb56f7ab78b02e2a15e",
+  "bundleSHA256": "7959913f797481d66bb97972b8b28e92ff1f08ee84f73dbef103d33a20c20fa7",
   "assets": {
-    "gallery.html": "241b1070bb0352f2a6a73d9402453ca748b54ec6dea7a7dd89ac34ba2cf4a94d",
+    "gallery.html": "581af9165e9d4d13f8124322b0abd93462bdc1eaf2e0e4d38ccf4955b3797fcc",
     "gallery.js": "66088145839a3f8925c47e40084d13ee563af9f5552b2746fc78139ad33bcb2a",
     "gallery-menu.js": "b9467f7a7c3a54ae257b4203e5c23e0103b05e478cba5731d7bd366611dcbf24",
     "seenry-transitions.js": "c7f8030c3f142b16f39c023827bda98a095f592e8fe10dd74dcee253ed5ace88",
-    "seenry-transitions.css": "48c32890414e550e54274ba91bfd4755800bd16ccb80036390eddaed5224ba4b",
+    "seenry-transitions.css": "ac1c266c1e1765dad6dc367d56a48d7238a1a5642766fceea4341d7ff2f47d7b",
     "assets/morning.jpg": "8d489f3ba1698592863b06b02ba34f4d697e87e227be92d1244c12f4f7dc9a25",
     "assets/lake.jpg": "26f1167b6c07e4d67cd90c469390ebb310bfa082a7d86e0e3758f616176378c7",
     "assets/forest.jpg": "b944abd87e265d383d021181a00eb153babf605d2746d859be6be910a2deb1ed"

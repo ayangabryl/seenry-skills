@@ -640,7 +640,7 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 /* Status marks v6: no filled disc. A hairline ring holds the place; success draws the ring closed in green while the
    tick lands, and one soft halo breathes out and fades. Failure does the same in red. */
 [data-st="success"] .st-success-disc, .st-status-disc { box-shadow: none !important; }
-[data-st="success"] .st-success-disc circle, .st-status-disc circle { fill: transparent !important; stroke: color-mix(in srgb, var(--text) 16%, transparent); stroke-width: 1.5; r: 19; transition: stroke 260ms var(--st-O); }
+[data-st="success"] .st-success-disc circle, .st-status-disc circle { fill: transparent !important; stroke: color-mix(in srgb, var(--text) 16%, transparent); stroke-width: 1.5; r: 19; stroke-dasharray: none; stroke-dashoffset: 0; transition: stroke 260ms var(--st-O); }
 [data-st="success"][data-st-done="true"] .st-success-disc circle, [data-st-progress="success"] .st-status-disc circle { stroke: var(--ok); }
 [data-st-progress="error"] .st-status-disc circle { stroke: var(--bad); }
 [data-st-progress="loading"] .st-status-disc circle { stroke: color-mix(in srgb, var(--text) 10%, transparent); }

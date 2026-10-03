@@ -159,6 +159,8 @@ interfaces, the success-check tip and the state-transition tip.
 - Fixed: `#library-grid>.card{display:flex}` overrode `[hidden]`, so filtered cards stayed visible and focusable (broke the native keyboard Tab path). Now `:not([hidden])`.
 - Fixed: `transition-duration: var(--st-state)` is invalid (the token carries an easing). Stage buttons/tabs/menu items and Card Close had 0ms state changes. Never put `--st-state` in a duration list; use 180ms.
 - After any gallery/kit edit: `node /tmp/claude-501/pins.mjs <abs repo path>` (recomputes tests/transitions-library-menu-native.pins.json), then the full node test suite.
+- Keyboard-driven changes are instant catalog-wide (`html[data-st-input-mode=keyboard]` zeroes stage/menu control transitions); the native Menu harness requires a full focus cue on the first frame.
+- Switch off-track stays `--text-3` on purpose: a lighter iOS-style track fails WCAG 1.4.11 (3:1 non-text contrast).
 - Still open: #14 full consistency pass on the unreviewed rows below, AI demo to 9, final release (version bump + changelog) once PR #65 CI is green.
 
 ## Per-component status
