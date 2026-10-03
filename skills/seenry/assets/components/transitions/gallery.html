@@ -663,7 +663,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 .project-dialog .dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .project-dialog .st-button{min-height:44px;font-size:15px}
 .project-dialog .dialog-destructive{background:var(--dialog-danger-surface);color:var(--dialog-danger-ink);box-shadow:none}
-@media(hover:hover) and (pointer:fine){.project-dialog .dialog-destructive:hover{background:color-mix(in srgb,var(--dialog-danger-surface) 88%,#000)}}
+@media(hover:hover) and (pointer:fine){.project-dialog .dialog-destructive:hover{background:#bb2929}}
 .project-dialog::backdrop{background:var(--st-backdrop);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 @media(prefers-reduced-motion:reduce){.project-dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}}
 .orders{display:grid;padding:2px 8px 8px}
@@ -805,7 +805,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 /* The description tucks under the 44px title target on phones; it is not interactive, so it never takes the title’s hits. */
 .caption p{pointer-events:none}
 /* The inbox shows whole rows only: two messages fit the stage above Replay, so the third never peeks in half-cut. */
-.stage .mail{height:186px}.stage .mail-list .msg:nth-child(n+3){display:none}.stage .mail .detail p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.stage .mail{height:186px}.stage .mail-list .msg:nth-child(n+3){display:none}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>

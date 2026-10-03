@@ -161,6 +161,9 @@ interfaces, the success-check tip and the state-transition tip.
 - After any gallery/kit edit: `node /tmp/claude-501/pins.mjs <abs repo path>` (recomputes tests/transitions-library-menu-native.pins.json), then the full node test suite.
 - Keyboard-driven changes are instant catalog-wide (`html[data-st-input-mode=keyboard]` zeroes stage/menu control transitions); the native Menu harness requires a full focus cue on the first frame.
 - Switch off-track stays `--text-3` on purpose: a lighter iOS-style track fails WCAG 1.4.11 (3:1 non-text contrast).
+- Hover colours on animated controls must be plain colours, not `color-mix()`: mid-transition Chrome reports oklab, which the dialog paint test cannot measure (Delete button hover is `#bb2929`).
+- The page-transition message detail is an intentional keyboard-reachable scroll region; do not clamp it.
+- Before pushing, run the CI browser tests locally (list in .github/workflows) — macOS has no `timeout`.
 - Still open: #14 full consistency pass on the unreviewed rows below, AI demo to 9, final release (version bump + changelog) once PR #65 CI is green.
 
 ## Per-component status
