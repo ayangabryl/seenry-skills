@@ -218,16 +218,16 @@
    qa(c.cell, '.st-ink-out').forEach(x => { stopAll(x); x.remove(); });
    if (!animated) { c.old?.remove(); c.cell.append(inkEl); continue; }
    const delay = frequent ? 0 : Math.min(order++ * 12, 36);
-   const enter = frequent ? 0 : 45; // the old digit is mostly gone before the new one is legible
+   const enter = frequent ? 0 : 50; // the old digit is mostly gone before the new one is legible
    c.cell.classList.add('st-rolling');
    const travel = frequent ? 45 : 100;
    if (c.old) {
     c.old.classList.add('st-ink-out');
-    play(c.old, [{transform: 'none', opacity: 1, filter: 'blur(0px)'}, {transform: `translateY(${-dir * travel}%)`, opacity: 0, filter: frequent ? 'blur(0px)' : 'blur(2px)'}], {ms: 70, curve: 'X', delay, fill: 'both'}).then(ok => { if (ok) c.old.remove(); });
+    play(c.old, [{transform: 'none', opacity: 1, filter: 'blur(0px)'}, {transform: `translateY(${-dir * travel}%)`, opacity: 0, filter: frequent ? 'blur(0px)' : 'blur(3px)'}], {ms: frequent ? 70 : 100, curve: 'X', delay, fill: 'both', blur: false}).then(ok => { if (ok) c.old.remove(); });
    }
    c.cell.append(inkEl);
-   const from = c.isNew && !c.old ? {transform: `translateY(${dir * 40}%) scale(.8)`, opacity: 0, filter: 'blur(2px)'} : {transform: `translateY(${dir * travel}%)`, opacity: 0, filter: frequent ? 'blur(0px)' : 'blur(2px)'};
-   play(inkEl, [from, {transform: 'none', opacity: 1, filter: 'blur(0px)'}], {spring: 'lead', delay: delay + enter}).then(() => { if (!qa(c.cell, '.st-ink-out').length) c.cell.classList.remove('st-rolling'); });
+   const from = c.isNew && !c.old ? {transform: `translateY(${dir * 40}%) scale(.8)`, opacity: 0, filter: 'blur(4px)'} : {transform: `translateY(${dir * travel}%)`, opacity: 0, filter: frequent ? 'blur(0px)' : 'blur(4px)'};
+   play(inkEl, [from, {transform: 'none', opacity: 1, filter: 'blur(0px)'}], {spring: 'lead', delay: delay + enter, blur: false}).then(() => { if (!qa(c.cell, '.st-ink-out').length) c.cell.classList.remove('st-rolling'); });
   }
   if (animated) for (const [k, x] of firstX) { const cell = s.cells.get(k); if (!cell) continue; const dx = x - cell.getBoundingClientRect().left; if (Math.abs(dx) > .5) play(cell, [{transform: `translateX(${dx}px)`}, {transform: 'none'}], {spring: 'snappy', channel: 'flip', current: false}); }
   for (const [n, x] of nearX) { const dx = x - n.getBoundingClientRect().left; if (Math.abs(dx) > .5) play(n, [{transform: `translateX(${dx}px)`}, {transform: 'none'}], {spring: 'snappy', channel: 'flip', current: false}); }
@@ -447,8 +447,13 @@
    const content = [...s.body.children].filter(c => c !== s.label && c !== closer);
    if (closer) play(closer, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'O', delay: 30, channel: 'o', fade: true, blur: false});
    play(s.body, [{clipPath: triggerInset(el, s.trigger)}, {clipPath: 'inset(0px 0px 0px 0px round 14px)'}], {spring: 'snappy', channel: 'clip'}).then(ok => { if (ok && s.version === v) el.classList.remove('st-morphing'); });
-   play(s.label, [{opacity: 1}, {opacity: 0}], {ms: 70, curve: 'F', fill: 'forwards', fade: true});
-   content.forEach((c, i) => i === 0 && el.tagName === 'DIALOG' ? null : play(c, [{opacity: 0, transform: 'translateY(-4px)'}, {opacity: 1, transform: 'none'}], {spring: 'snappy', delay: el.tagName === 'DIALOG' ? 40 : 30, fade: true}));
+   // The surface is the button: it unfolds in the button's own fill and turns to the surface colour as it grows, so
+   // there is never a second shape crossfading over the first. Content arrives once the fill has mostly turned.
+   stop(s.body, 'bg'); s.fill = tcs.backgroundColor; s.surfaceFill = getComputedStyle(s.body).backgroundColor;
+   Object.assign(s.label.style, {background: 'transparent', boxShadow: 'none'});
+   if (s.fill !== s.surfaceFill) play(s.body, [{backgroundColor: s.fill}, {backgroundColor: s.surfaceFill}], {ms: 220, curve: 'O', channel: 'bg'});
+   play(s.label, [{opacity: 1}, {opacity: 0}], {ms: 90, curve: 'F', fill: 'forwards', fade: true});
+   content.forEach((c, i) => i === 0 && el.tagName === 'DIALOG' ? null : play(c, [{opacity: 0, transform: 'translateY(-4px)'}, {opacity: 1, transform: 'none'}], {spring: 'snappy', delay: el.tagName === 'DIALOG' ? 40 : 70, fade: true}));
   } else if (kind === 'tooltip') {
    if (!o.glideFrom) {
     play(el, [{opacity: 0}, {opacity: 1}], {ms: 90, curve: 'F', channel: 'o', fade: true});
@@ -551,7 +556,8 @@
   } else if (morph) {
    el.classList.add('st-morphing');
    [...s.body.children].filter(c => c !== s.label).forEach(c => play(c, [{opacity: 0}], {ms: 'feedback', curve: 'F', fill: 'forwards', fade: true}));
-   play(s.label, [{opacity: 1}], {ms: 'quick', curve: 'F', delay: 50, fill: 'forwards', fade: true});
+   play(s.label, [{opacity: 1}], {ms: 'quick', curve: 'F', delay: 70, fill: 'forwards', fade: true});
+   if (s.fill && s.surfaceFill && s.fill !== s.surfaceFill) play(s.body, [{backgroundColor: s.surfaceFill}, {backgroundColor: s.fill}], {ms: 200, curve: 'F', delay: 40, channel: 'bg', fill: 'forwards'});
    done = play(s.body, [{clipPath: triggerInset(el, s.trigger)}], {spring: 'snappy', channel: 'clip', fill: 'forwards'});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true});
   } else if (kind === 'tooltip') {
