@@ -128,7 +128,7 @@
   if (detailCard === card) return;
   if (detailCard) restoreStage();
   if (card.dataset.key === 'menu') menuDemo.suspend();
-  detailCard = card; stageHome = card;
+  detailCard = card; stageHome = card; detailReturnOwned = true;
   const stage = card.querySelector('.stage');
   $('detail-title').textContent = card.querySelector('.caption h3').textContent;
   $('detail-description').textContent = card.querySelector('.caption p').textContent + (card.dataset.why ? ' ' + card.dataset.why : '');
@@ -146,11 +146,28 @@
   S.init(detail); S.open(detail,card.querySelector('.title-link'));
   setHash('#t/' + card.dataset.key);
  }
+ let detailReturnOwned = true;
+ // A Menu detail return must not reclaim focus chosen by a newer host action,
+ // even when that newer element is subsequently removed.
+ document.addEventListener('focusin', e => {
+  if (detailCard?.dataset.key === 'menu' && !detail.contains(e.target) && e.target !== detailCard.querySelector('.title-link')) detailReturnOwned = false;
+ }, true);
  function restoreStage() {
   if (detailCard?.dataset.key === 'menu') menuDemo.suspend();
   const stage = $('detail-preview').querySelector('.stage'); if (stage && stageHome) stageHome.prepend(stage);
  }
- detail.addEventListener('st:close', e => { if (e.target !== detail) return; restoreStage(); const c = detailCard; detailCard=null; stageHome=null; c?.querySelector('.title-link').focus({preventScroll:true}); setHash(category === 'All' ? '' : '#f/'+category.toLowerCase()); });
+ detail.addEventListener('st:close', e => {
+  if (e.target !== detail || detail.open) return;
+  const c = detailCard, title = c?.querySelector('.title-link');
+  restoreStage();
+  if (detailCard !== c || detail.open) return;
+  if (c?.dataset.key === 'menu') {
+   if (detailReturnOwned && document.activeElement === title && title.isConnected && !c.hidden) title.focus();
+  } else title?.focus({preventScroll:true});
+  if (detailCard !== c || detail.open) return;
+  detailCard=null; stageHome=null;
+  setHash(category === 'All' ? '' : '#f/'+category.toLowerCase());
+ });
  for (const card of cards) {
   card.querySelector('.title-link').onclick = () => showDetail(card);
   card.addEventListener('keydown', e => { if (e.target === card && e.key === 'Enter') { e.preventDefault(); showDetail(card); } });

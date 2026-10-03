@@ -169,11 +169,12 @@ export function captureSettledMenuTypography({actionId}) {
 
 // Read-only and post-settlement only. Never scroll/focus the page to satisfy this
 // sample, and never use action.originalPoint as the restored trigger's hit point.
-export function captureSettledMenuUndoFocus({actionId,row,remainingDeletes,inputEvidence}){
+export function captureSettledMenuUndoFocus({actionId,row,remainingDeletes,inputEvidence,postDelete=false,postParentEscape=false}){
+ if(postDelete&&postParentEscape)throw Error('Conflicting settled Menu sample purposes');
  const trace=window.__menuNative,sampleStartedAt=performance.now(),rect=node=>node?.getBoundingClientRect().toJSON()??null;
  const viewport={left:0,top:0,right:innerWidth,bottom:innerHeight,width:innerWidth,height:innerHeight};
- const targetControl=remainingDeletes>0?'undo':`trigger:${row}`,target=document.querySelector(remainingDeletes>0?'[data-menu-demo] [data-menu-undo]':`[data-menu-demo] [data-menu-file="${row}"] [data-menu-trigger]`);
- const result={actionId,row,remainingDeletes,inputEvidence,targetControl,phase:'settled-post-undo-focus',actionInactive:trace.active===null,sampleStartedAt,viewport,focus:trace.control(document.activeElement),exists:!!target,connected:!!target?.isConnected};
+ const recoveryTarget=postDelete||remainingDeletes>0,targetControl=postParentEscape?'detail':recoveryTarget?'undo':`trigger:${row}`,target=document.querySelector(postParentEscape?'[data-key="menu"] [data-detail="menu"]':recoveryTarget?'[data-menu-demo] [data-menu-undo]':`[data-menu-demo] [data-menu-file="${row}"] [data-menu-trigger]`);
+ const result={actionId,row,remainingDeletes,inputEvidence,targetControl,phase:postParentEscape?'settled-post-parent-escape-focus':postDelete?'settled-post-delete-recovery':'settled-post-undo-focus',actionInactive:trace.active===null,sampleStartedAt,viewport,focus:trace.control(document.activeElement),exists:!!target,connected:!!target?.isConnected};
  if(!target)return {...result,sampleCompletedAt:performance.now()};
  const r=rect(target),style=getComputedStyle(target),top=target.closest('[popover]:popover-open,dialog:modal'),chain=[],ancestors=[];
  for(let node=target;node;node=node.parentElement){
@@ -185,7 +186,7 @@ export function captureSettledMenuUndoFocus({actionId,row,remainingDeletes,input
  const base={node:'viewport',rect:viewport,offsetWidth:innerWidth,offsetHeight:innerHeight,clientLeft:0,clientTop:0,clientWidth:innerWidth,clientHeight:innerHeight,axisAligned:true,unsupportedClip:false};
  const geometry=window.__menuNativeClipGeometry(base,ancestors,viewport),center={x:r.left+r.width/2,y:r.top+r.height/2};
  const hitAt=(point,role)=>{const hit=document.elementFromPoint(point.x,point.y);return {role,point,hit:hit===target||target.contains(hit),hitControl:trace.control(hit)};};
- const currentCenter={source:'current-focus-target-center',measuredAt:performance.now(),...hitAt(center,'center')};
+ const currentCenter={source:postParentEscape?'current-restored-heading-center':postDelete?'current-recovery-control-center':'current-focus-target-center',measuredAt:performance.now(),...hitAt(center,'center')};
  // Edge midpoints also expose partial sticky-header occlusion while preserving
 // rounded corners. These are bounded hit probes, not a claim of pixel coverage.
  const edgeHits=[hitAt({x:center.x,y:r.top+1},'top'),hitAt({x:r.right-1,y:center.y},'right'),hitAt({x:center.x,y:r.bottom-1},'bottom'),hitAt({x:r.left+1,y:center.y},'left')];

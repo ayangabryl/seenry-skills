@@ -281,19 +281,22 @@ test('non-final Undo reveals the persistent recovery control if result reflow mo
  assert.equal(f.doc.activeElement, undo); assert.equal(undo.getBoundingClientRect().bottom, 776);
  assert.equal(g.scrolls.length, 1); assert.equal(g.scrolls[0].behavior, 'instant');
 });
-test('recovery leads feedback and preserves the next complete name once, with concise status', () => {
+test('recovery follows Planning before the files and preserves the next complete name once', () => {
  const f = fixture(), name = 'W'.repeat(60); f.action('rename', 'hiring'); f.submit(name);
  assert.equal(f.find('[data-menu-status]').textContent, 'Renamed file.');
  assert.equal(f.find('#menu-trigger-hiring').getAttribute('aria-label'), `More actions for ${name}`);
  f.action('delete', 'hiring');
  const recovery = f.find('[data-menu-recovery]');
- assert.equal(recovery.parentElement.firstElementChild, recovery);
+ assert.equal(recovery.parentElement, f.find('.menu-demo-app'));
+ assert.equal(recovery.parentElement.children[0], f.find('.app-bar'));
+ assert.equal(recovery.parentElement.children[1], recovery);
+ assert.equal(recovery.parentElement.children[2], f.find('[data-menu-files]'));
  assert.equal(recovery.firstElementChild, f.find('[data-menu-undo]'));
  assert.equal(f.find('[data-menu-deleted]').textContent, `1 deleted. Next: “${name}”.`);
  assert.equal(f.find('[data-menu-undo]').getAttribute('aria-label'), `Undo delete of ${name}`);
  assert.equal(f.find('[data-menu-status]').textContent, 'Deleted file.');
  assert.equal(f.find('[data-menu-budget]').textContent, 'Copies: 0 of 2.');
- assert.equal(recovery.parentElement.textContent.split(name).length - 1, 1);
+ assert.equal(recovery.textContent.split(name).length - 1, 1);
  f.click(f.find('[data-menu-undo]'));
  assert.equal(f.find('#menu-trigger-hiring').closest('[data-menu-file]').querySelector('[data-menu-file-name]').textContent, name);
  assert.equal(f.find('[data-menu-status]').textContent, 'Restored file.');
@@ -303,6 +306,32 @@ test('recovery leads feedback and preserves the next complete name once, with co
  assert.match(f.find('[data-menu-limit]').textContent, /Reset to duplicate again/);
  assert(markup.includes('<p>Rename, duplicate and undo a local delete.</p>'));
 });
+// Fixed header-anchor replay from ccbf131's 320-light-keyboard Delete snapshots.
+// Row heights are observed; Undo bounds below are source-derived layout controls,
+// not new browser measurements (scroll anchoring and actual paint remain native).
+for (const [action, heights] of [['delete-roadmap', [72, 167.5, 167.5]], ['delete-copy-1', [167.5, 167.5]]]) {
+ test(`${action}: recovery precedes surviving row height at the retained 320px header anchor`, () => {
+  const f = fixture(); f.action('rename'); f.submit('Q4 roadmap'); f.action('duplicate');
+  f.action('rename', 'hiring'); f.submit('W'.repeat(60)); f.action('duplicate', 'hiring'); f.action('delete');
+  if (action === 'delete-copy-1') f.action('delete', 'copy-1');
+  const recovery = f.find('[data-menu-recovery]'), list = f.find('[data-menu-files]'), app = f.find('.menu-demo-app');
+  assert.equal(list.children.length, heights.length);
+  assert(recovery.closest('.menu-demo-feedback'), 'Use the existing feedback padding, type and full-name wrapping');
+  const css = html.split('<style>')[1].split('</style>')[0];
+  const padding = Number(/\.menu-demo \.menu-demo-feedback\{padding:(\d+)px/.exec(css)[1]);
+  const height = Number(/\.menu-demo \.menu-demo-recovery \.st-button\{min-height:(\d+)px/.exec(css)[1]);
+  let top = 406.0625;
+  for (const child of app.children.slice(1)) {
+   if (child.hidden) continue;
+   if (child === recovery || child.contains(recovery)) { top += padding; break; }
+   if (child === list) top += heights.reduce((sum, value) => sum + value, 0);
+  }
+  assert.equal(top, 418.0625); assert.equal(height, 44); assert(top + height <= 780);
+  const priorTop = 406.0625 + heights.reduce((sum, value) => sum + value, 0) + padding;
+  assert(priorTop + height > 780, 'The original list-before-recovery order fails the immediate viewport envelope');
+  assert.equal(f.doc.activeElement, f.find(action === 'delete-roadmap' ? '#menu-trigger-copy-1' : '#menu-trigger-hiring'));
+ });
+}
 test('Undo reveals a viewport-visible trigger hidden behind sticky tools, with its focus ring', () => {
  const f = fixture(), target = f.find('#menu-trigger-hiring'); f.action('delete', 'hiring');
  const g = focusViewport(f); target.rect = {left: 226, top: 140, width: 44, height: 44};

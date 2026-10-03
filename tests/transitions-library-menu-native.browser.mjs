@@ -151,6 +151,15 @@ async function collectStep(page,run,step){
    const inputEvidence={mode:step.mode,focusCueRequired:step.mode==='keyboard',clickEventId:click?.eventId??null,clickTrusted:click?.trusted??null,clickDetail:click?.detail??null,keyEventId:key?.eventId??null};
    a.settledUndoFocus=await page.evaluate(captureSettledMenuUndoFocus,{actionId:a.id,row:step.row,remainingDeletes:run.deleted.length-1,inputEvidence});
   }
+  if(step.check==='delete'){
+   const click=a.events.find(e=>e.type==='click'&&e.control==='action:delete'&&e.trusted),key=step.mode==='keyboard'?a.events.find(e=>e.type==='keydown'&&e.control==='action:delete'&&e.trusted&&['Enter',' '].includes(e.key)):null;
+   const inputEvidence={mode:step.mode,focusCueRequired:false,clickEventId:click?.eventId??null,clickTrusted:click?.trusted??null,clickDetail:click?.detail??null,keyEventId:key?.eventId??null};
+   a.settledDeleteRecovery=await page.evaluate(captureSettledMenuUndoFocus,{actionId:a.id,row:step.row,remainingDeletes:run.deleted.length+1,inputEvidence,postDelete:true});
+  }
+  if(step.check==='parent-escape'){
+   const key=a.events.find(e=>e.type==='keydown'&&e.key==='Escape'&&e.trusted),inputEvidence={mode:'keyboard',focusCueRequired:true,keyEventId:key?.eventId??null,keyTrusted:key?.trusted??null,key:'Escape'};
+   a.settledParentEscapeFocus=await page.evaluate(captureSettledMenuUndoFocus,{actionId:a.id,inputEvidence,postParentEscape:true});
+  }
   if(step.op==='open')run.originalPoints[step.row]=a.originalPoint;
   if(step.op==='open'||step.op==='activate'||step.op==='original-click'||step.op==='blur'){
    const control=step.op==='blur'?'blur':a.targetControl;assert(a.events.some(e=>e.type==='click'&&e.trusted&&e.control===control),'Target-owned trusted click missing');

@@ -307,6 +307,8 @@ export function assertStepEvidence(step,a,audit) {
  if(typographyPlan(audit.profile).includes(step.id))assertSettledTypography(a.settledTypography,a,audit.profile);
  if(step.check==='undo-visible')assert(a.settledTypography.rows.some(r=>r.selector==='.menu-demo [data-menu-undo]'),'Reached Undo still lacks unchanged visible typography evidence');
  if(step.check==='undo')assertPostUndoFocusEvidence(step,a,audit.deleted.length);
+ if(step.check==='delete')assertPostDeleteRecoveryEvidence(step,a,audit.deleted.length);
+ if(step.check==='parent-escape')assertPostParentEscapeFocusEvidence(step,a);
  audit.lastRows=a.after.rows.map(row=>[row.id,row.name]);
 }
 
@@ -342,23 +344,58 @@ export function assertPostUndoFocusEvidence(step,a,remainingDeletes){
  assert(Number.isFinite(s.sampleStartedAt)&&Number.isFinite(s.sampleCompletedAt)&&s.sampleStartedAt>=a.after.snapshotCompletedAt&&s.sampleCompletedAt>=s.sampleStartedAt,'Post-Undo sample must follow the finished action');
  assert.equal(s.remainingDeletes,remainingDeletes);assert.deepEqual(s.inputEvidence,inputEvidence,'Post-Undo cue requirement lacks linked trusted input');
  assert(s.exists&&s.connected&&s.targetControl===expected&&s.focus===expected&&s.paint?.focused===true,'Post-Undo focus sample has the wrong or disconnected target');
- assert(s.viewport&&s.viewport.left===0&&s.viewport.top===0&&s.viewport.width===a.after.viewport.width&&s.viewport.height===a.after.viewport.height&&s.viewport.right===s.viewport.width&&s.viewport.bottom===s.viewport.height,'Post-Undo viewport mismatch');
- assert(Array.isArray(s.clipAncestors)&&s.clipAncestors.length>0,'Post-Undo ancestor clip inventory missing');
- const base={node:'viewport',rect:s.viewport,offsetWidth:s.viewport.width,offsetHeight:s.viewport.height,clientLeft:0,clientTop:0,clientWidth:s.viewport.width,clientHeight:s.viewport.height,axisAligned:true,unsupportedClip:false};
- assert.deepEqual(s.geometry,nativeClipGeometry(base,s.clipAncestors,s.viewport),'Post-Undo clip differs from measured ancestor geometry');
- assert(s.geometry.status==='measured-axis-aligned-intersection'&&rectInside(s.rect,s.viewport)&&rectInside(s.rect,s.geometry.rect),'Post-Undo focused control leaves viewport or ancestor scroll clip');
- assert.deepEqual(s.paint.rect,s.rect,'Post-Undo paint belongs to another rectangle');
- const model=effectivePaint(s.paint);assert(model.status==='modeled-only'&&model.visible&&Math.abs(model.effectiveOpacity-1)<.001,'Post-Undo target is hidden, faded or has unsupported paint');
- assert(Array.isArray(s.paint.glyphs)&&s.paint.glyphs.length>0&&s.paint.glyphs.every(g=>rectInside(g,s.rect)&&rectInside(g,s.geometry.rect)),'Post-Undo target ink is missing or clipped');
- assert(model.samples.every(sample=>sample.ratio>=(remainingDeletes>0?4.5:3)),'Post-Undo label/icon paint is not distinguishable on its actual surface');
- assert(s.paint.chain.every(n=>identityValue('transform',n.transform)&&identityValue('translate',n.translate)&&identityValue('scale',n.scale)&&identityValue('rotate',n.rotate)),'Post-Undo target/ancestor movement prevents a settled cue measurement');
- const center={x:s.rect.left+s.rect.width/2,y:s.rect.top+s.rect.height/2};
- assert(s.currentCenter?.source==='current-focus-target-center'&&s.currentCenter.role==='center'&&Number.isFinite(s.currentCenter.measuredAt)&&s.currentCenter.measuredAt>=s.sampleStartedAt&&s.currentCenter.measuredAt<=s.sampleCompletedAt,'Post-Undo current-center provenance missing');
- assert.deepEqual(s.currentCenter.point,center,'Post-Undo hit point is not the actual current center');assert(s.currentCenter.hit===true&&s.currentCenter.hitControl===expected,'Post-Undo current center is occluded or owned by another control');
- const edges=[['top',{x:center.x,y:s.rect.top+1}],['right',{x:s.rect.right-1,y:center.y}],['bottom',{x:center.x,y:s.rect.bottom-1}],['left',{x:s.rect.left+1,y:center.y}]];
- assert(Array.isArray(s.edgeHits)&&s.edgeHits.length===edges.length,'Post-Undo edge hit inventory missing');
- edges.forEach(([role,point],i)=>{const hit=s.edgeHits[i];assert.equal(hit.role,role);assert.deepEqual(hit.point,point);assert(hit.hit===true&&hit.hitControl===expected,'Post-Undo focus target is partially occluded');});
+ assertSettledMenuControlVisible(s,a,{label:'Post-Undo',expected,minContrast:remainingDeletes>0?4.5:3,centerSource:'current-focus-target-center'});
  if(inputEvidence.focusCueRequired){assert(s.paint.focusVisible===true,'Keyboard Undo needs an actual visible focus state');assert(postUndoCueBounds(s.paint).some(bounds=>rectInside(bounds,s.viewport)&&rectInside(bounds,s.geometry.rect)),'Keyboard Undo needs a strong visible focus cue wholly inside viewport/scroll clip');}
+}
+// The same existing settled paint/clip/hit predicates serve returned focus and
+// available recovery. Delete does not move focus to Undo or require its ring.
+function assertSettledMenuControlVisible(s,a,{label,expected,minContrast,centerSource}){
+ assert(s.viewport&&s.viewport.left===0&&s.viewport.top===0&&s.viewport.width===a.after.viewport.width&&s.viewport.height===a.after.viewport.height&&s.viewport.right===s.viewport.width&&s.viewport.bottom===s.viewport.height,`${label} viewport mismatch`);
+ assert(Array.isArray(s.clipAncestors)&&s.clipAncestors.length>0,`${label} ancestor clip inventory missing`);
+ const base={node:'viewport',rect:s.viewport,offsetWidth:s.viewport.width,offsetHeight:s.viewport.height,clientLeft:0,clientTop:0,clientWidth:s.viewport.width,clientHeight:s.viewport.height,axisAligned:true,unsupportedClip:false};
+ assert.deepEqual(s.geometry,nativeClipGeometry(base,s.clipAncestors,s.viewport),`${label} clip differs from measured ancestor geometry`);
+ assert(s.geometry.status==='measured-axis-aligned-intersection'&&rectInside(s.rect,s.viewport)&&rectInside(s.rect,s.geometry.rect),`${label} focused control leaves viewport or ancestor scroll clip`);
+ assert.deepEqual(s.paint.rect,s.rect,`${label} paint belongs to another rectangle`);
+ const model=effectivePaint(s.paint);assert(model.status==='modeled-only'&&model.visible&&Math.abs(model.effectiveOpacity-1)<.001,`${label} target is hidden, faded or has unsupported paint`);
+ assert(Array.isArray(s.paint.glyphs)&&s.paint.glyphs.length>0&&s.paint.glyphs.every(g=>rectInside(g,s.rect)&&rectInside(g,s.geometry.rect)),`${label} target ink is missing or clipped`);
+ assert(model.samples.every(sample=>sample.ratio>=minContrast),`${label} label/icon paint is not distinguishable on its actual surface`);
+ assert(s.paint.chain.every(n=>identityValue('transform',n.transform)&&identityValue('translate',n.translate)&&identityValue('scale',n.scale)&&identityValue('rotate',n.rotate)),`${label} target/ancestor movement prevents a settled cue measurement`);
+ const center={x:s.rect.left+s.rect.width/2,y:s.rect.top+s.rect.height/2};
+ assert(s.currentCenter?.source===centerSource&&s.currentCenter.role==='center'&&Number.isFinite(s.currentCenter.measuredAt)&&s.currentCenter.measuredAt>=s.sampleStartedAt&&s.currentCenter.measuredAt<=s.sampleCompletedAt,`${label} current-center provenance missing`);
+ assert.deepEqual(s.currentCenter.point,center,`${label} hit point is not the actual current center`);assert(s.currentCenter.hit===true&&s.currentCenter.hitControl===expected,`${label} current center is occluded or owned by another control`);
+ const edges=[['top',{x:center.x,y:s.rect.top+1}],['right',{x:s.rect.right-1,y:center.y}],['bottom',{x:center.x,y:s.rect.bottom-1}],['left',{x:s.rect.left+1,y:center.y}]];
+ assert(Array.isArray(s.edgeHits)&&s.edgeHits.length===edges.length,`${label} edge hit inventory missing`);
+ edges.forEach(([role,point],i)=>{const hit=s.edgeHits[i];assert.equal(hit.role,role);assert.deepEqual(hit.point,point);assert(hit.hit===true&&hit.hitControl===expected,`${label} focus target is partially occluded`);});
+}
+export function assertPostDeleteRecoveryEvidence(step,a,deletionCount){
+ assert(step.check==='delete'&&Number.isInteger(deletionCount)&&deletionCount>0,'Post-Delete guard requires the observed deletion count');
+ assert(['keyboard','pointer'].includes(step.mode)&&a.mode===step.mode,'Post-Delete input mode missing');
+ const click=primaryEvent(a,{type:'click',control:'action:delete'}),key=step.mode==='keyboard'?a.events.find(e=>e.type==='keydown'&&e.control==='action:delete'&&e.trusted&&['Enter',' '].includes(e.key)&&e.eventAt<=click.eventAt):null;
+ assert(step.mode==='keyboard'?click.detail===0&&!!key:click.detail>0,'Post-Delete visibility must follow actual trusted activation');
+ const inputEvidence={mode:step.mode,focusCueRequired:false,clickEventId:click.eventId,clickTrusted:true,clickDetail:click.detail,keyEventId:key?.eventId??null};
+ const accepted=assertAccepted(a,click,['post-production-stage-bubble']);
+ assert(accepted.state.recovery.visible&&accepted.state.recovery.undoVisible&&a.after.recovery.visible&&a.after.recovery.undoVisible,'Post-Delete recovery must already be available at acceptance');
+ const s=a.settledDeleteRecovery;
+ assert(s&&s.actionId===a.id&&s.row===step.row&&s.phase==='settled-post-delete-recovery'&&s.actionInactive===true,'Missing separate post-Delete recovery sample');
+ assert(Number.isFinite(s.sampleStartedAt)&&Number.isFinite(s.sampleCompletedAt)&&s.sampleStartedAt>=a.after.snapshotCompletedAt&&s.sampleCompletedAt>=s.sampleStartedAt,'Post-Delete sample must follow the finished action');
+ assert.equal(s.remainingDeletes,deletionCount);assert.deepEqual(s.inputEvidence,inputEvidence,'Post-Delete sample lacks linked trusted input');
+ assert(s.exists&&s.connected&&s.targetControl==='undo','Post-Delete recovery sample has the wrong or disconnected target');
+ assert.equal(s.focus,a.after.focus,'Post-Delete sampling must retain the actual returned focus');
+ assert.equal(s.paint?.focused,s.focus==='undo','Post-Delete paint focus differs from the sampled active element');
+ assertSettledMenuControlVisible(s,a,{label:'Post-Delete',expected:'undo',minContrast:4.5,centerSource:'current-recovery-control-center'});
+}
+export function assertPostParentEscapeFocusEvidence(step,a){
+ assert(step.check==='parent-escape'&&step.op==='key'&&step.key==='Escape'&&a.op==='key','Post-parent-Escape guard requires actual keyboard dismissal');
+ const key=primaryEvent(a,{type:'keydown',control:a.before.focus,key:'Escape'}),inputEvidence={mode:'keyboard',focusCueRequired:true,keyEventId:key.eventId,keyTrusted:true,key:'Escape'};
+ assert(!a.after.parent.nativeOpen&&!a.after.parent.modal&&a.after.stageOwner==='gallery'&&a.after.focus==='detail','Post-parent-Escape must restore the gallery heading');
+ const s=a.settledParentEscapeFocus;
+ assert(s&&s.actionId===a.id&&s.phase==='settled-post-parent-escape-focus'&&s.actionInactive===true,'Missing separate post-parent-Escape focus sample');
+ assert(Number.isFinite(s.sampleStartedAt)&&Number.isFinite(s.sampleCompletedAt)&&s.sampleStartedAt>=a.after.snapshotCompletedAt&&s.sampleCompletedAt>=s.sampleStartedAt,'Post-parent-Escape sample must follow the finished action');
+ assert.deepEqual(s.inputEvidence,inputEvidence,'Post-parent-Escape cue requirement lacks linked trusted input');
+ assert(s.exists&&s.connected&&s.targetControl==='detail'&&s.focus==='detail'&&s.paint?.focused===true,'Post-parent-Escape focus sample has the wrong or disconnected target');
+ assertSettledMenuControlVisible(s,a,{label:'Post-parent-Escape',expected:'detail',minContrast:4.5,centerSource:'current-restored-heading-center'});
+ assert(s.paint.focusVisible===true,'Keyboard parent Escape needs an actual visible focus state');
+ assert(postUndoCueBounds(s.paint).some(bounds=>rectInside(bounds,s.viewport)&&rectInside(bounds,s.geometry.rect)),'Keyboard parent Escape needs a strong visible focus cue wholly inside viewport/scroll clip');
 }
 export function assertSettledTypography(sample,action,profile) {
  assert(sample&&sample.actionId===action.id&&sample.phase==='settled-phone-typography'&&sample.actionInactive===true,'Settled typography must be separate from active input/rAF observation');
