@@ -1143,7 +1143,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
       <div class="answer" data-st="stream" id="answer" aria-live="polite" aria-busy="false">Three releases shipped: saved cards<sup class="st-cite">1</sup>, editor comments<sup class="st-cite">2</sup> and faster exports<sup class="st-cite">3</sup>.</div>
      </div>
     <button class="replay" data-replay="ai" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="ai">AI thinking and streaming</button></h3><p>Status, then an answer</p><button class="snippet-copy" data-st="copy" data-snippet="ai" aria-label="Copy HTML for AI thinking and streaming"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>sources light in turn</span><span>words rise 3px</span><span>second press stops</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="ai">AI thinking and streaming</button></h3><p>Status, then an answer</p><button class="snippet-copy" data-st="copy" data-snippet="ai" aria-label="Copy HTML for AI thinking and streaming"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>sources read 120ms apart</span><span>words rise 3px</span><span>second press stops</span></div></div>
    </article><article class="card" data-key="checkbox" data-why="The tick draws along its path, so the mark reads as made rather than shown, and the label is struck through 40ms later, so cause and effect read in order. The box gives a little on press." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Checkbox">
     <div class="stage" data-st-preview>
      <div class="app list-card checklist">
@@ -1272,13 +1272,14 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
   }
   const run = ++aiRun, later = (fn, ms) => setTimeout(() => { if (run === aiRun) fn(); }, ms);
   const words = answers[answerIndex = (answerIndex + 1) % answers.length].match(/\[\d+\]|\S+\s*/g); let i = 0;
-  aiPrev = out.innerHTML; aiPhase = 'search'; delete think.dataset.stDone; S.swapText(think, 'Writing'); $('think-row').setAttribute('data-busy', '');
+  aiPrev = out.innerHTML; aiPhase = 'search'; delete think.dataset.stDone; S.swapText(think, 'Reading 3 sources'); $('think-row').setAttribute('data-busy', '');
   // The previous answer dims in place and is replaced the moment new words arrive: the answer area is never blank.
   S.play(out, [{opacity: .35}], {ms: 50, curve: 'X', fill: 'forwards'});
-  chips.forEach((c, k) => { c.classList.remove('reading'); later(() => { c.classList.add('reading'); later(() => c.classList.remove('reading'), 140); }, 10 + k * 30); });
+  // Each source is read in turn, long enough to register (120ms apart, lit 260ms), before a word is written.
+  chips.forEach((c, k) => { c.classList.remove('reading'); later(() => { c.classList.add('reading'); later(() => c.classList.remove('reading'), 260); }, 40 + k * 120); });
   const tick = () => { if (run !== aiRun) return; const done = i + 2 >= words.length; S.stream(out, words.slice(i, i + 2).join(''), {done}); i += 2;
-   if (!done) setTimeout(tick, 70); else { aiPhase = 'idle'; think.dataset.stDone = 'true'; $('think-row').removeAttribute('data-busy'); S.swapText(think, 'Answered from 3 sources'); } };
-  later(() => { aiPhase = 'write'; out.getAnimations().forEach(a => a.cancel()); out.style.opacity = ''; out.style.transform = ''; S.stream(out, '', {reset: true}); tick(); }, 55);
+   if (!done) setTimeout(tick, 90); else { aiPhase = 'idle'; think.dataset.stDone = 'true'; $('think-row').removeAttribute('data-busy'); S.swapText(think, 'Answered from 3 sources'); } };
+  later(() => { aiPhase = 'write'; out.getAnimations().forEach(a => a.cancel()); out.style.opacity = ''; out.style.transform = ''; S.stream(out, '', {reset: true}); S.swapText(think, 'Writing'); tick(); }, 420);
  };
 
  // Replay buttons drive the same code paths as the real controls.
