@@ -614,3 +614,38 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 [data-st="avatars"][data-st-returning="true"] > *:not(.st-avatar-name) { transition: transform var(--st-spring-smooth-ms) var(--st-spring-smooth); }
 .st-avatar-name { transition: opacity 160ms var(--st-O), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
 @media (prefers-reduced-motion: reduce) { [data-st="avatars"] > *:not(.st-avatar-name) { transform: none !important; } }
+
+/* Skeleton v5 (opt-in [data-st-sk]): the content is its own skeleton, so every placeholder has exactly the shape of
+   what replaces it. While busy, each line is a soft bar with a sweep; when ready, pieces resolve in place in reading
+   order (bar fades, ink arrives, blur clears) and media sharpen from a blur. Nothing moves and the card never resizes. */
+[data-st="skeleton"] .st-sk-real { opacity: 1 !important; transform: none !important; }
+[data-st="skeleton"] [data-st-sk] { --st-sk-d: calc(var(--i, 0) * 45ms); -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 6px;
+ transition: color 300ms var(--st-O) var(--st-sk-d), background-color 300ms var(--st-O) var(--st-sk-d), filter 420ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d); }
+[data-st="skeleton"][aria-busy="true"] [data-st-sk]:not(.st-media) { color: transparent; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
+[data-st="skeleton"][aria-busy="true"] [data-st-sk] * { color: transparent; }
+[data-st="skeleton"] [data-st-sk] * { transition: color 300ms var(--st-O) var(--st-sk-d); }
+@keyframes st-sk-sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
+[data-st="skeleton"][aria-busy="false"] [data-st-sk]:not(.st-media) { animation: st-sk-in 420ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d) both; }
+[data-st="skeleton"].st-instant [data-st-sk]:not(.st-media) { animation: none; }
+@keyframes st-sk-in { from { filter: blur(3px); } to { filter: blur(0); } }
+[data-st="skeleton"] .st-media[data-st-sk], [data-st="skeleton"][aria-busy="true"] .st-real .st-media[data-st-sk] { position: relative; overflow: hidden; filter: none; transform: none; transition: none; }
+[data-st="skeleton"] .st-media[data-st-sk]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; background: var(--surface-2); opacity: 0; transition: opacity 300ms var(--st-O) var(--st-sk-d); }
+[data-st="skeleton"][aria-busy="false"] .st-media[data-st-sk] { animation: st-sk-media 560ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d) both; }
+[data-st="skeleton"].st-instant .st-media[data-st-sk] { animation: none; }
+@keyframes st-sk-media { from { filter: blur(10px); transform: scale(1.04); } to { filter: blur(0); transform: none; } }
+[data-st="skeleton"][aria-busy="true"] .st-media[data-st-sk]::after { opacity: 1; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
+[data-st="skeleton"].st-instant [data-st-sk], [data-st="skeleton"].st-instant [data-st-sk] *, [data-st="skeleton"].st-instant [data-st-sk]::after { transition: none !important; }
+@media (prefers-reduced-motion: reduce) { [data-st="skeleton"] [data-st-sk], [data-st="skeleton"] [data-st-sk] * { animation: none !important; filter: none !important; transform: none !important; transition-duration: 120ms !important; transition-delay: 0ms !important; } }
+
+/* Status marks v6: no filled disc. A hairline ring holds the place; success draws the ring closed in green while the
+   tick lands, and one soft halo breathes out and fades. Failure does the same in red. */
+[data-st="success"] .st-success-disc, .st-status-disc { box-shadow: none !important; }
+[data-st="success"] .st-success-disc circle, .st-status-disc circle { fill: transparent !important; stroke: color-mix(in srgb, var(--text) 16%, transparent); stroke-width: 1.5; r: 19; transition: stroke 260ms var(--st-O); }
+[data-st="success"][data-st-done="true"] .st-success-disc circle, [data-st-progress="success"] .st-status-disc circle { stroke: var(--ok); }
+[data-st-progress="error"] .st-status-disc circle { stroke: var(--bad); }
+[data-st-progress="loading"] .st-status-disc circle { stroke: color-mix(in srgb, var(--text) 10%, transparent); }
+.st-success-mark::before, .st-status-mark::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--ok) 26%, transparent), transparent); opacity: 0; transform: scale(.7); pointer-events: none; }
+[data-st="success"][data-st-done="true"] .st-success-mark::before, [data-st-progress="success"] .st-status-mark::before { animation: st-halo 760ms var(--st-O) 80ms both; }
+[data-st-progress="error"] .st-status-mark::before { background: radial-gradient(closest-side, color-mix(in srgb, var(--bad) 22%, transparent), transparent); animation: st-halo 760ms var(--st-O) 80ms both; }
+@keyframes st-halo { 0% { opacity: 0; transform: scale(.7); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
+@media (prefers-reduced-motion: reduce) { .st-success-mark::before, .st-status-mark::before { animation: none !important; } }

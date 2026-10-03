@@ -1109,15 +1109,14 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
    </article><article class="card" data-key="skeleton" data-category="Content" tabindex="0" data-motion-region data-motion-label="Skeleton to content">
     <div class="stage" data-st-preview>
      <div class="app profile" data-st="skeleton" id="skel" aria-busy="false">
-      <div class="st-skeleton-mask" aria-hidden="true"><i class="sk-av"></i><i style="width:60%"></i><i style="width:40%"></i><i class="sk-wide" style="margin-top:12px"></i><i class="sk-wide" style="width:80%"></i><i class="sk-wide" style="width:50%;margin-top:6px"></i></div>
-      <div class="st-real">
-       <span class="st-media" aria-hidden="true"></span><b style="font-weight:600;align-self:end">Eva Lindqvist</b><span class="muted small" style="align-self:start">Product designer, Stockholm</span>
-       <p>Designs calm tools for busy teams. Currently working on the new review flow.</p>
-       <div class="stats"><span><b>1,204</b> followers</span><span><b>86</b> shots</span></div>
+      <div class="st-real st-sk-real">
+       <span class="st-media" data-st-sk style="--i:0" aria-hidden="true"></span><b style="font-weight:600;align-self:end"><span data-st-sk style="--i:1">Eva Lindqvist</span></b><span class="muted small" style="align-self:start"><span data-st-sk style="--i:2">Product designer, Stockholm</span></span>
+       <p><span data-st-sk style="--i:3">Designs calm tools for busy teams. Currently working on the new review flow.</span></p>
+       <div class="stats"><span data-st-sk style="--i:4"><b>1,204</b> followers</span><span data-st-sk style="--i:5"><b>86</b> shots</span></div>
       </div>
      </div>
     <button class="replay" data-replay="skeleton" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>mask 120 F</span><span>content 180 F</span><span>image blur 8 → 0</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>resolve 45ms stagger</span><span>image blur 10 → 0</span></div></div>
    </article><article class="card" data-key="ai" data-category="AI" tabindex="0" data-motion-region data-motion-label="AI thinking and streaming">
     <div class="stage" data-st-preview>
      <div class="app chat" id="chat">
@@ -1288,7 +1287,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
   number: () => setSeats(seats === 12 ? 125 : 12),
   text: nextStatus,
   list: sortTasks,
-  skeleton: () => { const el = $('skel'); S.skeleton(el, false, {instant: true}); clearTimeout(replay._skel); replay._skel = setTimeout(() => S.skeleton(el, true), 260); },
+  skeleton: () => { const el = $('skel'); S.skeleton(el, false, {instant: true}); clearTimeout(replay._skel); replay._skel = setTimeout(() => S.skeleton(el, true), 1100); },
   ai: runAI,
   checkbox: () => $('chk-1').click()
  };
