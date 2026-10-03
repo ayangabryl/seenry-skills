@@ -13,5 +13,5 @@ assert(!properties.includes('opacity'));assert.equal(properties.length,durations
 assert.equal(active[1],'60ms');assert.equal(duration(properties,['60ms'],'transform'),'60ms','Active authored feedback remains60ms because release selector excludes active');
 assert(css.includes('transition-duration: 100ms !important'));
 assert(css.includes('[data-st="expand"] [data-st-close] { transition-property: color, background-color, box-shadow !important; transform: none !important; }'),'Reduced Close cannot inherit geometry restoration');
-const old=duration(properties,list(generic,'transition-duration'),'transform');assert.equal(old,'var(--st-state)','Removing the remapped duration reproduces the shifted fourth-slot clock');assert.notEqual(old,'100ms');
+const old=duration(properties,list(generic,'transition-duration'),'transform');assert.equal(old,'180ms','Removing the remapped duration reproduces the shifted fourth-slot clock');assert.notEqual(old,'100ms');
 console.log('4/4 Card Close CSS clock contracts pass; normal100ms, active60ms, reduced priority and removed-remap control');

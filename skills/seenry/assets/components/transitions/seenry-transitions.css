@@ -268,7 +268,7 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 /* Retiring a held Card Close opacity must not start another CSS fade on pointer reopen. */
 [data-st="expand"] [data-st-close] { transition-property: color, background-color, box-shadow, transform !important; }
 /* Keep the original transform release clock after removing the opacity slot. */
-[data-st="expand"] [data-st-close]:not(:active) { transition-duration: var(--st-state), var(--st-state), var(--st-state), 100ms; }
+[data-st="expand"] [data-st-close]:not(:active) { transition-duration: 180ms, 180ms, 180ms, 100ms; }
 
 /* A keyboard Card change must not start CSS motion when owned styles restore. */
 [data-st="expand"][data-st-instant], [data-st="expand"][data-st-instant] * { transition-property: color, background-color, box-shadow, fill, stroke !important; }
