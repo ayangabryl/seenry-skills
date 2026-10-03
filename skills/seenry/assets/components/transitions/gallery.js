@@ -161,9 +161,11 @@
   const c = detailCard, title = c?.querySelector('.title-link');
   restoreStage();
   if (detailCard !== c || detail.open) return;
-  if (c?.dataset.key === 'menu') {
-   if (detailReturnOwned && document.activeElement === title && title.isConnected && !c.hidden) title.focus();
-  } else title?.focus({preventScroll:true});
+  // Returned focus must be visible: focusing an element that already has focus does not scroll, so an already
+  // focused title is brought into view explicitly (nearest edge, no smooth scroll to wait for).
+  const reveal = t => { if (!t?.isConnected || c.hidden) return; if (document.activeElement === t) t.scrollIntoView({block: 'nearest', inline: 'nearest'}); else t.focus(); };
+  if (c?.dataset.key === 'menu') { if (detailReturnOwned && document.activeElement === title) reveal(title); }
+  else reveal(title);
   if (detailCard !== c || detail.open) return;
   detailCard=null; stageHome=null;
   setHash(category === 'All' ? '' : '#f/'+category.toLowerCase());
