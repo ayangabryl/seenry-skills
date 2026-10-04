@@ -174,8 +174,8 @@ Text reveal (7→8), Notification badge (7→8), Spinner to check (7→8), Succe
 Avatar group (6→8). Drawer and Page transition no longer exceed the duration limit; Success check's 840ms halo is 220ms.
 
 Still below 8:
-- Skeleton to content 5 (from 4): the demo now resolves inside the judge window (one finite sweep timed to the load);
-  remaining note: replace masks in place with a short overlapping crossfade, and an interrupted replay can settle mixed.
+- Skeleton to content 7 (from 4): one finite sweep timed to a 180ms load, every placeholder swaps in one 120ms step
+  (20ms apart), Replay fades content back to the skeleton instead of snapping.
 - Thinking states 6–7: judge noise; both the original and the judge's own suggested version scored 6. Kept original.
 - Input clear 7: precise but "little character"; clear icon now exits with the value.
 - Menu 7: left alone — Codex's native-evidence contract (8 CI shards) covers its exact behaviour.
