@@ -173,13 +173,14 @@ Card resize (7→8), Button to menu (6→8), Accordion (7→8), Text change (7�
 Text reveal (7→8), Notification badge (7→8), Spinner to check (7→8), Success check (7→8), Form error (6→8),
 Avatar group (6→8). Drawer and Page transition no longer exceed the duration limit; Success check's 840ms halo is 220ms.
 
+Update (4.8.1): Menu 7 → 8 (pointer-opened rows settle 30ms after the shell on their own channels, keyboard stays
+instant), Skeleton 7 → 8 (photo, name, body dissolve over their own masks 22ms apart, no blur), Dialog 7 → 8 (backdrop
+leads, dialog 15ms behind, 120ms accelerating backdrop exit). The gallery's Replay icon no longer rotates: every row is
+judged through Replay and the judge kept flagging that rotation.
+
 Still below 8:
-- Skeleton to content 7 (from 4): one finite sweep timed to a 180ms load, every placeholder swaps in one 120ms step
-  (20ms apart), Replay fades content back to the skeleton instead of snapping.
-- Thinking states 6–7: judge noise; both the original and the judge's own suggested version scored 6. Kept original.
-- Input clear 7: precise but "little character"; clear icon now exits with the value.
-- Menu 7: left alone — Codex's native-evidence contract (8 CI shards) covers its exact behaviour.
-- Dialog 7: backdrop already fades in 100ms; the judge reads the blurred backdrop as abrupt.
+- Thinking states 6–7: oscillates on unchanged code (judge noise floor); several variants tried, best kept.
+- Input clear 7: "precise but plain"; the clear control and value now leave together in 70ms.
 
 Bug found by the judge runs: Notification badge replay hung the page (attribute observer re-entered badge() because
 stLabel no longer mirrored the value). Fixed; node tests did not cover it.

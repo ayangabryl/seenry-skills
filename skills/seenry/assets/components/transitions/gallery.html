@@ -53,7 +53,7 @@ section.group{padding:56px 0 8px}
 .replay{grid-column:2;grid-row:1/3;align-self:start;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 10px;border:0;border-radius:10px;background:var(--surface-2);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy),background-color var(--st-quick) var(--st-F)}
 .replay svg{width:16px;height:16px;transition:transform var(--st-spring-smooth-ms) var(--st-spring-smooth)}
 .replay:active{transform:scale(.96);transition-duration:var(--st-feedback)}
-.replay:active svg{transform:rotate(-40deg)}
+
 @media (hover:hover) and (pointer:fine){.replay:hover{background:color-mix(in srgb,var(--text) 9%,transparent)}}
 .foot{padding:72px 0 64px;margin-top:64px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:40px}
 .foot h2{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px}
@@ -316,7 +316,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .cover-card:active{transform:scale(.98)}
 .expand-surface .close-x{transition:background-color 100ms var(--st-F),transform 70ms var(--st-F)}.expand-surface .close-x:active{transform:scale(.94)}
 
-@media (hover:hover) and (pointer:fine){.stage .replay:hover{background:var(--surface-2);box-shadow:0 0 0 1px var(--line-strong)}.stage .replay:hover svg{transform:rotate(-30deg)}}
+@media (hover:hover) and (pointer:fine){.stage .replay:hover{background:var(--surface-2);box-shadow:0 0 0 1px var(--line-strong)}}
 .stage .replay{transition:transform 70ms var(--st-F),background-color 100ms var(--st-F),box-shadow 100ms var(--st-F)}
 .stage .replay:active{transform:scale(.96)}
 
@@ -597,7 +597,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 }
 /* Replay is the control every demo is filmed from: its hover, press and focus answer immediately and visibly. */
 .stage .replay svg{transition:transform 160ms var(--st-F)}
-@media (hover:hover) and (pointer:fine){.stage .replay:hover{background:color-mix(in srgb,var(--text) 12%,var(--ghost));color:var(--text)}.stage .replay:hover svg{transform:rotate(-45deg)}}
+@media (hover:hover) and (pointer:fine){.stage .replay:hover{background:color-mix(in srgb,var(--text) 12%,var(--ghost));color:var(--text)}}
 .stage .replay:active{transform:scale(.95);transition-duration:60ms}
 .stage .replay:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 /* AI: sources sit in one quiet row and light up as they are read; the answer keeps its own reserved block. */
@@ -1150,7 +1150,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      </div>
     <button class="replay" data-replay="list" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="list">List</button></h3><p>Rows keep their identity</p><button class="snippet-copy" data-st="copy" data-snippet="list" aria-label="Copy HTML for List"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>FLIP spring .36</span><span>remove: fade, +40</span><span>no stagger</span></div></div>
-   </article><article class="card" data-key="skeleton" data-why="The placeholders are the real text and image in a waiting state, so the layout never shifts when data arrives. Every placeholder swaps for its content in one short step, in reading order, and the photo sharpens." data-category="Content" tabindex="0" data-motion-region data-motion-label="Skeleton to content">
+   </article><article class="card" data-key="skeleton" data-why="The placeholders are the real text and image in a waiting state, so the layout never shifts when data arrives. Each placeholder dissolves as its own content arrives, photo first, then name, then body, so the swap reads in order without ever showing an empty card." data-category="Content" tabindex="0" data-motion-region data-motion-label="Skeleton to content">
     <div class="stage" data-st-preview>
      <div class="app profile" data-st="skeleton" id="skel" aria-busy="false">
       <div class="st-real st-sk-real">
@@ -1160,7 +1160,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
       </div>
      </div>
     <button class="replay" data-replay="skeleton" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>one swap, 20ms apart</span><span>one sweep, then resolve</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>photo, name, body: 22ms apart</span><span>one sweep, then resolve</span></div></div>
    </article><article class="card" data-key="ai" data-why="Nothing is erased: a follow-up moves the whole conversation up together, so the earlier answer slides under a soft fade instead of vanishing. The new answer streams into space already reserved for it, and each source lights the moment its citation lands. Pressing again stops it and keeps what has arrived." data-category="AI" tabindex="0" data-motion-region data-motion-label="AI thinking and streaming">
     <div class="stage" data-st-preview>
      <div class="app chat"><div class="chat-view" id="chat"><div class="chat-track" id="chat-track"><div class="turn">

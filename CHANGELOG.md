@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.8.1
+
+- Menu, Skeleton to content and Dialog reach motion judge 8 (36 of 38 rows): a pointer-opened menu's actions settle a beat after its shell (keyboard stays instant); each skeleton piece dissolves over its own mask in reading order without blur; a dialog's backdrop leads and its exit is one decisive fade.
+- Input clear: the clear control leaves with the value in 70ms, presses to 0.96 and shows a clear keyboard ring.
+- The gallery's Replay icon no longer rotates.
+
 ## 4.8.0
 
 Seenry Transitions, reviewed component by component. 33 of 38 catalog rows now score 8 on the motion judge (median of three Codex runs), up from a catalog average of 7; on the same judge, transitions.dev's playable rows score 6–7.

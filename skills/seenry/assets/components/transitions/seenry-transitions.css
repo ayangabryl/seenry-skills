@@ -389,7 +389,7 @@ html.st-vt::view-transition-group(root) { animation: none; }
 [data-st="badge"][data-st-visible="false"]{opacity:0;transform:scale(.5);}
 [data-st="avatars"]>*{transform:translate(var(--st-spread,0px),var(--st-lift,0px));}
 [data-st="clear"] button{display:grid;place-items:center;cursor:pointer;opacity:1;transform:none;transition:opacity var(--st-quick) var(--st-F),transform var(--st-quick) var(--st-X);}
-[data-st="clear"]:not([data-st-has-text="true"]) button{opacity:0;transform:scale(.6);pointer-events:none;transition-duration:60ms;}
+[data-st="clear"]:not([data-st-has-text="true"]) button{opacity:0;pointer-events:none;transition-duration:60ms;}
 [data-st="learn"]{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:44px;text-decoration:none;width:max-content;}
 [data-st="learn"]::after{content:"";position:absolute;bottom:9px;left:0;right:26px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:100% 50%;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy);}
 [data-st="learn"]:focus-visible::after,[data-st="learn"][data-st-hover="true"]::after{transform:scaleX(1);transform-origin:0 50%;}
@@ -616,18 +616,18 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
    short step (the bar fades in 90ms while its ink arrives over 120ms, 20ms apart in reading order) and the photo
    sharpens. Nothing moves and the card never resizes. */
 [data-st="skeleton"] .st-sk-real { opacity: 1 !important; transform: none !important; }
-[data-st="skeleton"] [data-st-sk] { --st-sk-d: min(calc(var(--i, 0) * 20ms), 80ms); -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 6px;
- transition: color 120ms var(--st-O) calc(var(--st-sk-d) + 30ms), background-color 90ms cubic-bezier(.4,0,1,1) var(--st-sk-d); }
+[data-st="skeleton"] [data-st-sk] { --st-sk-d: min(calc(var(--i, 0) * 22ms), 66ms); -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 6px;
+ transition: color 150ms cubic-bezier(.2,0,.2,1) var(--st-sk-d), background-color 150ms cubic-bezier(.2,0,.2,1) var(--st-sk-d); }
 [data-st="skeleton"][aria-busy="true"] [data-st-sk]:not(.st-media) { color: transparent; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
 [data-st="skeleton"][aria-busy="true"] [data-st-sk] * { color: transparent; }
 [data-st="skeleton"][aria-busy="true"] [data-st-sk], [data-st="skeleton"][aria-busy="true"] [data-st-sk] * { transition: color 80ms cubic-bezier(.4,0,1,1), background-color 90ms var(--st-O) 40ms; }
-[data-st="skeleton"] [data-st-sk] * { transition: color 120ms var(--st-O) calc(var(--st-sk-d) + 30ms); }
+[data-st="skeleton"] [data-st-sk] * { transition: color 150ms cubic-bezier(.2,0,.2,1) var(--st-sk-d); }
 @keyframes st-sk-sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
 [data-st="skeleton"][aria-busy="false"] [data-st-sk]:not(.st-media) { animation: none; }
 [data-st="skeleton"].st-instant [data-st-sk]:not(.st-media) { animation: none; }
 [data-st="skeleton"] .st-media[data-st-sk], [data-st="skeleton"][aria-busy="true"] .st-real .st-media[data-st-sk] { position: relative; overflow: hidden; filter: none; transform: none; transition: none; }
-[data-st="skeleton"] .st-media[data-st-sk]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; background: var(--surface-2); opacity: 0; transition: opacity 90ms cubic-bezier(.4,0,1,1) var(--st-sk-d); }
-[data-st="skeleton"][aria-busy="false"] .st-media[data-st-sk] { animation: st-sk-media 120ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d) both; }
+[data-st="skeleton"] .st-media[data-st-sk]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; background: var(--surface-2); opacity: 0; transition: opacity 140ms cubic-bezier(.2,0,.2,1) var(--st-sk-d); }
+[data-st="skeleton"][aria-busy="false"] .st-media[data-st-sk] { animation: none; }
 [data-st="skeleton"].st-instant .st-media[data-st-sk] { animation: none; }
 @keyframes st-sk-media { from { filter: blur(6px); transform: scale(1.03); } to { filter: blur(0); transform: none; } }
 [data-st="skeleton"][aria-busy="true"] .st-media[data-st-sk]::after { opacity: 1; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
@@ -663,4 +663,23 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 .st-avatar-name:not([data-st-show="true"]) { transition: opacity 70ms cubic-bezier(.4,0,1,1); }
 
 /* Input clear: the clear control leaves with the value, on the same 80ms accelerating exit. */
-[data-st="clear"][data-st-clearing="true"] button { opacity: 0; transform: none; pointer-events: none; transition: opacity 80ms cubic-bezier(.4,0,1,1); }
+
+
+/* Status slot: a thinking label changes inside its own line, clipped vertically so two labels never share it. */
+.st-status-slot { clip-path: inset(0 -0.5em); }
+
+/* Input clear control: a quiet backing on hover and press, a 0.94 press, and a visible keyboard ring, all inside its footprint. */
+[data-st="clear"] button::before { content: ""; position: absolute; inset: 8px; border-radius: 8px; background: var(--hover, rgb(0 0 0 / .05)); opacity: 0; transition: opacity 80ms var(--st-F); }
+@media (hover: hover) and (pointer: fine) { [data-st="clear"] button:hover::before { opacity: 1; } }
+[data-st="clear"] button:active::before { opacity: 1; }
+[data-st="clear"] button:active { transform: scale(.96); transition: transform 60ms var(--st-F); }
+[data-st="clear"] button:not(:active) { transition: opacity var(--st-quick) var(--st-F), transform 100ms var(--st-O); }
+[data-st="clear"] button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -6px; }
+[data-st="clear"] button > * { position: relative; }
+
+/* Keyboard focus on a clearable field is unmistakable; pointer focus stays calm. */
+html[data-st-input-mode="keyboard"] [data-st="clear"] .st-input:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Clearing outranks the resting and press states: the control and the old value leave together in 70ms. */
+[data-st="clear"][data-st-clearing="true"] button, [data-st="clear"][data-st-clearing="true"] button:not(:active) { opacity: 0; transform: none; pointer-events: none; transition: opacity 70ms cubic-bezier(.4,0,1,1); }
+[data-st="clear"] input::placeholder { transition: color 60ms var(--st-F); }

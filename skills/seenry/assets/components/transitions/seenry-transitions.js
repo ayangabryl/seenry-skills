@@ -258,12 +258,12 @@
    // The old label clears before the new one is legible, so the two never read as one doubled word.
    // A status line changes in its own slot with a 2px lift: the old label clears before the new one starts, so two
    // labels are never drawn over each other.
-   const movement=thinking?{transform:'translateY(-2px)',filter:'blur(3px)'}:{transform:'translateY(-3px)'};
-   // A tight swap is an acknowledgement (Stopped, Answered): it lands sharp, without the soft focus pull.
-   if (thinking && !o.tight && !reduced()) play(next,[{filter:'blur(2px)'},{filter:'blur(0px)'}],{ms:140,curve:'O',delay:20,channel:'f',current:false});
-   play(current,[{opacity:0,...movement}],{ms:thinking?40:50,curve:'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
-   const lag = o.tight ? 0 : thinking ? 20 : 30;
-   return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:thinking?80:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:thinking?'translateY(2px)':'translateY(3px)'},{transform:'none'}],{ms:thinking?110:160,delay:lag,curve:'E',channel:'t',current:false})]);
+   // A label replaced mid-entrance gives up its own pending entrance and only leaves, from where it is drawn now.
+   if (thinking) { const cs = getComputedStyle(current); const from = {opacity: cs.opacity, transform: cs.transform === 'none' ? 'none' : cs.transform}; stopAll(current); Object.assign(current.style, {opacity: from.opacity, transform: from.transform}); el.classList.add('st-status-slot'); }
+   const movement=thinking?{transform:'translateY(-6px)'}:{transform:'translateY(-3px)'};
+   play(current,[{opacity:0,...movement}],{ms:thinking?50:50,curve:thinking?'cubic-bezier(.4,0,1,1)':'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
+   const lag = o.tight ? 0 : thinking ? 35 : 30;
+   return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:thinking?100:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:thinking?'translateY(6px)':'translateY(3px)'},{transform:'none'}],{ms:thinking?120:160,delay:lag,curve:thinking?'cubic-bezier(.16,1,.3,1)':'E',channel:'t',current:false})]);
   }
   const run = () => {
    positioned(el);
@@ -351,7 +351,7 @@
  const plainMenu = el => el.dataset.st === 'menu' && !el.hasAttribute('data-st-morph');
  // Ordinary menus own only these surface channels. Keep host-authored effects and
  // row styles intact when keyboard input takes over or an action opens another UI.
- function stopMenu(el) { stop(el, 'o'); stop(el, 't'); }
+ function stopMenu(el) { stop(el, 'o'); stop(el, 't'); qa(el, '[role="menuitem"]').forEach(r => { stop(r, 'menu-row-o'); stop(r, 'menu-row-t'); }); }
  const layerState = el => { let s = layers.get(el); if (!s) layers.set(el, s = {open: false, version: 0}); return s; };
  const isOpen = el => { const s = layers.get(el); if (s) return s.open; if (el.tagName === 'DIALOG') return el.open; if (el.hasAttribute('popover')) return el.matches(':popover-open'); return el.dataset.stOpen === 'true'; };
  const persistentPalette = el => el.dataset.st === 'palette' && el.tagName !== 'DIALOG' && el.hasAttribute('data-st-persistent');
@@ -490,6 +490,9 @@
    if (!menu) [...el.children].forEach(c => { stop(c, 'o'); c.style.opacity = ''; });
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 160, curve: 'O', channel: 'o', fade: true});
    play(el, [{transform: `translateY(${dy}px) scale(.96)`}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
+   // A pointer-opened menu: its actions settle a beat after the shell starts, so the menu reads as a surface that
+   // brings its choices with it. Keyboard and reduced-motion opens stay instant (menuInstant above).
+   if (menu && !wasClosing) qa(el, '[role="menuitem"]').forEach(r => { play(r, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'O', delay: 30, channel: 'menu-row-o', fade: true, current: false}); play(r, [{transform: `translateY(${-dy * .75}px)`}, {transform: 'none'}], {ms: 160, curve: 'cubic-bezier(.16,1,.3,1)', delay: 30, channel: 'menu-row-t', current: false}); });
   } else if (kind === 'sheet') {
    play(el, [{transform: 'translateY(100%)'}, {transform: 'none'}], {spring: 'smooth', channel: 't'});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fade: true});
@@ -510,9 +513,10 @@
    if (instant) { stop(el, 't'); stop(el, 'main::backdrop'); }
    else {
     if (t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
-    play(el, [{transform: 'translateY(4px) scale(.97)'}, {transform: 'none'}], {ms: 220, curve: 'E', channel: 't'});
+    // The backdrop establishes scope first; the decision arrives a beat behind it.
+    play(el, [{transform: 'translateY(4px) scale(.97)'}, {transform: 'none'}], {ms: 220, curve: 'E', delay: 15, channel: 't'});
    }
-   if (!instant && el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', pseudo: '::backdrop', fade: true});
+   if (!instant && el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 120, curve: 'cubic-bezier(.2,0,.2,1)', pseudo: '::backdrop', fade: true});
   } else if (el.tagName === 'DIALOG' || kind === 'palette') {
    if (kind !== 'palette' && t && !wasClosing) el.style.transformOrigin = `${clamp(t.left + t.width / 2 - r.left, 0, r.width)}px ${clamp(t.top + t.height / 2 - r.top, 0, r.height)}px`;
    if (kind === 'palette') {
@@ -592,7 +596,7 @@
    // shell mixes its copy with the page beneath. Keyboard/reduced paths are instant.
    if (!o.keyboard && !keyboardInput && !reduced()) {
     const jobs = [play(el, [{transform: 'scale(.97)'}], {ms: 120, curve: 'X', channel: 't', fill: 'forwards'})];
-    if (el.tagName === 'DIALOG') jobs.push(play(el, [{opacity: 0}], {ms: 140, curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true}));
+    if (el.tagName === 'DIALOG') jobs.push(play(el, [{opacity: 0}], {ms: 120, curve: 'cubic-bezier(.4,0,1,1)', pseudo: '::backdrop', fill: 'forwards', fade: true}));
     done = Promise.all(jobs);
    }
   } else if (kind === 'panel') {
@@ -1894,7 +1898,7 @@
      input.value = ''; input.dispatchEvent(new Event('input', {bubbles:true})); input.focus({preventScroll:true});
      // The placeholder starts arriving halfway through the exit, so the field is never blank between the two.
      setTimeout(() => { if (current === version && !input.value) el.dataset.stHasText = 'false'; }, reduced() ? 0 : 40);
-     play(ink, [{opacity:1,transform:'none'},{opacity:0,transform:'translateX(-3px)'}], {ms:80,curve:'X',fade:true}).then(() => {
+     play(ink, [{opacity:1},{opacity:0}], {ms:70,curve:'cubic-bezier(.4,0,1,1)',fade:true}).then(() => {
       ink.remove(); if (current !== version) return;
       leaving = null; clearing = false; delete el.dataset.stClearing; el.dataset.stHasText = String(!!input.value);
      });
