@@ -1,0 +1,101 @@
+{
+  "source": {
+    "html": "3e960f9def7c1c18d6a87dd01116f32c17b9fd8a2ad05252fd7d4463590fe7ec",
+    "runtime": "a8c940f8ccb79718f93f820d1bf972292272f49ff8fcc7e7aca52b95d432ad0c"
+  },
+  "case": {
+    "contentWidth": 384.5,
+    "index": 2,
+    "status": "failed",
+    "layout": {
+      "contentWidth": 384.5,
+      "sourceComposition": "row",
+      "detailComposition": "row",
+      "stage": {
+        "x": 130,
+        "y": 574.5,
+        "width": 424.5,
+        "height": 324,
+        "top": 574.5,
+        "right": 554.5,
+        "bottom": 898.5,
+        "left": 130
+      },
+      "source": {
+        "x": 150,
+        "y": 754.5,
+        "width": 384.5,
+        "height": 72,
+        "top": 754.5,
+        "right": 534.5,
+        "bottom": 826.5,
+        "left": 150
+      },
+      "title": {
+        "x": 228,
+        "y": 768,
+        "width": 248.5,
+        "height": 24,
+        "top": 768,
+        "right": 476.5,
+        "bottom": 792,
+        "left": 228
+      },
+      "sourceText": "Greenhouse",
+      "gridColumns": "384.5px",
+      "sourcePadding": "6px",
+      "sourceMargin": "0px"
+    },
+    "pressedInitial": {
+      "rect": {
+        "x": 150,
+        "y": 754.5,
+        "width": 384.5,
+        "height": 72,
+        "top": 754.5,
+        "right": 534.5,
+        "bottom": 826.5,
+        "left": 150
+      },
+      "transform": "none",
+      "anchored": true,
+      "artworkTransform": "matrix(0.984174, 0, 0, 0.984174, 0, 0)",
+      "active": true,
+      "hover": true,
+      "coarse": false,
+      "hoverCapable": true
+    },
+    "pressed": {
+      "rect": {
+        "x": 150,
+        "y": 754.5,
+        "width": 384.5,
+        "height": 72,
+        "top": 754.5,
+        "right": 534.5,
+        "bottom": 826.5,
+        "left": 150
+      },
+      "transform": "none",
+      "anchored": true,
+      "artworkTransform": "matrix(0.98, 0, 0, 0.98, 0, 0)",
+      "active": true,
+      "hover": true,
+      "coarse": false,
+      "hoverCapable": true
+    },
+    "pressExtraWaitMs": 108,
+    "error": "page.waitForFunction: Timeout 100ms exceeded.",
+    "pressTiming": {
+      "down": {
+        "at": 657.5999999999767,
+        "trusted": true
+      },
+      "up": {
+        "at": 945.4000000000233,
+        "trusted": true
+      },
+      "observedHoldMs": 287.80000000004657
+    }
+  }
+}

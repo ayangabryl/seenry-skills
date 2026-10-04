@@ -27,13 +27,13 @@ const playwright = arg('--playwright');
 if (!playwright) throw new Error('Pass --playwright /absolute/path/to/playwright/index.mjs');
 const {chromium} = await import(pathToFileURL(resolve(playwright)).href);
 const sourceHashes = {};
-for (const name of ['gallery.html','gallery.js','seenry-transitions.js','seenry-transitions.css']) {
+for (const name of ['gallery.html','gallery.js','gallery-menu.js','seenry-transitions.js','seenry-transitions.css']) {
   sourceHashes[name]=createHash('sha256').update(await readFile(name==='gallery.html'?gallery:resolve(component,name))).digest('hex');
 }
 await mkdir(output,{recursive:true});
 const resources = new Map([
   ['/component/gallery.html',gallery],
-  ...['gallery.js','seenry-transitions.js','seenry-transitions.css','assets/lake.jpg','assets/forest.jpg','assets/morning.jpg'].map(name=>['/component/'+name,resolve(component,name)]),
+  ...['gallery.js','gallery-menu.js','seenry-transitions.js','seenry-transitions.css','assets/lake.jpg','assets/forest.jpg','assets/morning.jpg'].map(name=>['/component/'+name,resolve(component,name)]),
   ['/fixtures/image-modal.html',resolve(here,'fixtures/transitions/image-modal.html')]
 ]);
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.jpg':'image/jpeg'};

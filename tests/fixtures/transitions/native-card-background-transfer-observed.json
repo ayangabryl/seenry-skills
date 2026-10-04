@@ -1,0 +1,351 @@
+{
+  "evidenceCommit": "2cff75421c6e29a1ebad6bfd64ffe46bcdbf4931",
+  "runtimeSha256": "a8c940f8ccb79718f93f820d1bf972292272f49ff8fcc7e7aca52b95d432ad0c",
+  "caseSha256": "fb0df145daf468d3463f57bfec239d2e7a4ca332fa0a9bc45b74c2b6c9ca7fc6",
+  "scope": "Uninstrumented native reduced keyboard immediate close/fresh Enter cycle; copied selected captured fields. Model timing is separate.",
+  "openingInitial": {
+    "at": 0,
+    "surface": {
+      "shown": true,
+      "effectiveOpacity": 1,
+      "filters": [
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none"
+      ],
+      "backgroundAlpha": 1,
+      "clipPath": "none",
+      "transform": "none",
+      "opacity": 1,
+      "inlineOpacity": "",
+      "transitionProperty": "color, background-color, box-shadow, fill, stroke",
+      "transitionDuration": "0.1s",
+      "background": "rgb(255, 255, 255)",
+      "rect": {
+        "x": 556.65625,
+        "y": 479.796875,
+        "width": 326.671875,
+        "height": 252,
+        "top": 479.796875,
+        "right": 883.328125,
+        "bottom": 731.796875,
+        "left": 556.65625
+      },
+      "animations": [
+        {
+          "type": "CSSTransition",
+          "transitionProperty": "background-color",
+          "playState": "running",
+          "currentTime": 0,
+          "frames": [
+            {
+              "offset": 0,
+              "easing": "linear",
+              "composite": "auto",
+              "backgroundColor": "rgb(255, 255, 255)",
+              "computedOffset": 0
+            },
+            {
+              "offset": 1,
+              "easing": "linear",
+              "composite": "auto",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "computedOffset": 1
+            }
+          ]
+        },
+        {
+          "type": "CSSTransition",
+          "transitionProperty": "box-shadow",
+          "playState": "running",
+          "currentTime": 0,
+          "frames": [
+            {
+              "offset": 0,
+              "easing": "linear",
+              "composite": "auto",
+              "boxShadow": "rgba(0, 0, 0, 0.06) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 1px 2px 0px, rgba(0, 0, 0, 0.12) 0px 8px 24px -6px, rgba(0, 0, 0, 0.1) 0px 24px 48px -12px",
+              "computedOffset": 0
+            },
+            {
+              "offset": 1,
+              "easing": "linear",
+              "composite": "auto",
+              "boxShadow": "none",
+              "computedOffset": 1
+            }
+          ]
+        }
+      ]
+    },
+    "paint": {
+      "shown": true,
+      "effectiveOpacity": 1,
+      "filters": [
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none"
+      ],
+      "backgroundAlpha": 1,
+      "clipPath": "none",
+      "transform": "none",
+      "opacity": 1,
+      "inlineOpacity": "",
+      "transitionProperty": "color, background-color, box-shadow, fill, stroke",
+      "transitionDuration": "0.1s",
+      "background": "rgb(255, 255, 255)",
+      "rect": {
+        "x": 556.65625,
+        "y": 479.796875,
+        "width": 326.671875,
+        "height": 252,
+        "top": 479.796875,
+        "right": 883.328125,
+        "bottom": 731.796875,
+        "left": 556.65625
+      },
+      "animations": []
+    }
+  },
+  "freshInitial": {
+    "at": 0,
+    "surface": {
+      "shown": true,
+      "effectiveOpacity": 1,
+      "filters": [
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none"
+      ],
+      "backgroundAlpha": 0.83,
+      "clipPath": "none",
+      "transform": "none",
+      "opacity": 1,
+      "inlineOpacity": "",
+      "transitionProperty": "color, background-color, box-shadow, fill, stroke",
+      "transitionDuration": "0.1s",
+      "background": "rgba(255, 255, 255, 0.83)",
+      "rect": {
+        "x": 556.65625,
+        "y": 479.796875,
+        "width": 326.671875,
+        "height": 252,
+        "top": 479.796875,
+        "right": 883.328125,
+        "bottom": 731.796875,
+        "left": 556.65625
+      },
+      "animations": [
+        {
+          "type": "CSSTransition",
+          "transitionProperty": "background-color",
+          "playState": "running",
+          "currentTime": 0,
+          "frames": [
+            {
+              "offset": 0,
+              "easing": "linear",
+              "composite": "auto",
+              "backgroundColor": "rgba(255, 255, 255, 0.83)",
+              "computedOffset": 0
+            },
+            {
+              "offset": 1,
+              "easing": "linear",
+              "composite": "auto",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "computedOffset": 1
+            }
+          ]
+        },
+        {
+          "type": "CSSTransition",
+          "transitionProperty": "box-shadow",
+          "playState": "running",
+          "currentTime": 0,
+          "frames": [
+            {
+              "offset": 0,
+              "easing": "linear",
+              "composite": "auto",
+              "boxShadow": "rgba(0, 0, 0, 0.04) 0px 0px 0px 0.66607px, rgba(0, 0, 0, 0.027) 0px 0.66607px 1.33214px 0px, rgba(0, 0, 0, 0.082) 0px 5.32856px 15.9857px -3.99642px, rgba(0, 0, 0, 0.067) 0px 15.9857px 31.9714px -7.99284px",
+              "computedOffset": 0
+            },
+            {
+              "offset": 1,
+              "easing": "linear",
+              "composite": "auto",
+              "boxShadow": "none",
+              "computedOffset": 1
+            }
+          ]
+        }
+      ]
+    },
+    "paint": {
+      "shown": true,
+      "effectiveOpacity": 1,
+      "filters": [
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none"
+      ],
+      "backgroundAlpha": 0.83,
+      "clipPath": "none",
+      "transform": "none",
+      "opacity": 1,
+      "inlineOpacity": "",
+      "transitionProperty": "color, background-color, box-shadow, fill, stroke",
+      "transitionDuration": "0.1s",
+      "background": "rgba(255, 255, 255, 0.83)",
+      "rect": {
+        "x": 556.65625,
+        "y": 479.796875,
+        "width": 326.671875,
+        "height": 252,
+        "top": 479.796875,
+        "right": 883.328125,
+        "bottom": 731.796875,
+        "left": 556.65625
+      },
+      "animations": []
+    }
+  },
+  "freshFirstRAF": {
+    "at": 4.900000000023283,
+    "surface": {
+      "shown": true,
+      "effectiveOpacity": 1,
+      "filters": [
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none"
+      ],
+      "backgroundAlpha": 0.667,
+      "clipPath": "none",
+      "transform": "none",
+      "opacity": 1,
+      "inlineOpacity": "",
+      "transitionProperty": "color, background-color, box-shadow, fill, stroke",
+      "transitionDuration": "0.1s",
+      "background": "rgba(255, 255, 255, 0.667)",
+      "rect": {
+        "x": 556.65625,
+        "y": 479.796875,
+        "width": 326.671875,
+        "height": 252,
+        "top": 479.796875,
+        "right": 883.328125,
+        "bottom": 731.796875,
+        "left": 556.65625
+      },
+      "animations": [
+        {
+          "type": "CSSTransition",
+          "transitionProperty": "background-color",
+          "playState": "running",
+          "currentTime": 16.665999999999958,
+          "frames": [
+            {
+              "offset": 0,
+              "easing": "linear",
+              "composite": "auto",
+              "backgroundColor": "rgba(255, 255, 255, 0.83)",
+              "computedOffset": 0
+            },
+            {
+              "offset": 1,
+              "easing": "linear",
+              "composite": "auto",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "computedOffset": 1
+            }
+          ]
+        },
+        {
+          "type": "CSSTransition",
+          "transitionProperty": "box-shadow",
+          "playState": "running",
+          "currentTime": 0,
+          "frames": [
+            {
+              "offset": 0,
+              "easing": "linear",
+              "composite": "auto",
+              "boxShadow": "rgba(0, 0, 0, 0.04) 0px 0px 0px 0.66607px, rgba(0, 0, 0, 0.027) 0px 0.66607px 1.33214px 0px, rgba(0, 0, 0, 0.082) 0px 5.32856px 15.9857px -3.99642px, rgba(0, 0, 0, 0.067) 0px 15.9857px 31.9714px -7.99284px",
+              "computedOffset": 0
+            },
+            {
+              "offset": 1,
+              "easing": "linear",
+              "composite": "auto",
+              "boxShadow": "none",
+              "computedOffset": 1
+            }
+          ]
+        }
+      ]
+    },
+    "paint": {
+      "shown": true,
+      "effectiveOpacity": 1,
+      "filters": [
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none",
+        "none"
+      ],
+      "backgroundAlpha": 0.83,
+      "clipPath": "none",
+      "transform": "none",
+      "opacity": 1,
+      "inlineOpacity": "",
+      "transitionProperty": "color, background-color, box-shadow, fill, stroke",
+      "transitionDuration": "0.1s",
+      "background": "rgba(255, 255, 255, 0.83)",
+      "rect": {
+        "x": 556.65625,
+        "y": 479.796875,
+        "width": 326.671875,
+        "height": 252,
+        "top": 479.796875,
+        "right": 883.328125,
+        "bottom": 731.796875,
+        "left": 556.65625
+      },
+      "animations": []
+    }
+  }
+}

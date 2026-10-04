@@ -10,17 +10,43 @@ const runtime=arg('--playwright');if(!runtime)throw new Error('Pass --playwright
 const {chromium}=await import(pathToFileURL(resolve(runtime)).href);
 const gallery=resolve(arg('--gallery',fileURLToPath(new URL('../skills/seenry/assets/components/transitions/gallery.html',import.meta.url))));
 const out=resolve(arg('--out','title-boundary-results'));mkdirSync(out,{recursive:true});
-const widths=arg('--widths','361,368,384,385,400,420').split(',').map(Number);
+const widths=arg('--widths','361,368,384,384.5,385,400,420').split(',').map(Number);
 const pressHoldMs=Number(arg('--press-hold-ms','0')),inputMode=arg('--input','pointer');
 assert(['pointer','touch'].includes(inputMode),'--input must be pointer or touch');
 function heldPressObserved(p) {
- if(typeof p?.matches==='function'){const el=p;p={active:el.matches(':active'),hover:el.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches,transform:getComputedStyle(el).transform};}
+ if(typeof p?.matches==='function'){const el=p;p={active:el.matches(':active'),hover:el.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches,transform:getComputedStyle(el).transform,anchored:!!el.querySelector('[data-st-close-anchor]'),artworkTransform:getComputedStyle(el.querySelector('.cover')||el).transform};}
+ if(p?.anchored){if(p.active!==true||!['none','matrix(1, 0, 0, 1, 0, 0)'].includes(p.transform))return false;return heldPressObserved({...p,anchored:false,transform:p.artworkTransform});}
  const m=/^matrix\(([^)]+)\)$/.exec(p?.transform||'');if(p?.active!==true||!m)return false;
  const v=m[1].split(',').map(Number);if(v.length!==6||!v.every(Number.isFinite))return false;
- // The later fine-pointer hover rule owns transform while hovered; coarse active input uses scale.
- const expected=p.hoverCapable&&p.hover&&!p.coarse?[1,0,0,1,0,-1]:[.98,0,0,.98,0,0];
+ // Hover is stationary. Trusted held input uses the same authored .98 press scale on either pointer.
+ const expected=[.98,0,0,.98,0,0];
  // Translation may retain a subpixel settling residue; paint containment remains a separate strict gate.
  return v.every((n,i)=>Math.abs(n-expected[i])<(i<4?.001:.02));
+}
+function readHeldPress(e){
+ const feedback=e.querySelector('[data-st-close-anchor]')?(e.querySelector('.cover')||e):e;
+ return {rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,anchored:feedback!==e,artworkTransform:getComputedStyle(feedback).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches};
+}
+async function waitForNativeHeldPress(el,{readSource,matchSource}){
+ const read=eval('('+readSource+')'),matches=eval('('+matchSource+')'),startedAt=performance.now(),before=read(el),feedback=el.querySelector('[data-st-close-anchor]')?(el.querySelector('.cover')||el):el;
+ const inventory=a=>{const timing=a.effect.getComputedTiming();return {type:a.constructor.name,target:a.effect.target===feedback?'held-feedback':'other',property:a.transitionProperty,playState:a.playState,pending:a.pending,currentTime:a.currentTime,duration:timing.duration,endTime:timing.endTime};};
+ const jobs=feedback.getAnimations().filter(a=>{const t=a.effect.getComputedTiming();return a.effect.target===feedback&&!a.effect.pseudoElement&&a.transitionProperty==='transform'&&a.playState==='running'&&Number.isFinite(t.duration)&&t.duration>0&&Number.isFinite(t.endTime)&&t.endTime>0;});
+ const result={mode:'actual-native-held-transform-completion',before,jobsBefore:jobs.map(inventory),startedAt};
+ if(matches(before))result.outcome='already-held';
+ else if(!before.active)result.outcome='blocked-not-active';
+ else if(!jobs.length)result.outcome='blocked-no-owned-transform';
+ else{
+  let timeout;
+  try{result.outcome=await Promise.race([Promise.all(jobs.map(a=>a.finished)).then(()=>new Promise(r=>requestAnimationFrame(()=>r('native-completed')))),new Promise(r=>{timeout=setTimeout(()=>r('blocked-native-deadline'),1000);})]);}
+  catch(error){result.outcome='blocked-native-cancelled';result.error=String(error);}
+  finally{clearTimeout(timeout);}
+ }
+ result.after=read(el);result.jobsAfter=jobs.map(inventory);result.finishedAt=performance.now();result.elapsedMs=result.finishedAt-startedAt;return result;
+}
+function assertNativeHeldPress(result){
+ assert(result&&['already-held','native-completed'].includes(result.outcome),'Coverage precondition: actual held transform must complete within its native bound');
+ assert(heldPressObserved(result.after),'Coverage precondition: active stationary lane and authored .98 artwork scale remain required');
+ if(result.outcome==='native-completed'){assert(result.jobsBefore.length>0&&result.jobsBefore.every(a=>a.target==='held-feedback'&&a.property==='transform'&&a.playState==='running'&&Number.isFinite(a.duration)&&a.duration>0),'Actual finite owned transform evidence required');assert(result.jobsAfter.length===result.jobsBefore.length&&result.jobsAfter.every(a=>['finished','idle'].includes(a.playState)&&a.pending===false),'Selected native feedback must no longer be running or pending after completion');}
 }
 const browser=await chromium.launch({headless:true,...(process.env.SEENRY_CHROME_PATH?{executablePath:process.env.SEENRY_CHROME_PATH}:{})});
 const sha=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
@@ -37,7 +63,7 @@ try{
    await page.locator('[data-key="expand"]').scrollIntoViewIfNeeded();await page.waitForTimeout(300);
    run.layout=await page.evaluate(({index})=>{
     const card=document.querySelector('[data-key="expand"]'),stage=card.querySelector('.stage'),source=card.querySelectorAll('.cover-card')[index],title=source.querySelector('b'),css=getComputedStyle(stage),rect=e=>e.getBoundingClientRect().toJSON();
-    const result={contentWidth:stage.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight),stage:rect(stage),source:rect(source),title:rect(title),sourceText:title.textContent.trim(),gridColumns:getComputedStyle(card.querySelector('.covers')).gridTemplateColumns,sourcePadding:getComputedStyle(source).paddingLeft,sourceMargin:getComputedStyle(source).marginLeft};
+    const result={contentWidth:stage.getBoundingClientRect().width-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)-parseFloat(css.borderLeftWidth)-parseFloat(css.borderRightWidth),sourceComposition:getComputedStyle(source).display==='grid'?'row':'tile',detailComposition:getComputedStyle(card.querySelector('.expand-surface')).display==='grid'?'tile':'row',stage:rect(stage),source:rect(source),title:rect(title),sourceText:title.textContent.trim(),gridColumns:getComputedStyle(card.querySelector('.covers')).gridTemplateColumns,sourcePadding:getComputedStyle(source).paddingLeft,sourceMargin:getComputedStyle(source).marginLeft};
     window.__titleBoundary=[];
     const textState=e=>{
      const range=document.createRange();range.selectNodeContents(e);const c=getComputedStyle(e),r=e.getBoundingClientRect(),glyphs=[...range.getClientRects()].filter(r=>r.width>0&&r.height>0).map(r=>r.toJSON());
@@ -60,14 +86,14 @@ try{
      const sample=()=>{window.__titleBoundary.push({at:performance.now()-start,...window.__titleBoundaryFrame()});if(performance.now()-start<600)requestAnimationFrame(sample);};window.__titleBoundaryInitial={at:performance.now()-start,...window.__titleBoundaryFrame()};requestAnimationFrame(sample);
     });},{once:true});return result;
    },{index});
-   assert(Math.abs(run.layout.contentWidth-contentWidth)<.05,'Explicit fixture must realize requested content width');
+   assert(Math.abs(run.layout.contentWidth-contentWidth)<.05,'Explicit fixture must realize requested fractional content width');
+   assert.equal(run.layout.sourceComposition,run.layout.detailComposition,'Source and detail must select the same composition, including fractional breakpoint widths');
    const target=page.locator('[data-key="expand"] .cover-card').nth(index);
-   const pressed=()=>target.evaluate(e=>({rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches}));
+   const pressed=()=>target.evaluate(readHeldPress);
    const observeHeld=async()=>{
     run.pressedInitial=await pressed();run.pressed=run.pressedInitial;run.pressExtraWaitMs=0;
     if(pressHoldMs>=100&&!heldPressObserved(run.pressedInitial)){
-     const started=Date.now();try{await page.waitForFunction(heldPressObserved,await target.elementHandle(),{timeout:100});}
-     finally{run.pressExtraWaitMs=Date.now()-started;run.pressed=await pressed();}
+     run.nativeHeldWait=await target.evaluate(waitForNativeHeldPress,{readSource:readHeldPress.toString(),matchSource:heldPressObserved.toString()});run.pressExtraWaitMs=run.nativeHeldWait.elapsedMs;run.pressed=run.nativeHeldWait.after;assertNativeHeldPress(run.nativeHeldWait);
     }
    };
    if(inputMode==='touch'){
@@ -75,7 +101,7 @@ try{
     await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});try{await page.waitForTimeout(Math.max(1,pressHoldMs));await observeHeld();}finally{await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await session.detach();}
    }else if(pressHoldMs>0){await target.hover();await page.mouse.down();try{await page.waitForTimeout(pressHoldMs);await observeHeld();}finally{await page.mouse.up();}}
    else await target.click();
-   if(pressHoldMs>=100)assert(heldPressObserved(run.pressed),'Coverage precondition: held input must realize active state and its hover-lift or coarse-scale CSS contract');
+   if(pressHoldMs>=100)assert(heldPressObserved(run.pressed),'Coverage precondition: held input must realize active state and its authored .98 scale CSS contract');
    await page.waitForTimeout(80);run.frameFile=`${contentWidth}-${index}-moving.png`;await page.locator('[data-key="expand"]').screenshot({path:join(out,run.frameFile),animations:'allow'});
    await page.waitForTimeout(650);run.trace=await page.evaluate(()=>window.__titleBoundary);run.initialObservation=await page.evaluate(()=>window.__titleBoundaryInitial);run.pressTiming=await page.evaluate(()=>({down:window.__titleBoundaryPressDown||null,up:window.__titleBoundaryPressUp||null,observedHoldMs:window.__titleBoundaryPressDown&&window.__titleBoundaryPressUp?window.__titleBoundaryPressUp.at-window.__titleBoundaryPressDown.at:null}));run.errors=errors;
    run.settled=await page.evaluate(()=>window.__titleBoundaryFrame());

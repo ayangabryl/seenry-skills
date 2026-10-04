@@ -1,5 +1,5 @@
 {
-  "sourceSha256": "2a2dc028a427889d68140d6c575b802285d94da11135912e446dcd3510db961d",
+  "sourceSha256": "c7f8030c3f142b16f39c023827bda98a095f592e8fe10dd74dcee253ed5ace88",
   "scope": "Deterministic geometry and state only; fresh browser capture required",
   "cases": [
     {
@@ -75,7 +75,7 @@
       "pass": true
     },
     {
-      "name": "Reduced-motion expand skips travel and animates only a short opacity fade",
+      "name": "Reduced-motion expand skips travel and restores opaque owned channels immediately",
       "pass": true
     },
     {

@@ -14,6 +14,9 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 NODE = shutil.which('node')
 
+def resolved_existing_path(value):
+    return Path(value).resolve(strict=True)
+
 BOARD = r"""import {writeFileSync,mkdirSync,appendFileSync} from 'node:fs';
 import {join} from 'node:path';
 const a=process.argv.slice(2), out=a[a.indexOf('--out')+1];
@@ -32,6 +35,7 @@ import {join} from 'node:path';
 const a=process.argv.slice(2), out=a[a.indexOf('--out')+1];
 const config=JSON.parse(readFileSync(new URL('./motion-config.json',import.meta.url),'utf8'));
 mkdirSync(out,{recursive:true});
+writeFileSync(join(out,'args.json'),JSON.stringify(a));
 if(config.output !== null) writeFileSync(join(out,'motion.json'),typeof config.output==='string'?config.output:JSON.stringify(config.output));
 process.exit(config.exit);
 """
@@ -46,6 +50,8 @@ class CheckGate(unittest.TestCase):
         for p in [self.scripts, self.project/'.seenry/research', self.project/'.seenry/refs', self.project/'.seenry/explore']:
             p.mkdir(parents=True)
         shutil.copyfile(ROOT/'skills/seenry/scripts/check.mjs',self.scripts/'check.mjs')
+        contract=ROOT/'skills/seenry/scripts/motion_contract.mjs'
+        if contract.exists(): shutil.copyfile(contract,self.scripts/'motion_contract.mjs')
         (self.scripts/'review_board.mjs').write_text(BOARD)
         (self.scripts/'screens.mjs').write_text(BOARD)
         (self.scripts/'critic.mjs').write_text(CRITIC)
@@ -70,7 +76,7 @@ class CheckGate(unittest.TestCase):
         self.temp.cleanup()
 
     def configure(self, output='default', exit_code=0):
-        if output == 'default': output={'violations':[],'verdict':{'scores':{'overall':9}}}
+        if output == 'default': output=self.quality_result(score=9,outcome='pass')
         (self.scripts/'motion-config.json').write_text(json.dumps({'output':output,'exit':exit_code}))
 
     def isolated_env(self):
@@ -166,6 +172,192 @@ class CheckGate(unittest.TestCase):
     def test_motion_violation_is_not_pass(self):
         self.configure(output={'violations':['unverified keyboard reversal'],'verdict':{'scores':{'overall':9}}})
         self.assert_blocked(self.run_gate())
+
+    def quality_result(self, score=8, violations=None, outcome='quality-fail'):
+        keys=['origin','attachment','choreography','character','exit','continuity','interruption','states','reduced_motion','overall']
+        verdict={'scores':dict.fromkeys(keys,score),'rows':[{'interaction':'Card','score':score,'note':'Review fixture'}],
+                 'verdict':'Complete fixture','fixes':[{'interaction':'Card','problem':'A test finding','fix':'Apply the fixture repair'}]}
+        return {'outcome':outcome,'violations':violations or [],'verdict':verdict,'interactions':[{'label':'Card'}]}
+
+    def latest_history(self):
+        return json.loads((self.project/'.seenry/review/check.json').read_text())[-1]
+
+    def test_completed_quality_failure_retains_history_snapshot_and_previous_round(self):
+        self.configure(output=self.quality_result(),exit_code=1)
+        first=self.run_gate();self.assertEqual(first.returncode,1,first.stdout+first.stderr)
+        self.assertIn('FAIL round 1',first.stdout);self.assertNotIn('UNVERIFIED',first.stdout)
+        row=self.latest_history();self.assertEqual(row['motion'],8);self.assertNotIn('motionError',row)
+        self.assertTrue((self.project/'.seenry/review/round-1/index.html').exists())
+        previous=str(self.project/'.seenry'/row['motionEvidence']/'motion.json')
+        second=self.run_gate();self.assertEqual(second.returncode,1,second.stdout+second.stderr)
+        row=self.latest_history();args=json.loads((self.project/'.seenry'/row['motionEvidence']/'args.json').read_text())
+        self.assertIn('--prev',args)
+        # macOS may spell the same temporary path through /var or /private/var.
+        self.assertEqual(resolved_existing_path(args[args.index('--prev')+1]),resolved_existing_path(previous))
+
+    def test_previous_evidence_alias_resolves_to_the_same_existing_file(self):
+        target=self.root/'evidence.json';target.write_text('{}')
+        alias=self.root/'alias.json'
+        try: alias.symlink_to(target)
+        except (OSError,NotImplementedError) as error: self.skipTest(f'Symlink creation unavailable: {error}')
+        self.assertEqual(resolved_existing_path(alias),resolved_existing_path(target))
+
+    def test_previous_evidence_identity_rejects_different_or_missing_files(self):
+        first=self.root/'first.json';second=self.root/'second.json'
+        first.write_text('{}');second.write_text('{}')
+        self.assertNotEqual(resolved_existing_path(first),resolved_existing_path(second))
+        with self.assertRaises(FileNotFoundError): resolved_existing_path(self.root/'missing.json')
+
+    def test_completed_violation_is_failed_quality_not_tool_error(self):
+        self.configure(output=self.quality_result(score=9,violations=['held animation']),exit_code=1)
+        result=self.run_gate();self.assertEqual(result.returncode,1,result.stdout+result.stderr)
+        self.assertIn('FAIL round',result.stdout);self.assertNotIn('motionError',self.latest_history())
+        self.assertEqual(self.latest_history()['motionViolations'],1)
+
+    def test_completed_quality_failures_obey_stopping_budget(self):
+        self.configure(output=self.quality_result(),exit_code=1)
+        for _ in range(3): self.assertEqual(self.run_gate().returncode,1)
+        stopped=self.run_gate();self.assertEqual(stopped.returncode,3,stopped.stdout+stopped.stderr)
+        self.assertIn('quality target was not reached',stopped.stdout)
+        calls=(self.project/'.seenry/review/board-calls.log').read_text()
+        again=self.run_gate();self.assertEqual(again.returncode,3,again.stdout+again.stderr)
+        self.assertIn('STOPPED',again.stdout)
+        self.assertEqual((self.project/'.seenry/review/board-calls.log').read_text(),calls)
+
+    def test_unmarked_nonzero_low_result_still_blocks(self):
+        self.configure(output={'violations':[],'verdict':{'scores':{'overall':8}}},exit_code=1)
+        result=self.run_gate();self.assertEqual(result.returncode,2);self.assertIn('UNVERIFIED',result.stdout)
+        self.assertIn('motionError',self.latest_history())
+
+    def test_quality_marker_never_overrides_tool_exit(self):
+        for code in [0,2,7]:
+            with self.subTest(code=code):
+                self.configure(output=self.quality_result(),exit_code=code)
+                result=self.run_gate();self.assertEqual(result.returncode,2,result.stdout+result.stderr)
+                self.assertIn('motionError',self.latest_history())
+
+    def test_contradictory_or_unknown_motion_outcome_blocks(self):
+        for score,outcome,code in [(9,'quality-fail',1),(8,'pass',0),(9,'unverified',0),(9,'unexpected',0),(9,None,0),(9,'pass',1)]:
+            with self.subTest(score=score,outcome=outcome,code=code):
+                self.configure(output=self.quality_result(score=score,outcome=outcome),exit_code=code)
+                result=self.run_gate();self.assertEqual(result.returncode,2,result.stdout+result.stderr)
+                self.assertIn('UNVERIFIED',result.stdout)
+
+    def test_quality_marker_cannot_complete_missing_or_invalid_evidence(self):
+        for result in [{'outcome':'quality-fail','violations':[],'verdict':None},
+                       {'outcome':'quality-fail','verdict':{'scores':{'overall':8}}},
+                       self.quality_result(score='8'), self.quality_result(score=11)]:
+            with self.subTest(result=result):
+                self.configure(output=result,exit_code=1)
+                gate=self.run_gate();self.assertEqual(gate.returncode,2);self.assertIn('UNVERIFIED',gate.stdout)
+
+    def test_explicit_complete_pass_keeps_zero_exit(self):
+        self.configure(output=self.quality_result(score=9,outcome='pass'),exit_code=0)
+        result=self.run_gate();self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertIn('PASS round',result.stdout)
+
+    def test_overall_nine_cannot_average_away_any_low_motion_criterion(self):
+        for key in ['origin','attachment','choreography','character','exit','continuity','interruption','states','reduced_motion']:
+            with self.subTest(key=key):
+                data=self.quality_result(score=9,outcome='quality-fail');data['verdict']['scores'][key]=8
+                self.configure(output=data,exit_code=1);result=self.run_gate()
+                self.assertEqual(result.returncode,1,result.stdout+result.stderr);self.assertIn('FAIL round',result.stdout)
+                self.assertIn(f'criterion {key}: 8/10',result.stdout);self.assertNotIn('motionError',self.latest_history())
+                # Each independent criterion has its own fresh review budget.
+                (self.project/'.seenry/review/check.json').write_text('[]')
+
+    def test_reported_low_row_blocks_and_false_pass_marker_is_unverified(self):
+        data=self.quality_result(score=9,outcome='quality-fail');data['verdict']['rows'][0]['score']=8
+        self.configure(output=data,exit_code=1);result=self.run_gate();self.assertEqual(result.returncode,1,result.stdout)
+        self.assertIn('interaction Card: 8/10',result.stdout)
+        data['outcome']='pass';self.configure(output=data,exit_code=0)
+        result=self.run_gate();self.assertEqual(result.returncode,2,result.stdout);self.assertIn('UNVERIFIED',result.stdout)
+
+    def test_missing_or_unmatched_interaction_coverage_is_unverified(self):
+        for rows,interactions in [([], [{'label':'Card'}]),([{'interaction':'Card','score':9,'note':'fixture'}], []),
+                                  ([{'interaction':'Card','score':9,'note':'fixture'}], [{'label':'Card'},{'label':'Menu'}]),
+                                  ([{'interaction':'Invented','score':9,'note':'fixture'}], [{'label':'Card'}])]:
+            with self.subTest(rows=rows,interactions=interactions):
+                data=self.quality_result(score=9,outcome='pass');data['verdict']['rows']=rows;data['interactions']=interactions
+                self.configure(output=data,exit_code=0);result=self.run_gate();self.assertEqual(result.returncode,2,result.stdout)
+                self.assertIn('UNVERIFIED',result.stdout)
+
+    def test_valid_scoped_pass_names_only_covered_interactions(self):
+        self.configure(output=self.quality_result(score=9,outcome='pass'));result=self.run_gate()
+        self.assertEqual(result.returncode,0,result.stdout);self.assertIn('other components unverified',result.stdout)
+        scope=self.latest_history()['motionCoverage'];self.assertEqual(scope['capturedLabels'],['Card']);self.assertEqual(scope['reviewedLabels'],['Card'])
+
+    def test_legacy_overall_only_web_result_has_clear_upgrade_failure(self):
+        self.configure(output={'violations':[],'verdict':{'scores':{'overall':9}}})
+        result=self.run_gate();self.assertEqual(result.returncode,2,result.stdout+result.stderr)
+        self.assertIn('legacy web motion result',result.stdout);self.assertIn('upgrade the motion judge',result.stdout)
+        self.assertNotIn('PASS round',result.stdout)
+
+    def test_native_legacy_pass_is_explicitly_not_web_criterion_certification(self):
+        self.native_fixture();self.configure(output={'violations':[],'verdict':{'scores':{'overall':9}}})
+        result=self.run_native_gate();self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertIn('legacy overall-only evidence; per-criterion coverage unverified',result.stdout)
+
+    def test_board_blocker_exits_before_motion_policy(self):
+        script=self.scripts/'review_board.mjs';script.write_text(script.read_text().replace('blockers:0','blockers:1'))
+        result=self.run_gate();self.assertEqual(result.returncode,1,result.stdout+result.stderr)
+        self.assertNotIn('ReferenceError',result.stderr);self.assertNotIn('PASS round',result.stdout)
+
+    def test_native_legacy_low_result_is_completed_quality_failure(self):
+        self.native_fixture();self.configure(output={'violations':[],'verdict':{'scores':{'overall':8}}})
+        result=self.run_native_gate();self.assertEqual(result.returncode,1,result.stdout+result.stderr)
+        self.assertNotIn('motionError',self.latest_history())
+
+    def test_marked_overall_only_judgment_is_never_complete(self):
+        self.configure(output={'outcome':'pass','violations':[],'verdict':{'scores':{'overall':9},'rows':[],'fixes':[],'verdict':'ok'}})
+        gate=self.run_gate();self.assertEqual(gate.returncode,2);self.assertIn('UNVERIFIED',gate.stdout)
+        self.assertIn('malformed marked motion judgment',gate.stdout)
+
+    def test_marked_judgment_requires_every_declared_score(self):
+        for key in ['origin','attachment','choreography','character','exit','continuity','interruption','states','reduced_motion','overall']:
+            with self.subTest(key=key):
+                result=self.quality_result(score=9,outcome='pass');del result['verdict']['scores'][key]
+                self.configure(output=result);gate=self.run_gate();self.assertEqual(gate.returncode,2,gate.stdout+gate.stderr)
+
+    def test_marked_judgment_rejects_malformed_rows_fixes_and_fields(self):
+        cases=[]
+        for field,value in [('rows',None),('rows',[None]),('rows',[{'interaction':'Card','score':9}]),
+                            ('rows',[{'interaction':'Card','score':'9','note':'fixture'}]),
+                            ('fixes',[]),('fixes',[None]),('fixes',[{'interaction':'Card','problem':'fixture'}]),
+                            ('fixes',[{'interaction':'Card','problem':'fixture','fix':42}]),('verdict',42)]:
+            result=self.quality_result(score=9,outcome='pass');result['verdict'][field]=value;cases.append(result)
+        result=self.quality_result(score=9,outcome='pass');result['verdict']['scores']['origin']=8.5;cases.append(result)
+        result=self.quality_result(score=9,outcome='pass');result['verdict']['scores']['origin']=0;cases.append(result)
+        result=self.quality_result(score=9,outcome='pass');result['verdict']['unexpected']=True;cases.append(result)
+        result=self.quality_result(score=9,outcome='pass');result['violations']=[42];cases.append(result)
+        for result in cases:
+            with self.subTest(result=result):
+                self.configure(output=result);gate=self.run_gate();self.assertEqual(gate.returncode,2,gate.stdout+gate.stderr)
+
+    def test_marked_judgment_rejects_invalid_producer_annotations(self):
+        for key,value in [('cli',9),('runs',[]),('runs',[11]),('stillOpen',{'criteria':['bogus'],'interactions':[]})]:
+            with self.subTest(key=key,value=value):
+                result=self.quality_result(score=9,outcome='pass');result['verdict'][key]=value
+                self.configure(output=result);self.assertEqual(self.run_gate().returncode,2)
+
+    def test_annotations_never_override_a_below_floor_criterion(self):
+        result=self.quality_result(score=9,outcome='quality-fail');result['verdict']['scores']['origin']=1
+        result['verdict']['cli']='codex';result['verdict']['runs']=[9,8,9]
+        result['verdict']['stillOpen']={'criteria':['origin'],'interactions':['Card']}
+        self.configure(output=result,exit_code=1);gate=self.run_gate();self.assertEqual(gate.returncode,1,gate.stdout+gate.stderr)
+
+    def test_stricter_policy_rechecks_previously_stopped_identical_web_source(self):
+        for previous_policy in [None,'web-overall-only-v0']:
+            with self.subTest(previous_policy=previous_policy):
+                (self.project/'.seenry/review').mkdir(exist_ok=True)
+                (self.project/'.seenry/review/check.json').write_text('[]')
+                before=self.mark_stopped();path=self.project/'.seenry/review/check.json';history=json.loads(path.read_text())
+                if previous_policy is None: history[-1].pop('motionPolicy',None)
+                else: history[-1]['motionPolicy']=previous_policy
+                path.write_text(json.dumps(history));result=self.run_gate()
+                self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+                self.assertNotEqual((self.project/'.seenry/review/board-calls.log').read_text(),before)
+                self.assertEqual(self.latest_history()['motionPolicy'],'web-motion-criteria-rows-9-v1')
 
     def test_unchanged_local_source_stays_stopped(self):
         before=self.mark_stopped();result=self.run_gate()

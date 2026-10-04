@@ -15,6 +15,20 @@ not, and how to test it.
 - The **Seenry skill** must teach agents this too. Any project built with it should check its transitions against
   this bar and know *why* each transition works.
 
+### Current scope clarification (2026-10-03)
+
+- Review the **UI/UX flow of every component**, including its purpose, entry, meaningful actions and visible outcomes,
+  discoverability, appropriate return/dismissal, focus restoration, relevant empty/error/disabled states, repeated or
+  interrupted use, and mobile layout. Motion is one part of the review.
+- **Dismissal is specific to the flow.** The confirmation Dialog already has Cancel and Escape; it should not gain a
+  redundant X or Close button. Navigation can use Back. The source-point Close requirement applies to the directly
+  expanding Card/toggle flow, not every dialog. This clarifies the earlier close-button note below.
+- An enabled demo action needs a meaningful local outcome or a clear explanation of its limited scope. Keep demo
+  wiring findings separate from a reusable component API whose application actions are host-owned. Do not connect
+  destructive examples to real user data merely to demonstrate a result.
+- The target remains **9 in every applicable criterion**, with source-specific evidence and independent review.
+  Missing coverage is unverified; global CI and motion scores alone do not establish complete UI/UX quality.
+
 ## Files
 
 - Kit: `skills/seenry/assets/components/transitions/seenry-transitions.js` and `seenry-transitions.css`.
@@ -140,19 +154,31 @@ interfaces, the success-check tip and the state-transition tip.
 18. **Every component must be reviewed** for bugs and improvements using the protocol below. Nothing is "done"
     until it passes every line.
 
+## Session 2026-10-04 (Claude, PR #65 branch `fix/voice-demo-response-test`)
+- Every card has a `data-why` note shown as its own "Why this works" block in the detail view (#9 done). Notes were checked against each card's spec chips; keep them true when a component changes.
+- Fixed: `#library-grid>.card{display:flex}` overrode `[hidden]`, so filtered cards stayed visible and focusable (broke the native keyboard Tab path). Now `:not([hidden])`.
+- Fixed: `transition-duration: var(--st-state)` is invalid (the token carries an easing). Stage buttons/tabs/menu items and Card Close had 0ms state changes. Never put `--st-state` in a duration list; use 180ms.
+- After any gallery/kit edit: `node /tmp/claude-501/pins.mjs <abs repo path>` (recomputes tests/transitions-library-menu-native.pins.json), then the full node test suite.
+- Keyboard-driven changes are instant catalog-wide (`html[data-st-input-mode=keyboard]` zeroes stage/menu control transitions); the native Menu harness requires a full focus cue on the first frame.
+- Switch off-track stays `--text-3` on purpose: a lighter iOS-style track fails WCAG 1.4.11 (3:1 non-text contrast).
+- Hover colours on animated controls must be plain colours, not `color-mix()`: mid-transition Chrome reports oklab, which the dialog paint test cannot measure (Delete button hover is `#bb2929`).
+- The page-transition message detail is an intentional keyboard-reachable scroll region; do not clamp it.
+- Before pushing, run the CI browser tests locally (list in .github/workflows) — macOS has no `timeout`.
+- Still open: #14 full consistency pass on the unreviewed rows below, AI demo to 9, final release (version bump + changelog) once PR #65 CI is green.
+
 ## Per-component status
 
 | Component | Status |
 |---|---|
-| Menu | one-piece open/close done; **anchoring to trigger (#5) open** |
-| Button to menu | close pill in trigger spot done; **redesign to seenry.design header morph (#2)** |
-| Dialog | compact + scrim done; **owner wants full-screen preview (#4)** |
+| Menu | anchoring verified: right edges align, 6px below trigger at 1300 and 390 (#5 done). PR #65 native evidence: detail heading scroll-margin + caption hit fix pushed |
+| Button to menu | one surface: clip from the trigger while its fill turns from the button colour to the surface and back on close (#2 done) |
+| Dialog | native modal over the whole page with blurred backdrop (#4 done) |
 | Command palette | close fixed; review |
 | Bottom sheet | ok; review |
 | Drawer | real rows; review |
 | Tooltip | real text; ok |
 | Card expand | judge 8–9 (prior session); **hover has no padding and lifts (#17); owner says it seems bad** |
-| Tabs | panel blur swap + hover; **still bad (#6)** |
+| Tabs | labels now ease with the underline (root cause: an invalid transition-duration voided every stage state transition); catalog filter is the segmented control (#6 done, re-judge) |
 | Segmented control | hover only; review |
 | Page transition | back control + timing; **chevron still overlaps title briefly** |
 | Accordion | spring shell done; review |
@@ -161,22 +187,22 @@ interfaces, the success-check tip and the state-transition tip.
 | Like | not reviewed |
 | Switch | not reviewed; the off track is a heavy dark grey |
 | Form error | not reviewed |
-| Toast stack | **empty at rest after replay**; not reviewed |
-| Number | **no blur (#1)**; not reviewed |
+| Toast stack | two toasts present at rest; not reviewed |
+| Number | 3px directional motion blur, 100ms exit, frequent updates stay sharp (#1 done) |
 | Text change | not reviewed |
 | List | not reviewed |
-| Skeleton to content | **not premium (#8)** |
+| Skeleton to content | content-as-skeleton: crisp sweeping bars, media disc, blur only on resolve, 45ms reading-order stagger (#8 done) |
 | AI thinking and streaming | judge 7; needs transitions.dev-style focused demos (streaming text, reasoning stream, thinking states) |
 | Checkbox | not reviewed |
-| Card resize | **height-only (#13)** |
+| Card resize | compact to detailed in width + height on one spring, toggle rides the edge, leaving rows fade inside the closing shell (#13 done) |
 | Notification badge | not reviewed (Jakub tip: scale from the bottom-left origin, subtle bounce, animate position) |
 | Icon swap | not reviewed |
-| Success check | **not premium (#12)** |
-| Avatar group | **bad UX (#11)** |
+| Success check | hairline ring closes green, tick lands, single halo; no disc (#12 done) |
+| Avatar group | group spreads as one around the hovered face, name above it (#11 done) |
 | Input clear | not reviewed |
 | Link arrow | not reviewed |
 | Popover panel | not reviewed |
-| Spinner to check | **not premium (#12)** |
+| Spinner to check | ring-only, same halo on success/error (#12 done) |
 | Image open | not reviewed |
 | Reorder | rebuilt; review |
 | Thinking states (shimmer) | rebuilt; verify |
@@ -185,6 +211,15 @@ interfaces, the success-check tip and the state-transition tip.
 ## Review protocol: run for EVERY component, one at a time
 
 Copy this list into a scratch file per component and tick each line with evidence (film frames or a screenshot).
+
+**Flow**
+- [ ] Purpose and entry are clear without explaining the implementation.
+- [ ] Each enabled meaningful action produces the expected visible local result; labels agree with outcomes.
+- [ ] Back, Cancel, Done, Escape or dismissal match the scenario. Do not require a redundant Close/X on a dialog.
+- [ ] Focus is usable after entry, cancellation, completion and return; background controls are reachable only when appropriate.
+- [ ] Relevant empty, error, disabled and recovery paths work. Mark genuinely inapplicable states with a reason.
+- [ ] Repeated and interrupted actions leave one coherent result, with no stale update or lost user input.
+- [ ] The flow remains discoverable and usable on phone layouts, with spacing and genuine browser zoom checked where applicable.
 
 **Rest state**
 - [ ] One clear idea, centred, with real content: no placeholder bars or lorem.
@@ -200,13 +235,13 @@ Copy this list into a scratch file per component and tick each line with evidenc
 - [ ] Disabled, selected and active states are distinct and calm.
 
 **Motion**
-- [ ] Origin: it grows from the thing that caused it (trigger, edge or row), not from the centre of nowhere.
+- [ ] Origin: anchored surfaces explain their relationship to the trigger, edge or row; a centered confirmation Dialog may use its own centered origin and native backdrop.
 - [ ] Continuity: what persists travels (shared element). Nothing doubles: old content clears before new content is
   legible in the same place.
 - [ ] No empty frames: at 30–320ms the region always shows real content. No empty shell or stray shadow.
 - [ ] Nothing snaps: containers that change size use a spring shell (`resize()`), and growing content is anchored at
   the top of its stage.
-- [ ] Close is designed, not reversed: faster and simpler. The close control sits where the open control was.
+- [ ] Exit and dismissal suit the flow. A directly expanding Card preserves its source-point return control; a confirmation Dialog uses its safe Cancel and appropriate Escape path. Dismissal controls remain usable during entry and while the flow is active; an accepted exit may make outgoing controls inert while preserving appropriate interruption, cancellation ownership and focus return.
 - [ ] Interrupt: a second input 70ms in reverses from the rendered value. No jump, flash or restart.
 - [ ] Timing feels deliberate, not "so fast": entrances 250–450ms on `(.3,1,0,1)` or a spring; exits 120–220ms.
 - [ ] Blur option on (`data-st-blur`): a visible premium focus-pull where it fits, and never on large surfaces.
@@ -219,7 +254,7 @@ Copy this list into a scratch file per component and tick each line with evidenc
 
 **Proof and teaching**
 - [ ] Filmed in slow motion: open, close and interrupt (`film.mjs`).
-- [ ] Motion judge run twice; 9+ on both counts as done.
+- [ ] Two independent reviews of the same current evidence reach 9+ in every applicable UI/UX and motion criterion. A motion-only result does not certify the complete flow; missing criteria or untested states remain unverified.
 - [ ] A short **"Why this works"** note for the catalog: the scenario, why this motion fits it, and what to avoid.
 - [ ] The rule behind it is captured in the skill (`skills/seenry-motion/SKILL.md` or references), so agents apply it
   in users' projects.

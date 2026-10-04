@@ -1,0 +1,890 @@
+{
+  "scope": "Source-pinned native observations from PR65 10997a5; historical failing output, not candidate rendered evidence. Reduced focus CSS interpolation model only.",
+  "cases": [
+    {
+      "case": "320-light-reduced",
+      "action": "space-keyboard-open",
+      "rawCasePath": "publisher-resume-20261003/native-10997a5/menu-native-0-ubuntu/320-light-reduced/case.json",
+      "rawCaseSHA256": "01e67ab6b1d3ec88d3eedb1ecc7dc6d76ca65ffe5b2040416c6bab2d286e01ab",
+      "profile": {
+        "id": "320-light-reduced",
+        "width": 320,
+        "height": 780,
+        "theme": "light",
+        "suite": "reduced",
+        "shard": 0,
+        "motion": "reduce",
+        "route": "gallery"
+      },
+      "runIdentity": {
+        "checkoutHead": "10997a545cc5a5373b743cec02d7f1dcbe54e7aa",
+        "githubRunId": "37133514988",
+        "githubRunAttempt": "1"
+      },
+      "source": {
+        "schema": "menu-native-v4",
+        "reconstructionBaseCommit": "7c5fc8fd175f5de224406f793ea5c842b52a8c0d",
+        "bundleSHA256": "6482e1d1072b9493720a2b4c022b2823f4022b9a1adca37d524cbcb538e6e162",
+        "assets": {
+          "gallery.html": "7fd51cd17c03dd2c3b71af97be0514f7f4f998f97198edbfe2be46a4dc8f1083",
+          "gallery.js": "58f08f0bd4a3396bf3fe1e151fefc38d50c5807975d846fd65fa5ccbaf18cc09",
+          "gallery-menu.js": "ac71a55c0bb083149851bb3cd57823ee0928922b37dcbc4b472cb185327f254a",
+          "seenry-transitions.js": "1fac22445fc72f11f473ad39e6ec4f04142ca27ac242c7a420f2e23c68c9c25d",
+          "seenry-transitions.css": "8268058e200c6e750451aba01bc2bd4049d67d2d45f83a4bc2399819edd6aee1",
+          "assets/morning.jpg": "8d489f3ba1698592863b06b02ba34f4d697e87e227be92d1244c12f4f7dc9a25",
+          "assets/lake.jpg": "26f1167b6c07e4d67cd90c469390ebb310bfa082a7d86e0e3758f616176378c7",
+          "assets/forest.jpg": "b944abd87e265d383d021181a00eb153babf605d2746d859be6be910a2deb1ed"
+        },
+        "harness": {
+          "transitions-library-menu-native.browser.mjs": "f589ab8d65b8a6070eb3e1a261661554062a3113c3dcc9fc5cf96924b65a5fdc",
+          "transitions-library-menu-native-contract.mjs": "5738de9aa9f4b1dec2d93596844bc702955ab63dfaf6cbdc0de5463eb7bd690b",
+          "transitions-library-menu-native-observer.mjs": "7210ab16d4536b1eb2637eed3b8783dfd6863d66b1f4d6d12b7b5fc5e47f74ae",
+          "transitions-library-menu-discovery-helpers.mjs": "8ac6f83198c0308dc921abc8dc6e32a3206878f8fa70bdff885f1dad36019cfb"
+        },
+        "frozen": true
+      },
+      "selectedEventId": 407,
+      "firstPaint": {
+        "status": "unverified",
+        "issues": [
+          {
+            "kind": "immediate-semantics",
+            "reason": "Focused item needs a measured strong visible focus cue",
+            "boundary": "accepted"
+          },
+          {
+            "kind": "immediate-semantics",
+            "reason": "Menu animation owner survives instant acceptance",
+            "boundary": "accepted"
+          },
+          {
+            "kind": "immediate-semantics",
+            "reason": "Focused item needs a measured strong visible focus cue",
+            "boundary": "first-raf"
+          },
+          {
+            "kind": "immediate-semantics",
+            "reason": "Menu animation owner survives instant acceptance",
+            "boundary": "first-raf"
+          }
+        ],
+        "inputEventId": 407,
+        "acceptedDeltaMs": 3.2999999999883585,
+        "firstCallbackDeltaMs": 6.5,
+        "firstCompletionDeltaMs": 6.899999999994179,
+        "interpretation": "Actual pre-paint observations only; no native pixels, exact media alignment, frame completeness, or visual score is certified"
+      },
+      "samples": [
+        {
+          "boundary": "accepted",
+          "eventAt": 15399.399999999994,
+          "observedAt": 15402.100000000006,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+          },
+          "animations": [
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": true,
+              "currentTime": 0,
+              "progress": 0,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "backgroundColor"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            },
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": true,
+              "currentTime": 0,
+              "progress": 0,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "boxShadow"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            }
+          ],
+          "stateJSONPointer": "/actions/53/accepted/1/state",
+          "cueJSONPointer": "/actions/53/accepted/1/state/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/53/accepted/1/state/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        },
+        {
+          "boundary": "first-raf",
+          "sequence": 1,
+          "rafTimestamp": 15405.6,
+          "observedAt": 15405.899999999994,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+          },
+          "animations": [
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": true,
+              "currentTime": 0,
+              "progress": 0,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "backgroundColor"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            },
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": true,
+              "currentTime": 0,
+              "progress": 0,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "boxShadow"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            }
+          ],
+          "stateJSONPointer": "/actions/53/frames/0/state",
+          "cueJSONPointer": "/actions/53/frames/0/state/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/53/frames/0/state/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        },
+        {
+          "boundary": "frame-3",
+          "sequence": 3,
+          "rafTimestamp": 15438.9,
+          "observedAt": 15439.199999999983,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0.01)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgba(58, 122, 254, 0.333) 0px 0px 0px 0.66634px inset"
+          },
+          "animations": [
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": false,
+              "currentTime": 33.31699999999316,
+              "progress": 0.3331699999999316,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "backgroundColor"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            },
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": false,
+              "currentTime": 33.31699999999316,
+              "progress": 0.3331699999999316,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "boxShadow"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            }
+          ],
+          "stateJSONPointer": "/actions/53/frames/1/state",
+          "cueJSONPointer": "/actions/53/frames/1/state/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/53/frames/1/state/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        },
+        {
+          "boundary": "frame-6",
+          "sequence": 6,
+          "rafTimestamp": 15488.9,
+          "observedAt": 15489.100000000006,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0.03)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgba(58, 122, 254, 0.83) 0px 0px 0px 1.66634px inset"
+          },
+          "animations": [
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": false,
+              "currentTime": 83.31699999999209,
+              "progress": 0.8331699999999209,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "backgroundColor"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            },
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": false,
+              "currentTime": 83.31699999999209,
+              "progress": 0.8331699999999209,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "boxShadow"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            }
+          ],
+          "stateJSONPointer": "/actions/53/frames/2/state",
+          "cueJSONPointer": "/actions/53/frames/2/state/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/53/frames/2/state/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        },
+        {
+          "boundary": "settled",
+          "observedAt": 15544.199999999983,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0.04)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgb(58, 122, 254) 0px 0px 0px 2px inset"
+          },
+          "animations": [],
+          "stateJSONPointer": "/actions/53/after",
+          "cueJSONPointer": "/actions/53/after/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/53/after/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        }
+      ],
+      "actionJSONPointer": "/actions/53",
+      "sourceJSONPointer": "/source",
+      "runIdentityJSONPointer": "/runIdentity"
+    },
+    {
+      "case": "320-light-detail",
+      "action": "detail-child-open",
+      "rawCasePath": "publisher-resume-20261003/native-10997a5/menu-native-0-ubuntu/320-light-detail/case.json",
+      "rawCaseSHA256": "aeb1c922ff80c4f3b6bbdf7c4e6819d977644a87369380b56a35985473e00211",
+      "profile": {
+        "id": "320-light-detail",
+        "width": 320,
+        "height": 780,
+        "theme": "light",
+        "suite": "detail",
+        "shard": 0,
+        "motion": "reduce",
+        "route": "detail"
+      },
+      "runIdentity": {
+        "checkoutHead": "10997a545cc5a5373b743cec02d7f1dcbe54e7aa",
+        "githubRunId": "37133514988",
+        "githubRunAttempt": "1"
+      },
+      "source": {
+        "schema": "menu-native-v4",
+        "reconstructionBaseCommit": "7c5fc8fd175f5de224406f793ea5c842b52a8c0d",
+        "bundleSHA256": "6482e1d1072b9493720a2b4c022b2823f4022b9a1adca37d524cbcb538e6e162",
+        "assets": {
+          "gallery.html": "7fd51cd17c03dd2c3b71af97be0514f7f4f998f97198edbfe2be46a4dc8f1083",
+          "gallery.js": "58f08f0bd4a3396bf3fe1e151fefc38d50c5807975d846fd65fa5ccbaf18cc09",
+          "gallery-menu.js": "ac71a55c0bb083149851bb3cd57823ee0928922b37dcbc4b472cb185327f254a",
+          "seenry-transitions.js": "1fac22445fc72f11f473ad39e6ec4f04142ca27ac242c7a420f2e23c68c9c25d",
+          "seenry-transitions.css": "8268058e200c6e750451aba01bc2bd4049d67d2d45f83a4bc2399819edd6aee1",
+          "assets/morning.jpg": "8d489f3ba1698592863b06b02ba34f4d697e87e227be92d1244c12f4f7dc9a25",
+          "assets/lake.jpg": "26f1167b6c07e4d67cd90c469390ebb310bfa082a7d86e0e3758f616176378c7",
+          "assets/forest.jpg": "b944abd87e265d383d021181a00eb153babf605d2746d859be6be910a2deb1ed"
+        },
+        "harness": {
+          "transitions-library-menu-native.browser.mjs": "f589ab8d65b8a6070eb3e1a261661554062a3113c3dcc9fc5cf96924b65a5fdc",
+          "transitions-library-menu-native-contract.mjs": "5738de9aa9f4b1dec2d93596844bc702955ab63dfaf6cbdc0de5463eb7bd690b",
+          "transitions-library-menu-native-observer.mjs": "7210ab16d4536b1eb2637eed3b8783dfd6863d66b1f4d6d12b7b5fc5e47f74ae",
+          "transitions-library-menu-discovery-helpers.mjs": "8ac6f83198c0308dc921abc8dc6e32a3206878f8fa70bdff885f1dad36019cfb"
+        },
+        "frozen": true
+      },
+      "selectedEventId": 25,
+      "firstPaint": {
+        "status": "unverified",
+        "issues": [
+          {
+            "kind": "immediate-semantics",
+            "reason": "Focused item needs a measured strong visible focus cue",
+            "boundary": "accepted"
+          },
+          {
+            "kind": "immediate-semantics",
+            "reason": "Menu animation owner survives instant acceptance",
+            "boundary": "accepted"
+          },
+          {
+            "kind": "immediate-semantics",
+            "reason": "Focused item needs a measured strong visible focus cue",
+            "boundary": "first-raf"
+          },
+          {
+            "kind": "immediate-semantics",
+            "reason": "Menu animation owner survives instant acceptance",
+            "boundary": "first-raf"
+          }
+        ],
+        "inputEventId": 25,
+        "acceptedDeltaMs": 3.8000000000174623,
+        "firstCallbackDeltaMs": 13.800000000017462,
+        "firstCompletionDeltaMs": 14.5,
+        "interpretation": "Actual pre-paint observations only; no native pixels, exact media alignment, frame completeness, or visual score is certified"
+      },
+      "samples": [
+        {
+          "boundary": "accepted",
+          "eventAt": 694.3999999999942,
+          "observedAt": 697.3000000000175,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+          },
+          "animations": [
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": true,
+              "currentTime": 0,
+              "progress": 0,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "backgroundColor"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            },
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": true,
+              "currentTime": 0,
+              "progress": 0,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "boxShadow"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            }
+          ],
+          "stateJSONPointer": "/actions/2/accepted/1/state",
+          "cueJSONPointer": "/actions/2/accepted/1/state/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/2/accepted/1/state/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        },
+        {
+          "boundary": "first-raf",
+          "sequence": 1,
+          "rafTimestamp": 707.998,
+          "observedAt": 708.2000000000116,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+          },
+          "animations": [
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": true,
+              "currentTime": 0,
+              "progress": 0,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "backgroundColor"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            },
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": true,
+              "currentTime": 0,
+              "progress": 0,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "boxShadow"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            }
+          ],
+          "stateJSONPointer": "/actions/2/frames/0/state",
+          "cueJSONPointer": "/actions/2/frames/0/state/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/2/frames/0/state/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        },
+        {
+          "boundary": "frame-3",
+          "sequence": 3,
+          "rafTimestamp": 741.3,
+          "observedAt": 741.5,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0.01)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgba(58, 122, 254, 0.333) 0px 0px 0px 0.66762px inset"
+          },
+          "animations": [
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": false,
+              "currentTime": 33.380999999996,
+              "progress": 0.33380999999995997,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "backgroundColor"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            },
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": false,
+              "currentTime": 33.380999999996,
+              "progress": 0.33380999999995997,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "boxShadow"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            }
+          ],
+          "stateJSONPointer": "/actions/2/frames/1/state",
+          "cueJSONPointer": "/actions/2/frames/1/state/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/2/frames/1/state/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        },
+        {
+          "boundary": "frame-6",
+          "sequence": 6,
+          "rafTimestamp": 791.3,
+          "observedAt": 791.5,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0.03)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgba(58, 122, 254, 0.835) 0px 0px 0px 1.66762px inset"
+          },
+          "animations": [
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": false,
+              "currentTime": 83.38099999999604,
+              "progress": 0.8338099999999604,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "backgroundColor"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            },
+            {
+              "owner": "menu",
+              "target": "action:rename",
+              "pseudo": null,
+              "kind": "CSSTransition",
+              "playState": "running",
+              "pending": false,
+              "currentTime": 83.38099999999604,
+              "progress": 0.8338099999999604,
+              "endTime": 100,
+              "duration": 100,
+              "iterations": 1,
+              "fill": "backwards",
+              "properties": [
+                "boxShadow"
+              ],
+              "values": {
+                "transform": [],
+                "translate": [],
+                "scale": [],
+                "rotate": [],
+                "filter": []
+              }
+            }
+          ],
+          "stateJSONPointer": "/actions/2/frames/2/state",
+          "cueJSONPointer": "/actions/2/frames/2/state/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/2/frames/2/state/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        },
+        {
+          "boundary": "settled",
+          "observedAt": 846.3000000000175,
+          "focus": "action:rename",
+          "menu": {
+            "open": true,
+            "nativeOpen": true,
+            "inert": false,
+            "opacity": "1",
+            "filter": "none",
+            "transform": "none"
+          },
+          "focused": true,
+          "focusVisible": true,
+          "cue": {
+            "background": "rgba(0, 0, 0, 0.04)",
+            "adjacentBackground": "rgb(255, 255, 255)",
+            "outlineColor": "rgb(17, 17, 19)",
+            "outlineWidth": "0px",
+            "outlineStyle": "none",
+            "boxShadow": "rgb(58, 122, 254) 0px 0px 0px 2px inset"
+          },
+          "animations": [],
+          "stateJSONPointer": "/actions/2/after",
+          "cueJSONPointer": "/actions/2/after/items/0/paint/cue",
+          "animationsJSONPointer": "/actions/2/after/animations",
+          "animationsSelection": {
+            "field": "target",
+            "equals": "action:rename",
+            "order": "source"
+          }
+        }
+      ],
+      "actionJSONPointer": "/actions/2",
+      "sourceJSONPointer": "/source",
+      "runIdentityJSONPointer": "/runIdentity"
+    }
+  ],
+  "extractionContract": "animationsJSONPointer identifies the full raw state.animations array. animationsSelection selects the compact animations field from that array without changing object contents or order."
+}

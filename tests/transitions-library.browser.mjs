@@ -151,12 +151,15 @@ try {
     assert.deepEqual(result.failures,[],`${width}/${theme} internal preview fit`);
     await page.locator('#menu-trigger').click();
     await page.waitForTimeout(120);
-    const shortcutRatios=await page.locator('#menu-1 kbd').evaluateAll(nodes=>{
+    // The local fixture advertises only implemented actions, without shortcut badges.
+    assert.equal(await page.locator('#menu-1 kbd').count(),0,`${width}/${theme} no unimplemented menu shortcuts`);
+    assert.deepEqual(await page.locator('#menu-1 [role="menuitem"]').allTextContents(),['Rename','Duplicate','Delete'],`${width}/${theme} bounded local menu actions`);
+    const menuItemRatios=await page.locator('#menu-1 [role="menuitem"]').evaluateAll(nodes=>{
       const color=s=>{const m=s.match(/^(?:rgba?\((.*)\)|color\(srgb (.*)\))$/);if(!m)throw new Error('Unsupported measured color '+s);const p=(m[1]||m[2]).replace(/[,/]/g,' ').trim().split(/\s+/).map(Number);return {rgb:p.slice(0,3).map(v=>m[1]?v/255:v),a:p[3]??1};};
       const lum=rgb=>rgb.map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
       return nodes.map(n=>{const fg=color(getComputedStyle(n).color),base=color(getComputedStyle(n.closest('[data-st="menu"]')).backgroundColor),over=color(getComputedStyle(n.closest('[role="menuitem"]')).backgroundColor);const bg=over.rgb.map((v,i)=>v*over.a+base.rgb[i]*(1-over.a)),ink=fg.rgb.map((v,i)=>v*fg.a+bg[i]*(1-fg.a));const a=lum(ink),b=lum(bg);return {text:n.textContent,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};});
     });
-    assert.ok(shortcutRatios.length>=2&&shortcutRatios.every(x=>x.ratio>=4.5),`${width}/${theme} informative menu shortcut contrast: ${JSON.stringify(shortcutRatios)}`);
+    assert.ok(menuItemRatios.length===3&&menuItemRatios.every(x=>x.ratio>=4.5),`${width}/${theme} implemented menu action contrast: ${JSON.stringify(menuItemRatios)}`);
     await page.keyboard.press('Escape');
     await page.waitForFunction(()=>document.querySelector('#menu-1').dataset.stOpen==='false');
     await page.locator('#mail [data-open="m2"]').click();

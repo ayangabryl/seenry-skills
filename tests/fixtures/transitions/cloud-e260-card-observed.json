@@ -1,0 +1,528 @@
+{
+  "scope": "Original exact e260 cloud browser evidence, not repaired acceptance. Actual trusted pointer hover; actual Enter-triggered native visible focus sampled pause100.5ms. Not performance/video or reduced-motion emulation.",
+  "commit": "e26047e3131e4d1fb617d2c12c9f75672428d4d4",
+  "hover": {
+    "rest": {
+      "cover": {
+        "height": 60,
+        "width": 60,
+        "x": 46,
+        "y": 300.0625
+      },
+      "height": 60,
+      "hovered": false,
+      "padding": "0px",
+      "transform": "none",
+      "width": 283,
+      "x": 46,
+      "y": 300.0625
+    },
+    "hover": {
+      "cover": {
+        "height": 60,
+        "width": 60,
+        "x": 46,
+        "y": 299.0625
+      },
+      "height": 60,
+      "hovered": true,
+      "padding": "0px",
+      "transform": "matrix(1, 0, 0, 1, 0, -1)",
+      "width": 283,
+      "x": 46,
+      "y": 299.0625
+    }
+  },
+  "keyboard": {
+    "action": "trusted-keyboard-click",
+    "actualPauseMs": 100.5,
+    "close": {
+      "ancestors": [
+        {
+          "filter": "none",
+          "id": "",
+          "opacity": "1",
+          "tag": "DIV"
+        },
+        {
+          "filter": "none",
+          "id": "expand-1",
+          "opacity": "1",
+          "tag": "DIV"
+        },
+        {
+          "filter": "none",
+          "id": "",
+          "opacity": "1",
+          "tag": "DIV"
+        },
+        {
+          "filter": "none",
+          "id": "",
+          "opacity": "1",
+          "tag": "ARTICLE"
+        },
+        {
+          "filter": "none",
+          "id": "library-grid",
+          "opacity": "1",
+          "tag": "DIV"
+        },
+        {
+          "filter": "none",
+          "id": "top",
+          "opacity": "1",
+          "tag": "MAIN"
+        },
+        {
+          "filter": "none",
+          "id": "",
+          "opacity": "1",
+          "tag": "BODY"
+        }
+      ],
+      "display": "grid",
+      "filter": "blur(8px)",
+      "focusVisible": true,
+      "focused": true,
+      "id": "",
+      "inputMode": "keyboard",
+      "opacity": "0",
+      "outline": "rgb(58, 122, 254) solid 2px",
+      "outlineOffset": "2px",
+      "padding": "1px 6px",
+      "rect": {
+        "height": 44,
+        "width": 44,
+        "x": 289,
+        "y": 356.0625
+      },
+      "tag": "BUTTON",
+      "text": "",
+      "transform": "none",
+      "visibility": "visible"
+    },
+    "samples": [
+      {
+        "at": null,
+        "close": {
+          "ancestors": [
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "expand-1",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "ARTICLE"
+            },
+            {
+              "filter": "none",
+              "id": "library-grid",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "top",
+              "opacity": "1",
+              "tag": "MAIN"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "BODY"
+            }
+          ],
+          "display": "grid",
+          "filter": "blur(8px)",
+          "focusVisible": true,
+          "focused": true,
+          "id": "",
+          "inputMode": "keyboard",
+          "opacity": "0",
+          "outline": "rgb(58, 122, 254) solid 2px",
+          "outlineOffset": "2px",
+          "padding": "1px 6px",
+          "rect": {
+            "height": 44,
+            "width": 44,
+            "x": 289,
+            "y": 356.0625
+          },
+          "tag": "BUTTON",
+          "text": "",
+          "transform": "none",
+          "visibility": "visible"
+        }
+      },
+      {
+        "at": null,
+        "close": {
+          "ancestors": [
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "expand-1",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "ARTICLE"
+            },
+            {
+              "filter": "none",
+              "id": "library-grid",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "top",
+              "opacity": "1",
+              "tag": "MAIN"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "BODY"
+            }
+          ],
+          "display": "grid",
+          "filter": "blur(8px)",
+          "focusVisible": true,
+          "focused": true,
+          "id": "",
+          "inputMode": "keyboard",
+          "opacity": "0",
+          "outline": "rgb(58, 122, 254) solid 2px",
+          "outlineOffset": "2px",
+          "padding": "1px 6px",
+          "rect": {
+            "height": 44,
+            "width": 44,
+            "x": 289,
+            "y": 356.0625
+          },
+          "tag": "BUTTON",
+          "text": "",
+          "transform": "none",
+          "visibility": "visible"
+        }
+      },
+      {
+        "at": null,
+        "close": {
+          "ancestors": [
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "expand-1",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "ARTICLE"
+            },
+            {
+              "filter": "none",
+              "id": "library-grid",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "top",
+              "opacity": "1",
+              "tag": "MAIN"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "BODY"
+            }
+          ],
+          "display": "grid",
+          "filter": "blur(8px)",
+          "focusVisible": true,
+          "focused": true,
+          "id": "",
+          "inputMode": "keyboard",
+          "opacity": "0",
+          "outline": "rgb(58, 122, 254) solid 2px",
+          "outlineOffset": "2px",
+          "padding": "1px 6px",
+          "rect": {
+            "height": 44,
+            "width": 44,
+            "x": 289,
+            "y": 356.0625
+          },
+          "tag": "BUTTON",
+          "text": "",
+          "transform": "none",
+          "visibility": "visible"
+        }
+      },
+      {
+        "at": null,
+        "close": {
+          "ancestors": [
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "expand-1",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "ARTICLE"
+            },
+            {
+              "filter": "none",
+              "id": "library-grid",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "top",
+              "opacity": "1",
+              "tag": "MAIN"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "BODY"
+            }
+          ],
+          "display": "grid",
+          "filter": "blur(8px)",
+          "focusVisible": true,
+          "focused": true,
+          "id": "",
+          "inputMode": "keyboard",
+          "opacity": "0",
+          "outline": "rgb(58, 122, 254) solid 2px",
+          "outlineOffset": "2px",
+          "padding": "1px 6px",
+          "rect": {
+            "height": 44,
+            "width": 44,
+            "x": 289,
+            "y": 356.0625
+          },
+          "tag": "BUTTON",
+          "text": "",
+          "transform": "none",
+          "visibility": "visible"
+        }
+      },
+      {
+        "at": null,
+        "close": {
+          "ancestors": [
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "expand-1",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "ARTICLE"
+            },
+            {
+              "filter": "none",
+              "id": "library-grid",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "top",
+              "opacity": "1",
+              "tag": "MAIN"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "BODY"
+            }
+          ],
+          "display": "grid",
+          "filter": "blur(8px)",
+          "focusVisible": true,
+          "focused": true,
+          "id": "",
+          "inputMode": "keyboard",
+          "opacity": "0",
+          "outline": "rgb(58, 122, 254) solid 2px",
+          "outlineOffset": "2px",
+          "padding": "1px 6px",
+          "rect": {
+            "height": 44,
+            "width": 44,
+            "x": 289,
+            "y": 356.0625
+          },
+          "tag": "BUTTON",
+          "text": "",
+          "transform": "none",
+          "visibility": "visible"
+        }
+      },
+      {
+        "at": null,
+        "close": {
+          "ancestors": [
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "expand-1",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "ARTICLE"
+            },
+            {
+              "filter": "none",
+              "id": "library-grid",
+              "opacity": "1",
+              "tag": "DIV"
+            },
+            {
+              "filter": "none",
+              "id": "top",
+              "opacity": "1",
+              "tag": "MAIN"
+            },
+            {
+              "filter": "none",
+              "id": "",
+              "opacity": "1",
+              "tag": "BODY"
+            }
+          ],
+          "display": "grid",
+          "filter": "blur(8px)",
+          "focusVisible": true,
+          "focused": true,
+          "id": "",
+          "inputMode": "keyboard",
+          "opacity": "0",
+          "outline": "rgb(58, 122, 254) solid 2px",
+          "outlineOffset": "2px",
+          "padding": "1px 6px",
+          "rect": {
+            "height": 44,
+            "width": 44,
+            "x": 289,
+            "y": 356.0625
+          },
+          "tag": "BUTTON",
+          "text": "",
+          "transform": "none",
+          "visibility": "visible"
+        }
+      }
+    ]
+  },
+  "hashes": {
+    "e260-390-real-hover.json": "0160f33938d82dbb8d8c0edf3e0e1a0a66da8cfb3f86ef80f73e5e03b5cf9427",
+    "e260-390-real-hover.jpg": "bc1da11065dd2d94e084594370b3d0c325f0d4527bc709b8887e71b3ab20a374",
+    "e260-390-trusted-keyboard-100ms.json": "0fa91e962996f795ae2cdfb849ac272094d209f2c4b512ad716584f96400420e",
+    "e260-390-trusted-keyboard-100ms.jpg": "17713061a0405abd2fdbe7a9a4477b93d4fa08f82bc83d9b257ef9bbc33cd67f"
+  }
+}

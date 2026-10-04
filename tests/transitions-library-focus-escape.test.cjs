@@ -9,9 +9,10 @@ const results = [];
 const flush = async () => { for (let i=0;i<12;i++) await Promise.resolve(); };
 function fixture(reduce) {
  let focused, animations = [], focusLog = [];
+ function cssStyle(){const values={},priorities={};Object.defineProperties(values,{getPropertyValue:{value:key=>values[key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]??''},getPropertyPriority:{value:key=>priorities[key]||''},setProperty:{value:(key,value,priority='')=>{values[key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=value;priorities[key]=priority;}}});return values;}
  const attrKey = k => k.replace(/^data-/, '').replace(/-([a-z])/g, (_, x) => x.toUpperCase());
  class E {
-  constructor(tag='div') { this.tagName=tag.toUpperCase();this.dataset={};this.style={};this.attrs={};this.children=[];this.handlers={};this.parentElement=null;this.isConnected=true;this.rect={left:20,top:20,width:200,height:160};this.clientWidth=320;this.clientHeight=400;this.clientLeft=this.clientTop=this.scrollLeft=this.scrollTop=0;this.hidden=false;this.open=false;this.textContent='';this._inert=false;this.className='';this.classList={contains:k=>this.className.split(' ').includes(k),add:k=>{if(!this.classList.contains(k))this.className+=' '+k;},remove:k=>this.className=this.className.split(' ').filter(x=>x!==k).join(' ')}; }
+  constructor(tag='div') { this.tagName=tag.toUpperCase();this.dataset={};this.style=cssStyle();this.attrs={};this.children=[];this.handlers={};this.parentElement=null;this.isConnected=true;this.rect={left:20,top:20,width:200,height:160};this.clientWidth=320;this.clientHeight=400;this.clientLeft=this.clientTop=this.scrollLeft=this.scrollTop=0;this.hidden=false;this.open=false;this.textContent='';this._inert=false;this.className='';this.classList={contains:k=>this.className.split(' ').includes(k),add:k=>{if(!this.classList.contains(k))this.className+=' '+k;},remove:k=>this.className=this.className.split(' ').filter(x=>x!==k).join(' ')}; }
   get inert(){return this._inert;} set inert(v){this._inert=v;if(v&&this.contains(focused))focused=doc.body;}
   get childNodes(){return [...this.children];} get firstElementChild(){return this.children[0]||null;}
   get offsetWidth(){return this.rect.width;} get offsetHeight(){return this.rect.height;}
@@ -27,7 +28,7 @@ function fixture(reduce) {
   append(...nodes){for(const e of nodes){if(e.parentElement)e.parentElement.children=e.parentElement.children.filter(c=>c!==e);this.children.push(e);e.parentElement=this;e.isConnected=true;}}
   prepend(e){this.append(e);this.children.unshift(this.children.pop());}
   remove(){if(this.contains(focused))focused=doc.body;this.isConnected=false;if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(c=>c!==this);this.parentElement=null;}
-  cloneNode(deep=false){const e=new E(this.tagName);e.dataset={...this.dataset};e.attrs={...this.attrs};e.style={...this.style};e.className=this.className;e.rect={...this.rect};e.alt=this.alt;if(deep)e.append(...this.children.map(c=>c.cloneNode(true)));return e;}
+  cloneNode(deep=false){const e=new E(this.tagName);e.dataset={...this.dataset};e.attrs={...this.attrs};e.style=Object.assign(cssStyle(),this.style);e.className=this.className;e.rect={...this.rect};e.alt=this.alt;if(deep)e.append(...this.children.map(c=>c.cloneNode(true)));return e;}
   addEventListener(k,fn){(this.handlers[k]??=[]).push(fn);} removeEventListener(k,fn){this.handlers[k]=(this.handlers[k]||[]).filter(f=>f!==fn);}
   dispatchEvent(e){e.target??=this;for(const fn of this.handlers[e.type]||[])fn(e);if(!e.propagationStopped&&e.bubbles){if(this.parentElement)this.parentElement.dispatchEvent(e);else if(this!==doc)doc.dispatchEvent(e);}return !e.defaultPrevented;}
   focus(){let rejected=!this.isConnected;for(let e=this;e;e=e.parentElement)if(e.hidden||e.inert||e.style.visibility==='hidden')rejected=true;focusLog.push({node:this,rejected});if(rejected||focused===this)return;focused=this;doc.dispatchEvent({type:'focusin',target:this});}

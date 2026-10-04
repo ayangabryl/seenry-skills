@@ -19,7 +19,7 @@ Make the call and state it in one line; do not offer a menu of motion options. E
 | How often people see it | Decision |
 | --- | --- |
 | 100+ times a day (command menu, keyboard shortcuts, list navigation with arrows) | No animation. Instant. |
-| Tens of times a day (hover, tabs, toggles) | ≤150ms on opacity and color only, or nothing |
+| Tens of times a day (hover, tabs, toggles) | Brief opacity/color feedback on the existing state clock, or nothing; never delay the accepted state |
 | Occasionally (menus, dialogs, sheets, toasts) | Standard motion from the table below |
 | Rarely (onboarding, first success, empty-to-full moments) | Room for character |
 
@@ -52,7 +52,7 @@ Keyboard-triggered actions never wait on animation. If the gate says no, say so 
 | Dialog | 200–250ms | `--ease-out` |
 | Sheet, drawer | 350–500ms | `--ease-drawer` |
 | Element moving across the screen, morphs | 250–400ms | `--ease-in-out` |
-| Color, background, border on hover | 150ms | `ease` |
+| Color, background, border on hover | Existing state token; the Transitions kit uses 180ms | Existing state curve; the kit uses `cubic-bezier(.25,0,.06,1)` |
 | Progress, marquee, hold-to-confirm fill | as long as the work | `linear` |
 
 `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`, `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`, `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)`. Never `ease-in` on interface motion: it delays exactly the moment people are watching. Prefer product UI under 300ms; longer sheet travel needs a reason. Exits are often ~20–30% faster than entrances, unless preserving a direct manipulation or spatial relationship warrants the same clock. Use a spring for anything the user drags, flicks or can reverse mid-way: Motion `{type: "spring", duration: 0.5, bounce: 0.2}` (bounce 0 for product UI, ≤0.3 for playful), or the CSS `linear()` springs in [recipes](references/recipes.md).
@@ -74,10 +74,10 @@ Keyboard-triggered actions never wait on animation. If the gate says no, say so 
 - **A problem that returns after its fix is structural.** Retiming cannot fix a path that crosses. Shared elements keep their relative arrangement between states: a title below its cover stays below it in the detail view, so neither passes through the other.
 - **No empty frames.** At every filmed moment (30–320ms) the changed region shows real content. A shell carries its content as it grows; a streaming answer grows from its first words. Never show a blank answer box or a skeleton that waits and then dissolves.
 - **One crafted idea per component.** What persists travels and what is new is born from its cause. A fade, a 4px translate and a label swap score 7.
-- **Close where it opened.** A surface that opens from a control closes from the same spot: the control becomes (or is replaced in place by) its close, so the hand never travels. It need not keep the same colour; it keeps the place and the size.
+- **Match dismissal to the flow.** For a directly expanding card or toggle surface, preserve the source action point when the control becomes its return action. Judge confirmation dialogs by their meaningful actions, safe Cancel path, appropriate Escape behavior and focus return; do not require a redundant Close or X button or move Cancel to the launcher merely to satisfy a spatial rule. Use Back for a navigation flow when appropriate. Evaluate the actual way out and its state, not the presence of a particular icon.
 - **A single run is not a score.** One judge run (itself a median of three) moves by a point on unchanged code. Accept a 9 only when two separate runs both reach it, and compare versions on the same number of runs.
 
-**7. Ship reduced motion and input gating with it.** Under `prefers-reduced-motion: reduce`, remove movement, parallax, blur and loops; keep short opacity changes that aid understanding. Gate hover motion with `@media (hover: hover) and (pointer: fine)`. Every animated state change also leaves a static cue (label, icon, color) for when motion does not run.
+**7. Ship reduced motion and input gating with it.** Under `prefers-reduced-motion: reduce`, remove movement, parallax, blur and loops; keep short opacity changes that aid understanding. Keep ordinary control hover still: change its tint or ring, not its position, scale or layout. Gate hover feedback with `@media (hover: hover) and (pointer: fine)`; a deliberately requested pointer-tracking material demo is a separate interaction, not the default hover treatment. Every animated state change also leaves a static cue (label, icon, color) for when motion does not run.
 
 ## Recipes
 
@@ -115,10 +115,13 @@ Select only the guide and helper needed for this change. The bundled original as
 | Popover scaling from its center | `transform-origin` at the trigger |
 | Uncontrolled keyframes on re-triggered interactions | Retargetable transitions or explicitly cancellable WAAPI |
 | Animating `width`, `height`, `top`, `left`, `margin` | Transforms; grid-track or `interpolate-size` for height |
-| Ungated `:hover` movement | `(hover: hover) and (pointer: fine)` |
+| Moving or scaling an ordinary control on hover | A still tint or ring change, gated to a fine hover pointer; reserve scale feedback for press |
 | No reduced-motion variant | Opacity-only or instant |
 | A long list entering item by item | 30–50ms stagger capped at ~300ms total, or none |
 | Motion as the only sign of a state change | A static cue as well |
+| A token that holds `duration easing` inside `transition-duration` (the whole declaration is dropped and every state change becomes instant) | Plain durations in duration lists; confirm in computed style that `transitionDuration` is not `0s` |
+| A `display` rule on a filterable item that beats the `[hidden]` attribute | `:not([hidden])` on the layout rule; check that hidden items are neither painted nor tabbable |
+| A colour change crossfading a second shape over a morphing surface | One surface whose own fill changes while it unfolds |
 
 ## Output
 
@@ -134,6 +137,6 @@ When matching a supplied reference, inspect playback at normal speed and useful 
 
 Verify the behaviors you changed using the [interaction verification checklist](references/verification.md). A small fix needs its affected states and a regression check, not a new whole-site benchmark. Inspect normal-speed playback and useful slow-motion frames; check internal text/control fit as well as document overflow. During reversal, assert the final logical and accessible state and inspect the actual moving layers, not just their fixed container.
 
-When the sibling `seenry` skill runtime and authorized model access are available, resolve `../seenry/scripts/motion_judge.mjs` from this skill's installed directory and run it with Node against the page. Do not assume the caller's working directory is the skill directory. If the runtime is absent, report that check unavailable. Its configured bar is 9 overall with no violations; use its findings to inspect the relevant interaction. Keep that judgment separate from functional and rendered checks; an unavailable judge or missing recording is unverified, never a pass. Try relevant keyboard, narrow-width and reduced-motion states. For gestures, use touch emulation and a real phone when available, and report which you actually tested.
+When the sibling `seenry` skill runtime and authorized model access are available, resolve `../seenry/scripts/motion_judge.mjs` from this skill's installed directory and run it with Node against the page. Do not assume the caller's working directory is the skill directory. If the runtime is absent, report that check unavailable. For web evidence, its acceptance floor is 9 in every declared motion criterion and every reviewed interaction row, with no violations and a row for each captured interaction label. Missing criteria or label coverage are unverified; high overall cannot average away a weaker row. The report names its captured scope and does not certify untested components. Native-video legacy judging remains a separate contract. Use the findings to inspect the relevant interaction. Keep that judgment separate from functional and rendered checks; an unavailable judge or missing recording is unverified, never a pass. Try relevant keyboard, narrow-width and reduced-motion states. For gestures, use touch emulation and a real phone when available, and report which you actually tested.
 
 For deeper mechanics read [motion craft](references/motion-craft.md), [interaction anatomy](references/interaction-anatomy.md), [product transitions](references/product-transitions.md), [scroll choreography](references/scroll-choreography.md), [surface effects](references/surface-effects.md) and [number transitions](references/number-transitions.md). Use **seenry** for overall interface direction and material.

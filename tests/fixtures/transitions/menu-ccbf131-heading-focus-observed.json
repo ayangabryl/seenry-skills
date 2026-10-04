@@ -1,0 +1,63 @@
+{
+  "scope": "Exact hosted focus geometry retained for browser-free causal modeling. This is not a new native collection, and these records do not provide full ancestor/paint evidence.",
+  "current": {
+    "sourceFile": "seenry-menu-site-evidence/menu-cloud-checks.json",
+    "sourceSHA256": "e2e65aac5c223f9eaccafcbc45dd236c23cd77d89f637b591ed499b82b5b9a0c",
+    "jsonPath": "$.checks[26].post",
+    "product": "ccbf13127596d0941e151b2bdac7a4e14a69e3f0",
+    "viewport": {
+      "clientWidth": 375,
+      "dpr": 1,
+      "height": 820,
+      "scrollX": 0,
+      "scrollY": 141,
+      "width": 390
+    },
+    "focus": {
+      "centerHit": false,
+      "display": "inline-block",
+      "filter": "none",
+      "focusVisible": true,
+      "id": "",
+      "opacity": "1",
+      "outline": "rgb(107, 155, 255) solid 2px",
+      "rect": {
+        "height": 44,
+        "width": 37.234375,
+        "x": 34,
+        "y": 912.0625
+      },
+      "tag": "BUTTON",
+      "text": "Menu"
+    }
+  },
+  "matchedDefault": {
+    "sourceFile": "seenry-menu-site-evidence/matched-default53-detail-focus.json",
+    "sourceSHA256": "a3ea822f441406e58c50ad090d5271a75e7e3274dcc274a03c70f035a9dcfb5a",
+    "jsonPath": "$.after",
+    "product": "53c56304749ecb84eea8d6a9b18d146cf25d6ed7",
+    "sequence": "Load unchanged default in same390x820 wrapper; dark theme; filter Menu; Shift+Tab from Copy HTML to visible Menu heading; Enter; Enter on Close detail; wait for hidden; later measure",
+    "viewport": {
+      "clientWidth": 375,
+      "height": 820,
+      "scrollY": 141,
+      "width": 390
+    },
+    "focus": {
+      "centerHit": true,
+      "filter": "none",
+      "focusVisible": true,
+      "id": "",
+      "opacity": "1",
+      "outline": "rgb(107, 155, 255) solid 2px",
+      "rect": {
+        "height": 44,
+        "width": 37.234375,
+        "x": 34,
+        "y": 768.0625
+      },
+      "tag": "BUTTON",
+      "text": "Menu"
+    }
+  }
+}
