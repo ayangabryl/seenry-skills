@@ -828,6 +828,9 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 /* Form error on phones: one column — field, its error right beneath it, then a full-width action. The error never
    ends up on the far side of the button. */
 @media(max-width:650px){.stage .invite{display:grid;gap:8px}.stage .invite>label{margin:0}.stage .invite>.row{display:contents}.stage .invite .st-field{order:1}.stage .invite .st-error{order:2;margin:0}.stage .invite>.row>.st-button{order:3;width:100%;margin:0}}
+/* Avatar group: the open group overlaps less, and the count chip never covers a face. */
+#avatar-group[data-st-expanded="true"]>*:not(.st-avatar-name){margin-left:-2px}
+#avatar-group>[data-st-avatar-more]{margin-left:6px!important}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -907,7 +910,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      <button type="button" class="replay" data-replay="menu" data-st-keep><svg class="st-icon" aria-hidden="true"><use href="#i-replay"/></svg>Open menu</button>
     </div>
     <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Rename, duplicate and undo a local delete.</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>trigger-relative menu</span><span>instant keyboard input</span><span>local actions + Undo</span></div></div>
-   </article><article class="card" data-key="morph" data-why="The menu grows out of the button that asked for it, in the button’s own fill, so there is one object that changes state rather than two shapes swapping. Like any menu it needs no close button: choosing an item, clicking outside or pressing Escape folds it back into New." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Button to menu">
+   </article><article class="card" data-key="morph" data-why="The menu grows out of the button that asked for it while the button itself fades off the growing surface, so the panel clearly comes from the button. Like any menu it needs no close button: choosing an item, clicking outside or pressing Escape folds it back into New." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Button to menu">
     <div class="stage" data-st-preview>
      <div class="app" style="width:min(100%,380px)">
       <div class="app-bar"><span class="app-title">Drive</span><button class="st-button st-primary" id="morph-trigger" data-st-target="morph-1" aria-haspopup="menu" aria-expanded="false"><svg class="st-icon"><use href="#i-plus"/></svg>New</button></div>
@@ -923,7 +926,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
       <button role="menuitem"><svg class="st-icon"><use href="#i-upload"/></svg>Upload file</button>
      </div>
     <button class="replay" data-replay="morph" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="morph">Button to menu</button></h3><p>A button unfolds</p><button class="snippet-copy" data-st="copy" data-snippet="morph" aria-label="Copy HTML for Button to menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>clip-path morph</span><span>fill turns to surface</span><span>content +70ms</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="morph">Button to menu</button></h3><p>A button unfolds</p><button class="snippet-copy" data-st="copy" data-snippet="morph" aria-label="Copy HTML for Button to menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>clip-path morph</span><span>button layer fades off</span><span>content +40ms</span></div></div>
    </article><article class="card" data-key="dialog" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Dialog" data-why="A compact surface keeps the project, consequences and safe Cancel action together. The page-wide backdrop marks a focused decision; dismissal returns to the opening control. The decision stays opaque through pointer exit and reversal, so page text cannot show through it. Keyboard and reduced-motion changes put both the surface and backdrop in their final state immediately.">
     <div class="stage" data-st-preview>
      <div class="app settings-card">
@@ -1100,7 +1103,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      </div>
     <button class="replay" data-replay="switch" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="switch">Switch</button></h3><p>On and off</p><button class="snippet-copy" data-st="copy" data-snippet="switch" aria-label="Copy HTML for Switch"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .28 / .28</span><span>press stretch 1.22</span><span>track 160 F</span></div></div>
-   </article><article class="card" data-key="error" data-why="The field gives one small shake, two cycles of 6px, where your eyes already are, and the message is revealed in space reserved beneath it, so nothing below moves." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Form error">
+   </article><article class="card" data-key="error" data-why="The field gives one small 2px nudge where your eyes already are, and the message is revealed in space reserved beneath it, so nothing below moves." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Form error">
     <div class="stage" data-st-preview>
      <form class="app invite" id="invite" novalidate data-st="error">
       <label for="invite-email">Invite a teammate</label>
@@ -1108,7 +1111,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
       <p class="st-error" id="invite-error" role="alert"><svg class="st-icon" style="width:15px;height:15px"><use href="#i-x"/></svg><span data-st-error-text>Enter a full email address, like mara@aurora.co</span></p>
      </form>
     <button class="replay" data-replay="error" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="error">Form error</button></h3><p>An error stays nearby</p><button class="snippet-copy" data-st="copy" data-snippet="error" aria-label="Copy HTML for Form error"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>6px, 2 cycles</span><span>clip reveal</span><span>no layout shift</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="error">Form error</button></h3><p>An error stays nearby</p><button class="snippet-copy" data-st="copy" data-snippet="error" aria-label="Copy HTML for Form error"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>2px nudge, 160ms</span><span>clip reveal</span><span>no layout shift</span></div></div>
    </article><article class="card" data-key="toast" data-why="Toasts stack with depth and spread out on hover, so several stay readable without covering the page, and their timers pause while you read. A swipe dismisses at the speed you threw it." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Toast stack">
     <div class="stage toast-stage">
      <div class="stack-center" style="padding-top:28px">
@@ -1157,7 +1160,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
       </div>
      </div>
     <button class="replay" data-replay="skeleton" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>resolve 45ms stagger</span><span>image blur 10 → 0</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>resolve 45ms stagger</span><span>one sweep, then resolve</span></div></div>
    </article><article class="card" data-key="ai" data-why="Nothing is erased: a follow-up moves the whole conversation up together, so the earlier answer slides under a soft fade instead of vanishing. The new answer streams into space already reserved for it, and each source lights the moment its citation lands. Pressing again stops it and keeps what has arrived." data-category="AI" tabindex="0" data-motion-region data-motion-label="AI thinking and streaming">
     <div class="stage" data-st-preview>
      <div class="app chat"><div class="chat-view" id="chat"><div class="chat-track" id="chat-track"><div class="turn">
@@ -1352,12 +1355,17 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
   copy: () => S.copy($('copy-1')),
   like: () => S.like($('like-1')),
   switch: () => { $('sw-1').click(); },
-  error: () => { email.value = 'mara@aurora'; S.shake(form); },
+  // Replay alternates: show the error, then correct the address so the error clears in place.
+  error: () => { if (form.dataset.stError) { email.value = 'mara@aurora.co'; S.clearError(form); } else { email.value = 'mara@aurora'; S.shake(form); } },
   toast: () => pushToast(),
   number: () => setSeats(seats === 12 ? 125 : 12),
   text: nextStatus,
   list: sortTasks,
-  skeleton: () => { const el = $('skel'); S.skeleton(el, false, {instant: true}); clearTimeout(replay._skel); replay._skel = setTimeout(() => S.skeleton(el, true), 1100); },
+  // The shimmer makes one sweep timed to the load, and the content resolves as it finishes: loading reads as one
+  // finite step with a clear end, not a loop that is cut off.
+  skeleton: () => { const el = $('skel'); S.skeleton(el, false, {instant: true}); clearTimeout(replay._skel);
+   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) el.querySelectorAll('[data-st-sk]:not(.st-media), .st-media[data-st-sk]').forEach(n => { const t = n.matches('.st-media') ? n : n; S.play(t, [{backgroundPosition: '100% 0'}, {backgroundPosition: '0% 0'}], {ms: 520, curve: 'linear', channel: 'sweep', current: false}); });
+   replay._skel = setTimeout(() => S.skeleton(el, true), 520); },
   ai: runAI,
   checkbox: () => $('chk-1').click()
  };

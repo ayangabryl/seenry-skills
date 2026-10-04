@@ -166,6 +166,24 @@ interfaces, the success-check tip and the state-transition tip.
 - Before pushing, run the CI browser tests locally (list in .github/workflows) — macOS has no `timeout`.
 - Still open: #14 full consistency pass on the unreviewed rows below, AI demo to 9, final release (version bump + changelog) once PR #65 CI is green.
 
+## Catalog judge scores (2026-10-04, codex median of 3, after the 7s round)
+At 8: Command palette, Bottom sheet, Drawer, Tooltip, Tabs (6→8), Segmented, Page transition, Button states, Copy, Like,
+Switch, Toast stack, List, Checkbox, Icon swap, Link arrow, Popover, Reorder, AI (7→8), Card expand, Number (7→8),
+Card resize (7→8), Button to menu (6→8), Accordion (7→8), Text change (7→8), Image open (7→8), Tilt card (7→8),
+Text reveal (7→8), Notification badge (7→8), Spinner to check (7→8), Success check (7→8), Form error (6→8),
+Avatar group (6→8). Drawer and Page transition no longer exceed the duration limit; Success check's 840ms halo is 220ms.
+
+Still below 8:
+- Skeleton to content 5 (from 4): the demo now resolves inside the judge window (one finite sweep timed to the load);
+  remaining note: replace masks in place with a short overlapping crossfade, and an interrupted replay can settle mixed.
+- Thinking states 6–7: judge noise; both the original and the judge's own suggested version scored 6. Kept original.
+- Input clear 7: precise but "little character"; clear icon now exits with the value.
+- Menu 7: left alone — Codex's native-evidence contract (8 CI shards) covers its exact behaviour.
+- Dialog 7: backdrop already fades in 100ms; the judge reads the blurred backdrop as abrupt.
+
+Bug found by the judge runs: Notification badge replay hung the page (attribute observer re-entered badge() because
+stLabel no longer mirrored the value). Fixed; node tests did not cover it.
+
 ## Motion judge calibration (2026-10-04)
 Same judge (codex, median of 3), same settings, transitions.dev homepage cards vs ours:
 
