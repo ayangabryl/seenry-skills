@@ -166,6 +166,25 @@ interfaces, the success-check tip and the state-transition tip.
 - Before pushing, run the CI browser tests locally (list in .github/workflows) — macOS has no `timeout`.
 - Still open: #14 full consistency pass on the unreviewed rows below, AI demo to 9, final release (version bump + changelog) once PR #65 CI is green.
 
+## Motion judge calibration (2026-10-04)
+Same judge (codex, median of 3), same settings, transitions.dev homepage cards vs ours:
+
+| Row | transitions.dev | Ours |
+|---|---|---|
+| Number | 6 (BLOCK: 640ms) | 7 → **8** after the fix below |
+| Notification badge | 7 | 7 |
+| Card resize | 7 (BLOCK: animates width/height) | 7 → **8** after the fix below |
+| AI thinking and streaming | not testable (Pro) | 8 |
+| Card expand | — | 8 |
+
+- Nothing scored above 8, including the reference; their per-transition pages have no playable controls and their AI demos are Pro-only.
+- A large stage (≈620px) did not lift AI (8/8/7): size is not the limiter for this row.
+- Shared source chips travelling between turns looked worse (they cross the new question) and were reverted.
+- Number fix: arriving digits are exact (sharp, clipped to their slot, monotonic 160ms); leaving digits keep the motion blur; removed cells fade without shrinking. Character 5 → 8.
+- Card resize fix: collapse has its own quick spring (snappy) and clears rows in 90ms; reversal brings rows straight back; chevron turns in 200ms. Interruption 5 → 8.
+- A follow-up round (full-slot digit travel; expand spring on open) scored 8/7/8 on both and was reverted.
+- Next step for 9: judge an unambiguous best-in-class reference (Apple/Linear-grade). If it also stays ≤8, the judge is the ceiling and the target needs the owner's decision.
+
 ## Component review log (2026-10-04, branch `transitions-review`)
 Each component filmed in slow motion (open, close, interrupt) and checked at 1440 and 390. "Bad design choice" means the
 layout or interaction model was wrong, not just the timing. Keep this table current.

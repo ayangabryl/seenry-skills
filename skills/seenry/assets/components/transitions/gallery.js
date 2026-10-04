@@ -14,7 +14,7 @@
   for (const [ms, fn] of steps) ms ? timers.push(setTimeout(fn, ms)) : fn();
   runs.set(key, timers);
  };
- let resized = false, badgeValue = 3, progressError = false;
+ let resized = false, badgeValue = 3, progressError = false, lastResize = 0;
  const resizeRows = [['Design', '4 updates', '#3e63dd'], ['Engineering', '6 updates', '#12a594'], ['Marketing', '2 updates', '#f76b15']];
  const doResize = () => {
   resized = !resized;
@@ -24,16 +24,19 @@
   // edge on the same spring instead of jumping there. Closing rows are clipped by the shrinking shell as they fade.
   const card = $('resize-card'), head = toggle.parentElement, inHead = () => toggle.getBoundingClientRect().left - head.getBoundingClientRect().left;
   let from = 0;
+  // Opening settles on the smooth spring; closing is a quicker, dedicated return so the shell never sits empty.
   S.resize(card, () => {
    from = inHead();
    card.classList.toggle('rz-open', resized);
    more.hidden = !resized;
    more.innerHTML = resizeRows.map(([t, n, c]) => `<div class="rz-row" style="--c:${c}"><i></i><span>${t}</span><em>${n}</em></div>`).join('');
-  });
+  }, {spring: resized ? 'smooth' : 'snappy'});
   const dx = from - inHead();
   if (Math.abs(dx) > .5 && !reduce()) S.play(toggle, [{translate: `${dx}px 0`}, {translate: '0 0'}], {spring: 'smooth', channel: 'ride', current: false});
   // Rows arrive one after another while the shell is still opening: a 6px rise and a light un-blur.
-  if (resized && !reduce()) [...more.children].forEach((r, i) => S.play(r, [{opacity: 0, transform: 'translateY(6px)', filter: 'blur(3px)'}, {opacity: 1, transform: 'none', filter: 'blur(0px)'}], {ms: 360, curve: 'O', delay: 70 + i * 45, fade: true, blur: false}));
+  // A reversal mid-motion brings the rows straight back; only a fresh opening waits for the room to be made.
+  const reversal = performance.now() - lastResize < 450; lastResize = performance.now();
+  if (resized && !reduce()) [...more.children].forEach((r, i) => S.play(r, [{opacity: 0, transform: 'translateY(6px)', filter: reversal ? 'blur(0px)' : 'blur(3px)'}, {opacity: 1, transform: 'none', filter: 'blur(0px)'}], {ms: reversal ? 160 : 360, curve: 'O', delay: reversal ? i * 20 : 70 + i * 45, fade: true, blur: false}));
  };
  replay.resize = doResize;
  replay.badge = () => { const el = $('badge'); S.badge(el, Number(el.dataset.value) === 12 ? 3 : 12); };
