@@ -601,12 +601,6 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 /* Morph menu v5: a header row reserves the trigger's height; the close pill (same shape as the trigger) turns its
    plus into a cross on the same spring that opens the menu. */
 .st-morph-head { display: flex; align-items: center; height: 40px; padding: 0 10px; margin-bottom: 2px; font: 500 13px/18px var(--font); color: var(--text-2); }
-[data-st-morph-close] .st-icon { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
-[data-st-open="true"] [data-st-morph-close] .st-icon { transform: rotate(45deg); }
-@media (prefers-reduced-motion: reduce) { [data-st-morph-close] .st-icon { transition: none; } }
-[data-st="plus-menu"] [data-st-morph-close].st-button.st-primary { display: inline-flex; justify-content: center; gap: 8px; width: auto; padding: 0 14px; background: var(--accent); color: var(--on-accent); box-shadow: none; font-weight: 500; }
-[data-st="plus-menu"] [data-st-morph-close].st-button.st-primary .st-icon { color: inherit; }
-@media (hover: hover) and (pointer: fine) { [data-st="plus-menu"] [data-st-morph-close].st-button.st-primary:hover { background: var(--accent-hover); } }
 
 /* Avatar group v5: the first person sits on top so every face (or initial) stays readable; the group opens on one
    spring when hovered or focused and closes on the same spring, so nothing jumps to the pointer. */
@@ -649,3 +643,9 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 [data-st-progress="error"] .st-status-mark::before { background: radial-gradient(closest-side, color-mix(in srgb, var(--bad) 22%, transparent), transparent); animation: st-halo 760ms var(--st-O) 80ms both; }
 @keyframes st-halo { 0% { opacity: 0; transform: scale(.7); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
 @media (prefers-reduced-motion: reduce) { .st-success-mark::before, .st-status-mark::before { animation: none !important; } }
+
+/* Rows painted while they cross during a sort are opaque at once: a fading paint lets text show through text. */
+[data-st-paint] { transition-property: transform, opacity !important; }
+/* Input clear: the placeholder waits until the cleared text has left, then fades in; the two never overlap. */
+[data-st="clear"] input::placeholder { transition: color 160ms var(--st-F); }
+[data-st="clear"][data-st-has-text="true"] input::placeholder { color: transparent; }

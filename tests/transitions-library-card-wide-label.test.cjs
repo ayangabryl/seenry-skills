@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const html = fs.readFileSync(process.argv[2] || path.join(__dirname, '../skills/seenry/assets/components/transitions/gallery.html'), 'utf8');
 const observed = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/transitions/native-card-wide-label-observed.json')));
-const markedSelector = '.stage:has([data-st-close-anchor]) .expand-surface';
+const markedSelector = '.stage:has(.cover-open) .expand-surface';
 const block = (text, start) => { const i = text.indexOf(start); assert(i >= 0, start); return text.slice(i + start.length, text.indexOf('}', i)); };
 const declarations = body => Object.fromEntries(body.split(';').filter(Boolean).map(s => { const p=s.indexOf(':');return [s.slice(0,p).trim(),s.slice(p+1).trim()]; }));
 function crossAxis(css, wide) {

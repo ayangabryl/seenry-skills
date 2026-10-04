@@ -166,6 +166,24 @@ interfaces, the success-check tip and the state-transition tip.
 - Before pushing, run the CI browser tests locally (list in .github/workflows) — macOS has no `timeout`.
 - Still open: #14 full consistency pass on the unreviewed rows below, AI demo to 9, final release (version bump + changelog) once PR #65 CI is green.
 
+## Component review log (2026-10-04, branch `transitions-review`)
+Each component filmed in slow motion (open, close, interrupt) and checked at 1440 and 390. "Bad design choice" means the
+layout or interaction model was wrong, not just the timing. Keep this table current.
+
+| Component | Verdict | Bad design choice found | Status |
+|---|---|---|---|
+| Button to menu | redesigned | A black Close pill on a menu (menus need no close: selection, outside click, Escape). The pill was pinned to stale trigger coordinates, so it overhung the panel, and the panel flipped upward like a popover | Fixed: no close control, panel's inner corner anchored on the button, never flips; phone shows the first group only so nothing clips |
+| Card expand | redesigned | Close pinned to the clicked row's arrow, so on the third album it floated bottom-right; track rows shortened by a 52px lane; panel full-stage height with dead space; first track permanently highlighted | Fixed: Close top-right on the header, full-width rows, panel at least as tall as the album list it covers (no row peeking), no stray highlight. CI no longer runs the retired Close-anchor evidence |
+| AI thinking and streaming | redesigned | The demo replaced the previous answer (dimmed, erased) — no real assistant erases history | Rebuilt as a thread: history leads (spring lead), reply trails (spring trail), card shell via kit resize (no layout height animation), answer streams into a reserved 2-line slot, sources light as cited, Stop reclaims the slot. Judge: 7 → 8, held at 8 for 15 rounds (exit/continuity trade 7↔8). Tried and rejected by the judge: word cross-blur, bubble scale-from-composer, fast cubic rise, bottom fade. Next idea: sources shared by consecutive turns (e.g. Docs) stay one element and FLIP to the new row instead of fading out and back |
+| Page transition | fixed | Inbox showed a half-cut third row | Two whole rows; detail stays a scroll region |
+| Copy to clipboard | fixed | The command being copied was truncated ("npm install seenry…") — you could not see what you copy | Header row holds the label and Copy; the command gets the full width and never truncates |
+| List | fixed | Mid-sort the crossing rows were see-through (their paint inherited the 180ms state fade, 58% opaque) | Painted rows are opaque at once |
+| Like | ok | — | Reviewed |
+| Form error | fixed | On phones the button wrapped under the field, pushing the error away from the input it explains | Field and button stay on one row; the error sits right under the field |
+| Switch | ok (deliberate) | Off track is darker than iOS on purpose: WCAG 1.4.11 3:1 | Keep |
+| Input clear | fixed | The placeholder appeared while the cleared text was still leaving, so they overlapped | Placeholder waits for the exit, then fades in |
+| Checkbox, Badge, Icon swap, Link, Popover, Image open, Tilt, Reveal | ok | — | Filmed in slow motion at 1440 and 390; no layout or interaction faults |
+
 ## Per-component status
 
 | Component | Status |

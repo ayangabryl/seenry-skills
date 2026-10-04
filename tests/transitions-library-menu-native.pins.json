@@ -2,13 +2,13 @@
   "schema": "menu-native-v5",
   "frozen": true,
   "reconstructionBaseCommit": "ccbf13127596d0941e151b2bdac7a4e14a69e3f0",
-  "bundleSHA256": "faf2d1b817f8e6f0aafd738dd4aaeebdfc44608672c7b71975fbdc3bd2d37bb8",
+  "bundleSHA256": "862e3312181b2f9e0e8f46e40b868237db93c4f4442aa18049c4072c02091936",
   "assets": {
-    "gallery.html": "97199a88ac091e674430136cc80a13db303597e3399c6d44a3e9dc23ff2fc358",
+    "gallery.html": "6c461ec0ea5d9fe22330683d28b115262967188abe965591bf41f97d15b4a804",
     "gallery.js": "66088145839a3f8925c47e40084d13ee563af9f5552b2746fc78139ad33bcb2a",
     "gallery-menu.js": "b9467f7a7c3a54ae257b4203e5c23e0103b05e478cba5731d7bd366611dcbf24",
-    "seenry-transitions.js": "c7f8030c3f142b16f39c023827bda98a095f592e8fe10dd74dcee253ed5ace88",
-    "seenry-transitions.css": "ac1c266c1e1765dad6dc367d56a48d7238a1a5642766fceea4341d7ff2f47d7b",
+    "seenry-transitions.js": "3b6c3a3f801c985ead52f8f3819b9ec172c170a4b04ec09f2e10f312c1a2f914",
+    "seenry-transitions.css": "71b026c304e0f787b7a0f37703b5684839d68f67bf35dbcf6cc4c2ef21841fa5",
     "assets/morning.jpg": "8d489f3ba1698592863b06b02ba34f4d697e87e227be92d1244c12f4f7dc9a25",
     "assets/lake.jpg": "26f1167b6c07e4d67cd90c469390ebb310bfa082a7d86e0e3758f616176378c7",
     "assets/forest.jpg": "b944abd87e265d383d021181a00eb153babf605d2746d859be6be910a2deb1ed"
