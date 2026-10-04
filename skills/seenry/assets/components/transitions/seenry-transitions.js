@@ -257,7 +257,8 @@
    // A status line changes in its own slot with a 2px lift: the old label clears before the new one starts, so two
    // labels are never drawn over each other.
    const movement=thinking?{transform:'translateY(-2px)',filter:'blur(3px)'}:{transform:'translateY(-3px)'};
-   if (thinking && !reduced()) play(next,[{filter:'blur(3px)'},{filter:'blur(0px)'}],{ms:260,curve:'O',delay:o.tight?0:20,channel:'f',current:false});
+   // A tight swap is an acknowledgement (Stopped, Answered): it lands sharp, without the soft focus pull.
+   if (thinking && !o.tight && !reduced()) play(next,[{filter:'blur(2px)'},{filter:'blur(0px)'}],{ms:140,curve:'O',delay:20,channel:'f',current:false});
    play(current,[{opacity:0,...movement}],{ms:thinking?40:50,curve:'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
    const lag = o.tight ? 0 : thinking ? 20 : 30;
    return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:thinking?80:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:thinking?'translateY(2px)':'translateY(3px)'},{transform:'none'}],{ms:thinking?110:160,delay:lag,curve:'E',channel:'t',current:false})]);
@@ -367,7 +368,9 @@
   const morph = kind === 'plus-menu' || el.hasAttribute('data-st-morph');
   let x = align === 'start' ? t.left : align === 'end' ? t.right - w : t.left + t.width / 2 - w / 2;
   let y = side === 'bottom' ? t.bottom + gap : t.top - gap - h;
-  if (morph) { x = align === 'end' ? t.right - w : t.left; y = side === 'bottom' ? t.top : t.bottom - h; }
+  // A morphing surface grows out of its trigger: its inner top corner (inside the 5px body padding) sits exactly on the
+  // trigger, so the close control that replaces the trigger lands in the same spot. It never flips like a popover.
+  if (morph) { const pad = 5; x = align === 'end' ? t.right - w + pad : t.left - pad; y = t.top - pad; }
   x = clamp(x, 8, Math.max(8, innerWidth - w - 8)); y = clamp(y, 8, Math.max(8, innerHeight - h - 8));
   if (el.hasAttribute('data-st-contained')) {
    const host = el.offsetParent.getBoundingClientRect();
@@ -437,14 +440,17 @@
    // The surface lives in a body that is clipped; the layer itself only draws a drop shadow, which follows the clip.
    if (!s.body) { s.body = doc.createElement('div'); s.body.className = 'st-morph-body'; s.body.append(...el.childNodes); el.append(s.body); el.dataset.stMorphReady = ''; }
    if (!s.label) { s.label = doc.createElement('span'); s.label.className = 'st-morph-label'; s.label.setAttribute('aria-hidden', 'true'); s.body.append(s.label); }
-   s.label.innerHTML = s.trigger.innerHTML; const tcs = getComputedStyle(s.trigger);
+   s.label.innerHTML = s.trigger.innerHTML; const tcs = getComputedStyle(s.trigger), endAligned = (el.dataset.stPlacement || '').endsWith('end');
+   // Both the painted trigger copy and the close control are anchored to the panel's inner corner, never to stale
+   // trigger coordinates, so they stay inside the panel even when it is clamped to its container.
+   const corner = endAligned ? {right: '5px', left: 'auto', top: '5px'} : {left: '5px', right: 'auto', top: '5px'};
    // The label layer is a painted copy of the trigger, so the first frame is the button itself.
-   Object.assign(s.label.style, {position: 'absolute', zIndex: '3', left: t.left - mr.left + 'px', top: t.top - mr.top + 'px', width: t.width + 'px', height: t.height + 'px', display: 'flex', alignItems: 'center', justifyContent: tcs.justifyContent, padding: tcs.padding, boxSizing: 'border-box', gap: tcs.gap, color: tcs.color, font: tcs.font, letterSpacing: tcs.letterSpacing, pointerEvents: 'none', borderRadius: tcs.borderRadius, background: tcs.backgroundColor, boxShadow: tcs.boxShadow});
+   Object.assign(s.label.style, {position: 'absolute', zIndex: '3', ...corner, width: t.width + 'px', height: t.height + 'px', display: 'flex', alignItems: 'center', justifyContent: tcs.justifyContent, padding: tcs.padding, boxSizing: 'border-box', gap: tcs.gap, color: tcs.color, font: tcs.font, letterSpacing: tcs.letterSpacing, pointerEvents: 'none', borderRadius: tcs.borderRadius, background: tcs.backgroundColor, boxShadow: tcs.boxShadow});
    s.trigger.style.visibility = 'hidden';
    // Open and close are one control in one place: a close pill shaped like the trigger sits exactly where the trigger
    // was, so the same spot that opened the menu closes it.
    const closer = q(s.body, '[data-st-morph-close]');
-   if (closer) Object.assign(closer.style, {position: 'absolute', zIndex: '4', margin: '0', left: t.left - mr.left + 'px', top: t.top - mr.top + 'px', height: t.height + 'px', minWidth: t.width + 'px'});
+   if (closer) Object.assign(closer.style, {position: 'absolute', zIndex: '4', margin: '0', ...corner, height: t.height + 'px', minWidth: t.width + 'px'});
    const content = [...s.body.children].filter(c => c !== s.label && c !== closer);
    if (closer) play(closer, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'O', delay: 30, channel: 'o', fade: true, blur: false});
    play(s.body, [{clipPath: triggerInset(el, s.trigger)}, {clipPath: 'inset(0px 0px 0px 0px round 14px)'}], {spring: 'snappy', channel: 'clip'}).then(ok => { if (ok && s.version === v) el.classList.remove('st-morphing'); });
@@ -977,7 +983,7 @@
   if (s.stopped) return;
   s.buffer += chunk || '';
   el.setAttribute('aria-busy', String(!done));
-  // Letters are revealed faster than text arrives, so the soft edge stays a few letters long and never backs up.
+  // Letters are revealed faster than text arrives: a crisp typing edge a few letters long that never backs up.
   const at = () => { const now = performance.now(); s.t = Math.max(s.t, now) + 3; return s.t - now; };
   const flush = () => {
    s.frame = 0; if (!el.isConnected || !s.buffer) { s.buffer = ''; return; }
@@ -992,13 +998,14 @@
     if (cite) {
      const sup = doc.createElement('sup'); sup.className = 'st-cite'; sup.textContent = cite[1]; el.append(sup);
      const delay = reduced() ? 0 : at();
-     if (!reduced()) play(sup, [{opacity: 0, transform: 'translateY(2px) scale(.8)'}, {opacity: 1, transform: 'none'}], {spring: 'snappy', delay, current: false});
+     // A citation is a reference, not an event: it simply fades in once its words are readable.
+     if (!reduced()) play(sup, [{opacity: 0}, {opacity: 1}], {ms: 80, curve: 'F', delay: delay + 40, fade: true, current: false});
      el.dispatchEvent(new CustomEvent('st:cite', {bubbles: true, detail: {n: +cite[1], delay}}));
      continue;
     }
     const span = doc.createElement('span'); span.className = 'st-word'; el.append(span);
     if (reduced()) { span.textContent = w; continue; }
-    for (const ch of w) { const c = doc.createElement('span'); c.textContent = ch; span.append(c); play(c, [{opacity: 0}, {opacity: 1}], {ms: 40, curve: 'linear', delay: at(), fade: true, current: false}); }
+    for (const ch of w) { const c = doc.createElement('span'); c.textContent = ch; span.append(c); play(c, [{opacity: 0}, {opacity: 1}], {ms: 12, curve: 'linear', delay: at(), fade: true, current: false}); }
    }
   };
   if (done) { cancelAnimationFrame(s.frame); flush(); el.dispatchEvent(new CustomEvent('st:stream-end', {bubbles: true})); }

@@ -166,6 +166,23 @@ interfaces, the success-check tip and the state-transition tip.
 - Before pushing, run the CI browser tests locally (list in .github/workflows) — macOS has no `timeout`.
 - Still open: #14 full consistency pass on the unreviewed rows below, AI demo to 9, final release (version bump + changelog) once PR #65 CI is green.
 
+## Component review log (2026-10-04, branch `transitions-review`)
+Each component filmed in slow motion (open, close, interrupt) and checked at 1440 and 390. "Bad design choice" means the
+layout or interaction model was wrong, not just the timing. Keep this table current.
+
+| Component | Verdict | Bad design choice found | Status |
+|---|---|---|---|
+| Button to menu | redesigned | A black Close pill on a menu (menus need no close: selection, outside click, Escape). The pill was pinned to stale trigger coordinates, so it overhung the panel, and the panel flipped upward like a popover | Fixed: no close control, panel's inner corner anchored on the button, never flips; phone shows the first group only so nothing clips |
+| Card expand | redesigned | Close pinned to the clicked row's arrow, so on the third album it floated bottom-right; track rows shortened by a 52px lane; panel full-stage height with dead space; first track permanently highlighted | Fixed: Close top-right on the header, full-width rows, panel sized to content, no stray highlight |
+| AI thinking and streaming | redesigned | The demo replaced the previous answer (dimmed, erased) — no real assistant erases history | Rebuilt as a thread: history leads up, reply trails, answer streams into reserved space, sources light as cited. Judge 8 (from 7); not yet 9 |
+| Page transition | fixed | Inbox showed a half-cut third row | Two whole rows; detail stays a scroll region |
+| Copy to clipboard | open | The command being copied is truncated ("npm install seenry…") — you cannot see what you copy | To fix |
+| List | open | Mid-sort, the lifted row passes under the other rows' text | To fix |
+| Like | ok | — | Reviewed |
+| Form error | ok | — | Reviewed |
+| Switch | ok (deliberate) | Off track is darker than iOS on purpose: WCAG 1.4.11 3:1 | Keep |
+| Checkbox, Badge, Icon swap, Input clear, Link, Popover, Image, Tilt, Reveal | pending | | Review next |
+
 ## Per-component status
 
 | Component | Status |

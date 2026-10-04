@@ -582,7 +582,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 .ex-tracks{list-style:none;margin:0;padding:0;display:grid}
 .ex-tracks li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;height:32px;padding:0 10px;border-radius:8px;font-size:14px}
 .ex-tracks li>span:first-child,.ex-tracks li>span:last-child{color:var(--text-2);font-variant-numeric:tabular-nums}
-.ex-tracks li:first-child{background:var(--hover)}
+
 @container(max-width:340px){
  .expand-surface .ex-head .cover{width:64px;height:64px}
  .expand-surface .ex-name{padding-right:52px}
@@ -603,7 +603,7 @@ html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
 /* AI: sources sit in one quiet row and light up as they are read; the answer keeps its own reserved block. */
 .sources{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
 .sources span{height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:99px;font-size:13px!important;background:var(--surface-2);color:var(--text-3);transition:color 120ms var(--st-F),background-color 120ms var(--st-F)}
-.sources span{color:var(--text)}.sources span.reading{background:color-mix(in srgb,var(--accent,#3b82f6) 16%,var(--surface-2))}
+.sources span{color:var(--text)}.sources span{transition:background-color 180ms cubic-bezier(.25,0,.06,1)}.sources span.reading{background:color-mix(in srgb,var(--accent,#3b82f6) 16%,var(--surface-2))}
 .stage .chat{gap:10px}.stage .chat .answer{min-height:66px}
 @media(prefers-reduced-motion:reduce){.sources span{transition:none}}
 /* While an answer is being written: a small breathing dot holds the writing position, and the sparkle turns slowly. */
@@ -709,28 +709,28 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 }
 /* Anchored Card prototype: one explicit action lane, including wide catalogue tiles.
    Source and detail share a capped row measure; the full shell contains every source row. */
-.stage:has([data-st-close-anchor]) .covers{grid-template-columns:1fr;gap:8px;width:min(100%,420px)}
-.stage .covers:has([data-st-close-anchor]) .cover-card{position:relative;display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
-.stage .covers:has([data-st-close-anchor]) .cover-card>.cover{grid-row:auto;width:60px;height:60px}
-.stage .covers:has([data-st-close-anchor]) .cover-label{align-self:center;padding-right:52px}
-.stage .covers:has([data-st-close-anchor]) .cover-label b{width:auto;white-space:normal;overflow-wrap:anywhere}
-.stage .covers:has([data-st-close-anchor]) .cover-open{position:absolute;top:8px;right:8px;width:44px;height:44px;display:grid;place-items:center}
-.stage:has([data-st-close-anchor]) .expand-surface{inset-inline:max(var(--album-gutter),calc(50% - 210px));display:flex;flex-direction:column;align-items:stretch;padding:6px;gap:10px;border-radius:18px}
-.stage:has([data-st-close-anchor]) .ex-head{flex-direction:row;align-items:center;gap:12px}
-.stage:has([data-st-close-anchor]) .ex-head .cover{width:60px;height:60px;border-radius:12px}
-.stage:has([data-st-close-anchor]) .ex-name{padding-right:52px}
-.stage:has([data-st-close-anchor]) .ex-name h4{white-space:normal;overflow-wrap:anywhere}
-.stage:has([data-st-close-anchor]) .close-x{top:8px;right:8px;width:44px;height:44px;min-width:44px;min-height:44px}
-.stage:has([data-st-close-anchor]) .ex-preview{padding-right:52px;margin-top:0}
-.stage:has([data-st-close-anchor]) .ex-tracks li{height:auto;min-height:32px;padding-block:4px;align-items:start}
-.stage:has([data-st-close-anchor]) .ex-tracks li>span:nth-child(2){min-width:0;overflow-wrap:anywhere}
-.stage:has([data-st-close-anchor]) .ex-tracks li>span:last-child{white-space:nowrap}
+.stage:has(.cover-open) .covers{grid-template-columns:1fr;gap:8px;width:min(100%,420px)}
+.stage .covers:has(.cover-open) .cover-card{position:relative;display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
+.stage .covers:has(.cover-open) .cover-card>.cover{grid-row:auto;width:60px;height:60px}
+.stage .covers:has(.cover-open) .cover-label{align-self:center;padding-right:52px}
+.stage .covers:has(.cover-open) .cover-label b{width:auto;white-space:normal;overflow-wrap:anywhere}
+.stage .covers:has(.cover-open) .cover-open{position:absolute;top:8px;right:8px;width:44px;height:44px;display:grid;place-items:center}
+.stage:has(.cover-open) .expand-surface{inset-inline:max(var(--album-gutter),calc(50% - 210px));display:flex;flex-direction:column;align-items:stretch;padding:6px;gap:10px;border-radius:18px}
+.stage:has(.cover-open) .ex-head{flex-direction:row;align-items:center;gap:12px}
+.stage:has(.cover-open) .ex-head .cover{width:60px;height:60px;border-radius:12px}
+.stage:has(.cover-open) .ex-name{padding-right:52px}
+.stage:has(.cover-open) .ex-name h4{white-space:normal;overflow-wrap:anywhere}
+.stage:has(.cover-open) .close-x{top:8px;right:8px;width:44px;height:44px;min-width:44px;min-height:44px}
+.stage:has(.cover-open) .ex-preview{padding-right:0;margin-top:0}
+.stage:has(.cover-open) .ex-tracks li{height:auto;min-height:32px;padding-block:4px;align-items:start}
+.stage:has(.cover-open) .ex-tracks li>span:nth-child(2){min-width:0;overflow-wrap:anywhere}
+.stage:has(.cover-open) .ex-tracks li>span:last-child{white-space:nowrap}
 /* The action point stays put on press; only its artwork gives the small tactile response. */
-.stage .covers:has([data-st-close-anchor]) .cover-card:active{transform:none}
-.stage .covers:has([data-st-close-anchor]) .cover-card:active .cover{transform:scale(.98)}
-@media(prefers-reduced-motion:reduce){.stage .covers:has([data-st-close-anchor]) .cover-card:active .cover{transform:none}}
+.stage .covers:has(.cover-open) .cover-card:active{transform:none}
+.stage .covers:has(.cover-open) .cover-card:active .cover{transform:scale(.98)}
+@media(prefers-reduced-motion:reduce){.stage .covers:has(.cover-open) .cover-card:active .cover{transform:none}}
 /* Reserve the wrapped preview before interaction, so opening never shifts the source anchor. */
-@media(max-width:360px){.card[data-key="expand"]>.stage,#library-detail .stage:has([data-st-close-anchor]){min-height:368px}}
+@media(max-width:360px){.card[data-key="expand"]>.stage,#library-detail .stage:has(.cover-open){min-height:368px}}
 
 /* Menu preview: real local outcomes; rows and feedback grow with their content. */
 .card[data-key="menu"] .caption p{white-space:normal;overflow:visible}
@@ -806,6 +806,25 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 .caption p{pointer-events:none}
 /* The inbox shows whole rows only: two messages fit the stage above Replay, so the third never peeks in half-cut. */
 .stage .mail{height:186px}.stage .mail-list .msg:nth-child(n+3){display:none}
+/* AI thread: bottom-anchored like a chat. At rest only the newest turn shows, whole; during a follow-up the height
+   holds and the earlier turn passes under a soft top fade, then retires. */
+.stage .chat{height:auto;min-height:0;max-height:none;padding:12px}
+.chat-view{overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.chat-view.threading{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 12px);mask-image:linear-gradient(to bottom,transparent 0,#000 12px)}
+.chat-track{display:grid;gap:18px}
+.chat .turn{display:grid;gap:10px}
+.stage .chat .turn .thinking-row{margin:0}.stage .chat .turn .bubble{margin:0}
+.stage .chat .turn .answer{min-height:40px}
+/* Button to menu on phones: the stage cannot hold four rows under the header above Replay, so the demo shows its
+   first group only. The menu is never clipped or scrolled. */
+@media(max-width:650px){.stage #morph-1{max-height:none;overflow:visible}.stage #morph-1 hr,.stage #morph-1 [role=menuitem]:last-of-type{display:none}}
+/* Card expand: Close is the header’s top-right action on every album, the track rows run the full width, and the
+   surface is as tall as its content, so nothing floats in leftover space. */
+.stage:has(.cover-open) .expand-surface{bottom:auto}
+/* Copy: the command is never truncated. The action lives in a header row, the command gets the full width. */
+.code.code-block{display:grid;gap:6px;padding:6px 6px 14px 14px;align-items:stretch}
+.code-block .code-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font:500 13px/1 var(--font);color:var(--text-2)}
+.code-block code{overflow:visible;white-space:normal;overflow-wrap:anywhere;line-height:20px;padding-right:8px}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -885,7 +904,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      <button type="button" class="replay" data-replay="menu" data-st-keep><svg class="st-icon" aria-hidden="true"><use href="#i-replay"/></svg>Open menu</button>
     </div>
     <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Rename, duplicate and undo a local delete.</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>trigger-relative menu</span><span>instant keyboard input</span><span>local actions + Undo</span></div></div>
-   </article><article class="card" data-key="morph" data-why="The menu grows out of the button that asked for it, in the button’s own fill, so there is one object that changes state rather than two shapes swapping. Close sits exactly where New was: the hand that opened it never has to look for the way out." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Button to menu">
+   </article><article class="card" data-key="morph" data-why="The menu grows out of the button that asked for it, in the button’s own fill, so there is one object that changes state rather than two shapes swapping. Like any menu it needs no close button: choosing an item, clicking outside or pressing Escape folds it back into New." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Button to menu">
     <div class="stage" data-st-preview>
      <div class="app" style="width:min(100%,380px)">
       <div class="app-bar"><span class="app-title">Drive</span><button class="st-button st-primary" id="morph-trigger" data-st-target="morph-1" aria-haspopup="menu" aria-expanded="false"><svg class="st-icon"><use href="#i-plus"/></svg>New</button></div>
@@ -894,7 +913,6 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      </div>
      <div id="morph-1" data-st="plus-menu" data-st-placement="bottom-end" data-st-contained role="menu" aria-label="Create new">
       <div class="st-morph-head" aria-hidden="true">Create new</div>
-      <button class="st-button st-primary" data-st-morph-close data-st-close aria-label="Close menu"><svg class="st-icon"><use href="#i-plus"/></svg>Close</button>
       <button role="menuitem"><svg class="st-icon"><use href="#i-doc"/></svg>Document</button>
       <button role="menuitem"><svg class="st-icon"><use href="#i-table"/></svg>Spreadsheet</button>
       <button role="menuitem"><svg class="st-icon"><use href="#i-move"/></svg>Folder</button>
@@ -977,12 +995,12 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      <div id="tip-comment" data-st="tooltip" popover>Comment<kbd>⌥⌘M</kbd></div>
     <button class="replay" data-replay="tooltip" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="tooltip">Tooltip</button></h3><p>Context follows focus</p><button class="snippet-copy" data-st="copy" data-snippet="tooltip" aria-label="Copy HTML for Tooltip"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>dwell 400</span><span>glide spring .26</span><span>exit 80 F</span></div></div>
-   </article><article class="card" data-key="expand" data-category="Surfaces" data-why="A 6px inset keeps artwork clear of the still hover edge. Pointer motion preserves the album and keeps Close in the indicated action lane. Layouts that cannot preserve that point open and close instantly. Keyboard changes are instant; reduced motion removes travel and blur. Covered album choices leave the focus order until close. The 3-track preview keeps the album’s total count, and Replay has its own space." tabindex="0" data-motion-region data-motion-label="Card expand">
+   </article><article class="card" data-key="expand" data-category="Surfaces" data-why="The album you pick grows into the detail: its artwork, title and count travel to their new places, so you never lose what you chose. Close sits top-right of the header on every album, the track rows use the full width, and the panel is only as tall as its content. Keyboard changes are instant; reduced motion removes travel and blur." tabindex="0" data-motion-region data-motion-label="Card expand">
     <div class="stage" data-st-preview>
      <div class="covers" id="covers" data-st-expand-sources>
-      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></span><span class="cover-open" data-st-close-anchor aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
-      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Night Swim</b><span data-st-shared="meta">9 tracks</span></span><span class="cover-open" data-st-close-anchor aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
-      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Greenhouse</b><span data-st-shared="meta">11 tracks</span></span><span class="cover-open" data-st-close-anchor aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Night Swim</b><span data-st-shared="meta">9 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Greenhouse</b><span data-st-shared="meta">11 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
      </div>
      <div id="expand-1" data-st="expand" role="dialog" aria-label="Album details">
       <div data-st-scrim style="border-radius:0"></div>
@@ -1052,8 +1070,9 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
     <div class="caption"><h3><button class="title-link" data-detail="button">Button states</button></h3><p>Loading to a result</p><button class="snippet-copy" data-st="copy" data-snippet="button" aria-label="Copy HTML for Button states"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>fixed footprint</span><span>icon spring</span><span>error shake 320</span></div></div>
    </article><article class="card" data-key="copy" data-why="The icon swaps in place and the label confirms with a word, so the feedback appears exactly where the click happened. It reverts on its own, because copied is a moment, not a state." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Copy to clipboard">
     <div class="stage" data-st-preview>
-     <div class="code"><code><b>$</b> npm install seenry-transitions</code>
-      <button class="st-button copy-btn" data-st="copy" id="copy-1" data-st-copy="npm install seenry-transitions"><span class="st-swap" aria-hidden="true"><svg class="st-icon"><use href="#i-copy"/></svg><svg class="st-icon"><use href="#i-check"/></svg></span><span data-st="text">Copy</span></button>
+     <div class="code code-block"><div class="code-head"><span>Terminal</span>
+      <button class="st-button copy-btn" data-st="copy" id="copy-1" data-st-copy="npm i seenry-transitions"><span class="st-swap" aria-hidden="true"><svg class="st-icon"><use href="#i-copy"/></svg><svg class="st-icon"><use href="#i-check"/></svg></span><span data-st="text">Copy</span></button></div>
+      <code><b>$</b> npm i seenry-transitions</code>
      </div>
     <button class="replay" data-replay="copy" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="copy">Copy to clipboard</button></h3><p>Copy, then confirm</p><button class="snippet-copy" data-st="copy" data-snippet="copy" aria-label="Copy HTML for Copy to clipboard"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>scale .5 · blur 3</span><span>glyph roll</span><span>reverts 1.6s</span></div></div>
@@ -1136,16 +1155,16 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      </div>
     <button class="replay" data-replay="skeleton" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>resolve 45ms stagger</span><span>image blur 10 → 0</span></div></div>
-   </article><article class="card" data-key="ai" data-why="Status comes first, sources light up one at a time, and the answer arrives word by word, each rising 3px into place, so streaming reads as calm progress rather than flicker. Pressing again stops it and keeps what has arrived." data-category="AI" tabindex="0" data-motion-region data-motion-label="AI thinking and streaming">
+   </article><article class="card" data-key="ai" data-why="Nothing is erased: a follow-up moves the whole conversation up together, so the earlier answer slides under a soft fade instead of vanishing. The new answer streams into space already reserved for it, and each source lights the moment its citation lands. Pressing again stops it and keeps what has arrived." data-category="AI" tabindex="0" data-motion-region data-motion-label="AI thinking and streaming">
     <div class="stage" data-st-preview>
-     <div class="app chat" id="chat">
+     <div class="app chat"><div class="chat-view" id="chat"><div class="chat-track" id="chat-track"><div class="turn">
       <div class="bubble">Summarise this week's releases</div>
-      <div class="thinking-row" id="think-row"><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think" data-st-done="true">Answered from 3 sources</span></div>
-      <div class="sources" id="ai-sources" aria-label="Sources"><span>Changelog</span><span>Release notes</span><span>Docs</span></div>
-      <div class="answer" data-st="stream" id="answer" aria-live="polite" aria-busy="false">Three releases shipped: saved cards<sup class="st-cite">1</sup>, editor comments<sup class="st-cite">2</sup> and faster exports<sup class="st-cite">3</sup>.</div>
-     </div>
+      <div class="thinking-row"><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think" data-st-done="true">Answered from 3 sources</span></div>
+      <div class="sources" aria-label="Sources"><span>Changelog</span><span>Release notes</span><span>Docs</span></div>
+      <div class="answer" data-st="stream" aria-live="polite" aria-busy="false">Three releases shipped: saved cards<sup class="st-cite">1</sup>, editor comments<sup class="st-cite">2</sup> and faster exports<sup class="st-cite">3</sup>.</div>
+     </div></div></div></div>
     <button class="replay" data-replay="ai" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="ai">AI thinking and streaming</button></h3><p>Status, then an answer</p><button class="snippet-copy" data-st="copy" data-snippet="ai" aria-label="Copy HTML for AI thinking and streaming"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>sources read 120ms apart</span><span>words rise 3px</span><span>second press stops</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="ai">AI thinking and streaming</button></h3><p>A thread that keeps its history</p><button class="snippet-copy" data-st="copy" data-snippet="ai" aria-label="Copy HTML for AI thinking and streaming"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>history leads, reply trails</span><span>sources light as cited</span><span>second press stops</span></div></div>
    </article><article class="card" data-key="checkbox" data-why="The tick draws along its path, so the mark reads as made rather than shown, and the label is struck through 40ms later, so cause and effect read in order. The box gives a little on press." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Checkbox">
     <div class="stage" data-st-preview>
      <div class="app list-card checklist">
@@ -1252,36 +1271,61 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
  const extra = [['Book user interviews', 'Due Wed', 'var(--info)', 3, 2], ['Draft release notes', 'Due Fri', 'var(--warn)', 2, 4], ['Rotate API keys', 'Due Mon', 'var(--bad)', 1, 1]]; let extraI = 0;
  $('add-task').addEventListener('click', () => { const [t, d, c, p, due] = extra[extraI++ % extra.length]; const li = document.createElement('li'); li.className = 'task';  li.dataset.prio = p; li.dataset.due = due; li.innerHTML = `<svg class="st-icon muted"><use href="#i-doc"/></svg><div class="grow"><b>${t}</b><span>${d}</span></div><button class="icon-btn" data-remove aria-label="Remove ${t}"><svg class="st-icon"><use href="#i-x"/></svg></button>`; if (taskList.children.length >= 4) S.list.remove(taskList.lastElementChild); S.list.add(taskList, li, 0); });
 
- // AI: the search is visible (each source lights as it is read), words start arriving within 150ms, and a second
- // press stops the answer like a real assistant: before writing begins it returns to the previous answer.
- let aiRun = 0, aiPhase = 'idle', aiPrev = '';
- const answers = ['Three releases shipped: saved cards[1], editor comments[2] and faster exports[3].', 'Exports are 40% faster[1], and comments now thread inside the editor[2].'];
- let answerIndex = 0;
- // A citation lights its source the moment the text reaches it.
- $('answer').addEventListener('st:cite', e => { const chip = $('ai-sources').children[e.detail.n - 1]; if (!chip) return;
-  setTimeout(() => { chip.classList.add('reading'); setTimeout(() => chip.classList.remove('reading'), 260); }, e.detail.delay); });
+ // AI: a real thread. Each Replay asks the next follow-up: the whole conversation moves up together (the earlier turn
+ // slides under the top fade instead of vanishing), the question arrives from the composer side, and the answer
+ // streams into a reserved two-line slot so nothing below it jumps. A second press while writing stops the answer.
+ const QA = [
+  {q: "Summarise this week's releases", a: 'Three releases shipped: saved cards[1], editor comments[2] and faster exports[3].', src: ['Changelog', 'Release notes', 'Docs']},
+  {q: 'What got faster?', a: 'Exports are 40% faster[1], search answers in half the time[2] and sync starts sooner[3].', src: ['Release notes', 'Benchmarks', 'Docs']},
+  {q: 'What should I test first?', a: 'Export a long deck[1], reply in a comment thread[2], then check sync[3].', src: ['QA checklist', 'Changelog', 'Docs']}];
+ let aiRun = 0, aiPhase = 'idle', qaIndex = 0, live = null;
+ const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const track = $('chat-track');
+ const bindCites = t => t.answer.addEventListener('st:cite', e => { const c = t.chips[e.detail.n - 1]; if (!c) return;
+  setTimeout(() => { c.classList.add('reading'); setTimeout(() => c.classList.remove('reading'), 260); }, e.detail.delay); });
  const runAI = () => {
-  const think = $('think'), out = $('answer'), chips = [...$('ai-sources').children];
-  if (aiPhase === 'search') {
-   ++aiRun; aiPhase = 'idle';
-   S.play(out, [{opacity: 1}], {ms: 90, curve: 'E', current: true});
-   chips.forEach(c => c.classList.remove('reading')); think.dataset.stDone = 'true'; $('think-row').removeAttribute('data-busy'); S.swapText(think, 'Answered from 3 sources', {tight: true}); return;
+  if (aiPhase === 'write' && live) { ++aiRun; aiPhase = 'idle'; S.stream(live.answer, '', {stop: true}); live.row.removeAttribute('data-busy'); live.think.dataset.stDone = 'true'; S.swapText(live.think, 'Stopped', {tight: true});
+   // A stopped answer gives back the room it had reserved, so it can't be mistaken for one still arriving.
+   const a = live.answer, from = a.offsetHeight; a.style.minHeight = '0px'; const to = a.offsetHeight;
+   if (from !== to && !reduce()) S.play(a, [{minHeight: from + 'px'}, {minHeight: to + 'px'}], {spring: 'smooth', current: false});
+   // Stopping cancels this run's timers, so the earlier turn still retires on its own schedule.
+   setTimeout(live.retire, Math.max(0, live.retireAt - performance.now())); return; }
+  const run = ++aiRun, later = (fn, ms) => setTimeout(() => { if (run === aiRun) fn(); }, ms), t = QA[qaIndex = (qaIndex + 1) % QA.length];
+  [...track.children].slice(0, -1).forEach(n => n.remove()); $('chat').getAnimations().forEach(x => x.cancel()); $('chat').style.height = '';
+  track.querySelector('#think')?.removeAttribute('id');
+  const turn = document.createElement('div'); turn.className = 'turn';
+  turn.innerHTML = `<div class="bubble">${t.q}</div><div class="thinking-row" data-busy><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think">Writing</span></div><div class="sources" aria-label="Sources">${t.src.map(x => `<span>${x}</span>`).join('')}</div><div class="answer" data-st="stream" aria-live="polite" aria-busy="true"></div>`;
+  const chat = $('chat'), olds = [...track.children], h0 = track.offsetHeight, hold = chat.offsetHeight;
+  chat.classList.add('threading'); track.append(turn); const rise = track.offsetHeight - h0;
+  // The card eases to the new turn's height on the reply's spring, so its shell never jumps when history retires.
+  const fit = turn.offsetHeight; chat.style.height = hold + 'px';
+  if (!reduce() && fit !== hold) S.play(chat, [{height: hold + 'px'}, {height: fit + 'px'}], {spring: 'trail', channel: 'h', fill: 'forwards', current: false});
+  const retire = () => { olds.forEach(n => n.remove()); chat.getAnimations().forEach(x => x.cancel()); chat.style.height = ''; chat.classList.remove('threading'); };
+  const retireAt = performance.now() + (reduce() ? 0 : 420);
+  const L = live = {retire, retireAt, answer: turn.querySelector('.answer'), think: turn.querySelector('[data-st=thinking]'), row: turn.querySelector('.thinking-row'), chips: [...turn.querySelectorAll('.sources span')]};
+  bindCites(L);
+  if (!reduce()) {
+   track.getAnimations().forEach(x => x.cancel());
+   // Lead and trail: the history departs on a quick spring and clears the way; the new turn follows on a softer one
+   // and settles last. Both start from where the thread was, so nothing jumps.
+   olds.forEach(n => {
+    S.play(n, [{transform: `translateY(${rise}px)`}, {transform: 'none'}], {spring: 'lead', channel: 't', current: false});
+    S.play(n, [{opacity: 1}, {opacity: 0}], {ms: 80, curve: 'cubic-bezier(.4,0,1,1)', delay: 80, channel: 'o', fill: 'forwards', fade: true});
+   });
+   S.play(turn, [{transform: `translateY(${rise}px)`}, {transform: 'none'}], {spring: 'trail', channel: 't', current: false});
+   // Question, status and sources arrive attached to the message in that order; the answer slot needs no fade, its
+   // letters are the reveal.
+   const [q, row, src] = turn.children;
+   S.play(q, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', fade: true, current: false});
+   S.play(row, [{opacity: 0, transform: 'translateY(3px)'}, {opacity: 1, transform: 'none'}], {ms: 100, curve: 'O', delay: 40, fade: true, current: false});
+   S.play(src, [{opacity: 0, transform: 'translateY(3px)'}, {opacity: 1, transform: 'none'}], {ms: 120, curve: 'O', delay: 70, fade: true, current: false});
   }
-  if (aiPhase === 'write') {
-   ++aiRun; aiPhase = 'idle'; S.stream(out, '', {stop: true}); think.dataset.stDone = 'true'; $('think-row').removeAttribute('data-busy');
-   S.swapText(think, 'Stopped', {tight: true});
-   return;
-  }
-  const run = ++aiRun, later = (fn, ms) => setTimeout(() => { if (run === aiRun) fn(); }, ms);
-  const words = answers[answerIndex = (answerIndex + 1) % answers.length].match(/\[\d+\]|\S+\s*/g); let i = 0;
-  aiPrev = out.innerHTML; aiPhase = 'search'; delete think.dataset.stDone; S.swapText(think, 'Reading 3 sources'); $('think-row').setAttribute('data-busy', '');
-  // The previous answer dims in place and is replaced the moment new words arrive: the answer area is never blank.
-  S.play(out, [{opacity: .35}], {ms: 50, curve: 'X', fill: 'forwards'});
-  // Each source is read in turn, long enough to register (120ms apart, lit 260ms), before a word is written.
-  chips.forEach((c, k) => { c.classList.remove('reading'); later(() => { c.classList.add('reading'); later(() => c.classList.remove('reading'), 260); }, 40 + k * 120); });
-  const tick = () => { if (run !== aiRun) return; const done = i + 2 >= words.length; S.stream(out, words.slice(i, i + 2).join(''), {done}); i += 2;
-   if (!done) setTimeout(tick, 90); else { aiPhase = 'idle'; think.dataset.stDone = 'true'; $('think-row').removeAttribute('data-busy'); S.swapText(think, 'Answered from 3 sources'); } };
-  later(() => { aiPhase = 'write'; out.getAnimations().forEach(a => a.cancel()); out.style.opacity = ''; out.style.transform = ''; S.stream(out, '', {reset: true}); S.swapText(think, 'Writing'); tick(); }, 420);
+  if (reduce()) retire(); else later(retire, 420);
+  const words = t.a.match(/\[\d+\]|\S+\s*/g); let i = 0;
+  aiPhase = 'write';
+  const tick = () => { if (run !== aiRun) return; const done = i + 1 >= words.length; S.stream(L.answer, words[i], {done}); i += 1;
+   if (!done) setTimeout(tick, 50); else { aiPhase = 'idle'; L.row.removeAttribute('data-busy'); L.think.dataset.stDone = 'true'; S.swapText(L.think, `Answered from ${t.src.length} sources`); } };
+  later(() => { S.stream(L.answer, '', {reset: true}); tick(); }, reduce() ? 0 : 180);
  };
 
  // Replay buttons drive the same code paths as the real controls.
@@ -1315,7 +1359,5 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
  window.galleryCancel = key => {if(key==='ai')++aiRun;if(key==='button'){++deployRun;++payRun;S.state($('deploy'),'idle','Deploy');S.state($('pay'),'idle','Pay $24.00');}if(key==='tooltip'){clearTimeout(replay._tip);S.tooltip.hide();}};
  window.galleryReplay = replay;
 
- // The chat starts answered; Replay asks again.
- $('think').dataset.stLabel = $('think').textContent;
 })();
 </script><script src="gallery-menu.js"></script><script src="gallery.js"></script></body></html>

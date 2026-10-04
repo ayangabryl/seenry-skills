@@ -14,7 +14,7 @@ const widths=arg('--widths','361,368,384,384.5,385,400,420').split(',').map(Numb
 const pressHoldMs=Number(arg('--press-hold-ms','0')),inputMode=arg('--input','pointer');
 assert(['pointer','touch'].includes(inputMode),'--input must be pointer or touch');
 function heldPressObserved(p) {
- if(typeof p?.matches==='function'){const el=p;p={active:el.matches(':active'),hover:el.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches,transform:getComputedStyle(el).transform,anchored:!!el.querySelector('[data-st-close-anchor]'),artworkTransform:getComputedStyle(el.querySelector('.cover')||el).transform};}
+ if(typeof p?.matches==='function'){const el=p;p={active:el.matches(':active'),hover:el.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches,transform:getComputedStyle(el).transform,anchored:!!el.querySelector('.cover-open'),artworkTransform:getComputedStyle(el.querySelector('.cover')||el).transform};}
  if(p?.anchored){if(p.active!==true||!['none','matrix(1, 0, 0, 1, 0, 0)'].includes(p.transform))return false;return heldPressObserved({...p,anchored:false,transform:p.artworkTransform});}
  const m=/^matrix\(([^)]+)\)$/.exec(p?.transform||'');if(p?.active!==true||!m)return false;
  const v=m[1].split(',').map(Number);if(v.length!==6||!v.every(Number.isFinite))return false;
@@ -24,11 +24,11 @@ function heldPressObserved(p) {
  return v.every((n,i)=>Math.abs(n-expected[i])<(i<4?.001:.02));
 }
 function readHeldPress(e){
- const feedback=e.querySelector('[data-st-close-anchor]')?(e.querySelector('.cover')||e):e;
+ const feedback=e.querySelector('.cover-open')?(e.querySelector('.cover')||e):e;
  return {rect:e.getBoundingClientRect().toJSON(),transform:getComputedStyle(e).transform,anchored:feedback!==e,artworkTransform:getComputedStyle(feedback).transform,active:e.matches(':active'),hover:e.matches(':hover'),coarse:matchMedia('(pointer:coarse)').matches,hoverCapable:matchMedia('(hover:hover)').matches};
 }
 async function waitForNativeHeldPress(el,{readSource,matchSource}){
- const read=eval('('+readSource+')'),matches=eval('('+matchSource+')'),startedAt=performance.now(),before=read(el),feedback=el.querySelector('[data-st-close-anchor]')?(el.querySelector('.cover')||el):el;
+ const read=eval('('+readSource+')'),matches=eval('('+matchSource+')'),startedAt=performance.now(),before=read(el),feedback=el.querySelector('.cover-open')?(el.querySelector('.cover')||el):el;
  const inventory=a=>{const timing=a.effect.getComputedTiming();return {type:a.constructor.name,target:a.effect.target===feedback?'held-feedback':'other',property:a.transitionProperty,playState:a.playState,pending:a.pending,currentTime:a.currentTime,duration:timing.duration,endTime:timing.endTime};};
  const jobs=feedback.getAnimations().filter(a=>{const t=a.effect.getComputedTiming();return a.effect.target===feedback&&!a.effect.pseudoElement&&a.transitionProperty==='transform'&&a.playState==='running'&&Number.isFinite(t.duration)&&t.duration>0&&Number.isFinite(t.endTime)&&t.endTime>0;});
  const result={mode:'actual-native-held-transform-completion',before,jobsBefore:jobs.map(inventory),startedAt};

@@ -601,12 +601,6 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 /* Morph menu v5: a header row reserves the trigger's height; the close pill (same shape as the trigger) turns its
    plus into a cross on the same spring that opens the menu. */
 .st-morph-head { display: flex; align-items: center; height: 40px; padding: 0 10px; margin-bottom: 2px; font: 500 13px/18px var(--font); color: var(--text-2); }
-[data-st-morph-close] .st-icon { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
-[data-st-open="true"] [data-st-morph-close] .st-icon { transform: rotate(45deg); }
-@media (prefers-reduced-motion: reduce) { [data-st-morph-close] .st-icon { transition: none; } }
-[data-st="plus-menu"] [data-st-morph-close].st-button.st-primary { display: inline-flex; justify-content: center; gap: 8px; width: auto; padding: 0 14px; background: var(--accent); color: var(--on-accent); box-shadow: none; font-weight: 500; }
-[data-st="plus-menu"] [data-st-morph-close].st-button.st-primary .st-icon { color: inherit; }
-@media (hover: hover) and (pointer: fine) { [data-st="plus-menu"] [data-st-morph-close].st-button.st-primary:hover { background: var(--accent-hover); } }
 
 /* Avatar group v5: the first person sits on top so every face (or initial) stays readable; the group opens on one
    spring when hovered or focused and closes on the same spring, so nothing jumps to the pointer. */
