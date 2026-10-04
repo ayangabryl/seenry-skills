@@ -1280,7 +1280,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
  const QA = [
   {q: "Summarise this week's releases", a: 'Three releases shipped: saved cards[1], editor comments[2] and faster exports[3].', src: ['Changelog', 'Release notes', 'Docs']},
   {q: 'What got faster?', a: 'Exports are 40% faster[1], search answers in half the time[2] and sync starts sooner[3].', src: ['Release notes', 'Benchmarks', 'Docs']},
-  {q: 'What should I test first?', a: 'Export a long deck[1], reply in a comment thread[2], then check sync[3].', src: ['QA checklist', 'Changelog', 'Docs']}];
+  {q: 'What should I test first?', a: 'Export a long deck[1], reply in a thread[2], then check sync[3].', src: ['QA checklist', 'Changelog', 'Docs']}];
  let aiRun = 0, aiPhase = 'idle', qaIndex = 0, live = null;
  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
  const track = $('chat-track');
@@ -1296,16 +1296,17 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
    // Stopping cancels this run's timers, so the earlier turn still retires on its own schedule.
    setTimeout(live.retire, Math.max(0, live.retireAt - performance.now())); return; }
   const run = ++aiRun, later = (fn, ms) => setTimeout(() => { if (run === aiRun) fn(); }, ms), t = QA[qaIndex = (qaIndex + 1) % QA.length];
-  [...track.children].slice(0, -1).forEach(n => n.remove()); $('chat').getAnimations().forEach(x => x.cancel()); $('chat').style.height = '';
+  [...track.children].slice(0, -1).forEach(n => n.remove()); $('chat').style.height = '';
   track.querySelector('#think')?.removeAttribute('id');
   const turn = document.createElement('div'); turn.className = 'turn';
   turn.innerHTML = `<div class="bubble">${t.q}</div><div class="thinking-row" data-busy><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think">Writing</span></div><div class="sources" aria-label="Sources">${t.src.map(x => `<span>${x}</span>`).join('')}</div><div class="answer" data-st="stream" aria-live="polite" aria-busy="true"></div>`;
-  const chat = $('chat'), olds = [...track.children], h0 = track.offsetHeight, hold = chat.offsetHeight;
-  chat.classList.add('threading'); track.append(turn); const rise = track.offsetHeight - h0;
-  // The card eases to the new turn's height on the reply's spring, so its shell never jumps when history retires.
-  const fit = turn.offsetHeight; chat.style.height = hold + 'px';
-  if (!reduce() && fit !== hold) S.play(chat, [{height: hold + 'px'}, {height: fit + 'px'}], {spring: 'trail', channel: 'h', fill: 'forwards', current: false});
-  const retire = () => { olds.forEach(n => n.remove()); chat.getAnimations().forEach(x => x.cancel()); chat.style.height = ''; chat.classList.remove('threading'); };
+  const chat = $('chat'), olds = [...track.children];
+  // The card commits its final height at once; its painted shell springs from the old size (kit resize), and the
+  // thread rises inside it. No layout height is animated.
+  let rise = 0;
+  const grow = () => { const h0 = track.offsetHeight; chat.classList.add('threading'); track.append(turn); rise = track.offsetHeight - h0; chat.style.height = turn.offsetHeight + 'px'; };
+  if (reduce()) grow(); else S.resize(chat.parentElement, grow);
+  const retire = () => { olds.forEach(n => n.remove()); chat.style.height = ''; chat.classList.remove('threading'); };
   const retireAt = performance.now() + (reduce() ? 0 : 420);
   const L = live = {retire, retireAt, answer: turn.querySelector('.answer'), think: turn.querySelector('[data-st=thinking]'), row: turn.querySelector('.thinking-row'), chips: [...turn.querySelectorAll('.sources span')]};
   bindCites(L);
@@ -1315,7 +1316,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
    // and settles last. Both start from where the thread was, so nothing jumps.
    olds.forEach(n => {
     S.play(n, [{transform: `translateY(${rise}px)`}, {transform: 'none'}], {spring: 'lead', channel: 't', current: false});
-    S.play(n, [{opacity: 1}, {opacity: 0}], {ms: 80, curve: 'cubic-bezier(.4,0,1,1)', delay: 80, channel: 'o', fill: 'forwards', fade: true});
+    S.play(n, [{opacity: 1}, {opacity: 0}], {ms: 60, curve: 'cubic-bezier(.4,0,1,1)', channel: 'o', fill: 'forwards', fade: true});
    });
    S.play(turn, [{transform: `translateY(${rise}px)`}, {transform: 'none'}], {spring: 'trail', channel: 't', current: false});
    // Question, status and sources arrive attached to the message in that order; the answer slot needs no fade, its
