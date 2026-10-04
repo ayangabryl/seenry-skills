@@ -649,3 +649,6 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 /* Input clear: the placeholder waits until the cleared text has left, then fades in; the two never overlap. */
 [data-st="clear"] input::placeholder { transition: color 160ms var(--st-F); }
 [data-st="clear"][data-st-has-text="true"] input::placeholder { color: transparent; }
+
+/* Number: a rolling digit is clipped to its own slot vertically, so arriving and leaving glyphs never share a reading position. */
+.st-cell.st-rolling { clip-path: inset(0 -0.25em); }

@@ -200,7 +200,7 @@
   const nearX = new Map(near.map(n => [n, n.getBoundingClientRect().left]));
   const keep = new Set(entries.map(e => e.key));
   for (const [k, cell] of s.cells) if (!keep.has(k)) {
-   if (animated) { positioned(el); const g = ghost(cell, el); play(g, [{opacity: 1, transform: 'none'}, {opacity: 0, transform: `translateY(${-dir * 30}%) scale(.7)`}], {ms: 'quick', curve: 'X', fill: 'forwards'}).then(() => g.remove()); }
+   if (animated) { positioned(el); const g = ghost(cell, el); play(g, [{opacity: 1, transform: 'none'}, {opacity: 0, transform: `translateY(${-dir * 20}%)`}], {ms: 80, curve: 'X', fill: 'forwards'}).then(() => g.remove()); }
    cell.remove(); s.cells.delete(k);
   }
   const cells = [], changed = [];
@@ -226,8 +226,10 @@
     play(c.old, [{transform: 'none', opacity: 1, filter: 'blur(0px)'}, {transform: `translateY(${-dir * travel}%)`, opacity: 0, filter: frequent ? 'blur(0px)' : 'blur(3px)'}], {ms: frequent ? 70 : 100, curve: 'X', delay, fill: 'both', blur: false}).then(ok => { if (ok) c.old.remove(); });
    }
    c.cell.append(inkEl);
-   const from = c.isNew && !c.old ? {transform: `translateY(${dir * 40}%) scale(.8)`, opacity: 0, filter: 'blur(4px)'} : {transform: `translateY(${dir * travel}%)`, opacity: 0, filter: frequent ? 'blur(0px)' : 'blur(4px)'};
-   play(inkEl, [from, {transform: 'none', opacity: 1, filter: 'blur(0px)'}], {spring: 'lead', delay: delay + enter, blur: false}).then(() => { if (!qa(c.cell, '.st-ink-out').length) c.cell.classList.remove('st-rolling'); });
+   // The leaving digit carries the motion blur; the arriving one is exact: it rolls in sharp, clipped to its slot, on a
+   // monotonic curve, because a price must read correctly the moment it lands.
+   const from = {transform: `translateY(${dir * (frequent ? travel : 45)}%)`, opacity: 0};
+   play(inkEl, [from, {transform: 'none', opacity: 1}], {ms: frequent ? 120 : 160, curve: 'cubic-bezier(.2,0,.2,1)', delay: delay + enter, blur: false}).then(() => { if (!qa(c.cell, '.st-ink-out').length) c.cell.classList.remove('st-rolling'); });
   }
   if (animated) for (const [k, x] of firstX) { const cell = s.cells.get(k); if (!cell) continue; const dx = x - cell.getBoundingClientRect().left; if (Math.abs(dx) > .5) play(cell, [{transform: `translateX(${dx}px)`}, {transform: 'none'}], {spring: 'snappy', channel: 'flip', current: false}); }
   for (const [n, x] of nearX) { const dx = x - n.getBoundingClientRect().left; if (Math.abs(dx) > .5) play(n, [{transform: `translateX(${dx}px)`}, {transform: 'none'}], {spring: 'snappy', channel: 'flip', current: false}); }
@@ -297,7 +299,7 @@
     The shell scales with its radius corrected every frame, the content is clipped by the same curve, outgoing content
     leaves as a copy, and an interruption starts from the rendered size. ---------- */
  const resizing = new WeakMap();
- function resize(el, update) {
+ function resize(el, update, o = {}) {
   const prev = resizing.get(el);
   const r0 = prev ? prev.shell.getBoundingClientRect() : el.getBoundingClientRect();
   const first = {left: r0.left, top: r0.top, width: r0.width, height: r0.height};
@@ -324,7 +326,7 @@
   el.prepend(shell);
   if (bgNow !== bgEnd) play(shell, [{backgroundColor: bgNow}, {backgroundColor: bgEnd}], {ms: 160, curve: 'F', channel: 'bg', current: false});
   // One sampled spring drives shell size, its corrected radius and the content clip, so they never drift apart.
-  const t = track('smooth'), n = 40, shellFrames = [], clipFrames = [];
+  const t = track(o.spring || 'smooth'), n = 40, shellFrames = [], clipFrames = [];
   const dx = first.left - last.left, dy = first.top - last.top;
   for (let i = 0; i <= n; i++) {
    const p = at(t, (t.length - 1) * i / n), lerp = (a, b) => a + (b - a) * p;
@@ -336,7 +338,7 @@
   resizing.set(el, state);
   play(el, clipFrames, {ms, curve: 'linear', channel: 'resize-clip', current: false});
   // Leaving content is clipped by the closing shell and fades across the first half of it, so the shell never shrinks empty.
-  leaving.forEach(g => { g.style.visibility = ''; play(g, [{opacity: 1, filter: 'blur(0px)'}, {opacity: 0, filter: 'blur(2px)'}], {ms: Math.min(220, Math.max(120, ms * .45)), curve: 'F', fill: 'forwards', blur: false}); });
+  leaving.forEach(g => { g.style.visibility = ''; play(g, [{opacity: 1, filter: 'blur(0px)'}, {opacity: 0, filter: 'blur(2px)'}], {ms: o.spring === 'snappy' ? 90 : Math.min(220, Math.max(120, ms * .45)), curve: 'F', fill: 'forwards', blur: false}); });
   entering.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', delay: 60, channel: 'o', current: false, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 220, curve: 'E', delay: 60, channel: 't', current: false}); });
   return play(shell, shellFrames, {ms, curve: 'linear', current: false}).then(ok => { if (ok && resizing.get(el) === state) state.cleanup(); });
  }
