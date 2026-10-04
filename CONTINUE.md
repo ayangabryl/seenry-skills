@@ -173,15 +173,16 @@ layout or interaction model was wrong, not just the timing. Keep this table curr
 | Component | Verdict | Bad design choice found | Status |
 |---|---|---|---|
 | Button to menu | redesigned | A black Close pill on a menu (menus need no close: selection, outside click, Escape). The pill was pinned to stale trigger coordinates, so it overhung the panel, and the panel flipped upward like a popover | Fixed: no close control, panel's inner corner anchored on the button, never flips; phone shows the first group only so nothing clips |
-| Card expand | redesigned | Close pinned to the clicked row's arrow, so on the third album it floated bottom-right; track rows shortened by a 52px lane; panel full-stage height with dead space; first track permanently highlighted | Fixed: Close top-right on the header, full-width rows, panel sized to content, no stray highlight |
+| Card expand | redesigned | Close pinned to the clicked row's arrow, so on the third album it floated bottom-right; track rows shortened by a 52px lane; panel full-stage height with dead space; first track permanently highlighted | Fixed: Close top-right on the header, full-width rows, panel at least as tall as the album list it covers (no row peeking), no stray highlight. CI no longer runs the retired Close-anchor evidence |
 | AI thinking and streaming | redesigned | The demo replaced the previous answer (dimmed, erased) — no real assistant erases history | Rebuilt as a thread: history leads up, reply trails, answer streams into reserved space, sources light as cited. Judge 8 (from 7); not yet 9 |
 | Page transition | fixed | Inbox showed a half-cut third row | Two whole rows; detail stays a scroll region |
-| Copy to clipboard | open | The command being copied is truncated ("npm install seenry…") — you cannot see what you copy | To fix |
-| List | open | Mid-sort, the lifted row passes under the other rows' text | To fix |
+| Copy to clipboard | fixed | The command being copied was truncated ("npm install seenry…") — you could not see what you copy | Header row holds the label and Copy; the command gets the full width and never truncates |
+| List | fixed | Mid-sort the crossing rows were see-through (their paint inherited the 180ms state fade, 58% opaque) | Painted rows are opaque at once |
 | Like | ok | — | Reviewed |
-| Form error | ok | — | Reviewed |
+| Form error | fixed | On phones the button wrapped under the field, pushing the error away from the input it explains | Field and button stay on one row; the error sits right under the field |
 | Switch | ok (deliberate) | Off track is darker than iOS on purpose: WCAG 1.4.11 3:1 | Keep |
-| Checkbox, Badge, Icon swap, Input clear, Link, Popover, Image, Tilt, Reveal | pending | | Review next |
+| Input clear | fixed | The placeholder appeared while the cleared text was still leaving, so they overlapped | Placeholder waits for the exit, then fades in |
+| Checkbox, Badge, Icon swap, Link, Popover, Image open, Tilt, Reveal | ok | — | Filmed in slow motion at 1440 and 390; no layout or interaction faults |
 
 ## Per-component status
 

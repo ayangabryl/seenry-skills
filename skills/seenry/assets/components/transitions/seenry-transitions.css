@@ -643,3 +643,9 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 [data-st-progress="error"] .st-status-mark::before { background: radial-gradient(closest-side, color-mix(in srgb, var(--bad) 22%, transparent), transparent); animation: st-halo 760ms var(--st-O) 80ms both; }
 @keyframes st-halo { 0% { opacity: 0; transform: scale(.7); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
 @media (prefers-reduced-motion: reduce) { .st-success-mark::before, .st-status-mark::before { animation: none !important; } }
+
+/* Rows painted while they cross during a sort are opaque at once: a fading paint lets text show through text. */
+[data-st-paint] { transition-property: transform, opacity !important; }
+/* Input clear: the placeholder waits until the cleared text has left, then fades in; the two never overlap. */
+[data-st="clear"] input::placeholder { transition: color 160ms var(--st-F); }
+[data-st="clear"][data-st-has-text="true"] input::placeholder { color: transparent; }

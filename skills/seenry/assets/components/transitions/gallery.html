@@ -820,11 +820,14 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
 @media(max-width:650px){.stage #morph-1{max-height:none;overflow:visible}.stage #morph-1 hr,.stage #morph-1 [role=menuitem]:last-of-type{display:none}}
 /* Card expand: Close is the header’s top-right action on every album, the track rows run the full width, and the
    surface is as tall as its content, so nothing floats in leftover space. */
-.stage:has(.cover-open) .expand-surface{bottom:auto}
+.stage:has(.cover-open) .expand-surface{bottom:auto;min-height:var(--covers-h,0px)}
 /* Copy: the command is never truncated. The action lives in a header row, the command gets the full width. */
 .code.code-block{display:grid;gap:6px;padding:6px 6px 14px 14px;align-items:stretch}
 .code-block .code-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font:500 13px/1 var(--font);color:var(--text-2)}
 .code-block code{overflow:visible;white-space:normal;overflow-wrap:anywhere;line-height:20px;padding-right:8px}
+/* Form error on phones: one column — field, its error right beneath it, then a full-width action. The error never
+   ends up on the far side of the button. */
+@media(max-width:650px){.stage .invite{display:grid;gap:8px}.stage .invite>label{margin:0}.stage .invite>.row{display:contents}.stage .invite .st-field{order:1}.stage .invite .st-error{order:2;margin:0}.stage .invite>.row>.st-button{order:3;width:100%;margin:0}}
 </style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <defs>
   <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
@@ -1281,6 +1284,8 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
  let aiRun = 0, aiPhase = 'idle', qaIndex = 0, live = null;
  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
  const track = $('chat-track');
+ // Card expand: the detail is at least as tall as the album list it covers, so no album peeks out beneath it.
+ { const covers = $('covers'), stage = covers.closest('.stage'), fit = () => stage.style.setProperty('--covers-h', covers.offsetHeight + 'px'); fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(covers); }
  const bindCites = t => t.answer.addEventListener('st:cite', e => { const c = t.chips[e.detail.n - 1]; if (!c) return;
   setTimeout(() => { c.classList.add('reading'); setTimeout(() => c.classList.remove('reading'), 260); }, e.detail.delay); });
  const runAI = () => {
