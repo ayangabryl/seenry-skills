@@ -47,7 +47,8 @@
  };
  replay.avatars = () => { const g = $('avatar-group'), more = g.querySelector('[data-st-avatar-more]');
   if (more.getAttribute('aria-expanded') === 'true') { g.__stLift?.(-1); more.click(); return; }
-  sequence('avatars', [[0, () => g.__stLift?.(0)], [110, () => g.__stLift?.(1)], [220, () => g.__stLift?.(2)], [400, () => g.__stLift?.(-1)], [520, () => more.click()]]); };
+  // Replay opens the rest of the group straight away; hovering a face is left to the pointer.
+  more.click(); };
  replay.clear = () => {
   const input = $('clear-input');
   if (input.value) $('clear-field').querySelector('button').click();

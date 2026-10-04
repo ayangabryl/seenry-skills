@@ -248,7 +248,7 @@
   const thinking = el.dataset.st === 'thinking';
   const fitTo = o.fit || el.closest('[data-st-fit]');
   if(!o.letters){
-   if (fitTo && !reduced() && !o.__fitted) { let p; resize(fitTo, () => { p = swapText(el, text, {...o, force: true, __fitted: true, __prev: previous}); }); return p; }
+   if (fitTo && !reduced() && !o.__fitted) { let p; resize(fitTo, () => { p = swapText(el, text, {...o, force: true, __fitted: true, __prev: previous}); }, {spring: 'snappy'}); return p; }
    positioned(el); qa(el,'.st-text-exit').forEach(n=>{stopAll(n);n.remove();});
    const current=q(el,'.st-text-value') || letters(previous,'st-text-value'); if(!current.parentElement)el.replaceChildren(current);
    // The outgoing label stays exactly where it was drawn, wherever padding or alignment put it.
@@ -339,7 +339,9 @@
   play(el, clipFrames, {ms, curve: 'linear', channel: 'resize-clip', current: false});
   // Leaving content is clipped by the closing shell and fades across the first half of it, so the shell never shrinks empty.
   leaving.forEach(g => { g.style.visibility = ''; play(g, [{opacity: 1, filter: 'blur(0px)'}, {opacity: 0, filter: 'blur(2px)'}], {ms: o.spring === 'snappy' ? 90 : Math.min(220, Math.max(120, ms * .45)), curve: 'F', fill: 'forwards', blur: false}); });
-  entering.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', delay: 60, channel: 'o', current: false, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 220, curve: 'E', delay: 60, channel: 't', current: false}); });
+  // A fresh opening lets the room form first; a reversal mid-motion brings content straight back.
+  const enterDelay = prev ? 0 : 60;
+  entering.forEach(c => { play(c, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', delay: enterDelay, channel: 'o', current: false, fade: true}); play(c, [{transform: 'translateY(4px)'}, {transform: 'none'}], {ms: 220, curve: 'E', delay: enterDelay, channel: 't', current: false}); });
   return play(shell, shellFrames, {ms, curve: 'linear', current: false}).then(ok => { if (ok && resizing.get(el) === state) state.cleanup(); });
  }
 
@@ -458,11 +460,10 @@
    play(s.body, [{clipPath: triggerInset(el, s.trigger)}, {clipPath: 'inset(0px 0px 0px 0px round 14px)'}], {spring: 'snappy', channel: 'clip'}).then(ok => { if (ok && s.version === v) el.classList.remove('st-morphing'); });
    // The surface is the button: it unfolds in the button's own fill and turns to the surface colour as it grows, so
    // there is never a second shape crossfading over the first. Content arrives once the fill has mostly turned.
-   stop(s.body, 'bg'); s.fill = tcs.backgroundColor; s.surfaceFill = getComputedStyle(s.body).backgroundColor;
-   Object.assign(s.label.style, {background: 'transparent', boxShadow: 'none'});
-   if (s.fill !== s.surfaceFill) play(s.body, [{backgroundColor: s.fill}, {backgroundColor: s.surfaceFill}], {ms: 220, curve: 'O', channel: 'bg'});
-   play(s.label, [{opacity: 1}, {opacity: 0}], {ms: 90, curve: 'F', fill: 'forwards', fade: true});
-   content.forEach((c, i) => i === 0 && el.tagName === 'DIALOG' ? null : play(c, [{opacity: 0, transform: 'translateY(-4px)'}, {opacity: 1, transform: 'none'}], {spring: 'snappy', delay: el.tagName === 'DIALOG' ? 40 : 70, fade: true}));
+   // A white shell grows from the trigger while a painted copy of the dark button fades off it: two layers crossfading,
+   // never one colour interpolated through grey.
+   play(s.label, [{opacity: 1}, {opacity: 0}], {ms: 110, curve: 'F', fill: 'forwards', fade: true});
+   content.forEach((c, i) => { if (i === 0 && el.tagName === 'DIALOG') return; play(c, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', delay: 40, channel: 'o', fade: true, current: false}); play(c, [{transform: 'translateY(-3px)'}, {transform: 'none'}], {ms: 180, curve: 'cubic-bezier(.16,1,.3,1)', delay: 40, channel: 't', current: false}); });
   } else if (kind === 'tooltip') {
    if (!o.glideFrom) {
     play(el, [{opacity: 0}, {opacity: 1}], {ms: 90, curve: 'F', channel: 'o', fade: true});
@@ -494,9 +495,9 @@
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fade: true});
   } else if (kind === 'drawer') {
    const side = el.dataset.stSide === 'left' ? -1 : 1;
-   play(el, [{transform: `translateX(${side * 100}%)`}, {transform: 'none'}], {spring: 'smooth', channel: 't'});
+   play(el, [{transform: `translateX(${side * 100}%)`}, {transform: 'none'}], {spring: 'snappy', channel: 't'});
    // Its contents settle a beat after the panel, travelling a little further, so the drawer reads as layered.
-   if (!wasClosing) [...el.children].forEach((c, i) => { play(c, [{transform: `translateX(${side * 18}px)`}, {transform: 'none'}], {spring: 'smooth', delay: 30 + Math.min(i * 20, 80), channel: 'drawer-t', current: false}); play(c, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', delay: 30 + Math.min(i * 20, 80), channel: 'drawer-o', current: false, fade: true}); });
+   if (!wasClosing) [...el.children].forEach((c, i) => { play(c, [{transform: `translateX(${side * 18}px)`}, {transform: 'none'}], {ms: 220, curve: 'O', delay: 30 + Math.min(i * 15, 45), channel: 'drawer-t', current: false}); play(c, [{opacity: 0}, {opacity: 1}], {ms: 140, curve: 'F', delay: 30 + Math.min(i * 15, 45), channel: 'drawer-o', current: false, fade: true}); });
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}, {opacity: 1}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fade: true});
   } else if (kind === 'panel') {
    play(el, [{opacity: 0}, {opacity: 1}], {ms: 'quick', curve: 'F', channel: 'o', fade: true});
@@ -564,9 +565,9 @@
    // finish() below removes the native surface synchronously, without a fake job.
   } else if (morph) {
    el.classList.add('st-morphing');
-   [...s.body.children].filter(c => c !== s.label).forEach(c => play(c, [{opacity: 0}], {ms: 'feedback', curve: 'F', fill: 'forwards', fade: true}));
+   // Same channel as the opening reveal, so reopening mid-close retargets these fades instead of leaving items hidden.
+   [...s.body.children].filter(c => c !== s.label).forEach(c => { stop(c, 't'); play(c, [{opacity: 0}], {ms: 'feedback', curve: 'F', channel: 'o', fill: 'forwards', fade: true}); });
    play(s.label, [{opacity: 1}], {ms: 'quick', curve: 'F', delay: 70, fill: 'forwards', fade: true});
-   if (s.fill && s.surfaceFill && s.fill !== s.surfaceFill) play(s.body, [{backgroundColor: s.surfaceFill}, {backgroundColor: s.fill}], {ms: 200, curve: 'F', delay: 40, channel: 'bg', fill: 'forwards'});
    done = play(s.body, [{clipPath: triggerInset(el, s.trigger)}], {spring: 'snappy', channel: 'clip', fill: 'forwards'});
    if (el.tagName === 'DIALOG') play(el, [{opacity: 0}], {ms: 'control', curve: 'F', pseudo: '::backdrop', fill: 'forwards', fade: true});
   } else if (kind === 'tooltip') {
@@ -735,12 +736,13 @@
    if (on) {
     // A panel that was just leaving comes straight back from where its fade got to; a fresh one waits for the old to clear.
     // The old panel has cleared before this one is readable, so the two never print over each other.
-    const back = was || +alpha > .05, wait = back ? 0 : rapid ? 30 : 80;
-    play(panel, [{transform: back ? transform : `translateX(${dir * 10}px)`}, {transform:'none'}], {ms:320,curve:'O',delay:wait,channel:'t'});
-    play(panel, [{opacity: back ? alpha : 0, filter: back ? 'blur(0px)' : 'blur(4px)'},{opacity:1, filter: 'blur(0px)'}], {ms:240,curve:'O',delay:wait,channel:'o',fade:true,blur:false});
+    const back = was || +alpha > .05;
+    // Panels slide toward the tab you chose: sharp text, no focus pull, starting as the outgoing panel is nearly gone.
+    play(panel, [{transform: back ? transform : `translateX(${dir * 8}px)`}, {transform:'none'}], {ms:220,curve:'O',delay:back ? 0 : 60,channel:'t'});
+    play(panel, [{opacity: back ? alpha : 0},{opacity:1}], {ms:160,curve:'O',delay:back ? 0 : 60,channel:'o',fade:true,blur:false});
    } else if (was) {
-    play(panel, [{transform},{transform:`translateX(${-dir * 8}px)`}], {ms:rapid ? 40 : 90,curve:'X',channel:'t'});
-    play(panel, [{opacity:alpha, filter: 'blur(0px)'},{opacity:0, filter: 'blur(2px)'}], {ms:rapid ? 40 : 90,curve:'X',channel:'o',fade:true,blur:false});
+    play(panel, [{transform},{transform:`translateX(${-dir * 6}px)`}], {ms:rapid ? 40 : 90,curve:'X',channel:'t'});
+    play(panel, [{opacity:alpha},{opacity:0}], {ms:rapid ? 40 : 90,curve:'X',channel:'o',fade:true,blur:false});
    }
   });
   if (root.dataset.st === 'tabs') revealTab(list, tab);
@@ -838,6 +840,8 @@
   if (!tick) return play(svg, [{transform: 'scale(.98)'}, {transform: 'none'}], {ms: 'control', delay: 160, curve: 'E'});
   if (reduced()) return play(tick, [{opacity: 0}, {opacity: 1}], {ms: 'quick', fade: true});
   // After Jakub Antalik's checkmark study: the tick arrives rotated and blurred, dips 4px and settles while it draws.
+  // Re-confirmed while the mark is still partly drawn: carry on from what is on screen, never blank it and start over.
+  if (+getComputedStyle(tick).opacity > .05) return play(tick, [{opacity: 1, filter: 'blur(0px)', transform: 'none'}], {ms: 100, curve: 'O', channel: 'o', blur: false});
   if (disc) play(disc, [{transform: 'scale(.86)'}, {transform: 'none'}], {spring: 'bouncy', channel: 'pop', current: false});
   return Promise.all([
    play(tick, [{opacity: 0, filter: 'blur(6px)'}, {opacity: 1, filter: 'blur(0px)'}], {ms: 450, curve: 'O', channel: 'o', current: false, blur: false}),
@@ -853,7 +857,8 @@
   input?.setAttribute('aria-invalid', 'true');
   const msg = q(el, '.st-error'); if (msg) { if (message) (q(msg, '[data-st-error-text]') || msg).textContent = message; msg.hidden = false; if (input && msg.id) input.setAttribute('aria-describedby', msg.id); }
   const frame = el.dataset.st === 'button' ? el : q(el, '[data-st-field-frame]') || q(el, '.st-field') || input || el;
-  return play(frame, SHAKE, {ms: 320, curve: 'linear', channel: 'shake', current: false});
+  // A validation shake is a nudge, not a performance: 160ms, at most 2px.
+  return play(frame, [{transform: 'none'}, {transform: 'translateX(-2px)'}, {transform: 'translateX(2px)'}, {transform: 'translateX(-1px)'}, {transform: 'none'}], {ms: 160, curve: 'linear', channel: 'shake', current: false});
  }
  function clearError(el) { if (!el) return; delete el.dataset.stError; const input = el.matches('input,textarea,select') ? el : q(el, 'input,textarea,select'); input?.removeAttribute('aria-invalid'); }
 
@@ -950,7 +955,8 @@
  function skeleton(el, ready, o = {}) { if (o.instant) { el.classList.add('st-instant'); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('st-instant'))); } el.setAttribute('aria-busy', String(!ready)); const real = q(el, '.st-real'); if (real) real.inert = !ready; }
  // Each line is uncovered left to right in reading order, the next line a beat behind; text starts at .6 opacity, so
  // even a capture taken mid-reveal reads.
- function reveal(el) { if ([...el.children].some(x => x.getAnimations().some(a => a.playState === 'running'))) return Promise.resolve(); return Promise.all([...el.children].map((x, i) => Promise.all([play(x, [{clipPath: 'inset(-4px 100% -4px -4px)'}, {clipPath: 'inset(-4px -4px -4px -4px)'}], {ms: 260, curve: 'E', delay: i * 60, current: false, channel: 'clip'}), play(x, [{transform: 'translateX(-6px)'}, {transform: 'none'}], {ms: 260, curve: 'E', delay: i * 60, current: false})]))); }
+ // Lines rise into a line-height clip (no sideways wipe that cuts words), the second 40ms after the first.
+ function reveal(el) { if ([...el.children].some(x => x.getAnimations().some(a => a.playState === 'running'))) return Promise.resolve(); return Promise.all([...el.children].map((x, i) => Promise.all([play(x, [{clipPath: 'inset(0 -4px 100% -4px)', transform: 'translateY(5px)'}, {clipPath: 'inset(-4px -4px -4px -4px)', transform: 'none'}], {ms: 180, curve: 'cubic-bezier(.16,1,.3,1)', delay: i * 40, current: false, channel: 'clip'}), play(x, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', delay: i * 40, current: false, channel: 'o', fade: true})]))); }
  function shimmer(el) {
   if (!el) return Promise.resolve(true);
   let shine = q(el, '.st-shine');
@@ -1522,7 +1528,7 @@
    // A beat after the shared parts have nearly landed, so nothing arrives underneath them.
    const wait = before.size ? (n === loose(scope)[0] ? 140 : 170) : 60;
    jobs.push(play(n, [{opacity: 0}, {opacity: 1}], {ms: 220, curve: 'O', delay: wait, channel: 'o', current: false, fade: true}));
-   jobs.push(play(n, [{transform: `translateX(${16 * dir}px)`}, {transform: 'none'}], {spring: 'smooth', delay: wait, channel: 't', current: false}));
+   jobs.push(play(n, [{transform: `translateX(${16 * dir}px)`}, {transform: 'none'}], {ms: 260, curve: 'O', delay: wait, channel: 't', current: false}));
   }
   await Promise.all(jobs); if (v === pageVersion) pageCleanup = null;
  }
@@ -1623,7 +1629,9 @@
   const visible = Number(value) > 0, was = el.dataset.stVisible === 'true';
   el.dataset.stVisible = String(visible); el.setAttribute('aria-label', visible ? `${value} unread notifications` : 'No unread notifications');
   // A count this small changes as one unit: the old number lifts out, the new one rises in, no per-digit overlap.
-  if (!fromMutation) { if (!el.dataset.stLabel && el.dataset.value) { el.dataset.stLabel = el.dataset.value; el.replaceChildren(letters(el.dataset.value, 'st-text-value')); } swapText(el, String(value), {tight: true}); el.dataset.value = String(value); }
+  // The count changes by place value, each digit rolling in its own clipped track, like any other number.
+  // stLabel mirrors the shown value so the attribute observer does not re-enter.
+  if (!fromMutation) { el.dataset.stLabel = String(value); number(el, value); el.dataset.value = String(value); }
   if (visible && !was) play(el, [{transform: 'scale(.5)', opacity: 0}, {transform: 'none', opacity: 1}], {spring: 'bouncy', channel: 'badge', fade: true});
   else if (!visible) play(el, [{transform: 'scale(.5)', opacity: 0}], {ms: 'quick', curve: 'X', channel: 'badge', fill: 'forwards', fade: true});
  }
@@ -1638,7 +1646,7 @@
  }
  const STATUS_MARK = '<span class="st-status-mark" aria-hidden="true"><svg class="st-status-disc" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20"/></svg>' +
   '<svg class="st-status-ring" viewBox="0 0 40 40"><circle class="st-status-arc" cx="20" cy="20" r="18.5" pathLength="100"/></svg>' +
-  '<svg class="st-status-idle" viewBox="0 0 40 40"><path d="M14 18.5a6.5 6.5 0 0 1 11.6-3.4M26 21.5a6.5 6.5 0 0 1-11.6 3.4M25.8 11.8v3.6h-3.6M14.2 28.2v-3.6h3.6"/></svg>' +
+  '<svg class="st-status-idle" viewBox="0 0 40 40"><path pathLength="100" d="M14 18.5a6.5 6.5 0 0 1 11.6-3.4M26 21.5a6.5 6.5 0 0 1-11.6 3.4M25.8 11.8v3.6h-3.6M14.2 28.2v-3.6h3.6"/></svg>' +
   '<svg class="st-success-tick" viewBox="0 0 40 40"><path d="m12.5 20.5 5 5 10-11" pathLength="100"/></svg>' +
   '<svg class="st-status-cross" viewBox="0 0 40 40"><path d="m15 15 10 10M25 15 15 25" pathLength="100"/></svg></span>';
  function progress(el, next) {
@@ -1657,7 +1665,7 @@
   const on = !!(x || y), rx = clamp(-y * 3, -3, 3), ry = clamp(x * 3, -3, 3);
   el.dataset.stEngaged = String(on);
   el.style.transform = on ? `perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)` : '';
-  const media = q(el, 'img,.st-media'); if (media) media.style.transform = on ? `translate(${-x * 7}px, ${-y * 5}px) scale(1.08)` : '';
+  const media = q(el, 'img,.st-media'); if (media) media.style.transform = on ? `translate(${-x * 4}px, ${-y * 3}px) scale(1.06)` : '';
   const shine = q(el, '.st-tilt-light'); if (shine) { shine.style.transform = `translate(${x * 60}px,${y * 40}px)`; shine.style.opacity = on ? '.32' : '0'; }
  }
  function bindTilt(el) {
@@ -1696,7 +1704,7 @@
   Object.assign(s.full.style, {width: width + 'px', height: width / ratio + 'px', maxWidth: 'none', maxHeight: 'none', objectFit: 'cover', transform: 'none', transformOrigin: '0 0', borderRadius: '12px'});
   const to = s.full.getBoundingClientRect();
   s.img.style.visibility = 'hidden';
-  play(s.full, photoFrames(s, from, to, to, fromR, 12), {ms: track('smooth').length - 1, curve: 'linear', channel: 'image', current: false});
+  play(s.full, photoFrames(s, from, to, to, fromR, 12), {ms: track('snappy').length - 1, curve: 'linear', channel: 'image', current: false});
   play(q(s.dialog, '.st-lightbox-scrim'), [{opacity: 0}, {opacity: 1}], {ms: 160, curve: 'F', fade: true, current: wasClosing});
   play(q(s.dialog, '.st-lightbox-close'), [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', delay: wasClosing ? 0 : 140, fade: true, channel: 'o', current: wasClosing});
   void v;
@@ -1704,7 +1712,7 @@
  const thumbRadius = s => parseFloat(getComputedStyle(s.source).borderTopLeftRadius) || parseFloat(getComputedStyle(s.img).borderTopLeftRadius) || 0;
  // One sampled spring: position, uniform scale and a radius that looks the same on screen at every scale.
  function photoFrames(s, from, to, base, r0, r1) {
-  const T = track('smooth'), n = 40, frames = [];
+  const T = track('snappy'), n = 40, frames = [];
   for (let i = 0; i <= n; i++) {
    const p = at(T, (T.length - 1) * i / n), w = from.width + (to.width - from.width) * p;
    const x = from.left + (to.left - from.left) * p, y = from.top + (to.top - from.top) * p, k = w / base.width, r = r0 + (r1 - r0) * p;
@@ -1721,7 +1729,7 @@
   const base = s.full.getBoundingClientRect(), target = s.img.getBoundingClientRect();
   play(q(s.dialog, '.st-lightbox-scrim'), [{opacity: 0}], {ms: 140, curve: 'F', fill: 'forwards', fade: true});
   play(q(s.dialog, '.st-lightbox-close'), [{opacity: 0}], {ms: 60, curve: 'X', fill: 'forwards', fade: true, channel: 'o'});
-  return play(s.full, photoFrames(s, rendered, target, base, 12, thumbRadius(s)), {ms: track('smooth').length - 1, curve: 'linear', channel: 'image', current: false, fill: 'forwards'}).then(ok => {
+  return play(s.full, photoFrames(s, rendered, target, base, 12, thumbRadius(s)), {ms: track('snappy').length - 1, curve: 'linear', channel: 'image', current: false, fill: 'forwards'}).then(ok => {
    if (!ok || v !== s.version) return;
    s.img.style.visibility = ''; s.dialog.close(); stop(s.full, 'image'); stopAll(s.dialog); qa(s.dialog, '*').forEach(stopAll);
    s.closing = false; refocus?.(); if (currentImage === source) currentImage = null;
@@ -1824,7 +1832,8 @@
     };
     people().forEach((x, i, list) => x.style.setProperty('--st-z', String(list.length - i)));
     el.__stLift = lift;
-    el.addEventListener('pointerover', e => { const i = people().indexOf(e.target.closest('[data-st="avatars"] > *')); if (finePointer.matches && i >= 0) lift(i); });
+    // While the group is opening or closing, faces slide under a still pointer; that is not the user choosing a person.
+    el.addEventListener('pointerover', e => { if (performance.now() < (el.__stMovingUntil || 0)) return; const i = people().indexOf(e.target.closest('[data-st="avatars"] > *')); if (finePointer.matches && i >= 0) lift(i); });
     el.addEventListener('focusin', e => { const i = people().indexOf(e.target); if (i >= 0) lift(i); });
     // "+3" opens the rest of the group: the hidden people slide out from under the chip while the stack makes room,
     // and tuck back under it on close. The chip label changes in place.
@@ -1839,14 +1848,17 @@
       const was = new Map(); for (const [x, g] of el.__stLeaving || []) if (g.isConnected) was.set(x, g.getBoundingClientRect());
       qa(el, '[data-st-ghost]').forEach(g => { stopAll(g); g.remove(); }); el.__stLeaving = null;
       if (on) {
-       flip(visible(), () => extras.forEach(x => { x.hidden = false; }), {spring: 'smooth'});
+       el.__stMovingUntil = performance.now() + 450; name.dataset.stShow = 'false';
+       // The open group takes its own, looser spacing inside the same FLIP, so it settles uncrowded.
+       flip(visible(), () => { extras.forEach(x => { x.hidden = false; }); el.dataset.stExpanded = 'true'; }, {spring: 'smooth'});
        const m = more.getBoundingClientRect();
        extras.forEach((x, i) => { const r = x.getBoundingClientRect(), w = was.get(x); stop(x, 'flip'); play(x, [{transform: w ? `translateX(${w.left - r.left}px)` : `translateX(${m.left - r.left}px) scale(.7)`}, {transform: 'none'}], {spring: 'smooth', channel: 'flip', current: false, delay: w ? 0 : i * 18}); if (!w) play(x, [{opacity: 0}, {opacity: 1}], {ms: 70, curve: 'F', channel: 'o', current: false, delay: i * 18, fade: true}); });
       } else {
        const going = extras.filter(x => !x.hidden), leaving = going.map(x => ghost(x, el)), e0 = el.getBoundingClientRect(); let m;
        el.__stLeaving = going.map((x, i) => [x, leaving[i]]);
        // They tuck under the chip where it is going, not where it was.
-       flip(visible().filter(c => !extras.includes(c)), () => { extras.forEach(x => { x.hidden = true; }); m = more.getBoundingClientRect(); }, {spring: 'smooth'});
+       el.__stMovingUntil = performance.now() + 350; name.dataset.stShow = 'false';
+       flip(visible().filter(c => !extras.includes(c)), () => { extras.forEach(x => { x.hidden = true; }); el.dataset.stExpanded = 'false'; m = more.getBoundingClientRect(); }, {spring: 'smooth'});
        // A centred group re-centres when it shrinks; keep the leaving copies where they were drawn.
        const e1 = el.getBoundingClientRect(); leaving.forEach(g => { g.style.left = parseFloat(g.style.left) + e0.left - e1.left + 'px'; g.style.top = parseFloat(g.style.top) + e0.top - e1.top + 'px'; });
        leaving.forEach(g => { const r = g.getBoundingClientRect(); play(g, [{transform: `translateX(${m.left - r.left}px) scale(.7)`, opacity: 0}], {ms: 180, curve: 'X', fill: 'forwards'}).then(() => g.remove()); });
@@ -1869,22 +1881,24 @@
     const removeLeaving = () => { if (leaving) { stopAll(leaving); leaving.remove(); leaving = null; } };
     const sync = () => {
      button.disabled = !input.value;
-     if (input.value) { ++version; clearing = false; removeLeaving(); el.dataset.stHasText = 'true'; }
+     if (input.value) { ++version; clearing = false; removeLeaving(); delete el.dataset.stClearing; el.dataset.stHasText = 'true'; }
      else if (!clearing) el.dataset.stHasText = 'false';
     };
     sync(); input.addEventListener('input', sync);
     button.addEventListener('click', () => {
      if (!input.value) return;
      const current = ++version, text = input.value;
-     removeLeaving(); clearing = true;
+     removeLeaving(); clearing = true; el.dataset.stClearing = 'true';
      const rect = input.getBoundingClientRect(), host = el.getBoundingClientRect(), cs = getComputedStyle(input);
      const ink = doc.createElement('span'); ink.className = 'st-clear-exit'; ink.textContent = input.type === 'password' ? '•'.repeat([...text].length) : text; ink.setAttribute('aria-hidden', 'true');
      Object.assign(ink.style, {position:'absolute',left:rect.left-host.left-el.clientLeft+el.scrollLeft+'px',top:rect.top-host.top-el.clientTop+el.scrollTop+'px',width:rect.width+'px',height:rect.height+'px',boxSizing:'border-box',display:'flex',alignItems:'center',padding:cs.padding,borderStyle:'solid',borderColor:'transparent',borderWidth:cs.borderWidth,font:cs.font,letterSpacing:cs.letterSpacing,color:cs.color,whiteSpace:'pre',overflow:'hidden',pointerEvents:'none'});
      el.append(ink); leaving = ink;
      input.value = ''; input.dispatchEvent(new Event('input', {bubbles:true})); input.focus({preventScroll:true});
-     play(ink, [{opacity:1,transform:'none',filter:'blur(0px)'},{opacity:0,transform:'translateX(-8px)',filter:'blur(2px)'}], {ms:'quick',curve:'X',fade:true}).then(() => {
+     // The placeholder starts arriving halfway through the exit, so the field is never blank between the two.
+     setTimeout(() => { if (current === version && !input.value) el.dataset.stHasText = 'false'; }, reduced() ? 0 : 40);
+     play(ink, [{opacity:1,transform:'none'},{opacity:0,transform:'translateX(-3px)'}], {ms:80,curve:'X',fade:true}).then(() => {
       ink.remove(); if (current !== version) return;
-      leaving = null; clearing = false; el.dataset.stHasText = String(!!input.value);
+      leaving = null; clearing = false; delete el.dataset.stClearing; el.dataset.stHasText = String(!!input.value);
      });
     });
    }

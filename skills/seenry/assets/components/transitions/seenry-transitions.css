@@ -281,7 +281,7 @@ dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-
 [data-st="error"] .st-input { transition: box-shadow var(--st-quick) var(--st-F); }
 [data-st-error="true"] .st-input, .st-input[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--bad), 0 0 0 3px color-mix(in srgb, var(--bad) 18%, transparent); }
 .st-error { display: flex; align-items: center; gap: 6px; min-height: 20px; margin-top: 8px; color: var(--bad); font: 400 14px/20px var(--font); }
-[data-st="error"] .st-error { clip-path: inset(0 0 100% 0); opacity: 0; transform: translateY(2px); transition: clip-path var(--st-quick) var(--st-X), opacity var(--st-feedback) var(--st-F), transform var(--st-quick) var(--st-X); }
+[data-st="error"] .st-error { clip-path: inset(0 0 100% 0); opacity: 0; transform: translateY(2px); transition: clip-path 90ms cubic-bezier(.4,0,1,1), opacity 70ms cubic-bezier(.4,0,1,1), transform 90ms cubic-bezier(.4,0,1,1); }
 [data-st="error"][data-st-error="true"] .st-error { clip-path: inset(0 0 0 0); opacity: 1; transform: none; transition: clip-path 120ms var(--st-E) 25ms, opacity 90ms var(--st-F) 25ms, transform 120ms var(--st-E) 25ms; }
 [data-st="error"] .st-error[hidden] { display: flex; }
 
@@ -413,7 +413,7 @@ html.st-vt::view-transition-group(root) { animation: none; }
 [data-st-held="true"]>div{transform:scale(1.02);box-shadow:var(--shadow-layer);outline:1px solid var(--line-strong);}
 [data-st-handle]{touch-action:none;cursor:grab;}
 [data-st-held="true"] [data-st-handle]{cursor:grabbing;}
-[data-st="tilt"]{position:relative;overflow:hidden;transition:transform var(--st-spring-smooth-ms) var(--st-spring-smooth);}
+[data-st="tilt"]{position:relative;overflow:hidden;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy);}
 .st-tilt-light{position:absolute;inset:-40px;pointer-events:none;background:radial-gradient(ellipse at center,#fff 0,transparent 60%);opacity:0;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy),opacity var(--st-quick) var(--st-F);}
 .st-lightbox{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:72px 24px;border:0;background:transparent;overflow:hidden;}
 .st-lightbox::backdrop{background:var(--st-backdrop);}
@@ -499,7 +499,7 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 /* Tilt v3: lift, lean, parallax and a light that follows the pointer, all on the smooth spring. */
 [data-st="tilt"] { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy), box-shadow 180ms var(--st-F); }
 [data-st="tilt"][data-st-engaged="true"] { box-shadow: 0 0 0 1px var(--line), 0 6px 16px -12px #0007; }
-[data-st="tilt"] img, [data-st="tilt"] .st-media { transition: transform var(--st-spring-smooth-ms) var(--st-spring-smooth); will-change: transform; }
+[data-st="tilt"] img, [data-st="tilt"] .st-media { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); will-change: transform; }
 [data-st="tilt"] .st-tilt-light { mix-blend-mode: soft-light; }
 @media (prefers-reduced-motion: reduce) { [data-st="tilt"] img, [data-st="tilt"] .st-media { transform: none !important; } }
 
@@ -546,9 +546,9 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 [data-st="success"][data-st-done="true"] .st-success-disc circle { fill: var(--ok-bg); }
 [data-st="success"] .st-success-tick { transform-origin: 50% 50%; opacity: 0; }
 [data-st="success"][data-st-done="true"] .st-success-tick { opacity: 1; }
-[data-st="success"] .st-success-tick path { fill: none; stroke: var(--ok); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 120ms var(--st-X); }
+[data-st="success"] .st-success-tick path { fill: none; stroke: var(--ok); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 90ms cubic-bezier(.4,0,1,1); }
 [data-st="success"][data-st-done="true"] .st-success-tick path { stroke-dashoffset: 0; transition: stroke-dashoffset 250ms var(--st-O) 40ms; }
-[data-st="success"]:not([data-st-done="true"]) .st-success-tick { transition: opacity 120ms var(--st-X); }
+[data-st="success"]:not([data-st-done="true"]) .st-success-tick { transition: opacity 90ms cubic-bezier(.4,0,1,1); }
 @media (prefers-reduced-motion: reduce) { [data-st="success"] .st-success-tick path { transition: none; } }
 
 /* Status mark v5 (progress): the same disc as Success check, so loading, done and failed read as one object. */
@@ -560,8 +560,10 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 [data-st-progress="success"] .st-status-disc circle { fill: var(--ok-bg); }
 [data-st-progress="error"] .st-status-disc circle { fill: var(--bad-bg); }
 [data-st-progress="success"] .st-status-disc, [data-st-progress="error"] .st-status-disc { box-shadow: 0 0 0 1px transparent; }
-.st-status-idle { stroke: var(--text-2); stroke-width: 1.8; transition: opacity 180ms var(--st-O), filter 180ms var(--st-O), transform 300ms var(--st-O); }
-[data-st-progress]:not([data-st-progress="idle"]) .st-status-idle { opacity: 0; filter: blur(4px); transform: scale(.7) rotate(-60deg); transition-duration: 140ms; }
+/* The idle icon keeps its size: its strokes retract as the loading arc draws in, and draw back on return. */
+.st-status-idle { stroke: var(--text-2); stroke-width: 1.8; }
+.st-status-idle path { stroke-dasharray: 100; stroke-dashoffset: 0; transition: stroke-dashoffset 220ms cubic-bezier(.16,1,.3,1), opacity 1ms linear 0ms; }
+[data-st-progress]:not([data-st-progress="idle"]) .st-status-idle path { stroke-dashoffset: 100; opacity: 0; transition: stroke-dashoffset 100ms cubic-bezier(.4,0,1,1), opacity 1ms linear 100ms; }
 .st-status-ring { transform-origin: 50% 50%; }
 .st-status-arc { stroke: var(--text); stroke-width: 2; stroke-dasharray: 26 74; opacity: 0; transition: opacity 200ms var(--st-O), stroke-dasharray 320ms var(--st-O), stroke 200ms var(--st-S); }
 [data-st-progress="loading"] .st-status-ring { animation: st-spin 900ms linear infinite; }
@@ -605,7 +607,7 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 /* Avatar group v5: the first person sits on top so every face (or initial) stays readable; the group opens on one
    spring when hovered or focused and closes on the same spring, so nothing jumps to the pointer. */
 [data-st="avatars"] > *:not(.st-avatar-name) { position: relative; z-index: var(--st-z, auto); transform: translateX(var(--st-shift, 0px)); transition: transform var(--st-spring-smooth-ms) var(--st-spring-smooth), background-color var(--st-state), box-shadow var(--st-state); }
-[data-st="avatars"][data-st-returning="true"] > *:not(.st-avatar-name) { transition: transform var(--st-spring-smooth-ms) var(--st-spring-smooth); }
+[data-st="avatars"][data-st-returning="true"] > *:not(.st-avatar-name) { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
 .st-avatar-name { transition: opacity 160ms var(--st-O), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
 @media (prefers-reduced-motion: reduce) { [data-st="avatars"] > *:not(.st-avatar-name) { transform: none !important; } }
 
@@ -614,19 +616,19 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
    order (bar fades, ink arrives, blur clears) and media sharpen from a blur. Nothing moves and the card never resizes. */
 [data-st="skeleton"] .st-sk-real { opacity: 1 !important; transform: none !important; }
 [data-st="skeleton"] [data-st-sk] { --st-sk-d: calc(var(--i, 0) * 45ms); -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 6px;
- transition: color 300ms var(--st-O) var(--st-sk-d), background-color 300ms var(--st-O) var(--st-sk-d), filter 420ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d); }
+ transition: color 120ms var(--st-O) var(--st-sk-d), background-color 120ms var(--st-O) var(--st-sk-d); }
 [data-st="skeleton"][aria-busy="true"] [data-st-sk]:not(.st-media) { color: transparent; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
 [data-st="skeleton"][aria-busy="true"] [data-st-sk] * { color: transparent; }
-[data-st="skeleton"] [data-st-sk] * { transition: color 300ms var(--st-O) var(--st-sk-d); }
+[data-st="skeleton"] [data-st-sk] * { transition: color 120ms var(--st-O) var(--st-sk-d); }
 @keyframes st-sk-sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
-[data-st="skeleton"][aria-busy="false"] [data-st-sk]:not(.st-media) { animation: st-sk-in 420ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d) both; }
+[data-st="skeleton"][aria-busy="false"] [data-st-sk]:not(.st-media) { animation: none; }
 [data-st="skeleton"].st-instant [data-st-sk]:not(.st-media) { animation: none; }
-@keyframes st-sk-in { from { filter: blur(3px); } to { filter: blur(0); } }
+@keyframes st-sk-in { from { filter: blur(2px); } to { filter: blur(0); } }
 [data-st="skeleton"] .st-media[data-st-sk], [data-st="skeleton"][aria-busy="true"] .st-real .st-media[data-st-sk] { position: relative; overflow: hidden; filter: none; transform: none; transition: none; }
 [data-st="skeleton"] .st-media[data-st-sk]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; background: var(--surface-2); opacity: 0; transition: opacity 300ms var(--st-O) var(--st-sk-d); }
-[data-st="skeleton"][aria-busy="false"] .st-media[data-st-sk] { animation: st-sk-media 560ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d) both; }
+[data-st="skeleton"][aria-busy="false"] .st-media[data-st-sk] { animation: st-sk-media 120ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d) both; }
 [data-st="skeleton"].st-instant .st-media[data-st-sk] { animation: none; }
-@keyframes st-sk-media { from { filter: blur(10px); transform: scale(1.04); } to { filter: blur(0); transform: none; } }
+@keyframes st-sk-media { from { filter: blur(6px); transform: scale(1.03); } to { filter: blur(0); transform: none; } }
 [data-st="skeleton"][aria-busy="true"] .st-media[data-st-sk]::after { opacity: 1; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
 [data-st="skeleton"].st-instant [data-st-sk], [data-st="skeleton"].st-instant [data-st-sk] *, [data-st="skeleton"].st-instant [data-st-sk]::after { transition: none !important; }
 @media (prefers-reduced-motion: reduce) { [data-st="skeleton"] [data-st-sk], [data-st="skeleton"] [data-st-sk] * { animation: none !important; filter: none !important; transform: none !important; transition-duration: 120ms !important; transition-delay: 0ms !important; } }
@@ -639,16 +641,25 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 [data-st-progress="error"] .st-status-disc circle { stroke: var(--bad); }
 [data-st-progress="loading"] .st-status-disc circle { stroke: color-mix(in srgb, var(--text) 10%, transparent); }
 .st-success-mark::before, .st-status-mark::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--ok) 26%, transparent), transparent); opacity: 0; transform: scale(.7); pointer-events: none; }
-[data-st="success"][data-st-done="true"] .st-success-mark::before, [data-st-progress="success"] .st-status-mark::before { animation: st-halo 760ms var(--st-O) 80ms both; }
-[data-st-progress="error"] .st-status-mark::before { background: radial-gradient(closest-side, color-mix(in srgb, var(--bad) 22%, transparent), transparent); animation: st-halo 760ms var(--st-O) 80ms both; }
-@keyframes st-halo { 0% { opacity: 0; transform: scale(.7); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
+[data-st="success"][data-st-done="true"] .st-success-mark::before, [data-st-progress="success"] .st-status-mark::before { animation: st-halo 220ms var(--st-O) 40ms both; }
+[data-st-progress="error"] .st-status-mark::before { background: radial-gradient(closest-side, color-mix(in srgb, var(--bad) 22%, transparent), transparent); animation: st-halo 220ms var(--st-O) 40ms both; }
+@keyframes st-halo { 0% { opacity: 0; transform: scale(.9); } 35% { opacity: 1; } 100% { opacity: 0; transform: scale(1.25); } }
 @media (prefers-reduced-motion: reduce) { .st-success-mark::before, .st-status-mark::before { animation: none !important; } }
 
 /* Rows painted while they cross during a sort are opaque at once: a fading paint lets text show through text. */
 [data-st-paint] { transition-property: transform, opacity !important; }
 /* Input clear: the placeholder waits until the cleared text has left, then fades in; the two never overlap. */
-[data-st="clear"] input::placeholder { transition: color 160ms var(--st-F); }
+[data-st="clear"] input::placeholder { transition: color 80ms var(--st-F); }
 [data-st="clear"][data-st-has-text="true"] input::placeholder { color: transparent; }
 
 /* Number: a rolling digit is clipped to its own slot vertically, so arriving and leaving glyphs never share a reading position. */
 .st-cell.st-rolling { clip-path: inset(0 -0.25em); }
+
+/* Badge digits roll inside the pill. */
+[data-st="badge"] { overflow: clip; }
+
+/* Avatar name: arrives on a spring above the face, leaves with a quick fade (no exit travel). */
+.st-avatar-name:not([data-st-show="true"]) { transition: opacity 70ms cubic-bezier(.4,0,1,1); }
+
+/* Input clear: the clear control leaves with the value, on the same 80ms accelerating exit. */
+[data-st="clear"][data-st-clearing="true"] button { opacity: 0; transform: none; pointer-events: none; transition: opacity 80ms cubic-bezier(.4,0,1,1); }
