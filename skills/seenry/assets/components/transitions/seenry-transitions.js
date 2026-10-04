@@ -953,8 +953,6 @@
 
  /* ---------- Skeleton, reveal, shimmer ---------- */
  function skeleton(el, ready, o = {}) { if (o.instant) { el.classList.add('st-instant'); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('st-instant'))); } el.setAttribute('aria-busy', String(!ready)); const real = q(el, '.st-real'); if (real) real.inert = !ready; }
- // Each line is uncovered left to right in reading order, the next line a beat behind; text starts at .6 opacity, so
- // even a capture taken mid-reveal reads.
  // Lines rise into a line-height clip (no sideways wipe that cuts words), the second 40ms after the first.
  function reveal(el) { if ([...el.children].some(x => x.getAnimations().some(a => a.playState === 'running'))) return Promise.resolve(); return Promise.all([...el.children].map((x, i) => Promise.all([play(x, [{clipPath: 'inset(0 -4px 100% -4px)', transform: 'translateY(5px)'}, {clipPath: 'inset(-4px -4px -4px -4px)', transform: 'none'}], {ms: 180, curve: 'cubic-bezier(.16,1,.3,1)', delay: i * 40, current: false, channel: 'clip'}), play(x, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', delay: i * 40, current: false, channel: 'o', fade: true})]))); }
  function shimmer(el) {

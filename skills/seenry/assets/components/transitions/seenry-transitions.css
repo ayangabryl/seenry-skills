@@ -612,20 +612,21 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 @media (prefers-reduced-motion: reduce) { [data-st="avatars"] > *:not(.st-avatar-name) { transform: none !important; } }
 
 /* Skeleton v5 (opt-in [data-st-sk]): the content is its own skeleton, so every placeholder has exactly the shape of
-   what replaces it. While busy, each line is a soft bar with a sweep; when ready, pieces resolve in place in reading
-   order (bar fades, ink arrives, blur clears) and media sharpen from a blur. Nothing moves and the card never resizes. */
+   what replaces it. While busy, each line is a soft bar with a sweep; when ready, every region swaps in place as one
+   short step (the bar fades in 90ms while its ink arrives over 120ms, 20ms apart in reading order) and the photo
+   sharpens. Nothing moves and the card never resizes. */
 [data-st="skeleton"] .st-sk-real { opacity: 1 !important; transform: none !important; }
-[data-st="skeleton"] [data-st-sk] { --st-sk-d: calc(var(--i, 0) * 45ms); -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 6px;
- transition: color 120ms var(--st-O) var(--st-sk-d), background-color 120ms var(--st-O) var(--st-sk-d); }
+[data-st="skeleton"] [data-st-sk] { --st-sk-d: min(calc(var(--i, 0) * 20ms), 80ms); -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 6px;
+ transition: color 120ms var(--st-O) calc(var(--st-sk-d) + 30ms), background-color 90ms cubic-bezier(.4,0,1,1) var(--st-sk-d); }
 [data-st="skeleton"][aria-busy="true"] [data-st-sk]:not(.st-media) { color: transparent; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
 [data-st="skeleton"][aria-busy="true"] [data-st-sk] * { color: transparent; }
-[data-st="skeleton"] [data-st-sk] * { transition: color 120ms var(--st-O) var(--st-sk-d); }
+[data-st="skeleton"][aria-busy="true"] [data-st-sk], [data-st="skeleton"][aria-busy="true"] [data-st-sk] * { transition: color 80ms cubic-bezier(.4,0,1,1), background-color 90ms var(--st-O) 40ms; }
+[data-st="skeleton"] [data-st-sk] * { transition: color 120ms var(--st-O) calc(var(--st-sk-d) + 30ms); }
 @keyframes st-sk-sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
 [data-st="skeleton"][aria-busy="false"] [data-st-sk]:not(.st-media) { animation: none; }
 [data-st="skeleton"].st-instant [data-st-sk]:not(.st-media) { animation: none; }
-@keyframes st-sk-in { from { filter: blur(2px); } to { filter: blur(0); } }
 [data-st="skeleton"] .st-media[data-st-sk], [data-st="skeleton"][aria-busy="true"] .st-real .st-media[data-st-sk] { position: relative; overflow: hidden; filter: none; transform: none; transition: none; }
-[data-st="skeleton"] .st-media[data-st-sk]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; background: var(--surface-2); opacity: 0; transition: opacity 300ms var(--st-O) var(--st-sk-d); }
+[data-st="skeleton"] .st-media[data-st-sk]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; background: var(--surface-2); opacity: 0; transition: opacity 90ms cubic-bezier(.4,0,1,1) var(--st-sk-d); }
 [data-st="skeleton"][aria-busy="false"] .st-media[data-st-sk] { animation: st-sk-media 120ms cubic-bezier(.25,.1,.25,1) var(--st-sk-d) both; }
 [data-st="skeleton"].st-instant .st-media[data-st-sk] { animation: none; }
 @keyframes st-sk-media { from { filter: blur(6px); transform: scale(1.03); } to { filter: blur(0); transform: none; } }

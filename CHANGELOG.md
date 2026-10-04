@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.8.0
+
+Seenry Transitions, reviewed component by component. 33 of 38 catalog rows now score 8 on the motion judge (median of three Codex runs), up from a catalog average of 7; on the same judge, transitions.dev's playable rows score 6–7.
+
+- **Redesigned where the layout or interaction model was wrong:**
+  - Button to menu has no close control: the menu grows out of its button and dismisses on selection, outside click or Escape. A white shell grows while a painted copy of the button fades off it, so nothing passes through grey.
+  - Card expand puts Close at the header's top-right, gives the track rows full width and covers the album list.
+  - AI thinking and streaming is a real thread: earlier turns move up under a soft edge instead of being erased, the reply streams into a reserved slot, and sources light as they are cited. Judge 7 → 8.
+  - Copy never truncates the command it copies; the phone form keeps its error under its field; Input clear's placeholder no longer overlaps the clearing text; sorted rows no longer show text through text; the inbox shows whole rows.
+- **Raised to 8:** Tabs slide toward the chosen tab; Number rolls exact digits in their own slots while leaving digits keep the blur; Card resize has a dedicated quick collapse; Avatar group opens uncrowded; Notification badge rolls by place value; Spinner to check erases the icon's strokes as the arc draws; Success check re-confirms from the rendered mark; Form error nudges 2px and clears in place; Accordion, Text change, Image open, Tilt card and Text reveal are faster and reverse cleanly. Skeleton to content swaps every placeholder in one short step after one finite sweep (4 → 7).
+- **Kit fixes:** state transitions on stage controls actually run (a duration token carried an easing and voided the declaration); keyboard-driven changes are instant with a full focus cue on the first frame; filtered-out cards stay hidden; the morph menu anchors its inner corner to its button and never flips; Notification badge no longer hangs the page on update.
+- **Every component explains itself:** each catalog card has a "Why this works" section in its detail view.
+- **Skill:** seenry-motion's never-ship list catches voided transition durations, display rules that beat `[hidden]`, crossfaded morph shapes, close buttons on menus and controls pinned to stale positions.
+- **Judge calibration** is recorded in CONTINUE.md: nothing scored above 8, the reference included. Still below 8: Thinking states (6–7, judge noise), Input clear, Menu (held by its native-evidence contract), Dialog and Skeleton to content (7).
+
 ## 4.7.3
 
 - Why rounds stalled at 7–8, now fixed in the tools:

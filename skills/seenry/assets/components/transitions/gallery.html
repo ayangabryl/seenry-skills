@@ -1150,7 +1150,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
      </div>
     <button class="replay" data-replay="list" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
     <div class="caption"><h3><button class="title-link" data-detail="list">List</button></h3><p>Rows keep their identity</p><button class="snippet-copy" data-st="copy" data-snippet="list" aria-label="Copy HTML for List"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>FLIP spring .36</span><span>remove: fade, +40</span><span>no stagger</span></div></div>
-   </article><article class="card" data-key="skeleton" data-why="The placeholders are the real text and image in a waiting state, so the layout never shifts when data arrives. Pieces resolve in reading order with a brief blur, and the image sharpens last." data-category="Content" tabindex="0" data-motion-region data-motion-label="Skeleton to content">
+   </article><article class="card" data-key="skeleton" data-why="The placeholders are the real text and image in a waiting state, so the layout never shifts when data arrives. Every placeholder swaps for its content in one short step, in reading order, and the photo sharpens." data-category="Content" tabindex="0" data-motion-region data-motion-label="Skeleton to content">
     <div class="stage" data-st-preview>
      <div class="app profile" data-st="skeleton" id="skel" aria-busy="false">
       <div class="st-real st-sk-real">
@@ -1160,7 +1160,7 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
       </div>
      </div>
     <button class="replay" data-replay="skeleton" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
-    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>resolve 45ms stagger</span><span>one sweep, then resolve</span></div></div>
+    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>one swap, 20ms apart</span><span>one sweep, then resolve</span></div></div>
    </article><article class="card" data-key="ai" data-why="Nothing is erased: a follow-up moves the whole conversation up together, so the earlier answer slides under a soft fade instead of vanishing. The new answer streams into space already reserved for it, and each source lights the moment its citation lands. Pressing again stops it and keeps what has arrived." data-category="AI" tabindex="0" data-motion-region data-motion-label="AI thinking and streaming">
     <div class="stage" data-st-preview>
      <div class="app chat"><div class="chat-view" id="chat"><div class="chat-track" id="chat-track"><div class="turn">
@@ -1363,9 +1363,9 @@ dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;w
   list: sortTasks,
   // The shimmer makes one sweep timed to the load, and the content resolves as it finishes: loading reads as one
   // finite step with a clear end, not a loop that is cut off.
-  skeleton: () => { const el = $('skel'); S.skeleton(el, false, {instant: true}); clearTimeout(replay._skel);
-   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) el.querySelectorAll('[data-st-sk]:not(.st-media), .st-media[data-st-sk]').forEach(n => { const t = n.matches('.st-media') ? n : n; S.play(t, [{backgroundPosition: '100% 0'}, {backgroundPosition: '0% 0'}], {ms: 520, curve: 'linear', channel: 'sweep', current: false}); });
-   replay._skel = setTimeout(() => S.skeleton(el, true), 520); },
+  skeleton: () => { const el = $('skel'); S.skeleton(el, false); clearTimeout(replay._skel);
+   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) el.querySelectorAll('[data-st-sk]:not(.st-media), .st-media[data-st-sk]').forEach(n => { const t = n.matches('.st-media') ? n : n; S.play(t, [{backgroundPosition: '100% 0'}, {backgroundPosition: '0% 0'}], {ms: 180, curve: 'linear', channel: 'sweep', current: false}); });
+   replay._skel = setTimeout(() => S.skeleton(el, true), 180); },
   ai: runAI,
   checkbox: () => $('chk-1').click()
  };
