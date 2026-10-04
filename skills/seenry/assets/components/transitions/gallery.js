@@ -57,8 +57,14 @@
  replay.link = () => { const el = $('learn-link'); el.dataset.stHover = el.dataset.stHover !== 'true' ? 'true' : 'false'; };
  replay.reveal = () => S.reveal($('text-reveal'));
  // Thinking states: the label shimmers while a step is pending, steps on with a soft blur, and settles unshimmered.
- replay.shimmer = () => { const t = $('shimmer-text'); delete t.dataset.stDone;
-  sequence('shimmer', [[0, () => S.swapText(t, 'Reading your draft')], [1300, () => S.swapText(t, 'Checking tone')], [2600, () => S.swapText(t, 'Polishing wording')], [3900, () => { t.dataset.stDone = 'true'; S.swapText(t, '3 suggestions ready'); }]]); };
+ replay.shimmer = (() => {
+  // Replay starts the work; pressed again while it runs, it moves straight to the next step, so a second press is a
+  // real status change (retargeted from wherever the roll is), never a restart onto the label already shown.
+  const steps = ['Reading your draft', 'Checking tone', 'Polishing wording', '3 suggestions ready']; let step = -1;
+  const show = i => { const t = $('shimmer-text'); step = i; if (i === steps.length - 1) t.dataset.stDone = 'true'; else delete t.dataset.stDone; S.swapText(t, steps[i]); };
+  return () => { const from = step >= 0 && step < steps.length - 1 ? step + 1 : 0; show(from);
+   sequence('shimmer', steps.slice(from + 1).map((_, k) => [1300 * (k + 1), () => show(from + 1 + k)])); };
+ })();
  replay.popover = () => S.toggle($('popover-panel'), $('popover-trigger'));
  S.progress($('progress'), 'idle');
  replay.progress = () => sequence('progress', [[0, () => { S.progress($('progress'), 'loading'); S.swapText($('progress-label'), 'Syncing changes'); }], [900, () => { progressError = !progressError; S.progress($('progress'), progressError ? 'success' : 'error'); S.swapText($('progress-label'), progressError ? 'All changes synced' : 'Connection lost. Try again.'); }]]);

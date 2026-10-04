@@ -178,9 +178,9 @@ instant), Skeleton 7 → 8 (photo, name, body dissolve over their own masks 22ms
 leads, dialog 15ms behind, 120ms accelerating backdrop exit). The gallery's Replay icon no longer rotates: every row is
 judged through Replay and the judge kept flagging that rotation.
 
-Still below 8:
-- Thinking states 6–7: oscillates on unchanged code (judge noise floor); several variants tried, best kept.
-- Input clear 7: "precise but plain"; the clear control and value now leave together in 70ms.
+Update (4.8.2): all 38 rows at 8 or above. Thinking states reached 8 with an odometer status roll (fixed sparkle,
+second press advances a step); Input clear reached 8 with a backspace-direction erase whose placeholder is tied to the
+fade's end (judge slows animations 4x but not page timers, so timer-driven handoffs mis-sequence in its frames).
 
 Bug found by the judge runs: Notification badge replay hung the page (attribute observer re-entered badge() because
 stLabel no longer mirrored the value). Fixed; node tests did not cover it.

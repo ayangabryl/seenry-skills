@@ -260,10 +260,16 @@
    // labels are never drawn over each other.
    // A label replaced mid-entrance gives up its own pending entrance and only leaves, from where it is drawn now.
    if (thinking) { const cs = getComputedStyle(current); const from = {opacity: cs.opacity, transform: cs.transform === 'none' ? 'none' : cs.transform}; stopAll(current); Object.assign(current.style, {opacity: from.opacity, transform: from.transform}); el.classList.add('st-status-slot'); }
-   const movement=thinking?{transform:'translateY(-6px)'}:{transform:'translateY(-3px)'};
-   play(current,[{opacity:0,...movement}],{ms:thinking?50:50,curve:thinking?'cubic-bezier(.4,0,1,1)':'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
-   const lag = o.tight ? 0 : thinking ? 35 : 30;
-   return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:thinking?100:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:thinking?'translateY(6px)':'translateY(3px)'},{transform:'none'}],{ms:thinking?120:160,delay:lag,curve:thinking?'cubic-bezier(.16,1,.3,1)':'E',channel:'t',current:false})]);
+   // Status lines roll like an odometer inside their own clipped line: the old status leaves upward (its fade shorter
+   // than its travel), the new one arrives from below, sharp, on a monotonic curve, so it reads the moment it lands.
+   if (thinking) {
+    play(current,[{opacity:0}],{ms:55,curve:'cubic-bezier(.4,0,1,1)',channel:'text-o',fill:'forwards',fade:true,blur:false});
+    play(current,[{transform:'translateY(-100%)'}],{ms:120,curve:'cubic-bezier(.4,0,1,1)',channel:'text',fill:'forwards'}).then(()=>current.remove());
+    return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:90,delay:20,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:'translateY(100%)'},{transform:'none'}],{ms:160,curve:'cubic-bezier(.2,0,.2,1)',channel:'t',current:false})]);
+   }
+   play(current,[{opacity:0,transform:'translateY(-3px)'}],{ms:50,curve:'X',channel:'text',fill:'forwards',fade:true}).then(()=>current.remove());
+   const lag = o.tight ? 0 : 30;
+   return Promise.all([play(next,[{opacity:0},{opacity:1}],{ms:100,delay:lag,curve:'F',channel:'o',current:false,fade:true}), play(next,[{transform:'translateY(3px)'},{transform:'none'}],{ms:160,delay:lag,curve:'E',channel:'t',current:false})]);
   }
   const run = () => {
    positioned(el);
@@ -1895,10 +1901,15 @@
      const ink = doc.createElement('span'); ink.className = 'st-clear-exit'; ink.textContent = input.type === 'password' ? '•'.repeat([...text].length) : text; ink.setAttribute('aria-hidden', 'true');
      Object.assign(ink.style, {position:'absolute',left:rect.left-host.left-el.clientLeft+el.scrollLeft+'px',top:rect.top-host.top-el.clientTop+el.scrollTop+'px',width:rect.width+'px',height:rect.height+'px',boxSizing:'border-box',display:'flex',alignItems:'center',padding:cs.padding,borderStyle:'solid',borderColor:'transparent',borderWidth:cs.borderWidth,font:cs.font,letterSpacing:cs.letterSpacing,color:cs.color,whiteSpace:'pre',overflow:'hidden',pointerEvents:'none'});
      el.append(ink); leaving = ink;
+     // The erase runs over the text itself, not the empty field after it.
+     ink.style.width = 'fit-content'; ink.style.maxWidth = rect.width + 'px';
      input.value = ''; input.dispatchEvent(new Event('input', {bubbles:true})); input.focus({preventScroll:true});
-     // The placeholder starts arriving halfway through the exit, so the field is never blank between the two.
-     setTimeout(() => { if (current === version && !input.value) el.dataset.stHasText = 'false'; }, reduced() ? 0 : 40);
-     play(ink, [{opacity:1},{opacity:0}], {ms:70,curve:'cubic-bezier(.4,0,1,1)',fade:true}).then(() => {
+     // The placeholder arrives the moment the old value has faded (tied to that animation, not a timer), so the two
+     // never share the field at any playback speed.
+     const showPlaceholder = () => { if (current === version && !input.value) el.dataset.stHasText = 'false'; };
+     if (reduced()) showPlaceholder();
+     // Cleared like holding backspace: the value is erased from its end, toward the start, ending where typing begins.
+     (play(ink, [{opacity:1},{opacity:0}], {ms:60,delay:25,curve:'cubic-bezier(.4,0,1,1)',channel:'o',fade:true,blur:false}).then(showPlaceholder), play(ink, [{clipPath:'inset(-4px 0 -4px 0)'},{clipPath:'inset(-4px 100% -4px 0)'}], {ms:90,curve:'cubic-bezier(.4,0,1,1)',channel:'clip',blur:false})).then(() => {
       ink.remove(); if (current !== version) return;
       leaving = null; clearing = false; delete el.dataset.stClearing; el.dataset.stHasText = String(!!input.value);
      });

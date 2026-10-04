@@ -57,9 +57,10 @@ const collapse=source.slice(source.indexOf(' function collapse(detail'),source.i
   vm.createContext(scope);vm.runInContext(gallery.slice(begin,end)+thinking,scope);
   scope.replay.shimmer();assert.equal(label.dataset.stDone,undefined);assert.deepEqual(calls,['Reading your draft']);
   assert.deepEqual([...timers.values()].map(t=>t.ms),[1300,2600,3900]);
-  const oldIds=[...timers.keys()];scope.replay.shimmer();assert(oldIds.every(id=>!timers.has(id)),'Replay retires all previous step timers');assert.equal(timers.size,3);
+  const oldIds=[...timers.keys()];scope.replay.shimmer();assert(oldIds.every(id=>!timers.has(id)),'Replay retires all previous step timers');assert.equal(timers.size,2,'A second press advances to the next step and keeps only the remaining steps');
+  assert.deepEqual(calls,['Reading your draft','Checking tone'],'A second press is a real status change, not a restart');
   for(const [id,timer] of [...timers]){timers.delete(id);timer.fn();}
-  assert.deepEqual(calls,['Reading your draft','Reading your draft','Checking tone','Polishing wording','3 suggestions ready']);assert.equal(label.dataset.stDone,'true');assert.equal(timers.size,0);
+  assert.deepEqual(calls,['Reading your draft','Checking tone','Polishing wording','3 suggestions ready']);assert.equal(label.dataset.stDone,'true');assert.equal(timers.size,0);
  });
  completed=true;console.log(`${cases.length}/${cases.length} rendered-finding logic/static regressions passed; browser retest pending`);
 })().catch(e=>{console.error(e);process.exitCode=1});

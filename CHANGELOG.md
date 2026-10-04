@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.8.2
+
+- Every catalog row now scores at least 8 on the motion judge (38 of 38).
+- Thinking states: the status line rolls like an odometer inside its own clipped line (the old status leaves upward, the new one arrives sharp from below) while the sparkle stays put; a second press during the sequence moves to the next step instead of restarting. Judge 6–7 → 8 (8/8/8 on two separate runs).
+- Input clear: the value is erased from its end like holding backspace, the placeholder arrives the moment the old value has faded (tied to the animation, not a timer), the × rests quiet and comes forward on hover, and focus keeps one ink ring whichever input put it there. Judge 7 → 8.
+
 ## 4.8.1
 
 - Menu, Skeleton to content and Dialog reach motion judge 8 (36 of 38 rows): a pointer-opened menu's actions settle a beat after its shell (keyboard stays instant); each skeleton piece dissolves over its own mask in reading order without blur; a dialog's backdrop leads and its exit is one decisive fade.

@@ -666,20 +666,27 @@ html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!
 
 
 /* Status slot: a thinking label changes inside its own line, clipped vertically so two labels never share it. */
-.st-status-slot { clip-path: inset(0 -0.5em); }
+.st-status-slot { clip-path: inset(0 -100vw); }
 
 /* Input clear control: a quiet backing on hover and press, a 0.94 press, and a visible keyboard ring, all inside its footprint. */
 [data-st="clear"] button::before { content: ""; position: absolute; inset: 8px; border-radius: 8px; background: var(--hover, rgb(0 0 0 / .05)); opacity: 0; transition: opacity 80ms var(--st-F); }
 @media (hover: hover) and (pointer: fine) { [data-st="clear"] button:hover::before { opacity: 1; } }
 [data-st="clear"] button:active::before { opacity: 1; }
-[data-st="clear"] button:active { transform: scale(.96); transition: transform 60ms var(--st-F); }
-[data-st="clear"] button:not(:active) { transition: opacity var(--st-quick) var(--st-F), transform 100ms var(--st-O); }
+[data-st="clear"] button:active { transform: none; }
+[data-st="clear"] button:not(:active) { transition: opacity var(--st-quick) var(--st-F), transform 100ms cubic-bezier(.25,0,.06,1); }
 [data-st="clear"] button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -6px; }
 [data-st="clear"] button > * { position: relative; }
 
 /* Keyboard focus on a clearable field is unmistakable; pointer focus stays calm. */
-html[data-st-input-mode="keyboard"] [data-st="clear"] .st-input:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+/* One focus treatment for a clearable field, whichever input put focus there: the same ink ring, held through the clear. */
+[data-st="clear"] .st-input:focus { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--text) 55%, transparent), 0 0 0 4px color-mix(in srgb, var(--text) 8%, transparent); transition: box-shadow 100ms var(--st-F); outline: none; }
 
 /* Clearing outranks the resting and press states: the control and the old value leave together in 70ms. */
-[data-st="clear"][data-st-clearing="true"] button, [data-st="clear"][data-st-clearing="true"] button:not(:active) { opacity: 0; transform: none; pointer-events: none; transition: opacity 70ms cubic-bezier(.4,0,1,1); }
+[data-st="clear"][data-st-clearing="true"] button, [data-st="clear"][data-st-clearing="true"] button:not(:active) { opacity: 0; transform: none; pointer-events: none; transition: opacity 110ms cubic-bezier(.4,0,1,1); }
 [data-st="clear"] input::placeholder { transition: color 60ms var(--st-F); }
+
+/* The clear glyph rests quiet and comes forward on hover and keyboard focus. */
+[data-st="clear"] button > * { opacity: .65; transition: opacity 80ms var(--st-F), transform 100ms cubic-bezier(.2,0,.2,1); }
+[data-st="clear"] button:active > * { transform: scale(.9); transition: opacity 80ms var(--st-F), transform 60ms var(--st-F); }
+@media (hover: hover) and (pointer: fine) { [data-st="clear"] button:hover > * { opacity: 1; } }
+[data-st="clear"] button:focus-visible > *, [data-st="clear"] button:active > * { opacity: 1; }
