@@ -1,0 +1,112 @@
+{
+  "anchored-menu": {
+    "guide": "surfaces.md",
+    "helpers": []
+  },
+  "surface-morph": {
+    "guide": "surfaces.md",
+    "helpers": []
+  },
+  "fluid-menu": {
+    "guide": "surfaces.md",
+    "helpers": []
+  },
+  "disclosure": {
+    "guide": "surfaces.md",
+    "helpers": [
+      "geometry"
+    ]
+  },
+  "dialog": {
+    "guide": "surfaces.md",
+    "helpers": []
+  },
+  "side-panel": {
+    "guide": "surfaces.md",
+    "helpers": []
+  },
+  "selection-indicator": {
+    "guide": "navigation.md",
+    "helpers": []
+  },
+  "page-transition": {
+    "guide": "navigation.md",
+    "helpers": []
+  },
+  "tooltip": {
+    "guide": "navigation.md",
+    "helpers": []
+  },
+  "directional-hint": {
+    "guide": "navigation.md",
+    "helpers": []
+  },
+  "label-swap": {
+    "guide": "content.md",
+    "helpers": [
+      "icon-swap"
+    ]
+  },
+  "icon-morph": {
+    "guide": "content.md",
+    "helpers": [
+      "morph-icon"
+    ]
+  },
+  "number-change": {
+    "guide": "content.md",
+    "helpers": [
+      "number"
+    ]
+  },
+  "text-reveal": {
+    "guide": "content.md",
+    "helpers": []
+  },
+  "streaming-text": {
+    "guide": "content.md",
+    "helpers": []
+  },
+  "status-feedback": {
+    "guide": "feedback.md",
+    "helpers": [
+      "icon-swap"
+    ]
+  },
+  "notification-stack": {
+    "guide": "feedback.md",
+    "helpers": []
+  },
+  "checked-control": {
+    "guide": "feedback.md",
+    "helpers": []
+  },
+  "loading-reveal": {
+    "guide": "loading.md",
+    "helpers": []
+  },
+  "process-loop": {
+    "guide": "loading.md",
+    "helpers": []
+  },
+  "pointer-response": {
+    "guide": "expressive.md",
+    "helpers": []
+  },
+  "drag-physics": {
+    "guide": "expressive.md",
+    "helpers": []
+  },
+  "image-transition": {
+    "guide": "expressive.md",
+    "helpers": []
+  },
+  "particles": {
+    "guide": "expressive.md",
+    "helpers": []
+  },
+  "material-effect": {
+    "guide": "expressive.md",
+    "helpers": []
+  }
+}

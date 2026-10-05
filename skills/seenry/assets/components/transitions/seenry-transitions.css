@@ -1,0 +1,692 @@
+/* Seenry Transitions 3. Original, dependency-free. MIT.
+   Motion is transform, opacity, clip-path, filter on small elements, and SVG stroke. Layout commits at once; FLIP and
+   clipped shells show the change. Springs are baked into linear() so CSS transitions retarget from the current frame. */
+:root {
+ --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+ --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+ --bg: #f7f7f8; --surface: #fff; --surface-2: #f3f3f5; --hover: #0000000a; --press: #00000012;
+ --line: #0000001a; --line-strong: #00000029;
+ --text: #111113; --text-2: #5c5e66; --text-3: #85878f;
+ --accent: #111113; --accent-hover: #2a2a2e; --on-accent: #fff; --accent-subtle: #0000000d;
+ --focus-ring: #3a7afe;
+ --ok: #16803c; --ok-bg: #e9f7ee; --bad: #d42f2f; --bad-bg: #fdeeee; --warn: #9a6200; --warn-bg: #fff6e0; --info: #2f63d8; --info-bg: #edf2fe;
+ --heart: #f0325a;
+ --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px;
+ --shadow-layer: 0 0 0 1px #0000000f, 0 1px 2px #0000000a, 0 8px 24px -6px #0000001f, 0 24px 48px -12px #0000001a;
+ --shadow-card: 0 0 0 1px #0000000f, 0 1px 2px #0000000d;
+ --st-backdrop: #0c0c0e59;
+ /* Controls sit on a soft outer ring, never a hard inset hairline. One state clock for hover, focus and press. */
+ --ring-control: 0 0 0 1px #00000014, 0 1px 2px #0000000d; --ring-control-hover: 0 0 0 1px #00000024, 0 1px 3px #00000014; --surface-hover: #fafafa;
+ --st-state: 180ms cubic-bezier(.25,0,.06,1);
+
+ /* Timed clocks: distance x size x frequency. */
+ --st-instant: 0ms; --st-feedback: 120ms; --st-quick: 180ms; --st-control: 220ms; --st-relocate: 260ms; --st-surface: 320ms; --st-spatial: 380ms;
+ --st-E: cubic-bezier(.16,1,.3,1); --st-O: cubic-bezier(.3,1,0,1); --st-S: cubic-bezier(.25,0,.06,1); --st-M: cubic-bezier(.4,0,.2,1); --st-F: cubic-bezier(.2,0,.2,1); --st-X: cubic-bezier(.4,0,1,1);
+ --st-delay-0: 0ms; --st-delay-40: 40ms; --st-delay-60: 60ms; --st-delay-80: 80ms;
+
+ /* Springs as spring(response, bounce), settled to 0.4%. The -ms token is the full settle; most travel is done in
+    about half of it. snappy: indicators, menus, popovers. smooth: sheets, drawers, shared elements, reflow.
+    gentle: dialogs, toasts. bouncy: a like or a badge, where the material earns a settle. thumb: switches. */
+ --st-spring-snappy: linear(0, 0.0144, 0.0507, 0.1018, 0.1619, 0.2268, 0.2936, 0.3597, 0.4238, 0.4846, 0.5415, 0.5941, 0.6423, 0.6861, 0.7255, 0.7608, 0.7923, 0.8202, 0.8448, 0.8664, 0.8853, 0.9018, 0.9161, 0.9285, 0.9393, 0.9485, 0.9564, 0.9632, 0.969, 0.974, 0.9782, 0.9818, 0.9848, 0.9873, 0.9895, 0.9913, 0.9928, 0.9941, 0.9952, 0.996, 1);
+ --st-spring-snappy-ms: 356ms;
+ --st-spring-smooth: linear(0, 0.017, 0.0593, 0.1174, 0.1843, 0.2552, 0.3265, 0.3959, 0.4618, 0.5232, 0.5797, 0.6311, 0.6775, 0.719, 0.7558, 0.7885, 0.8172, 0.8423, 0.8643, 0.8834, 0.9, 0.9143, 0.9267, 0.9374, 0.9466, 0.9545, 0.9613, 0.9671, 0.972, 0.9763, 0.9799, 0.9829, 0.9855, 0.9878, 0.9897, 0.9913, 0.9926, 0.9938, 0.9947, 0.9956, 1);
+ --st-spring-smooth-ms: 514ms;
+ --st-spring-gentle: linear(0, 0.0115, 0.0413, 0.0842, 0.1359, 0.1932, 0.2533, 0.3143, 0.3747, 0.4332, 0.4892, 0.5421, 0.5914, 0.6371, 0.6791, 0.7174, 0.7521, 0.7834, 0.8114, 0.8365, 0.8587, 0.8784, 0.8957, 0.9109, 0.9242, 0.9358, 0.9458, 0.9545, 0.9619, 0.9683, 0.9738, 0.9785, 0.9824, 0.9857, 0.9885, 0.9909, 0.9928, 0.9944, 0.9957, 0.9968, 1);
+ --st-spring-gentle-ms: 399ms;
+ --st-spring-bouncy: linear(0, 0.0257, 0.0925, 0.1872, 0.2986, 0.4173, 0.5358, 0.6484, 0.751, 0.8411, 0.9173, 0.9793, 1.0274, 1.0627, 1.0864, 1.1003, 1.106, 1.1052, 1.0995, 1.0903, 1.079, 1.0666, 1.0539, 1.0416, 1.0303, 1.0202, 1.0115, 1.0044, 0.9988, 0.9945, 0.9916, 0.9897, 0.9888, 0.9887, 0.9891, 0.99, 0.9911, 0.9924, 0.9938, 0.9951, 1);
+ --st-spring-bouncy-ms: 598ms;
+ --st-spring-thumb: linear(0, 0.018, 0.0645, 0.131, 0.2102, 0.2963, 0.3848, 0.4721, 0.5556, 0.6333, 0.7042, 0.7675, 0.8229, 0.8707, 0.9109, 0.9442, 0.9712, 0.9924, 1.0087, 1.0206, 1.029, 1.0342, 1.0371, 1.038, 1.0373, 1.0356, 1.0331, 1.0302, 1.0269, 1.0235, 1.0202, 1.017, 1.0141, 1.0114, 1.009, 1.0068, 1.005, 1.0035, 1.0022, 1.0011, 1);
+ --st-spring-thumb-ms: 395ms;
+
+ /* Legacy aliases (v1). */
+ --st-fast: var(--st-quick); --st-base: var(--st-control); --st-slow: var(--st-surface); --st-page: var(--st-spatial);
+ --st-ease-out: var(--st-E); --st-ease-in-out: var(--st-M); --st-ease-drawer: var(--st-E);
+ --st-rise: 4px; --st-scale-in: .96; --st-shadow: var(--shadow-layer); --st-reserve: 7ch; --st-stream-lines: 4;
+ --r-sm-legacy: var(--r-sm);
+}
+:root { color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark;
+ --bg: #0b0b0c; --surface: #161618; --surface-2: #1d1d20; --hover: #ffffff0d; --press: #ffffff17; --line: #ffffff17; --line-strong: #ffffff29;
+ --text: #ededef; --text-2: #a0a1a8; --text-3: #75767d; --accent: #ededef; --accent-hover: #fff; --on-accent: #111113; --accent-subtle: #ffffff12;
+ --focus-ring: #6b9bff; --ok: #4cc97b; --ok-bg: #12301f; --bad: #ff6b6b; --bad-bg: #3a1618; --warn: #f0b64b; --warn-bg: #33270e; --info: #7ea5ff; --info-bg: #17223d; --heart: #ff4d73;
+ --shadow-layer: 0 0 0 1px #ffffff14, 0 1px 2px #0006, 0 12px 32px -8px #000a, 0 24px 48px -12px #0008; --shadow-card: 0 0 0 1px #ffffff12, 0 1px 2px #0004; --st-backdrop: #00000080; --ring-control: 0 0 0 1px #ffffff17, 0 1px 2px #0006; --ring-control-hover: 0 0 0 1px #ffffff26, 0 1px 3px #0008; --surface-hover: #1c1c1f; } }
+[data-theme="dark"] { color-scheme: dark;
+ --bg: #0b0b0c; --surface: #161618; --surface-2: #1d1d20; --hover: #ffffff0d; --press: #ffffff17; --line: #ffffff17; --line-strong: #ffffff29;
+ --text: #ededef; --text-2: #a0a1a8; --text-3: #75767d; --accent: #ededef; --accent-hover: #fff; --on-accent: #111113; --accent-subtle: #ffffff12;
+ --focus-ring: #6b9bff; --ok: #4cc97b; --ok-bg: #12301f; --bad: #ff6b6b; --bad-bg: #3a1618; --warn: #f0b64b; --warn-bg: #33270e; --info: #7ea5ff; --info-bg: #17223d; --heart: #ff4d73;
+ --shadow-layer: 0 0 0 1px #ffffff14, 0 1px 2px #0006, 0 12px 32px -8px #000a, 0 24px 48px -12px #0008; --shadow-card: 0 0 0 1px #ffffff12, 0 1px 2px #0004; --st-backdrop: #00000080; --ring-control: 0 0 0 1px #ffffff17, 0 1px 2px #0006; --ring-control-hover: 0 0 0 1px #ffffff26, 0 1px 3px #0008; --surface-hover: #1c1c1f; }
+[data-theme="light"] { color-scheme: light; }
+
+/* Primitives */
+.st-sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+[data-st], .st-button, .st-input { box-sizing: border-box; }
+.st-button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 0; border-radius: var(--r-md);
+ background: var(--surface); box-shadow: var(--ring-control); color: var(--text); font: 500 14px/20px var(--font); letter-spacing: -.005em; cursor: pointer; text-decoration: none; white-space: nowrap;
+ -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none;
+ transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy), background-color var(--st-state), color var(--st-state), box-shadow var(--st-state); }
+.st-button::after { content: ""; position: absolute; inset: -4px 0; min-height: 44px; } /* 44px touch target around a 40px control */
+.st-button:active:not(:disabled) { transform: scale(.97); transition: transform 100ms var(--st-S), background-color var(--st-state), color var(--st-state), box-shadow var(--st-state); }
+.st-button:disabled { opacity: .5; cursor: not-allowed; }
+.st-primary { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+.st-ghost { background: transparent; box-shadow: none; }
+.st-icon-button { width: 40px; padding: 0; }
+.st-button:focus-visible, .st-input:focus-visible, [data-st] :focus-visible, [data-st]:focus-visible, .st-toggle:has(:focus-visible), .st-check:has(:focus-visible) { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.st-input { width: 100%; min-width: 0; min-height: 44px; padding: 0 12px; border: 0; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--ring-control); color: var(--text); font: 400 16px/24px var(--font);
+ transition: box-shadow var(--st-state); }
+@media (hover: hover) and (pointer: fine) { .st-input:hover:not(:focus) { box-shadow: var(--ring-control-hover); } }
+.st-input:focus-visible, .st-input:focus { outline: 0; box-shadow: 0 0 0 1px var(--focus-ring), 0 0 0 4px color-mix(in srgb, var(--focus-ring) 18%, transparent); }
+.st-surface { position: relative; padding: 20px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-card); color: var(--text); }
+.st-icon { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.st-muted { color: var(--text-2); }
+.st-row, .st-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; } .st-row { justify-content: space-between; } .st-actions { margin-top: 12px; }
+.st-full { width: 100%; min-width: 0; } .st-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+@media (hover: hover) and (pointer: fine) {
+ .st-button:hover:not(:disabled) { background: var(--surface-hover); box-shadow: var(--ring-control-hover); }
+ .st-primary:hover:not(:disabled) { background: var(--accent-hover); box-shadow: none; }
+ .st-ghost:hover:not(:disabled) { box-shadow: inset 0 0 0 100px var(--hover); }
+}
+
+/* Layers: menus, popovers, tooltips, dialogs, sheets, drawers, palette. JS positions and animates them. */
+[data-st="menu"], [data-st="plus-menu"], [data-st="popover"], [data-st="tooltip"] { position: fixed; inset: auto; margin: 0; max-width: calc(100vw - 16px); color: var(--text); font-family: var(--font); }
+[data-st="menu"], [data-st="plus-menu"], [data-st="popover"] { min-width: 200px; padding: 5px; border: 0; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-layer); overflow: visible; }
+[data-st="menu"] [role="menuitem"], [data-st="plus-menu"] [role="menuitem"], [data-st="menu"] .st-button, [data-st="plus-menu"] .st-button {
+ display: flex; width: 100%; align-items: center; justify-content: flex-start; gap: 10px; min-height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; box-shadow: none;
+ color: var(--text); font: 400 14px/20px var(--font); text-align: left; cursor: pointer; transition: none; }
+[data-st="menu"] [role="menuitem"]::after, [data-st="plus-menu"] [role="menuitem"]::after { display: none; }
+[data-st="menu"] [role="menuitem"] .st-icon, [data-st="plus-menu"] [role="menuitem"] .st-icon { color: var(--text-2); width: 16px; height: 16px; }
+[data-st="menu"] [role="menuitem"]:focus-visible, [data-st="plus-menu"] [role="menuitem"]:focus-visible { outline: 0; background: var(--hover); }
+[data-st="menu"]:not([data-st-morph]) [role="menuitem"]:focus-visible { box-shadow: inset 0 0 0 2px var(--focus-ring); }
+[data-st="menu"] [role="menuitem"]:active, [data-st="plus-menu"] [role="menuitem"]:active { background: var(--press); transform: none; }
+[data-st="menu"] [role="menuitem"].st-danger { color: var(--bad); } [data-st="menu"] [role="menuitem"].st-danger .st-icon { color: var(--bad); }
+[data-st="menu"] kbd { margin-left: auto; color: var(--text-2); font: 400 12px var(--font); }
+/* Groups are separated by space, not a rule. */
+[data-st="menu"] hr, [data-st="plus-menu"] hr { height: 0; margin: 3px 0; border: 0; background: none; }
+@media (hover: hover) and (pointer: fine) { [data-st="menu"] [role="menuitem"]:hover, [data-st="plus-menu"] [role="menuitem"]:hover { background: var(--hover); } }
+@media (pointer: coarse) { [data-st="menu"] [role="menuitem"], [data-st="plus-menu"] [role="menuitem"] { min-height: 44px; } }
+[data-st="plus-menu"] { transform-origin: 0 0; }
+[data-st="tooltip"] { padding: 5px 9px; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); font: 500 12.5px/18px var(--font); white-space: nowrap; pointer-events: none; box-shadow: 0 4px 12px -4px #0000003d; }
+[data-st="tooltip"] kbd { margin-left: 6px; opacity: .6; font: inherit; }
+
+dialog[data-st] { max-width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 24px; border: 0; border-radius: var(--r-xl); background: var(--surface); color: var(--text); box-shadow: var(--shadow-layer); font-family: var(--font); overflow: visible; }
+dialog[data-st]::backdrop { background: var(--st-backdrop); }
+dialog[data-st="palette"] { width: min(560px, calc(100vw - 24px)); max-width: none; margin: min(18vh, 120px) auto auto; padding: 0; border-radius: var(--r-lg); overflow: hidden; }
+dialog[data-st="palette"]::backdrop { background: color-mix(in srgb, var(--st-backdrop) 55%, transparent); }
+dialog[data-st="sheet"] { width: 100%; max-width: 560px; margin: auto auto 0; border-radius: var(--r-xl) var(--r-xl) 0 0; padding: 8px 20px max(20px, env(safe-area-inset-bottom)); }
+dialog[data-st="drawer"] { width: min(380px, 100vw); max-width: none; height: 100dvh; max-height: none; margin: 0 0 0 auto; border-radius: 0; }
+
+/* In-container sheets and drawers: position them inside any positioned host. */
+[data-st="sheet"]:not(dialog), [data-st="drawer"]:not(dialog) { position: absolute; z-index: 20; background: var(--surface); color: var(--text); box-shadow: var(--shadow-layer); }
+[data-st="sheet"]:not(dialog) { left: 0; right: 0; bottom: 0; padding: 8px 20px 20px; border-radius: var(--r-xl) var(--r-xl) 0 0; }
+[data-st="drawer"]:not(dialog) { top: 0; bottom: 0; right: 0; width: min(320px, 86%); padding: 20px; border-radius: var(--r-lg) 0 0 var(--r-lg); }
+[data-st="drawer"][data-st-side="left"]:not(dialog) { right: auto; left: 0; border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+[data-st="sheet"]:not(dialog):not([data-st-open="true"]), [data-st="drawer"]:not(dialog):not([data-st-open="true"]) { visibility: hidden; }
+[data-st-scrim] { position: absolute; inset: 0; z-index: 19; background: var(--st-backdrop); opacity: 0; pointer-events: none; }
+[data-st-scrim][data-st-open="true"] { opacity: 1; pointer-events: auto; }
+.st-sheet-handle { display: block; width: 36px; height: 5px; margin: 2px auto 14px; border-radius: 99px; background: var(--line-strong); }
+[data-st="sheet"] { touch-action: pan-x; }
+[data-st-recede] { transform-origin: 50% 0; }
+
+/* Legacy inline panel: reveals below its trigger. */
+[data-st="panel"] { transform-origin: 50% 0; }
+[data-st="panel"]:not([data-st-open="true"]) { visibility: hidden; }
+
+/* Morph from the trigger (plus-menu, data-st-morph). */
+.st-morphing { overflow: hidden; }
+
+/* Command palette */
+.st-palette-search { display: flex; align-items: center; gap: 10px; padding: 0 16px;  }
+.st-palette-search .st-icon { color: var(--text-3); }
+.st-palette-search input { flex: 1; min-width: 0; height: 52px; border: 0; outline: 0; background: transparent; color: var(--text); font: 400 16px/24px var(--font); }
+.st-palette-search input::placeholder { color: var(--text-2); }
+dialog[data-st="palette"] [role="listbox"] { position: relative; max-height: 320px; margin: 0; padding: 6px; overflow: auto; list-style: none; }
+.st-palette-highlight { position: absolute; left: 6px; right: 6px; top: 0; border-radius: 8px; background: var(--hover); pointer-events: none; transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy), opacity var(--st-quick) var(--st-F); }
+dialog[data-st="palette"] [role="option"] { position: relative; display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 10px; border-radius: 8px; color: var(--text); font: 400 14px/20px var(--font); cursor: pointer; }
+dialog[data-st="palette"] [role="option"] .st-icon { color: var(--text-2); width: 16px; height: 16px; }
+dialog[data-st="palette"] [role="option"] kbd { margin-left: auto; color: var(--text-2); font: 400 12px var(--font); }
+dialog[data-st="palette"] [role="option"][hidden] { display: none; }
+[data-st-palette-empty] { padding: 18px 16px; color: var(--text-2); font: 400 14px/20px var(--font); }
+@media (pointer: coarse) { dialog[data-st="palette"] [role="option"] { min-height: 44px; } }
+[data-st-morph-ready], dialog[data-st][data-st-morph-ready] { padding: 0; background: transparent; box-shadow: none; filter: drop-shadow(0 0 .5px var(--st-morph-ring, #00000038)) drop-shadow(0 10px 18px #0000001f); }
+.st-morph-body { position: relative; padding: 5px; border-radius: inherit; background: var(--surface); }
+dialog .st-morph-body { padding: 0; overflow: hidden; }
+dialog[data-st-morph-ready]::backdrop { background: color-mix(in srgb, var(--st-backdrop) 45%, transparent); }
+.st-tip-label { display: inline-flex; align-items: center; }
+[data-theme="dark"] { --st-morph-ring: #ffffff40; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --st-morph-ring: #ffffff40; } }
+
+/* Tabs and segmented control: one indicator; selected label color is a clipped duplicate of the labels. */
+[data-st="tabs"] [role="tablist"], [data-st="segmented"] [role="tablist"], [data-st="segmented"][role="tablist"] { position: relative; display: flex; isolation: isolate; }
+[data-st="tabs"] [role="tablist"] { gap: 4px; overflow-x: auto; scrollbar-width: none; }
+[data-st="tabs"] [role="tablist"]::-webkit-scrollbar { display: none; }
+[data-st="tabs"] [role="tab"] { flex: none; white-space: nowrap; }
+[data-st="tabs"] [role="tab"] { position: relative; min-height: 40px; padding: 0 10px; border: 0; background: transparent; color: var(--text-2); font: 500 14px/20px var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 8px 8px 0 0; }
+[data-st="tabs"] [role="tab"][aria-selected="true"] { color: var(--text); }
+[data-st="segmented"] [role="tablist"], [data-st="segmented"][role="tablist"] { padding: 3px; border-radius: 11px; background: var(--surface-2); }
+[data-st="segmented"] [role="tab"] { position: relative; z-index: 1; flex: 1; min-height: 34px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--text-2); font: 500 13.5px/20px var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
+@media (pointer: coarse) { [data-st="segmented"] [role="tab"] { min-height: 44px; } [data-st="tabs"] [role="tab"] { min-height: 44px; } }
+.st-tab-indicator { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--text); pointer-events: none; z-index: 0; border-radius: 2px; }
+[data-st="segmented"] .st-tab-indicator { top: 3px; bottom: 3px; left: 0; right: 0; height: auto; border-radius: 8px; background: var(--surface); box-shadow: 0 1px 2px #0000001f, 0 0 0 .5px #0000000f; }
+[data-theme="dark"] [data-st="segmented"] .st-tab-indicator { background: #2c2c30; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) [data-st="segmented"] .st-tab-indicator { background: #2c2c30; } }
+.st-tab-ink { position: absolute; inset: 0; z-index: 2; display: flex; pointer-events: none; }
+[data-st="segmented"] .st-tab-ink { inset: 3px; }
+.st-tab-ink > span { display: flex; align-items: center; justify-content: center; color: var(--text); font: inherit; white-space: nowrap; }
+[data-st="tabs"] [role="tab"]:focus-visible, [data-st="segmented"] [role="tab"]:focus-visible { outline-offset: -2px; }
+[data-st="tabs"] [role="tabpanel"] { padding-top: 16px; }
+[role="tabpanel"][hidden] { display: none; }
+
+/* Accordion */
+[data-st="accordion"] {  }
+[data-st="accordion"] summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; cursor: pointer; list-style: none; font: 500 15px/22px var(--font); -webkit-tap-highlight-color: transparent; }
+[data-st="accordion"] summary::-webkit-details-marker { display: none; }
+[data-st="accordion"] summary::after { content: ""; flex: none; width: 8px; height: 8px; margin-right: 4px; border: solid var(--text-2); border-width: 0 1.6px 1.6px 0; transform: translateY(-2px) rotate(45deg);
+ transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+[data-st="accordion"][open]:not([data-st-expanded="false"]) summary::after, [data-st="accordion"][data-st-expanded="true"] summary::after { transform: translateY(2px) rotate(225deg); }
+[data-st="accordion"] .st-details-body { padding: 0 0 16px; color: var(--text-2); font: 400 14.5px/22px var(--font); }
+
+/* Numbers and text: digits roll within a masked cell; letters move as glyphs. */
+[data-st="number"], .st-number { display: inline-flex; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.st-digits { display: inline-flex; align-items: baseline; }
+.st-cell { position: relative; display: inline-grid; justify-items: center; }
+.st-cell > .st-ink { grid-area: 1 / 1; display: inline-block; }
+.st-rolling { -webkit-mask-image: linear-gradient(transparent 0, #000 22%, #000 78%, transparent 100%); mask-image: linear-gradient(transparent 0, #000 22%, #000 78%, transparent 100%); padding-block: .18em; margin-block: -.18em; }
+[data-st="badge"] { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: var(--bad); color: #fff; font: 600 11.5px/20px var(--font); font-variant-numeric: tabular-nums; --st-reserve: 1ch; }
+[data-st="text"], [data-st="thinking"] { display: inline-grid; vertical-align: bottom; white-space: pre; }
+.st-text-value, .st-text-exit { grid-area: 1 / 1; display: inline-block; white-space: pre; }
+.st-text-exit { pointer-events: none; }
+.st-letter { display: inline-block; white-space: pre; }
+[data-st="thinking"] .st-text-value { background: linear-gradient(90deg, var(--text-3) 0 35%, var(--text) 50%, var(--text-3) 65% 100%) 0 0 / 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: none; color:var(--text);background:none; }
+[data-st="thinking"][data-st-done="true"] .st-text-value { animation: none; background: none; color: var(--text); }
+@keyframes st-sheen { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+/* Button states: the footprint reserves every label; the icon slot recenters the label by FLIP. */
+[data-st="button"] { overflow: hidden; transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy), background-color var(--st-control) var(--st-F), color var(--st-control) var(--st-F), box-shadow var(--st-quick) var(--st-F); }
+.st-button-content { display: inline-grid; grid-auto-flow: column; align-items: center; gap: 8px; }
+.st-button-sizer { display: grid; justify-items: center; }
+.st-button-sizer > * { grid-area: 1 / 1; }
+.st-button-sizer > [aria-hidden] { visibility: hidden; }
+.st-state-icon { display: none; width: 16px; height: 16px; place-items: center; }
+.st-state-icon > svg { grid-area: 1 / 1; width: 16px; height: 16px; }
+[data-st="button"][data-st-state="loading"] .st-state-icon, [data-st="button"][data-st-state="success"] .st-state-icon, [data-st="button"][data-st-state="error"] .st-state-icon { display: inline-grid; }
+.st-spinner { animation: none; }
+[data-st-state="loading"] .st-spinner { animation: st-spin .7s linear infinite; }
+.st-spinner circle { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 30 60; opacity: .9; }
+@keyframes st-spin { to { transform: rotate(1turn); } }
+.st-state-icon .st-check-path, .st-state-icon .st-x-path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 20; stroke-dashoffset: 20; }
+.st-state-icon > svg { opacity: 0; }
+[data-st-state="loading"] .st-spinner, [data-st-state="success"] .st-state-check, [data-st-state="error"] .st-state-x { opacity: 1; }
+[data-st-state="success"] .st-check-path, [data-st-state="error"] .st-x-path { stroke-dashoffset: 0; transition: stroke-dashoffset var(--st-surface) var(--st-E) 60ms; }
+[data-st="button"][data-st-state="success"] { background: color-mix(in srgb, var(--ok) 18%, var(--surface)); color: var(--ok); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ok) 35%, transparent); }
+[data-st="button"][data-st-state="error"] { background: color-mix(in srgb, var(--bad) 16%, var(--surface)); color: var(--bad); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bad) 35%, transparent); }
+[data-st="button"][data-st-state="loading"] { cursor: progress; }
+
+/* Icon swap and copy: crossfade with scale and a little blur inside one fixed box. */
+[data-st="icon"], .st-swap { display: inline-grid; place-items: center; }
+[data-st="icon"] > *, .st-swap > * { grid-area: 1 / 1; transition: opacity var(--st-quick) var(--st-F), transform var(--st-spring-snappy-ms) var(--st-spring-snappy), filter var(--st-quick) var(--st-F); }
+[data-st="icon"] > :last-child, .st-swap > :last-child, [data-st="icon"][data-st-on="true"] > :first-child, [data-st-on="true"] .st-swap > :first-child { opacity: 0; transform: scale(.25); filter: blur(4px); }
+[data-st="icon"][data-st-on="true"] > :last-child, [data-st-on="true"] .st-swap > :last-child { opacity: 1; transform: none; filter: none; }
+[data-st="icon"]:not([data-st-on="true"]) > :last-child, :not([data-st-on="true"]) > .st-swap > :last-child { transition-duration: var(--st-feedback), var(--st-quick), var(--st-feedback); }
+[data-st="copy"][data-st-on="true"] { color: var(--ok); }
+
+/* Success check (v1) */
+[data-st="success"] { display: inline-flex; align-items: center; gap: 12px; }
+[data-st="success"] svg { width: 40px; height: 40px; color: var(--ok); }
+[data-st="success"] path { stroke-dasharray: 24; stroke-dashoffset: 24; transition: stroke-dashoffset var(--st-surface) var(--st-E) 60ms; }
+[data-st="success"][data-st-done="true"] path { stroke-dashoffset: 0; }
+
+/* Like */
+[data-st="like"] { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px 0 10px; border: 0; border-radius: 99px; background: transparent; color: var(--text-2); font: 500 14px/20px var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color var(--st-quick) var(--st-F), color var(--st-quick) var(--st-F); }
+[data-st="like"] .st-heart { position: relative; display: inline-grid; place-items: center; width: 20px; height: 20px; }
+[data-st="like"] .st-heart svg { width: 20px; height: 20px; fill: transparent; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; transition: fill var(--st-quick) var(--st-F), stroke var(--st-quick) var(--st-F); overflow: visible; }
+[data-st="like"][aria-pressed="true"] { color: var(--heart); }
+[data-st="like"][aria-pressed="true"] .st-heart svg { fill: var(--heart); stroke: var(--heart); }
+.st-burst { position: absolute; inset: 0; pointer-events: none; }
+.st-burst i { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%; background: var(--heart); opacity: 0; }
+.st-burst b { position: absolute; inset: -6px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--heart); opacity: 0; }
+@media (hover: hover) and (pointer: fine) { [data-st="like"]:hover { background: var(--hover); } }
+
+/* Toggle and checkbox */
+.st-toggle, .st-check { position: relative; display: inline-flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.st-toggle input, .st-check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.st-toggle-track { position: relative; display: block; flex: none; width: 42px; height: 26px; border-radius: 99px; background: var(--text-3); transition: background-color var(--st-control) var(--st-F); }
+.st-toggle-thumb { position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 99px; background: var(--on-accent); box-shadow: 0 1px 3px #00000033, 0 0 0 .5px #0000000f; transform-origin: 0 50%;
+ transition: transform var(--st-spring-thumb-ms) var(--st-spring-thumb); }
+.st-toggle input:checked + .st-toggle-track { background: var(--ok); }
+.st-toggle input:checked + .st-toggle-track .st-toggle-thumb { transform: translateX(16px); transform-origin: 100% 50%; }
+.st-toggle input:active + .st-toggle-track .st-toggle-thumb { transform: scaleX(1.22); transition-duration: var(--st-control); transition-timing-function: var(--st-E); }
+.st-toggle input:checked:active + .st-toggle-track .st-toggle-thumb { transform: translateX(16px) scaleX(1.22); }
+.st-check > svg { width: 20px; height: 20px; padding: 3px; flex: none; border-radius: 6px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--text-3); fill: none; stroke: var(--on-accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: background-color var(--st-quick) var(--st-F), box-shadow var(--st-quick) var(--st-F), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+.st-check path { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset var(--st-control) var(--st-E); }
+.st-check input:checked + svg, .st-check input:indeterminate + svg { background: var(--accent); box-shadow: none; }
+.st-check input:checked + svg path { stroke-dashoffset: 0; }
+.st-check input:indeterminate + svg path { d: path("M4 10H16"); stroke-dashoffset: 0; }
+.st-check input:active + svg { transform: scale(.9); }
+.st-strike { position: relative; transition: color var(--st-control) var(--st-F); }
+.st-strike::after { content: ""; position: absolute; left: -2px; right: -2px; top: 52%; height: 1.5px; border-radius: 1px; background: currentColor; transform: scaleX(0); transform-origin: 0 50%; transition: transform var(--st-quick) var(--st-X); }
+.st-check:has(input:checked) .st-strike { color: var(--text-2); }
+.st-check:has(input:checked) .st-strike::after { transform: scaleX(1); transition: transform var(--st-surface) var(--st-E) 40ms; }
+/* Retiring a held Card Close opacity must not start another CSS fade on pointer reopen. */
+[data-st="expand"] [data-st-close] { transition-property: color, background-color, box-shadow, transform !important; }
+/* Keep the original transform release clock after removing the opacity slot. */
+[data-st="expand"] [data-st-close]:not(:active) { transition-duration: 180ms, 180ms, 180ms, 100ms; }
+
+/* A keyboard Card change must not start CSS motion when owned styles restore. */
+[data-st="expand"][data-st-instant], [data-st="expand"][data-st-instant] * { transition-property: color, background-color, box-shadow, fill, stroke !important; }
+
+@media (prefers-reduced-motion: reduce) { .st-strike::after { transition: none !important; } }
+.st-check:has(:disabled), .st-toggle:has(:disabled) { opacity: .5; cursor: not-allowed; }
+
+/* Form error: the frame shakes, the message is revealed from under the field in reserved space. */
+[data-st="error"] .st-field { position: relative; }
+[data-st="error"] .st-input { transition: box-shadow var(--st-quick) var(--st-F); }
+[data-st-error="true"] .st-input, .st-input[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--bad), 0 0 0 3px color-mix(in srgb, var(--bad) 18%, transparent); }
+.st-error { display: flex; align-items: center; gap: 6px; min-height: 20px; margin-top: 8px; color: var(--bad); font: 400 14px/20px var(--font); }
+[data-st="error"] .st-error { clip-path: inset(0 0 100% 0); opacity: 0; transform: translateY(2px); transition: clip-path 90ms cubic-bezier(.4,0,1,1), opacity 70ms cubic-bezier(.4,0,1,1), transform 90ms cubic-bezier(.4,0,1,1); }
+[data-st="error"][data-st-error="true"] .st-error { clip-path: inset(0 0 0 0); opacity: 1; transform: none; transition: clip-path 120ms var(--st-E) 25ms, opacity 90ms var(--st-F) 25ms, transform 120ms var(--st-E) 25ms; }
+[data-st="error"] .st-error[hidden] { display: flex; }
+
+/* Toast stack */
+[data-st="toasts"] { position: relative; min-height: 0; list-style: none; margin: 0; padding: 0; }
+.st-toast { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 10px 10px 16px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-layer); color: var(--text); font: 400 14px/20px var(--font);
+ transform-origin: 50% 100%; touch-action: none; user-select: none;
+ transition: transform var(--st-spring-gentle-ms) var(--st-spring-gentle), opacity var(--st-control) var(--st-F); }
+.st-toast > .st-toast-body { flex: 1; min-width: 0; transition: opacity var(--st-quick) var(--st-F); }
+.st-toast[data-st-hidden-content] > * { opacity: 0; }
+.st-toast strong { display: block; font-weight: 600; }
+.st-toast small { display: block; color: var(--text-2); font-size: 13px; }
+.st-toast .st-button { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.st-toast .st-toast-close { width: 32px; padding: 0; color: var(--text-2); }
+.st-toast[data-st-leaving] { pointer-events: none; transition: transform var(--st-control) var(--st-X), opacity var(--st-quick) var(--st-F); }
+.st-toast[data-st-dragging] { transition: none; }
+
+/* List rows */
+[data-st="list"] { position: relative; list-style: none; margin: 0; padding: 0; }
+.st-ghost-layer { position: absolute; pointer-events: none; margin: 0; }
+
+/* Skeleton */
+[data-st="skeleton"] { display: grid; }
+[data-st="skeleton"] > * { grid-area: 1 / 1; }
+.st-skeleton-mask { display: grid; gap: 10px; align-content: start; transition: opacity 140ms var(--st-F) 0ms; }
+[data-st="skeleton"][aria-busy="true"] .st-skeleton-mask { transition: opacity 100ms var(--st-F) 0ms; }
+.st-skeleton-mask i { position: relative; display: block; height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.st-skeleton-mask i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--text) 6%, transparent), transparent); transform: translateX(-100%); animation: none; }
+@keyframes st-skeleton { to { transform: translateX(100%); } }
+/* Ready: the mask clears first, then content rises into the same geometry, so text never sits on placeholder bars. */
+.st-real { transition: opacity 160ms var(--st-F) 40ms, transform var(--st-spring-smooth-ms) var(--st-spring-smooth) 40ms; }
+[data-st="skeleton"][aria-busy="true"] .st-real { transform: translateY(4px); }
+.st-real img, .st-real .st-media { transition: filter var(--st-surface) var(--st-E), transform var(--st-spring-smooth-ms) var(--st-spring-smooth); }
+[data-st="skeleton"][aria-busy="true"] .st-real { opacity: 0; transition-duration: var(--st-feedback), var(--st-feedback); transition-delay: 0ms, 0ms; }
+[data-st="skeleton"][aria-busy="true"] .st-real img, [data-st="skeleton"][aria-busy="true"] .st-real .st-media { filter: blur(8px); transform: scale(1.03); }
+[data-st="skeleton"][aria-busy="false"] .st-skeleton-mask { opacity: 0; pointer-events: none; }
+[data-st="skeleton"][aria-busy="false"] .st-skeleton-mask i::after { animation: none; }
+
+/* Streaming text and thinking */
+[data-st="stream"] { line-height: 1.6; }
+.st-word { display: inline; }
+[data-st="stream"][aria-busy="true"]::after { content: none; display: inline-block; width: 7px; height: 7px; margin-left: 4px; border-radius: 50%; background: var(--text); vertical-align: middle; animation: st-breathe 1s var(--st-M) infinite alternate; }
+@keyframes st-breathe { from { opacity: .25; transform: scale(.8); } }
+
+/* Shimmer text (v1) */
+[data-st="shimmer"] { position: relative; display: inline-block; color: var(--text-2); }
+.st-shine { position: absolute; inset: 0; color: var(--text); clip-path: polygon(-30% 0, -10% 0, -10% 100%, -30% 100%); pointer-events: none; }
+
+/* Card expand */
+[data-st="expand"] { position: absolute; inset: 0; z-index: 10; }
+[data-st="expand"]:not([data-st-open="true"]):not([data-st-closing="true"]) { visibility: hidden; }
+
+/* Legacy groups kept for v1 pages */
+[data-st="avatars"] { display: flex; padding: 8px; }
+[data-st="avatars"] > * { width: 44px; height: 44px; margin-left: -8px; padding: 0; border: 3px solid var(--surface); border-radius: 99px; background: var(--surface-2); transform: translateY(var(--st-lift, 0px)); z-index: var(--st-z, 0); transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+[data-st="banners"] { display: grid; align-content: start; min-height: 168px; padding-bottom: 16px; }
+[data-st="banners"] > * { grid-area: 1 / 1; padding: 12px 16px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-card); transform: translateY(calc(var(--st-index) * 9px)) scale(calc(1 - var(--st-index) * .035)); transform-origin: 50% 100%; z-index: calc(4 - var(--st-index)); transition: transform var(--st-spring-gentle-ms) var(--st-spring-gentle); }
+[data-st="banners"]:focus-within > *, [data-st="banners"][data-st-open="true"] > * { transform: translateY(calc(var(--st-index) * 52px)); }
+[data-st="clear"] { position: relative; display: flex; gap: 8px; } [data-st="clear"] .st-input { padding-right: 48px; } [data-st="clear"] button { position: absolute; right: 0; top: 0; width: 44px; height: 44px; border: 0; background: transparent; color: var(--text-2); }
+[data-st="learn"] .st-icon { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); } [data-st="learn"]:focus-visible .st-icon { transform: translateX(3px); }
+.st-plus { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); } [aria-expanded="true"] > .st-plus { transform: rotate(45deg); }
+@media (hover: hover) and (pointer: fine) { [data-st="learn"]:hover .st-icon { transform: translateX(3px); } [data-st="banners"]:hover > * { transform: translateY(calc(var(--st-index) * 52px)); } }
+
+/* View transitions. The page element takes the name st-page for the duration of a transition. */
+html.st-vt { view-transition-name: none; }
+html.st-vt::view-transition-group(root) { animation: none; }
+::view-transition-group(st-page) { animation-duration: var(--st-spring-smooth-ms); animation-timing-function: var(--st-spring-smooth); }
+::view-transition-old(st-page) { animation: st-page-out 80ms var(--st-X) both; }
+::view-transition-new(st-page) { animation: st-page-in var(--st-spring-smooth-ms) var(--st-spring-smooth) both, st-fade-in var(--st-quick) var(--st-F) 30ms both; }
+::view-transition-group(*.st-shared) { animation-duration: var(--st-spring-smooth-ms); animation-timing-function: var(--st-spring-smooth); }
+::view-transition-old(*.st-shared), ::view-transition-new(*.st-shared) { width: auto; height: 100%; animation-duration: var(--st-quick); }
+@keyframes st-page-out { to { opacity: 0; transform: translateX(calc(var(--st-dir, 1) * -32px)); } }
+@keyframes st-page-in { from { transform: translateX(calc(var(--st-dir, 1) * 48px)); } }
+@keyframes st-fade-in { from { opacity: 0; } }
+/* v1 root transition, kept for pages that opt in with data-st-page-scope="root". */
+[data-st-page-scope="root"]::view-transition-old(root) { animation: st-page-out var(--st-surface) var(--st-M) both; }
+[data-st-page-scope="root"]::view-transition-new(root) { animation: st-page-in var(--st-surface) var(--st-M) both; }
+
+@media (prefers-reduced-motion: reduce) {
+ [data-st], [data-st] *, [data-st]::before, [data-st]::after, [data-st] *::before, [data-st] *::after, .st-button, .st-toggle-thumb, .st-check > svg, .st-check path, .st-toast, .st-plus, .st-real, .st-real * {
+  transition-property: opacity, color, background-color, box-shadow, fill, stroke !important; transition-duration: 100ms !important; transition-timing-function: linear !important; transition-delay: 0ms !important; }
+ /* Ordinary Menu rows keep focus acquisition and release on the accepted state. */
+ [data-st="menu"]:not([data-st-morph]) [role="menuitem"] { transition: none !important; }
+ /* Card-owned opacity restores immediately; do not start a second CSS fade on reopen. */
+ [data-st="expand"], [data-st="expand"] * { transition-property: color, background-color, box-shadow, fill, stroke !important; }
+ [data-st="expand"] [data-st-close] { transition-property: color, background-color, box-shadow !important; transform: none !important; }
+ .st-button:active:not(:disabled), .st-toggle input:active + .st-toggle-track .st-toggle-thumb, .st-check input:active + svg { transform: none; }
+ .st-toggle input:checked:active + .st-toggle-track .st-toggle-thumb { transform: translateX(16px); }
+ .st-spinner, .st-skeleton-mask i::after, [data-st="thinking"] .st-text-value, [data-st="stream"]::after { animation: none !important; }
+ [data-st="error"] .st-error, [data-st="error"][data-st-error="true"] .st-error { transform: none; clip-path: none; }
+ [data-st="skeleton"][aria-busy="true"] .st-real img, [data-st="skeleton"][aria-busy="true"] .st-real .st-media { filter: none; transform: none; }
+ .st-shine { display: none; }
+ ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* v3 additions. All legacy selectors and spring tokens remain supported. */
+[data-st-contained]{position:absolute!important;z-index:12;max-width:calc(100% - 16px);}
+[data-st-contained]:not([data-st-open="true"]){visibility:hidden;pointer-events:none;}
+[data-st="popover-panel"]{position:fixed;inset:auto;margin:0;padding:16px;width:248px;border:0;border-radius:var(--r-lg);background:var(--surface);color:var(--text);box-shadow:var(--shadow-layer);transform-origin:50% 0;}
+[data-st="icon-swap"]{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;}
+[data-st="icon-swap"]>*{grid-area:1/1;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy),opacity var(--st-quick) var(--st-F),filter var(--st-quick) var(--st-F);}
+[data-st="icon-swap"]>:last-child,[data-st="icon-swap"][data-st-on="true"]>:first-child{transform:scale(.6);opacity:0;filter:blur(2px);transition-duration:var(--st-quick);transition-timing-function:var(--st-X);}
+[data-st="icon-swap"][data-st-on="true"]>:last-child{transform:none;opacity:1;filter:none;transition-duration:var(--st-spring-snappy-ms),var(--st-quick),var(--st-quick);transition-timing-function:var(--st-spring-snappy),var(--st-F),var(--st-F);}
+[data-st="badge"]{font-size:13px;min-width:24px;height:24px;background:var(--accent);color:var(--on-accent);transform-origin:100% 100%;}
+[data-st="badge"][data-st-visible="false"]{opacity:0;transform:scale(.5);}
+[data-st="avatars"]>*{transform:translate(var(--st-spread,0px),var(--st-lift,0px));}
+[data-st="clear"] button{display:grid;place-items:center;cursor:pointer;opacity:1;transform:none;transition:opacity var(--st-quick) var(--st-F),transform var(--st-quick) var(--st-X);}
+[data-st="clear"]:not([data-st-has-text="true"]) button{opacity:0;pointer-events:none;transition-duration:60ms;}
+[data-st="learn"]{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:44px;text-decoration:none;width:max-content;}
+[data-st="learn"]::after{content:"";position:absolute;bottom:9px;left:0;right:26px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:100% 50%;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy);}
+[data-st="learn"]:focus-visible::after,[data-st="learn"][data-st-hover="true"]::after{transform:scaleX(1);transform-origin:0 50%;}
+[data-st="learn"][data-st-hover="true"] .st-icon{transform:translateX(3px);}
+@media(hover:hover) and (pointer:fine){[data-st="learn"]:hover::after{transform:scaleX(1);transform-origin:0 50%;}}
+[data-st="success"] circle{stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset var(--st-control) var(--st-E);}
+[data-st="success"] path{stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset var(--st-control) var(--st-E) 160ms;}
+[data-st="success"][data-st-done="true"] circle,[data-st="success"][data-st-done="true"] path{stroke-dashoffset:0;}
+[data-st="progress"]{display:inline-grid;place-items:center;width:40px;height:40px;color:var(--text);}
+[data-st="progress"] svg{width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.st-progress-ring{stroke-dasharray:72 28;transform-origin:20px 20px;opacity:0;transform:scale(.8);transition:opacity 60ms var(--st-X),transform var(--st-quick) var(--st-X),stroke-dashoffset var(--st-control) var(--st-E);}
+/* Only active work rotates. Terminal success/error rings settle with no retained loop. */
+[data-st-progress="loading"] .st-progress-ring{animation:st-spin .8s linear infinite;}
+[data-st-progress="loading"] .st-progress-ring{opacity:1;transform:scale(1);}
+.st-progress-check,.st-progress-cross{stroke-dasharray:100;stroke-dashoffset:100;opacity:0;transition:stroke-dashoffset 140ms var(--st-E) 40ms,opacity 60ms var(--st-F) 40ms;}
+[data-st-progress="success"] .st-progress-check,[data-st-progress="error"] .st-progress-cross{stroke-dashoffset:0;opacity:1;}
+[data-st="reorder"]{list-style:none;margin:0;padding:0;}
+[data-st-row]{position:relative;z-index:0;transition:translate var(--st-spring-smooth-ms) var(--st-spring-smooth);}
+[data-st-row]>div{transition:transform var(--st-spring-smooth-ms) var(--st-spring-smooth);}
+[data-st-held="true"]{z-index:3;transition:none;}
+[data-st-held="true"]>div{transform:scale(1.02);box-shadow:var(--shadow-layer);outline:1px solid var(--line-strong);}
+[data-st-handle]{touch-action:none;cursor:grab;}
+[data-st-held="true"] [data-st-handle]{cursor:grabbing;}
+[data-st="tilt"]{position:relative;overflow:hidden;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy);}
+.st-tilt-light{position:absolute;inset:-40px;pointer-events:none;background:radial-gradient(ellipse at center,#fff 0,transparent 60%);opacity:0;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy),opacity var(--st-quick) var(--st-F);}
+.st-lightbox{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:72px 24px;border:0;background:transparent;overflow:hidden;}
+.st-lightbox::backdrop{background:var(--st-backdrop);}
+.st-lightbox>img{display:block;object-fit:contain;max-width:min(900px,100%);max-height:calc(100dvh - 144px);width:auto;height:auto;margin:auto;touch-action:none;}
+.st-lightbox-close{position:absolute;right:24px;top:20px;}
+[data-st="shimmer"][data-st-working="true"] .st-shine{animation:st-text-sweep 2.4s linear infinite;}
+@keyframes st-text-sweep{0%,15%{clip-path:polygon(-30% 0,-10% 0,-10% 100%,-30% 100%)}65%,100%{clip-path:polygon(110% 0,130% 0,130% 100%,110% 100%)}}
+[data-st-paused="true"] *,[data-st-paused="true"]::after,[data-st-paused="true"] *::after{animation-play-state:paused!important;}
+@media(prefers-reduced-motion:reduce){
+ [data-st="tilt"],[data-st="avatars"]>*,[data-st="learn"] .st-icon,[data-st="icon-swap"]>*{transform:none!important;filter:none!important;}
+ .st-tilt-light{display:none;}.st-progress-ring,.st-shine{animation:none!important;}
+ [data-st="success"] circle,[data-st="success"] path,.st-progress-check,.st-progress-cross{transition:none!important;}
+ [data-st-row]{transition:none!important;}[data-st-held="true"]>div{transform:none!important;}
+}
+
+/* Pointer opens never paint a keyboard ring around a surface. */
+[data-st-pointer-focus]:focus:not(:focus-visible),[data-st-pointer-focus]:focus-visible{outline:none;}
+dialog[data-st="modal"]{position:fixed;inset:0;margin:auto;}
+[data-st-contained][data-st="palette"]{margin:0;inset:auto;padding:0;width:calc(100% - 32px);max-height:212px;}
+[data-st-contained][data-st="palette"] [role="listbox"]{position:relative;padding:6px;margin:0;max-height:152px;overflow:auto;}
+[data-st-contained][data-st="palette"] [role="option"]{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:8px;font-size:14px;cursor:pointer;}
+[data-st-contained][data-st="palette"] [role="option"][hidden]{display:none;}
+[data-st-contained][data-st="palette"] [role="option"] kbd{margin-left:auto;font-size:13px;}
+[data-st="success"] svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+[data-st="learn"]::after{transition-duration:160ms;}
+[data-st="shimmer"] .st-shine{color:var(--text);}
+
+/* Panels keep their identity through rapid tab reversals. */
+.st-tab-panels{display:grid;position:relative;}
+.st-tab-panels>[role=tabpanel]{grid-area:1/1;opacity:0;pointer-events:none;}
+.st-tab-panels>[role=tabpanel][data-st-active=true]{opacity:1;pointer-events:auto;}
+[data-st-preview]>.st-lightbox{position:absolute;inset:0;width:100%;height:100%;padding:24px 24px 64px;background:var(--surface);z-index:22;border-radius:0;}
+[data-st-preview]>.st-lightbox>img{max-height:none;max-width:none;}
+[data-st-preview]>.st-lightbox .st-lightbox-close{right:8px;top:8px;}
+
+html[data-st-input-mode=pointer] :focus{outline:none!important;}
+html[data-st-input-mode=pointer] .st-input:focus{outline:2px solid var(--focus)!important;outline-offset:1px;}
+[data-st-pointer-focus] :focus{outline:none;}
+@media(prefers-reduced-motion:reduce){
+ .st-progress-ring,[data-st=badge],[data-st=learn]::after{transform:none!important;}
+ .st-progress-ring,[data-st=clear] button,[data-st=badge],[data-st=icon-swap]>*{transition-duration:80ms!important;transition-delay:0ms!important;}
+ [data-st=clear] button{transform:none!important;}
+}
+
+/* Lightbox paint is independent of the shared image. */
+.st-lightbox::backdrop{background:transparent}.st-lightbox-scrim{position:absolute;inset:0;background:var(--st-backdrop);pointer-events:auto}.st-lightbox>img{position:relative;z-index:1}.st-lightbox-close{z-index:2}
+[data-st-preview]>.st-lightbox{background:transparent}[data-st-preview]>.st-lightbox>.st-lightbox-scrim{background:var(--st-backdrop)}
+
+[data-st-paused="true"] .st-spinner,[data-st-paused="true"] .st-progress-ring,[data-st-paused="true"] .st-shine{animation:none!important}
+
+/* List reorder: the row travelling furthest rides above the others. */
+[data-st-moving="true"] { position: relative; z-index: 2; box-shadow: 0 0 0 1px var(--line), 0 8px 20px -8px #0006; border-radius: 8px; }
+
+/* Avatar group: hidden people stay out of layout; the "+n" chip rides above them so they slide out from under it. */
+[data-st="avatars"] > [hidden] { display: none; }
+[data-st="avatars"] > [data-st-avatar-more] { position: relative; z-index: 6; min-width: 44px; width: auto; padding: 0 10px; font-weight: 500; font-size: 13px; color: var(--text); }
+
+/* Icon morph: one path, two shapes with matching points; the outline itself travels on the snappy spring. */
+[data-st="icon-morph"] { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; }
+.st-morph-icon { width: 20px; height: 20px; }
+.st-morph-icon path { fill: currentColor; stroke: none; transition: d var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+/* Link arrow: at rest a chevron; on hover or focus its shaft draws in behind it as the head steps forward. */
+.st-arrow path { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.st-arrow .st-arrow-line { transform-box: fill-box; transform-origin: 100% 50%; transform: scaleX(0); transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+.st-arrow .st-arrow-head { transform: translateX(-3px); transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+[data-st="learn"]:focus-visible .st-arrow-line, [data-st="learn"][data-st-hover="true"] .st-arrow-line { transform: scaleX(1); }
+[data-st="learn"]:focus-visible .st-arrow-head, [data-st="learn"][data-st-hover="true"] .st-arrow-head { transform: none; }
+@media (hover: hover) and (pointer: fine) { [data-st="learn"]:hover .st-arrow-line { transform: scaleX(1); } [data-st="learn"]:hover .st-arrow-head { transform: none; } }
+[data-st="learn"] .st-arrow, [data-st="learn"]:hover .st-arrow, [data-st="learn"][data-st-hover="true"] .st-arrow { transform: none !important; }
+@media (prefers-reduced-motion: reduce) { .st-morph-icon path, .st-arrow path { transition: none !important; } }
+
+/* Shimmer v3: a soft highlight travels through the words while work is running (mask, no hard edge); when the work
+   ends the sweep stops and the label settles to full ink, so the state change itself is visible. */
+[data-st="shimmer"] { transition: color 200ms var(--st-F); }
+[data-st="shimmer"][data-st-working="false"] { color: var(--text); }
+[data-st="shimmer"] .st-shine { clip-path: none; color: var(--text); text-shadow: 0 0 12px color-mix(in srgb, var(--text) 40%, transparent); opacity: 0; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 45%, #000 55%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, #000 45%, #000 55%, transparent 100%); -webkit-mask-size: 45% 100%; mask-size: 45% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: -60% 0; mask-position: -60% 0; transition: opacity 160ms var(--st-F); }
+[data-st="shimmer"][data-st-working="true"] .st-shine { opacity: 1; animation: st-shine-sweep 1.5s cubic-bezier(.4,0,.2,1) infinite; }
+@keyframes st-shine-sweep { from { -webkit-mask-position: -60% 0; mask-position: -60% 0; } to { -webkit-mask-position: 160% 0; mask-position: 160% 0; } }
+@media (prefers-reduced-motion: reduce) { [data-st="shimmer"][data-st-working="true"] .st-shine { animation: none; opacity: 0; } }
+
+.st-word-r { display: inline-block; }
+
+/* Tilt v3: lift, lean, parallax and a light that follows the pointer, all on the smooth spring. */
+[data-st="tilt"] { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy), box-shadow 180ms var(--st-F); }
+[data-st="tilt"][data-st-engaged="true"] { box-shadow: 0 0 0 1px var(--line), 0 6px 16px -12px #0007; }
+[data-st="tilt"] img, [data-st="tilt"] .st-media { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); will-change: transform; }
+[data-st="tilt"] .st-tilt-light { mix-blend-mode: soft-light; }
+@media (prefers-reduced-motion: reduce) { [data-st="tilt"] img, [data-st="tilt"] .st-media { transform: none !important; } }
+
+[data-st="success"]:not([data-st-done="true"]) path { transition-duration: 70ms !important; transition-delay: 0ms !important; }
+[data-st="success"]:not([data-st-done="true"]) circle { transition-duration: 100ms !important; transition-delay: 0ms !important; }
+
+.st-instant, .st-instant * { transition: none !important; }
+
+.st-word { display: inline-block; white-space: pre; }
+.st-cite { display: inline-grid; place-items: center; min-width: 16px; height: 16px; margin: 0 0 0 2px; padding: 0 4px; border-radius: 99px; font-size: 11px; line-height: 1; font-weight: 600; vertical-align: 2px; background: var(--surface-2, rgba(0,0,0,.06)); color: var(--text-2, inherit); font-variant-numeric: tabular-nums; }
+
+[data-st="shimmer"][data-st-working="true"] { color: var(--text-3); }
+
+/* Spinner to check: the arc closes into a full ring, then the mark draws inside it: one shape becomes the result. */
+.st-progress-ring { transition: opacity 60ms var(--st-X), transform 120ms var(--st-X), stroke-dasharray 180ms var(--st-E), stroke 160ms var(--st-F); }
+[data-st-progress="success"] .st-progress-ring, [data-st-progress="error"] .st-progress-ring { opacity: 1; transform: scale(1); stroke-dasharray: 100 0; }
+[data-st-progress="error"] .st-progress-ring { stroke: var(--bad); }
+[data-st-progress="error"] .st-progress-cross { stroke: var(--bad); }
+.st-progress-check, .st-progress-cross { transition: stroke-dashoffset 160ms var(--st-E) 120ms, opacity 60ms var(--st-F) 120ms; }
+[data-st-progress="loading"] .st-progress-check, [data-st-progress="loading"] .st-progress-cross { transition-duration: 60ms; transition-delay: 0ms; }
+
+/* No dividers: items are separated by space and tone. Accordion rows read as soft blocks; the open one is tinted. */
+[data-st="accordion"] { border-radius: 10px; transition: background-color 160ms var(--st-F); }
+[data-st="accordion"] + [data-st="accordion"] { margin-top: 2px; }
+[data-st="accordion"][open] { background: color-mix(in srgb, var(--text) 4%, transparent); }
+@media (hover: hover) and (pointer: fine) { [data-st="accordion"]:not([open]):hover { background: color-mix(in srgb, var(--text) 3%, transparent); } }
+
+/* Avatar group v4: lift with falloff and a slight scale on the snappy spring; the return uses a settling spring. */
+[data-st="avatars"] { position: relative; }
+[data-st="avatars"] > *:not(.st-avatar-name) { position: relative; transform: translateY(var(--st-lift, 0px)) scale(var(--st-scale, 1)); z-index: var(--st-z, auto); transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+[data-st="avatars"][data-st-returning="true"] > *:not(.st-avatar-name) { transition: transform var(--st-spring-bouncy-ms) var(--st-spring-bouncy); }
+.st-avatar-name { position: absolute; left: 0; bottom: calc(100% + 2px); padding: 4px 8px; border-radius: 7px; background: var(--text); color: var(--bg); font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; pointer-events: none; transform: translateX(calc(var(--x, 0px) - 50%)) translateY(3px); opacity: 0; transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy), opacity 100ms var(--st-F); }
+.st-avatar-name[data-st-show="true"] { opacity: 1; transform: translateX(calc(var(--x, 0px) - 50%)); }
+@media (prefers-reduced-motion: reduce) { [data-st="avatars"] > * { transition: none !important; } .st-avatar-name { transition: opacity 80ms linear !important; } }
+[data-st="avatars"] > .st-avatar-name, #avatar-group > .st-avatar-name { display: block; width: auto; height: auto; min-width: 0; margin: 0; border: 0; border-radius: 7px; background: var(--text); color: var(--bg); box-shadow: 0 4px 12px -4px rgb(0 0 0 / .3); z-index: 10; }
+
+/* Success v5: one disc changes from neutral to done; the tick draws, rotates in, un-blurs and dips into place. */
+[data-st="success"] { display: inline-flex; flex-direction: column; align-items: center; gap: 10px; }
+[data-st="success"] .st-success-mark { position: relative; display: grid; width: 44px; height: 44px; }
+[data-st="success"] .st-success-mark > svg { grid-area: 1 / 1; width: 44px; height: 44px; overflow: visible; }
+[data-st="success"] .st-success-disc { border-radius: 50%; box-shadow: var(--ring-control); transition: box-shadow var(--st-state); }
+[data-st="success"][data-st-done="true"] .st-success-disc { box-shadow: 0 0 0 1px color-mix(in srgb, var(--ok) 22%, transparent); }
+[data-st="success"] .st-success-disc circle { fill: var(--surface); stroke: none; transition: fill var(--st-state); }
+[data-st="success"][data-st-done="true"] .st-success-disc circle { fill: var(--ok-bg); }
+[data-st="success"] .st-success-tick { transform-origin: 50% 50%; opacity: 0; }
+[data-st="success"][data-st-done="true"] .st-success-tick { opacity: 1; }
+[data-st="success"] .st-success-tick path { fill: none; stroke: var(--ok); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 90ms cubic-bezier(.4,0,1,1); }
+[data-st="success"][data-st-done="true"] .st-success-tick path { stroke-dashoffset: 0; transition: stroke-dashoffset 250ms var(--st-O) 40ms; }
+[data-st="success"]:not([data-st-done="true"]) .st-success-tick { transition: opacity 90ms cubic-bezier(.4,0,1,1); }
+@media (prefers-reduced-motion: reduce) { [data-st="success"] .st-success-tick path { transition: none; } }
+
+/* Status mark v5 (progress): the same disc as Success check, so loading, done and failed read as one object. */
+[data-st="progress"] { display: inline-grid; place-items: center; width: 44px; height: 44px; color: var(--text); }
+.st-status-mark { position: relative; display: grid; width: 44px; height: 44px; }
+.st-status-mark > svg { grid-area: 1 / 1; width: 44px; height: 44px; overflow: visible; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.st-status-disc { border-radius: 50%; box-shadow: var(--ring-control); transition: box-shadow var(--st-state); }
+.st-status-disc circle { fill: var(--surface); stroke: none; transition: fill 300ms var(--st-O); }
+[data-st-progress="success"] .st-status-disc circle { fill: var(--ok-bg); }
+[data-st-progress="error"] .st-status-disc circle { fill: var(--bad-bg); }
+[data-st-progress="success"] .st-status-disc, [data-st-progress="error"] .st-status-disc { box-shadow: 0 0 0 1px transparent; }
+/* The idle icon keeps its size: its strokes retract as the loading arc draws in, and draw back on return. */
+.st-status-idle { stroke: var(--text-2); stroke-width: 1.8; }
+.st-status-idle path { stroke-dasharray: 100; stroke-dashoffset: 0; transition: stroke-dashoffset 220ms cubic-bezier(.16,1,.3,1), opacity 1ms linear 0ms; }
+[data-st-progress]:not([data-st-progress="idle"]) .st-status-idle path { stroke-dashoffset: 100; opacity: 0; transition: stroke-dashoffset 100ms cubic-bezier(.4,0,1,1), opacity 1ms linear 100ms; }
+.st-status-ring { transform-origin: 50% 50%; }
+.st-status-arc { stroke: var(--text); stroke-width: 2; stroke-dasharray: 26 74; opacity: 0; transition: opacity 200ms var(--st-O), stroke-dasharray 320ms var(--st-O), stroke 200ms var(--st-S); }
+[data-st-progress="loading"] .st-status-ring { animation: st-spin 900ms linear infinite; }
+[data-st-progress="loading"] .st-status-arc { opacity: 1; }
+[data-st-progress="success"] .st-status-arc, [data-st-progress="error"] .st-status-arc { stroke-dasharray: 100 0; opacity: 0; transition: stroke-dasharray 260ms var(--st-O), opacity 220ms var(--st-X) 180ms, stroke 160ms var(--st-S); }
+[data-st-progress="success"] .st-status-arc { stroke: var(--ok); }
+[data-st-progress="error"] .st-status-arc { stroke: var(--bad); }
+[data-st="progress"] .st-success-tick { transform-origin: 50% 50%; opacity: 0; }
+[data-st-progress="success"] .st-success-tick { opacity: 1; }
+[data-st="progress"] .st-success-tick path { stroke: var(--ok); stroke-width: 3; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 120ms var(--st-X); }
+[data-st-progress="success"] .st-success-tick path { stroke-dashoffset: 0; transition: stroke-dashoffset 250ms var(--st-O) 40ms; }
+.st-status-cross { opacity: 0; transition: opacity 120ms var(--st-X); }
+.st-status-cross path { stroke: var(--bad); stroke-width: 2.6; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 120ms var(--st-X); }
+[data-st-progress="error"] .st-status-cross { opacity: 1; transition: opacity 200ms var(--st-O) 60ms; }
+[data-st-progress="error"] .st-status-cross path { stroke-dashoffset: 0; transition: stroke-dashoffset 280ms var(--st-O) 80ms; }
+@media (prefers-reduced-motion: reduce) { [data-st-progress="loading"] .st-status-ring { animation: none; } .st-status-mark *, .st-status-mark { transition-duration: 80ms !important; transition-delay: 0ms !important; } }
+
+/* Button states v5: the button keeps its own colour through every state; only the icon and label change. */
+[data-st="button"][data-st-state="success"], [data-st="button"][data-st-state="error"] { background: var(--surface); color: var(--text); box-shadow: var(--ring-control); }
+.st-primary[data-st="button"][data-st-state="success"], .st-primary[data-st="button"][data-st-state="error"] { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+[data-st="button"]:not(.st-primary)[data-st-state="success"] .st-state-icon { color: var(--ok); }
+[data-st="button"]:not(.st-primary)[data-st-state="error"] { color: var(--bad); }
+[data-st-state="loading"] .st-spinner { animation-duration: .9s; }
+[data-st="button"] .st-state-check { transform-origin: 50% 50%; }
+
+/* Tabs v5: an unselected tab answers hover with its label and a soft pill; the selected underline stays the only line. */
+[data-st="tabs"] [role="tab"] { border-radius: 8px; transition: color var(--st-state), background-color var(--st-state); }
+@media (hover: hover) and (pointer: fine) { [data-st="tabs"] [role="tab"]:not([aria-selected="true"]):hover { color: var(--text); background: var(--hover); } }
+[data-st="segmented"] [role="tab"] { transition: color var(--st-state); }
+@media (hover: hover) and (pointer: fine) { [data-st="segmented"] [role="tab"]:not([aria-selected="true"]):hover { color: var(--text); } }
+
+/* Thinking v5: while work is pending a highlight band sweeps through the label itself (no overlay copy); it stops
+   the moment the work is done. */
+[data-st="thinking"]:not([data-st-done="true"]) .st-text-value { background: linear-gradient(90deg, var(--text-3) 0%, var(--text-3) 38%, var(--text) 50%, var(--text-3) 62%, var(--text-3) 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: st-sheen 1.6s linear infinite; }
+@media (prefers-reduced-motion: reduce) { [data-st="thinking"] .st-text-value { animation: none !important; background: none !important; color: var(--text-2) !important; } }
+
+/* Morph menu v5: a header row reserves the trigger's height; the close pill (same shape as the trigger) turns its
+   plus into a cross on the same spring that opens the menu. */
+.st-morph-head { display: flex; align-items: center; height: 40px; padding: 0 10px; margin-bottom: 2px; font: 500 13px/18px var(--font); color: var(--text-2); }
+
+/* Avatar group v5: the first person sits on top so every face (or initial) stays readable; the group opens on one
+   spring when hovered or focused and closes on the same spring, so nothing jumps to the pointer. */
+[data-st="avatars"] > *:not(.st-avatar-name) { position: relative; z-index: var(--st-z, auto); transform: translateX(var(--st-shift, 0px)); transition: transform var(--st-spring-smooth-ms) var(--st-spring-smooth), background-color var(--st-state), box-shadow var(--st-state); }
+[data-st="avatars"][data-st-returning="true"] > *:not(.st-avatar-name) { transition: transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+.st-avatar-name { transition: opacity 160ms var(--st-O), transform var(--st-spring-snappy-ms) var(--st-spring-snappy); }
+@media (prefers-reduced-motion: reduce) { [data-st="avatars"] > *:not(.st-avatar-name) { transform: none !important; } }
+
+/* Skeleton v5 (opt-in [data-st-sk]): the content is its own skeleton, so every placeholder has exactly the shape of
+   what replaces it. While busy, each line is a soft bar with a sweep; when ready, every region swaps in place as one
+   short step (the bar fades in 90ms while its ink arrives over 120ms, 20ms apart in reading order) and the photo
+   sharpens. Nothing moves and the card never resizes. */
+[data-st="skeleton"] .st-sk-real { opacity: 1 !important; transform: none !important; }
+[data-st="skeleton"] [data-st-sk] { --st-sk-d: min(calc(var(--i, 0) * 22ms), 66ms); -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 6px;
+ transition: color 150ms cubic-bezier(.2,0,.2,1) var(--st-sk-d), background-color 150ms cubic-bezier(.2,0,.2,1) var(--st-sk-d); }
+[data-st="skeleton"][aria-busy="true"] [data-st-sk]:not(.st-media) { color: transparent; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
+[data-st="skeleton"][aria-busy="true"] [data-st-sk] * { color: transparent; }
+[data-st="skeleton"][aria-busy="true"] [data-st-sk], [data-st="skeleton"][aria-busy="true"] [data-st-sk] * { transition: color 80ms cubic-bezier(.4,0,1,1), background-color 90ms var(--st-O) 40ms; }
+[data-st="skeleton"] [data-st-sk] * { transition: color 150ms cubic-bezier(.2,0,.2,1) var(--st-sk-d); }
+@keyframes st-sk-sweep { from { background-position: 100% 0; } to { background-position: 0 0; } }
+[data-st="skeleton"][aria-busy="false"] [data-st-sk]:not(.st-media) { animation: none; }
+[data-st="skeleton"].st-instant [data-st-sk]:not(.st-media) { animation: none; }
+[data-st="skeleton"] .st-media[data-st-sk], [data-st="skeleton"][aria-busy="true"] .st-real .st-media[data-st-sk] { position: relative; overflow: hidden; filter: none; transform: none; transition: none; }
+[data-st="skeleton"] .st-media[data-st-sk]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; background: var(--surface-2); opacity: 0; transition: opacity 140ms cubic-bezier(.2,0,.2,1) var(--st-sk-d); }
+[data-st="skeleton"][aria-busy="false"] .st-media[data-st-sk] { animation: none; }
+[data-st="skeleton"].st-instant .st-media[data-st-sk] { animation: none; }
+@keyframes st-sk-media { from { filter: blur(6px); transform: scale(1.03); } to { filter: blur(0); transform: none; } }
+[data-st="skeleton"][aria-busy="true"] .st-media[data-st-sk]::after { opacity: 1; background-color: var(--surface-2); background-image: linear-gradient(100deg, transparent 35%, color-mix(in srgb, var(--surface) 90%, transparent) 50%, transparent 65%); background-size: 300% 100%; animation: st-sk-sweep 1.6s linear infinite; }
+[data-st="skeleton"].st-instant [data-st-sk], [data-st="skeleton"].st-instant [data-st-sk] *, [data-st="skeleton"].st-instant [data-st-sk]::after { transition: none !important; }
+@media (prefers-reduced-motion: reduce) { [data-st="skeleton"] [data-st-sk], [data-st="skeleton"] [data-st-sk] * { animation: none !important; filter: none !important; transform: none !important; transition-duration: 120ms !important; transition-delay: 0ms !important; } }
+
+/* Status marks v6: no filled disc. A hairline ring holds the place; success draws the ring closed in green while the
+   tick lands, and one soft halo breathes out and fades. Failure does the same in red. */
+[data-st="success"] .st-success-disc, .st-status-disc { box-shadow: none !important; }
+[data-st="success"] .st-success-disc circle, .st-status-disc circle { fill: transparent !important; stroke: color-mix(in srgb, var(--text) 16%, transparent); stroke-width: 1.5; r: 19; stroke-dasharray: none; stroke-dashoffset: 0; transition: stroke 260ms var(--st-O); }
+[data-st="success"][data-st-done="true"] .st-success-disc circle, [data-st-progress="success"] .st-status-disc circle { stroke: var(--ok); }
+[data-st-progress="error"] .st-status-disc circle { stroke: var(--bad); }
+[data-st-progress="loading"] .st-status-disc circle { stroke: color-mix(in srgb, var(--text) 10%, transparent); }
+.st-success-mark::before, .st-status-mark::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--ok) 26%, transparent), transparent); opacity: 0; transform: scale(.7); pointer-events: none; }
+[data-st="success"][data-st-done="true"] .st-success-mark::before, [data-st-progress="success"] .st-status-mark::before { animation: st-halo 220ms var(--st-O) 40ms both; }
+[data-st-progress="error"] .st-status-mark::before { background: radial-gradient(closest-side, color-mix(in srgb, var(--bad) 22%, transparent), transparent); animation: st-halo 220ms var(--st-O) 40ms both; }
+@keyframes st-halo { 0% { opacity: 0; transform: scale(.9); } 35% { opacity: 1; } 100% { opacity: 0; transform: scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { .st-success-mark::before, .st-status-mark::before { animation: none !important; } }
+
+/* Rows painted while they cross during a sort are opaque at once: a fading paint lets text show through text. */
+[data-st-paint] { transition-property: transform, opacity !important; }
+/* Input clear: the placeholder waits until the cleared text has left, then fades in; the two never overlap. */
+[data-st="clear"] input::placeholder { transition: color 80ms var(--st-F); }
+[data-st="clear"][data-st-has-text="true"] input::placeholder { color: transparent; }
+
+/* Number: a rolling digit is clipped to its own slot vertically, so arriving and leaving glyphs never share a reading position. */
+.st-cell.st-rolling { clip-path: inset(0 -0.25em); }
+
+/* Badge digits roll inside the pill. */
+[data-st="badge"] { overflow: clip; }
+
+/* Avatar name: arrives on a spring above the face, leaves with a quick fade (no exit travel). */
+.st-avatar-name:not([data-st-show="true"]) { transition: opacity 70ms cubic-bezier(.4,0,1,1); }
+
+/* Input clear: the clear control leaves with the value, on the same 80ms accelerating exit. */
+
+
+/* Status slot: a thinking label changes inside its own line, clipped vertically so two labels never share it. */
+.st-status-slot { clip-path: inset(0 -100vw); }
+
+/* Input clear control: a quiet backing on hover and press, a 0.94 press, and a visible keyboard ring, all inside its footprint. */
+[data-st="clear"] button::before { content: ""; position: absolute; inset: 8px; border-radius: 8px; background: var(--hover, rgb(0 0 0 / .05)); opacity: 0; transition: opacity 80ms var(--st-F); }
+@media (hover: hover) and (pointer: fine) { [data-st="clear"] button:hover::before { opacity: 1; } }
+[data-st="clear"] button:active::before { opacity: 1; }
+[data-st="clear"] button:active { transform: none; }
+[data-st="clear"] button:not(:active) { transition: opacity var(--st-quick) var(--st-F), transform 100ms cubic-bezier(.25,0,.06,1); }
+[data-st="clear"] button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -6px; }
+[data-st="clear"] button > * { position: relative; }
+
+/* Keyboard focus on a clearable field is unmistakable; pointer focus stays calm. */
+/* One focus treatment for a clearable field, whichever input put focus there: the same ink ring, held through the clear. */
+[data-st="clear"] .st-input:focus { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--text) 55%, transparent), 0 0 0 4px color-mix(in srgb, var(--text) 8%, transparent); transition: box-shadow 100ms var(--st-F); outline: none; }
+
+/* Clearing outranks the resting and press states: the control and the old value leave together in 70ms. */
+[data-st="clear"][data-st-clearing="true"] button, [data-st="clear"][data-st-clearing="true"] button:not(:active) { opacity: 0; transform: none; pointer-events: none; transition: opacity 110ms cubic-bezier(.4,0,1,1); }
+[data-st="clear"] input::placeholder { transition: color 60ms var(--st-F); }
+
+/* The clear glyph rests quiet and comes forward on hover and keyboard focus. */
+[data-st="clear"] button > * { opacity: .65; transition: opacity 80ms var(--st-F), transform 100ms cubic-bezier(.2,0,.2,1); }
+[data-st="clear"] button:active > * { transform: scale(.9); transition: opacity 80ms var(--st-F), transform 60ms var(--st-F); }
+@media (hover: hover) and (pointer: fine) { [data-st="clear"] button:hover > * { opacity: 1; } }
+[data-st="clear"] button:focus-visible > *, [data-st="clear"] button:active > * { opacity: 1; }

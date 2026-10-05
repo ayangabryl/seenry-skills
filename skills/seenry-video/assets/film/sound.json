@@ -1,0 +1,29 @@
+{
+  "voice": {
+    "id": "VOICE_ID_FROM_voices",
+    "model": "eleven_v3",
+    "dir": "media/vo",
+    "lines": [
+      {"at": 0.5, "text": "Say the one thing the film proves."},
+      {"at": 4.5, "text": "Show it on real material."},
+      {"at": 9.2, "text": "Product. One true sentence."}
+    ]
+  },
+  "sfx_dir": "media/sfx",
+  "sfx": {
+    "tick": {"prompt": "A very soft single UI click, subtle and short, like a chip settling into place, dry", "duration": 0.5},
+    "chime": {"prompt": "A warm soft logo sting, two gentle glassy bell notes, premium tech brand, short reverb tail", "duration": 2.2}
+  },
+  "music": {
+    "file": "media/music.mp3",
+    "plan": {
+      "positive_global_styles": ["modern minimal electronic", "product film score", "120 BPM", "4/4", "precise and clean", "instrumental"],
+      "negative_global_styles": ["vocals", "cheesy corporate", "epic orchestral", "tempo changes"],
+      "sections": [
+        {"section_name": "Intro", "positive_local_styles": ["very quiet", "a single muted synth pulse"], "negative_local_styles": ["kick drum"], "duration_ms": 4000, "lines": []},
+        {"section_name": "Drop", "positive_local_styles": ["full beat lands on the downbeat", "confident groove"], "negative_local_styles": [], "duration_ms": 6000, "lines": []},
+        {"section_name": "Outro", "positive_local_styles": ["resolves on one sustained chord"], "negative_local_styles": ["drums"], "duration_ms": 4000, "lines": []}
+      ]
+    }
+  }
+}

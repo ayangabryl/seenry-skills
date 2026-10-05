@@ -1,0 +1,3 @@
+interface:
+  display_name: "Seenry Review"
+  short_description: "Audit a screen, diff or component with ranked fixes"

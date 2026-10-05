@@ -1,0 +1,117 @@
+"""The offline token check must catch the repeated muted-on-paper failure."""
+import json
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+SCRIPT = Path(__file__).resolve().parents[1] / 'skills/seenry/scripts/token_contrast.py'
+
+
+class TokenContrast(unittest.TestCase):
+    def run_check(self, muted):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'index.html'
+            page.write_text(f'<style>:root{{--paper:#f4f1eb;--ink:#242522;--muted:{muted};'
+                            '--on-action-text:#fff}body{background:var(--paper);color:var(--ink)}'
+                            '.caption{color:var(--muted)}.button{color:var(--on-action-text)}</style>')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        return run, json.loads(run.stdout)
+
+    def test_detects_weak_muted_text_without_misclassifying_action_text(self):
+        run, report = self.run_check('#77766f')
+        self.assertEqual(run.returncode, 2)
+        self.assertEqual([(item['textToken'], item['pass']) for item in report['checks']],
+                         [('--ink', True), ('--muted', False)])
+
+    def test_passing_tokens_exit_zero(self):
+        run, report = self.run_check('#55554f')
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertTrue(all(item['pass'] for item in report['checks']))
+
+    def test_direct_small_text_uses_root_background_and_local_action_fill(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'styles.css'
+            page.write_text(':root{--paper:#f3f2ee;--action:#315b48;background:var(--paper)}'
+                            '.hint{color:#989d93;font-size:10px}'
+                            '.action{background:var(--action);color:#ffffff}')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        self.assertEqual(run.returncode, 2)
+        by_selector = {item['selector']: item for item in report['directChecks']}
+        self.assertFalse(by_selector['.hint']['pass'])
+        self.assertEqual(by_selector['.hint']['backgroundScope'], 'page background approximation')
+        self.assertTrue(by_selector['.action']['pass'])
+        self.assertEqual(by_selector['.action']['backgroundScope'], 'same rule')
+
+    def test_variable_button_ink_uses_its_local_fill(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'index.html'
+            page.write_text('<style>:root{--ink:#10100f;--paper:#f4f2eb;--acid:#d5fb6b}'
+                            'body{background:var(--ink);color:var(--paper)}'
+                            '.button{background:var(--acid);color:var(--ink)}</style>')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(report['checks'], [])
+        self.assertEqual([(item['selector'], item['backgroundScope'], item['pass'])
+                          for item in report['directChecks']],
+                         [('body', 'same rule', True), ('.button', 'same rule', True)])
+
+    def test_html_canvas_background_is_used_when_body_has_no_fill(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'styles.css'
+            page.write_text(':root{--paper:#f3f0e8;--ink:#21251f;--muted:#77796f}'
+                            'html{background:var(--paper)}body{color:var(--ink)}'
+                            '.edition{color:var(--muted)}.caption{color:#818278}')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        self.assertEqual(run.returncode, 2)
+        self.assertEqual(report['checks'][0]['backgroundToken'], '--paper')
+        self.assertFalse(next(item for item in report['checks'] if item['textToken'] == '--muted')['pass'])
+        self.assertFalse(next(item for item in report['directChecks'] if item['selector'] == '.caption')['pass'])
+
+    def test_variable_accent_and_simple_ancestor_surface_are_checked(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'index.html'
+            page.write_text('<style>:root{--paper:#f1eee5;--accent:#bd593d;--deep:#315b50}'
+                            'body{background:var(--paper)}'
+                            '.kicker{color:var(--accent)}'
+                            '.make{background:var(--deep)}'
+                            '.make .kicker{color:#f2c7ae}'
+                            '.closing{background:#e1e2d7}'
+                            '.closing p{color:#5b685e}</style>')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        self.assertEqual(run.returncode, 2)
+        by_selector = {item['selector']: item for item in report['directChecks']}
+        self.assertFalse(by_selector['.kicker']['pass'])
+        self.assertEqual(by_selector['.kicker']['backgroundScope'], 'page background approximation')
+        self.assertTrue(by_selector['.make .kicker']['pass'])
+        self.assertEqual(by_selector['.make .kicker']['backgroundScope'], 'selector ancestor approximation')
+        self.assertFalse(by_selector['.closing p']['pass'])
+        self.assertEqual(by_selector['.closing p']['backgroundScope'], 'selector ancestor approximation')
+
+    def test_caption_uses_nearest_html_ancestor_surface(self):
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / 'index.html'
+            page.write_text('<style>body{background:#f4efe5}'
+                            '.art{background:#e6d7c3}.caption{color:#765b47}'
+                            '</style><div class="art"><span class="caption">Clay study</span></div>')
+            run = subprocess.run([sys.executable, str(SCRIPT), str(page)],
+                                 capture_output=True, text=True)
+        report = json.loads(run.stdout)
+        caption = next(item for item in report['directChecks'] if item['selector'] == '.caption')
+        self.assertEqual(caption['background'], '#E6D7C3')
+        self.assertEqual(caption['backgroundScope'], 'DOM ancestor approximation')
+        self.assertFalse(caption['pass'])
+
+
+if __name__ == '__main__':
+    unittest.main()

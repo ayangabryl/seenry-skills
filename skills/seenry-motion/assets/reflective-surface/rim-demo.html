@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reflective rim — Seenry motion study</title>
+  <link rel="stylesheet" href="./reflective-surface.css">
+  <style>
+    :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; background: #11151d; color: #f4f5fa; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 74% 28%, #293049 0, transparent 48%), #11151d; }
+    .shell { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
+    header { display: flex; justify-content: space-between; align-items: center; padding-block: 28px; border-bottom: 1px solid #c4d0ef24; }
+    .brand, .index { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .brand { color: #d9e3fa; } .index { color: #aebad0; }
+    main { min-height: 640px; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(28px, 7vw, 100px); padding-block: 70px; }
+    .eyebrow { margin: 0 0 22px; color: #adbcdf; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { max-width: 10ch; margin: 0; font-size: clamp(52px, 6vw, 84px); font-weight: 550; line-height: .99; letter-spacing: -.07em; }
+    .intro { max-width: 40ch; margin: 28px 0 0; color: #c1cbe0; font-size: 16px; line-height: 1.6; }
+    .stage { min-height: 360px; display: grid; place-items: center; padding: 24px; border: 1px solid #96a5c032; border-radius: 30px; background: #161b27; box-shadow: inset 0 1px #ffffff0b, 0 36px 100px #05081055; }
+    .instrument { width: min(100%, 390px); padding: 24px; border: 1px solid #818da63b; border-radius: 22px; background: #202637; }
+    .instrument-top { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
+    .instrument-title { margin: 0; color: #edf1fb; font-size: 17px; font-weight: 650; }
+    .instrument-copy { margin: 8px 0 0; color: #b8c3db; font-size: 13px; line-height: 1.5; }
+    .instrument-line { height: 1px; margin: 24px 0; background: #c4d0ef21; }
+    .instrument-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+    #neighbor { display: inline-grid; place-items: center; min-width: 100px; height: 42px; border: 1px solid #8d9bb443; border-radius: 999px; background: #242c3d; color: #d6dff0; font-size: 12px; font-weight: 650; }
+    #ring { width: 48px; height: 48px; border-radius: 50%; }
+    #ring > button { padding: 0; color: #f4f6fb; }
+    #ring > button svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+    #result { min-height: 1.5em; margin: 18px 0 0; color: #d0dcf4; font-size: 12px; text-align: right; }
+    footer { border-top: 1px solid #c4d0ef24; padding-block: 25px 32px; color: #aebad0; font-size: 12px; }
+    @media (max-width: 760px) { main { grid-template-columns: 1fr; gap: 50px; min-height: auto; padding-block: 62px; } .stage { min-height: 310px; } h1 { max-width: 13ch; } }
+    @media (max-width: 380px) { .shell { width: calc(100% - 28px); } .stage { padding: 14px; } .instrument { padding: 18px; } }
+  </style>
+</head>
+<body>
+  <header class="shell"><span class="brand">Seenry / Material studies</span><span class="index">02 — Rim</span></header>
+  <main class="shell">
+    <section aria-labelledby="title">
+      <p class="eyebrow">An original linked-surface study</p>
+      <h1 id="title">Light stays at the edge.</h1>
+      <p class="intro">A quiet center keeps the action legible. The nearby indicator catches a little of the same light, so the two controls read as one instrument.</p>
+    </section>
+    <section class="stage" aria-label="Rim material preview">
+      <div class="instrument">
+        <div class="instrument-top"><div><p class="instrument-title">Reading focus</p><p class="instrument-copy">A local display setting for this study.</p></div></div>
+        <div class="instrument-line"></div>
+        <div class="instrument-actions">
+          <span id="neighbor"><span id="neighbor-label">Focus on</span></span>
+          <div id="ring" class="seenry-reflective"><button id="toggle" type="button" aria-label="Turn reading focus off" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12h8M12 8v8"/></svg></button></div>
+        </div>
+        <p id="result" role="status">Reading focus is on</p>
+      </div>
+    </section>
+  </main>
+  <footer class="shell">The decoration follows a real local state. Keyboard access and the visible result remain ordinary HTML.</footer>
+  <script type="module">
+    import { createReflectiveSurface } from './reflective-surface.mjs';
+    const host = document.querySelector('#ring');
+    const neighbor = document.querySelector('#neighbor');
+    const toggle = document.querySelector('#toggle');
+    const result = document.querySelector('#result');
+    const surface = createReflectiveSurface(host, { appearance: 'rim', palette: 'chromatic', reflectionTargets: [neighbor] });
+    toggle.addEventListener('click', () => {
+      const on = toggle.getAttribute('aria-pressed') !== 'true';
+      toggle.setAttribute('aria-pressed', String(on));
+      toggle.setAttribute('aria-label', on ? 'Turn reading focus off' : 'Turn reading focus on');
+      document.querySelector('#neighbor-label').textContent = on ? 'Focus on' : 'Focus off';
+      result.textContent = on ? 'Reading focus is on' : 'Reading focus is off';
+      surface.setActive(on);
+    });
+    window.reflectiveRimDemo = { surface, host, neighbor };
+  </script>
+</body>
+</html>

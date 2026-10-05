@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Directional stage · Seenry</title>
+  <link rel="stylesheet" href="./directional-stage.css">
+  <style>
+    :root { color-scheme: light; font-family: Arial, Helvetica, sans-serif; background: #eee9df; color: #1d2c27; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 0; }
+    button { font: inherit; cursor: pointer; }
+    button:focus-visible, a:focus-visible, [data-view-focus]:focus-visible { outline: 3px solid #cc7041; outline-offset: 5px; }
+    .head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 24px clamp(22px, 5vw, 80px); border-bottom: 1px solid #b8bdb2; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .mark { display: flex; align-items: center; gap: 10px; letter-spacing: .07em; }
+    .mark i { display: block; width: 27px; height: 27px; border: 7px solid #285148; border-radius: 50%; box-shadow: inset 0 0 0 2px #eee9df; }
+    .head > span { color: #55635a; }
+    .shell { width: min(1440px, 100%); margin: auto; padding: 32px clamp(22px, 5vw, 80px) 64px; }
+    .eyebrow { margin: 0 0 19px; font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #416158; }
+    h1 { max-width: 980px; margin: 0 0 21px; font: 400 clamp(55px, 6.2vw, 92px)/.91 Georgia, serif; letter-spacing: -.078em; }
+    h1 em { font-weight: 400; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 14px 0; border-top: 1px solid #acb9ac; border-bottom: 1px solid #acb9ac; font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+    .topline strong { font-weight: 700; }
+    .switches { display: inline-flex; align-items: center; gap: 6px; }
+    .switches button { min-height: 38px; padding: 8px 13px; border: 1px solid transparent; background: transparent; color: #42594f; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .switches button[aria-current='page'] { border-color: #32574b; background: #d8dfd2; color: #183b30; }
+    .view { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr); min-height: 540px; margin-top: 25px; }
+    .art { position: relative; min-height: 540px; overflow: hidden; background: #284e44; }
+    .art::before { content: ''; position: absolute; inset: 7% 12% 13% 13%; border: 1px solid #dae2c7aa; border-radius: 50%; transform: rotate(-20deg); }
+    .art::after { content: ''; position: absolute; width: 86%; aspect-ratio: 1; top: -38%; left: 18%; border: 44px solid #adc6ae; border-radius: 50%; box-shadow: 0 0 0 38px #214239, 0 0 0 40px #d9dfc9, 0 0 0 86px #2d6156, 0 0 0 88px #d9dfc9; transform: rotate(-28deg); }
+    .art-note { position: absolute; z-index: 1; left: 28px; bottom: 25px; color: #e5ebd4; font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    .view-copy { display: flex; flex-direction: column; justify-content: space-between; min-width: 0; padding: clamp(34px, 5vw, 72px); background: #d8dfd2; }
+    .index { color: #315a4c; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    .view-copy h2 { margin: 42px 0 23px; font: 400 clamp(47px, 5vw, 75px)/.98 Georgia, serif; letter-spacing: -.068em; }
+    .view-copy p { max-width: 41ch; margin: 0 0 31px; color: #375147; font-size: 17px; line-height: 1.55; }
+    .view-action { display: flex; justify-content: space-between; gap: 20px; width: 100%; padding: 18px 0 13px; border: 0; border-top: 1px solid #84a18e; background: transparent; color: #244c3d; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-align: left; text-transform: uppercase; }
+    .view-action span:last-child { font-size: 22px; line-height: .6; }
+    .view--process .art { background: #b9afa0; }
+    .view--process .art::before { inset: auto; width: 66%; aspect-ratio: 1; left: 10%; top: 7%; border: 2px solid #264b40; border-radius: 0; transform: rotate(-11deg); }
+    .view--process .art::after { width: 47%; top: 9%; left: 34%; border: 0; border-radius: 0; box-shadow: -28px 30px 0 #274d43, -83px 114px 0 #dfe5d4, 17px 159px 0 #678e7a; background: #d6ddc9; transform: rotate(-11deg); }
+    .view--process .art-note { color: #244b3f; }
+    .view--process .view-copy { background: #294e43; }
+    .view--process .index, .view--process .view-copy p, .view--process .view-action { color: #d5e4cf; }
+    .view--process .view-copy h2 { color: #f2efdf; }
+    .view--process .view-action { border-color: #83a593; }
+    .foot { display: flex; justify-content: space-between; gap: 16px; padding-top: 22px; color: #486357; font-size: 10px; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
+    @media (max-width: 750px) {
+      .head { padding: 19px 22px; }
+      .head > span { display: none; }
+      .shell { padding-top: 34px; }
+      h1 { font-size: clamp(52px, 13vw, 76px); margin-bottom: 27px; }
+      .topline { flex-wrap: wrap; }
+      .view { grid-template-columns: 1fr; }
+      .art { min-height: 340px; }
+      .view-copy { min-height: 360px; padding: 33px 28px 30px; }
+      .view-copy h2 { font-size: clamp(47px, 12vw, 65px); }
+      .foot { flex-wrap: wrap; }
+    }
+    @media (max-width: 360px) {
+      .shell { padding-inline: 18px; }
+      .topline > strong { display: none; }
+      .switches { width: 100%; }
+      .switches button { flex: 1; }
+      .art { min-height: 275px; }
+      .view-copy { min-height: 345px; padding: 26px 23px; }
+      .view-copy p { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="head"><div class="mark"><i aria-hidden="true"></i> Fieldwork</div><span>Notes on making and material</span><span>Edition 01 / 2026</span></header>
+  <main class="shell">
+    <p class="eyebrow">Study 04 / Movement between views</p>
+    <h1>A closer look at <em>the process.</em></h1>
+    <div class="topline"><strong>Two pages, one thread</strong><nav class="switches" aria-label="Study views"><button type="button" data-go="object" aria-current="page">01 / Object</button><button type="button" data-go="process">02 / Process</button></nav></div>
+    <div id="stage" class="seenry-directional-stage" aria-label="Study content">
+      <section class="view" data-view="object" aria-labelledby="object-title">
+        <div class="art"><span class="art-note">Plate 04 — Forms in motion</span></div>
+        <div class="view-copy"><span class="index">01 / Object</span><div><h2 id="object-title" data-view-focus tabindex="-1">A form held in balance.</h2><p>One quiet object can show the forces around it. Follow the study to see how each layer takes its place.</p><button class="view-action" type="button" data-go="process"><span>See the process</span><span aria-hidden="true">↗</span></button></div></div>
+      </section>
+      <section class="view view--process" data-view="process" aria-labelledby="process-title">
+        <div class="art"><span class="art-note">Plate 04 — Construction study</span></div>
+        <div class="view-copy"><span class="index">02 / Process</span><div><h2 id="process-title" data-view-focus tabindex="-1">Built one layer at a time.</h2><p>A plane, an edge, then a counterweight. The transition preserves the direction of the study without replacing the content's meaning.</p><button class="view-action" type="button" data-go="object"><span>Return to object</span><span aria-hidden="true">↖</span></button></div></div>
+      </section>
+    </div>
+    <div class="foot"><span>Movement follows meaning</span><span>Keyboard, history and reduced motion included</span></div>
+  </main>
+  <script type="module">
+    import { createDirectionalStage } from './directional-stage.mjs';
+    const stage = createDirectionalStage(document.querySelector('#stage'), { initial: location.hash === '#process' ? 'process' : 'object' });
+    const controls = [...document.querySelectorAll('[data-go]')];
+    function navigate(id, { push = true, moveFocus = true } = {}) {
+      stage.show(id, { moveFocus });
+      controls.filter(control => control.closest('.switches')).forEach(control => {
+        if (control.dataset.go === id) control.setAttribute('aria-current', 'page');
+        else control.removeAttribute('aria-current');
+      });
+      if (push) history.pushState({ view: id }, '', id === 'object' ? location.pathname : '#process');
+    }
+    controls.forEach(control => control.addEventListener('click', () => navigate(control.dataset.go)));
+    addEventListener('popstate', () => navigate(location.hash === '#process' ? 'process' : 'object', { push: false }));
+    navigate(stage.current, { push: false, moveFocus: false });
+    window.study = { stage, navigate };
+  </script>
+</body>
+</html>

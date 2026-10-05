@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Film</title>
+<style>
+/* Replace the three demo scenes with your shot list. Keep the contract at the bottom of the script:
+   window.__film, window.__seek(t), window.__ready. Every visual is a pure function of t. */
+:root{
+  --paper:#F7F7F5;--ink:#1C1C1B;--ink-2:#5E5E5A;--ink-3:#8E8E89;--line:#E4E4E0;
+  --accent:#C74025;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;overflow:hidden}
+body{font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:var(--ink)}
+#stage{position:absolute;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:var(--paper)}
+.scene{position:absolute;inset:0;display:none}
+.abs{position:absolute}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+
+/* scene 1: the claim */
+#s1 h1{position:absolute;left:160px;right:160px;top:420px;font-size:96px;font-weight:600;letter-spacing:-.035em;line-height:1.04;text-wrap:balance}
+#s1 h1 span{display:inline-block}
+
+/* scene 2: proof on real material */
+#s2 .shot{position:absolute;left:240px;top:120px;width:1440px;height:840px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px var(--line),0 40px 100px -40px rgba(0,0,0,.25)}
+#s2 .shot img{width:100%;height:100%;object-fit:cover;object-position:top}
+#s2 .box{position:absolute;border:2px solid var(--accent);border-radius:6px;background:rgba(199,64,37,.08)}
+#s2 .lab{position:absolute;white-space:nowrap;font:500 24px ui-monospace,"SF Mono",Menlo,monospace;color:#fff;background:var(--accent);border-radius:8px;padding:4px 12px}
+#s2 .src{position:absolute;left:240px;top:990px;font:400 22px ui-monospace,"SF Mono",Menlo,monospace;color:var(--ink-2)}
+
+/* scene 3: end card */
+#s3{background:var(--ink);color:#fff}
+#s3 .wm{position:absolute;left:0;right:0;top:440px;text-align:center;font-size:120px;font-weight:600;letter-spacing:-.04em}
+#s3 .line{position:absolute;left:0;right:0;top:600px;text-align:center;font-size:36px;color:rgba(255,255,255,.7)}
+
+#hud{position:fixed;left:0;right:0;bottom:0;display:flex;gap:14px;align-items:center;padding:12px 18px;background:rgba(0,0,0,.6);color:#aaa;font:13px ui-monospace,Menlo,monospace;z-index:10}
+#hud input{flex:1}
+#hud button{background:#222;color:#ddd;border:0;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+body.render #hud{display:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <section class="scene" id="s1"><h1 id="claim"></h1></section>
+  <section class="scene" id="s2">
+    <div class="shot"><img src="media/proof.png" alt=""></div>
+    <div class="box" id="b1"></div><div class="lab" id="l1"></div>
+    <div class="src" id="src"></div>
+  </section>
+  <section class="scene" id="s3"><div class="wm" id="wm">Product</div><div class="line" id="tag">One true sentence.</div></section>
+</div>
+<div id="hud"><button id="play">Pause</button><input id="scrub" type="range" min="0" step="0.01"><span id="time">0.00</span></div>
+<script>
+/* ---------- film contract ---------- */
+const FILM = {duration: 12, width: 1920, height: 1080, bpm: 120};
+const BAR = 240 / FILM.bpm;   // one 4/4 bar in seconds; cut on bar lines
+window.__film = FILM;
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, p) => a + (b - a) * p;
+const E = {
+  out: p => 1 - (1 - p) ** 3,
+  out5: p => 1 - (1 - p) ** 5,
+  inOut: p => p < .5 ? 4 * p ** 3 : 1 - (-2 * p + 2) ** 3 / 2,
+  expo: p => p === 1 ? 1 : 1 - 2 ** (-10 * p),
+};
+// fade and lift an element in over `dur` seconds from `start`
+const rise = (el, t, start, dur = .5, dy = 24) => { const p = E.out5(prog(t, start, start + dur)); el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * dy}px)`; };
+
+/* ---------- scenes: [id, start, end] in seconds ---------- */
+const SC = [['s1', 0, 2 * BAR], ['s2', 2 * BAR, 4.5 * BAR], ['s3', 4.5 * BAR, FILM.duration + .01]];
+
+/* ---------- content (every on-screen fact needs a row in claims.json) ---------- */
+const CLAIM = 'Say the one thing the film proves.';
+$('claim').innerHTML = CLAIM.split(' ').map(w => `<span>${w}</span>`).join(' ');
+const words = [...$('claim').children];
+// box in the 1440×840 shot's own pixels, plus its label
+const MEASURE = {x: 120, y: 160, w: 720, h: 90, label: 'h1 · 64px · 600', lx: 860, ly: 180};
+const SHOT = {x: 240, y: 120};
+Object.assign($('b1').style, {left: SHOT.x + MEASURE.x + 'px', top: SHOT.y + MEASURE.y + 'px', width: MEASURE.w + 'px', height: MEASURE.h + 'px'});
+Object.assign($('l1').style, {left: SHOT.x + MEASURE.lx + 'px', top: SHOT.y + MEASURE.ly + 'px'});
+$('l1').textContent = MEASURE.label;
+$('src').textContent = 'source: example.com/pricing · captured 2026-01-01';
+
+/* ---------- timeline ---------- */
+function render(t) {
+  for (const [id, a, b] of SC) $(id).style.display = t >= a && t < b ? 'block' : 'none';
+
+  if (t < 2 * BAR) { // the claim, one word per eighth note
+    words.forEach((w, i) => { const s = .3 + i * BAR / 8; rise(w, t, s, .45, 30); });
+  }
+  if (t >= 2 * BAR && t < 4.5 * BAR) { // proof: the shot settles, then the measurement lands on the beat
+    const s0 = 2 * BAR, p = E.out5(prog(t, s0, s0 + .6));
+    document.querySelector('#s2 .shot').style.transform = `scale(${1.04 - p * .04})`;
+    document.querySelector('#s2 .shot').style.opacity = p;
+    const m = E.out5(prog(t, s0 + BAR / 2, s0 + BAR / 2 + .35));
+    $('b1').style.opacity = m; $('b1').style.transform = `scale(${1.03 - m * .03})`;
+    rise($('l1'), t, s0 + BAR / 2 + .15, .3, 8); rise($('src'), t, s0 + BAR, .4, 8);
+  }
+  if (t >= 4.5 * BAR) { // end card
+    rise($('wm'), t, 4.5 * BAR, .8, 32); rise($('tag'), t, 4.5 * BAR + BAR / 2, .6, 14);
+  }
+}
+
+/* ---------- player (hidden with ?render) ---------- */
+function fit() { const s = Math.min(innerWidth / FILM.width, innerHeight / FILM.height), st = $('stage');
+  st.style.transform = `scale(${s})`; st.style.left = (innerWidth - FILM.width * s) / 2 + 'px'; st.style.top = (innerHeight - FILM.height * s) / 2 + 'px'; }
+const RENDER = new URLSearchParams(location.search).has('render');
+if (RENDER) document.body.classList.add('render');
+addEventListener('resize', fit); fit();
+$('scrub').max = FILM.duration;
+let playing = !RENDER, t0 = performance.now(), cur = 0;
+const audio = RENDER ? null : new Audio('mix.m4a');   // preview with the mixed track once it exists
+function seek(t) { cur = t; render(t); $('scrub').value = t; $('time').textContent = t.toFixed(2); }
+window.__seek = t => { render(t); return true; };
+window.__ready = Promise.all([document.fonts.ready, ...[...document.images].map(i => i.decode().catch(() => {}))]);
+function tick(now) { if (playing) { cur = ((now - t0) / 1000) % FILM.duration; seek(cur); } requestAnimationFrame(tick); }
+$('play').onclick = () => { playing = !playing; $('play').textContent = playing ? 'Pause' : 'Play'; t0 = performance.now() - cur * 1000;
+  if (audio) { if (playing) { audio.currentTime = cur; audio.play().catch(() => {}); } else audio.pause(); } };
+$('scrub').oninput = e => { playing = false; audio?.pause(); $('play').textContent = 'Play'; seek(+e.target.value); };
+addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); $('play').click(); } });
+window.__ready.then(() => { t0 = performance.now(); if (!RENDER) requestAnimationFrame(tick); else render(0); });
+</script>
+</body>
+</html>

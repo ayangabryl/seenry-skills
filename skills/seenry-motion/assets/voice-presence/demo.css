@@ -1,0 +1,54 @@
+:root { color-scheme: light; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #292c29; background: #f3f1eb; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 920px; margin: auto; padding: 32px 48px; }
+header, footer { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: #63655e; }
+header a { color: inherit; text-decoration: none; letter-spacing: .1em; font-weight: 650; }
+.intro { padding: 68px 0 32px; }
+.eyebrow { font-size: 10px; letter-spacing: .15em; font-weight: 650; }
+h1 { font-size: clamp(36px, 5vw, 52px); line-height: 1.07; letter-spacing: -.045em; font-weight: 520; margin: 18px 0; }
+.intro > p:last-child { font-size: 15px; line-height: 1.65; color: #63655e; }
+h2, p { margin: 0; }
+.specimen { background: #222b28; color: #f6f0e6; border-radius: 18px; padding: 24px; box-shadow: 0 14px 32px #222b280c; }
+.specimen-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+h2 { font-size: 13px; font-weight: 550; }
+.tag { font: 10px ui-monospace, monospace; letter-spacing: .09em; color: #bbc8bf; background: #222b28; }
+.voice-control { display: flex; align-items: center; gap: 14px; padding: 12px; border: 1px solid #59645d; border-radius: 12px; background: #19221f; }
+.presence { flex: 0 0 48px; width: 48px; height: 48px; background: #303b35; border: 1px solid #657063; border-radius: 50%; }
+.voice-copy { flex: 1; min-width: 0; }
+#status { font-size: 15px; font-weight: 550; line-height: 1.4; }
+#detail { font-size: 12px; line-height: 1.5; color: #bdc5bc; background: #19221f; margin-top: 3px; }
+button { font: inherit; font-size: 12px; font-weight: 650; padding: 0 16px; min-height: 44px; border-radius: 7px; border: 1px solid #f4d8b8; background: #f4d8b8; color: #302d26; cursor: pointer; }
+button:disabled { cursor: default; opacity: .65; }
+:focus-visible { outline: 3px solid #b26438; outline-offset: 4px; }
+.specimen :focus-visible { outline-color: #fff2ce; }
+.specimen-note { margin-top: 16px; color: #bdc5bc; background: #222b28; font-size: 11px; line-height: 1.65; }
+.controls { padding: 30px 0 32px; max-width: 480px; }
+.controls h2 { font-size: 15px; margin-bottom: 18px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend { font-size: 12px; color: #63655e; padding: 0; margin-bottom: 10px; }
+.states { display: flex; gap: 6px; margin-bottom: 22px; }
+.states label { flex: 1; position: relative; }
+.states input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.states span { display: grid; place-items: center; min-height: 40px; font-size: 12px; border: 1px solid #b3b6ac; border-radius: 6px; }
+.states input:checked + span { border-color: #343e36; background: #343e36; color: #faf5eb; }
+.states input:focus-visible + span { outline: 3px solid #b26438; outline-offset: 3px; }
+.level-label, .scale { display: flex; justify-content: space-between; font-size: 12px; }
+output { font-family: ui-monospace, monospace; }
+input[type="range"] { width: 100%; min-height: 32px; margin: 4px 0; accent-color: #485c4c; cursor: pointer; }
+.scale { font-size: 10px; color: #63655e; }
+.static-option { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 12px; font-size: 12px; }
+input[type="checkbox"] { accent-color: #485c4c; width: 16px; height: 16px; }
+#motion-note { color: #63655e; font-size: 11px; line-height: 1.5; }
+footer { border-top: 1px solid #c4c7bd; padding-top: 18px; font-size: 10px; }
+@media (max-width: 540px) {
+  main { padding: 24px 20px; }
+  header { font-size: 10px; }
+  .intro { padding-top: 48px; }
+  .intro > p:last-child { font-size: 13px; }
+  .specimen { padding: 18px 14px; }
+  .voice-control { gap: 10px; flex-wrap: wrap; }
+  .voice-control button { width: 100%; }
+  .specimen-note { font-size: 11px; }
+  footer { flex-wrap: wrap; }
+}

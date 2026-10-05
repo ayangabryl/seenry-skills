@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Seenry signature components</title>
+  <link rel="stylesheet" href="seenry-signature.css">
+  <style>
+    .gallery { max-width: 1376px; margin: auto; padding: 56px 32px 120px; }
+    .gallery__header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 72px; }
+    .gallery__header h1 { margin: 0; font-size: clamp(44px,5vw,68px); line-height: 1.04; letter-spacing: -.045em; font-weight: 600; }
+    .gallery__header p { max-width: 56ch; margin: 18px 0 0; color: var(--text-2); font-size: 19px; line-height: 1.45; }
+    .gallery__header .gallery__meta { color: var(--text-3); font-size:15px; white-space: nowrap; }
+    .gallery__row { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .gallery__row h2 { margin: 0 0 8px; font-size: 28px; letter-spacing: -.025em; font-weight: 600; }
+    .gallery__row > p { margin: 0 0 24px; color: var(--text-2); font-size: 16px; }
+    .gallery__pair { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; align-items: stretch; }
+    [data-gallery="demo"] { grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); }
+    .gallery__mobile-theme { display: none; }
+    .gallery__sample { min-width: 0; padding: 12px; border-radius: var(--r-lg); background: var(--bg); color: var(--text); }
+    .gallery__sample[data-theme="dark"] { color-scheme: dark; }
+    .gallery__theme { margin-bottom: 16px; color: var(--text-2); font-size:15px; font-weight: 500; }
+    .gallery__row ~ .gallery__row .gallery__theme { display: none; }
+    .gallery__row:first-of-type h2 { font-size: 40px; letter-spacing: -.035em; }
+    .gallery__row:first-of-type > p { font-size: 18px; }
+    .gallery__row .s-story__step { min-height: 210px; }
+    .gallery__states { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; color: var(--text-2); font-size:15px; }
+    .gallery__states .s-button { min-height: 36px; }
+    .gallery__states code { padding: 3px 6px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-2); font-size:15px; }
+    .gallery__foot { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--text-2); }
+    .gallery__foot a { color: var(--accent); }
+    button:active:not(:disabled) { transform: scale(.98); }
+    @media (prefers-reduced-motion: reduce) { .gallery * { scroll-behavior: auto !important; } }
+    @media (max-width: 850px) { .gallery { padding: 32px 16px 64px; } .gallery__pair, [data-gallery="demo"] { grid-template-columns: 1fr; } .gallery__header { display: block; margin-bottom: 48px; } .gallery__header .gallery__meta { margin-top: 16px; } .gallery__mobile-theme { display: flex; gap: 4px; width: max-content; padding: 4px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); } .gallery__mobile-theme button { min-width: 72px; min-height: 44px; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text-2); } .gallery__mobile-theme button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--line); } .gallery__pair[data-mobile-theme="light"] > [data-theme="dark"], .gallery__pair[data-mobile-theme="dark"] > [data-theme="light"] { display: none; } .gallery__row .s-story__step { min-height: 160px; } .gallery__row:first-of-type h2 { font-size: 32px; } }
+    @media (max-width: 390px) { .gallery__sample { padding: 12px; } .gallery__row { margin-top: 48px; } }
+  </style>
+  <script src="seenry-signature.js" defer></script>
+</head>
+<body>
+  <main class="gallery">
+    <header class="gallery__header">
+      <div><h1>Signature components</h1><p>Eight ways to make a product’s behavior visible. Built for real content, native input, and a useful still state.</p></div>
+      <div class="gallery__meta">Light and dark · Desktop and phone</div>
+    </header>
+
+    <section class="gallery__row" aria-labelledby="demo-title"><h2 id="demo-title">Product demo player</h2><p>Watch an Autumn collection review estimate update, or take the controls yourself.</p><div class="gallery__pair" data-gallery="demo"></div></section>
+    <section class="gallery__row" aria-labelledby="draw-title"><h2 id="draw-title">Line illustration draw-in</h2><p>Five service diagrams share one 30° isometric grid and 1.25px monoline stroke.</p><div class="gallery__pair" data-gallery="draw"></div></section>
+    <section class="gallery__row" aria-labelledby="ambient-title"><h2 id="ambient-title">Ambient field</h2><p>A quiet background for a release summary, with information kept on a stable surface.</p><div class="gallery__pair" data-gallery="ambient"></div></section>
+    <section class="gallery__row" aria-labelledby="story-title"><h2 id="story-title">Scroll story</h2><p>Three document steps update a sticky product visual and progress rail without taking over scrolling.</p><div class="gallery__pair" data-gallery="story"></div></section>
+    <section class="gallery__row" aria-labelledby="value-title"><h2 id="value-title">Numbers and live values</h2><p>A first-view count and a politely timed live value use the same accessible number contract.</p><div class="gallery__pair" data-gallery="value"></div></section>
+    <section class="gallery__row" aria-labelledby="marquee-title"><h2 id="marquee-title">Logo marquee</h2><p>A slow wordmark rail that pauses for hover or focus and stays still for reduced motion.</p><div class="gallery__pair" data-gallery="marquee"></div></section>
+    <section class="gallery__row" aria-labelledby="compare-title"><h2 id="compare-title">Compare slider</h2><p>A native range input controls the split. Try arrow keys after focusing the handle.</p><div class="gallery__pair" data-gallery="compare"></div></section>
+    <section class="gallery__row" aria-labelledby="case-title"><h2 id="case-title">Case-study card</h2><p>Authored interface frames preview on hover or focus; touch keeps the cover frame.</p><div class="gallery__pair" data-gallery="case"></div></section>
+    <section class="gallery__row" aria-labelledby="state-title"><h2 id="state-title">Control and content states</h2><p>Shared styling for long text, hover, pressed, focus-visible, disabled, loading, empty, and error content.</p><div class="gallery__pair" data-gallery="states"></div></section>
+    <footer class="gallery__foot">Implementation and copy-paste examples are in <a href="README.md">README.md</a>. Research choices are recorded in <a href="NOTES.md">NOTES.md</a>.</footer>
+  </main>
+
+  <template data-template="demo">
+    <div class="s-demo">
+      <div class="s-demo__bar"><span>Autumn collection / review planner</span><button type="button" class="s-button" data-demo-toggle aria-pressed="false">Play demo</button></div>
+      <div class="s-demo__ui">
+        <div class="s-demo__form"><label for="demo-input">Items to review</label><input id="demo-input" data-demo-target="seats" inputmode="numeric" value="24"><button type="button" class="s-button s-button--primary" data-demo-target="calculate" onclick="this.closest('.s-demo').querySelector('[data-demo-target=total]').textContent = ((Number(this.previousElementSibling.value)||0)*2).toLocaleString() + ' h'">Calculate</button></div>
+        <div class="s-demo__result"><span>Estimated review time</span><strong data-demo-target="total">48 h</strong></div>
+        <div class="s-demo__panel" data-demo-panel data-demo-target="panel" inert>For 42 items at two hours each, reserve 84 review hours across the team.</div>
+      </div>
+      <svg class="s-demo__cursor" viewBox="0 0 18 21" aria-hidden="true"><path d="M2 1v16l4.5-4 3.4 6 2.3-1.2-3.3-5.9 6-.3z"/></svg><span class="s-demo__click" aria-hidden="true"></span>
+      <div hidden data-demo-step data-at="500" data-action="move" data-target="seats"></div>
+      <div hidden data-demo-step data-at="1200" data-action="click" data-target="seats"></div>
+      <div hidden data-demo-step data-at="1650" data-action="type" data-target="seats" data-value="42"></div>
+      <div hidden data-demo-step data-at="2350" data-action="move" data-target="calculate"></div>
+      <div hidden data-demo-step data-at="2850" data-action="click" data-target="calculate"></div>
+      <div hidden data-demo-step data-at="3200" data-action="value" data-target="total" data-value="84 h"></div>
+      <div hidden data-demo-step data-at="3800" data-action="open" data-target="panel"></div>
+    </div>
+  </template>
+
+  <template data-template="draw">
+    <div class="s-draw-grid">
+      <figure class="s-draw"><svg viewBox="0 0 160 112" role="img" aria-label="Brand mark construction on an isometric plane"><path d="M20 61 80 26l60 35-60 35zM20 61v13l60 35V96m60-35v13l-60 35"/><path data-accent d="m59 62 21-12 21 12-21 12zM80 50V38"/><path d="M41 61 80 39l39 22-39 22z"/></svg><figcaption>Branding</figcaption></figure>
+      <figure class="s-draw"><svg viewBox="0 0 160 112" role="img" aria-label="Layered product screens in isometric view"><path d="M20 72 83 35l55 32-63 37zM20 72V58l63-37 55 32v14M20 58l55 32 63-37"/><path data-accent d="m42 61 41-24 32 19-41 24z"/><path d="m51 62 17 10m-8-20 25 14m-8-23 17 10"/></svg><figcaption>Product design</figcaption></figure>
+      <figure class="s-draw"><svg viewBox="0 0 160 112" role="img" aria-label="Connected engineering modules on an isometric grid"><path d="m21 56 27-16 27 16-27 16zm64 0 27-16 27 16-27 16zM53 77l27-16 27 16-27 16zM48 72v13l27 16 27-16V72m-81-16v13l27 16 27-16V56m10 0v13l27 16 27-16V56"/><path data-accent d="M75 56h10m-10 21h10"/></svg><figcaption>Engineering</figcaption></figure>
+      <figure class="s-draw"><svg viewBox="0 0 160 112" role="img" aria-label="Landing page sections on an isometric browser"><path d="m21 49 68-39 51 30-68 39zM21 49v28l51 30 68-39V40M21 62l51 30 68-39M32 47l68-39M72 79v28"/><path data-accent d="m50 49 39-23 24 14-39 23z"/><path d="m42 65 31 18m9-6 30-17"/></svg><figcaption>Landing pages</figcaption></figure>
+      <figure class="s-draw"><svg viewBox="0 0 160 112" role="img" aria-label="Reusable design system tiles on an isometric grid"><path d="m20 58 35-20 35 20-35 20zM70 29l35-20 35 20-35 20zM70 82l35-20 35 20-35 20zM20 58v14l35 20 35-20V58m-20-29v14l35 20 35-20V29m-70 53v14l35 20 35-20V82"/><path data-accent d="m43 58 12-7 12 7-12 7zm50-29 12-7 12 7-12 7zm0 53 12-7 12 7-12 7z"/></svg><figcaption>Design systems</figcaption></figure>
+    </div>
+  </template>
+
+  <template data-template="ambient"><div class="s-ambient"><canvas aria-hidden="true"></canvas><div class="s-ambient__content"><h3>Autumn launch is nearly ready.</h3><p>Three reviews remain before the release can ship.</p></div></div></template>
+
+  <template data-template="story">
+    <div class="s-story">
+      <div class="s-story__steps">
+        <div class="s-story__step"><h3>Start with the brief</h3><p>Keep requirements, owners, and the next decision in one shared place.</p><button type="button" class="s-button" onclick="this.closest('.s-story').querySelector('.s-story__stage').scrollIntoView({block:'center',behavior:'smooth'})">View workspace</button></div>
+        <div class="s-story__step"><h3>See what changed</h3><p>Clear review rows show work that needs a response, with the context alongside it.</p></div>
+        <div class="s-story__step"><h3>Share the outcome</h3><p>One final summary records the shipped version and who approved it.</p></div>
+      </div>
+      <div class="s-story__stage" aria-label="Product preview">
+        <div class="s-story__visual"><div class="s-story__mock"><header><span>Project brief</span><span>●</span></header><p>Autumn collection</p><strong>Ready for review</strong><div class="s-story__row"><span>Owner</span><span>Maya Chen</span></div><div class="s-story__row"><span>Due</span><span>Oct 14</span></div></div></div>
+        <div class="s-story__visual"><div class="s-story__mock"><header><span>Review queue</span><span>2 open</span></header><div class="s-story__row"><span>Homepage copy</span><span>Needs feedback</span></div><div class="s-story__row"><span>Photography</span><span>Approved</span></div><div class="s-story__row"><span>Checkout flow</span><span>Needs feedback</span></div></div></div>
+        <div class="s-story__visual"><div class="s-story__mock"><header><span>Release summary</span><span>●</span></header><p>Autumn collection</p><strong>Shipped</strong><div class="s-story__row"><span>Approved by</span><span>Maya Chen</span></div><div class="s-story__row"><span>Version</span><span>1.4</span></div></div></div>
+        <div class="s-story__progress" aria-hidden="true"></div>
+      </div>
+    </div>
+  </template>
+
+  <template data-template="value"><div class="s-values"><div class="s-value s-count" data-value="128" data-format='{"maximumFractionDigits":0}'><div class="s-value__label">Autumn assets reviewed</div><strong class="s-value__number">128</strong><p class="s-value__note">First-view project total</p></div><div class="s-value s-ticker" data-values="3,2,1,0" data-interval="3600"><div class="s-value__label">Open release reviews</div><strong class="s-value__number">3</strong><p class="s-value__note">Sample live queue</p></div></div></template>
+  <template data-template="marquee"><div class="s-marquee" aria-label="Selected partners"><div class="s-marquee__track"><div class="s-marquee__group"><span>Northstar</span><span>Fieldwork</span><span>Monograph</span><span>Forma</span><span>Common Ground</span></div></div></div></template>
+  <template data-template="compare"><div class="s-compare"><div class="s-compare__before"><div class="s-compare__sample"><small>Inbox / Autumn collection</small><strong>Approval threads</strong><div class="s-story__row"><span>Re: homepage copy?</span><span>14:32</span></div><div class="s-story__row"><span>New image options</span><span>Yesterday</span></div><div class="s-story__row"><span>Checkout notes</span><span>Monday</span></div></div></div><div class="s-compare__after"><div class="s-compare__sample"><small>Release queue / Autumn collection</small><strong>Three reviews left</strong><div class="s-story__row"><span>Homepage copy</span><span>Maya · today</span></div><div class="s-story__row"><span>Photography</span><span>Anna · Thu</span></div><div class="s-story__row"><span>Checkout flow</span><span>Leo · Fri</span></div></div></div><span class="s-compare__line" aria-hidden="true"></span><span class="s-compare__handle" aria-hidden="true">↔</span><input class="s-compare__range" type="range" min="0" max="100" value="50" aria-label="Compare inbox threads and release queue"><span class="s-compare__label s-compare__label--before">Before</span><span class="s-compare__label s-compare__label--after">After</span></div></template>
+  <template data-template="case"><a class="s-case" href="#case-title" aria-label="Read the Wayfinder city guide case study"><div class="s-case__media"><div class="s-case__frame"><div class="s-case__art"><small>Wayfinder / Manila</small><div class="rule"></div><strong>Walk the old city.</strong><p>Five places inside Intramuros, selected for a 48-minute route.</p><div class="s-case__route"><span>Fort Santiago</span><span>→</span><span>San Agustin</span></div></div></div><div class="s-case__frame"><div class="s-case__art"><small>Wayfinder / Route detail</small><div class="rule"></div><strong>Five stops, one path.</strong><div class="s-story__row"><span>Fort Santiago</span><span>Start</span></div><div class="s-story__row"><span>Plaza Roma</span><span>12 min</span></div><div class="s-story__row"><span>San Agustin</span><span>32 min</span></div></div></div><div class="s-case__frame"><div class="s-case__art"><small>Wayfinder / Saved walk</small><div class="rule"></div><strong>Ready when you are.</strong><p>The walking route is saved with opening hours and directions for each stop.</p><div class="s-case__route"><span>Intramuros</span><span>·</span><span>3.2 km</span></div></div></div></div><div class="s-case__meta"><div><h3>Wayfinder city guide</h3><p>Mobile product · Local discovery</p></div><span class="s-case__arrow" aria-hidden="true">↗</span></div></a></template>
+  <template data-template="states"><div class="gallery__states"><button class="s-button" type="button">Default</button><button class="s-button" type="button" disabled>Disabled</button><button class="s-button" type="button" disabled aria-busy="true">Loading…</button><button class="s-button s-button--primary" type="button">Primary action</button><span>Focus with Tab; press with Space or Enter.</span><code>Long content: a complete and specific title can wrap cleanly.</code><span role="status" style="padding:8px 10px;background:var(--warn-bg);color:var(--warn);border-radius:var(--r-sm)">No preview frames available</span><span role="alert" style="padding:8px 10px;background:var(--bad-bg);color:var(--bad);border-radius:var(--r-sm)">Preview could not load. Try again.</span></div></template>
+
+  <script>
+    document.querySelectorAll('[data-gallery]').forEach(pair => {
+      const name = pair.dataset.gallery, source = document.querySelector(`[data-template="${name}"]`);
+      pair.dataset.mobileTheme = 'light';
+      const switcher = document.createElement('div'); switcher.className = 'gallery__mobile-theme'; switcher.setAttribute('aria-label','Preview theme');
+      for (const theme of ['light','dark']) { const button=document.createElement('button'); button.type='button'; button.textContent=theme==='light'?'Light':'Dark'; button.setAttribute('aria-pressed',String(theme==='light')); button.addEventListener('click',()=>{ pair.dataset.mobileTheme=theme; [...switcher.children].forEach((child,index)=>child.setAttribute('aria-pressed',String(['light','dark'][index]===theme))); }); switcher.append(button); }
+      pair.before(switcher);
+      for (const theme of ['light','dark']) {
+        const sample = document.createElement('div'); sample.className='gallery__sample'; sample.dataset.theme=theme;
+        const label = document.createElement('div'); label.className='gallery__theme'; label.textContent=theme==='light'?'Light theme':'Dark theme'; sample.append(label);
+        sample.append(source.content.cloneNode(true));
+        sample.querySelectorAll('[id]').forEach(node => { const old=node.id; node.id=`${theme}-${name}-${old}`; sample.querySelectorAll(`[for="${old}"]`).forEach(x=>x.htmlFor=node.id); });
+        pair.append(sample);
+      }
+    });
+  </script>
+</body>
+</html>

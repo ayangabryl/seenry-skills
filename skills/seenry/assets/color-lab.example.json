@@ -1,0 +1,38 @@
+{
+  "copy": {
+    "title": "Keep your place.",
+    "body": "Save an article to your reading list and return when you have time.",
+    "label": "Article title",
+    "value": "How cities make room for trees",
+    "action": "Save article",
+    "selected": "Reading list: Weekend",
+    "error": "Connection lost. Your draft is still here. Try saving again when you reconnect.",
+    "confirmation": "Preview confirmed. No article was saved."
+  },
+  "palettes": [
+    {
+      "name": "Light neutral",
+      "intent": "For a quiet reading utility: contrast and grouping lead, with no brand accent required.",
+      "counterexample": "If collection identity is essential, neutral surfaces alone may not distinguish it.",
+      "roles": {"canvas":"#F1F1F1","surface":"#FFFFFF","text":"#202020","muted":"#626262","controlBorder":"#858585","action":"#242424","onAction":"#FFFFFF","actionHover":"#404040","focus":"#202020","error":"#922B24","errorSurface":"#FFF0ED","selected":"#EEEEEE","onSelected":"#333333"}
+    },
+    {
+      "name": "Dark neutral",
+      "intent": "For a requested dark reading surface, using independently chosen values and a lighter primary action.",
+      "counterexample": "Dark appearance may be inappropriate for the audience or supplied artwork; it is not an automatic upgrade.",
+      "roles": {"canvas":"#161616","surface":"#242424","text":"#F4F4F4","muted":"#B3B3B3","controlBorder":"#858585","action":"#EAEAEA","onAction":"#202020","actionHover":"#FFFFFF","focus":"#EAEAEA","error":"#FFB7AA","errorSurface":"#40231F","selected":"#373737","onSelected":"#F0F0F0"}
+    },
+    {
+      "name": "Restrained terracotta",
+      "intent": "A hypothetical independent publication identity gives the primary action a warm material association.",
+      "counterexample": "An unrelated brand should not inherit this tint merely because it looks restrained.",
+      "roles": {"canvas":"#F0ECE6","surface":"#FFFCF7","text":"#302D2B","muted":"#68615A","controlBorder":"#8A8177","action":"#923F2B","onAction":"#FFFFFF","actionHover":"#773120","focus":"#773120","error":"#8B2424","errorSurface":"#FFF0ED","selected":"#EEE4D8","onSelected":"#493F35"}
+    },
+    {
+      "name": "Expressive field",
+      "intent": "A hypothetical culture journal uses a large vivid field while the working surface stays readable and the action uses dark text.",
+      "counterexample": "The surrounding color can dominate a long work session; compare it against a neutral canvas before choosing it.",
+      "roles": {"canvas":"#EB694A","surface":"#FFF9EB","text":"#29251F","muted":"#665D4C","controlBorder":"#86745C","action":"#D8EE63","onAction":"#242B10","actionHover":"#C8DC4F","focus":"#302814","error":"#92251D","errorSurface":"#FFE3DC","selected":"#E4DCF3","onSelected":"#45325E"}
+    }
+  ]
+}

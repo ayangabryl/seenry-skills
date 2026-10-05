@@ -1,0 +1,5 @@
+[
+  {"time": 4.5, "text": "h1 · 64px · 600", "kind": "measured", "source": "get_tokens(id=<page id>) componentSamples h1, captured 2026-01-01"},
+  {"time": 4.5, "text": "example.com/pricing", "kind": "quoted", "source": "search_sections result <section id>"},
+  {"time": 9.0, "text": "End card line", "kind": "copy", "source": "brief.md, approved by the user"}
+]

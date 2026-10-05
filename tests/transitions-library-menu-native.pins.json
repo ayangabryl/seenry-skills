@@ -1,0 +1,23 @@
+{
+  "schema": "menu-native-v5",
+  "frozen": true,
+  "reconstructionBaseCommit": "ccbf13127596d0941e151b2bdac7a4e14a69e3f0",
+  "bundleSHA256": "580a2bb1495f744afe21f0f49a3095483f4c66df937b07bab30a46d299b9fcb6",
+  "assets": {
+    "gallery.html": "3a8a741d4f06a9c112ed36cb1e88ce9aa235e62dc2a3ded5e3bef34e0badb511",
+    "gallery.js": "c121ddac42d8804f3bb87f0a39e2f0bd732f0f9ce55257e069324a366db7cd8a",
+    "gallery-menu.js": "b9467f7a7c3a54ae257b4203e5c23e0103b05e478cba5731d7bd366611dcbf24",
+    "seenry-transitions.js": "c3b6795e6a772feb3f37bf6fdc49687eb0310d5f3db860ba722b5dabc9217ef8",
+    "seenry-transitions.css": "3d66eaf94b53921c909c79528c4ca56b7ebbacc507b82ae48f9ceb5c5bb77642",
+    "assets/morning.jpg": "8d489f3ba1698592863b06b02ba34f4d697e87e227be92d1244c12f4f7dc9a25",
+    "assets/lake.jpg": "26f1167b6c07e4d67cd90c469390ebb310bfa082a7d86e0e3758f616176378c7",
+    "assets/forest.jpg": "b944abd87e265d383d021181a00eb153babf605d2746d859be6be910a2deb1ed"
+  },
+  "harness": {
+    "transitions-library-menu-native.browser.mjs": "d404a8885a580a6ab707dcdb82e147bec9402550dabcbae19fe811f225a65b31",
+    "transitions-library-menu-native-contract.mjs": "abe97b14463dd7b076d8310a4c4f7aebfe545d8f7838d24675f44bb388883440",
+    "transitions-library-menu-native-observer.mjs": "ca53837a80799743efac4d15f98d68801a6cb9c3f71ad2af4d0b7e7860d14a9e",
+    "transitions-library-menu-discovery-helpers.mjs": "8ac6f83198c0308dc921abc8dc6e32a3206878f8fa70bdff885f1dad36019cfb",
+    "transitions-library-menu-native-collection.mjs": "8f82cb4bebf177da8ff39a76f3b4942f48be0829c574b1716dbfbb6c6b2b245b"
+  }
+}

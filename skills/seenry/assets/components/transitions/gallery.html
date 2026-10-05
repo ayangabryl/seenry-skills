@@ -1,0 +1,1378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Seenry Transitions — a motion library</title>
+<link rel="stylesheet" href="seenry-transitions.css">
+<script>try{const t=localStorage.getItem('st-gallery-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(localStorage.getItem('st-gallery-blur')==='on')document.documentElement.dataset.stBlur='';}catch{}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.55 var(--font);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,p,ul,ol,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+button,input{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 max(20px,env(safe-area-inset-left))}
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+.mark{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;letter-spacing:-.01em;text-decoration:none;white-space:nowrap}
+.mark svg{width:22px;height:22px}
+.nav{display:flex;align-items:center;gap:6px}
+.nav a{display:inline-flex;align-items:center;min-height:40px;padding:0 10px;border-radius:8px;color:var(--text-2);font-size:14px;font-weight:500;text-decoration:none}
+.nav a:hover{color:var(--text)}
+.theme{width:216px}
+.hero{padding:88px 0 56px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:48px;align-items:end}
+.hero h1{font-size:clamp(36px,5.2vw,56px);line-height:1.02;letter-spacing:-.035em;font-weight:600;max-width:14ch}
+.hero p{color:var(--text-2);font-size:17px;line-height:1.55;max-width:46ch}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:28px;border-radius:14px;overflow:hidden;background:var(--line);box-shadow:0 0 0 1px var(--line)}
+.facts div{background:var(--bg);padding:14px 16px}
+.facts b{display:block;font-size:20px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.facts span{color:var(--text-2);font-size:14px}
+.jump{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 12px}
+.jump a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:99px;background:var(--surface);box-shadow:var(--shadow-card);font-size:14px;font-weight:500;text-decoration:none;color:var(--text-2)}
+.jump a:hover{color:var(--text)}
+section.group{padding:56px 0 8px}
+.group-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px;padding-top:24px;border-top:1px solid var(--line)}
+.group-head h2{font-size:26px;letter-spacing:-.025em;font-weight:600;line-height:1.15}
+.group-head p{color:var(--text-2);max-width:48ch;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.card{min-width:0;display:flex;flex-direction:column;border-radius:20px;background:var(--surface);box-shadow:var(--shadow-card);overflow:clip}
+.stage{position:relative;height:320px;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:24px;background:var(--stage);border-bottom:1px solid var(--line);overflow:hidden;isolation:isolate}
+:root{--stage:#f4f4f6;--frame:#fff}
+[data-theme="dark"]{--stage:#111113;--frame:#18181b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--stage:#111113;--frame:#18181b}}
+.caption{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;align-items:start;padding:18px 20px 20px}
+.caption h3{font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.4}
+.caption p{grid-column:1;color:var(--text-2);font-size:16px;line-height:1.5}
+.caption .spec{grid-column:1/-1;margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.spec span{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:7px;background:var(--surface-2);color:var(--text-2);font:500 13px/1 var(--font-mono);letter-spacing:-.01em}
+.replay{grid-column:2;grid-row:1/3;align-self:start;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 10px;border:0;border-radius:10px;background:var(--surface-2);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform var(--st-spring-snappy-ms) var(--st-spring-snappy),background-color var(--st-quick) var(--st-F)}
+.replay svg{width:16px;height:16px;transition:transform var(--st-spring-smooth-ms) var(--st-spring-smooth)}
+.replay:active{transform:scale(.96);transition-duration:var(--st-feedback)}
+
+@media (hover:hover) and (pointer:fine){.replay:hover{background:color-mix(in srgb,var(--text) 9%,transparent)}}
+.foot{padding:72px 0 64px;margin-top:64px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.foot h2{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px}
+.foot p{color:var(--text-2);max-width:48ch}
+pre.install{margin:0;padding:16px 18px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow-card);font:400 14px/1.7 var(--font-mono);overflow:auto;color:var(--text-2)}
+pre.install b{color:var(--text);font-weight:500}
+
+/* Mini product frames */
+.app{position:relative;width:min(100%,400px);border-radius:14px;background:var(--frame);box-shadow:var(--shadow-card);color:var(--text);font-size:14px}
+.app-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;height:48px;padding:0 10px 0 16px;border-bottom:1px solid var(--line)}
+.app-title{font-weight:600;font-size:14px}
+.muted{color:var(--text-2)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:12px}
+.between{justify-content:space-between}
+.file{display:flex;align-items:center;gap:12px;padding:12px 10px 12px 16px}
+.file+.file{border-top:1px solid var(--line)}
+.file-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:var(--surface-2);color:var(--text-2)}
+.file-icon svg{width:16px;height:16px}
+.file-meta{flex:1;min-width:0}
+.file-meta b{display:block;font-weight:500}
+.file-meta span{color:var(--text-2);font-size:13px}
+.avatar{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:50%;color:#fff;font-weight:600;font-size:13px}
+.a1{background:linear-gradient(135deg,#ff8a5b,#e0457b)}.a2{background:linear-gradient(135deg,#5b8cff,#6f4bd8)}.a3{background:linear-gradient(135deg,#2fbf8f,#1f8a9e)}.a4{background:linear-gradient(135deg,#f6b73c,#e8743b)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:99px;background:var(--surface-2);color:var(--text-2);font-size:13px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.icon-btn{display:inline-grid;place-items:center;width:40px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--text-2);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn[aria-expanded="true"]{background:var(--hover);color:var(--text)}
+@media (hover:hover) and (pointer:fine){.icon-btn:hover{background:var(--hover);color:var(--text)}}
+.icon-btn:active{background:var(--press)}
+.phone{position:relative;width:228px;height:300px;margin-bottom:-60px;border-radius:30px 30px 0 0;padding:8px 8px 0;background:#0d0d0f;box-shadow:0 0 0 1px #0000001a,0 20px 40px -18px #0006;align-self:end}
+.screen{position:relative;height:100%;border-radius:23px 23px 0 0;overflow:hidden;background:var(--frame)}
+.photo{position:absolute;inset:0;background:radial-gradient(120% 80% at 20% 10%,#ffd3a8 0,transparent 55%),radial-gradient(90% 70% at 90% 30%,#ff9a8b 0,transparent 60%),linear-gradient(160deg,#6d5dfc,#2b2a6b 70%)}
+.photo-bar{position:absolute;left:0;right:0;bottom:60px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;color:#fff;font-size:13px;font-weight:500}
+.photo-bar button{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border:0;border-radius:99px;background:#ffffff33;color:#fff;font-weight:600;font-size:13px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer}
+.share-row{display:flex;gap:4px;justify-content:space-between;padding:4px 0 14px}
+.share-row div{display:grid;justify-items:center;gap:6px;font-size:12.5px;color:var(--text-2)}
+.share-row .avatar{width:38px;height:38px}
+.share-actions{display:grid;gap:2px;border-radius:12px;background:var(--surface-2);padding:4px}
+.share-actions button{display:flex;align-items:center;justify-content:space-between;height:40px;padding:0 12px;border:0;border-radius:8px;background:transparent;font-size:14px;font-weight:400;cursor:pointer}
+.share-actions svg{width:16px;height:16px;color:var(--text-2)}
+.sheet-title{font-weight:600;font-size:15px;margin-bottom:10px}
+.desk{width:min(100%,440px);height:250px;overflow:hidden}
+.desk .grid-rows{padding:8px 16px}
+.bar-row{display:flex;align-items:center;gap:10px;height:34px;border-bottom:1px solid var(--line)}
+.bar-row i{height:8px;border-radius:4px;background:var(--surface-2)}
+.filters h4{margin:0 0 12px;font-size:15px;font-weight:600}
+.filters .opt{display:flex;align-items:center;justify-content:space-between;min-height:40px;border-bottom:1px solid var(--line);font-size:14px}
+.toolbar{display:flex;gap:2px;padding:4px;border-radius:12px;background:var(--frame);box-shadow:var(--shadow-card)}
+.toolbar .sep{width:6px;margin:0;background:none}
+.editor-line{margin-top:18px;width:300px;display:grid;gap:8px}
+.editor-line i{display:block;height:9px;border-radius:5px;background:var(--line)}
+.settings-card{width:min(100%,420px);padding:0 18px 18px}
+.panel-body{display:grid;gap:10px;padding-top:6px}
+.field-row{display:flex;justify-content:space-between;align-items:center;min-height:36px;font-size:14px}
+.field-row span:last-child{color:var(--text-2)}
+.metric{width:min(100%,400px);padding:18px}
+.metric-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.metric .big{margin-top:18px;font-size:34px;font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.bars{display:flex;align-items:end;gap:6px;height:64px;margin-top:14px}
+.bars i{flex:1;height:100%;border-radius:4px 4px 2px 2px;background:color-mix(in srgb,var(--text) 14%,transparent);transform-origin:50% 100%;transition:transform var(--st-spatial) var(--st-E)}
+.bars i:last-child{background:var(--text)}
+.mail{position:relative;width:min(100%,380px);height:260px;overflow:hidden}
+.mail-list .msg{display:flex;gap:12px;align-items:flex-start;width:100%;padding:12px 16px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer}
+.mail-list .msg:hover{background:var(--hover)}
+.msg b{display:block;width:max-content;max-width:100%;font-weight:600;font-size:14px}
+.msg span{display:block;width:max-content;max-width:100%;color:var(--text-2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg .body{min-width:0;flex:1}
+.detail{padding:6px 16px 16px}
+.detail h4{margin:10px 0 6px;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.25;width:max-content;max-width:100%}
+.detail p{color:var(--text-2);font-size:14px;line-height:1.55}
+.covers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(100%,420px)}
+.cover-card{display:block;padding:6px;margin:-6px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:18px;transition:background-color 90ms var(--st-F),transform 70ms var(--st-F)}
+.cover{display:block;aspect-ratio:1;border-radius:12px}
+.c1{background:radial-gradient(90% 90% at 25% 20%,#ffcf99,transparent 60%),linear-gradient(150deg,#ff7a59,#b3246b)}
+.c2{background:radial-gradient(80% 80% at 70% 25%,#b7f0ff,transparent 60%),linear-gradient(160deg,#3a7bd5,#1d2b64)}
+.c3{background:radial-gradient(80% 80% at 30% 70%,#e6ffb0,transparent 60%),linear-gradient(140deg,#2ebf91,#115e59)}
+.cover-card b{display:block;margin-top:8px;font-size:14px;font-weight:600;width:max-content}
+.cover-card span{display:block;color:var(--text-2);font-size:13px}
+.expand-surface{position:absolute;inset:12px;display:grid;grid-template-columns:150px 1fr;gap:16px;padding:14px;border-radius:18px;background:var(--frame);box-shadow:var(--shadow-layer)}
+.expand-surface .cover{width:150px;height:150px;border-radius:12px}
+.expand-surface h4{margin:4px 0 0;font-size:20px;font-weight:600;letter-spacing:-.02em;width:max-content}
+.expand-surface p{margin-top:8px;color:var(--text-2);font-size:14px;line-height:1.5}
+.expand-surface .tracks{margin-top:10px;display:grid;gap:2px;font-size:13px}
+.expand-surface .tracks div{display:flex;justify-content:space-between;color:var(--text-2);border-bottom:1px solid var(--line);padding:5px 0}
+.close-x{position:absolute;right:8px;top:8px}
+.stack-center{display:grid;justify-items:center;gap:14px}
+.code{display:flex;align-items:center;gap:8px;width:min(100%,380px);padding:6px 6px 6px 16px;border-radius:12px;background:var(--frame);box-shadow:var(--shadow-card);font:400 14px/1 var(--font-mono)}
+.code code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.code code b{color:var(--text-3);font-weight:400}
+.copy-btn{min-width:98px}
+.copy-btn .st-swap{width:16px;height:16px}
+.copy-btn .st-swap svg{width:16px;height:16px}
+.post{width:min(100%,380px);padding:16px}
+.post p{margin:12px 0 10px;font-size:14.5px;line-height:1.5}
+.post .actions{display:flex;gap:4px;margin-left:-10px}
+.post .ghostbtn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border:0;border-radius:99px;background:transparent;color:var(--text-2);font-size:14px;font-weight:500}
+.post .ghostbtn svg{width:19px;height:19px}
+.list-card{width:min(100%,400px)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 16px;border-bottom:1px solid var(--line)}
+.set-row:last-child{border-bottom:0}
+.set-row b{display:block;font-weight:500}
+.set-row span{display:block;color:var(--text-2);font-size:13px}
+.invite{width:min(100%,380px);padding:18px}
+.invite label{display:block;margin-bottom:8px;font-weight:500}
+.invite .row{align-items:flex-start}
+.invite .st-field{flex:1}
+.toast-stage{align-content:start}
+.toast-host{position:absolute;left:50%;bottom:20px;width:min(340px,calc(100% - 32px));translate:-50% 0}
+.seats{width:min(100%,380px);padding:18px}
+.stepper{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:12px;background:var(--surface-2)}
+.stepper button{width:36px;height:36px;border:0;border-radius:9px;background:transparent;font-size:18px;cursor:pointer;color:var(--text)}
+.stepper button:hover{background:var(--hover)}
+.stepper output{min-width:48px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.total{display:flex;align-items:baseline;gap:6px;margin-top:18px}
+.total .price{font-size:40px;font-weight:600;letter-spacing:-.035em;line-height:1.05}
+.issue{width:min(100%,400px);padding:18px}
+.issue h4{margin:10px 0 14px;font-size:17px;font-weight:600;letter-spacing:-.015em}
+.status{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 11px 0 9px;border:0;border-radius:99px;background:var(--pill-bg,var(--surface-2));color:var(--pill-fg,var(--text-2));font-size:13px;font-weight:600;cursor:pointer;transition:background-color var(--st-control) var(--st-F),color var(--st-control) var(--st-F)}
+.status .dot{transition:background-color var(--st-control) var(--st-F)}
+.tasks{width:min(100%,400px)}
+.checklist .st-check{display:flex;padding:4px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.checklist .st-check:last-child{border-bottom:0}
+.task{display:flex;align-items:center;gap:12px;padding:10px 8px 10px 16px;border-bottom:1px solid var(--line);background:var(--frame)}
+.task:last-child{border-bottom:0}
+.task .grow{flex:1;min-width:0}
+.task b{display:block;font-weight:500}
+.task span{font-size:13px;color:var(--text-2)}
+.prio{width:8px;height:8px;border-radius:50%}
+.faq{width:min(100%,420px);padding:4px 20px}
+.faq [data-st="accordion"]:last-child{border-bottom:0}
+.profile{width:min(100%,360px);padding:18px}
+.profile .st-skeleton-mask{grid-template-columns:52px 1fr;gap:10px 14px;align-items:center}
+.profile .st-skeleton-mask .sk-av{width:52px;height:52px;border-radius:50%;grid-row:span 2}
+.profile .st-skeleton-mask .sk-wide{grid-column:1/-1}
+.profile .st-real{display:grid;grid-template-columns:52px 1fr;gap:4px 14px;align-items:center}
+.profile .st-media{width:52px;height:52px;border-radius:50%;grid-row:span 2;background:radial-gradient(70% 70% at 30% 30%,#ffd6a5,transparent 60%),linear-gradient(140deg,#ff6b6b,#7f53ac)}
+.profile .st-real p{grid-column:1/-1;margin-top:12px;color:var(--text-2);font-size:14px;line-height:1.5}
+.profile .stats{grid-column:1/-1;display:flex;gap:18px;margin-top:10px;font-size:13px;color:var(--text-2)}
+.profile .stats b{color:var(--text);font-weight:600}
+.card.wide{grid-column:1/-1}
+.chat{width:min(100%,520px);padding:16px;display:grid;gap:12px;align-content:start;height:272px}
+.bubble{justify-self:end;max-width:80%;padding:8px 12px;border-radius:14px 14px 4px 14px;background:var(--surface-2);font-size:14px}
+.answer{font-size:14.5px;line-height:1.6;color:var(--text)}
+.thinking-row{display:flex;align-items:center;gap:8px;color:var(--text-2);font-size:14px;min-height:22px}
+.spark{width:16px;height:16px;color:var(--text-2)}
+.chat-foot{display:flex;justify-content:flex-end}
+.mono{font-family:var(--font-mono)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+@media (prefers-reduced-motion:reduce){.bars i{transition:none}}
+@media (max-width:900px){
+ .hero{grid-template-columns:1fr;gap:24px;padding:48px 0 32px}
+ .grid{grid-template-columns:1fr}
+ .foot{grid-template-columns:1fr}
+ .group-head{flex-direction:column;align-items:start;gap:8px}
+}
+@media (max-width:560px){
+ .nav a{display:none}
+ .theme{width:auto}
+ .theme [role=tab]{padding:0 9px;font-size:13px}
+ .mark{font-size:14px;gap:8px}
+ .top .wrap{gap:8px}
+ .stage{height:300px;padding:16px}
+ .caption{padding:16px}
+ .facts b{font-size:17px}
+ .facts span{font-size:13px}
+ .covers{gap:8px}
+ .desk{height:240px}
+ .app .small,.file-meta span,.msg span,.task span,.set-row span,.stage p.small,.cover-card span,.share-row div{font-size:14px}
+ pre.install{white-space:pre-wrap;word-break:break-word}
+}
+
+/* Library frame: every preview uses the same canvas at true UI scale. */
+.wrap{max-width:1240px}.top .wrap{height:64px}.nav{gap:0}.theme{width:204px}
+.hero{display:block;padding:48px 0 32px}.hero h1{font-size:32px;max-width:none;letter-spacing:-.025em;font-weight:500;line-height:1.2}.hero p{margin-top:12px;font-size:15px;max-width:none}
+.library-tools{position:sticky;top:64px;z-index:25;background:var(--bg);padding:12px 0 20px;display:flex;justify-content:space-between;gap:24px;align-items:center}
+.filter-scroll{overflow-x:auto;scrollbar-width:none;max-width:100%;padding:2px}.filter-scroll::-webkit-scrollbar{display:none}.filter{width:max-content}.filter [role=tablist]{background:transparent;box-shadow:none;border-radius:99px;gap:4px;padding:3px}.filter [role=tab]{flex:none;border-radius:99px;min-height:40px;padding:0 16px;font-size:14px}.filter .st-tab-indicator{border-radius:99px;background:var(--surface-2);box-shadow:none}
+.search-box{position:relative;width:240px;flex:none}.search-box input{height:40px;width:100%;padding:0 36px 0 36px;font-size:14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}.search-box svg{position:absolute;left:12px;top:12px;width:16px;height:16px;color:var(--text-2)}.search-box kbd{position:absolute;right:12px;top:8px;color:var(--text-2);font-size:14px}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.card{border-radius:12px;box-shadow:none;border:1px solid var(--line);overflow:clip;background:var(--surface);height:432px}.card[hidden]{display:none}.stage{height:340px;min-height:340px;padding:24px 24px 66px;overflow:hidden;border:0}.caption{height:92px;padding:16px;gap:4px 8px;align-items:center}.caption h3{font-size:15px;font-weight:500;line-height:22px}.caption p{font-size:14px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.caption>.spec{display:none}.title-link{font:inherit;letter-spacing:inherit;padding:0;border:0;background:transparent;cursor:pointer;text-align:left;min-height:24px}.title-link:hover{text-decoration:underline;text-underline-offset:3px}
+.replay{position:absolute;bottom:16px;left:50%;translate:-50% 0;border-radius:99px;min-height:32px;padding:0 12px;font-size:13px;background:var(--surface);box-shadow:0 0 0 1px var(--line);z-index:23}.replay svg{width:14px;height:14px}
+.snippet-copy{grid-column:2;grid-row:1/3;align-self:center;position:relative;display:flex;align-items:center;justify-content:center;width:40px;min-height:40px;padding:0;border:0;border-radius:8px;background:transparent;cursor:pointer;color:var(--text-2)}.snippet-copy:hover{background:var(--hover)}.snippet-copy .st-swap{width:18px;height:18px}.copy-label{position:absolute;right:0;top:-24px;font-size:13px;opacity:0;pointer-events:none}.snippet-copy[data-st-on=true] .copy-label{opacity:1}
+.app{width:100%;font-size:14px;border-radius:12px}.file{padding:8px 12px;gap:8px}.file-meta span{font-size:13px}.settings-card{padding:0 16px 12px}.field-row{gap:8px}.settings-card .field-row:last-child{flex-wrap:wrap}.desk{height:196px}.filters{padding:12px!important}.filters .opt{min-height:32px}.phone{height:222px;width:256px;border-radius:16px;padding:0;margin:0;align-self:center}.screen{border-radius:16px}.photo-bar{bottom:20px}.photo{background:url('assets/lake.jpg') center/cover}.share-row{padding-bottom:8px}.share-row .avatar{width:32px;height:32px}.share-actions button{height:32px}.st-sheet-handle{margin-bottom:8px}.sheet-title{margin-bottom:8px}[data-st="sheet"]:not(dialog){padding:8px 16px 12px}
+.avatar{background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}.a1,.a2,.a3,.a4{background:var(--surface-2);color:var(--text)}.c1{background:url('assets/morning.jpg') center/cover}.c2{background:url('assets/lake.jpg') center/cover}.c3{background:url('assets/forest.jpg') center/cover}.covers{gap:12px}.cover-card b{font-size:14px}.cover-card span{font-size:13px}.expand-surface{inset:12px 12px 60px;grid-template-columns:88px 1fr;padding:12px;gap:12px;border-radius:12px;overflow:hidden}.expand-surface .cover{width:88px;height:88px;border-radius:8px}.expand-surface h4{font-size:16px;max-width:100%;margin-right:24px}.expand-surface p{font-size:13px;margin-top:4px}.expand-surface .tracks{margin-top:4px;font-size:13px}.expand-surface .tracks div:nth-child(n+3){display:none}.close-x{right:4px;top:4px;width:32px;height:32px}
+.mail{height:206px}.mail-list .msg{padding:8px 12px;gap:8px}.mail-list .msg:last-child{display:none}.detail{padding:8px 12px}.detail h4{font-size:16px;margin:8px 0}.detail p{font-size:13px;line-height:1.45}.faq{padding:0 12px}.faq summary{min-height:44px;font-size:14px}.faq .st-details-body{font-size:13px;line-height:20px;padding-bottom:8px}.faq details:last-child{display:none}.metric{padding:16px}.metric .big{margin-top:12px;font-size:30px}.bars{height:44px;margin-top:12px}.metric-head{flex-wrap:wrap}.tabs-stage .app{padding:12px}.panel-body{gap:4px}.post{padding:12px}.post p{font-size:14px;margin:8px 0}.post .actions{gap:0}.invite{padding:16px}.invite .row{gap:8px}.toast-host{bottom:62px;width:calc(100% - 40px)}.toast-stage{align-content:start}.toast-stage>.row{flex-wrap:wrap}.seats{padding:16px}.total{margin-top:12px}.total .price{font-size:32px}.task{padding:8px 12px;gap:8px}.tasks .app-bar{height:44px}.task .icon-btn{width:32px;height:32px}.task span{font-size:13px}.task>.st-icon{width:16px;height:16px;color:var(--text-2)}.issue{padding:16px}.issue h4{font-size:15px;margin:8px 0}.profile{padding:12px}.profile .st-skeleton-mask{grid-template-columns:40px 1fr}.profile .st-media{background:url('assets/forest.jpg') center/cover}.profile .st-real p{font-size:13px;line-height:20px}.profile .stats{display:none}.chat{padding:12px}.bubble{font-size:13px}.thinking-row{margin:10px 0 6px;font-size:14px}.answer{font-size:13px;line-height:20px;min-height:80px}.checklist .st-check{font-size:13px;padding:0 12px;gap:8px}.checklist .st-check:last-child{display:none}
+[data-st-contained][data-st=modal]{position:absolute;inset:12px 12px 60px;margin:0;padding:16px;background:var(--surface);border-radius:12px;box-shadow:var(--shadow-layer);font-size:14px}[data-st-contained][data-st=modal] p{margin:8px 0 12px!important;font-size:14px!important}[data-st-contained][data-st=modal] .row{gap:8px;justify-content:flex-start!important}[data-st-contained][data-st=modal] h3{font-size:15px!important}
+[data-st-contained][data-st=palette]{left:16px!important;top:12px!important;width:calc(100% - 32px)}[data-st-contained][data-st=palette] .st-palette-search{padding:0 12px}[data-st-contained][data-st=palette] [role=listbox]{max-height:136px}[data-st-contained][data-st=palette] input{height:44px;font-size:14px}.stage:has(#palette-1) .stack-center p{display:none}.stage:has(#palette-1) .stack-center{width:100%}#palette-trigger{min-width:0!important;width:100%}
+.resize-demo{padding:16px}.resize-demo p{margin:6px 0 12px}.resize-demo .resize-more p{margin:8px 0 0;font-size:14px}.badge-owner{position:relative;padding:0 20px}.badge-owner [data-st=badge]{position:absolute;right:-8px;top:-10px;transform-origin:0 100%}.clear-demo{width:100%}.clear-demo label{display:block;margin-bottom:8px;font-weight:500}.reveal-demo h4{font-size:22px;font-weight:500;letter-spacing:-.02em;margin:0 0 8px}.reveal-demo p{font-size:15px}.image-thumb{border:0;padding:0;border-radius:12px;overflow:hidden;cursor:pointer;background:var(--surface);width:260px;height:164px;max-width:100%}.image-thumb img{width:100%;height:100%;object-fit:cover}.media-card{width:260px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow-card)}.media-card img{display:block;width:100%;height:140px;object-fit:cover}.media-card>div{display:grid;padding:8px 12px}.media-card b{font-weight:500}.media-card span{font-size:13px}.reorder-demo{width:100%}.reorder-demo>p{font-size:13px;margin-bottom:8px}.reorder-demo li>div{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line);margin-bottom:4px}.reorder-demo li span{font-size:14px}.reorder-demo .icon-btn{width:32px;height:32px}.reorder-demo .st-icon{width:16px;height:16px}
+.empty{padding:64px 0;color:var(--text-2);text-align:center}.foot{padding:40px 0;margin-top:48px;grid-template-columns:1fr 1fr;gap:32px}.foot p{font-size:14px}.foot h2{font-size:18px;font-weight:500}.foot a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:3px}.foot pre{font-size:13px;border-radius:8px;box-shadow:none;border:1px solid var(--line)}
+#library-detail{width:min(620px,100vw);padding:24px;overflow:auto;scrollbar-width:thin}#library-detail h2{font-size:24px;font-weight:500;letter-spacing:-.02em;padding-right:48px}#library-detail>p{font-size:15px;color:var(--text-2);margin:8px 0 20px}.detail-close{position:absolute;right:16px;top:16px}.detail-preview .stage{height:360px;min-height:360px;border-radius:12px}.detail-preview .app{max-width:440px}.detail-preview .expand-surface{inset:24px 24px 60px}.detail-preview .stage .caption{display:none}.detail-spec{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 24px}.detail-code{position:relative;margin-bottom:24px}.detail-code h3{font-size:15px;font-weight:500;margin-bottom:8px}.detail-code pre{margin:0;padding:16px;background:var(--surface-2);font:400 13px/1.65 var(--font-mono);border-radius:8px;overflow:auto;max-height:280px;white-space:pre}.detail-code .st-button{position:absolute;right:8px;top:34px;min-height:32px}.detail-code code{display:block;padding-right:50px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.library-tools{gap:12px}.search-box{width:180px}.filter [role=tab]{padding:0 12px}.wrap{padding:0 24px}}
+@media(max-width:650px){.wrap{padding:0 16px}.top .wrap{height:64px}.mark{font-size:14px;gap:8px}.mark svg{width:20px;height:20px}.theme{width:176px}.theme [role=tab]{padding:0 8px;font-size:13px;min-height:44px}.hero{padding:32px 0 24px}.hero h1{font-size:28px;max-width:17ch;line-height:1.16}.hero p{font-size:14px;max-width:32ch}.library-tools{display:flex;flex-direction:column-reverse;align-items:stretch;padding:8px 0 12px;gap:8px;top:64px}.search-box{width:100%}.search-box input{height:44px}.search-box svg{top:14px}.search-box kbd{top:10px}.filter-scroll{margin:0 -16px;padding:0 16px}.filter [role=tab]{min-height:44px;padding:0 14px}.grid{grid-template-columns:1fr;gap:20px}.stage{height:272px;min-height:272px}.replay{min-height:44px;bottom:8px;font-size:14px}.snippet-copy{width:44px;min-height:44px}.title-link{min-height:44px}.caption{padding:8px 16px;gap:0}.caption h3{align-self:center}.caption p{margin-top:-4px}.icon-btn,.st-button,.stepper button{min-width:44px;min-height:44px}.stage [role=menuitem]{min-height:36px}.stage .task .icon-btn{min-width:44px;min-height:44px}.foot{display:block;margin-top:32px;padding:32px 0}.foot pre{margin-top:16px}#library-detail{width:100%;height:92dvh;max-height:92dvh;margin:auto 0 0;border-radius:16px 16px 0 0;padding:20px}#library-detail .stage{height:320px;min-height:320px}.expand-surface .close-x{min-width:32px;min-height:32px}.filters .st-button{margin-top:8px!important}.reorder-demo .icon-btn{min-width:44px;min-height:44px}.reorder-demo li>div{padding-block:0}.stage .share-actions button{min-height:36px}}
+@media(prefers-reduced-motion:reduce){.replay,.replay svg{transition:none!important;transform:none!important}.grid .card{scroll-behavior:auto}.stage [data-st=tilt]{transform:none!important}}
+
+/* Readable product scale, consistent control geometry. */
+.stage :is(span,b,button,label,input,kbd,div.st-details-body):not(.st-number,.st-number *,.price,.price *,[data-st=badge],[data-st=badge] *,#avatar-group *){font-size:14px}
+.stage :is(.file-meta span,.msg span,.cover-card span,.task span,.small,.chip,.share-row div,.checklist .st-check){font-size:14px}
+.stage :is(p,.detail p,.profile .st-real p,.answer,.bubble){font-size:16px;line-height:22px}
+.stage :is(.post p,.chat .bubble){font-size:15px;line-height:21px}
+.stage b{font-weight:500}.theme [role=tab]{font-size:14px}
+.icon-btn{border-radius:8px}.st-button,.st-input,.search-box input{border-radius:8px}
+.stage .icon-btn{border-radius:8px}.title-link{border-radius:8px}.stage [role=tab]{font-size:14px}
+.replay{font-size:14px}.snippet-copy{border-radius:8px}
+.filter-scroll{overflow-x:clip}.filter-scroll .filter{max-width:100%}
+@media(max-width:650px){.filter-scroll{overflow-x:clip}.filter-scroll .filter [role=tablist]{overflow-x:auto;max-width:100%;width:190px;min-width:100%;scrollbar-width:none}.stage :is(span,b,button,label,input,kbd,div.st-details-body):not(.st-number,.st-number *,.price,.price *,[data-st=badge],[data-st=badge] *,#avatar-group *){font-size:14px}.stage :is(p,.answer,.bubble,.profile .st-real p){font-size:14px;line-height:20px}.tabs-stage .app>[data-st=tabs]>[role=tablist]{overflow-x:clip}.tabs-stage [role=tab]{padding-inline:8px;font-size:14px}.close-x{min-width:44px!important;min-height:44px!important}}
+
+.replay{grid-column:auto;grid-row:auto;align-self:auto;justify-self:auto}
+.title-link{border-radius:6px}.stage :is(span,b,button,label,input,kbd,div.st-details-body):not(.st-number,.st-number *,.price,.price *,[data-st=badge],[data-st=badge] *,#avatar-group *){font-size:15px}.stage :is(.file-meta span,.msg span,.cover-card span,.task span,.small,.chip,.share-row div,.checklist .st-check){font-size:15px}
+.foot p{font-size:16px}.foot pre{font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere}
+.stage [role=tablist]{overflow-x:clip!important}.stage [role=tab]{padding:0 8px!important}
+.stage [data-st=segmented] [role=tab]{border-radius:8px}.stage .stepper button{border-radius:8px}
+.stage .app-bar{padding-inline:12px}.stage .task{min-height:44px}
+@media(max-width:650px){.filter [role=tablist]{display:grid;grid-auto-flow:column;grid-auto-columns:max-content}.stage :is(.file-meta span,.msg span,.cover-card span,.task span,.small,.chip,.share-row div,.checklist .st-check){font-size:14px}}
+
+.stage :is(summary,code,#sort-btn){font-size:15px!important}
+@media(max-width:650px){.title-link{border-radius:8px}}
+button,a,summary,label,input{transition:opacity 120ms var(--st-F),background-color 120ms var(--st-F)}
+
+html{scroll-padding-top:160px}.card{scroll-margin-top:160px}
+.stage [data-st=number] span{font-size:inherit}.stage .total .price{font-size:32px}.stage .metric .big{font-size:30px}
+.stage .tasks{max-width:100%}.stage .task{background:transparent}.stage #task-list{isolation:isolate}
+.stage .chat{padding:12px;max-height:210px}.stage .bubble{font-size:14px;line-height:20px}.stage .answer{font-size:14px;line-height:20px;min-height:80px}
+.stage .thinking-row{margin:8px 0}.stage .reveal-demo p{font-size:16px}
+@media(max-width:650px){.stage [role=menuitem],.stage .share-actions button,.stage [role=option]{min-height:44px}.stage [data-st=menu],.stage [data-st=plus-menu]{max-height:204px;overflow-y:auto}.stage .share-actions button{min-height:44px}.stage .share-row{gap:8px}.stage .title-link{min-height:44px}.stage .task{padding-block:4px}}
+
+[data-st-contained][data-st=palette][data-st-persistent]{left:20px!important;top:24px!important;width:calc(100% - 40px);background:var(--surface);border-radius:12px;box-shadow:var(--shadow-card);visibility:visible;clip-path:inset(0 0 calc(100% - 46px) 0 round 12px);pointer-events:auto}
+[data-st-contained][data-st=palette][data-st-persistent][data-st-open=true]{clip-path:inset(0 0 0 0 round 12px)}
+[data-st-persistent] .st-palette-search{height:46px}
+[data-st-persistent]:not([data-st-open=true]) [role=listbox]{opacity:0;pointer-events:none}
+.stage .settings-card .field-row:last-child{flex-wrap:nowrap;align-items:center}.stage .settings-card .field-row:last-child>.small{max-width:160px;font-size:14px;line-height:20px}.stage .settings-card .field-row:last-child>.st-button{font-size:14px;padding-inline:10px}
+.stage .faq details:last-child{display:block}.stage .faq .st-details-body{font-size:15px;line-height:21px}.stage .faq summary{font-size:14px!important;min-height:40px}
+.stage .tasks .task{min-height:44px;padding-block:4px}.stage .tasks .app-bar{height:40px}.stage .reorder-demo li>div{min-height:44px;padding-block:0}
+.stage .resize-demo{padding:12px}.stage .resize-demo p{font-size:14px;line-height:20px;margin:6px 0}.stage .resize-demo .resize-more p{font-size:14px;line-height:20px;margin:6px 0 0}
+
+[data-st-moving=true]{position:relative;z-index:4}
+.reorder-demo [data-st-moving=true]>div{background:transparent;border-color:transparent}
+.stage[data-st-paused=true] *,.stage[data-st-paused=true] *::after{animation:none!important}
+.stage .filters{padding:8px!important}.stage .filters>.row{margin:0 0 2px!important}.stage .filters .opt{min-height:30px}.image-thumb{width:220px;height:139px}.stage .expand-surface h4{white-space:nowrap}.stage .chat{padding:12px}.stage .chat .bubble.user{margin-bottom:12px}.stage .chat #answer{min-height:64px}.stage .chat [data-st=thinking]{margin-bottom:12px}
+.stage .status{min-width:112px;justify-content:center}.stage #sort-btn{min-width:150px}.st-button-sizer{overflow:hidden}.st-state-icon{display:inline-grid!important}.st-state-icon>svg{grid-area:1/1}@media(max-width:650px){.stage .faq summary{min-height:44px}}
+
+#avatar-group{padding:8px}
+#avatar-group>*{width:40px;height:40px;margin-left:-10px;border:2px solid var(--stage);font-size:13px;font-weight:500;letter-spacing:0;color:#fff;box-shadow:none}
+#avatar-group>:first-child{margin-left:0}
+#avatar-group>:nth-child(1){background:#4f5d8a}#avatar-group>:nth-child(2){background:#3f7166}#avatar-group>:nth-child(3){background:#8a5b48}
+#avatar-group>:nth-child(4){background:#6b4f86}#avatar-group>:nth-child(5){background:#3d6a86}#avatar-group>:nth-child(6){background:#86506a}
+#avatar-group>[data-st-avatar-more]{width:auto;min-width:40px;padding:0 12px;border-radius:99px;background:var(--surface-2);color:var(--text)}
+
+.msg .body{overflow:visible;width:auto;white-space:normal}
+
+.stage .app{transition:opacity 100ms var(--st-F)}
+/* The popover's trigger sits high in its stage so the panel opens below it, attached, never over it. */
+.stage:has(#popover-trigger) > .stack-center{align-self:start;margin-top:28px}
+
+.extras{margin-top:72px}.extras-head{margin-bottom:20px}.extras-head h2{font-size:20px;font-weight:600;letter-spacing:-.01em}.extras-head p{color:var(--text-2);margin-top:6px;font-size:15px}
+
+.cover-card .cover{position:relative;transition:transform 70ms var(--st-F)}
+.cover-card .cover::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#fff;opacity:0;transition:opacity 100ms var(--st-F)}
+@media (hover:hover) and (pointer:fine){.cover-card:hover{background:var(--hover)}.cover-card:hover .cover::after{opacity:.1}}
+.cover-card:active{transform:scale(.98)}
+.expand-surface .close-x{transition:background-color 100ms var(--st-F),transform 70ms var(--st-F)}.expand-surface .close-x:active{transform:scale(.94)}
+
+@media (hover:hover) and (pointer:fine){.stage .replay:hover{background:var(--surface-2);box-shadow:0 0 0 1px var(--line-strong)}}
+.stage .replay{transition:transform 70ms var(--st-F),background-color 100ms var(--st-F),box-shadow 100ms var(--st-F)}
+.stage .replay:active{transform:scale(.96)}
+
+.expand-surface .close-x{background:color-mix(in srgb,var(--text) 6%,transparent);border-radius:99px}
+.expand-surface .close-x:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.expand-surface .close-x:active{transform:scale(.96);transition-duration:60ms}
+
+/* The original Close stays legible and clickable above the traveling artwork. */
+.expand-surface .close-x{position:absolute;isolation:isolate;background:var(--frame);z-index:3}
+.expand-surface .close-x::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--text);opacity:.06;z-index:-1;transition:opacity 80ms var(--st-F)}
+@media (hover:hover) and (pointer:fine){.expand-surface .close-x:hover::before{opacity:.16}}
+
+/* ===================== v4 design layer =====================
+   Depth from surface tone and soft shadow, never from divider lines. A card holds a darker inset stage; the caption is
+   quiet; controls are ghost until touched. Everything below overrides the earlier gallery rules. */
+:root{--card:#ffffff;--stage:#f3f3f5;--ring:rgb(0 0 0 / .06);--ring-2:rgb(0 0 0 / .045);--ghost:rgb(0 0 0 / .045);--ghost-2:rgb(0 0 0 / .08);--card-shadow:0 1px 2px rgb(0 0 0 / .05),0 6px 24px -12px rgb(0 0 0 / .08)}
+[data-theme="dark"]{--card:#161618;--stage:#0e0e10;--ring:rgb(255 255 255 / .06);--ring-2:rgb(255 255 255 / .04);--ghost:rgb(255 255 255 / .06);--ghost-2:rgb(255 255 255 / .11);--card-shadow:0 1px 2px rgb(0 0 0 / .4),0 10px 30px -18px rgb(0 0 0 / .6)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--card:#161618;--stage:#0e0e10;--ring:rgb(255 255 255 / .06);--ring-2:rgb(255 255 255 / .04);--ghost:rgb(255 255 255 / .06);--ghost-2:rgb(255 255 255 / .11);--card-shadow:0 1px 2px rgb(0 0 0 / .4),0 10px 30px -18px rgb(0 0 0 / .6)}}
+.wrap{max-width:1240px}
+.top{border-bottom:0;background:color-mix(in srgb,var(--bg) 78%,transparent)}
+.foot{border-top:0;margin-top:96px}
+.library-tools{background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3)}
+.search-box input{border:0;background:var(--ghost);border-radius:10px;transition:background-color 120ms var(--st-F)}
+.search-box input:hover{background:var(--ghost-2)}
+.search-box input:focus{outline:2px solid var(--focus-ring);outline-offset:0;background:var(--card)}
+.filter [role=tab]{color:var(--text-2);transition:color 120ms var(--st-F)}
+.filter [role=tab][aria-selected=true],.filter [role=tab]:hover{color:var(--text)}
+.filter .st-tab-indicator{background:var(--ghost-2)}
+/* Grid: three columns of generous cards on desktop, two on tablet, one on phone. */
+.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.grid{grid-template-columns:1fr;gap:14px}}
+/* Card: a stage inset 10px with concentric corners (22 = 12 + 10), a quiet caption, no lines. */
+.card{height:auto;border:0;border-radius:22px;padding:10px;background:var(--card);box-shadow:var(--card-shadow),inset 0 0 0 1px var(--ring);overflow:visible;transition:background-color 160ms var(--st-F)}
+.card:focus-visible{outline:2px solid var(--focus-ring);outline-offset:3px}
+.stage{height:300px;min-height:300px;border:0;border-radius:12px;background:var(--stage);padding:20px 20px 60px;overflow:hidden}
+.stage::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--ring-2);pointer-events:none;z-index:30}
+.caption{height:auto;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 12px;padding:14px 6px 4px 8px}
+.caption h3{font-size:14px;font-weight:500;letter-spacing:-.005em;line-height:20px}
+.caption p{font-size:13px;line-height:18px;color:var(--text-2)}
+.caption .spec{display:none}
+.title-link{min-height:20px}
+.title-link:hover{text-decoration:none;color:var(--text)}
+/* Replay: a ghost pill that sits in the stage, quiet until touched. */
+.stage .replay{bottom:14px;min-height:30px;padding:0 12px 0 10px;font-size:13px;font-weight:500;color:var(--text-2);background:var(--ghost);box-shadow:none;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+@media (hover:hover) and (pointer:fine){.stage .replay:hover{background:var(--ghost-2);color:var(--text);box-shadow:none}}
+/* Copy: a round ghost icon button with a real tooltip; the glyph becomes a check and the tooltip rolls to Copied. */
+.snippet-copy{width:34px;min-height:34px;height:34px;border-radius:99px;color:var(--text-2);background:transparent;transition:background-color 120ms var(--st-F),color 120ms var(--st-F),transform 70ms var(--st-F)}
+@media (hover:hover) and (pointer:fine){.snippet-copy:hover{background:var(--ghost);color:var(--text)}}
+.snippet-copy:active{transform:scale(.94)}
+.snippet-copy[data-st-on=true]{color:var(--ok)}
+.snippet-copy[data-st-copy-status=error]{color:var(--bad)}
+.snippet-copy .st-swap{width:16px;height:16px}
+.copy-label{left:auto;right:-2px;top:auto;bottom:calc(100% + 8px);translate:0 0;padding:5px 9px;border-radius:8px;background:var(--text);color:var(--bg);font-size:12px;font-weight:500;line-height:16px;white-space:nowrap;opacity:0;transform:translateY(3px);transition:opacity 120ms var(--st-F),transform 160ms var(--st-E);pointer-events:none;z-index:40}
+@media (hover:hover) and (pointer:fine){.snippet-copy:hover .copy-label{opacity:1;transform:none;transition-delay:250ms,250ms}}
+.snippet-copy:focus-visible .copy-label,.snippet-copy[data-st-on=true] .copy-label,.snippet-copy[data-st-copy-status=error] .copy-label{opacity:1;transform:none;transition-delay:0ms,0ms}
+/* Demos: rows separated by space and hover tone, not rules. */
+.app{box-shadow:0 1px 2px rgb(0 0 0 / .12),0 0 0 1px var(--ring)}
+.app-bar{border-bottom:0}
+.mail-list .msg,.expand-surface .tracks div,.checklist .st-check,.task,.filters .opt{border-bottom:0}
+.mail-list{padding:2px 6px 6px}.mail-list .msg{border-radius:10px}
+.task{border-radius:10px}.tasks ul,#task-list{padding:0 6px 6px;display:grid;gap:2px}
+.expand-surface .tracks{gap:0}.expand-surface .tracks div{padding:5px 0}
+.reorder-demo li>div{border:0;background:var(--ghost)}
+.foot pre,pre.install{box-shadow:none;background:var(--ghost)}
+.extras-head{margin-top:8px}
+.file+.file,.bar-row,.set-row{border:0}
+.card{box-shadow:var(--card-shadow),inset 0 0 0 1px var(--ring-2)}
+.faq{padding:6px}
+
+.nav{gap:14px}
+.blur-switch{display:inline-flex;align-items:center;gap:10px;min-height:40px;padding:0 4px 0 10px;border-radius:10px;font-size:14px;font-weight:500;color:var(--text-2);cursor:pointer}
+.blur-switch:hover{color:var(--text)}
+.blur-switch .st-toggle{display:inline-flex}
+
+.avatar.a1,.avatar.a2,.avatar.a3,.avatar.a4{color:#fff;box-shadow:none}
+.avatar.a1{background:#4f5d8a}.avatar.a2{background:#3f7166}.avatar.a3{background:#8a5b48}.avatar.a4{background:#6b4f86}
+.stage .toast-host{bottom:68px}
+
+.hero{display:block;padding:96px 0 48px}
+.hero h1{font-size:clamp(36px,4.6vw,52px);line-height:1.04;letter-spacing:-.032em;font-weight:600;max-width:16ch}
+.hero .hero-lead{margin-top:18px;max-width:56ch;font-size:17px;line-height:1.6;color:var(--text-2)}
+.hero-install{margin-top:28px;display:inline-flex;align-items:center;gap:4px;padding:4px 4px 4px 16px;border-radius:12px;background:var(--ghost);max-width:100%}
+.hero-install code{font:400 13.5px/1.4 var(--font-mono);color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-install .tok{color:var(--text)}
+.install-copy{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 12px 0 10px;border:0;border-radius:9px;background:var(--card);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;box-shadow:0 1px 2px rgb(0 0 0 / .15);transition:transform 70ms var(--st-F)}
+.install-copy:active{transform:scale(.96)}
+.install-copy .st-swap{width:15px;height:15px}
+@media (max-width:700px){.hero{padding:56px 0 32px}.hero-install{display:flex}}
+
+@media (max-width:700px){
+ .top .wrap{height:56px}
+ .blur-switch > span:first-child{display:none}
+ .blur-switch{padding:0 2px}
+ .theme [role=tab]{padding:0 9px;font-size:13px;min-height:34px}
+ .library-tools{top:56px;flex-direction:column;align-items:stretch;gap:10px;padding:10px 0 14px}
+ .search-box{width:100%}
+ .mark span,.mark{font-size:14px;white-space:nowrap}
+ .filter-scroll{margin:0 -16px;padding:2px 16px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent)}
+}
+
+@media (max-width:700px){
+ .library-tools .filter-scroll{overflow-x:auto;overflow-y:visible}
+ .library-tools .filter,.library-tools .filter [role=tablist]{width:max-content;max-width:none;overflow:visible}
+}
+@media (max-width:430px){ .mark{font-size:0;gap:0} .mark svg{width:24px;height:24px} }
+
+.caption h3{font-size:15px}
+.caption p{font-size:14px;line-height:20px}
+.stage .replay{font-size:14px}
+.hero-install code{font-size:14px}
+.install-copy{border-radius:8px}
+.search-box input{border-radius:8px}
+.cat-select{display:none;position:relative}
+.cat-select select{appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 40px 0 14px;border:0;border-radius:8px;background:var(--ghost);color:var(--text);font:500 15px/1 var(--font)}
+.cat-select svg{position:absolute;right:14px;top:14px;width:16px;height:16px;color:var(--text-2);pointer-events:none}
+@media (max-width:700px){
+ .library-tools .filter-scroll{display:none}
+ .cat-select{display:block}
+ .mark-text{display:none}
+}
+@media (max-width:430px){ .mark{font-size:15px;gap:10px} }
+
+.mail-list .msg,.task{border-radius:8px}
+.stage input:not([type=checkbox]):not([type=radio]),.stage [data-st="clear"] button{border-radius:8px}
+.hero-install code{font-size:15px}
+.install-copy{font-size:14px}
+.extras-head p{font-size:16px}
+/* Touch geometry is shared across phone previews and coarse-pointer devices. */
+@media (max-width:700px), (pointer:coarse) {
+ .stage .replay, .snippet-copy, .title-link { min-height:44px; }
+ .theme [role=tab], .blur-switch, .install-copy { min-height:44px; }
+ .snippet-copy { width:44px; height:44px; }
+ .stage [role=menuitem], .stage .share-actions button { min-height:44px; }
+}
+/* Rendered QA: use available filter width, with explicit overflow discovery. */
+.library-tools{top:var(--gallery-header-height,64px)}
+.filter-scroll{position:relative;flex:1 1 0;min-width:0;max-width:100%;overflow:visible}
+.filter-scroll .filter{width:100%;max-width:100%}
+.filter-scroll .filter [role=tablist]{width:100%;min-width:0;max-width:100%;overflow-x:auto;scrollbar-width:thin}
+.filter-scroll[data-more=true]::after{content:"›";position:absolute;right:0;top:0;bottom:0;width:24px;display:grid;place-items:center;background:var(--bg);color:var(--text-2);pointer-events:none;border-radius:0 99px 99px 0}
+.phone{max-width:100%}
+@media(max-width:650px){.filter-scroll{flex:none;width:100%;margin-inline:0;padding-inline:0}.filter-scroll .filter [role=tablist]{width:100%;min-width:0}}
+@media(max-width:300px){.top .wrap{height:auto;min-height:64px;flex-wrap:wrap;gap:8px;padding-block:8px}.theme{width:100%;max-width:100%}.mark{max-width:100%;flex-wrap:wrap}.nav{max-width:100%;flex-wrap:wrap;gap:6px}.cover-card{min-width:0}.cover-card b{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}}
+/* Scrollable detail uses a dedicated drag handle; embedded previews own their drags. */
+.detail-drag-handle{display:none}
+#library-detail[data-st="sheet"]{touch-action:pan-y}
+@media(max-width:650px){.detail-drag-handle{display:grid;place-items:center;width:64px;height:44px;margin:-16px auto 8px;touch-action:none}.detail-drag-handle span{width:36px;height:4px;border-radius:99px;background:var(--text-2);opacity:.55}}
+/* Content-fit checks apply within each preview, not only at document edges. */
+[data-key="tooltip"] .stack-center{width:100%;min-width:0}
+[data-key="tooltip"] .editor-line{width:min(300px,100%);max-width:100%}
+.covers{grid-template-columns:repeat(3,minmax(0,1fr))}
+.cover-card{min-width:0}
+/* Album titles need room for their expanded typography throughout the shared flight.
+   Decide from this preview's real width, including desktop grid tiles and detail previews. */
+.stage:has(.covers){container-type:inline-size}
+/* Longest spaced label:118.875px; the .98 press state needs369.904px content.
+   Keep a small measured margin before returning to three covers. */
+@container(max-width:384px){
+ .covers{grid-template-columns:1fr;gap:8px}
+ .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
+ .cover-card>.cover{grid-row:1/3;width:60px;height:60px}
+ .cover-card b{align-self:end;margin:0;width:auto;white-space:normal;overflow-wrap:anywhere}
+ .cover-card>span:not(.cover){align-self:start}
+}
+.stage .settings-card .field-row:last-child>.st-button{flex:0 0 auto;white-space:nowrap}
+@media(max-width:360px){
+ .covers{grid-template-columns:1fr;gap:8px}
+ .cover-card{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
+ .cover-card>.cover{grid-row:1/3;width:60px;height:60px}
+ .cover-card b{align-self:end;margin:0;width:auto;white-space:normal;overflow-wrap:anywhere}
+ .cover-card>span:not(.cover){align-self:start}
+ [data-key="button"] .stack-center{width:100%;min-width:0}
+ [data-key="button"] .stack-center>.row{flex-direction:column;align-items:stretch;width:100%}
+ [data-key="button"] .stack-center>.row>.st-button{width:100%;flex:none}
+ .stage .settings-card .field-row:last-child{flex-wrap:wrap;justify-content:flex-start;gap:8px}
+ .stage .settings-card .field-row:last-child>.small{max-width:100%;flex:1 0 100%}
+}
+@media(max-width:300px){.cover-card{grid-template-columns:44px minmax(0,1fr);column-gap:8px}.cover-card>.cover{width:44px;height:44px}}
+/* At narrow widths long settings/task content owns the stage height; Replay keeps a separate lane. */
+@media(max-width:360px){
+ [data-key="list"] .stage,[data-key="switch"] .stage{height:auto;min-height:300px;padding-bottom:78px}
+ .stage .tasks .app-bar{height:auto;min-height:40px;padding:8px;flex-wrap:wrap;gap:6px}
+ .tasks .app-bar>.row{width:100%;min-width:0}
+ .tasks #sort-btn{min-width:0;flex:1}
+ .tasks #add-task{flex:none}
+}
+/* State buttons keep their reserved label width; wrap the group at component width. */
+.stage .stack-center:has(#deploy){width:100%;min-width:0}
+.stage .row:has(>#deploy){width:100%;flex-wrap:wrap;justify-content:center}
+.stage .row:has(>#deploy)>.st-button{flex:0 0 auto;max-width:100%}
+/* Embedded settings sections remain reachable at narrow component widths. */
+#tabs-1>[role=tablist]{overflow-x:auto!important;scrollbar-width:thin}
+/* Header wrapping follows the task card's available width, including two-column layouts. */
+.stage:has(.tasks),#library-detail .stage:has(.tasks){height:auto;min-height:300px;padding-bottom:78px}
+.stage .tasks .app-bar{height:auto;min-height:40px;padding:8px;flex-wrap:wrap;gap:6px}
+.tasks .app-bar>.row{width:auto;min-width:0;flex:1 1 230px}
+.tasks #sort-btn{min-width:0;flex:1;white-space:normal}
+.tasks #add-task{flex:none}
+/* Keep the optional effect discoverable without expanding the phone header. */
+@media(max-width:700px){
+ .blur-switch{flex-direction:column;justify-content:center;gap:0;min-height:44px}
+ .blur-switch>span:first-child{display:block;font-size:13px;line-height:16px}
+ .blur-switch .st-toggle{min-height:28px}
+}
+@media(max-width:360px){.stage:has(#dialog-trigger),#library-detail .stage:has(#dialog-trigger){height:auto;min-height:300px;padding-bottom:78px}}
+/* Preserve avatar geometry and every counted checklist item at real UI scale. */
+.mail-list .msg>.avatar{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;line-height:1}
+.stage:has(.checklist),#library-detail .stage:has(.checklist){height:auto;min-height:300px;padding-bottom:78px}
+.stage .checklist .app-bar{height:auto;min-height:44px;flex-wrap:wrap;gap:6px;padding-block:8px}
+.checklist .app-title{flex:1 0 auto}
+.checklist .app-bar>.chip{flex:none;white-space:nowrap}
+.checklist .st-check:last-child{display:flex}
+/* Readable message bodies own a scroll region rather than disappearing behind the frame. */
+.mail{display:flex;flex-direction:column}
+.mail>.mail-view{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.mail-view>.app-bar{flex:none}
+.mail-view>.mail-list,.mail-view>.detail{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.mail .mail-list .msg:last-child{display:flex}
+.mail-view>.detail:focus-visible{outline-offset:-2px}
+/* Reading content determines preview height; the Replay lane stays outside its flow. */
+.stage:has(.post,.resize-demo,.faq,.chat,.invite),
+#library-detail .stage:has(.post,.resize-demo,.faq,.chat,.invite){height:auto;min-height:300px;padding-bottom:78px}
+.stage .chat{height:auto;min-height:210px;max-height:none}
+.stage .thinking-row{min-width:0;align-items:flex-start}
+.stage .thinking-row>.spark{flex:0 0 16px;margin-block-start:2px}
+.stage .thinking-row>[data-st="thinking"]{flex:1 1 0;min-width:0;white-space:normal}
+.stage .thinking-row :is(.st-text-value,.st-text-exit){white-space:normal;max-width:100%}
+.stage .thinking-row .st-letter{display:inline;white-space:normal}
+/* The close target owns real space even when a user increases text spacing. */
+.stage .expand-surface h4{max-width:calc(100% - 40px);margin-right:0;white-space:normal;overflow-wrap:anywhere}
+/* A usable email field wins a full row before its submit action becomes cramped. */
+.stage .invite>.row{flex-wrap:wrap;align-items:stretch}
+.stage .invite>.row>.st-field{flex:1 1 180px;min-width:0;max-width:100%}
+.stage .invite>.row>.st-button{flex:0 0 auto;margin-left:auto}
+/* Medium-width search and categories each receive a complete, discoverable row. */
+@media(min-width:701px) and (max-width:1000px){
+ .library-tools{flex-wrap:wrap;align-items:stretch}
+ .library-tools .filter-scroll{flex:1 1 100%;width:100%}
+ .library-tools .search-box{flex:1 1 100%;width:100%}
+}
+/* Photo controls have their own opaque backing rather than relying on image brightness. */
+.photo-bar{gap:8px;flex-wrap:wrap;align-items:center}
+.photo-bar>span,.photo-bar>button{background:#202124;color:#fff;border-radius:8px}
+.photo-bar>span{padding:7px 9px;max-width:100%;line-height:1.4}
+.photo-bar>button{min-height:36px;height:auto;padding-block:7px;flex:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+/* Reduced motion also covers gallery-only source-card hover/press feedback. */
+@media(prefers-reduced-motion:reduce){
+ .cover-card,.cover-card .cover{transition-property:background-color,opacity,box-shadow}
+ .cover-card:hover,.cover-card:active{transform:none}
+}
+/* Card expand: the detail keeps the card's arrangement (title and count beside the artwork in rows, under it in tiles),
+   so nothing travels through the cover, and the track list rides the growing shell instead of waiting for it. */
+.stage .covers .cover-card b,.stage .expand-surface h4{font-size:16px;line-height:22px;font-weight:600;letter-spacing:-.01em;margin:0}
+.stage .covers .cover-card [data-st-shared=meta],.stage .expand-surface .ex-name p{font-size:14px;line-height:20px;color:var(--text-2);margin:0}
+.stage .expand-surface{display:flex;flex-direction:column;gap:10px;padding:12px;grid-template-columns:none}
+.expand-surface .ex-head{display:flex;align-items:center;gap:14px;min-width:0}
+.expand-surface .ex-head .cover{width:88px;height:88px;border-radius:12px;flex:none}
+.expand-surface .ex-name{flex:1;min-width:0;padding-right:40px}
+.stage .expand-surface .ex-name h4{width:auto;max-width:none;white-space:nowrap}
+.ex-preview{display:grid;gap:4px;min-width:0}
+.ex-preview-label{font-size:14px;line-height:20px;color:var(--text-2)}
+.ex-tracks{list-style:none;margin:0;padding:0;display:grid}
+.ex-tracks li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;height:32px;padding:0 10px;border-radius:8px;font-size:14px}
+.ex-tracks li>span:first-child,.ex-tracks li>span:last-child{color:var(--text-2);font-variant-numeric:tabular-nums}
+
+@container(max-width:340px){
+ .expand-surface .ex-head .cover{width:64px;height:64px}
+ .expand-surface .ex-name{padding-right:52px}
+ .stage .expand-surface .ex-name h4{white-space:normal;overflow-wrap:anywhere}
+}
+@container(width > 384px){
+ .stage .expand-surface{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;align-items:start}
+ .expand-surface .ex-head{flex-direction:column;align-items:flex-start;gap:8px}
+ .expand-surface .ex-head .cover{width:120px;height:120px}
+ .expand-surface .ex-name{padding-right:0}
+ .expand-surface .ex-preview{margin-top:40px}
+}
+/* Replay is the control every demo is filmed from: its hover, press and focus answer immediately and visibly. */
+.stage .replay svg{transition:transform 160ms var(--st-F)}
+@media (hover:hover) and (pointer:fine){.stage .replay:hover{background:color-mix(in srgb,var(--text) 12%,var(--ghost));color:var(--text)}}
+.stage .replay:active{transform:scale(.95);transition-duration:60ms}
+.stage .replay:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+/* AI: sources sit in one quiet row and light up as they are read; the answer keeps its own reserved block. */
+.sources{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.sources span{height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:99px;font-size:13px!important;background:var(--surface-2);color:var(--text-3);transition:color 120ms var(--st-F),background-color 120ms var(--st-F)}
+.sources span{color:var(--text)}.sources span{transition:background-color 180ms cubic-bezier(.25,0,.06,1)}.sources span.reading{background:color-mix(in srgb,var(--accent,#3b82f6) 16%,var(--surface-2))}
+.stage .chat{gap:10px}.stage .chat .answer{min-height:66px}
+@media(prefers-reduced-motion:reduce){.sources span{transition:none}}
+/* While an answer is being written: a small breathing dot holds the writing position, and the sparkle turns slowly. */
+.thinking-row .spark{transition:rotate 240ms var(--st-F)}
+.thinking-row[data-busy] .spark{animation:spark-turn 1.6s linear infinite}
+@keyframes spark-turn{to{rotate:90deg}}
+@media(prefers-reduced-motion:reduce){.thinking-row[data-busy] .spark{animation:none}}
+/* v5 system: one surface recipe (ring + soft shadow, no hairlines), one radius scale, one state clock.
+   Researched against transitions.dev and Jakub Antalik's published specs: states 180ms cubic-bezier(.25,0,.06,1). */
+:root{--lift:0 0 0 1px rgb(0 0 0 / .045),0 1px 2px rgb(0 0 0 / .04),0 6px 16px -8px rgb(0 0 0 / .1);--r-surface:14px;--r-control:10px}
+[data-theme="dark"]{--lift:0 0 0 1px rgb(255 255 255 / .06),0 1px 2px rgb(0 0 0 / .5),0 8px 20px -10px rgb(0 0 0 / .7)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--lift:0 0 0 1px rgb(255 255 255 / .06),0 1px 2px rgb(0 0 0 / .5),0 8px 20px -10px rgb(0 0 0 / .7)}}
+.stage .app,.stage .toolbar,.stage .code,.stage .media-card,.stage>div>div.app{box-shadow:var(--lift);border-radius:var(--r-surface)}
+.stage .st-button,.stage .st-input,.stage .icon-btn{border-radius:var(--r-control)}
+.stage :is(button,a,[role=tab],[role=menuitem],[role=option],summary,.opt,.task,.msg,.cover-card){transition-property:background-color,color,box-shadow,opacity,transform;transition-duration:180ms,180ms,180ms,180ms,100ms;transition-timing-function:cubic-bezier(.25,0,.06,1)}
+/* Keyboard users are already looking at the result: state changes driven by keys are instant, and a focus cue is fully present on its first frame. */
+html[data-st-input-mode="keyboard"] :is(.stage,[data-st="menu"]) :is(button,a,[role=tab],[role=menuitem],[role=option],summary,.opt,.task,.msg,.cover-card){transition-duration:0s}
+/* Reorder v5: a quiet project list. Rows show a hover pill and reveal their grip on hover or focus; the moving row
+   lifts on a soft shadow while its neighbours slide out of its way. */
+.stage .reorder-demo{width:min(100%,300px);padding:6px}
+.reorder-title{margin:0;padding:6px 10px 6px;font-size:13px;font-weight:500;color:var(--text-2)}
+.stage .reorder-demo li>div{display:flex;align-items:center;gap:10px;height:36px;min-height:0;padding:0 4px 0 10px;border:0;border-radius:8px;background:transparent}
+@media (hover:hover) and (pointer:fine){.stage .reorder-demo li:hover>div{background:var(--hover)}}
+.proj-mark{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:var(--c);color:#fff;font-size:11px;font-weight:600;line-height:1}
+.stage .reorder-demo .proj-name{flex:1;min-width:0;font-size:14px;color:var(--text)}
+.stage .reorder-demo [data-st-handle]{width:28px;height:28px;min-height:0;border-radius:7px;color:var(--text-3);opacity:0;cursor:grab}
+.stage .reorder-demo li:hover [data-st-handle],.stage .reorder-demo [data-st-handle]:focus-visible,.stage .reorder-demo [data-st-held] [data-st-handle]{opacity:1}
+.stage .reorder-demo [data-st-moving="true"],.stage .reorder-demo [data-st-held="true"]{border-radius:8px;box-shadow:0 0 0 1px rgb(0 0 0 / .05),0 12px 24px -10px rgb(0 0 0 / .22),0 2px 4px rgb(0 0 0 / .05)}
+[data-theme="dark"] .stage .reorder-demo [data-st-moving="true"]{box-shadow:0 0 0 1px rgb(255 255 255 / .08),0 12px 28px -10px rgb(0 0 0 / .8)}
+/* Card resize v5: a disclosure card anchored at the top, so it only grows downward. The chevron turns with the
+   spring, and the detail rows arrive in a short stagger once the shell has room for them. */
+.stage:has(.resize-demo){place-items:start center;padding-top:36px}
+.stage .resize-demo{width:min(100%,212px);padding:12px}.stage .resize-demo.rz-open{width:min(100%,300px)}.rz-title>*{white-space:nowrap}
+.rz-head{display:flex;align-items:center;gap:12px}
+.rz-icon{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--surface-2);color:var(--text)}
+.rz-title{flex:1;min-width:0;display:grid;gap:1px}
+.rz-title b{font-size:14px;font-weight:600;line-height:20px}
+.stage .rz-title span{font-size:13px;line-height:18px;color:var(--text-2)}
+.stage .rz-toggle{width:32px;height:32px;min-height:0;border-radius:9px;color:var(--text-2)}
+.rz-toggle svg{transition:transform 200ms cubic-bezier(.16,1,.3,1)}
+.rz-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.stage .resize-more{display:grid;gap:2px;margin-top:10px}.stage .resize-more[hidden]{display:none}
+.rz-row{display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:9px;background:var(--surface-2);font-size:14px}
+.rz-row i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.rz-row span{flex:1}.stage .rz-row em{font-style:normal;font-size:13px;color:var(--text-2)}
+@media(prefers-reduced-motion:reduce){.rz-toggle svg{transition:none}}
+.think-demo{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:500;width:210px;justify-content:flex-start}
+/* The sparkle keeps one anchor; only the status line rolls. */
+.think-demo .spark{width:16px;height:16px;color:var(--text-2)}
+/* Growing content is anchored at the top of its stage, so it only grows downward and nothing above it moves. */
+.stage:has(.faq){place-items:start center;padding-top:36px}
+/* Dialog: native top-layer presentation spans the viewport; the decision stays compact.
+   Destructive action colors are a paired role, independent of the brighter dark-mode status color. */
+dialog.project-dialog{--dialog-danger-surface:#d42f2f;--dialog-danger-ink:#fff;width:min(360px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);padding:24px;overflow:auto;overscroll-behavior:contain;border-radius:var(--r-xl)}
+.project-dialog h3{margin:0;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.35}
+.project-dialog p{margin:12px 0 20px;font-size:15px;line-height:1.5;color:var(--text-2)}
+@media(max-width:650px){.project-dialog #dlg-description{font-size:15px}}
+.project-dialog .dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.project-dialog .st-button{min-height:44px;font-size:15px}
+.project-dialog .dialog-destructive{background:var(--dialog-danger-surface);color:var(--dialog-danger-ink);box-shadow:none}
+@media(hover:hover) and (pointer:fine){.project-dialog .dialog-destructive:hover{background:#bb2929}}
+.project-dialog::backdrop{background:var(--st-backdrop);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+@media(prefers-reduced-motion:reduce){.project-dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}}
+.orders{display:grid;padding:2px 8px 8px}
+.order{display:grid;grid-template-columns:52px 1fr auto;align-items:center;height:32px;padding:0 6px;border-radius:8px;font-size:13px}
+.stage .order span{font-size:13px}.stage .order .o-id{color:var(--text-3);font-variant-numeric:tabular-nums}.stage .order .o-amt{font-variant-numeric:tabular-nums;color:var(--text)}
+.stage .editor-text{width:min(300px,100%);margin:14px 0 0;font-size:14px;line-height:21px;color:var(--text-2)}.stage .editor-text b{color:var(--text);font-weight:600}
+/* Page transition: the back control reads "‹ Inbox" on the left, where the list title was, so the title travels a short way into it. */
+.back-btn{display:inline-flex;align-items:center;gap:2px;height:30px;margin-left:-8px;padding:0 10px 0 4px;border:0;border-radius:8px;background:transparent;color:var(--text);font:500 14px/20px var(--font);cursor:pointer}
+.back-btn .st-icon{width:16px;height:16px;color:var(--text-2)}
+@media (hover:hover) and (pointer:fine){.back-btn:hover{background:var(--hover)}}
+.back-btn:active{transform:scale(.97)}
+/* Accordion v5: each question is its own card, so opening one only moves the cards below; no shared box has to snap
+   to a new height. The open card is tinted one step so it reads as the active one. */
+.stage .app.faq{display:grid;gap:6px;width:min(100%,320px);padding:0;background:transparent;box-shadow:none;border-radius:0}
+.stage .faq details{border-radius:12px;background:var(--surface);box-shadow:var(--lift)}
+.stage .faq summary{min-height:44px;padding:0 14px;border-radius:12px}
+.stage .faq .st-details-body{padding:0 14px 14px;color:var(--text-2);font-size:14px;line-height:21px;background:transparent}
+.stage .faq details[open]{background:var(--surface)}
+/* Three72px album rows plus two8px gaps need232px. Keep the44px Replay target
+   below them even with its16px bottom inset; text growth may increase height naturally. */
+.card[data-key="expand"]>.stage{height:auto;min-height:324px;padding-bottom:72px}
+/* Row albums use the same authored label measure at both ends of the flight.
+   The trailing action lane is real in both states; text never has to rewrap mid-flight. */
+.stage:has(.covers){--album-gutter:20px;padding-inline:var(--album-gutter)}
+@media(max-width:650px){.stage:has(.covers){--album-gutter:8px}}
+.cover-card .cover-label{display:block;min-width:0;color:var(--text)}
+.cover-card .cover-open{display:none}
+.stage #covers .cover-label b{font-size:16px;line-height:22px;font-weight:600;letter-spacing:-.01em}
+.stage #covers .cover-label [data-st-shared=meta]{font-size:14px;line-height:20px;letter-spacing:normal}
+.stage .expand-surface .ex-name p{letter-spacing:normal}
+@container(max-width:384px){
+ .covers .cover-card{position:relative;grid-template-columns:60px minmax(0,1fr);column-gap:12px}
+ .covers .cover-card>.cover{grid-row:auto;width:60px;height:60px}
+ .covers .cover-card>.cover-label{align-self:center;padding-right:52px}
+ .covers .cover-card .cover-label b{width:auto;white-space:normal;overflow-wrap:anywhere}
+ .covers .cover-card>.cover-open{position:absolute;top:4px;right:4px;width:44px;height:44px;display:grid;place-items:center;color:var(--text-2)}
+ .stage .expand-surface{inset-inline:var(--album-gutter);padding:6px;border-radius:18px}
+ .stage .expand-surface .ex-head{gap:12px}
+ .stage .expand-surface .ex-head .cover{width:60px;height:60px;border-radius:12px}
+ .stage .expand-surface .ex-name{padding-right:52px}
+ .stage .expand-surface .ex-name h4{white-space:normal;overflow-wrap:anywhere}
+ .stage .expand-surface .close-x{width:44px;height:44px;min-width:44px;min-height:44px}
+}
+/* Anchored Card prototype: one explicit action lane, including wide catalogue tiles.
+   Source and detail share a capped row measure; the full shell contains every source row. */
+.stage:has(.cover-open) .covers{grid-template-columns:1fr;gap:8px;width:min(100%,420px)}
+.stage .covers:has(.cover-open) .cover-card{position:relative;display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:12px;padding:6px;margin:0;align-items:center}
+.stage .covers:has(.cover-open) .cover-card>.cover{grid-row:auto;width:60px;height:60px}
+.stage .covers:has(.cover-open) .cover-label{align-self:center;padding-right:52px}
+.stage .covers:has(.cover-open) .cover-label b{width:auto;white-space:normal;overflow-wrap:anywhere}
+.stage .covers:has(.cover-open) .cover-open{position:absolute;top:8px;right:8px;width:44px;height:44px;display:grid;place-items:center}
+.stage:has(.cover-open) .expand-surface{inset-inline:max(var(--album-gutter),calc(50% - 210px));display:flex;flex-direction:column;align-items:stretch;padding:6px;gap:10px;border-radius:18px}
+.stage:has(.cover-open) .ex-head{flex-direction:row;align-items:center;gap:12px}
+.stage:has(.cover-open) .ex-head .cover{width:60px;height:60px;border-radius:12px}
+.stage:has(.cover-open) .ex-name{padding-right:52px}
+.stage:has(.cover-open) .ex-name h4{white-space:normal;overflow-wrap:anywhere}
+.stage:has(.cover-open) .close-x{top:8px;right:8px;width:44px;height:44px;min-width:44px;min-height:44px}
+.stage:has(.cover-open) .ex-preview{padding-right:0;margin-top:0}
+.stage:has(.cover-open) .ex-tracks li{height:auto;min-height:32px;padding-block:4px;align-items:start}
+.stage:has(.cover-open) .ex-tracks li>span:nth-child(2){min-width:0;overflow-wrap:anywhere}
+.stage:has(.cover-open) .ex-tracks li>span:last-child{white-space:nowrap}
+/* The action point stays put on press; only its artwork gives the small tactile response. */
+.stage .covers:has(.cover-open) .cover-card:active{transform:none}
+.stage .covers:has(.cover-open) .cover-card:active .cover{transform:scale(.98)}
+@media(prefers-reduced-motion:reduce){.stage .covers:has(.cover-open) .cover-card:active .cover{transform:none}}
+/* Reserve the wrapped preview before interaction, so opening never shifts the source anchor. */
+@media(max-width:360px){.card[data-key="expand"]>.stage,#library-detail .stage:has(.cover-open){min-height:368px}}
+
+/* Menu preview: real local outcomes; rows and feedback grow with their content. */
+.card[data-key="menu"] .caption p{white-space:normal;overflow:visible}
+.stage.menu-demo,#library-detail .stage.menu-demo{height:auto;min-height:376px;padding:16px 16px 76px;align-content:center;gap:12px}
+.menu-demo .menu-demo-app{width:100%;max-width:440px;border-radius:12px}
+.menu-demo .app-bar{height:auto;min-height:56px;padding:8px 12px;gap:8px;flex-wrap:wrap}
+.menu-demo .app-title{margin-right:auto;font-size:15px;font-weight:600}
+.menu-demo .menu-demo-count{font-size:14px;color:var(--text-2);white-space:nowrap}
+.menu-demo .app-bar .st-button{min-height:44px;padding:0 8px;border-radius:8px;font-size:14px}
+.menu-demo [data-menu-files]{padding:0 4px}
+.menu-demo .file{min-height:72px;gap:8px;padding:8px;border-radius:8px;align-items:center}
+.menu-demo .file-icon{flex:none;width:28px;height:32px;background:transparent}
+.menu-demo .file-meta b{font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.menu-demo .file-meta span{display:block;font-size:14px;line-height:1.4}
+.menu-demo .icon-btn{flex:none;width:44px;height:44px;border-radius:8px}
+.menu-demo .file:has([aria-expanded="true"]){background:var(--hover)}
+.menu-demo .menu-demo-feedback{padding:12px 12px 16px;display:grid;gap:8px;color:var(--text-2);font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.menu-demo [data-menu-status]:empty{display:none}
+.menu-demo .menu-demo-recovery{display:grid;justify-items:start;gap:8px}
+.menu-demo .menu-demo-recovery[hidden],.menu-demo [hidden]{display:none}
+.menu-demo .menu-demo-recovery .st-button{min-height:44px;border-radius:8px;font-size:14px}
+.menu-demo .menu-demo-empty{padding:16px 12px;font-size:15px;color:var(--text-2)}
+.menu-demo .menu-demo-disclosure{width:100%;max-width:440px;font-size:14px;line-height:1.5;color:var(--text-2)}
+.menu-demo .replay{min-height:44px;bottom:16px;border-radius:8px}
+.menu-demo #menu-1{width:228px;max-width:calc(100vw - 16px)}
+.menu-demo #menu-1 [role="menuitem"]{min-height:44px;font-size:15px;white-space:normal}
+.menu-demo #menu-1 [role="menuitem"]:disabled{opacity:.55;cursor:not-allowed;background:transparent}
+.menu-demo #menu-copy-limit{padding:8px 10px;font-size:14px;line-height:1.4;color:var(--text-2)}
+#menu-rename{width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:24px;border:0;border-radius:16px;background:var(--surface);color:var(--text);box-shadow:var(--shadow-layer)}
+#menu-rename::backdrop{background:rgb(0 0 0 / .4)}
+#menu-rename h2{font-size:20px;line-height:1.3;font-weight:600;letter-spacing:-.015em;padding:0}
+#menu-rename p{font-size:15px;line-height:1.5;color:var(--text-2);overflow-wrap:anywhere}
+#menu-rename #menu-rename-description{margin:8px 0 20px}
+#menu-rename label{display:block;margin-bottom:8px;font-size:16px;font-weight:500}
+#menu-rename input{display:block;width:100%;min-height:44px;font-size:16px;border-radius:8px}
+#menu-rename #menu-name-help,#menu-rename #menu-name-error{margin-top:8px}
+#menu-rename [aria-invalid="true"]{outline:2px solid var(--bad);outline-offset:2px}
+#menu-rename #menu-name-error{color:var(--bad)}
+#menu-rename .menu-demo-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:24px}
+#menu-rename .st-button{min-height:44px;border-radius:8px;font-size:16px;transform:none;transition:none}
+/* Rename and accepted fixture results are instant, including keyboard/reduction. */
+#menu-rename,#menu-rename::backdrop{animation:none;transition:none}
+/* One phone type contract also outranks the gallery's ID-specific :is/:not floor. */
+@media(max-width:650px){
+ .stage.menu-demo[data-menu-demo] :is([data-menu-count],[data-menu-reset],[data-menu-file-note],[data-menu-budget],[data-menu-status],[data-menu-deleted],[data-menu-undo],[data-menu-empty],.menu-demo-disclosure,#menu-copy-limit){font-size:15px}
+ .stage #menu-rename.menu-demo-editor :is(label,input,.st-button){font-size:16px}
+}
+@media(max-width:360px){.stage.menu-demo,#library-detail .stage.menu-demo{padding-left:12px;padding-right:12px}.menu-demo .file-icon{display:none}#menu-rename{padding:20px}#menu-rename .menu-demo-actions .st-button{flex:1}}
+/* Cards in one row share a height: the stage grows to fill, so captions always sit on the card's bottom edge. */
+#library-grid>.card:not([hidden]),#extras-grid>.card:not([hidden]){display:flex;flex-direction:column}
+#library-grid>.card>.stage,#extras-grid>.card>.stage{flex:1 0 auto}
+/* A focused text field shows a calm ink ring, not an alarm-blue one; keyboard focus elsewhere keeps the blue ring. */
+.stage .st-input:focus,.stage .st-input:focus-visible{box-shadow:0 0 0 1px color-mix(in srgb,var(--text) 55%,transparent),0 0 0 4px color-mix(in srgb,var(--text) 8%,transparent)}
+/* Toast stack: the stack sits clear of Replay, so a new message never slides through another control. */
+.stage .toast-host{bottom:84px}
+.toast-stage .stack-center{padding-top:8px!important;align-self:start}
+#avatar-group>*:not(.st-avatar-name){margin-left:-8px;border:2.5px solid var(--stage)}
+#avatar-group>:first-child{margin-left:0}
+/* Category filter is the same control as the theme switch: one track, one raised indicator that slides. */
+.library-tools .filter [role=tablist]{background:var(--surface-2);border-radius:11px;padding:3px;gap:0;width:max-content;max-width:100%}
+.library-tools .filter [role=tab]{border-radius:8px;min-height:34px;padding:0 14px;font-size:14px;font-weight:500}
+.library-tools .filter [role=tab]:hover:not([aria-selected=true]){color:var(--text)}
+.library-tools .filter .st-tab-indicator{top:3px;bottom:3px;height:auto;border-radius:8px;background:var(--surface);box-shadow:0 1px 2px #0000001f,0 0 0 .5px #0000000f}
+[data-theme="dark"] .library-tools .filter .st-tab-indicator{background:#2c2c30}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .library-tools .filter .st-tab-indicator{background:#2c2c30}}
+.library-tools .search-box input{background:var(--surface-2);border-color:transparent}
+.library-tools .filter-scroll[data-more=true]::after{background:linear-gradient(90deg,transparent,var(--surface-2) 40%);border-radius:0 11px 11px 0}
+/* A returned card title is scrolled into view; keep it clear of the sticky bars above and the viewport edge below. */
+.title-link{scroll-margin:156px 0 16px}
+@media(max-width:650px){.title-link{scroll-margin:194px 0 16px}}
+.detail-why{margin:20px 0 24px;max-width:62ch}.detail-why h3{margin:0 0 4px;font-size:14px;font-weight:600}.detail-why p{margin:0;color:var(--text-2);font-size:14px;line-height:22px}
+/* The description tucks under the 44px title target on phones; it is not interactive, so it never takes the title’s hits. */
+.caption p{pointer-events:none}
+/* The inbox shows whole rows only: two messages fit the stage above Replay, so the third never peeks in half-cut. */
+.stage .mail{height:186px}.stage .mail-list .msg:nth-child(n+3){display:none}
+/* AI thread: bottom-anchored like a chat. At rest only the newest turn shows, whole; during a follow-up the height
+   holds and the earlier turn passes under a soft top fade, then retires. */
+.stage .chat{height:auto;min-height:0;max-height:none;padding:12px}
+.chat-view{overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.chat-view.threading{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 12px);mask-image:linear-gradient(to bottom,transparent 0,#000 12px)}
+.chat-track{display:grid;gap:18px}
+.chat .turn{display:grid;gap:10px}
+.stage .chat .turn .thinking-row{margin:0}.stage .chat .turn .bubble{margin:0}
+.stage .chat .turn .answer{min-height:40px}
+/* Button to menu on phones: the stage cannot hold four rows under the header above Replay, so the demo shows its
+   first group only. The menu is never clipped or scrolled. */
+@media(max-width:650px){.stage #morph-1{max-height:none;overflow:visible}.stage #morph-1 hr,.stage #morph-1 [role=menuitem]:last-of-type{display:none}}
+/* Card expand: Close is the header’s top-right action on every album, the track rows run the full width, and the
+   surface is as tall as its content, so nothing floats in leftover space. */
+.stage:has(.cover-open) .expand-surface{bottom:auto;min-height:var(--covers-h,0px)}
+/* Copy: the command is never truncated. The action lives in a header row, the command gets the full width. */
+.code.code-block{display:grid;gap:6px;padding:6px 6px 14px 14px;align-items:stretch}
+.code-block .code-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font:500 13px/1 var(--font);color:var(--text-2)}
+.code-block code{overflow:visible;white-space:normal;overflow-wrap:anywhere;line-height:20px;padding-right:8px}
+/* Form error on phones: one column — field, its error right beneath it, then a full-width action. The error never
+   ends up on the far side of the button. */
+@media(max-width:650px){.stage .invite{display:grid;gap:8px}.stage .invite>label{margin:0}.stage .invite>.row{display:contents}.stage .invite .st-field{order:1}.stage .invite .st-error{order:2;margin:0}.stage .invite>.row>.st-button{order:3;width:100%;margin:0}}
+/* Avatar group: the open group overlaps less, and the count chip never covers a face. */
+#avatar-group[data-st-expanded="true"]>*:not(.st-avatar-name){margin-left:-2px}
+#avatar-group>[data-st-avatar-more]{margin-left:6px!important}
+</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <symbol id="i-dots" viewBox="0 0 20 20"><circle cx="5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.3" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 20 20"><path d="M10 4.5v11M4.5 10h11"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 20 20"><path d="M12.5 4.5l3 3-8 8H4.5v-3z"/></symbol>
+  <symbol id="i-dup" viewBox="0 0 20 20"><rect x="7" y="7" width="9" height="9" rx="2"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7"/></symbol>
+  <symbol id="i-move" viewBox="0 0 20 20"><path d="M3.5 6.5a2 2 0 0 1 2-2h3l1.5 2h4.5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 20 20"><path d="M10 3.5v9M6.5 7L10 3.5 13.5 7M4.5 11v3.5a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V11"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 20 20"><path d="M4.5 6h11M8 6V4.5h4V6M6 6l.7 9.2a1.5 1.5 0 0 0 1.5 1.3h3.6a1.5 1.5 0 0 0 1.5-1.3L14 6"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 20 20"><path d="M11.5 3.5H6.5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V7.5z"/><path d="M11.5 3.5v4h4M7.5 11h5M7.5 13.5h3.5"/></symbol>
+  <symbol id="i-table" viewBox="0 0 20 20"><rect x="3.5" y="4" width="13" height="12" rx="2"/><path d="M3.5 8h13M3.5 12h13M8.5 8v8"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 20 20"><path d="M10 13V4M6.5 7.5L10 4l3.5 3.5M4.5 13.5v1a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-1"/></symbol>
+  <symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5"/><path d="M13 13l3.5 3.5"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 20 20"><path d="M3.5 11l2-6.5h9l2 6.5v3.5a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2z"/><path d="M3.5 11h3.5l1 2h4l1-2h3.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="7.5" r="3"/><path d="M4.5 16.5c.8-2.8 3-4.3 5.5-4.3s4.7 1.5 5.5 4.3"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.5"/><path d="M10 3v2M10 15v2M3 10h2M15 10h2M5 5l1.4 1.4M13.6 13.6L15 15M5 15l1.4-1.4M13.6 6.4L15 5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 20 20"><path d="M15.5 12.5A6 6 0 0 1 7.5 4.5a6 6 0 1 0 8 8z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 20 20"><rect x="7" y="7" width="9" height="9" rx="2"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-x" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 20 20"><path d="M10 16.5s-6-3.6-6-8.2A3.3 3.3 0 0 1 10 6.4a3.3 3.3 0 0 1 6 1.9c0 4.6-6 8.2-6 8.2z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 20 20"><path d="M4 9.5a5.5 5 0 0 1 11 0 5.5 5 0 0 1-7.7 4.6L4.5 15.5l.8-2.6A4.8 4.8 0 0 1 4 9.5z"/></symbol>
+  <symbol id="i-bold" viewBox="0 0 20 20"><path d="M6.5 4.5h4.2a2.8 2.8 0 0 1 0 5.5H6.5zM6.5 10h4.8a3 3 0 0 1 0 6H6.5z"/></symbol>
+  <symbol id="i-italic" viewBox="0 0 20 20"><path d="M11.5 4.5h3M5.5 15.5h3M13 4.5l-6 11"/></symbol>
+  <symbol id="i-link" viewBox="0 0 20 20"><path d="M8.5 11.5a3 3 0 0 0 4.2 0l2.3-2.3a3 3 0 0 0-4.2-4.2l-.8.8M11.5 8.5a3 3 0 0 0-4.2 0L5 10.8A3 3 0 0 0 9.2 15l.8-.8"/></symbol>
+  <symbol id="i-comment" viewBox="0 0 20 20"><path d="M4.5 5.5a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-1.5 1.5H9l-3.5 3v-3H6a1.5 1.5 0 0 1-1.5-1.5z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 20 20"><path d="M4 5.5h12M6.5 10h7M9 14.5h2"/></symbol>
+  <symbol id="i-back" viewBox="0 0 20 20"><path d="M12 5l-5 5 5 5"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 20 20"><path d="M4.5 10a5.5 5.5 0 1 0 1.8-4.1"/><path d="M4.5 3.5v3h3"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 20 20"><path d="M10 3.5l1.4 4 4.1 1.5-4.1 1.5L10 14.5l-1.4-4L4.5 9l4.1-1.5z"/></symbol>
+  <symbol id="i-link2" viewBox="0 0 20 20"><path d="M8 12l4-4M7 9.5l-1.5 1.5a2.5 2.5 0 0 0 3.5 3.5l1.5-1.5M13 10.5l1.5-1.5a2.5 2.5 0 0 0-3.5-3.5L9.5 7"/></symbol>
+  <symbol id="i-down" viewBox="0 0 20 20"><path d="M10 4.5v11M5.5 11l4.5 4.5 4.5-4.5"/></symbol>
+ <symbol id="i-bell" viewBox="0 0 20 20"><path d="M5 13V8a5 5 0 0 1 10 0v5l1 2H4zM8 17h4"/></symbol><symbol id="i-arrow" viewBox="0 0 20 20"><path d="M4 10h12m-5-5 5 5-5 5"/></symbol><symbol id="i-grip" viewBox="0 0 20 20"><path d="M7 5h.01M13 5h.01M7 10h.01M13 10h.01M7 15h.01M13 15h.01"/></symbol></defs>
+</svg><header class="top">
+ <div class="wrap">
+  <a class="mark" href="#top" aria-label="Seenry Transitions, top of page"><svg viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" rx="6" fill="currentColor"/><path d="M6.5 13.5c1.8 1.8 4.4 2 6.4.6M8 8.5h.01M14 8.5h.01" stroke="var(--bg)" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg><span class="mark-text">Seenry Transitions</span></a>
+  <nav class="nav" aria-label="Sections">
+   <label class="blur-switch"><span>Blur</span><span class="st-toggle"><input type="checkbox" role="switch" id="blur-toggle" aria-label="Blur on fades"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span></span></label>
+   <div class="theme" data-st="segmented"><div role="tablist" aria-label="Color theme"><button role="tab" type="button" data-theme-choice="system" aria-selected="true">System</button><button role="tab" type="button" data-theme-choice="light">Light</button><button role="tab" type="button" data-theme-choice="dark">Dark</button></div></div>
+  </nav>
+ </div>
+</header><main id="top" class="wrap"><section class="hero"><h1>Motion that explains what changed.</h1><p class="hero-lead">Motion patterns for product interfaces. Explore cause-led transitions, reversible states, and reduced-motion alternatives. Two files, no build step.</p><div class="hero-install"><code><span class="tok">&lt;link</span> rel="stylesheet" href="seenry-transitions.css"<span class="tok">&gt;</span></code><button class="install-copy" data-st="copy" data-st-copy='&lt;link rel="stylesheet" href="seenry-transitions.css"&gt;
+&lt;script src="seenry-transitions.js" defer&gt;&lt;/script&gt;' aria-label="Copy install snippet"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text">Copy</span></button></div></section><div class="library-tools"><div class="filter-scroll"><div class="filter" data-st="segmented"><div role="tablist" aria-label="Transition category"><button role="tab" data-category-choice="All" aria-selected="true">All</button><button role="tab" data-category-choice="Surfaces" aria-selected="false">Surfaces</button><button role="tab" data-category-choice="Navigation" aria-selected="false">Navigation</button><button role="tab" data-category-choice="Feedback" aria-selected="false">Feedback</button><button role="tab" data-category-choice="Content" aria-selected="false">Content</button><button role="tab" data-category-choice="Text" aria-selected="false">Text</button><button role="tab" data-category-choice="AI" aria-selected="false">AI</button></div></div></div><label class="cat-select"><span class="st-sr">Category</span><select id="cat-select"><option>All</option><option>Surfaces</option><option>Navigation</option><option>Feedback</option><option>Content</option><option>Text</option><option>AI</option></select><svg class="st-icon" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></label><label class="search-box"><svg class="st-icon" aria-hidden="true"><use href="#i-search"/></svg><input id="library-search" type="search" aria-label="Search transitions" placeholder="Search transitions" autocomplete="off"><kbd>/</kbd></label></div><div class="grid" id="library-grid" data-seenry-signature="live-motion-library"><article class="card" data-key="menu" data-why="Actions stay tied to the selected sample file. Pointer motion explains the menu’s origin; keyboard and reduced-motion actions are immediate. Visible local results and Undo support recovery. Avoid delaying accepted results or showing unwired actions." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Menu">
+    <div class="stage menu-demo" data-st-preview data-menu-demo>
+     <div class="app menu-demo-app">
+      <div class="app-bar"><span class="app-title">Planning</span><span class="menu-demo-count" data-menu-count>2 files</span><button type="button" class="st-button st-ghost" data-menu-reset aria-label="Reset Menu preview">Reset</button></div>
+      <div class="menu-demo-recovery menu-demo-feedback" data-menu-recovery hidden><button type="button" class="st-button" data-menu-undo>Undo last delete</button><p data-menu-deleted></p></div>
+      <ul data-menu-files aria-label="Sample planning files">
+       <li class="file" data-menu-file="roadmap"><span class="file-icon"><svg class="st-icon" aria-hidden="true"><use href="#i-doc"/></svg></span><span class="file-meta"><b data-menu-file-name>Q3 roadmap</b><span data-menu-file-note>Sample document</span></span><button type="button" class="icon-btn" id="menu-trigger" data-menu-trigger data-st-target="menu-1" aria-controls="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Q3 roadmap"><svg class="st-icon" aria-hidden="true"><use href="#i-dots"/></svg></button></li>
+       <li class="file" data-menu-file="hiring"><span class="file-icon"><svg class="st-icon" aria-hidden="true"><use href="#i-table"/></svg></span><span class="file-meta"><b data-menu-file-name>Hiring plan</b><span data-menu-file-note>Sample spreadsheet</span></span><button type="button" class="icon-btn" id="menu-trigger-hiring" data-menu-trigger data-st-target="menu-1" aria-controls="menu-1" aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Hiring plan"><svg class="st-icon" aria-hidden="true"><use href="#i-dots"/></svg></button></li>
+      </ul>
+      <p class="menu-demo-empty" data-menu-empty hidden>No sample files remain.</p>
+      <div class="menu-demo-feedback">
+       <p data-menu-status role="status" aria-live="polite" aria-atomic="true"></p>
+       <p data-menu-budget>Copies: 0 of 2.</p>
+      </div>
+     </div>
+     <p class="menu-demo-disclosure">Local preview. Sample files only; changes last until Reset or reload.</p>
+     <div id="menu-1" data-st="menu" data-st-placement="bottom-end" popover="manual" role="menu" aria-label="Q3 roadmap actions">
+      <button type="button" role="menuitem" data-menu-action="rename"><svg class="st-icon" aria-hidden="true"><use href="#i-pen"/></svg>Rename</button>
+      <button type="button" role="menuitem" data-menu-action="duplicate" aria-describedby="menu-copy-limit"><svg class="st-icon" aria-hidden="true"><use href="#i-dup"/></svg>Duplicate</button>
+      <p id="menu-copy-limit" data-menu-limit hidden>Two copies per preview. Reset to duplicate again.</p>
+      <hr>
+      <button type="button" role="menuitem" data-menu-action="delete" class="st-danger"><svg class="st-icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete</button>
+     </div>
+     <dialog id="menu-rename" class="menu-demo-editor" data-menu-editor aria-labelledby="menu-rename-title" aria-describedby="menu-rename-description">
+      <form data-menu-form novalidate>
+       <h2 id="menu-rename-title">Rename sample file</h2>
+       <p id="menu-rename-description">Change the name in this local preview.</p>
+       <label for="menu-rename-name">File name</label>
+       <input class="st-input" id="menu-rename-name" data-menu-name required autocomplete="off" spellcheck="false" aria-describedby="menu-name-help menu-name-error">
+       <p id="menu-name-help">Use 1–60 characters. Names may repeat.</p>
+       <p id="menu-name-error" data-menu-error role="alert" hidden></p>
+       <div class="menu-demo-actions"><button type="button" class="st-button" data-menu-cancel>Cancel</button><button type="submit" class="st-button st-primary">Save</button></div>
+      </form>
+     </dialog>
+     <button type="button" class="replay" data-replay="menu" data-st-keep><svg class="st-icon" aria-hidden="true"><use href="#i-replay"/></svg>Open menu</button>
+    </div>
+    <div class="caption"><h3><button class="title-link" data-detail="menu">Menu</button></h3><p>Rename, duplicate and undo a local delete.</p><button class="snippet-copy" data-st="copy" data-snippet="menu" aria-label="Copy HTML for Menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>trigger-relative menu</span><span>instant keyboard input</span><span>local actions + Undo</span></div></div>
+   </article><article class="card" data-key="morph" data-why="The menu grows out of the button that asked for it while the button itself fades off the growing surface, so the panel clearly comes from the button. Like any menu it needs no close button: choosing an item, clicking outside or pressing Escape folds it back into New." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Button to menu">
+    <div class="stage" data-st-preview>
+     <div class="app" style="width:min(100%,380px)">
+      <div class="app-bar"><span class="app-title">Drive</span><button class="st-button st-primary" id="morph-trigger" data-st-target="morph-1" aria-haspopup="menu" aria-expanded="false"><svg class="st-icon"><use href="#i-plus"/></svg>New</button></div>
+      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-move"/></svg></span><span class="file-meta"><b>Brand assets</b><span>32 items</span></span></div>
+      <div class="file"><span class="file-icon"><svg class="st-icon"><use href="#i-doc"/></svg></span><span class="file-meta"><b>Launch notes</b><span>Shared with you</span></span></div>
+     </div>
+     <div id="morph-1" data-st="plus-menu" data-st-placement="bottom-end" data-st-contained role="menu" aria-label="Create new">
+      <div class="st-morph-head" aria-hidden="true">Create new</div>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-doc"/></svg>Document</button>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-table"/></svg>Spreadsheet</button>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-move"/></svg>Folder</button>
+      <hr>
+      <button role="menuitem"><svg class="st-icon"><use href="#i-upload"/></svg>Upload file</button>
+     </div>
+    <button class="replay" data-replay="morph" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="morph">Button to menu</button></h3><p>A button unfolds</p><button class="snippet-copy" data-st="copy" data-snippet="morph" aria-label="Copy HTML for Button to menu"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>clip-path morph</span><span>button layer fades off</span><span>content +40ms</span></div></div>
+   </article><article class="card" data-key="dialog" data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Dialog" data-why="A compact surface keeps the project, consequences and safe Cancel action together. The page-wide backdrop marks a focused decision; dismissal returns to the opening control. The decision stays opaque through pointer exit and reversal, so page text cannot show through it. Keyboard and reduced-motion changes put both the surface and backdrop in their final state immediately.">
+    <div class="stage" data-st-preview>
+     <div class="app settings-card">
+      <div class="app-bar" style="margin:0 -18px 14px"><span class="app-title">Project settings</span></div>
+      <div class="field-row"><span>Name</span><span>Aurora website</span></div>
+      <div class="field-row"><span>Visibility</span><span>Team</span></div>
+      <div class="field-row" style="margin-top:8px"><span class="muted small">Deletes pages and assets</span><button class="st-button" style="color:var(--bad)" id="dialog-trigger" data-st-target="dialog-1" aria-controls="dialog-1" aria-haspopup="dialog" aria-expanded="false">Delete project</button></div>
+     </div>
+     <dialog class="project-dialog" id="dialog-1" data-st="modal" aria-labelledby="dlg-title" aria-describedby="dlg-description">
+      <h3 id="dlg-title">Delete Aurora website?</h3>
+      <p id="dlg-description">This removes 24 pages and 318 assets. You can restore it from the trash for 30 days.</p>
+      <div class="dialog-actions"><button class="st-button" type="button" data-st-close autofocus>Cancel</button><button class="st-button dialog-destructive" type="button" data-st-close>Delete project</button></div>
+     </dialog>
+    <button class="replay" data-replay="dialog" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="dialog">Dialog</button></h3><p>A focused task.</p><button class="snippet-copy" data-st="copy" data-snippet="dialog" aria-label="Copy HTML for Dialog"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>220ms ease-out</span><span>native modal</span><span>pointer exit 140ms</span></div></div>
+   </article><article class="card" data-key="palette" data-why="The palette opens from its trigger, results reflow in place as you type instead of jumping, and one shared highlight slides between them, so the eye follows a single moving mark." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Command palette">
+    <div class="stage" data-st-preview>
+     <div data-st-contained role="dialog" id="palette-1" data-st-persistent data-st="palette" data-st-palette-gallery aria-label="Command palette">
+      <div class="st-palette-search"><svg class="st-icon"><use href="#i-search"/></svg><input id="palette-trigger" data-st-palette-input type="text" placeholder="Search commands" aria-label="Search commands" role="combobox" aria-controls="palette-list" aria-expanded="false" autocomplete="off"></div>
+      <ul role="listbox" id="palette-list" aria-label="Commands" inert>
+       <li role="option" data-value="project">Create project<kbd>⌘N</kbd></li><li role="option" data-value="invite">Invite teammate</li><li role="option" data-value="settings">Open settings<kbd>⌘,</kbd></li>
+      </ul>
+      <p data-st-palette-empty hidden>No commands match.</p>
+     </div>
+    <button class="replay" data-replay="palette" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="palette">Command palette</button></h3><p>Search stays in place</p><button class="snippet-copy" data-st="copy" data-snippet="palette" aria-label="Copy HTML for Command palette"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>clip from trigger</span><span>FLIP filter</span><span>shared highlight</span></div></div>
+   </article><article class="card" data-key="sheet" data-why="The sheet rises from the edge it belongs to and the page behind recedes a little, which says the task is nested, not a new page. A drag dismisses with the speed you threw it at, so the exit feels like your gesture rather than an animation." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Bottom sheet">
+    <div class="stage" data-st-preview>
+     <div class="phone"><div class="screen">
+      <div class="photo" id="sheet-recede"><div class="photo-bar"><span>Mountain retreat</span><button id="sheet-trigger" data-st-target="sheet-1"><svg class="st-icon" style="width:15px;height:15px"><use href="#i-share"/></svg>Share</button></div></div>
+      <div data-st-scrim></div>
+      <div id="sheet-1" data-st="sheet" data-st-recede="#sheet-recede" role="dialog" aria-label="Share photo">
+       <span class="st-sheet-handle" aria-hidden="true"></span>
+       <div class="sheet-title">Share photo</div>
+       <div class="share-row"><div><span class="avatar a1">MA</span>Mara</div><div><span class="avatar a2">JO</span>Jon</div><div><span class="avatar a3">EV</span>Eva</div><div><span class="avatar a4">LI</span>Liu</div></div>
+       <div class="share-actions"><button data-st-close>Copy link<svg class="st-icon"><use href="#i-link2"/></svg></button><button data-st-close>Save to Files<svg class="st-icon"><use href="#i-down"/></svg></button></div>
+      </div>
+     </div></div>
+    <button class="replay" data-replay="sheet" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="sheet">Bottom sheet</button></h3><p>From the bottom edge</p><button class="snippet-copy" data-st="copy" data-snippet="sheet" aria-label="Copy HTML for Bottom sheet"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .36 / 0</span><span>drag + velocity</span><span>exit 220 X</span></div></div>
+   </article><article class="card" data-key="drawer" data-why="Side panels slide along the axis they live on and never fade from nowhere, so their origin is unambiguous. The page stays visible behind a soft scrim, keeping context for a secondary task." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Drawer">
+    <div class="stage" data-st-preview>
+     <div class="app desk">
+      <div class="app-bar"><span class="app-title">Orders</span><button class="st-button" id="drawer-trigger" data-st-target="drawer-1"><svg class="st-icon"><use href="#i-filter"/></svg>Filters</button></div>
+      <div class="orders"><div class="order"><span class="o-id">#1042</span><span class="o-name">Lena Park</span><span class="o-amt">$128.00</span></div><div class="order"><span class="o-id">#1041</span><span class="o-name">Omar Haddad</span><span class="o-amt">$64.50</span></div><div class="order"><span class="o-id">#1040</span><span class="o-name">Sofia Ruiz</span><span class="o-amt">$212.00</span></div><div class="order"><span class="o-id">#1039</span><span class="o-name">Kenji Mori</span><span class="o-amt">$39.00</span></div></div>
+      <div data-st-scrim style="border-radius:14px"></div>
+      <div id="drawer-1" data-st="drawer" role="dialog" aria-label="Filters" class="filters">
+       <div class="row between" style="margin:-6px -8px 8px 0"><h4 style="margin:0">Filters</h4><button class="icon-btn" data-st-close aria-label="Close filters"><svg class="st-icon"><use href="#i-x"/></svg></button></div>
+       <div class="opt">Status<span class="muted">Paid</span></div>
+       <div class="opt">Date<span class="muted">Last 30 days</span></div>
+       <div class="opt">Amount<span class="muted">Any</span></div>
+       <button class="st-button st-primary" data-st-close style="width:100%;margin-top:6px">Show 128 orders</button>
+      </div>
+     </div>
+    <button class="replay" data-replay="drawer" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="drawer">Drawer</button></h3><p>From the side edge</p><button class="snippet-copy" data-st="copy" data-snippet="drawer" aria-label="Copy HTML for Drawer"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>x 100% → 0</span><span>spring .36 / 0</span><span>exit 220 X</span></div></div>
+   </article><article class="card" data-key="tooltip" data-why="Tips wait 400ms on first hover, so a passing pointer never triggers them; once one is showing, moving to the next trigger glides the same tip across instead of closing and reopening. It leaves in 80ms, because a hint should go when you do." data-category="Surfaces" tabindex="0" data-motion-region data-motion-label="Tooltip">
+    <div class="stage" data-st-preview>
+     <div class="stack-center">
+      <div class="toolbar" role="toolbar" aria-label="Formatting">
+       <button class="icon-btn" data-st-tip="tip-bold" aria-label="Bold"><svg class="st-icon"><use href="#i-bold"/></svg></button>
+       <button class="icon-btn" data-st-tip="tip-italic" aria-label="Italic"><svg class="st-icon"><use href="#i-italic"/></svg></button>
+       <button class="icon-btn" data-st-tip="tip-link" aria-label="Link"><svg class="st-icon"><use href="#i-link"/></svg></button>
+       <span class="sep" aria-hidden="true"></span>
+       <button class="icon-btn" data-st-tip="tip-comment" aria-label="Comment"><svg class="st-icon"><use href="#i-comment"/></svg></button>
+      </div>
+      <p class="editor-text">The launch moves to <b>Thursday</b>. Marketing has the new hero copy, and the release notes go out with the build.</p>
+     </div>
+     <div id="tip-bold" data-st="tooltip" popover>Bold<kbd>⌘B</kbd></div>
+     <div id="tip-italic" data-st="tooltip" popover>Italic<kbd>⌘I</kbd></div>
+     <div id="tip-link" data-st="tooltip" popover>Add link<kbd>⌘K</kbd></div>
+     <div id="tip-comment" data-st="tooltip" popover>Comment<kbd>⌥⌘M</kbd></div>
+    <button class="replay" data-replay="tooltip" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="tooltip">Tooltip</button></h3><p>Context follows focus</p><button class="snippet-copy" data-st="copy" data-snippet="tooltip" aria-label="Copy HTML for Tooltip"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>dwell 400</span><span>glide spring .26</span><span>exit 80 F</span></div></div>
+   </article><article class="card" data-key="expand" data-category="Surfaces" data-why="The album you pick grows into the detail: its artwork, title and count travel to their new places, so you never lose what you chose. Close sits top-right of the header on every album, the track rows use the full width, and the panel is only as tall as its content. Keyboard changes are instant; reduced motion removes travel and blur." tabindex="0" data-motion-region data-motion-label="Card expand">
+    <div class="stage" data-st-preview>
+     <div class="covers" id="covers" data-st-expand-sources>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c1" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Golden Hour</b><span data-st-shared="meta">12 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" id="expand-src" data-st-target="expand-1" aria-expanded="false"><span class="cover c2" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Night Swim</b><span data-st-shared="meta">9 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+      <button class="cover-card" data-st-target="expand-1" aria-expanded="false"><span class="cover c3" data-st-shared="cover"></span><span class="cover-label"><b data-st-shared="title">Greenhouse</b><span data-st-shared="meta">11 tracks</span></span><span class="cover-open" aria-hidden="true"><svg class="st-icon"><use href="#i-arrow"/></svg></span></button>
+     </div>
+     <div id="expand-1" data-st="expand" role="dialog" aria-label="Album details">
+      <div data-st-scrim style="border-radius:0"></div>
+      <div class="expand-surface" style="z-index:20">
+       <div class="ex-head">
+        <span class="cover" data-st-shared="cover" id="expand-cover"></span>
+        <div class="ex-name"><h4 data-st-shared="title" data-st-shared-text id="expand-title">Night Swim</h4><p data-st-shared="meta" data-st-shared-text id="expand-count">9 tracks</p></div>
+       </div>
+       <div class="ex-preview" data-st-expand-content><div class="ex-preview-label" id="expand-preview-label">3-track preview</div><ol class="ex-tracks" id="expand-tracks" aria-labelledby="expand-preview-label"><li><span>1</span><span>Low tide</span><span>3:41</span></li><li><span>2</span><span>Harbour lights</span><span>4:02</span></li><li><span>3</span><span>Undertow</span><span>3:18</span></li></ol></div>
+       <button class="icon-btn close-x" data-st-close aria-label="Close album"><svg class="st-icon"><use href="#i-x"/></svg></button>
+      </div>
+     </div>
+    <button class="replay" data-replay="expand" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="expand">Card expand</button></h3><p>Card to detail</p><button class="snippet-copy" data-st="copy" data-snippet="expand" aria-label="Copy HTML for Card expand"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shared FLIP</span><span>clip from card rect</span><span>details ride the shell</span></div></div>
+   </article><article class="card" data-key="tabs" data-why="One underline travels between tabs, so the change is a movement you can follow rather than two states blinking. The strip scrolls only itself to keep the selected tab in view, and arrow keys switch instantly because keyboard users are already looking at the result." data-category="Navigation" tabindex="0" data-motion-region data-motion-label="Tabs">
+    <div class="stage" data-st-preview>
+     <div class="app settings-card" data-st="tabs" id="tabs-1" style="padding-top:8px">
+      <div role="tablist" aria-label="Settings sections">
+       <button role="tab" id="t-acc" aria-controls="p-acc" aria-selected="true">Account</button>
+       <button role="tab" id="t-not" aria-controls="p-not">Alerts</button>
+       <button role="tab" id="t-bil" aria-controls="p-bil">Billing</button>
+       <button role="tab" id="t-sec" aria-controls="p-sec">Security</button>
+      </div>
+      <div role="tabpanel" id="p-acc" aria-labelledby="t-acc"><div class="panel-body"><div class="field-row"><span>Email</span><span>mara@aurora.co</span></div><div class="field-row"><span>Language</span><span>English</span></div><div class="field-row"><span>Time zone</span><span>Lisbon (GMT+1)</span></div></div></div>
+      <div role="tabpanel" id="p-not" aria-labelledby="t-not" hidden><div class="panel-body"><div class="field-row"><span>Mentions</span><span>Push and email</span></div><div class="field-row"><span>Weekly digest</span><span>Mondays</span></div><div class="field-row"><span>Product news</span><span>Off</span></div></div></div>
+      <div role="tabpanel" id="p-bil" aria-labelledby="t-bil" hidden><div class="panel-body"><div class="field-row"><span>Plan</span><span>Team, yearly</span></div><div class="field-row"><span>Next invoice</span><span>$1,152 on Nov 1</span></div><div class="field-row"><span>Card</span><span>Visa ending 4242</span></div></div></div>
+      <div role="tabpanel" id="p-sec" aria-labelledby="t-sec" hidden><div class="panel-body"><div class="field-row"><span>Two-factor</span><span>Authenticator app</span></div><div class="field-row"><span>Sessions</span><span>3 devices</span></div><div class="field-row"><span>Passkeys</span><span>2 saved</span></div></div></div>
+     </div>
+    <button class="replay" data-replay="tabs" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="tabs">Tabs</button></h3><p>Follow the selected tab</p><button class="snippet-copy" data-st="copy" data-snippet="tabs" aria-label="Copy HTML for Tabs"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shared underline</span><span>local strip scroll</span><span>keys: instant</span></div></div>
+   </article><article class="card" data-key="segmented" data-why="The raised thumb is a physical object on a track: it slides, it never teleports, and the labels only change colour. That makes a three-way choice read as one control rather than three buttons." data-category="Navigation" tabindex="0" data-motion-region data-motion-label="Segmented control">
+    <div class="stage" data-st-preview>
+     <div class="app metric">
+      <div class="metric-head"><span class="app-title">Revenue</span>
+       <div data-st="segmented" id="seg-1" style="width:210px"><div role="tablist" aria-label="Period"><button role="tab" data-period="day">Day</button><button role="tab" data-period="week" aria-selected="true">Week</button><button role="tab" data-period="year">Year</button></div></div>
+      </div>
+      <div class="big">$<span data-st="number" id="rev" data-value="8420">8,420</span></div>
+      <div class="bars" id="rev-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+     </div>
+    <button class="replay" data-replay="segmented" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="segmented">Segmented control</button></h3><p>One shared selection</p><button class="snippet-copy" data-st="copy" data-snippet="segmented" aria-label="Copy HTML for Segmented control"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .26 / .04</span><span>clipped label ink</span><span>digits roll</span></div></div>
+   </article><article class="card" data-key="page" data-why="Forward pushes the next page in from the side and back returns it, so direction in space matches direction in history. The shared element keeps its identity across both pages, so you never lose the thing you tapped." data-category="Navigation" tabindex="0" data-motion-region data-motion-label="Page transition">
+    <div class="stage" data-st-preview>
+     <div class="app mail" id="mail">
+      <div id="mail-view" class="mail-view"></div>
+     </div>
+    <button class="replay" data-replay="page" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="page">Page transition</button></h3><p>List to detail</p><button class="snippet-copy" data-st="copy" data-snippet="page" aria-label="Copy HTML for Page transition"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>View Transitions API</span><span>x ±48 · shared</span><span>WAAPI fallback</span></div></div>
+   </article><article class="card" data-key="accordion" data-why="Height follows the content on a spring, so long and short answers open with the same feel instead of the same duration. The chevron turns in step with the panel, tying the cause to the effect." data-category="Navigation" tabindex="0" data-motion-region data-motion-label="Accordion">
+    <div class="stage" data-st-preview>
+     <div class="app faq">
+      <details data-st="accordion"><summary>Can I change plans?</summary><div class="st-details-body">Yes. Upgrades apply at once and are prorated; downgrades take effect at the end of the billing period.</div></details>
+      <details data-st="accordion" id="acc-2"><summary>Education pricing?</summary><div class="st-details-body">Students and teachers get the Team plan free for a year with a school email address.</div></details>
+      <details data-st="accordion"><summary>Where is data stored?</summary><div class="st-details-body">In the EU by default, with US and APAC regions available on Enterprise.</div></details>
+     </div>
+    <button class="replay" data-replay="accordion" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="accordion">Accordion</button></h3><p>Content opens below</p><button class="snippet-copy" data-st="copy" data-snippet="accordion" aria-label="Copy HTML for Accordion"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>clip + FLIP</span><span>spring .36 / 0</span><span>chevron .26</span></div></div>
+   </article><article class="card" data-key="button" data-why="The button keeps a fixed footprint through idle, loading, success and error, so nothing around it moves. Only the icon and label change, on a spring, and an error answers with one small shake where you pressed." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Button states">
+    <div class="stage" data-st-preview>
+     <div class="stack-center">
+      <div class="row">
+       <button class="st-button st-primary" data-st="button" id="deploy" data-st-labels="Deploying|Deployed">Deploy</button>
+       <button class="st-button" data-st="button" id="pay" data-st-labels="Paying|Card declined|Try again">Pay $24.00</button>
+      </div>
+     </div>
+    <button class="replay" data-replay="button" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="button">Button states</button></h3><p>Loading to a result</p><button class="snippet-copy" data-st="copy" data-snippet="button" aria-label="Copy HTML for Button states"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>fixed footprint</span><span>icon spring</span><span>error shake 320</span></div></div>
+   </article><article class="card" data-key="copy" data-why="The icon swaps in place and the label confirms with a word, so the feedback appears exactly where the click happened. It reverts on its own, because copied is a moment, not a state." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Copy to clipboard">
+    <div class="stage" data-st-preview>
+     <div class="code code-block"><div class="code-head"><span>Terminal</span>
+      <button class="st-button copy-btn" data-st="copy" id="copy-1" data-st-copy="npm i seenry-transitions"><span class="st-swap" aria-hidden="true"><svg class="st-icon"><use href="#i-copy"/></svg><svg class="st-icon"><use href="#i-check"/></svg></span><span data-st="text">Copy</span></button></div>
+      <code><b>$</b> npm i seenry-transitions</code>
+     </div>
+    <button class="replay" data-replay="copy" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="copy">Copy to clipboard</button></h3><p>Copy, then confirm</p><button class="snippet-copy" data-st="copy" data-snippet="copy" aria-label="Copy HTML for Copy to clipboard"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>scale .5 · blur 3</span><span>glyph roll</span><span>reverts 1.6s</span></div></div>
+   </article><article class="card" data-key="like" data-why="The heart fills with a small overshoot and a brief burst of sparks, a reward that stays inside the button. The count rolls only the digits that changed, so the number never jumps." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Like">
+    <div class="stage" data-st-preview>
+     <div class="app post">
+      <div class="row"><span class="avatar a2">JO</span><div><b style="font-weight:600">Jon Okafor</b><div class="muted small">2h · Design</div></div></div>
+      <p>Shipped the new onboarding today. Three screens instead of seven, and every one of them has a reason to exist.</p>
+      <div class="actions">
+       <button data-st="like" id="like-1" aria-pressed="false" aria-label="Like"><span class="st-heart"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16.5s-6-3.6-6-8.2A3.3 3.3 0 0 1 10 6.4a3.3 3.3 0 0 1 6 1.9c0 4.6-6 8.2-6 8.2z"/></svg></span><span data-st="number" data-value="128" data-st-frequent>128</span></button>
+       <span class="ghostbtn"><svg class="st-icon"><use href="#i-chat"/></svg>24</span>
+      </div>
+     </div>
+    <button class="replay" data-replay="like" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="like">Like</button></h3><p>A little appreciation</p><button class="snippet-copy" data-st="copy" data-snippet="like" aria-label="Copy HTML for Like"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .34 / .42</span><span>sparks 420 E</span><span>count rolls</span></div></div>
+   </article><article class="card" data-key="switch" data-why="The thumb slides on a gentle spring and the track colour follows, so the state change is both seen and felt. Pressing stretches the thumb slightly, an affordance that it will move." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Switch">
+    <div class="stage" data-st-preview>
+     <div class="app list-card">
+      <div class="set-row"><div><b>Email notifications</b><span>Mentions and replies</span></div><label class="st-toggle"><input type="checkbox" role="switch" id="sw-1" aria-label="Email notifications"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span></label></div>
+      <div class="set-row"><div><b>Weekly digest</b><span>Every Monday at 9:00</span></div><label class="st-toggle"><input type="checkbox" role="switch" checked aria-label="Weekly digest"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span></label></div>
+      <div class="set-row"><div><b>Desktop alerts</b><span>While the app is open</span></div><label class="st-toggle"><input type="checkbox" role="switch" aria-label="Desktop alerts"><span class="st-toggle-track"><span class="st-toggle-thumb"></span></span></label></div>
+     </div>
+    <button class="replay" data-replay="switch" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="switch">Switch</button></h3><p>On and off</p><button class="snippet-copy" data-st="copy" data-snippet="switch" aria-label="Copy HTML for Switch"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .28 / .28</span><span>press stretch 1.22</span><span>track 160 F</span></div></div>
+   </article><article class="card" data-key="error" data-why="The field gives one small 2px nudge where your eyes already are, and the message is revealed in space reserved beneath it, so nothing below moves." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Form error">
+    <div class="stage" data-st-preview>
+     <form class="app invite" id="invite" novalidate data-st="error">
+      <label for="invite-email">Invite a teammate</label>
+      <div class="row"><div class="st-field"><input class="st-input" id="invite-email" type="email" value="mara@aurora" autocomplete="off"></div><button class="st-button st-primary" type="submit">Send invite</button></div>
+      <p class="st-error" id="invite-error" role="alert"><svg class="st-icon" style="width:15px;height:15px"><use href="#i-x"/></svg><span data-st-error-text>Enter a full email address, like mara@aurora.co</span></p>
+     </form>
+    <button class="replay" data-replay="error" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="error">Form error</button></h3><p>An error stays nearby</p><button class="snippet-copy" data-st="copy" data-snippet="error" aria-label="Copy HTML for Form error"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>2px nudge, 160ms</span><span>clip reveal</span><span>no layout shift</span></div></div>
+   </article><article class="card" data-key="toast" data-why="Toasts stack with depth and spread out on hover, so several stay readable without covering the page, and their timers pause while you read. A swipe dismisses at the speed you threw it." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Toast stack">
+    <div class="stage toast-stage">
+     <div class="stack-center" style="padding-top:28px">
+      <div class="row"><button class="st-button" id="toast-save">Save draft</button><button class="st-button" id="toast-archive">Archive</button></div>
+     </div>
+     <ol class="toast-host" data-st="toasts" id="toasts" aria-label="Notifications"></ol>
+    <button class="replay" data-replay="toast" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="toast">Toast stack</button></h3><p>Messages make room</p><button class="snippet-copy" data-st="copy" data-snippet="toast" aria-label="Copy HTML for Toast stack"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>spring .34 / .08</span><span>scale 1 − .05n</span><span>swipe + velocity</span></div></div>
+   </article><article class="card" data-key="number" data-why="Only the digits that changed roll, with a short motion blur in the direction of change, so a price update reads as a change of value, not a redraw. Neighbouring text slides with the width instead of jumping." data-category="Content" tabindex="0" data-motion-region data-motion-label="Number">
+    <div class="stage" data-st-preview>
+     <div class="app seats">
+      <div class="row between"><div><b style="font-weight:600">Team plan</b><div class="muted small">$8 per seat, monthly</div></div>
+       <div class="stepper"><button type="button" id="seat-minus" aria-label="Remove a seat">−</button><output id="seat-out" aria-live="polite"><span data-st="number" id="seats" data-value="12" data-st-frequent>12</span></output><button type="button" id="seat-plus" aria-label="Add a seat">+</button></div></div>
+      <div class="total"><span class="price">$<span data-st="number" id="price" data-value="96">96</span></span><span class="muted">per month</span></div>
+     </div>
+    <button class="replay" data-replay="number" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="number">Number</button></h3><p>Only changed digits</p><button class="snippet-copy" data-st="copy" data-snippet="number" aria-label="Copy HTML for Number"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>per-digit roll</span><span>offset 12ms, cap 36</span><span>steppers: no stagger</span></div></div>
+   </article><article class="card" data-key="text" data-why="Letters change through a short offset and blur, so the line keeps its shape while its meaning updates, and the shell around it eases to the new width instead of snapping." data-category="Text" tabindex="0" data-motion-region data-motion-label="Text change">
+    <div class="stage" data-st-preview>
+     <div class="app issue">
+      <div class="row between"><span class="muted small mono">AUR-214</span><button class="status" id="status" data-seenry-dot="live" data-st-fit type="button" aria-label="Change status"><span data-st="text" id="status-text">Backlog</span></button></div>
+      <h4>Hero video stutters on Safari 18</h4>
+      <p class="muted small">Assigned to Eva · Due Friday</p>
+     </div>
+    <button class="replay" data-replay="text" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="text">Text change</button></h3><p>A label changes state</p><button class="snippet-copy" data-st="copy" data-snippet="text" aria-label="Copy HTML for Text change"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>glyph offsets 14</span><span>blur 3 → 0</span><span>shell FLIP</span></div></div>
+   </article><article class="card" data-key="list" data-why="Rows keep their identity: when one is added or removed the others slide to their new places on one spring, with no stagger, so the list reads as one thing rearranging. A removed row fades first, then the gap closes." data-category="Content" tabindex="0" data-motion-region data-motion-label="List">
+    <div class="stage" data-st-preview>
+     <div class="app tasks">
+      <div class="app-bar"><span class="app-title">This week</span><div class="row" style="gap:6px"><button class="st-button" id="sort-btn" style="min-height:34px;padding:0 10px;font-size:13px;border-radius:8px">Sort by due date</button><button class="icon-btn" id="add-task" aria-label="Add task"><svg class="st-icon"><use href="#i-plus"/></svg></button></div></div>
+      <ul data-st="list" id="task-list">
+       <li class="task" data-seenry-dot="live" data-prio="1" data-due="3"><svg class="st-icon" aria-hidden="true"><use href="#i-doc"/></svg><div class="grow"><b>Fix checkout</b><span>Due Thu</span></div><button class="icon-btn" data-remove aria-label="Remove Fix checkout"><svg class="st-icon"><use href="#i-x"/></svg></button></li>
+       <li class="task" data-seenry-dot="live" data-prio="2" data-due="1"><svg class="st-icon" aria-hidden="true"><use href="#i-doc"/></svg><div class="grow"><b>Review pricing</b><span>Due Mon</span></div><button class="icon-btn" data-remove aria-label="Remove Review pricing"><svg class="st-icon"><use href="#i-x"/></svg></button></li>
+       <li class="task" data-seenry-dot="live" data-prio="3" data-due="2"><svg class="st-icon" aria-hidden="true"><use href="#i-doc"/></svg><div class="grow"><b>Update changelog</b><span>Due Tue</span></div><button class="icon-btn" data-remove aria-label="Remove Update changelog"><svg class="st-icon"><use href="#i-x"/></svg></button></li>
+      </ul>
+     </div>
+    <button class="replay" data-replay="list" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="list">List</button></h3><p>Rows keep their identity</p><button class="snippet-copy" data-st="copy" data-snippet="list" aria-label="Copy HTML for List"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>FLIP spring .36</span><span>remove: fade, +40</span><span>no stagger</span></div></div>
+   </article><article class="card" data-key="skeleton" data-why="The placeholders are the real text and image in a waiting state, so the layout never shifts when data arrives. Each placeholder dissolves as its own content arrives, photo first, then name, then body, so the swap reads in order without ever showing an empty card." data-category="Content" tabindex="0" data-motion-region data-motion-label="Skeleton to content">
+    <div class="stage" data-st-preview>
+     <div class="app profile" data-st="skeleton" id="skel" aria-busy="false">
+      <div class="st-real st-sk-real">
+       <span class="st-media" data-st-sk style="--i:0" aria-hidden="true"></span><b style="font-weight:600;align-self:end"><span data-st-sk style="--i:1">Eva Lindqvist</span></b><span class="muted small" style="align-self:start"><span data-st-sk style="--i:2">Product designer, Stockholm</span></span>
+       <p><span data-st-sk style="--i:3">Designs calm tools for busy teams. Currently working on the new review flow.</span></p>
+       <div class="stats"><span data-st-sk style="--i:4"><b>1,204</b> followers</span><span data-st-sk style="--i:5"><b>86</b> shots</span></div>
+      </div>
+     </div>
+    <button class="replay" data-replay="skeleton" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="skeleton">Skeleton to content</button></h3><p>Content replaces a mask</p><button class="snippet-copy" data-st="copy" data-snippet="skeleton" aria-label="Copy HTML for Skeleton to content"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shapes are the content</span><span>photo, name, body: 22ms apart</span><span>one sweep, then resolve</span></div></div>
+   </article><article class="card" data-key="ai" data-why="Nothing is erased: a follow-up moves the whole conversation up together, so the earlier answer slides under a soft fade instead of vanishing. The new answer streams into space already reserved for it, and each source lights the moment its citation lands. Pressing again stops it and keeps what has arrived." data-category="AI" tabindex="0" data-motion-region data-motion-label="AI thinking and streaming">
+    <div class="stage" data-st-preview>
+     <div class="app chat"><div class="chat-view" id="chat"><div class="chat-track" id="chat-track"><div class="turn">
+      <div class="bubble">Summarise this week's releases</div>
+      <div class="thinking-row"><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think" data-st-done="true">Answered from 3 sources</span></div>
+      <div class="sources" aria-label="Sources"><span>Changelog</span><span>Release notes</span><span>Docs</span></div>
+      <div class="answer" data-st="stream" aria-live="polite" aria-busy="false">Three releases shipped: saved cards<sup class="st-cite">1</sup>, editor comments<sup class="st-cite">2</sup> and faster exports<sup class="st-cite">3</sup>.</div>
+     </div></div></div></div>
+    <button class="replay" data-replay="ai" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="ai">AI thinking and streaming</button></h3><p>A thread that keeps its history</p><button class="snippet-copy" data-st="copy" data-snippet="ai" aria-label="Copy HTML for AI thinking and streaming"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>history leads, reply trails</span><span>sources light as cited</span><span>second press stops</span></div></div>
+   </article><article class="card" data-key="checkbox" data-why="The tick draws along its path, so the mark reads as made rather than shown, and the label is struck through 40ms later, so cause and effect read in order. The box gives a little on press." data-category="Feedback" tabindex="0" data-motion-region data-motion-label="Checkbox">
+    <div class="stage" data-st-preview>
+     <div class="app list-card checklist">
+      <div class="app-bar"><span class="app-title">Launch checklist</span><span class="chip"><span data-st="number" id="done-count" data-value="1">1</span>&nbsp;of 4 done</span></div>
+      <label class="st-check"><input type="checkbox" id="chk-1"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7"/></svg><span class="st-strike">Record the demo video</span></label>
+      <label class="st-check"><input type="checkbox" checked><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7"/></svg><span class="st-strike">Approve pricing page</span></label>
+      <label class="st-check"><input type="checkbox"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7"/></svg><span class="st-strike">Schedule the announcement</span></label>
+      <label class="st-check"><input type="checkbox"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7"/></svg><span class="st-strike">Brief the support team</span></label>
+     </div>
+    <button class="replay" data-replay="checkbox" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div>
+    <div class="caption"><h3><button class="title-link" data-detail="checkbox">Checkbox</button></h3><p>A decisive check</p><button class="snippet-copy" data-st="copy" data-snippet="checkbox" aria-label="Copy HTML for Checkbox"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>tick 160 E</span><span>strike +40ms</span><span>press .9</span></div></div>
+   </article><article class="card" data-motion-region data-motion-label="Card resize" data-key="resize" data-category="Navigation" tabindex="0" data-why="The card’s painted shell changes size on one smooth spring while its content stays put, and new rows arrive 50ms after the room is made, so text never squeezes or stretches during the change."><div class="stage" data-st-preview><div id="resize-card" class="app resize-demo"><div class="rz-head"><span class="rz-icon" aria-hidden="true"><svg class="st-icon"><use href="#i-spark"/></svg></span><div class="rz-title"><b>Weekly digest</b><span>12 updates</span></div><button class="icon-btn rz-toggle" id="resize-action" aria-expanded="false" aria-controls="resize-content" aria-label="Show details"><svg class="st-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></button></div><div id="resize-content" class="resize-more" hidden></div></div><button class="replay" data-replay="resize" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="resize">Card resize</button></h3><p>Compact to detailed</p><button class="snippet-copy" data-st="copy" data-snippet="resize" aria-label="Copy HTML for Card resize"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>width + height, one spring</span><span>rows +70ms, 45ms apart</span><span>exit clipped by the shell</span></div></div></article><article class="card" data-motion-region data-motion-label="Notification badge" data-key="badge" data-category="Feedback" tabindex="0" data-why="The badge scales in with a small bounce only when it first appears, and later counts roll in the direction of change without the badge pulsing again. At zero it leaves rather than showing a 0."><div class="stage" data-st-preview><div class="stack-center"><button class="st-button badge-owner" id="badge-owner"><svg class="st-icon" aria-hidden="true"><use href="#i-bell"/></svg>Inbox<span data-st="badge" id="badge" data-value="3">3</span></button><p class="muted">Unread notifications</p></div><button class="replay" data-replay="badge" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="badge">Notification badge</button></h3><p>Counts stay attached</p><button class="snippet-copy" data-st="copy" data-snippet="badge" aria-label="Copy HTML for Notification badge"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>bouncy spring</span><span>directional digits</span><span>exit 120 X</span></div></div></article><article class="card" data-motion-region data-motion-label="Icon swap" data-key="icon" data-category="Feedback" tabindex="0" data-why="Icons swap through a quick scale and blur in the same spot, so the change reads as one control switching state rather than two images."><div class="stage" data-st-preview><div class="stack-center"><button class="st-button" data-st="icon-morph" id="icon-swap" aria-label="Play" aria-pressed="false" data-st-label-on="Pause" data-st-label-off="Play"><svg class="st-icon st-morph-icon" viewBox="0 0 20 20" aria-hidden="true"><path data-st-off="M6 4 L11 7 L11 13 L6 16 Z M11 7 L16 10 L16 10 L11 13 Z" data-st-on="M5.5 4 L8.5 4 L8.5 16 L5.5 16 Z M11.5 4 L14.5 4 L14.5 16 L11.5 16 Z" d="M6 4 L11 7 L11 13 L6 16 Z M11 7 L16 10 L16 10 L11 13 Z"/></svg></button><span class="muted">Preview playback</span></div><button class="replay" data-replay="icon" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="icon">Icon swap</button></h3><p>Two icons, one box</p><button class="snippet-copy" data-st="copy" data-snippet="icon" aria-label="Copy HTML for Icon swap"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>snappy spring</span><span>scale .6 · blur 2</span><span>exit 120 X</span></div></div></article><article class="card" data-motion-region data-motion-label="Success check" data-key="success" data-category="Feedback" tabindex="0" data-why="No filled disc: a hairline ring holds the place, closes in green as the tick lands, and lets one soft halo breathe out. The confirmation is unmistakable and still quiet."><div class="stage" data-st-preview><div class="stack-center"><div data-st="success" id="success-check" data-st-success-label="Changes saved" aria-label="Ready to complete"><span class="st-success-mark" aria-hidden="true"><svg class="st-success-disc" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20"/></svg><svg class="st-success-tick" viewBox="0 0 40 40"><path d="m12.5 20.5 5 5 10-11" pathLength="100"/></svg></span><span data-st-success-text>Ready to save</span></div><button class="st-button" id="success-action">Confirm changes</button></div><button class="replay" data-replay="success" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="success">Success check</button></h3><p>Circle, then check</p><button class="snippet-copy" data-st="copy" data-snippet="success" aria-label="Copy HTML for Success check"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>stroke 160 E</span><span>check +160ms</span><span>settle 160 E</span></div></div></article><article class="card" data-motion-region data-motion-label="Avatar group" data-key="avatars" data-category="Content" tabindex="0" data-why="The face you point at lifts a little and its neighbours spread to give it room, so the group opens as one rather than one face jumping out. Pressing shows the name above that face."><div class="stage" data-st-preview><div class="stack-center"><div data-st="avatars" id="avatar-group"><button class="avatar" aria-label="Mara Alves">MA</button><button class="avatar" aria-label="Jon Okafor">JO</button><button class="avatar" aria-label="Eva Lindqvist">EV</button><button class="avatar" aria-label="Liu Wei" data-st-avatar-extra hidden>LW</button><button class="avatar" aria-label="Amara Okoye" data-st-avatar-extra hidden>AO</button><button class="avatar" aria-label="Theo Brandt" data-st-avatar-extra hidden>TB</button><button data-st-avatar-more aria-expanded="false" aria-label="Show everyone">+3</button></div></div><button class="replay" data-replay="avatars" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="avatars">Avatar group</button></h3><p>A stack of people</p><button class="snippet-copy" data-st="copy" data-snippet="avatars" aria-label="Copy HTML for Avatar group"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>lift 4 / 2 / 1px</span><span>snappy spring</span><span>names on press</span></div></div></article><article class="card" data-motion-region data-motion-label="Input clear" data-key="clear" data-category="Feedback" tabindex="0" data-why="The clear control appears only when there is something to clear; the text leaves with a short slide and blur, and focus stays in the field, so typing can continue immediately."><div class="stage" data-st-preview><div class="clear-demo"><label for="clear-input">Find a teammate</label><div data-st="clear" id="clear-field"><input class="st-input" id="clear-input" value="Mara Alves" placeholder="Search people"><button aria-label="Clear search"><svg class="st-icon" aria-hidden="true"><use href="#i-x"/></svg></button></div></div><button class="replay" data-replay="clear" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="clear">Input clear</button></h3><p>Clear and keep focus</p><button class="snippet-copy" data-st="copy" data-snippet="clear" aria-label="Copy HTML for Input clear"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>text 120 X</span><span>x −8 · blur 2</span><span>button follows</span></div></div></article><article class="card" data-motion-region data-motion-label="Link arrow" data-key="link" data-category="Text" tabindex="0" data-why="The arrow nudges 3px forward on a spring, a small cue of where the link goes, and the underline draws left to right in reading direction. The colour stays put, keeping body text calm."><div class="stage" data-st-preview><a data-st="learn" id="learn-link" href="README.md">Learn more <svg class="st-icon st-arrow" viewBox="0 0 20 20" aria-hidden="true"><path class="st-arrow-line" d="M4.5 10h10"/><path class="st-arrow-head" d="M10 5.5 14.5 10 10 14.5"/></svg></a><button class="replay" data-replay="link" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="link">Link arrow</button></h3><p>A small forward cue</p><button class="snippet-copy" data-st="copy" data-snippet="link" aria-label="Copy HTML for Link arrow"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>snappy spring</span><span>arrow +3px</span><span>underline left → right</span></div></div></article><article class="card" data-motion-region data-motion-label="Popover panel" data-key="popover" data-category="Surfaces" tabindex="0" data-why="The panel unfolds from its trigger with a clip, and its content follows 50ms later so the shape lands before the words. It closes back into the trigger, so you always know where it went."><div class="stage" data-st-preview><div class="stack-center"><button class="st-button" id="popover-trigger" data-st-target="popover-panel" aria-expanded="false"><svg class="st-icon" aria-hidden="true"><use href="#i-share"/></svg>Share document</button><span class="muted">Q3 roadmap</span></div><div id="popover-panel" data-st="popover-panel" data-st-contained role="dialog" aria-label="Share document"><b>Share Q3 roadmap</b><p class="muted">Anyone with the link can view.</p><button class="st-button" data-st-close>Done</button></div><button class="replay" data-replay="popover" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="popover">Popover panel</button></h3><p>Attached to its trigger</p><button class="snippet-copy" data-st="copy" data-snippet="popover" aria-label="Copy HTML for Popover panel"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>snappy clip</span><span>content +50ms</span><span>exit to trigger</span></div></div></article><article class="card" data-motion-region data-motion-label="Spinner to check" data-key="progress" data-category="Feedback" tabindex="0" data-why="One mark carries every state: idle, an arc while working, a ring that closes into a tick on success or a cross on failure. The status never jumps to a different shape or place."><div class="stage" data-st-preview><div class="stack-center"><div data-st="progress" id="progress" aria-label="Ready"></div><span id="progress-label" class="muted">Ready to sync</span><button class="st-button" id="progress-action">Sync changes</button></div><button class="replay" data-replay="progress" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="progress">Spinner to check</button></h3><p>Loading to confirmation</p><button class="snippet-copy" data-st="copy" data-snippet="progress" aria-label="Copy HTML for Spinner to check"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>ring narrows</span><span>stroke 160 E</span><span>success or error</span></div></div></article><article class="card" data-motion-region data-motion-label="Image open" data-key="image" data-category="Surfaces" tabindex="0" data-why="The thumbnail itself grows into the lightbox, so it is obviously the same picture, and dragging it down sends it back where it came from. Dismissing is a gesture, not a hunt for a close button."><div class="stage" data-st-preview><button class="image-thumb" data-st="image-open" id="image-open" aria-label="Open mountain lake photo"><img src="assets/lake.jpg" alt="A mountain lake beside a cabin" width="260" height="164"></button><button class="replay" data-replay="image" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="image">Image open</button></h3><p>Thumbnail to lightbox</p><button class="snippet-copy" data-st="copy" data-snippet="image" aria-label="Copy HTML for Image open"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>shared-element FLIP</span><span>smooth spring</span><span>drag down to dismiss</span></div></div></article><article class="card" data-motion-region data-motion-label="Reorder" data-key="reorder" data-category="Content" tabindex="0" data-why="The moving row lifts slightly and the others slide out of the way on a spring, so the drop target is always visible. Keyboard moves use the same motion and every move is announced, so all inputs share one model."><div class="stage" data-st-preview><div class="app reorder-demo"><p class="reorder-title">Projects</p><p class="st-sr" id="reorder-help">Press Space to pick up a project, arrow keys to move it, Space to drop.</p><ul data-st="reorder" id="reorder-list" aria-describedby="reorder-help"><li data-st-row data-st-name="Website redesign"><div><span class="proj-mark" style="--c:#e5484d">W</span><span class="proj-name">Website redesign</span><button class="icon-btn" data-st-handle aria-label="Move Website redesign"><svg class="st-icon" aria-hidden="true"><use href="#i-grip"/></svg></button></div></li><li data-st-row data-st-name="Mobile app"><div><span class="proj-mark" style="--c:#12a594">M</span><span class="proj-name">Mobile app</span><button class="icon-btn" data-st-handle aria-label="Move Mobile app"><svg class="st-icon" aria-hidden="true"><use href="#i-grip"/></svg></button></div></li><li data-st-row data-st-name="Brand refresh"><div><span class="proj-mark" style="--c:#3e63dd">B</span><span class="proj-name">Brand refresh</span><button class="icon-btn" data-st-handle aria-label="Move Brand refresh"><svg class="st-icon" aria-hidden="true"><use href="#i-grip"/></svg></button></div></li><li data-st-row data-st-name="Q3 roadmap"><div><span class="proj-mark" style="--c:#f76b15">Q</span><span class="proj-name">Q3 roadmap</span><button class="icon-btn" data-st-handle aria-label="Move Q3 roadmap"><svg class="st-icon" aria-hidden="true"><use href="#i-grip"/></svg></button></div></li></ul></div><button class="replay" data-replay="reorder" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="reorder">Reorder</button></h3><p>Make room for a row</p><button class="snippet-copy" data-st="copy" data-snippet="reorder" aria-label="Copy HTML for Reorder"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>smooth FLIP</span><span>lift scale 1.02</span><span>moves announced</span></div></div></article></div><p class="empty" id="no-results" hidden>No transitions match your search.</p><section class="extras" aria-labelledby="extras-title"><div class="extras-head"><h2 id="extras-title">Expressive extras</h2><p>Decorative motion for brand moments. Use sparingly: these carry mood, not state.</p></div><div class="grid" id="extras-grid"><article class="card" data-motion-region data-motion-label="Thinking states" data-key="shimmer" data-category="Text AI" tabindex="0" data-why="Status text carries a slow light sweep while work is happening; the words stay readable throughout and it pauses off screen. Each step replaces the last with a soft blur, so progress reads as a sequence."><div class="stage" data-st-preview><div class="think-demo"><svg class="st-icon spark" aria-hidden="true"><use href="#i-spark"/></svg><span data-st="thinking" id="shimmer-text" aria-live="polite" data-st-done="true">3 suggestions ready</span></div><button class="replay" data-replay="shimmer" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="shimmer">Thinking states</button></h3><p>Status shimmers, then steps on</p><button class="snippet-copy" data-st="copy" data-snippet="shimmer" aria-label="Copy HTML for Shimmer text"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>one pass / 2.4s</span><span>readable throughout</span><span>offscreen pause</span></div></div></article><article class="card" data-motion-region data-motion-label="Tilt card" data-key="tilt" data-category="Content" tabindex="0" data-why="The card tilts up to 4 degrees toward a fine pointer and settles back on a soft spring, adding depth without making the content hard to read. Touch and reduced motion get a still card."><div class="stage" data-st-preview><div data-st="tilt" id="tilt-card" class="media-card"><img src="assets/forest.jpg" alt="Sunlight through a green forest" width="260" height="140"><div><b>Forest walk</b><span class="muted">A moment outside</span></div><span class="st-tilt-light" aria-hidden="true"></span></div><button class="replay" data-replay="tilt" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="tilt">Tilt card</button></h3><p>Follow a fine pointer</p><button class="snippet-copy" data-st="copy" data-snippet="tilt" aria-label="Copy HTML for Tilt card"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>max 4deg</span><span>smooth return</span><span>fine pointers only</span></div></div></article><article class="card" data-motion-region data-motion-label="Text reveal" data-key="reveal" data-category="Text" tabindex="0" data-why="Lines come into focus as they enter, rising 8px out of a soft blur from 60% opacity, so text is never invisible while it moves. It plays once per view."><div class="stage" data-st-preview><div data-st="reveal" id="text-reveal" class="reveal-demo"><h4>A little more clarity.</h4><p class="muted">Let motion explain the next step.</p></div><button class="replay" data-replay="reveal" data-st-keep><svg class="st-icon"><use href="#i-replay"/></svg>Replay</button></div><div class="caption"><h3><button class="title-link" data-detail="reveal">Text reveal</button></h3><p>Lines come into focus</p><button class="snippet-copy" data-st="copy" data-snippet="reveal" aria-label="Copy HTML for Text reveal"><span class="st-swap"><svg class="st-icon"><use href="#i-dup"/></svg><svg class="st-icon"><path d="m4 10 4 4 8-8"/></svg></span><span data-st="text" class="copy-label">Copy HTML</span></button><div class="spec"><span>y 8px · blur 4</span><span>opacity .6 → 1</span><span>once per view</span></div></div></article></div></section><footer class="foot"><div><h2>Add it to a page</h2><p>Copy preview markup as a starting point. Gallery styling, image assets and demo actions may also be needed.</p><a href="README.md">Read the documentation</a></div><pre class="install">&lt;link rel="stylesheet" href="seenry-transitions.css"&gt;
+&lt;script src="seenry-transitions.js" defer&gt;&lt;/script&gt;</pre></footer></main>
+<dialog data-st-drag-handle-only id="library-detail" data-st="drawer" aria-labelledby="detail-title"><div class="detail-drag-handle" data-st-drag-handle aria-hidden="true"><span></span></div><button class="st-button st-ghost st-icon-button detail-close" data-st-close aria-label="Close detail"><svg class="st-icon" aria-hidden="true"><use href="#i-x"/></svg></button><h2 id="detail-title"></h2><p id="detail-description"></p><div class="detail-preview" id="detail-preview"></div><div class="detail-spec spec" id="detail-spec"></div><section class="detail-why" id="detail-why" hidden><h3>Why this works</h3><p></p></section><div id="detail-codes"></div></dialog>
+<script src="seenry-transitions.js"></script><script>(function(){
+ const S = window.SeenryTransitions, $ = id => document.getElementById(id);
+
+ // Theme
+ const themeRoot = document.querySelector('.theme');
+ const applyTheme = t => { if (t === 'system') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t; try { localStorage.setItem('st-gallery-theme', t); } catch {} };
+ const saved = document.documentElement.dataset.theme || 'system';
+ const savedTab = themeRoot.querySelector(`[data-theme-choice="${saved}"]`); if (savedTab) S.tab(themeRoot, savedTab, true);
+ themeRoot.addEventListener('st:tab-change', e => applyTheme(e.detail.tab.dataset.themeChoice));
+
+ // Tooltip replay walks the toolbar so the bubble glides.
+ const tipTriggers = [...document.querySelectorAll('[data-st-tip]')]; let tipIndex = -1;
+
+ // Revenue per period
+ const periods = {day: [1210, [4,6,5,7,6,8,7,9,8,10]], week: [8420, [5,7,6,8,7,6,9,8,10,9]], year: [412880, [3,4,5,4,6,7,6,8,9,10]]};
+ const bars = [...$('rev-bars').children];
+ const setPeriod = p => { const [v, b] = periods[p]; S.number($('rev'), v); bars.forEach((el, i) => el.style.transform = `scaleY(${b[i] / 10})`); };
+ bars.forEach((el,i)=>el.style.transform=`scaleY(${periods.week[1][i]/10})`);
+ $('seg-1').addEventListener('st:tab-change', e => setPeriod(e.detail.tab.dataset.period));
+
+ // Mail: list and detail views rendered into one scope, switched with a view transition.
+ const mails = [
+  {id: 'm1', from: 'Mara Alves', init: 'MA', av: 'a1', subject: 'Launch checklist for Friday', body: 'Here is the final list. Copy is approved, the video is encoded, and the press kit goes out at 9:00 Lisbon time.'},
+  {id: 'm2', from: 'Jon Okafor', init: 'JO', av: 'a2', subject: 'Onboarding numbers are in', body: 'Completion is up 18% since we cut the flow to three screens. Drop-off moved from step two to the paywall.'},
+  {id: 'm3', from: 'Eva Lindqvist', init: 'EV', av: 'a3', subject: 'Review flow, round two', body: 'New prototype attached. Comments now sit beside the frame instead of on top of it.'}
+ ];
+ let openMail = null;
+ const renderList = () => `<div class="app-bar"><span class="app-title" data-st-shared="inbox-title">Inbox</span><span class="chip">3 new</span></div><div class="mail-list">${mails.map(m => `<button class="msg" data-open="${m.id}"><span class="avatar ${m.av}" data-st-shared="${m.id}-av">${m.init}</span><span class="body"><b data-st-shared="${m.id}-from">${m.from}</b><span data-st-shared="${m.id}-subject">${m.subject}</span></span></button>`).join('')}</div>`;
+ // A focused reading region owns unmodified paging keys; nested inputs and browser shortcuts remain native.
+ function scrollMessageByKey(event) {
+  if(event.isComposing||event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey) return;
+  const region=event.target;
+  if(region!==document.activeElement||!region?.matches?.('#mail-view > .detail[tabindex="0"]')) return;
+  const max=Math.max(0,region.scrollHeight-region.clientHeight);
+  if(!max) return;
+  const positions={Home:0,End:max,PageUp:region.scrollTop-region.clientHeight,PageDown:region.scrollTop+region.clientHeight};
+  if(!Object.hasOwn(positions,event.key)) return;
+  event.preventDefault();region.scrollTop=Math.max(0,Math.min(max,positions[event.key]));
+ }
+ $('mail-view').addEventListener('keydown',scrollMessageByKey);
+ const renderDetail = m => `<div class="app-bar"><button class="back-btn" data-back aria-label="Back to inbox"><svg class="st-icon" aria-hidden="true"><use href="#i-back"/></svg><span data-st-shared="inbox-title">Inbox</span></button></div><div class="detail" tabindex="0" role="region" aria-label="Message content"><div class="row"><span class="avatar ${m.av}" data-st-shared="${m.id}-av">${m.init}</span><div><b data-st-shared="${m.id}-from" style="display:block;font-weight:600;max-width:100%">${m.from}</b><span class="muted small">to you · 9:41</span></div></div><h4 data-st-shared="${m.id}-subject">${m.subject}</h4><p>${m.body}</p></div>`;
+ const mailView = $('mail-view'); mailView.innerHTML = renderList();
+ const go = (m, back) => { const key = (m || openMail).id; S.page(back ? 'back' : 'forward', () => { openMail = back ? null : m; mailView.innerHTML = back ? renderList() : renderDetail(m); }, $('mail'), {shared: ['inbox-title', key + '-av', key + '-from', key + '-subject']}).then(() => { const f = mailView.querySelector(back ? `[data-open="${key}"]` : '[data-back]'); f?.focus({preventScroll:true,focusVisible:false}); }); };
+ $('mail').addEventListener('click', e => { const o = e.target.closest('[data-open]'); if (o) go(mails.find(m => m.id === o.dataset.open)); if (e.target.closest('[data-back]')) go(null, true); });
+
+ // Card expand: fill the detail from the card that opened it.
+ const covers = {c1: ['Golden Hour', '12 tracks', [['First light', '3:12'], ['Amber', '4:20'], ['Long shadows', '3:55']]], c2: ['Night Swim', '9 tracks', [['Low tide', '3:41'], ['Harbour lights', '4:02'], ['Undertow', '3:18']]], c3: ['Greenhouse', '11 tracks', [['Fern', '2:58'], ['Glass roof', '4:11'], ['Humid', '3:27']]]};
+ document.querySelectorAll('.cover-card').forEach(card => card.addEventListener('click', () => {
+  const c = card.querySelector('.cover').classList[1]; const [title, count, tracks] = covers[c];
+  $('expand-cover').className = 'cover ' + c; $('expand-title').textContent = title; $('expand-count').textContent = count;
+  $('expand-tracks').innerHTML = tracks.map(([t, d], i) => `<li><span>${i + 1}</span><span>${t}</span><span>${d}</span></li>`).join('');
+ }, true));
+
+ // Button states
+ let deployRun = 0;
+ const runDeploy = () => { const b = $('deploy'), run = ++deployRun; if (b.dataset.stState === 'loading') { S.state(b, 'idle', 'Deploy'); return; } S.state(b, 'loading', 'Deploying'); setTimeout(() => { if (run !== deployRun) return; S.state(b, 'success', 'Deployed'); setTimeout(() => { if (run === deployRun) S.state(b, 'idle', 'Deploy'); }, 1800); }, 1100); };
+ $('deploy').addEventListener('click', runDeploy);
+ let payRun = 0;
+ $('pay').addEventListener('click', () => { const b = $('pay'), run = ++payRun; if (b.dataset.stState === 'loading') { S.state(b, 'idle', 'Pay $24.00'); return; } S.state(b, 'loading', 'Paying'); setTimeout(() => { if (run !== payRun) return; S.state(b, 'error', 'Card declined'); setTimeout(() => { if (run === payRun) S.state(b, 'idle', 'Try again'); }, 1800); }, 1100); });
+
+ // Form error
+ const form = $('invite'), email = $('invite-email');
+ form.addEventListener('submit', e => { e.preventDefault(); if (/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.value)) { S.clearError(form); S.toast($('toasts'), 'Invite sent', {description: email.value}); } else S.shake(form); });
+ email.addEventListener('input', () => { if (form.dataset.stError && /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.value)) S.clearError(form); });
+
+ // Toasts
+ const toastMsgs = [['Draft saved', 'Q3 roadmap · just now'], ['Moved to archive', '3 conversations'], ['Link copied', 'Anyone with the link can view'], ['Invite sent', 'eva@aurora.co']];
+ let toastN = 0;
+ const pushToast = (i = toastN++ % toastMsgs.length) => S.toast($('toasts'), toastMsgs[i][0], {description: toastMsgs[i][1], action: i === 1 ? {label: 'Undo'} : undefined});
+ $('toast-save').addEventListener('click', () => pushToast(0)); $('toast-archive').addEventListener('click', () => pushToast(1));
+ $('toasts')._stTrigger = $('toast-save');
+ // The stack is the subject, so it is present at rest: two messages that stay until dismissed.
+ requestAnimationFrame(() => { S.toast($('toasts'), toastMsgs[2][0], {description: toastMsgs[2][1], duration: Infinity}); S.toast($('toasts'), toastMsgs[0][0], {description: toastMsgs[0][1], duration: Infinity}); });
+
+ // Seats and price
+ let seats = 12; const setSeats = n => { seats = Math.max(1, Math.min(999, n)); S.number($('seats'), seats); S.number($('price'), seats * 8, {frequent: false}); };
+ $('seat-minus').addEventListener('click', () => setSeats(seats - 1)); $('seat-plus').addEventListener('click', () => setSeats(seats + 1));
+
+ // Status pill
+ const statuses = [['Backlog', 'var(--surface-2)', 'var(--text-2)'], ['In progress', 'var(--warn-bg)', 'var(--warn)'], ['In review', 'var(--info-bg)', 'var(--info)'], ['Done', 'var(--ok-bg)', 'var(--ok)']];
+ let statusI = 0;
+ const nextStatus = () => { statusI = (statusI + 1) % statuses.length; const [t, bg, fg] = statuses[statusI], pill = $('status'); pill.style.setProperty('--pill-bg', bg); pill.style.setProperty('--pill-fg', fg); S.swapText($('status-text'), t, {fit: pill}); };
+ $('status').addEventListener('click', nextStatus);
+
+ // Tasks
+ const taskList = $('task-list'); let byDue = false;
+ const sortTasks = () => { byDue = !byDue; S.list.reorder(taskList, (a, b) => byDue ? a.dataset.due - b.dataset.due : a.dataset.prio - b.dataset.prio); S.swapText($('sort-btn'), byDue ? 'Sort by priority' : 'Sort by due date'); };
+ $('sort-btn').addEventListener('click', sortTasks);
+ taskList.addEventListener('click', e => { const r = e.target.closest('[data-remove]'); if (r) S.list.remove(r.closest('li')); });
+ const extra = [['Book user interviews', 'Due Wed', 'var(--info)', 3, 2], ['Draft release notes', 'Due Fri', 'var(--warn)', 2, 4], ['Rotate API keys', 'Due Mon', 'var(--bad)', 1, 1]]; let extraI = 0;
+ $('add-task').addEventListener('click', () => { const [t, d, c, p, due] = extra[extraI++ % extra.length]; const li = document.createElement('li'); li.className = 'task';  li.dataset.prio = p; li.dataset.due = due; li.innerHTML = `<svg class="st-icon muted"><use href="#i-doc"/></svg><div class="grow"><b>${t}</b><span>${d}</span></div><button class="icon-btn" data-remove aria-label="Remove ${t}"><svg class="st-icon"><use href="#i-x"/></svg></button>`; if (taskList.children.length >= 4) S.list.remove(taskList.lastElementChild); S.list.add(taskList, li, 0); });
+
+ // AI: a real thread. Each Replay asks the next follow-up: the whole conversation moves up together (the earlier turn
+ // slides under the top fade instead of vanishing), the question arrives from the composer side, and the answer
+ // streams into a reserved two-line slot so nothing below it jumps. A second press while writing stops the answer.
+ const QA = [
+  {q: "Summarise this week's releases", a: 'Three releases shipped: saved cards[1], editor comments[2] and faster exports[3].', src: ['Changelog', 'Release notes', 'Docs']},
+  {q: 'What got faster?', a: 'Exports are 40% faster[1], search answers in half the time[2] and sync starts sooner[3].', src: ['Release notes', 'Benchmarks', 'Docs']},
+  {q: 'What should I test first?', a: 'Export a long deck[1], reply in a thread[2], then check sync[3].', src: ['QA checklist', 'Changelog', 'Docs']}];
+ let aiRun = 0, aiPhase = 'idle', qaIndex = 0, live = null;
+ const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const track = $('chat-track');
+ // Card expand: the detail is at least as tall as the album list it covers, so no album peeks out beneath it.
+ { const covers = $('covers'), stage = covers.closest('.stage'), fit = () => stage.style.setProperty('--covers-h', covers.offsetHeight + 'px'); fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(covers); }
+ const bindCites = t => t.answer.addEventListener('st:cite', e => { const c = t.chips[e.detail.n - 1]; if (!c) return;
+  setTimeout(() => { c.classList.add('reading'); setTimeout(() => c.classList.remove('reading'), 260); }, e.detail.delay); });
+ const runAI = () => {
+  if (aiPhase === 'write' && live) { ++aiRun; aiPhase = 'idle'; S.stream(live.answer, '', {stop: true}); live.row.removeAttribute('data-busy'); live.think.dataset.stDone = 'true'; S.swapText(live.think, 'Stopped', {tight: true});
+   // A stopped answer gives back the room it had reserved, so it can't be mistaken for one still arriving.
+   const a = live.answer, from = a.offsetHeight; a.style.minHeight = '0px'; const to = a.offsetHeight;
+   if (from !== to && !reduce()) S.play(a, [{minHeight: from + 'px'}, {minHeight: to + 'px'}], {spring: 'smooth', current: false});
+   // Stopping cancels this run's timers, so the earlier turn still retires on its own schedule.
+   setTimeout(live.retire, Math.max(0, live.retireAt - performance.now())); return; }
+  const run = ++aiRun, later = (fn, ms) => setTimeout(() => { if (run === aiRun) fn(); }, ms), t = QA[qaIndex = (qaIndex + 1) % QA.length];
+  [...track.children].slice(0, -1).forEach(n => n.remove()); $('chat').style.height = '';
+  track.querySelector('#think')?.removeAttribute('id');
+  const turn = document.createElement('div'); turn.className = 'turn';
+  turn.innerHTML = `<div class="bubble">${t.q}</div><div class="thinking-row" data-busy><svg class="st-icon spark"><use href="#i-spark"/></svg><span data-st="thinking" id="think">Writing</span></div><div class="sources" aria-label="Sources">${t.src.map(x => `<span>${x}</span>`).join('')}</div><div class="answer" data-st="stream" aria-live="polite" aria-busy="true"></div>`;
+  const chat = $('chat'), olds = [...track.children];
+  // The card commits its final height at once; its painted shell springs from the old size (kit resize), and the
+  // thread rises inside it. No layout height is animated.
+  let rise = 0;
+  const grow = () => { const h0 = track.offsetHeight; chat.classList.add('threading'); track.append(turn); rise = track.offsetHeight - h0; chat.style.height = turn.offsetHeight + 'px'; };
+  if (reduce()) grow(); else S.resize(chat.parentElement, grow);
+  const retire = () => { olds.forEach(n => n.remove()); chat.style.height = ''; chat.classList.remove('threading'); };
+  const retireAt = performance.now() + (reduce() ? 0 : 420);
+  const L = live = {retire, retireAt, answer: turn.querySelector('.answer'), think: turn.querySelector('[data-st=thinking]'), row: turn.querySelector('.thinking-row'), chips: [...turn.querySelectorAll('.sources span')]};
+  bindCites(L);
+  if (!reduce()) {
+   track.getAnimations().forEach(x => x.cancel());
+   // Lead and trail: the history departs on a quick spring and clears the way; the new turn follows on a softer one
+   // and settles last. Both start from where the thread was, so nothing jumps.
+   olds.forEach(n => {
+    S.play(n, [{transform: `translateY(${rise}px)`}, {transform: 'none'}], {spring: 'lead', channel: 't', current: false});
+    S.play(n, [{opacity: 1}, {opacity: 0}], {ms: 60, curve: 'cubic-bezier(.4,0,1,1)', channel: 'o', fill: 'forwards', fade: true});
+   });
+   S.play(turn, [{transform: `translateY(${rise}px)`}, {transform: 'none'}], {spring: 'trail', channel: 't', current: false});
+   // Question, status and sources arrive attached to the message in that order; the answer slot needs no fade, its
+   // letters are the reveal.
+   const [q, row, src] = turn.children;
+   S.play(q, [{opacity: 0}, {opacity: 1}], {ms: 100, curve: 'F', fade: true, current: false});
+   S.play(row, [{opacity: 0, transform: 'translateY(3px)'}, {opacity: 1, transform: 'none'}], {ms: 100, curve: 'O', delay: 40, fade: true, current: false});
+   S.play(src, [{opacity: 0, transform: 'translateY(3px)'}, {opacity: 1, transform: 'none'}], {ms: 120, curve: 'O', delay: 70, fade: true, current: false});
+  }
+  if (reduce()) retire(); else later(retire, 420);
+  const words = t.a.match(/\[\d+\]|\S+\s*/g); let i = 0;
+  aiPhase = 'write';
+  const tick = () => { if (run !== aiRun) return; const done = i + 1 >= words.length; S.stream(L.answer, words[i], {done}); i += 1;
+   if (!done) setTimeout(tick, 50); else { aiPhase = 'idle'; L.row.removeAttribute('data-busy'); L.think.dataset.stDone = 'true'; S.swapText(L.think, `Answered from ${t.src.length} sources`); } };
+  later(() => { S.stream(L.answer, '', {reset: true}); tick(); }, reduce() ? 0 : 180);
+ };
+
+ // Replay buttons drive the same code paths as the real controls.
+ const replay = {
+  menu: () => S.toggle($('menu-1'), $('menu-trigger')),
+  morph: () => S.toggle($('morph-1'), $('morph-trigger')),
+  dialog: () => S.toggle($('dialog-1'), $('dialog-trigger')),
+  palette: () => S.toggle($('palette-1'), $('palette-trigger')),
+  sheet: () => S.toggle($('sheet-1'), $('sheet-trigger')),
+  drawer: () => S.toggle($('drawer-1'), $('drawer-trigger')),
+  tooltip: () => { tipIndex = (tipIndex + 1) % tipTriggers.length; S.tooltip.show(tipTriggers[tipIndex]); clearTimeout(replay._tip); replay._tip = setTimeout(() => { S.tooltip.hide(); tipIndex = -1; }, 2600); },
+  expand: () => { const d = $('expand-1'); if (d.dataset.stOpen === 'true') S.collapse(d); else $('expand-src').click(); },
+  tabs: () => { const tabs = [...document.querySelectorAll('#tabs-1 [role=tab]')], cur = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true'); S.tab($('tabs-1'), tabs[cur === 0 ? 2 : 0]); },
+  segmented: () => { const tabs = [...document.querySelectorAll('#seg-1 [role=tab]')], cur = tabs.find(t => t.getAttribute('aria-selected') === 'true'); S.tab($('seg-1'), cur.dataset.period === 'year' ? tabs[1] : tabs[2]); },
+  page: () => openMail ? go(null, true) : go(mails[1]),
+  accordion: () => S.accordion($('acc-2')),
+  button: () => { runDeploy(); setTimeout(() => $('pay').click(), 150); },
+  copy: () => S.copy($('copy-1')),
+  like: () => S.like($('like-1')),
+  switch: () => { $('sw-1').click(); },
+  // Replay alternates: show the error, then correct the address so the error clears in place.
+  error: () => { if (form.dataset.stError) { email.value = 'mara@aurora.co'; S.clearError(form); } else { email.value = 'mara@aurora'; S.shake(form); } },
+  toast: () => pushToast(),
+  number: () => setSeats(seats === 12 ? 125 : 12),
+  text: nextStatus,
+  list: sortTasks,
+  // The shimmer makes one sweep timed to the load, and the content resolves as it finishes: loading reads as one
+  // finite step with a clear end, not a loop that is cut off.
+  skeleton: () => { const el = $('skel'); S.skeleton(el, false); clearTimeout(replay._skel);
+   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) el.querySelectorAll('[data-st-sk]:not(.st-media), .st-media[data-st-sk]').forEach(n => { const t = n.matches('.st-media') ? n : n; S.play(t, [{backgroundPosition: '100% 0'}, {backgroundPosition: '0% 0'}], {ms: 180, curve: 'linear', channel: 'sweep', current: false}); });
+   replay._skel = setTimeout(() => S.skeleton(el, true), 180); },
+  ai: runAI,
+  checkbox: () => $('chk-1').click()
+ };
+ document.querySelector('.checklist').addEventListener('change', () => S.number($('done-count'), document.querySelectorAll('.checklist input:checked').length));
+ window.galleryCancel = key => {if(key==='ai')++aiRun;if(key==='button'){++deployRun;++payRun;S.state($('deploy'),'idle','Deploy');S.state($('pay'),'idle','Pay $24.00');}if(key==='tooltip'){clearTimeout(replay._tip);S.tooltip.hide();}};
+ window.galleryReplay = replay;
+
+})();
+</script><script src="gallery-menu.js"></script><script src="gallery.js"></script></body></html>

@@ -1,0 +1,23 @@
+{
+  "duration": 12,
+  "bpm": 120,
+  "video": "film.silent.mp4",
+  "out": "film.mp4",
+  "music": {
+    "file": "media/music.mp3",
+    "edit": [[0, 4], [16, null]],
+    "muffle": {"until": 4, "open_from": 2.5},
+    "fade_out": 1.5
+  },
+  "sfx": [
+    {"file": "media/sfx/tick-1.mp3", "at": 4.0, "gain": 0.4},
+    {"file": "media/sfx/tick-1.mp3", "at": 5.0, "gain": 0.3, "count": 3, "step": 0.5},
+    {"file": "media/sfx/chime-1.mp3", "at": 9.0, "gain": 0.3, "length": 1.2}
+  ],
+  "sfx_duck_db": 2,
+  "voice": {
+    "dir": "media/vo",
+    "duck_db": 7
+  },
+  "loudness": {"lufs": -14, "true_peak": -1.5}
+}

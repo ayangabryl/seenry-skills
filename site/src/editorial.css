@@ -1,0 +1,435 @@
+/* Reading hierarchy and shared spacing for the skill reference page. */
+:root {
+  --muted: #6b6b6b;
+  color: #242424;
+}
+.showcase-intro {
+  padding: 56px 0 36px;
+  border: 0;
+  max-width: 1120px;
+}
+.intro-label {
+  font-size: 14px;
+  color: #737373;
+}
+.showcase-intro h1 {
+  font-size: clamp(38px, 4.2vw, 54px);
+  font-weight: 500;
+  letter-spacing: -1.8px;
+  line-height: 1.12;
+  margin: 20px 0 22px;
+  max-width: 710px;
+}
+.showcase-intro p {
+  font-size: 17px;
+  line-height: 1.65;
+  max-width: 650px;
+  color: #666;
+}
+.quick-install {
+  margin-top: 28px;
+  gap: 12px;
+}
+.quick-install code {
+  font-size: 13px;
+  background: #eee;
+  border-radius: 8px;
+  padding: 13px 16px;
+}
+.quick-install button {
+  font-size: 13px;
+}
+.quick-install a {
+  font-size: 13px;
+  margin-left: 10px;
+}
+.skill-index {
+  border: 0;
+  padding: 18px 0 28px;
+  gap: 28px;
+}
+.skill-index a {
+  font-size: 14px;
+  color: #666;
+}
+.skill-index a:hover {
+  color: #111;
+}
+.skill-chapter {
+  border: 0;
+  border-top: 1px solid #e5e5e5;
+  padding: 56px 0 64px;
+  grid-template-columns: 275px minmax(0, 1fr);
+  gap: 48px;
+}
+.chapter-number {
+  display: none;
+}
+.chapter-heading h2 {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.7px;
+  margin: 0 0 16px;
+}
+.chapter-heading p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #6b6b6b;
+}
+.example-picker {
+  margin: 26px 0 22px;
+  gap: 3px;
+}
+.example-picker button {
+  font-size: 13px;
+  padding: 10px 12px;
+  color: #737373;
+  line-height: 1.4;
+}
+.example-picker button[aria-pressed="true"] {
+  background: #eaeaea;
+  color: #222;
+  font-weight: 500;
+}
+.chapter-source {
+  font-size: 13px;
+}
+.skill-chapter .example-stage {
+  background: #f0f0f0;
+  border-radius: 16px;
+  height: 440px;
+}
+.skill-chapter .example-info {
+  padding-top: 18px;
+}
+.skill-chapter .example-info h3 {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.skill-chapter .example-info p {
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 580px;
+}
+.skill-prompt {
+  padding: 18px 0 0;
+  margin-top: 18px;
+  max-width: 600px;
+}
+.skill-prompt > span {
+  font-size: 12px;
+  color: #888;
+}
+.skill-prompt > p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #444;
+  margin: 8px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid #ddd;
+}
+.mcp-notes {
+  border: 0;
+  border-top: 1px solid #e5e5e5;
+  gap: 36px;
+  padding: 56px 40px;
+}
+.mcp-notes h2 {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.7px;
+}
+.mcp-notes p {
+  font-size: 16px;
+  line-height: 1.65;
+}
+.mcp-notes small {
+  font-size: 13px;
+}
+.proof-examples .example-info h3 {
+  font-size: 15px;
+}
+.proof-examples .example-info p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.full-study-link {
+  font-size: 14px;
+}
+.showcase-install {
+  border: 0;
+  padding-top: 40px;
+  padding-bottom: 56px;
+}
+.showcase-install h2 {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.7px;
+}
+.showcase-install p {
+  font-size: 13px;
+}
+.layout-study {
+  padding: 24px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.layout-study-switch {
+  display: flex;
+  gap: 4px;
+  align-self: center;
+  padding: 4px;
+  background: #e5e5e5;
+  border-radius: 99px;
+}
+.layout-study-switch button {
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 99px;
+}
+.layout-study-switch button[aria-pressed="true"] {
+  background: #fff;
+  box-shadow: 0 1px 3px #0001;
+}
+.session-card {
+  display: grid;
+  grid-template-columns: 34% 1fr;
+  gap: 24px;
+  padding: 22px;
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  min-height: 280px;
+}
+.session-art {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #e8e8e8;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.session-art > span {
+  font-family: Georgia, serif;
+  font-size: clamp(58px, 6vw, 88px);
+  letter-spacing: -8px;
+  transform: rotate(-8deg);
+  color: #444;
+}
+.session-art > small {
+  position: absolute;
+  bottom: 16px;
+  font-size: 7px;
+  letter-spacing: 0.6px;
+  text-align: center;
+}
+.session-category {
+  font-size: 10px;
+  color: #777;
+}
+.session-copy h4 {
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.7px;
+  margin: 10px 0;
+}
+.session-copy > p {
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 0 0 16px;
+  max-width: 260px;
+}
+.session-copy dl {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 18px;
+  font-size: 10px;
+}
+.session-copy dl > div {
+  display: grid;
+  grid-template-columns: 55px 1fr;
+  gap: 10px;
+}
+.session-copy dt {
+  color: #888;
+}
+.session-copy dd {
+  margin: 0;
+  color: #444;
+}
+.session-copy > button {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #282828;
+  color: white;
+  border-radius: 7px;
+  width: 100%;
+}
+.session-card.ungrouped .session-category {
+  display: block;
+  text-align: right;
+}
+.session-card.ungrouped h4 {
+  text-align: center;
+  font-size: 17px;
+  margin-top: 20px;
+}
+.session-card.ungrouped .session-copy > p {
+  text-align: right;
+  font-size: 13px;
+}
+.session-card.ungrouped dl {
+  gap: 18px;
+}
+.session-card.ungrouped dl > div:last-child {
+  padding-left: 20px;
+}
+.session-card.ungrouped .session-copy > button {
+  width: auto;
+  margin: auto;
+  font-size: 9px;
+}
+.layout-study-note {
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
+  color: #777;
+}
+.example-stage:has(.layout-study) {
+  display: block;
+}
+@media (max-width: 1000px) {
+  .showcase-intro {
+    margin: 0 40px;
+  }
+  .skill-chapter {
+    grid-template-columns: 235px minmax(0, 1fr);
+    gap: 28px;
+  }
+  .session-card {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 16px;
+  }
+  .session-art {
+    display: none;
+  }
+  .layout-study {
+    overflow: auto;
+  }
+}
+@media (max-width: 700px) {
+  .showcase-intro {
+    margin: 0 20px;
+    padding: 36px 0 24px;
+  }
+  .showcase-intro h1 {
+    font-size: 38px;
+    letter-spacing: -1.3px;
+    max-width: 350px;
+  }
+  .showcase-intro p {
+    font-size: 16px;
+    line-height: 1.65;
+    max-width: none;
+  }
+  .intro-label {
+    font-size: 12px;
+  }
+  .quick-install code {
+    font-size: 10px;
+    padding: 12px;
+  }
+  .quick-install a {
+    margin-left: 0;
+  }
+  .quick-install button {
+    font-size: 12px;
+  }
+  .skill-index {
+    padding: 12px 0 24px;
+    gap: 22px;
+  }
+  .skill-index a {
+    font-size: 13px;
+  }
+  .skill-chapter {
+    display: block;
+    padding: 32px 0 40px;
+  }
+  .chapter-heading h2 {
+    font-size: 27px;
+    margin-bottom: 12px;
+  }
+  .chapter-heading p {
+    font-size: 15px;
+    max-width: 450px;
+  }
+  .example-picker {
+    margin: 22px 0 16px;
+  }
+  .example-picker button {
+    font-size: 12px;
+    padding: 9px 11px;
+  }
+  .chapter-source {
+    font-size: 13px;
+  }
+  .skill-chapter .example-stage {
+    height: 390px;
+  }
+  .skill-chapter .example-info p {
+    font-size: 14px;
+  }
+  .skill-prompt {
+    margin-top: 12px;
+  }
+  .mcp-notes {
+    padding: 36px 20px;
+  }
+  .layout-study {
+    padding: 18px;
+    gap: 14px;
+  }
+  .session-card {
+    padding: 20px;
+    min-height: 270px;
+  }
+  .session-copy h4 {
+    font-size: 23px;
+  }
+  .session-copy p {
+    font-size: 12px;
+  }
+  .session-copy dl {
+    font-size: 11px;
+  }
+  .layout-study-note {
+    font-size: 11px;
+  }
+  .showcase-install h2 {
+    font-size: 26px;
+  }
+}
+@media (max-width: 1000px) {
+  .skill-chapter .example-stage:has(.layout-study) {
+    height: auto;
+    min-height: 390px;
+  }
+  .layout-study {
+    height: auto;
+    overflow: visible;
+  }
+}

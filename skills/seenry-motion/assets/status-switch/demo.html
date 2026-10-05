@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status switch — Seenry</title>
+<link rel="stylesheet" href="./status-switch.css">
+<style>
+  :root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #e9ede5; background: #121916; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; padding: clamp(24px, 5vw, 72px); display: grid; place-items: center; }
+  main { width: min(100%, 700px); }
+  .eyebrow { color: #a8c0ae; text-transform: uppercase; font-size: 11px; font-weight: 750; letter-spacing: .17em; }
+  h1 { max-width: 12ch; font-size: clamp(36px, 6vw, 66px); line-height: 1.02; letter-spacing: -.055em; margin: 15px 0 26px; }
+  .note { max-width: 55ch; color: #a8b5ab; line-height: 1.65; margin: 0 0 42px; }
+  .surface { padding: clamp(21px, 4vw, 38px); border: 1px solid #516758; border-radius: 22px; background: linear-gradient(145deg, #26372b, #1b2921 75%); box-shadow: 0 28px 70px #06100985; }
+  .meta { font-size: 12px; color: #aac0ae; text-transform: uppercase; font-weight: 700; letter-spacing: .12em; }
+  .status-line { display: flex; align-items: center; gap: 16px; margin: 19px 0 34px; min-height: 44px; font-size: clamp(20px, 4vw, 32px); font-weight: 650; letter-spacing: -.035em; }
+  .indicator { flex: none; width: 13px; height: 13px; border-radius: 50%; background: #afcaad; box-shadow: 0 0 0 6px #afcaad20; transition: background .2s, box-shadow .2s; }
+  .surface[data-tone="working"] .indicator { background: #efc575; box-shadow: 0 0 0 6px #efc57520; }
+  .surface[data-tone="success"] .indicator { background: #9fe3b0; box-shadow: 0 0 0 6px #9fe3b020; }
+  .surface[data-tone="error"] .indicator { background: #f1a6a0; box-shadow: 0 0 0 6px #f1a6a020; }
+  .controls { display: flex; flex-wrap: wrap; gap: 9px; }
+  button { appearance: none; border: 1px solid #617c68; border-radius: 999px; color: #eaf0e7; background: #25392b; padding: 10px 15px; font: inherit; font-size: 13px; cursor: pointer; }
+  button:hover { background: #37503b; }
+  button:focus-visible { outline: 2px solid #cbe9c2; outline-offset: 3px; }
+  button[aria-pressed="true"] { background: #d9eed0; border-color: #d9eed0; color: #122018; }
+  .footnote { color: #9faf9d; font-size: 13px; line-height: 1.55; margin-top: 23px; }
+  @media (max-width: 420px) { body { padding: 22px; } .surface { padding: 22px 18px; } .status-line { gap: 10px; } }
+  @media (prefers-reduced-motion: reduce) { .indicator { transition: none; } }
+</style>
+<main>
+  <div class="eyebrow">Seenry / motion study 02</div>
+  <h1>Words that follow state.</h1>
+  <p class="note">A compact label change for a real workflow. The next state replaces the last, even when it arrives mid-transition.</p>
+  <section class="surface" aria-labelledby="sample-title" data-tone="idle">
+    <div class="meta" id="sample-title">Review request</div>
+    <div class="status-line"><span class="indicator" aria-hidden="true"></span><span id="request-status">Ready for review</span></div>
+    <div class="controls" aria-label="Demo states">
+      <button type="button" data-label="Ready for review" data-tone="idle" aria-pressed="true">Ready</button>
+      <button type="button" data-label="Reviewing changes" data-tone="working" aria-pressed="false">Reviewing</button>
+      <button type="button" data-label="Changes approved" data-tone="success" aria-pressed="false">Approved</button>
+      <button type="button" data-label="Needs revision" data-tone="error" aria-pressed="false">Needs revision</button>
+    </div>
+  </section>
+  <p class="footnote">Demo controls set a simulated state. In a product, connect the status to the result of the actual operation.</p>
+</main>
+<script type="module">
+  import { createStatusSwitch } from './status-switch.mjs';
+  const labels = ['Ready for review', 'Reviewing changes', 'Changes approved', 'Needs revision'];
+  const status = createStatusSwitch(document.querySelector('#request-status'), { reserve: labels });
+  const surface = document.querySelector('.surface');
+  document.querySelectorAll('.controls button').forEach(button => button.addEventListener('click', () => {
+    status.update(button.dataset.label);
+    surface.dataset.tone = button.dataset.tone;
+    document.querySelectorAll('.controls button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+  }));
+  window.study = status;
+</script>
+</html>

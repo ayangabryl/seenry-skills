@@ -1,0 +1,21 @@
+.seenry-image-reveal {
+  position: relative;
+  overflow: hidden;
+}
+
+.seenry-image-reveal > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.seenry-image-reveal__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.seenry-image-reveal__canvas[hidden] { display: none; }

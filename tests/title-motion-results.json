@@ -1,0 +1,94 @@
+{
+  "sourceSha256": "c3b6795e6a772feb3f37bf6fdc49687eb0310d5f3db860ba722b5dabc9217ef8",
+  "scope": "Deterministic geometry and state only; fresh browser capture required",
+  "cases": [
+    {
+      "name": "Rounded corner has continuous analytic tangents at both joins",
+      "pass": true
+    },
+    {
+      "name": "27 width and source-position combinations preserve readable geometry",
+      "pass": true
+    },
+    {
+      "name": "Shrinking-height fixture retries a smaller clearance instead of an unsafe straight path",
+      "pass": true
+    },
+    {
+      "name": "A zero-clearance-only corner remains routable",
+      "pass": true
+    },
+    {
+      "name": "Exact late pivot remains inside its real feasible interval without .999 rounding",
+      "pass": true
+    },
+    {
+      "name": "infeasible corner keeps the whole title hidden through retargets instead of crossing the cover",
+      "pass": true
+    },
+    {
+      "name": "opposite sides keeps the whole title hidden through retargets instead of crossing the cover",
+      "pass": true
+    },
+    {
+      "name": "Safe shared-edge routing is explicitly different from unavailable routing",
+      "pass": true
+    },
+    {
+      "name": "Desktop title clears image and stays inside shell across 1001 interpolated positions",
+      "pass": true
+    },
+    {
+      "name": "Side-aligned mobile title uses a direct, unscaled path inside the shell",
+      "pass": true
+    },
+    {
+      "name": "Reverse at progress 0.08, then reopen at .25 and .75 without jumps or cover collisions",
+      "pass": true
+    },
+    {
+      "name": "Reverse at progress 0.28, then reopen at .25 and .75 without jumps or cover collisions",
+      "pass": true
+    },
+    {
+      "name": "Reverse at progress 0.5, then reopen at .25 and .75 without jumps or cover collisions",
+      "pass": true
+    },
+    {
+      "name": "Reverse at progress 0.72, then reopen at .25 and .75 without jumps or cover collisions",
+      "pass": true
+    },
+    {
+      "name": "Reverse at progress 0.92, then reopen at .25 and .75 without jumps or cover collisions",
+      "pass": true
+    },
+    {
+      "name": "Wrapped title paint copies preserve line-break and spacing metrics without scaling",
+      "pass": true
+    },
+    {
+      "name": "Ghost home is remeasured after a containing-block shift",
+      "pass": true
+    },
+    {
+      "name": "Details ride the shell: clipped by its spring and arriving while it is still moving",
+      "pass": true
+    },
+    {
+      "name": "Reduced-motion expand skips travel and restores opaque owned channels immediately",
+      "pass": true
+    },
+    {
+      "name": "Reduced-motion reopen retires an existing hidden fallback title",
+      "pass": true
+    },
+    {
+      "name": "Fallback title fades only after image arrival on both open and close, with complete cleanup",
+      "pass": true
+    },
+    {
+      "name": "Stale traveler completion cannot authorize old cleanup",
+      "pass": true
+    }
+  ]
+}

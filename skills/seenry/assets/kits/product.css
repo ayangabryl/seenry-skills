@@ -1,0 +1,154 @@
+/* Seenry product kit: the quality floor for app screens (dashboards, lists, CRM, billing, settings).
+ * Start here, then set --accent, --font and the neutral temperature from the art direction; do not add decoration.
+ *
+ * Why it looks senior (reasons in references/premium.md, from Stripe, Linear, Attio, Mercury, Ramp, Vercel):
+ * - Neutrals do the work. Four text greys and two surfaces make hierarchy without color, so the single accent and the
+ *   status colors carry meaning when they appear. Borders are low-contrast hairlines so the grid is felt, not seen.
+ * - Type is even and calm: 15px body, 14px cells and meta, 13px only for short labels, 400/500/600 only. Weight marks role (500 = interactive,
+ *   600 = title or key figure), never emphasis inside a row. No uppercase eyebrows, no numbered labels.
+ * - Radii are small (6 controls, 8–12 containers, 12 floating layers, as in Vercel Geist) because radius marks what a
+ *   shape is; grids stay square-ish, tokens and controls round. Shadows only on layers that float.
+ * - Money is proportional in single figures and tabular in columns, right-aligned, with the currency de-emphasised.
+ * - Status is a quiet tinted pill with the word only (no leading dot), so a column of statuses reads as data, not confetti.
+ * - Motion is short and functional: 120–160ms color on hover, a 0.98 press, 200ms enter for layers, none for data. */
+
+:root {
+  --font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-features: "cv11", "ss01";
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+
+  /* Neutral ramp: slightly cool by default; warm it (hue 60–80) for studio or craft brands. */
+  --bg: oklch(0.985 0.002 250);
+  --surface: #fff;
+  --surface-2: oklch(0.97 0.003 250);
+  --hover: oklch(0.955 0.004 250);
+  --line: oklch(0.92 0.004 250);
+  --line-strong: oklch(0.86 0.006 250);
+  --text: oklch(0.22 0.01 255);
+  --text-2: oklch(0.45 0.012 255);
+  --text-3: oklch(0.58 0.01 255);
+  --text-4: oklch(0.7 0.008 255);
+
+  /* Default accent is ink, a deliberate premium default (Vercel, ARKET). Replace it with the brand's accent,
+     corrected to OKLCH lightness 0.50-0.62 and chroma 0.12-0.20; never leave a framework blue. */
+  --accent: oklch(0.24 0.01 255);
+  --accent-hover: oklch(0.32 0.01 255);
+  --accent-subtle: oklch(0.955 0.004 255);
+  --on-accent: #fff;
+  --focus: 0 0 0 3px oklch(0.24 0.01 255 / 0.2);
+
+  --ok: oklch(0.52 0.12 155);   --ok-bg: oklch(0.965 0.03 155);
+  --warn: oklch(0.58 0.13 70);  --warn-bg: oklch(0.97 0.04 80);
+  --bad: oklch(0.55 0.17 25);   --bad-bg: oklch(0.965 0.03 25);
+  --info: oklch(0.52 0.12 250); --info-bg: oklch(0.965 0.025 250);
+  --neutral: oklch(0.55 0.01 255); --neutral-bg: oklch(0.955 0.004 255);
+
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px;
+  --shadow-float: 0 1px 2px oklch(0 0 0 / 0.06), 0 8px 24px oklch(0 0 0 / 0.08);
+
+  --t-fast: 120ms; --t-base: 160ms; --t-layer: 200ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  --nav-w: 232px; --header-h: 56px; --row-h: 48px; --gutter: 32px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/24px var(--font); font-feature-settings: var(--font-features); }
+button, input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: 28px; line-height: 34px; font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
+h2 { font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.005em; }
+.meta { font-size: 15px; line-height: 20px; color: var(--text-3); }
+.num { font-variant-numeric: proportional-nums; }
+.num-col { font-variant-numeric: tabular-nums; text-align: right; }
+.currency { color: var(--text-3); font-weight: 400; }
+
+/* Shell */
+.app { display: grid; grid-template-columns: var(--nav-w) 1fr; min-height: 100dvh; }
+.nav { background: var(--surface-2); border-right: 1px solid var(--line); padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: var(--r-sm); color: var(--text-2); font-weight: 500; text-decoration: none; }
+.nav-item svg { width: 16px; height: 16px; color: var(--text-3); }
+.nav-item:hover { background: var(--hover); color: var(--text); }
+.nav-item[aria-current="page"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--line); }
+.main { min-width: 0; }
+.page { max-width: 1200px; margin: 0 auto; padding: 24px var(--gutter) 64px; }
+.page-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 40px; margin-bottom: 24px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); font-weight: 500; white-space: nowrap; cursor: pointer; }
+.btn:hover { background: var(--hover); }
+.btn-primary { background: var(--accent); border-color: transparent; color: var(--on-accent); box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.12); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn svg { width: 16px; height: 16px; }
+
+/* Summary figures: one row, no colored hero card, the number is the design. */
+.figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); margin-bottom: 32px; }
+.figure { padding: 16px 20px 20px; }
+.figure + .figure { border-left: 1px solid var(--line); }
+.figure-label { font-size: 14px; line-height: 16px; color: var(--text-2); font-weight: 500; }
+.figure-value { margin-top: 6px; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: proportional-nums; }
+.figure-note { margin-top: 2px; font-size: 15px; color: var(--text-3); }
+
+/* Filters and search */
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.segmented { display: inline-flex; padding: 2px; gap: 2px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--line); }
+.segmented button { height: 28px; padding: 0 10px; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text-2); font-weight: 500; cursor: pointer; }
+.segmented button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px oklch(0 0 0 / 0.08), 0 0 0 1px var(--line); }
+.segmented .count { margin-left: 6px; color: var(--text-4); font-variant-numeric: tabular-nums; }
+.search { position: relative; width: 260px; }
+.search input { width: 100%; height: 36px; padding: 0 10px 0 32px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); }
+.search svg { position: absolute; left: 10px; top: 10px; width: 16px; height: 16px; color: var(--text-3); }
+
+/* Table */
+.table-wrap { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { height: 40px; padding: 0 16px; text-align: left; font-size: 14px; font-weight: 500; color: var(--text-3); background: var(--surface-2); border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { height: var(--row-h); padding: 0 16px; border-bottom: 1px solid var(--line); color: var(--text-2); font-size: 15px; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.primary { color: var(--text); font-weight: 500; }
+td.money { text-align: right; color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+th.money { text-align: right; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--hover); }
+
+/* Status: a quiet tinted pill with the word only, no leading dot */
+.status { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 999px; font-size: 14px; font-weight: 500; background: var(--neutral-bg); color: var(--neutral); }
+.status[data-tone="ok"] { background: var(--ok-bg); color: var(--ok); }
+.status[data-tone="warn"] { background: var(--warn-bg); color: var(--warn); }
+.status[data-tone="bad"] { background: var(--bad-bg); color: var(--bad); }
+.status[data-tone="info"] { background: var(--info-bg); color: var(--info); }
+
+/* Empty state: sentence, reason, one action */
+.empty { padding: 56px 24px; text-align: center; }
+.empty h2 { font-size: 15px; }
+.empty p { margin: 4px auto 16px; max-width: 36ch; color: var(--text-3); }
+
+/* Phone: a bottom tab bar, compact rows, no clipped scrollers */
+.tabbar { display: none; }
+@media (max-width: 767px) {
+  :root { --gutter: 16px; }
+  .app { grid-template-columns: 1fr; }
+  .nav { display: none; }
+  .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; inset: auto 0 0 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: oklch(1 0 0 / 0.92); backdrop-filter: blur(12px); border-top: 1px solid var(--line); z-index: 10; }
+  .tabbar a { display: grid; justify-items: center; gap: 2px; padding: 4px 0; font-size: 11px; font-weight: 500; color: var(--text-3); text-decoration: none; }
+  .tabbar a[aria-current="page"] { color: var(--text); }
+  .page { padding-bottom: 96px; }
+  .figures { grid-template-columns: 1fr 1fr; }
+  .figure:first-child { grid-column: 1 / -1; border-bottom: 1px solid var(--line); }
+  .figure:nth-child(3) { border-left: 1px solid var(--line); }
+  .figure:nth-child(2) { border-left: 0; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .search { width: 100%; }
+  .search input { height: 40px; font-size: 16px; }
+  .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .segmented .count { display: none; }
+  .table-wrap table { display: none; }
+  .rows { display: block; }
+}
+.rows { display: none; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 16px; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.row-title { font-weight: 500; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-amount { font-size: 15px; font-weight: 600; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+.row-meta { font-size: 15px; color: var(--text-3); }

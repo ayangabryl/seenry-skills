@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Statement with inline objects — Seenry</title>
+    <link rel="stylesheet" href="seenry-statement.css" />
+    <script src="seenry-statement.js" defer></script>
+    <style>
+      button:active:not(:disabled) {
+        transform: scale(0.96);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        button:active:not(:disabled) {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="gallery-header">
+      <a class="brand" href="#top">seenry<span>Component collection</span></a>
+      <nav aria-label="Gallery">
+        <a href="#examples">Examples</a><a href="#states">States</a
+        ><a href="#usage">Usage ↗</a>
+      </nav>
+    </header>
+    <main class="gallery-main" id="top">
+      <div class="intro">
+        <div>
+          <h1>Statement with inline objects</h1>
+          <p>
+            Scroll-linked editorial type, inline imagery, and one accessible action.
+          </p>
+        </div>
+        <div class="intro-note">
+          <span>Signature component</span><span>HTML · CSS · JavaScript</span>
+        </div>
+      </div>
+      <div id="examples">
+        <section
+          id="civic"
+          class="example civic"
+          data-theme="light"
+          aria-labelledby="civic-title"
+        >
+          <div class="example-top">
+            <h3 id="civic-title">Civic · A service for everyone</h3>
+            <span class="theme-label">Light</span>
+          </div>
+          <div class="example-stage">
+            <div>
+              <p data-seenry-signature="statement" data-next="music" data-demo-action="success">
+                Apply for permits
+                <span data-object="group"
+                  ><img
+                    src="assets/civic.svg"
+                    alt=""
+                    width="80"
+                    height="80" /><img
+                    src="assets/community.svg"
+                    alt=""
+                    width="80"
+                    height="80" /><img
+                    src="assets/service.svg"
+                    alt=""
+                    width="80"
+                    height="80"
+                /></span>
+                and find local support. Keep your information
+                <span data-object
+                  ><svg viewBox="0 0 40 40" aria-hidden="true">
+                    <path
+                      d="M8 20a12 12 0 0 1 24 0v4M12 25v-5a8 8 0 0 1 16 0v7M16 28v-8a4 4 0 0 1 8 0v8M20 19v13M8 25v3m4 1-1 4m5-1-1 4m9-4 1 4m3-5 2 2M12 9a15 15 0 0 1 18 2M9 12l-2 3"
+                    /></svg
+                ></span>
+                private.
+                <span data-object="action"
+                  ><button data-replay class="ss-action" aria-label="Explore the examples">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 12h15m-6-7 7 7-7 7" />
+                    </svg></button
+                ></span>
+              </p>
+            </div>
+          </div>
+          <div class="example-bottom">
+            <span>Seals, a fingerprint & one clear next step</span
+            ><span>Scroll to reveal ↓</span>
+          </div>
+        </section>
+      </div>
+      <div class="example-pair">
+        <section
+          id="music"
+          class="example music"
+          data-theme="light"
+          aria-labelledby="music-title"
+        >
+          <div class="example-top">
+            <h3 id="music-title">Music · On repeat</h3>
+            <span class="theme-label">Light</span>
+          </div>
+          <div class="example-stage">
+            <div>
+              <p data-seenry-signature="statement" data-demo-action="success">
+                Your saved albums
+                <span data-object="group"
+                  ><img
+                    src="assets/album-ocean.webp"
+                    alt=""
+                    width="160"
+                    height="160" /><img
+                    src="assets/album-flower.webp"
+                    alt=""
+                    width="160"
+                    height="160"
+                /></span>
+                and new discoveries
+                <span data-object class="ss-wave"
+                  ><svg viewBox="0 0 40 40" aria-hidden="true">
+                    <path d="M8 16v8" />
+                    <path d="M12 11v18" />
+                    <path d="M16 14v12" />
+                    <path d="M20 8v24" />
+                    <path d="M24 12v16" />
+                    <path d="M28 10v20" />
+                    <path d="M32 16v8" /></svg
+                ></span>
+                in one place.
+                <span data-object="action"
+                  ><button data-replay class="ss-action" aria-label="Try the music action">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 12h15m-6-7 7 7-7 7" />
+                    </svg></button
+                ></span>
+              </p>
+            </div>
+          </div>
+          <div class="example-bottom">
+            <span>Album artwork & a waveform</span
+            ><span>Scroll to reveal ↓</span>
+          </div>
+        </section>
+        <section
+          id="finance"
+          class="example finance"
+          data-theme="dark"
+          aria-labelledby="finance-title"
+        >
+          <div class="example-top">
+            <h3 id="finance-title">Finance · A personal approach</h3>
+            <span class="theme-label">Dark</span>
+          </div>
+          <div class="example-stage">
+            <div>
+              <p
+                data-seenry-signature="statement"
+                data-demo-action="retry"
+                data-stay-done="true"
+              >
+                Your own adviser
+                <span data-object
+                  ><img
+                    src="assets/portrait.webp"
+                    alt=""
+                    width="160"
+                    height="160"
+                /></span>
+                and a clear plan
+                <span data-object
+                  ><svg viewBox="0 0 40 40" aria-hidden="true">
+                    <rect x="10" y="18" width="20" height="16" rx="3" />
+                    <path d="M14 18v-6a6 6 0 0 1 12 0v6M20 25v3" /></svg
+                ></span>
+                for your money.
+                <span data-object="action"
+                  ><button
+                    data-replay class="ss-action"
+                    aria-label="Try the finance action"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 12h15m-6-7 7 7-7 7" />
+                    </svg></button><button type="button" class="ss-retry" data-retry>Try again</button></span>
+              </p>
+            </div>
+          </div>
+          <div class="example-bottom">
+            <span>A portrait, a lock & a little reassurance</span
+            ><span>Scroll to reveal ↓</span>
+          </div>
+        </section>
+      </div>
+      <section id="states" aria-labelledby="states-title">
+        <div class="section-head">
+          <h2 id="states-title">A small button. Every state.</h2>
+          <p>Hover, press, wait, resolve. All in one place.</p>
+        </div>
+        <div class="state-pair">
+          <section
+            class="state-panel"
+            data-theme="light"
+            aria-label="Light action states"
+          >
+            <h3>Light surface</h3>
+            <div class="states">
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  aria-label="Light default action sample"
+                ></button
+                ><span>Default</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  data-preview="hover"
+                  aria-label="Light hover action sample"
+                ></button
+                ><span>Hover</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  data-preview="pressed"
+                  aria-label="Light pressed action sample"
+                ></button
+                ><span>Pressed</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  data-preview="focus"
+                  aria-label="Light focus action sample"
+                ></button
+                ><span>Focus</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  disabled
+                  aria-label="Light disabled action sample"
+                ></button
+                ><span>Disabled</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="loading"
+                  data-state-sample="loading"
+                  aria-label="Light loading action sample"
+                ></button
+                ><span>Loading</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="done"
+                  data-state-sample="done"
+                  aria-label="Light done action sample"
+                ></button
+                ><span>Done</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="error"
+                  data-state-sample="error"
+                  aria-label="Light error action sample"
+                ></button
+                ><span>Error</span>
+              </div>
+            </div>
+            <p class="state-note">
+              Try an enabled button, or replay the full action sequence.
+            </p>
+            <button type="button" class="replay" data-replay data-replay-states>Replay action</button>
+          </section>
+          <section
+            class="state-panel"
+            data-theme="dark"
+            aria-label="Dark action states"
+          >
+            <h3>Dark surface</h3>
+            <div class="states">
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  aria-label="Dark default action sample"
+                ></button
+                ><span>Default</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  data-preview="hover"
+                  aria-label="Dark hover action sample"
+                ></button
+                ><span>Hover</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  data-preview="pressed"
+                  aria-label="Dark pressed action sample"
+                ></button
+                ><span>Pressed</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  data-preview="focus"
+                  aria-label="Dark focus action sample"
+                ></button
+                ><span>Focus</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="idle"
+                  data-state-sample="idle"
+                  disabled
+                  aria-label="Dark disabled action sample"
+                ></button
+                ><span>Disabled</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="loading"
+                  data-state-sample="loading"
+                  aria-label="Dark loading action sample"
+                ></button
+                ><span>Loading</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="done"
+                  data-state-sample="done"
+                  aria-label="Dark done action sample"
+                ></button
+                ><span>Done</span>
+              </div>
+              <div class="state-cell">
+                <button
+                  class="ss-action"
+                  data-state="error"
+                  data-state-sample="error"
+                  aria-label="Dark error action sample"
+                ></button
+                ><span>Error</span>
+              </div>
+            </div>
+            <p class="state-note">
+              Try an enabled button, or replay the full action sequence.
+            </p>
+            <button type="button" class="replay" data-replay data-replay-states>Replay action</button>
+          </section>
+        </div>
+        <article class="long-example">
+          <h3>Long content · Left aligned</h3>
+          <p data-seenry-signature="statement" data-demo-action="success">
+            A good public service
+            <span data-object
+              ><svg viewBox="0 0 40 40" aria-hidden="true">
+                <path
+                  d="M8 20a12 12 0 0 1 24 0v4M12 25v-5a8 8 0 0 1 16 0v7M16 28v-8a4 4 0 0 1 8 0v8M20 19v13M8 25v3m4 1-1 4m5-1-1 4m9-4 1 4m3-5 2 2M12 9a15 15 0 0 1 18 2M9 12l-2 3"
+                /></svg
+            ></span>
+            should make room for every person, every question, and every kind of
+            day—even when there is a little more to say.
+            <span data-object="action"
+              ><button
+                data-replay class="ss-action"
+                aria-label="Try the long statement action"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 12h15m-6-7 7 7-7 7" />
+                </svg></button
+            ></span>
+          </p>
+        </article>
+      </section>
+      <section id="usage" class="usage" aria-labelledby="usage-title">
+        <div>
+          <h2 id="usage-title">Add it to your page.</h2>
+          <p>
+            Start with a paragraph. Add your objects. The component handles the
+            reveal and the action, with full keyboard and reduced-motion
+            support.
+          </p>
+          <a href="README.md">Read the implementation guide ↗</a>
+        </div>
+        <pre><code>&lt;p data-seenry-signature="statement"&gt;
+  A promise worth keeping.
+  &lt;span data-object="action"&gt;
+    &lt;button aria-label="Continue"&gt;→&lt;/button&gt;
+  &lt;/span&gt;
+&lt;/p&gt;</code></pre>
+      </section>
+      <footer class="gallery-footer">
+        <span>Seenry component collection</span
+        ><span>No dependencies. No build step.</span>
+      </footer>
+    </main>
+  </body>
+</html>

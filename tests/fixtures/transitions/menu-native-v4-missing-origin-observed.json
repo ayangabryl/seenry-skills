@@ -1,0 +1,3338 @@
+{
+  "scope": "Original completed keyboard-flow snapshots only; replay derives explicit logical/provenance fields with the production observer helper. This does not relabel the old run as v5 or native accepted.",
+  "sourceCase": "menu-native-0-ubuntu/320-light-keyboard/case.json",
+  "sourceCaseSHA256": "455dc89677653e15315fd78a62297d43dec15454b6326e06569ff627904df084",
+  "runIdentity": {
+    "checkoutHead": "10997a545cc5a5373b743cec02d7f1dcbe54e7aa",
+    "githubRunId": "37133514988",
+    "githubRunAttempt": "1"
+  },
+  "source": {
+    "schema": "menu-native-v4",
+    "reconstructionBaseCommit": "7c5fc8fd175f5de224406f793ea5c842b52a8c0d",
+    "bundleSHA256": "6482e1d1072b9493720a2b4c022b2823f4022b9a1adca37d524cbcb538e6e162",
+    "assets": {
+      "gallery.html": "7fd51cd17c03dd2c3b71af97be0514f7f4f998f97198edbfe2be46a4dc8f1083",
+      "gallery.js": "58f08f0bd4a3396bf3fe1e151fefc38d50c5807975d846fd65fa5ccbaf18cc09",
+      "gallery-menu.js": "ac71a55c0bb083149851bb3cd57823ee0928922b37dcbc4b472cb185327f254a",
+      "seenry-transitions.js": "1fac22445fc72f11f473ad39e6ec4f04142ca27ac242c7a420f2e23c68c9c25d",
+      "seenry-transitions.css": "8268058e200c6e750451aba01bc2bd4049d67d2d45f83a4bc2399819edd6aee1",
+      "assets/morning.jpg": "8d489f3ba1698592863b06b02ba34f4d697e87e227be92d1244c12f4f7dc9a25",
+      "assets/lake.jpg": "26f1167b6c07e4d67cd90c469390ebb310bfa082a7d86e0e3758f616176378c7",
+      "assets/forest.jpg": "b944abd87e265d383d021181a00eb153babf605d2746d859be6be910a2deb1ed"
+    },
+    "harness": {
+      "transitions-library-menu-native.browser.mjs": "f589ab8d65b8a6070eb3e1a261661554062a3113c3dcc9fc5cf96924b65a5fdc",
+      "transitions-library-menu-native-contract.mjs": "5738de9aa9f4b1dec2d93596844bc702955ab63dfaf6cbdc0de5463eb7bd690b",
+      "transitions-library-menu-native-observer.mjs": "7210ab16d4536b1eb2637eed3b8783dfd6863d66b1f4d6d12b7b5fc5e47f74ae",
+      "transitions-library-menu-discovery-helpers.mjs": "8ac6f83198c0308dc921abc8dc6e32a3206878f8fa70bdff885f1dad36019cfb"
+    },
+    "frozen": true
+  },
+  "snapshots": [
+    {
+      "jsonPath": "$.actions[30].after",
+      "stepId": "delete-roadmap",
+      "snapshot": {
+        "snapshotStartedAt": 5115.600000000006,
+        "focus": "trigger:copy-1",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [
+          {
+            "id": "copy-1",
+            "name": "Q4 roadmap copy",
+            "rect": {
+              "x": 42,
+              "y": 406.0625,
+              "width": 236,
+              "height": 72,
+              "top": 406.0625,
+              "right": 278,
+              "bottom": 478.0625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": 420.6875,
+              "width": 168,
+              "height": 21.75,
+              "top": 420.6875,
+              "right": 218,
+              "bottom": 442.4375,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-copy-1",
+            "accessibleName": "More actions for Q4 roadmap copy",
+            "expanded": "false"
+          },
+          {
+            "id": "hiring",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "rect": {
+              "x": 42,
+              "y": 478.0625,
+              "width": 236,
+              "height": 167.5,
+              "top": 478.0625,
+              "right": 278,
+              "bottom": 645.5625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": 486.0625,
+              "width": 168,
+              "height": 130.5,
+              "top": 486.0625,
+              "right": 218,
+              "bottom": 616.5625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-hiring",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "expanded": "false"
+          },
+          {
+            "id": "copy-2",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "rect": {
+              "x": 42,
+              "y": 645.5625,
+              "width": 236,
+              "height": 167.5,
+              "top": 645.5625,
+              "right": 278,
+              "bottom": 813.0625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": 653.5625,
+              "width": 168,
+              "height": 130.5,
+              "top": 653.5625,
+              "right": 218,
+              "bottom": 784.0625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-copy-2",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "expanded": "false"
+          }
+        ],
+        "count": "3 files",
+        "statusText": "Deleted \u201cQ4 roadmap\u201d from this preview. Undo is available.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "1 deleted. Restore \u201cQ4 roadmap\u201d.",
+          "undoVisible": true
+        },
+        "empty": false,
+        "trigger": {
+          "row": "roadmap",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": {
+            "x": 248,
+            "y": 442.0625
+          },
+          "hit": false,
+          "hitControl": "trigger:copy-1"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 5115.799999999988
+      }
+    },
+    {
+      "jsonPath": "$.actions[32].after",
+      "stepId": "delete-copy-1",
+      "snapshot": {
+        "snapshotStartedAt": 5399.5,
+        "focus": "trigger:hiring",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [
+          {
+            "id": "hiring",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "rect": {
+              "x": 42,
+              "y": 406.0625,
+              "width": 236,
+              "height": 167.5,
+              "top": 406.0625,
+              "right": 278,
+              "bottom": 573.5625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": 414.0625,
+              "width": 168,
+              "height": 130.5,
+              "top": 414.0625,
+              "right": 218,
+              "bottom": 544.5625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-hiring",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "expanded": "false"
+          },
+          {
+            "id": "copy-2",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "rect": {
+              "x": 42,
+              "y": 573.5625,
+              "width": 236,
+              "height": 167.5,
+              "top": 573.5625,
+              "right": 278,
+              "bottom": 741.0625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": 581.5625,
+              "width": 168,
+              "height": 130.5,
+              "top": 581.5625,
+              "right": 218,
+              "bottom": 712.0625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-copy-2",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "expanded": "false"
+          }
+        ],
+        "count": "2 files",
+        "statusText": "Deleted \u201cQ4 roadmap copy\u201d from this preview. Undo is available.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "2 deleted. Restore \u201cQ4 roadmap copy\u201d.",
+          "undoVisible": true
+        },
+        "empty": false,
+        "trigger": {
+          "row": "copy-1",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": {
+            "x": 248,
+            "y": 442.0625
+          },
+          "hit": false,
+          "hitControl": "outside"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 5399.899999999994
+      }
+    },
+    {
+      "jsonPath": "$.actions[34].after",
+      "stepId": "delete-hiring",
+      "snapshot": {
+        "snapshotStartedAt": 5681.700000000012,
+        "focus": "trigger:copy-2",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [
+          {
+            "id": "copy-2",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "rect": {
+              "x": 42,
+              "y": 406.0625,
+              "width": 236,
+              "height": 167.5,
+              "top": 406.0625,
+              "right": 278,
+              "bottom": 573.5625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": 414.0625,
+              "width": 168,
+              "height": 130.5,
+              "top": 414.0625,
+              "right": 218,
+              "bottom": 544.5625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-copy-2",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "expanded": "false"
+          }
+        ],
+        "count": "1 file",
+        "statusText": "Deleted \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW\u201d from this preview. Undo is available.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "3 deleted. Restore \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW\u201d.",
+          "undoVisible": true
+        },
+        "empty": false,
+        "trigger": {
+          "row": "hiring",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": {
+            "x": 248,
+            "y": 489.8125
+          },
+          "hit": false,
+          "hitControl": "trigger:copy-2"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 5682
+      }
+    },
+    {
+      "jsonPath": "$.actions[36].after",
+      "stepId": "delete-copy-2",
+      "snapshot": {
+        "snapshotStartedAt": 5981.700000000012,
+        "focus": "reset",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [],
+        "count": "0 files",
+        "statusText": "Deleted \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d from this preview. Undo is available.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "4 deleted. Restore \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d.",
+          "undoVisible": true
+        },
+        "empty": true,
+        "trigger": {
+          "row": "copy-2",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": {
+            "x": 248,
+            "y": 489.8125
+          },
+          "hit": false,
+          "hitControl": "outside"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 5982
+      }
+    },
+    {
+      "jsonPath": "$.actions[37].before",
+      "stepId": "empty-recovery-persistent",
+      "snapshot": {
+        "snapshotStartedAt": 6050.200000000012,
+        "focus": "reset",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [],
+        "count": "0 files",
+        "statusText": "Deleted \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d from this preview. Undo is available.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "4 deleted. Restore \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d.",
+          "undoVisible": true
+        },
+        "empty": true,
+        "trigger": {
+          "row": "roadmap",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": null,
+          "hit": false,
+          "hitControl": "outside"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 6050.600000000006
+      }
+    },
+    {
+      "jsonPath": "$.actions[37].after",
+      "stepId": "empty-recovery-persistent",
+      "snapshot": {
+        "snapshotStartedAt": 12097.399999999994,
+        "focus": "reset",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [],
+        "count": "0 files",
+        "statusText": "Deleted \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d from this preview. Undo is available.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "4 deleted. Restore \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d.",
+          "undoVisible": true
+        },
+        "empty": true,
+        "trigger": {
+          "row": "roadmap",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": null,
+          "hit": false,
+          "hitControl": "outside"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 12097.700000000012
+      }
+    },
+    {
+      "jsonPath": "$.actions[38].before",
+      "stepId": "undo-copy-2",
+      "snapshot": {
+        "snapshotStartedAt": 12272.299999999988,
+        "focus": "undo",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [],
+        "count": "0 files",
+        "statusText": "Deleted \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d from this preview. Undo is available.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "4 deleted. Restore \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d.",
+          "undoVisible": true
+        },
+        "empty": true,
+        "trigger": {
+          "row": "copy-2",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": null,
+          "hit": false,
+          "hitControl": "outside"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 12272.700000000012
+      }
+    },
+    {
+      "jsonPath": "$.actions[39].before",
+      "stepId": "undo-hiring",
+      "snapshot": {
+        "snapshotStartedAt": 12454.700000000012,
+        "focus": "undo",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [
+          {
+            "id": "copy-2",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "rect": {
+              "x": 42,
+              "y": -15.9375,
+              "width": 236,
+              "height": 167.5,
+              "top": -15.9375,
+              "right": 278,
+              "bottom": 151.5625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": -7.9375,
+              "width": 168,
+              "height": 130.5,
+              "top": -7.9375,
+              "right": 218,
+              "bottom": 122.5625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-copy-2",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "expanded": "false"
+          }
+        ],
+        "count": "1 file",
+        "statusText": "Restored \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy\u201d.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "3 deleted. Restore \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW\u201d.",
+          "undoVisible": true
+        },
+        "empty": false,
+        "trigger": {
+          "row": "hiring",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": null,
+          "hit": false,
+          "hitControl": "outside"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 12455.100000000006
+      }
+    },
+    {
+      "jsonPath": "$.actions[40].before",
+      "stepId": "undo-copy-1",
+      "snapshot": {
+        "snapshotStartedAt": 12640.200000000012,
+        "focus": "undo",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [
+          {
+            "id": "hiring",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "rect": {
+              "x": 42,
+              "y": -122.9375,
+              "width": 236,
+              "height": 167.5,
+              "top": -122.9375,
+              "right": 278,
+              "bottom": 44.5625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": -114.9375,
+              "width": 168,
+              "height": 130.5,
+              "top": -114.9375,
+              "right": 218,
+              "bottom": 15.5625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-hiring",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "expanded": "false"
+          },
+          {
+            "id": "copy-2",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "rect": {
+              "x": 42,
+              "y": 44.5625,
+              "width": 236,
+              "height": 167.5,
+              "top": 44.5625,
+              "right": 278,
+              "bottom": 212.0625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": 52.5625,
+              "width": 168,
+              "height": 130.5,
+              "top": 52.5625,
+              "right": 218,
+              "bottom": 183.0625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-copy-2",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "expanded": "false"
+          }
+        ],
+        "count": "2 files",
+        "statusText": "Restored \u201cWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW\u201d.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "2 deleted. Restore \u201cQ4 roadmap copy\u201d.",
+          "undoVisible": true
+        },
+        "empty": false,
+        "trigger": {
+          "row": "copy-1",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": null,
+          "hit": false,
+          "hitControl": "outside"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 12640.799999999988
+      }
+    },
+    {
+      "jsonPath": "$.actions[41].before",
+      "stepId": "undo-roadmap",
+      "snapshot": {
+        "snapshotStartedAt": 12819.399999999994,
+        "focus": "undo",
+        "viewport": {
+          "width": 320,
+          "height": 780
+        },
+        "hash": "",
+        "stageOwner": "gallery",
+        "search": {
+          "value": "Menu",
+          "focused": false
+        },
+        "menuCard": {
+          "hidden": false,
+          "containsStage": true,
+          "visible": true,
+          "opacity": "1"
+        },
+        "blur": {
+          "checked": false,
+          "rootOn": false
+        },
+        "rows": [
+          {
+            "id": "copy-1",
+            "name": "Q4 roadmap copy",
+            "rect": {
+              "x": 42,
+              "y": -94.9375,
+              "width": 236,
+              "height": 72,
+              "top": -94.9375,
+              "right": 278,
+              "bottom": -22.9375,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": -80.3125,
+              "width": 168,
+              "height": 21.75,
+              "top": -80.3125,
+              "right": 218,
+              "bottom": -58.5625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-copy-1",
+            "accessibleName": "More actions for Q4 roadmap copy",
+            "expanded": "false"
+          },
+          {
+            "id": "hiring",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "rect": {
+              "x": 42,
+              "y": -22.9375,
+              "width": 236,
+              "height": 167.5,
+              "top": -22.9375,
+              "right": 278,
+              "bottom": 144.5625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": -14.9375,
+              "width": 168,
+              "height": 130.5,
+              "top": -14.9375,
+              "right": 218,
+              "bottom": 115.5625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-hiring",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "expanded": "false"
+          },
+          {
+            "id": "copy-2",
+            "name": "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "rect": {
+              "x": 42,
+              "y": 144.5625,
+              "width": 236,
+              "height": 167.5,
+              "top": 144.5625,
+              "right": 278,
+              "bottom": 312.0625,
+              "left": 42
+            },
+            "nameRect": {
+              "x": 50,
+              "y": 152.5625,
+              "width": 168,
+              "height": 130.5,
+              "top": 152.5625,
+              "right": 218,
+              "bottom": 283.0625,
+              "left": 50
+            },
+            "nameFits": true,
+            "trigger": "menu-trigger-copy-2",
+            "accessibleName": "More actions for WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW copy",
+            "expanded": "false"
+          }
+        ],
+        "count": "3 files",
+        "statusText": "Restored \u201cQ4 roadmap copy\u201d.",
+        "budgetText": "Copies: 2 of 2. Reset to start again.",
+        "recovery": {
+          "visible": true,
+          "text": "1 deleted. Restore \u201cQ4 roadmap\u201d.",
+          "undoVisible": true
+        },
+        "empty": false,
+        "trigger": {
+          "row": "roadmap",
+          "exists": false,
+          "rect": null,
+          "expanded": null,
+          "point": null,
+          "hit": false,
+          "hitControl": "outside"
+        },
+        "menu": {
+          "open": false,
+          "nativeOpen": false,
+          "inert": true,
+          "ariaHidden": null,
+          "display": "none",
+          "visibility": "visible",
+          "opacity": "1",
+          "filter": "none",
+          "transform": "none",
+          "origin": "206px 0px",
+          "side": "bottom",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "limitVisible": false
+        },
+        "geometry": {
+          "status": "blocked",
+          "reason": "Unsupported non-axis-aligned or empty Menu geometry",
+          "rect": null
+        },
+        "items": [
+          {
+            "action": "rename",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Rename",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "duplicate",
+            "disabled": true,
+            "role": "menuitem",
+            "text": "Duplicate",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(17, 17, 19)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(17, 17, 19)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "0.55",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          },
+          {
+            "action": "delete",
+            "disabled": false,
+            "role": "menuitem",
+            "text": "Delete",
+            "paint": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "focused": false,
+              "focusVisible": false,
+              "color": "rgb(212, 47, 47)",
+              "glyphs": [],
+              "cue": {
+                "background": "rgba(0, 0, 0, 0)",
+                "adjacentBackground": "rgb(255, 255, 255)",
+                "outlineColor": "rgb(212, 47, 47)",
+                "outlineWidth": "3px",
+                "outlineStyle": "none",
+                "boxShadow": "none"
+              },
+              "chain": [
+                {
+                  "node": "BUTTON",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "flex",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                },
+                {
+                  "node": "menu-1",
+                  "background": "rgb(255, 255, 255)",
+                  "backgroundImage": "none",
+                  "opacity": "1",
+                  "filter": "none",
+                  "backdropFilter": "none",
+                  "mixBlendMode": "normal",
+                  "visibility": "visible",
+                  "display": "none",
+                  "transform": "none",
+                  "translate": "none",
+                  "scale": "none",
+                  "rotate": "none"
+                }
+              ]
+            }
+          }
+        ],
+        "editor": {
+          "open": false,
+          "modal": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible",
+          "value": "",
+          "error": "",
+          "errorVisible": false,
+          "invalid": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        "parent": {
+          "nativeOpen": false,
+          "modal": false,
+          "hidden": false,
+          "inert": false,
+          "display": "none",
+          "visibility": "visible"
+        },
+        "animations": [],
+        "snapshotCompletedAt": 12819.899999999994
+      }
+    }
+  ]
+}

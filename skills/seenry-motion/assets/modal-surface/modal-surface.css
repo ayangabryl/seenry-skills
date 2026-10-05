@@ -1,0 +1,43 @@
+/* Seenry, MIT. The host controls the final type, color and layout. */
+.seenry-modal-surface {
+  --modal-surface: #f4f1e9;
+  --modal-ink: #1c2826;
+  --modal-radius: 1.25rem;
+  --modal-duration: 340ms;
+  color: var(--modal-ink);
+  background: var(--modal-surface);
+  border: 0;
+  border-radius: var(--modal-radius);
+  box-shadow: 0 34px 100px rgb(4 18 19 / 27%);
+  max-block-size: min(90dvh, 56rem);
+  max-inline-size: min(calc(100vw - 2rem), 62rem);
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  opacity: 0;
+  transform: translateY(22px) scale(.97);
+  transition: opacity var(--modal-duration) cubic-bezier(.2,.7,.2,1),
+    transform var(--modal-duration) cubic-bezier(.2,.7,.2,1);
+}
+
+.seenry-modal-surface[data-state="open"] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.seenry-modal-surface::backdrop {
+  background: rgb(3 16 18 / 0%);
+  backdrop-filter: blur(0);
+  transition: background var(--modal-duration) ease, backdrop-filter var(--modal-duration) ease;
+}
+
+.seenry-modal-surface[data-state="open"]::backdrop {
+  background: rgb(3 16 18 / 73%);
+  backdrop-filter: blur(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seenry-modal-surface, .seenry-modal-surface::backdrop { transition-duration: 0ms; }
+  .seenry-modal-surface { transform: none; }
+  .seenry-modal-surface[data-state="open"] { opacity: 1; }
+}

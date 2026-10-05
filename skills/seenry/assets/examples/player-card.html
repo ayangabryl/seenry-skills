@@ -1,0 +1,43 @@
+<!doctype html>
+<!--
+  Seenry example: player card, chosen from a structured exploration (see references/exploration.md).
+  Frame: 4px grid · card r28, optical inset 16 on all sides · cover 96 (24% of width) r12 (28 − 16) · type 15/600, 13/400, 11/500 mono · one accent sampled from the cover.
+  Keylines: V1 cover left = scrubber = elapsed time · V2 cover right + 16 = title = artist = previous glyph · V3 right inset = scrubber end = remaining time.
+  Rows: H1 cover top = title cap top (text-box trim) · H2 cover bottom = play circle bottom · H3 card bottom − 16 = times baseline.
+  Verified with scripts/system_audit.mjs: anchors 0/0/0, insets 16/16/16/16, no near-miss edges.
+  Cover: "Autumn leaves, red hair wrapped up in a cashmere scarf" by wrapped4good, https://www.flickr.com/photos/145773289@N02/31773790498, PDM 1.0 (https://creativecommons.org/publicdomain/mark/1.0/), via Openverse.
+  Icons: Lucide (ISC) skip-back/skip-forward, Phosphor (MIT) pause-fill.
+-->
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Player card</title><style>
+@import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&family=JetBrains+Mono:wght@500&display=swap");
+:root{--bg:oklch(0.975 0.004 60);--s1:#fff;--s2:oklch(0.955 0.005 60);--t1:oklch(0.22 0.01 50);--t2:oklch(0.48 0.012 50);--t3:oklch(0.6 0.012 50);
+--b1:oklch(0.22 0.01 50/.08);--b2:oklch(0.22 0.01 50/.14);--accent:oklch(0.6 0.15 42);--accent-soft:oklch(0.6 0.15 42/.14);
+--sans:"Inter",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:var(--sans);font-feature-settings:"cv11","ss01","ss03";color:var(--t1);-webkit-font-smoothing:antialiased;display:grid;place-items:center;min-height:100vh;padding:48px 16px}
+svg{width:20px;height:20px;display:block}
+.ic{all:unset;display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;color:var(--t1);cursor:pointer}
+.ic:hover{background:var(--s2)}.ic:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ic.sm{width:32px;height:32px;color:var(--t3)}.ic.sm svg{width:16px;height:16px}
+.play{width:48px;height:48px;background:var(--t1);color:var(--s1)}.play:hover{background:oklch(0.3 0.01 50)}.play svg{width:20px;height:20px}
+.cover{background:url(player-cover.jpg) center/cover;display:block}
+.title{font:600 15px/20px var(--sans);letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.artist{font:400 13px/20px var(--sans);color:var(--t2)}
+.times{display:flex;justify-content:space-between;font:500 11px/16px var(--mono);color:var(--t3);font-variant-numeric:tabular-nums}
+.track{position:relative;height:4px;border-radius:9999px;background:var(--b2)}
+.track i{position:absolute;inset:0 22% 0 0;border-radius:inherit;background:var(--accent)}
+.track b{position:absolute;left:78%;top:-4px;width:12px;height:12px;margin-left:-6px;border-radius:9999px;background:var(--s1);box-shadow:0 0 0 1px var(--b2),0 1px 2px oklch(0 0 0/.12)}
+/* Keylines: K1 card inset 16 · K2 cover right + 16 (text column) · K3 card right − 16. Rows: cover top = title cap top, cover bottom = play bottom. */
+.A{--inset:16px;--cover:96px;width:min(100%,400px);background:var(--s1);border-radius:28px;padding:var(--inset);box-shadow:0 0 0 1px var(--b1),0 1px 2px oklch(0 0 0/.04);display:grid;grid-template-columns:var(--cover) 1fr;column-gap:16px;row-gap:20px}
+.A .cover{width:var(--cover);height:var(--cover);border-radius:12px}
+.A .right{display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.A .meta{display:grid;gap:8px}
+.A .title,.A .artist,.A .times span{text-box:trim-both cap alphabetic}
+@supports not (text-box:trim-both cap alphabetic){.A .title{margin-top:-5px}.A .times{margin-bottom:-3px}}
+.A .transport{display:flex;align-items:center;gap:4px;margin-left:-12px}
+.A .transport .ic{width:40px;height:40px}.A .transport .play{width:40px;height:40px}.A .transport .play svg{width:18px;height:18px}
+.A .scrub{grid-column:1/-1;display:grid;gap:12px}
+</style><article class="A" data-component="player-a" aria-label="Now playing">
+<div class="cover" role="img" aria-label="Cover: The Visit"></div>
+<div class="right"><div class="meta"><div class="title">The Visit</div><div class="artist">Agar Agar</div></div>
+<div class="transport"><button class="ic" aria-label="Previous"><svg aria-hidden="true" class="" xmlns="http://www.w3.org/2000/svg"   viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.971 4.285A2 2 0 0 1 21 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432zM3 20V4"/></svg></button><button class="ic play" aria-label="Pause"><svg aria-hidden="true" class="" xmlns="http://www.w3.org/2000/svg"   viewBox="0 0 256 256"><path fill="currentColor" d="M216 48v160a16 16 0 0 1-16 16h-40a16 16 0 0 1-16-16V48a16 16 0 0 1 16-16h40a16 16 0 0 1 16 16M96 32H56a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16"/></svg></button><button class="ic" aria-label="Next"><svg aria-hidden="true" class="" xmlns="http://www.w3.org/2000/svg"   viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 4v16M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z"/></svg></button></div></div>
+<div class="scrub"><div class="track"><i></i><b></b></div><div class="times"><span>3:49</span><span>−0:21</span></div></div></article>

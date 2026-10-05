@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Liquid popover reconstruction</title><link rel="stylesheet" href="demo.css"></head><body>
+<main id="stage" aria-label="Liquid popover interaction study">
+<svg id="surfaces" width="100%" height="100%" aria-hidden="true"><defs><filter id="soft-join" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="3"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 20 -8"/></filter></defs><g class="liquid" id="left-fill"><rect class="trigger-fill"/><path class="bridge"/><rect class="menu-fill"/></g><g class="liquid" id="right-fill"><rect class="trigger-fill"/><path class="bridge"/><rect class="menu-fill"/></g></svg>
+<button id="actions" class="trigger" aria-label="Actions" aria-haspopup="menu" aria-expanded="false" aria-controls="actions-menu"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></button>
+<button id="share" class="trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="share-menu">Share</button>
+<div class="menu" id="actions-menu" role="menu" aria-label="Actions" inert>
+<button role="menuitem" tabindex="-1"><span class="icon" style="--icon:url(icons/edit.svg)"></span>Edit</button>
+<button role="menuitem" tabindex="-1"><span class="icon" style="--icon:url(icons/duplicate.svg)"></span>Duplicate</button>
+<button role="menuitem" tabindex="-1"><span class="icon" style="--icon:url(icons/archive.svg)"></span>Archive</button>
+<div class="separator" role="separator"></div>
+<button role="menuitem" tabindex="-1" class="danger"><span class="icon" style="--icon:url(icons/delete.svg)"></span>Delete</button>
+</div>
+<div class="menu" id="share-menu" role="menu" aria-label="Share" inert>
+<button role="menuitem" tabindex="-1"><span class="icon" style="--icon:url(icons/link.svg)"></span>Copy link</button>
+<button role="menuitem" tabindex="-1"><span class="icon" style="--icon:url(icons/email.svg)"></span>Email</button>
+<button role="menuitem" tabindex="-1"><span class="icon" style="--icon:url(icons/embed.svg)"></span>Embed</button>
+</div>
+</main><p id="status" role="status"></p><script type="module" src="demo.js"></script></body></html>

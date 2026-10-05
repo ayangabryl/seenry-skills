@@ -1,0 +1,17 @@
+{
+  "schema": 3,
+  "scope": "three-case Menu discovery only; no acceptance",
+  "sourceProvenance": "PR65 53c56304749ecb84eea8d6a9b18d146cf25d6ed7. Runtime differs from the reviewed063 baseline only within Card functions; full prefix before titleBox and suffix from palette are byte-identical, and gallery/CSS/JS remain identical.",
+  "playwrightVersion": "1.63.0",
+  "assets": {
+    "gallery.html": "39551a459e9d12a60c7478e0c140c6fb3fa7d1ad03112056c021ed5f4bd41ff6",
+    "gallery.js": "c18397f5d7cb07cb9b7df9b86e34196a5e2f8ade7c32b1766173df02d6b18763",
+    "seenry-transitions.css": "f406e5bc49f5fa7f991336c8c433386f4f19597100ed8b8b93dd0ccc35c7cf4f",
+    "seenry-transitions.js": "b7124d8c148a5b0d42a09b03c815b17a26be603d4c76f6f6ef487fb6f7ce3025"
+  },
+  "harness": {
+    "transitions-library-menu-discovery.browser.mjs": "f541e725cea435a9be59ade219ea8e0d015cbfbd0a6da5c98076aec9722f37f2",
+    "transitions-library-menu-discovery-helpers.mjs": "8ac6f83198c0308dc921abc8dc6e32a3206878f8fa70bdff885f1dad36019cfb",
+    "transitions-library-menu-discovery.test.mjs": "3479bf9331807a0d639933022d5024dd81cdcc443491662d92933bc17414510e"
+  }
+}

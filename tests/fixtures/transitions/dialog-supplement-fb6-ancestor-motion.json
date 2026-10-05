@@ -1,0 +1,802 @@
+{
+  "sourceArtifact": "native-fb6f4ac-dialog-supplement-ubuntu/1440-dark-controls.json",
+  "sourceSha256": "a6514ffc5405e73cc2231200d3e11e2c4175fb1b9918adb7888271b0ae4318d3",
+  "status": "failed",
+  "error": "AssertionError [ERR_ASSERTION]: Hover geometry stays stationary\n    at controlStates (file:///home/runner/work/seenry-skills/seenry-skills/tests/transitions-library-dialog-supplement.browser.mjs:39:231)\n    at async file:///home/runner/work/seenry-skills/seenry-skills/tests/transitions-library-dialog-supplement.browser.mjs:54:3\n    at async newCase (file:///home/runner/work/seenry-skills/seenry-skills/tests/transitions-library-dialog-supplement.browser.mjs:27:354)\n    at async file:///home/runner/work/seenry-skills/seenry-skills/tests/transitions-library-dialog-supplement.browser.mjs:52:38",
+  "rest": {
+    "snapshotStartAt": 383.6000000000058,
+    "open": false,
+    "modal": false,
+    "inert": false,
+    "expanded": "false",
+    "focus": "INPUT",
+    "active": [],
+    "viewport": {
+      "left": 0,
+      "top": 0,
+      "right": 1440,
+      "bottom": 900,
+      "width": 1440,
+      "height": 900
+    },
+    "pointer": {
+      "fine": true,
+      "coarse": false,
+      "hover": true
+    },
+    "dialog": {
+      "identity": null,
+      "text": "Delete Aurora website?\n      This removes 24 pages and 318 assets. You can restore it from the trash for 30 days.\n      CancelDelete project",
+      "connected": true,
+      "enabled": true,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "textRects": [],
+      "hitOwned": false,
+      "hit": "top",
+      "hover": false,
+      "active": false,
+      "focused": false,
+      "focusVisible": false,
+      "color": "rgb(237, 237, 239)",
+      "background": "rgb(22, 22, 24)",
+      "boxShadow": "rgba(255, 255, 255, 0.08) 0px 0px 0px 1px, rgba(0, 0, 0, 0.4) 0px 1px 2px 0px, rgba(0, 0, 0, 0.667) 0px 12px 32px -8px, rgba(0, 0, 0, 0.533) 0px 24px 48px -12px",
+      "opacity": 1,
+      "filter": "none",
+      "transform": "none",
+      "outlineWidth": "3px",
+      "outlineStyle": "none",
+      "outlineColor": "rgb(237, 237, 239)",
+      "outlineOffset": "0px",
+      "fontSize": "15px",
+      "lineHeight": "23.25px",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "marginBlockEnd": "auto",
+      "chain": [
+        {
+          "tag": "DIALOG",
+          "id": "dialog-1",
+          "display": "none",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(22, 22, 24)"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "display": "grid",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(14, 14, 16)"
+        },
+        {
+          "tag": "ARTICLE",
+          "id": "",
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(22, 22, 24)"
+        },
+        {
+          "tag": "DIV",
+          "id": "library-grid",
+          "display": "grid",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "MAIN",
+          "id": "top",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BODY",
+          "id": "",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(11, 11, 12)"
+        },
+        {
+          "tag": "HTML",
+          "id": "",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ]
+    },
+    "controls": {
+      "Invoker": {
+        "identity": "Invoker",
+        "text": "Delete project",
+        "connected": true,
+        "enabled": true,
+        "rect": {
+          "x": 1018.3509521484375,
+          "y": 806.796875,
+          "width": 111.5,
+          "height": 40,
+          "top": 806.796875,
+          "right": 1129.8509521484375,
+          "bottom": 846.796875,
+          "left": 1018.3509521484375
+        },
+        "textRects": [
+          {
+            "x": 1028.3509521484375,
+            "y": 817.796875,
+            "width": 91.5,
+            "height": 17,
+            "top": 817.796875,
+            "right": 1119.8509521484375,
+            "bottom": 834.796875,
+            "left": 1028.3509521484375
+          }
+        ],
+        "hitOwned": true,
+        "hit": "dialog-trigger",
+        "hover": false,
+        "active": false,
+        "focused": false,
+        "focusVisible": false,
+        "color": "rgb(255, 107, 107)",
+        "background": "rgb(22, 22, 24)",
+        "boxShadow": "rgba(255, 255, 255, 0.09) 0px 0px 0px 1px, rgba(0, 0, 0, 0.4) 0px 1px 2px 0px",
+        "opacity": 1,
+        "filter": "none",
+        "transform": "none",
+        "outlineWidth": "3px",
+        "outlineStyle": "none",
+        "outlineColor": "rgb(255, 107, 107)",
+        "outlineOffset": "0px",
+        "fontSize": "15px",
+        "lineHeight": "20px",
+        "letterSpacing": "-0.075px",
+        "wordSpacing": "0px",
+        "marginBlockEnd": "0px",
+        "chain": [
+          {
+            "tag": "BUTTON",
+            "id": "dialog-trigger",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(22, 22, 24)"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(24, 24, 27)"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "display": "grid",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(14, 14, 16)"
+          },
+          {
+            "tag": "ARTICLE",
+            "id": "",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(22, 22, 24)"
+          },
+          {
+            "tag": "DIV",
+            "id": "library-grid",
+            "display": "grid",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "MAIN",
+            "id": "top",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(11, 11, 12)"
+          },
+          {
+            "tag": "HTML",
+            "id": "",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          }
+        ]
+      },
+      "Cancel": {
+        "identity": "Cancel",
+        "text": "Cancel",
+        "connected": true,
+        "enabled": true,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "textRects": [],
+        "hitOwned": false,
+        "hit": "top",
+        "hover": false,
+        "active": false,
+        "focused": false,
+        "focusVisible": false,
+        "color": "rgb(237, 237, 239)",
+        "background": "rgb(22, 22, 24)",
+        "boxShadow": "rgba(255, 255, 255, 0.09) 0px 0px 0px 1px, rgba(0, 0, 0, 0.4) 0px 1px 2px 0px",
+        "opacity": 1,
+        "filter": "none",
+        "transform": "none",
+        "outlineWidth": "3px",
+        "outlineStyle": "none",
+        "outlineColor": "rgb(237, 237, 239)",
+        "outlineOffset": "0px",
+        "fontSize": "15px",
+        "lineHeight": "20px",
+        "letterSpacing": "-0.075px",
+        "wordSpacing": "0px",
+        "marginBlockEnd": "0px",
+        "chain": [
+          {
+            "tag": "BUTTON",
+            "id": "",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(22, 22, 24)"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "DIALOG",
+            "id": "dialog-1",
+            "display": "none",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(22, 22, 24)"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "display": "grid",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(14, 14, 16)"
+          },
+          {
+            "tag": "ARTICLE",
+            "id": "",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(22, 22, 24)"
+          },
+          {
+            "tag": "DIV",
+            "id": "library-grid",
+            "display": "grid",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "MAIN",
+            "id": "top",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(11, 11, 12)"
+          },
+          {
+            "tag": "HTML",
+            "id": "",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          }
+        ]
+      },
+      "Delete": {
+        "identity": "Delete",
+        "text": "Delete project",
+        "connected": true,
+        "enabled": true,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "textRects": [],
+        "hitOwned": false,
+        "hit": "top",
+        "hover": false,
+        "active": false,
+        "focused": false,
+        "focusVisible": false,
+        "color": "rgb(255, 255, 255)",
+        "background": "rgb(212, 47, 47)",
+        "boxShadow": "none",
+        "opacity": 1,
+        "filter": "none",
+        "transform": "none",
+        "outlineWidth": "3px",
+        "outlineStyle": "none",
+        "outlineColor": "rgb(255, 255, 255)",
+        "outlineOffset": "0px",
+        "fontSize": "15px",
+        "lineHeight": "20px",
+        "letterSpacing": "-0.075px",
+        "wordSpacing": "0px",
+        "marginBlockEnd": "0px",
+        "chain": [
+          {
+            "tag": "BUTTON",
+            "id": "",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(212, 47, 47)"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "DIALOG",
+            "id": "dialog-1",
+            "display": "none",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(22, 22, 24)"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "display": "grid",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(14, 14, 16)"
+          },
+          {
+            "tag": "ARTICLE",
+            "id": "",
+            "display": "flex",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(22, 22, 24)"
+          },
+          {
+            "tag": "DIV",
+            "id": "library-grid",
+            "display": "grid",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "MAIN",
+            "id": "top",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgb(11, 11, 12)"
+          },
+          {
+            "tag": "HTML",
+            "id": "",
+            "display": "block",
+            "visibility": "visible",
+            "opacity": 1,
+            "filter": "none",
+            "background": "rgba(0, 0, 0, 0)"
+          }
+        ]
+      }
+    },
+    "heading": {
+      "identity": null,
+      "text": "Delete Aurora website?",
+      "connected": true,
+      "enabled": true,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "textRects": [],
+      "hitOwned": false,
+      "hit": "top",
+      "hover": false,
+      "active": false,
+      "focused": false,
+      "focusVisible": false,
+      "color": "rgb(237, 237, 239)",
+      "background": "rgba(0, 0, 0, 0)",
+      "boxShadow": "none",
+      "opacity": 1,
+      "filter": "none",
+      "transform": "none",
+      "outlineWidth": "3px",
+      "outlineStyle": "none",
+      "outlineColor": "rgb(237, 237, 239)",
+      "outlineOffset": "0px",
+      "fontSize": "18px",
+      "lineHeight": "24.3px",
+      "letterSpacing": "-0.27px",
+      "wordSpacing": "0px",
+      "marginBlockEnd": "0px",
+      "chain": [
+        {
+          "tag": "H3",
+          "id": "dlg-title",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "DIALOG",
+          "id": "dialog-1",
+          "display": "none",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(22, 22, 24)"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "display": "grid",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(14, 14, 16)"
+        },
+        {
+          "tag": "ARTICLE",
+          "id": "",
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(22, 22, 24)"
+        },
+        {
+          "tag": "DIV",
+          "id": "library-grid",
+          "display": "grid",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "MAIN",
+          "id": "top",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BODY",
+          "id": "",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(11, 11, 12)"
+        },
+        {
+          "tag": "HTML",
+          "id": "",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ]
+    },
+    "description": {
+      "identity": null,
+      "text": "This removes 24 pages and 318 assets. You can restore it from the trash for 30 days.",
+      "connected": true,
+      "enabled": true,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "textRects": [],
+      "hitOwned": false,
+      "hit": "top",
+      "hover": false,
+      "active": false,
+      "focused": false,
+      "focusVisible": false,
+      "color": "rgb(160, 161, 168)",
+      "background": "rgba(0, 0, 0, 0)",
+      "boxShadow": "none",
+      "opacity": 1,
+      "filter": "none",
+      "transform": "none",
+      "outlineWidth": "3px",
+      "outlineStyle": "none",
+      "outlineColor": "rgb(160, 161, 168)",
+      "outlineOffset": "0px",
+      "fontSize": "16px",
+      "lineHeight": "22px",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "marginBlockEnd": "20px",
+      "chain": [
+        {
+          "tag": "P",
+          "id": "dlg-description",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "DIALOG",
+          "id": "dialog-1",
+          "display": "none",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(22, 22, 24)"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "display": "grid",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(14, 14, 16)"
+        },
+        {
+          "tag": "ARTICLE",
+          "id": "",
+          "display": "flex",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(22, 22, 24)"
+        },
+        {
+          "tag": "DIV",
+          "id": "library-grid",
+          "display": "grid",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "MAIN",
+          "id": "top",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BODY",
+          "id": "",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgb(11, 11, 12)"
+        },
+        {
+          "tag": "HTML",
+          "id": "",
+          "display": "block",
+          "visibility": "visible",
+          "opacity": 1,
+          "filter": "none",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ]
+    },
+    "backdrop": {
+      "opacity": "1",
+      "background": "rgba(0, 0, 0, 0.5)",
+      "filter": "none",
+      "backdropFilter": "blur(6px)",
+      "webkitBackdropFilter": ""
+    },
+    "blur": {
+      "visibleLabel": "Blur",
+      "ariaLabel": "Blur on fades",
+      "role": "switch",
+      "checked": false,
+      "rootAttribute": false
+    },
+    "animations": [],
+    "snapshotEndAt": 386.1000000000058
+  },
+  "positions": [
+    {
+      "label": "rest-settlement",
+      "rect": {
+        "x": 1018.3509521484375,
+        "y": 806.796875,
+        "width": 111.5,
+        "height": 40,
+        "top": 806.796875,
+        "right": 1129.8509521484375,
+        "bottom": 846.796875,
+        "left": 1018.3509521484375
+      }
+    },
+    {
+      "label": "rest-PNG-before",
+      "rect": {
+        "x": 943.8439331054688,
+        "y": 806.796875,
+        "width": 111.50006103515625,
+        "height": 40,
+        "top": 806.796875,
+        "right": 1055.343994140625,
+        "bottom": 846.796875,
+        "left": 943.8439331054688
+      }
+    },
+    {
+      "label": "rest-PNG-after",
+      "rect": {
+        "x": 623.6748046875,
+        "y": 806.796875,
+        "width": 111.5,
+        "height": 40,
+        "top": 806.796875,
+        "right": 735.1748046875,
+        "bottom": 846.796875,
+        "left": 623.6748046875
+      }
+    },
+    {
+      "label": "hover-settlement",
+      "rect": {
+        "x": 349.15625,
+        "y": 806.796875,
+        "width": 111.5,
+        "height": 40,
+        "top": 806.796875,
+        "right": 460.65625,
+        "bottom": 846.796875,
+        "left": 349.15625
+      }
+    }
+  ],
+  "meaning": "Unmodified native failed observations retained as a causal fixture; no native preparation gate was present."
+}

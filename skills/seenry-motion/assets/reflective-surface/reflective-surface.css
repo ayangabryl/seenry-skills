@@ -1,0 +1,88 @@
+.seenry-reflective {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 28px;
+  background: linear-gradient(112deg, #29383e 0%, #a2b2b2 44%, #24353c 72%, #6b8081 100%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 45%), 0 22px 65px rgb(0 0 0 / 28%);
+}
+
+.seenry-reflective[data-reflective-palette="bronze"] {
+  background: linear-gradient(112deg, #3c291f 0%, #c38454 44%, #482d20 72%, #976f4b 100%);
+}
+
+.seenry-reflective[data-reflective-palette="chromatic"] {
+  background: linear-gradient(112deg, #232830 0%, #aab2bd 44%, #283039 72%, #77828d 100%);
+}
+
+.seenry-reflective[data-reflective-palette="graphite"] {
+  background: linear-gradient(112deg, #171c20 0%, #616f76 44%, #171b20 72%, #39464d 100%);
+}
+
+.seenry-reflective[data-reflective-appearance="rim"] {
+  overflow: visible;
+  border: 0;
+  background: #22272a;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 14%), 0 0 16px rgb(158 189 216 / 12%);
+}
+
+.seenry-reflective[data-reflective-appearance="rim"] .seenry-reflective__canvas {
+  border-radius: inherit;
+}
+
+.seenry-reflective__neighbor {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.seenry-reflective__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.seenry-reflective[data-reflective-mode="fallback"] .seenry-reflective__canvas,
+.seenry-reflective[data-reflective-mode="idle"] .seenry-reflective__canvas {
+  display: none;
+}
+
+.seenry-reflective > button {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: #f5f5ef;
+  cursor: pointer;
+}
+
+.seenry-reflective:focus-within {
+  outline: 3px solid #b5e0d0;
+  outline-offset: 5px;
+}
+
+.seenry-reflective > button:focus-visible { outline: none; }
+
+@media (forced-colors: active) {
+  .seenry-reflective[data-reflective-appearance="rim"] {
+    border: 1px solid ButtonText;
+    background: Canvas;
+    box-shadow: none;
+  }
+  .seenry-reflective[data-reflective-appearance="rim"] > button { color: ButtonText; }
+  .seenry-reflective[data-reflective-appearance="rim"] .seenry-reflective__canvas,
+  .seenry-reflective__neighbor { display: none; }
+}
