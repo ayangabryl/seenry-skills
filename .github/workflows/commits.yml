@@ -1,0 +1,26 @@
+name: Commit messages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  conventional:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check commits against Conventional Commits
+        env:
+          BEFORE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          AFTER: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # A new branch or a force-push leaves no usable base: check the newest commit only.
+          if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            node scripts/check-commit-messages.mjs --range "$BEFORE..$AFTER"
+          else
+            node scripts/check-commit-messages.mjs --range "$AFTER~1..$AFTER" 2>/dev/null || node scripts/check-commit-messages.mjs --file <(git log -1 --format=%B "$AFTER")
+          fi

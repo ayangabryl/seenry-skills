@@ -56,7 +56,7 @@ node tests/system-audit.browser.mjs --playwright /path/to/node_modules/playwrigh
 
 The checks cover package structure and the included tools. They do not certify visual quality: render the page at 1440 and 390, run the system audit, and look.
 
-Seenry is licensed under the [Apache License 2.0](LICENSE); see [NOTICE](NOTICE). Adapted guidance retains its authors' notices in [skill licenses](skills/seenry/licenses/NOTICE.md). External references remain research sources; use their code and media only under their own terms.
+Seenry is licensed under the [Apache License 2.0](LICENSE); see [NOTICE](NOTICE). Contributions follow [CONTRIBUTING.md](CONTRIBUTING.md), including the Conventional Commits format. Adapted guidance retains its authors' notices in [skill licenses](skills/seenry/licenses/NOTICE.md). External references remain research sources; use their code and media only under their own terms.
 
 ## Current MCP contract (4.10.0)
 
