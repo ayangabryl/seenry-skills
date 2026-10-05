@@ -63,7 +63,7 @@ The anchor is always the input, current label, selected tab or owning trigger. C
 
 No measured superiority claim over other libraries. No source timing/keyboard/interruption behavior is inferred from a screenshot. Real-device gestures and manual assistive-technology review remain unverified. Browser evidence, audit output and screenshots are in `.seenry/review/`.
 
-## Version 3 research pairs
+## Research pairs
 
 The interrupted run left eleven downloaded recordings and five sampled frames per recording in `.seenry/research/`; these were retained and inspected in `contact.jpg`, then compared with the local intermediate frames. The current continuation used Seenry MCP `search_designs(family="motion")` for all new families, `search_sections(q="filters")`, and `get_page_motion` for Linear. Search responses are preserved in `v3-searches.json`. The Sentry filter section supports readable filter organization; it is a static section and does not establish motion. Linear's recording reports JavaScript warnings; it is adjacent menu/attached-surface evidence, not proof of runtime correctness. No source implementation was opened.
 

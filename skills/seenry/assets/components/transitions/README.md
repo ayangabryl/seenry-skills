@@ -129,8 +129,8 @@ Every v1 `data-st` name, data attribute, token and JS function still works. Page
   - `panel` is now an inline reveal from its trigger's side (opacity, y −6, scale .98). The v1 button-to-panel morph moves to `plus-menu`/`data-st-morph`. For a side panel, use the new `drawer`.
   - `sheet` is now a real bottom sheet. It works as a `<dialog>` or inside any positioned container.
   - `menu` and `plus-menu` popovers are switched to `popover="manual"` at init, so the kit can animate the exit. The kit provides outside-press and Escape dismissal itself. `popovertarget` buttons are intercepted the same way as `data-st-target`.
-  - Page view transitions now name the scope element `st-page` instead of animating `root`. v1's root slide is available with `data-st-page-scope="root"` on `<html>`.
-- **Legacy aliases kept**: `avatars` (hover or focus lift), `banners` (use `toasts`), `clear` (input clear), `learn` (arrow nudge), `shimmer`, `reveal`, `icon`, `success`, `badge`, `resize`. Version 3 showcases these again and extends their behavior. `icon-swap`, `popover-panel`, `progress`, `image-open`, `reorder` and `tilt` are new kinds.
+  - Page view transitions now name the scope element `st-page` instead of animating `root`. The earlier root slide is available with `data-st-page-scope="root"` on `<html>`.
+- **Legacy aliases kept**: `avatars` (hover or focus lift), `banners` (use `toasts`), `clear` (input clear), `learn` (arrow nudge), `shimmer`, `reveal`, `icon`, `success`, `badge`, `resize`. The catalog showcases these and extends their behavior. `icon-swap`, `popover-panel`, `progress`, `image-open`, `reorder` and `tilt` are new kinds.
 - **Token aliases**: `--st-fast → --st-quick`, `--st-base → --st-control`, `--st-slow → --st-surface`, `--st-page → --st-spatial`, `--st-ease-out → E`, `--st-ease-in-out → M`, `--st-ease-drawer → E`. `--st-rise`, `--st-scale-in`, `--st-shadow`, `--st-reserve` and `--st-stream-lines` remain defined. Colour and radius tokens keep their names, with a new palette.
 - **Removed**: none.
 

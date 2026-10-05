@@ -58,6 +58,6 @@ The checks cover package structure and the included tools. They do not certify v
 
 Seenry is licensed under the [Apache License 2.0](LICENSE); see [NOTICE](NOTICE). Contributions follow [CONTRIBUTING.md](CONTRIBUTING.md), including the Conventional Commits format. Adapted guidance retains its authors' notices in [skill licenses](skills/seenry/licenses/NOTICE.md). External references remain research sources; use their code and media only under their own terms.
 
-## Current MCP contract (4.10.0)
+## Seenry MCP
 
 All eight skills use the Seenry MCP 0.1.0 tool contract. Prefer connected MCP tools; scripted research uses the same https://mcp.seenry.design endpoint and an existing SEENRY_PRO_KEY environment variable. Run `node skills/seenry/scripts/research.mjs --brief BRIEF.md --family websites --terms "<focused query>"` from this repository, or use the installed skill’s absolute script path. The script makes at most three tool calls (planned maximum 11 credits), saves actual source context and inline images, and stops on service/auth/quota errors. Without a script key it writes an explicitly unresearched handoff for connected tools or permitted web research. No random catalog harvesting or automatic score-based superiority claim is made.

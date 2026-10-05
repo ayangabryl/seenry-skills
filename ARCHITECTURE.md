@@ -1,10 +1,10 @@
 # Seenry architecture
 
-## Why 3.0 looks like this
+## Why one main skill carries the system
 
-Version 2 split design into seventeen skills and wrapped original work in a checkpoint pipeline (frozen briefs, paired direction studies, CLI review gates, hashed packets). The process was rigorous, but the output still read as generic because the agent was never given concrete values: it was told to compare, review and verify, not what a good button, card or page shell measures. Specialist skills were also rarely loaded when needed.
+Splitting design into many narrow skills behind review checkpoints (frozen briefs, paired studies, CLI gates) produces rigorous process and generic output. The agent is told to compare, review and verify, but never what a good button, card or page shell measures, and specialist skills are rarely loaded when they are needed.
 
-Version 3 inverts that. The main skill carries the system itself: allowed values, layered component construction, page shells, measured benchmarks and an explicit anti-slop list. Process becomes a studio loop: brief, research, frame, material, explore three compositions inside the frame, critique, refine, verify on pixels. The frame gives consistency; exploration gives quality.
+So the main skill carries the system itself: allowed values, layered component construction, page shells, measured benchmarks and an explicit anti-slop list. Process is a studio loop: brief, research, frame, material, explore three compositions inside the frame, critique, refine, verify on pixels. The frame gives consistency; exploration gives quality.
 
 ## Skills
 
