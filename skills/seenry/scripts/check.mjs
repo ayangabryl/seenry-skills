@@ -12,7 +12,7 @@
 import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, statSync, lstatSync, copyFileSync, rmSync} from 'node:fs';
 import {resolve, join, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {spawnSync} from 'node:child_process';
+import {spawnSync, spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {validMotionVerdict, motionAcceptance, MOTION_ACCEPTANCE_POLICY} from './motion_contract.mjs';
 
@@ -186,14 +186,30 @@ if (blockers) {
 }
 
 const out = join(review, `critic-${round}.json`);
-const critic = spawnSync('node', [join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'),
-  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : [])], {encoding: 'utf8'});
+// The critic and the motion judge are independent, so when this round will judge motion anyway they run together.
+const runAsync = (args) => new Promise((resolveRun) => {
+  const child = spawn('node', args, {stdio: ['ignore', 'pipe', 'pipe']});
+  let stdout = '', stderr = '';
+  child.stdout.on('data', d => { stdout += d; }); child.stderr.on('data', d => { stderr += d; });
+  child.on('close', (status, signal) => resolveRun({status, signal, stdout, stderr}));
+  runAsync.children.push(child);
+});
+runAsync.children = [];
+const priorCritic = history.filter(h => h.critic).length;
+const motionPlanned = native || !fast || priorCritic + 1 >= criticCap;
+const motionDir = mkdtempSync(join(review, `motion-${round}-`));
+const lastMotion = completedReviews().filter(h => h.motionEvidence).map(h => join(dir, h.motionEvidence, 'motion.json')).filter(existsSync).pop();
+const motionArgs = native
+  ? [join(here, 'motion_video.mjs'), '--video', video, '--out', motionDir, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])]
+  : [join(here, 'motion_judge.mjs'), target, '--out', motionDir, ...(lastMotion ? ['--prev', lastMotion] : []), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])];
+let motionRun = motionPlanned ? runAsync(motionArgs) : null;
+const critic = await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'),
+  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : [])]);
 process.stdout.write(critic.stdout);
-if (critic.status !== 0) { process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
+if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
 // Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
 // critic round; earlier rounds rely on the static motion scan above. PASS still requires the full motion judgment.
-const priorCritic = history.filter(h => h.critic).length;
 if (fast && !native && verdict.scores.overall < goal && priorCritic + 1 < criticCap) {
   history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
@@ -202,11 +218,8 @@ if (fast && !native && verdict.scores.overall < goal && priorCritic + 1 < critic
 }
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
 // Every attempt owns fresh evidence; a prior result must never satisfy a new run.
-const motionDir = mkdtempSync(join(review, `motion-${round}-`));
-const lastMotion = completedReviews().filter(h => h.motionEvidence).map(h => join(dir, h.motionEvidence, 'motion.json')).filter(existsSync).pop();
-const mj = native
-  ? spawnSync('node', [join(here, 'motion_video.mjs'), '--video', video, '--out', motionDir, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
-  : spawnSync('node', [join(here, 'motion_judge.mjs'), target, '--out', motionDir, ...(lastMotion ? ['--prev', lastMotion] : []), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
+if (!motionRun) motionRun = runAsync(motionArgs);
+const mj = await motionRun;
 process.stdout.write('\n' + mj.stdout);
 let motion = null, motionError = null;
 const motionPath = join(motionDir, 'motion.json');

@@ -37,7 +37,7 @@ export function askModel({cli, bin}, {images, prompt, schema}) {
     writeFileSync(schemaFile, JSON.stringify(schema));
     let last = '';
     for (const model of [...new Set([process.env.SEENRY_CODEX_MODEL, 'gpt-6.1-sol', 'gpt-6-sol', ''])].filter(m => m !== undefined)) {
-      const cmd = ['exec', '--skip-git-repo-check', '-s', 'read-only', ...(model ? ['-m', model] : []), '--output-schema', schemaFile, '-o', result];
+      const cmd = ['exec', '--skip-git-repo-check', '-s', 'read-only', ...(model ? ['-m', model] : []), '-c', `model_reasoning_effort="${process.env.SEENRY_CRITIC_EFFORT || 'medium'}"`, '--output-schema', schemaFile, '-o', result];
       for (const img of images) cmd.push('-i', img);
       cmd.push('--', prompt);
       const r = spawnSync(bin, cmd, {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
