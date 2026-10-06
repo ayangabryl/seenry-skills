@@ -198,6 +198,13 @@ function inspect({phone}) {
       const drawn = sides.filter(k => w[k] >= 1);
       // One side drawn alone, or one side clearly heavier than a hairline frame (a 3px left edge on a 1px card).
       const side = drawn.length === 1 ? drawn[0] : sides.find(k => w[k] >= 2 && sides.every(o => o === k || w[k] >= 2 * w[o]));
+      // The same edge drawn as a hard inset shadow (inset 0 3px 0 accent) is the same tell.
+      const insetEdge = (st.boxShadow || '').split(/,(?![^(]*\))/).some(sh => {
+        if (!/inset/.test(sh) || /rgba?\([^)]*,\s*0\)/.test(sh)) return false;
+        const [x = 0, y = 0, blur = 0] = (sh.replace(/rgba?\([^)]*\)|#[0-9a-f]+/gi, '').match(/-?[\d.]+px/g) || []).map(parseFloat);
+        return blur === 0 && ((x === 0 && Math.abs(y) >= 2) || (y === 0 && Math.abs(x) >= 2));
+      });
+      if (insetEdge) { f.curvedUnderline.push(label(el)); continue; }
       if (!side) continue;
       const rail = (side === 'Left' || side === 'Right') && w[side] >= 2 && parseFloat(st[`padding${side}`]) >= 8;
       if (rail || corners[side].some(c => parseFloat(st[`border${c}Radius`]) >= 1)) f.curvedUnderline.push(label(el));
