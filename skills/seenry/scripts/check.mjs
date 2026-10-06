@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** The finishing gate. One command per round:
  *
- *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png] [--dir .seenry] [--target 9] [--playwright path]
+ *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png] [--dir .seenry] [--target 9] [--critic-rounds n] [--fast] [--playwright path]
  *  node check.mjs --screens home.png,detail.png,sheet.png --video rec.mov --brief BRIEF.md   (native apps: SwiftUI,
  *    UIKit, React Native, Flutter; simulator screenshots in flow order and a screen recording of the interactions)
  *
@@ -9,7 +9,7 @@
  *  2. With zero blockers, runs critic.mjs: a fresh model scores the page against the reference screens.
  *  3. Prints PASS when the critic's overall reaches --target (default 9: a local heuristic, not evidence of outperforming another product), else FAIL with the fixes to apply.
  *  Rounds are numbered; every critic result is kept as <dir>/review/critic-N.json and summarized in check.json. */
-import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, statSync, lstatSync, copyFileSync} from 'node:fs';
+import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, statSync, lstatSync, copyFileSync, rmSync} from 'node:fs';
 import {resolve, join, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
@@ -100,8 +100,11 @@ const completedReviews = () => history.filter(h => h.critic && Number.isFinite(h
 const checkedVersions = new Set(completedReviews().filter(h => native || h.motionPolicy === MOTION_ACCEPTANCE_POLICY).map(h => h.hash).filter(Boolean));
 // Only critic rounds count toward the budget: board fixes are cheap and must never eat the rounds of design feedback.
 const criticRounds = history.filter(h => h.critic).length;
-if ((criticRounds >= 8 || round > 20) && !history.some(h => h.stop)) {
-  history[history.length - 1].stop = criticRounds >= 8 ? 'eight critic rounds' : 'twenty rounds';
+// --critic-rounds caps design-feedback rounds for time-boxed work; the target score is unchanged.
+const fast = args.includes('--fast');
+const criticCap = Number(flag('critic-rounds', 0)) || (fast ? 3 : null);
+if ((criticRounds >= (criticCap ?? 8) || round > 20) && !history.some(h => h.stop)) {
+  history[history.length - 1].stop = criticRounds >= (criticCap ?? 8) ? `${criticCap ?? 'eight'} critic rounds` : 'twenty rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 }
 const stoppedAt = history.find(h => h.stop);
@@ -159,6 +162,17 @@ if (!/^https?:/.test(target) && existsSync(target)) {
     console.log('  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
   }
 }
+// Static motion scan: token, easing, transition-all and reduced-motion checks from source, in well under a second.
+const scanReport = join(review, 'motion-scan.json');
+if (!native && existsSync(join(here, 'motion_scan.mjs'))) {
+  rmSync(scanReport, {force: true});
+  const scan = spawnSync('node', [join(here, 'motion_scan.mjs'), project, '--json', scanReport], {encoding: 'utf8'});
+  if (scan.status === 1 && existsSync(scanReport)) {
+    const n = JSON.parse(readFileSync(scanReport, 'utf8')).violations;
+    blockers += n;
+    console.log('\n■ ' + scan.stdout.trim().split('\n').join('\n  '));
+  } else if (scan.stdout) console.log('\n' + scan.stdout.trim().split('\n').slice(0, 6).join('\n  '));
+}
 if (blockers) {
   const last = history[history.length - 1];
   if (last && !last.critic && fingerprint && last.hash === fingerprint) {
@@ -177,6 +191,15 @@ const critic = spawnSync('node', [join(here, 'critic.mjs'), '--board', join(revi
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
+// Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
+// critic round; earlier rounds rely on the static motion scan above. PASS still requires the full motion judgment.
+const priorCritic = history.filter(h => h.critic).length;
+if (fast && !native && verdict.scores.overall < goal && priorCritic + 1 < criticCap) {
+  history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint});
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+  console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}). Motion is judged in the browser once the critic passes or on round ${criticCap} of ${criticCap}. Apply the design fixes listed above, most visible first, then run check.mjs again.`);
+  process.exit(1);
+}
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
 // Every attempt owns fresh evidence; a prior result must never satisfy a new run.
 const motionDir = mkdtempSync(join(review, `motion-${round}-`));
@@ -238,7 +261,7 @@ if (!/^https?:/.test(target) && existsSync(target)) {
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
 if (verdict.scores.overall >= goal && !motionBlocks && !motionFloorFailures.length && motionScore >= 9) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Scope: ${motionCoverage ? "captured interaction labels only; other components unverified" : "legacy overall-only evidence; per-criterion coverage unverified"}. Critic trail: ${trail}.`); process.exit(0); }
-const scored = completedReviews().map(h => h.critic.overall), best = Math.max(...scored);
+const scored = history.filter(h => h.critic && (h.motionSkipped || (Number.isFinite(h.motion) && !h.motionError))).map(h => h.critic.overall), best = Math.max(...scored);
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
 if (motionFloorFailures.length) console.log('Below the required floor: ' + motionFloorFailures.join(' · '));
 console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
@@ -248,10 +271,10 @@ if (stalled && !history.some(h => h.rootChange)) {
   console.log(`LAST ROUND: the critic has not improved for two rounds (best ${best}). Make one root-level change to the weakest dimension (type scale and weights, palette, or imagery), then run check.mjs one final time.`);
   process.exit(1);
 }
-if (stalled || scored.length >= 6) {
-  history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : 'six critic rounds';
+if (stalled || scored.length >= (criticCap ?? 6)) {
+  history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : `${criticCap ?? 'six'} critic rounds`;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  const bestRound = completedReviews().filter(h => h.critic.overall === best).pop();
+  const bestRound = completedReviews().filter(h => h.critic.overall === best).pop() || completedReviews().sort((a, b) => b.critic.overall - a.critic.overall)[0] || history.filter(h => h.critic).pop();
   console.log(`STOP: ${history[history.length - 1].stop}. The quality target was not reached. Best fully reviewed candidate: critic ${best}, motion ${bestRound.motion}, round ${bestRound.round}. Its code is in ${join(review, `round-${bestRound.round}`)} (HTML, CSS and JS, not images). Report unresolved gaps; do not call this a pass or publish it as accepted.`);
   process.exit(3);
 }

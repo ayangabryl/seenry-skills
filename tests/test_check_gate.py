@@ -495,4 +495,44 @@ class CheckGate(unittest.TestCase):
         result=self.run_native_gate();self.assert_blocked(result)
         self.assertIn('source changed during review',result.stdout)
 
+    def run_fast_gate(self):
+        return subprocess.run([NODE,str(self.scripts/'check.mjs'),'index.html','--brief','brief.md','--fast'],cwd=self.project,
+                              env=self.isolated_env(),text=True,capture_output=True,timeout=30)
+
+    def critic_score(self, score):
+        (self.scripts/'critic.mjs').write_text("import {writeFileSync} from 'node:fs';\nconst a=process.argv.slice(2);\n"
+            f"writeFileSync(a[a.indexOf('--out')+1],JSON.stringify({{scores:{{overall:{score}}}}}));\n")
+
+    def motion_calls(self):
+        return list((self.project/'.seenry/review').glob('motion-*/args.json'))
+
+    def test_fast_mode_defers_browser_motion_until_last_critic_round(self):
+        self.critic_score(7)
+        first=self.run_fast_gate()
+        self.assertEqual(first.returncode,1,first.stdout+first.stderr)
+        self.assertIn('Motion is judged in the browser',first.stdout)
+        self.assertEqual(self.motion_calls(),[])
+        self.assertTrue(self.latest_history()['motionSkipped'])
+        (self.project/'app.css').write_text('main { color: #111; }')
+        self.run_fast_gate()
+        self.assertEqual(self.motion_calls(),[])
+        (self.project/'app.css').write_text('main { color: #222; }')
+        third=self.run_fast_gate()
+        self.assertEqual(len(self.motion_calls()),1,third.stdout+third.stderr)
+        self.assertNotIn('PASS round',third.stdout)
+
+    def test_fast_mode_runs_motion_as_soon_as_the_critic_passes(self):
+        result=self.run_fast_gate()
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertEqual(len(self.motion_calls()),1)
+        self.assertIn('PASS round 1',result.stdout)
+
+    def test_static_motion_scan_blocks_before_the_critic(self):
+        shutil.copyfile(ROOT/'skills/seenry/scripts/motion_scan.mjs',self.scripts/'motion_scan.mjs')
+        (self.project/'app.css').write_text('main { transition: all 900ms ease; }')
+        result=self.run_gate();self.assert_blocked(result)
+        self.assertIn('motion scan',result.stdout)
+        self.assertIn('transition-all',result.stdout)
+        self.assertFalse(list((self.project/'.seenry/review').glob('critic-*.json')))
+
 if __name__=='__main__': unittest.main()
