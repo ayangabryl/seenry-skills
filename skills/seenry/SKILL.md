@@ -83,7 +83,7 @@ For changes inside an existing app, follow [Inside an existing project](#inside-
 Leading teams look premium for one root reason: they ranked the job, then removed everything that does not serve it. Calm is the visible result. The reasons behind each rule are in [premium](references/premium.md).
 
 **Never ship these (check.mjs blocks most of them):**
-- Uppercase letter-spaced labels anywhere, especially eyebrows above titles. Use sentence case; the title says it.
+- Eyebrows: a short small line above a title, in any case ("Good to know", "Your neighborhood yoga studio" over the h1). Cut it; the title says it, and card facts such as duration or level go under the title. Uppercase letter-spaced labels are slop anywhere.
 - Numbered labels: "01 /", "(001)", "No. 03", "Step 01". Numbers only where order is real, as plain figures.
 - Weights of 700 or more in UI, or more than three weights on a page.
 - Italic serif accent words in headlines; trendy default faces used for flavor (Instrument Serif, Fraunces, Playfair, Space Grotesk, Clash Display).

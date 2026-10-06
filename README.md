@@ -39,7 +39,7 @@ A blind benchmark on October 7, 2026 compared Seenry with Seenry MCP against two
 | New sites, tuned tasks (4) | **8.25** | 5.88 | 6.62 | 6.56 |
 | Held-out tasks (3 edits, 4 new sites) | **8.21** | 6.93 | 6.14 | 6.54 |
 
-Against Emil's skill, Seenry won 59 judgments, tied 15 and lost 6, and led 15 of 18 tasks. It lost a recipe screen and an empty state and tied settings. It is slower: about 17 minutes per new site against 6 to 7, and 6 minutes per edit against 3 to 4, because it researches references, explores directions and runs its own review. Measured at commit ed2a30f. One model family judged the final round, and scores describe these prompts, not every project.
+Against Emil's skill, Seenry won 59 judgments, tied 15 and lost 6, and led 15 of 18 tasks. It lost a recipe screen and an empty state and tied settings. It is slower: about 17 minutes per new site against 6 to 7, and 6 minutes per edit against 3 to 4, because it researches references, explores directions and runs its own review. After that run, the review loop was sped up (parallel critic and motion judge, verdict reuse on unchanged boards). A timing rerun at commit e650259 took 11 to 13 minutes per new site (4 sites that took 14 to 19 before) and 2 to 3 minutes for two edits, and blind Opus judges preferred the new sites in 5 of 8 pairings against the earlier runs (7.75 against 7.38). Measured at commit ed2a30f. One model family judged the final round, and scores describe these prompts, not every project.
 
 ## Install
 
