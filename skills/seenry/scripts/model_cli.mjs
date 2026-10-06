@@ -3,7 +3,7 @@
  *  SEENRY_CODEX_BIN / SEENRY_CLAUDE_BIN. Codex runs on SEENRY_CODEX_MODEL if set, else gpt-6.1-sol, falling back to
  *  gpt-6-sol and then the CLI's default when an account does not offer a model. */
 import {existsSync, readFileSync, writeFileSync, mkdtempSync} from 'node:fs';
-import {join} from 'node:path';
+import {join, dirname} from 'node:path';
 import {tmpdir, homedir, userInfo} from 'node:os';
 import {spawnSync} from 'node:child_process';
 
@@ -48,7 +48,7 @@ export function askModel({cli, bin}, {images, prompt, schema}) {
     throw new Error(last);
   }
   const p = `${prompt}\n\nThe images are these files; read each one: ${images.join(', ')}\nAnswer with only a JSON object matching this schema: ${JSON.stringify(schema)}`;
-  const r = spawnSync(bin, ['-p', p, '--allowedTools', 'Read', '--output-format', 'text'], {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
+  const r = spawnSync(bin, ['-p', p, '--allowedTools', 'Read', '--output-format', 'text', ...[...new Set(images.map(i => dirname(i)))].flatMap(d => ['--add-dir', d])], {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
   const out = r.stdout || '';
   const raw = out.slice(out.indexOf('{'), out.lastIndexOf('}') + 1);
   if (!raw) throw new Error(`claude failed (status ${r.status}): ${(r.stderr || out).slice(-1500)}`);
