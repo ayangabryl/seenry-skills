@@ -2,7 +2,7 @@
 
 ## 0.1.0
 
-First public preview. Eight agent skills that design and build at studio quality, backed by measured evidence from the Seenry MCP 0.1.0 tool contract.
+First public preview. Eight agent skills that design and build at studio quality, backed by measured evidence from the Seenry MCP 0.1.1 tool contract.
 
 - **seenry:** web pages and components on a strict system: a brief, research in real captured screens, three explored first screens picked blind, a build on a proven product and motion floor, and a check that blocks common AI-template patterns, then a blind critic and a motion judge.
 - **seenry-apps:** native-feeling mobile screens and flows, researched in real App Store screens.

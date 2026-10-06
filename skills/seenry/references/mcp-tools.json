@@ -1,11 +1,11 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "endpoint": "https://mcp.seenry.design",
   "tools": [
     {
       "name": "research_design_brief",
       "title": "Research a design brief",
-      "description": "Compare up to three short query angles, then inspect up to two complementary references with pixels, context, source evidence and a decision rubric tied to the supplied brief. Hard filters constrain website site/page_type, section site/element app app_id/flow, or branding category (Branding/Guidelines); unsupported combinations fail. App research uses exploratory matches with explicit unsupported terms. The agent supplies structural/source queries and judges visual fit; this is bounded lexical research, not an autonomous taste model. Costs 10 credits total, including internal reads.",
+      "description": "Compare up to three short query angles, survey up to eight shortlisted candidates (one per product, with thumbnails) and deep-read the two strongest with pixels, context, measured source evidence and a decision rubric tied to the supplied brief. Hard filters constrain website site/page_type, section site/element app app_id/flow, or branding category (Branding/Guidelines); unsupported combinations fail. App research uses exploratory matches with explicit unsupported terms. The agent supplies structural/source queries and judges visual fit; this is bounded lexical research, not an autonomous taste model. Costs 10 credits total, including internal reads.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -41,6 +41,12 @@
               "decks",
               "motion"
             ]
+          },
+          "asset_query": {
+            "description": "For website research, search individual screens inside matched collections before selecting a cover, e.g. settings or account setup. Observed labels only; the brief itself is not semantically interpreted.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
           },
           "filters": {
             "default": {},
@@ -121,6 +127,22 @@
             "minimum": 1,
             "maximum": 2
           },
+          "survey_size": {
+            "default": 8,
+            "description": "Shortlisted candidates returned as a contact sheet with thumbnails, one per product.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8
+          },
+          "detail": {
+            "default": "compact",
+            "description": "compact bounds deep-read evidence to fit agent context; full returns complete context.",
+            "type": "string",
+            "enum": [
+              "compact",
+              "full"
+            ]
+          },
           "inline": {
             "default": true,
             "type": "boolean"
@@ -131,6 +153,78 @@
           "queries",
           "family"
         ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_reference_assets",
+      "title": "Find screens and slides inside collections",
+      "description": "Search individual published assets across website, app, deck, branding, section and motion collections. Every query concept must match the same asset’s labels, flow, reference name or domain. Returns original indices, match evidence and exact inspection calls. Use id or site to constrain a product; omitted q browses all indexed assets. Search is lexical with disclosed aliases, not visual recognition. Costs 1 credit.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "description": "Stable ID returned by a search result."
+          },
+          "site": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "family": {
+            "type": "string",
+            "enum": [
+              "websites",
+              "apps",
+              "branding",
+              "decks",
+              "sections",
+              "motion"
+            ]
+          },
+          "flow": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "media_type": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video",
+              "pdf"
+            ]
+          },
+          "limit": {
+            "default": 6,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500000
+          },
+          "snapshot": {
+            "description": "Reuse the first response snapshot with the same filters while paging.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
         "additionalProperties": false
       }
     },
@@ -583,7 +677,7 @@
     {
       "name": "search_references",
       "title": "Search captured pages",
-      "description": "Search complete website captures by page type, section evidence, site and appearance. motion=true requires a website recording. Results are lexical, not aesthetic rankings.",
+      "description": "Search complete website captures by page type, section evidence, site and appearance. q also matches each site's inferred industry and product keywords. motion=true requires a website recording. Results are lexical, not aesthetic rankings.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -658,7 +752,7 @@
     {
       "name": "search_sections",
       "title": "Search page sections",
-      "description": "Find Hero, Footer, Pricing and other sections from captured websites and imported galleries. Imported assets keep their original dimensions; viewport/theme only filter captures.",
+      "description": "Find Hero, Footer, Pricing and other sections from captured websites and imported galleries. q matches observed names and evidence plus each site's inferred industry and product keywords (\"analytics\", \"payments\", \"meal kits\"). Ranked by brand or title match, then one result per site, then a quality prior (home pages, capture depth, human ratings); not a visual taste score. Imported assets keep their original dimensions; viewport/theme only filter captures.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
