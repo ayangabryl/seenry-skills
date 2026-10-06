@@ -38,7 +38,7 @@ function inspect({phone}) {
   const ownText = el => [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
   const label = el => `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${(el.textContent || '').trim().slice(0, 40)}"`;
   const els = [...document.body.querySelectorAll('*')].filter(el => ownText(el) && vis(el));
-  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: [], dividers: [], curvedUnderline: []};
+  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: [], dividers: [], curvedUnderline: [], dashLabel: []};
   const weights = new Set(), headings = [...document.querySelectorAll('h1,h2,h3,[role=heading]')].filter(vis);
   const canvas = document.createElement('canvas').getContext('2d');
   const paint = document.createElement('canvas'); paint.width = paint.height = 1;
@@ -159,15 +159,33 @@ function inspect({phone}) {
       if (el.tagName === 'HR' || line(st, 'Top') || line(st, 'Bottom') || /inset[^,]*0px -?1px 0px|0px -?1px 0px [^,]*inset/.test(st.boxShadow)) rules++;
     }
     if (rules > 10) f.dividers.push(`${rules} divider lines in the first two screens`); }
+  // A short decorative rule or a literal dash leading a label ("— A notebook that thinks with you").
+  for (const el of document.body.querySelectorAll('*')) {
+    if (!vis(el) || el.children.length) continue;
+    const r = el.getBoundingClientRect(), st = getComputedStyle(el);
+    const bar = r.width >= 8 && r.width <= 48 && r.height > 0 && r.height <= 3 && !el.textContent.trim() && (toRGBA(st.backgroundColor)[3] > 0.1 || parseFloat(st.borderTopWidth) > 0);
+    if (bar) { const next = el.nextSibling && (el.nextSibling.textContent || '').trim(); if (next) f.dashLabel.push(`rule before "${next.slice(0, 40)}"`); }
+    else if (/^\s*[—–]\s+\S/.test(el.textContent) && el.textContent.trim().length < 70) f.dashLabel.push(`"${el.textContent.trim().slice(0, 40)}"`);
+  }
+  for (const el of document.body.querySelectorAll('p,span,div,small,a,li,h1,h2,h3,h4,h5,h6')) {
+    if (!vis(el) || !el.textContent.trim() || el.textContent.trim().length > 70) continue;
+    const b = getComputedStyle(el, '::before');
+    if (b.content && b.content !== 'none' && /^["']?["']?$/.test(b.content.replace(/\s/g, '')) && parseFloat(b.width) >= 8 && parseFloat(b.width) <= 48 && parseFloat(b.height) <= 3 && toRGBA(b.backgroundColor)[3] > 0.1) f.dashLabel.push(`::before rule on "${el.textContent.trim().slice(0, 40)}"`);
+  }
   // A one-sided border on a rounded box bends up at the corners (the "smile" under a selected tab or link). Draw
   // indicators as their own straight element instead.
   { const sides = ['Top', 'Right', 'Bottom', 'Left'], corners = {Top: ['TopLeft', 'TopRight'], Bottom: ['BottomLeft', 'BottomRight'], Left: ['TopLeft', 'BottomLeft'], Right: ['TopRight', 'BottomRight']};
     for (const el of document.body.querySelectorAll('*')) {
       if (!vis(el)) continue;
       const st = getComputedStyle(el);
-      const drawn = sides.filter(k => parseFloat(st[`border${k}Width`]) >= 1 && st[`border${k}Style`] !== 'none' && toRGBA(st[`border${k}Color`])[3] > 0.04);
-      if (drawn.length !== 1) continue;
-      if (corners[drawn[0]].some(c => parseFloat(st[`border${c}Radius`]) >= 1)) f.curvedUnderline.push(label(el));
+      const width = k => st[`border${k}Style`] !== 'none' && toRGBA(st[`border${k}Color`])[3] > 0.04 ? parseFloat(st[`border${k}Width`]) : 0;
+      const w = Object.fromEntries(sides.map(k => [k, width(k)]));
+      const drawn = sides.filter(k => w[k] >= 1);
+      // One side drawn alone, or one side clearly heavier than a hairline frame (a 3px left edge on a 1px card).
+      const side = drawn.length === 1 ? drawn[0] : sides.find(k => w[k] >= 2 && sides.every(o => o === k || w[k] >= 2 * w[o]));
+      if (!side) continue;
+      const rail = (side === 'Left' || side === 'Right') && w[side] >= 2 && parseFloat(st[`padding${side}`]) >= 8;
+      if (rail || corners[side].some(c => parseFloat(st[`border${c}Radius`]) >= 1)) f.curvedUnderline.push(label(el));
     } }
   for (const el of document.body.querySelectorAll('p,span,small,figcaption,li,div')) {
     if (!vis(el) || el.children.length > 2 || el.closest('footer')) continue;
@@ -244,7 +262,7 @@ const cells = [['This page', join(out, 'first-1440.png')], ...refs.map(r => [r.s
 await shot(`<div style="display:flex;flex-wrap:wrap;gap:16px;padding:16px">${cells.map(([n, p]) => `<figure style="margin:0"><figcaption style="padding:0 0 6px">${n}</figcaption>${clip(uri(p), 720, 450)}</figure>`).join('')}</div>`, 'first.png', 16 + cells.length * 736 > 1488 ? 1488 : 16 + cells.length * 736);
 await browser.close();
 
-const names = {dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)', curvedUnderline: 'one-sided border on a rounded element bends at the ends (draw a selected-tab or link indicator as a straight ::after bar, or set border-radius: 0 on that element)'};
+const names = {dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'uppercase eyebrow above a title', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)', curvedUnderline: 'one-sided border on a rounded element: an accent rail down a card or a tab underline that bends at its ends (separate cards by tone and space; draw indicators as a straight ::after bar)', dashLabel: 'short rule or dash in front of a label (let the label stand alone, or cut it)'};
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);
