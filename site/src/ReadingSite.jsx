@@ -422,14 +422,14 @@ function AssetStudy() {
         {!found.length && (
           <p>
             No matches in this selection.{" "}
-            <a href="https://lucide.dev/icons/">Search all Lucide icons ↗</a>
+            <a href="https://lucide.dev/icons/">Search all Lucide icons <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" /></a>
           </p>
         )}
       </div>
       <p className="r-asset-credit">
         A searchable selection from{" "}
         <a href="https://lucide.dev/icons/">Lucide</a>. Open an icon to get its
-        SVG. <a href="https://lucide.dev/license">ISC license ↗</a>
+        SVG. <a href="https://lucide.dev/license">ISC license <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" /></a>
       </p>
     </div>
   );

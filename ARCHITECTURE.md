@@ -24,4 +24,4 @@ So the main skill carries the system itself: allowed values, layered component c
 
 ## Evidence
 
-Seenry MCP is optional. When connected, the agent studies 3–6 references per decision and records measured relationships in a reference card. Without it, the bundled benchmarks carry measured values from 24 leading sites. A screenshot proves one state at one width; motion and interaction need a recording or a live check.
+Seenry MCP is optional. When connected, the agent studies 3–6 references per decision and records measured relationships in a reference card. Without it, the bundled benchmarks carry measured values from 18 leading sites. A screenshot proves one state at one width; motion and interaction need a recording or a live check.

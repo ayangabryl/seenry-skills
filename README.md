@@ -20,13 +20,26 @@ Agent skills that make an AI work like a design studio. Seenry fixes a strict fr
 - **Real material.** `seenry-assets` sources CC0 and public-domain photos (Openverse), permissive icon sets (Lucide, Phosphor, Tabler via Iconify) and open fonts, or generates art-directed images through OpenAI or Gemini, and writes a license manifest.
 - **Components built in layers.** Grid → safe space and content areas → structure → type and states, recorded as a short spec card. Max three sizes and three weights per component. [Anatomies](skills/seenry/references/components.md) with measured defaults for buttons, inputs, cards, rows, menus, dialogs, tables, pricing tiers and more.
 - **Page shells and section archetypes** so every page shares gutters, widths, rhythm and heading patterns. [Pages](skills/seenry/references/pages.md).
-- **Measured, not imagined.** [Benchmarks](skills/seenry/references/benchmarks.md) from 24 leading sites (Linear, Stripe, Vercel, Notion, Figma, Raycast, Resend, GitHub and more): hero sizes, weights, tracking, radii, elevation. With Seenry MCP the agent reads available captured measurements and studies real sections, pages, app screens and recordings. [Research recipes](skills/seenry/references/research.md).
+- **Measured, not imagined.** [Benchmarks](skills/seenry/references/benchmarks.md) from 18 leading sites (Linear, Stripe, Vercel, Notion, Figma, Raycast, Resend, GitHub and more): hero sizes, weights, tracking, radii, elevation. With Seenry MCP the agent reads available captured measurements and studies real sections, pages, app screens and recordings. [Research recipes](skills/seenry/references/research.md).
 - **A design sheet for every task.** The skill researches on its own (named category leaders plus an open search that surfaces companies you did not know), decides, builds, and ends with a Seenry sheet: why each decision was made, which companies informed it, the variants explored, measured color and type, component anatomy with keylines drawn on, guidelines for future work, and what was verified. See the [pricing example sheet](skills/seenry/assets/examples/sheet/pricing.sheet.html).
 - **Worked examples.** A [player card](skills/seenry/assets/examples/player-card.html), a [pricing section](skills/seenry/assets/examples/pricing.html) and a [settings panel](skills/seenry/assets/examples/settings.html), each built with the process, audited clean at 1440 and 390, and annotated with its frame and keylines.
 - **Tested motion recipes.** `seenry-motion` decides whether something should animate at all, then gives exact curves, durations and springs, and modern-CSS recipes (native dialog and popover exits, `interpolate-size` accordions, View Transitions, scroll-driven reveals, `linear()` springs) that the test suite runs in Chromium.
 - **A measured color system from one hex.** `palette.py` builds OKLCH ramps and two-tier tokens for light and dark and checks every pair against WCAG and APCA.
 - **Alignment you can measure on any project.** `node skills/seenry/scripts/audit_page.mjs <url> --widths 1440,390` checks ink-level alignment (cap heights, baselines, drawn glyphs, media edges) and optical alignment (asymmetric icons, label centering, side bearing) and prints the CSS nudge for each finding.
 - **An anti-slop pass** with fixes for every common AI tell, and a [system audit](skills/seenry/scripts/system_audit.mjs) that counts the sizes, weights, radii and colors a page actually renders and flags off-grid spacing and non-concentric corners.
+
+## Measured results
+
+A blind benchmark on October 7, 2026 compared Seenry with Seenry MCP against two public design skills ([Emil Kowalski](https://github.com/emilkowalski/skills), [Jakub Krehel](https://github.com/jakubkrehel/skills)) and no skill. Each condition ran Codex (Sol 6.1) on the same prompts a typical user writes: 10 edits inside two existing apps and 8 new sites from a one-line request. Seven of the 18 tasks were held out: the skill was never tuned on them. Claude Opus judged screenshots blind, with labels shuffled per packet, 80 judgments per condition on a 10-point scale.
+
+| | Seenry + MCP | Emil | Jakub | No skill |
+| --- | --- | --- | --- | --- |
+| All 18 tasks | **7.99** | 6.84 | 6.53 | 6.61 |
+| Edits, tuned tasks (7) | **7.69** | 7.19 | 6.78 | 6.69 |
+| New sites, tuned tasks (4) | **8.25** | 5.88 | 6.62 | 6.56 |
+| Held-out tasks (3 edits, 4 new sites) | **8.21** | 6.93 | 6.14 | 6.54 |
+
+Against Emil's skill, Seenry won 59 judgments, tied 15 and lost 6, and led 15 of 18 tasks. It lost a recipe screen and an empty state and tied settings. It is slower: about 17 minutes per new site against 6 to 7, and 6 minutes per edit against 3 to 4, because it researches references, explores directions and runs its own review. Measured at commit ed2a30f. One model family judged the final round, and scores describe these prompts, not every project.
 
 ## Install
 
@@ -40,11 +53,13 @@ Or clone and install locally (previews by default):
 python3 scripts/install.py --apply
 ```
 
-Upgrading from 2.x: run with `--replace --apply`. The ten specialist skills merged in 3.0 (typography, color, layout, polish, writing, accessibility, variants, stress, explain, change-review) are archived, and the printed manifest works with `--rollback`.
+Replacing an older Seenry install: run with `--replace --apply`. Retired skill folders are archived, and the printed manifest works with `--rollback`.
 
 ## Seenry MCP
 
 The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, iOS app screens and flows, branding systems and decks. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
+
+All eight skills use the Seenry MCP 0.1.0 tool contract and prefer connected MCP tools. Scripted research uses the same endpoint and an existing `SEENRY_PRO_KEY`: run `node skills/seenry/scripts/research.mjs --brief BRIEF.md --family websites --terms "<focused query>"` from this repository, or the installed skill's absolute script path. The script makes at most three tool calls (planned maximum 11 credits), saves the source context and images it used, and stops on service, auth or quota errors. Without a key it writes an explicitly unresearched handoff for connected tools or permitted web research.
 
 ## Verify and contribute
 
@@ -57,7 +72,3 @@ node tests/system-audit.browser.mjs --playwright /path/to/node_modules/playwrigh
 The checks cover package structure and the included tools. They do not certify visual quality: render the page at 1440 and 390, run the system audit, and look.
 
 Seenry is licensed under the [Apache License 2.0](LICENSE); see [NOTICE](NOTICE). Contributions follow [CONTRIBUTING.md](CONTRIBUTING.md), including the Conventional Commits format. Adapted guidance retains its authors' notices in [skill licenses](skills/seenry/licenses/NOTICE.md). External references remain research sources; use their code and media only under their own terms.
-
-## Seenry MCP
-
-All eight skills use the Seenry MCP 0.1.0 tool contract. Prefer connected MCP tools; scripted research uses the same https://mcp.seenry.design endpoint and an existing SEENRY_PRO_KEY environment variable. Run `node skills/seenry/scripts/research.mjs --brief BRIEF.md --family websites --terms "<focused query>"` from this repository, or use the installed skill’s absolute script path. The script makes at most three tool calls (planned maximum 11 credits), saves actual source context and inline images, and stops on service/auth/quota errors. Without a script key it writes an explicitly unresearched handoff for connected tools or permitted web research. No random catalog harvesting or automatic score-based superiority claim is made.

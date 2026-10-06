@@ -1390,3 +1390,5 @@ svg {
 .reading-site .r-footnote{max-width:760px}
 .reading-site .p-comparison iframe{height:720px;border-radius:24px}
 @media(max-width:700px){.reading-site{width:calc(100% - 48px)}.reading-site .p-comparison iframe{height:580px}.p-tools{gap:4px}.p-tools button{padding:10px 12px}.p-tools>a{margin-left:0;width:100%;padding:8px 0}}
+
+.link-icon{display:inline-block;vertical-align:-2px;margin-left:2px;flex:none}

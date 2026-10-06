@@ -590,7 +590,7 @@ function VideoDemo() {
             Try again
           </button>{" "}
           <a href="https://seenry.design/demos/motion-studies/">
-            Open the motion study ↗
+            Open the motion study <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
           </a>
         </p>
       ) : (

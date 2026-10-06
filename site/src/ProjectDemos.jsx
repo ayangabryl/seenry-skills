@@ -30,9 +30,9 @@ export function WebsiteRedesign() {
       <p><strong>Seenry Skill.</strong> Shared typography, spacing and controls make the page easier to scan. SVG studies stay sharp at every size and give precise control over color and shape. They suit diagrams; they cannot convey material texture or daylight like a rendered interior.</p>
       <p><strong>Skill + MCP.</strong> Storey’s architectural image scale and SSA’s project captions informed a project-first layout. Copy sits outside the image, the caption identifies the study, and each project opens for closer inspection. Matching generated imagery communicates the studio’s domestic scale, light and materials. The reasoning: let visitors inspect the work first, keep captions close enough to identify it, and keep reading off detailed photography. These are design hypotheses, not measured conversion results.</p>
       <p>MCP supplied reference evidence; imagegen supplied original concept images. The improvement comes from applying both to the brief, not from the file format alone. These are authored design judgments, not measured customer outcomes or a controlled model benchmark.</p>
-      <a href="/demos/fieldwork-mcp/DESIGN.md">References, decisions and image prompts ↗</a>
+      <a href="/demos/fieldwork-mcp/DESIGN.md">References, decisions and image prompts <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" /></a>
     </div></details>}
-    <p className="r-footnote">One brief, three approaches. The redesigns are guided demonstrations; this is not a controlled model benchmark. <a href={`/demos/${version.path}/${selected ? "DESIGN.md" : "README.md"}`}>Read the record ↗</a></p>
+    <p className="r-footnote">One brief, three approaches. The redesigns are guided demonstrations; this is not a controlled model benchmark. <a href={`/demos/${version.path}/${selected ? "DESIGN.md" : "README.md"}`}>Read the record <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" /></a></p>
   </div>;
 }
 const examples = [

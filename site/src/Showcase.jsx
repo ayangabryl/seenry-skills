@@ -428,14 +428,14 @@ function Sources() {
       </form>
       <div className="source-links">
         <a href="https://unsplash.com/license" target="_blank" rel="noreferrer">
-          Unsplash · License ↗
+          Unsplash · License <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
         </a>
         <a
           href="https://www.pexels.com/license/"
           target="_blank"
           rel="noreferrer"
         >
-          Pexels · License ↗
+          Pexels · License <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
         </a>
       </div>
       <p>
@@ -471,7 +471,7 @@ function TypeDemo() {
         target="_blank"
         rel="noreferrer"
       >
-        Open Runde · Source & OFL license ↗
+        Open Runde · Source & OFL license <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
       </a>
     </div>
   );

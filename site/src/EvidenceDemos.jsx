@@ -128,7 +128,7 @@ export function SourcedMedia() {
             <a href={videoSource} target="_blank" rel="noreferrer">
               Nino Souza / Pexels <ArrowUpRight size={12} />
             </a>
-            <a href="https://www.pexels.com/license/">License ↗</a>
+            <a href="https://www.pexels.com/license/">License <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" /></a>
           </div>
         </>
       )}
@@ -348,11 +348,11 @@ export function BrandSystem() {
         Wise rebrand study. Reference artwork belongs to Wise; shown for design
         analysis.{" "}
         <a href="https://seenry.design/design/bbf1181a77472aeb22423e4229b6e755">
-          View in Seenry ↗
+          View in Seenry <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
         </a>{" "}
         ·{" "}
         <a href="https://wise.com/gb/blog/a-brand-for-everywhere-wise-unveils-bold-new-look">
-          Wise’s brand announcement ↗
+          Wise’s brand announcement <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
         </a>
       </p>
     </div>
@@ -383,7 +383,7 @@ export function DeckStudy() {
             {step === 0 ? (
               <>
                 <div>
-                  <span className="e-tide-logo">Tide ∿</span>
+                  <span className="e-tide-logo">Tide</span>
                   <h3>
                     A public room
                     <br />
@@ -399,7 +399,7 @@ export function DeckStudy() {
             ) : step === 1 ? (
               <>
                 <div className="e-slide-statement">
-                  <span>Tide ∿</span>
+                  <span>Tide</span>
                   <h3>
                     Make room
                     <br />
@@ -420,7 +420,7 @@ export function DeckStudy() {
             ) : step === 2 ? (
               <>
                 <div>
-                  <span>Tide ∿</span>
+                  <span>Tide</span>
                   <h3>
                     Three ways
                     <br />
@@ -435,7 +435,7 @@ export function DeckStudy() {
               </>
             ) : (
               <>
-                <span className="e-tide-logo">Tide ∿</span>
+                <span className="e-tide-logo">Tide</span>
                 <h3>
                   Start with
                   <br />
@@ -554,10 +554,10 @@ export function SolComparison() {
           example, not a ranking.
         </p>
         <a href="/demos/sol-comparison/baseline/manifest.md">
-          Baseline record ↗
+          Baseline record <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
         </a>
         <a href="/demos/sol-comparison/with-skill/manifest.md">
-          Skill-assisted record ↗
+          Skill-assisted record <ArrowUpRight className="link-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
         </a>
       </details>
     </div>
