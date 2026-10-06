@@ -99,7 +99,7 @@ const completedReviews = () => history.filter(h => h.critic && Number.isFinite(h
 // Keep those complete rounds as useful previous findings, but verify once on upgrade.
 const checkedVersions = new Set(completedReviews().filter(h => native || h.motionPolicy === MOTION_ACCEPTANCE_POLICY).map(h => h.hash).filter(Boolean));
 // Only critic rounds count toward the budget: board fixes are cheap and must never eat the rounds of design feedback.
-const criticRounds = history.filter(h => h.critic).length;
+const criticRounds = history.filter(h => h.critic && !h.reusedCritic).length;
 // --critic-rounds caps design-feedback rounds for time-boxed work; the target score is unchanged.
 const fast = args.includes('--fast');
 const criticCap = Number(flag('critic-rounds', 0)) || (fast ? 3 : null);
@@ -195,30 +195,40 @@ const runAsync = (args) => new Promise((resolveRun) => {
   runAsync.children.push(child);
 });
 runAsync.children = [];
-const priorCritic = history.filter(h => h.critic).length;
+const priorCritic = history.filter(h => h.critic && !h.reusedCritic).length;
 const motionPlanned = native || !fast || priorCritic + 1 >= criticCap;
 const motionDir = mkdtempSync(join(review, `motion-${round}-`));
 const lastMotion = completedReviews().filter(h => h.motionEvidence).map(h => join(dir, h.motionEvidence, 'motion.json')).filter(existsSync).pop();
 const motionArgs = native
   ? [join(here, 'motion_video.mjs'), '--video', video, '--out', motionDir, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])]
   : [join(here, 'motion_judge.mjs'), target, '--out', motionDir, ...(lastMotion ? ['--prev', lastMotion] : []), ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(pw ? ['--playwright', pw] : [])];
-let motionRun = motionPlanned ? runAsync(motionArgs) : null;
-const critic = await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'),
+// Reuse: when the code changed but the rendered board and first screen are pixel-identical to a scored round, that
+// round's verdict still describes exactly what the critic would see, so it is reused and does not use up a critic
+// round. An unchanged project still gets fresh judging, and motion always gets fresh evidence.
+const boardHash = existsSync(join(review, 'board.png')) && existsSync(join(review, 'first.png'))
+  ? createHash('sha256').update(readFileSync(join(review, 'board.png'))).update(readFileSync(join(review, 'first.png'))).digest('hex') : null;
+const sameBoard = boardHash && fingerprint && history.filter(h => h.critic && h.boardHash === boardHash && h.hash !== fingerprint && h.criticFile && existsSync(join(dir, h.criticFile))).pop();
+const startMotion = () => runAsync(motionArgs);
+let motionRun = motionPlanned ? startMotion() : null;
+const critic = sameBoard
+  ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
+  : await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'),
   '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : [])]);
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
+const roundExtras = {boardHash, criticFile: relative(dir, out), ...(sameBoard ? {reusedCritic: true} : {})};
 // Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
 // critic round; earlier rounds rely on the static motion scan above. PASS still requires the full motion judgment.
 if (fast && !native && verdict.scores.overall < goal && priorCritic + 1 < criticCap) {
-  history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint});
+  history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint, ...roundExtras});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}). Motion is judged in the browser once the critic passes or on round ${criticCap} of ${criticCap}. Apply the design fixes listed above, most visible first, then run check.mjs again.`);
   process.exit(1);
 }
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
 // Every attempt owns fresh evidence; a prior result must never satisfy a new run.
-if (!motionRun) motionRun = runAsync(motionArgs);
+if (!motionRun) motionRun = startMotion();
 const mj = await motionRun;
 process.stdout.write('\n' + mj.stdout);
 let motion = null, motionError = null;
@@ -252,14 +262,14 @@ if (!motionError && Object.hasOwn(motion, 'outcome')) {
 if (!evidenceExit) motionError = `motion process exited ${mj.status ?? mj.signal ?? 'without status'}`;
 if (identity.digest !== projectFingerprint().digest) motionError = 'local source changed during review';
 if (motionError) {
-  history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks,
+  history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks, ...roundExtras,
     motionError, motionEvidence: relative(dir, motionDir), motionPolicy: native ? 'native-video-legacy' : MOTION_ACCEPTANCE_POLICY, motionFloorFailures, motionCoverage, hash: fingerprint});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   if (mj.stderr) process.stderr.write(mj.stderr);
   console.log(`\nUNVERIFIED round ${round}: ${motionError}. A successful, complete motion judgment is required for PASS. Fix the cause and rerun; no quality pass is recorded.`);
   process.exit(2);
 }
-history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks,
+history.push({round, blockers: 0, critic: verdict.scores, motion: motionScore, motionViolations: motionBlocks, ...roundExtras,
   motionEvidence: relative(dir, motionDir), motionPolicy: native ? 'native-video-legacy' : MOTION_ACCEPTANCE_POLICY, motionFloorFailures, motionCoverage, hash: fingerprint});
 // Keep the page's code as it was when scored, so the best round can be restored after a later round scores worse.
 if (!/^https?:/.test(target) && existsSync(target)) {
@@ -274,7 +284,7 @@ if (!/^https?:/.test(target) && existsSync(target)) {
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
 if (verdict.scores.overall >= goal && !motionBlocks && !motionFloorFailures.length && motionScore >= 9) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Scope: ${motionCoverage ? "captured interaction labels only; other components unverified" : "legacy overall-only evidence; per-criterion coverage unverified"}. Critic trail: ${trail}.`); process.exit(0); }
-const scored = history.filter(h => h.critic && (h.motionSkipped || (Number.isFinite(h.motion) && !h.motionError))).map(h => h.critic.overall), best = Math.max(...scored);
+const scored = history.filter(h => h.critic && !h.reusedCritic && (h.motionSkipped || (Number.isFinite(h.motion) && !h.motionError))).map(h => h.critic.overall), best = Math.max(...scored, ...history.filter(h => h.reusedCritic).map(h => h.critic.overall));
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
 if (motionFloorFailures.length) console.log('Below the required floor: ' + motionFloorFailures.join(' · '));
 console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);

@@ -22,8 +22,8 @@ import {join} from 'node:path';
 const a=process.argv.slice(2), out=a[a.indexOf('--out')+1];
 mkdirSync(out,{recursive:true});
 writeFileSync(join(out,'board.json'),JSON.stringify({blockers:0}));
-writeFileSync(join(out,'board.png'),'mock pixels');
-writeFileSync(join(out,'first.png'),'mock pixels');
+writeFileSync(join(out,'board.png'),'mock pixels '+process.hrtime.bigint());
+writeFileSync(join(out,'first.png'),'mock pixels '+process.hrtime.bigint());
 appendFileSync(join(out,'board-calls.log'),'called\n');
 """
 CRITIC = r"""import {writeFileSync} from 'node:fs';
@@ -534,5 +534,15 @@ class CheckGate(unittest.TestCase):
         self.assertIn('motion scan',result.stdout)
         self.assertIn('transition-all',result.stdout)
         self.assertFalse(list((self.project/'.seenry/review').glob('critic-*.json')))
+
+    def test_identical_pixels_after_a_code_change_reuse_the_critic_verdict(self):
+        (self.scripts/'review_board.mjs').write_text(BOARD.replace("'mock pixels '+process.hrtime.bigint()","'same pixels'"))
+        (self.scripts/'critic.mjs').write_text(CRITIC + "\nimport {appendFileSync} from 'node:fs';\nappendFileSync(new URL('./critic-calls.log', import.meta.url), 'called\\n');\n")
+        first=self.run_gate();self.assertEqual(first.returncode,0,first.stdout+first.stderr)
+        (self.project/'app.js').write_text('globalThis.example=false;')
+        second=self.run_gate()
+        self.assertIn('reusing its critic verdict',second.stdout,second.stdout+second.stderr)
+        self.assertEqual((self.scripts/'critic-calls.log').read_text().count('called'),1)
+        self.assertTrue(self.latest_history()['reusedCritic'])
 
 if __name__=='__main__': unittest.main()
