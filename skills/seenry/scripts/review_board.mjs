@@ -164,7 +164,9 @@ function inspect({phone}) {
     if (!vis(el) || el.children.length) continue;
     const r = el.getBoundingClientRect(), st = getComputedStyle(el);
     const bar = r.width >= 8 && r.width <= 48 && r.height > 0 && r.height <= 3 && !el.textContent.trim() && (toRGBA(st.backgroundColor)[3] > 0.1 || parseFloat(st.borderTopWidth) > 0);
-    if (bar) { const next = el.nextSibling && (el.nextSibling.textContent || '').trim(); if (next) f.dashLabel.push(`rule before "${next.slice(0, 40)}"`); }
+    // Chart legends draw a line swatch before each series name; that is information, not decoration.
+    const legend = el.closest('[class*=legend i],[aria-label*=legend i],[role=img],figure,svg') || /legend/i.test(el.parentElement?.className || '');
+    if (bar && !legend) { const next = el.nextSibling && (el.nextSibling.textContent || '').trim(); if (next) f.dashLabel.push(`rule before "${next.slice(0, 40)}"`); }
     else if (/^\s*[—–]\s+\S/.test(el.textContent) && el.textContent.trim().length < 70) f.dashLabel.push(`"${el.textContent.trim().slice(0, 40)}"`);
   }
   for (const el of document.body.querySelectorAll('p,span,div,small,a,li,h1,h2,h3,h4,h5,h6')) {
