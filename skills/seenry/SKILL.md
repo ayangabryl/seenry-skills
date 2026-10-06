@@ -85,6 +85,7 @@ Leading teams look premium for one root reason: they ranked the job, then remove
 - Text people must read under 13px, or in a light grey that fails contrast.
 - Template furniture: rows of example chips, four-up icon feature grids, logo walls of nine or more marks, outlined mini-cards repeated down a section. Show one clear example, three strong points, or the six marks people recognize.
 - Framework default colors as the brand: Tailwind blue-600/indigo-500, violet-600, emerald-500, orange-500 on near-black. Derive the accent from the brand or its material and correct it in OKLCH (below).
+- A curved underline: a selected tab, filter or link marked with `border-bottom` on an element that has a corner radius, so the line bends up at its ends. Indicators are straight bars of their own (check.mjs blocks the curved version).
 - Colored dots in front of text ("● Active", "● Paid", status pills with a leading dot). A dot is only right when it is the whole message: a live or recording indicator, online presence on an avatar, an unread marker in a list; mark those with `data-seenry-dot="live|presence|unread"` (check.mjs blocks any other dot before text).
 - "Many" drawn as a cloud or wall of tiny chips, domains, logos or dots (it turns the claim into decoration), and production notes in the page body ("these marks are invented", "demo data", "placeholder"); a one-line disclosure in the footer is fine.
 - Placeholder art: blurred gradient blobs, CSS gradients or code-drawn shapes standing in for album covers, product photos or avatars.
