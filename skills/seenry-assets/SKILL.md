@@ -61,7 +61,7 @@ Openverse search is literal: use one or two concrete nouns ("vinyl", "portrait",
 
 ## Record provenance
 
-The assets tool writes `manifest.json` next to the files (source page, creator, license, URL, date, prompt for generated images). Carry the entries into the project's `DESIGN.md` asset table and keep any required attribution in the shipped product (credits page or `alt`/caption where the license asks). Before shipping, open the source page once more to confirm the license still shows.
+The assets tool writes `manifest.json` next to the files (source page, creator, license, URL, date, prompt for generated images). Carry the entries into the project's `DESIGN.md` asset table and keep any required attribution in the shipped product on a credits page or a small footer link. Never put a creator credit in a caption or overlay on imagery that stands in for the owner's own work or product (portfolio pieces, case studies, product shots, team photos): it tells visitors the work belongs to someone else. Before shipping, open the source page once more to confirm the license still shows.
 
 ## Never
 
