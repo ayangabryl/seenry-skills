@@ -173,10 +173,19 @@ function inspect({phone}) {
       const t = ownText(el) + [...el.querySelectorAll(':scope > span, :scope > i')].filter(c => !c.querySelector('svg,img')).map(c => c.textContent).join('');
       if (GLYPH.test(t)) f.glyphIcon.push(`"${el.textContent.trim().slice(0, 40)}"`);
     }
-    const logo = document.querySelector('header a, header [class*=logo i], nav a, [class*=logo i], [class*=brand i]');
-    if (logo && vis(logo) && !logo.querySelector('svg,img')) {
-      const marks = [...logo.querySelectorAll('*')].filter(c => !c.children.length && /^\s*[*\u2726-\u274B\u2605\u2606\u2728\u2731]\s*$/u.test(c.textContent));
-      if (marks.length || /^\s*[*\u2726-\u274B\u2605\u2606\u2728\u2731]/u.test(logo.textContent) || GLYPH.test(ownText(logo))) f.glyphIcon.push(`logo "${logo.textContent.trim().slice(0, 30)}" uses a typed symbol as its mark`);
+    // Asterisks, sparkles, stars and bursts are the default AI brand mark, typed or drawn: anywhere in a logo, as
+    // an SVG named like one, or scattered as standalone decoration.
+    const STAR = /[*\u2726-\u274B\u2605\u2606\u2728\u2731\u2042\u204E\u2051\u2055]/u, STAR_NAME = /star|spark|asterisk|burst|twinkle/i;
+    const logos = [...document.querySelectorAll('header a, header [class*=logo i], nav a:first-child, [class*=logo i], [class*=brand i], [class*=wordmark i], footer [class*=logo i], footer [class*=brand i]')].filter(vis);
+    for (const logo of new Set(logos)) {
+      if (logo.textContent.trim().length > 40) continue;
+      const svgStar = [...logo.querySelectorAll('svg, svg *, img')].some(n => STAR_NAME.test([n.getAttribute('class'), n.id, n.getAttribute('aria-label'), n.getAttribute('alt'), n.getAttribute('src'), n.querySelector?.('title')?.textContent].join(' ')));
+      if (STAR.test(logo.textContent) || GLYPH.test(logo.textContent) || svgStar) { f.glyphIcon.push(`logo "${logo.textContent.trim().slice(0, 30)}" uses an asterisk, sparkle or star as its mark`); break; }
+    }
+    for (const el of document.body.querySelectorAll('span,div,i,b,em,p')) {
+      if (!vis(el) || el.children.length || el.closest('a,button,code,pre,label,sup,[aria-hidden=false]')) continue;
+      const t = el.textContent.trim();
+      if (t.length && t.length <= 2 && (/^[\u2726-\u274B\u2605\u2606\u2728\u2731\u2042\u204E]+$/u.test(t) || /^\*$/.test(t) && !el.closest('form,fieldset,[class*=required i]'))) { f.glyphIcon.push(`decorative "${t}" in ${label(el.parentElement || el)}`); }
     } }
   // A short decorative rule or a literal dash leading a label ("— A notebook that thinks with you").
   for (const el of document.body.querySelectorAll('*')) {

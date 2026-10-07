@@ -13,6 +13,8 @@ For creating, codifying or updating a project's guidelines, use [project guideli
 
 ## Deliver project continuity
 
+Never propose an asterisk, sparkle, star, burst or flower as a logo or brand mark, typed or drawn; it is the most common AI-made mark. Start from a wordmark in the brand type and add a mark only when it comes from the product's own idea.
+
 Render the guideline as a Seenry sheet ([the sheet](../seenry/references/sheet.md)) alongside `BRAND.md`: logo and naming rules, color with measured contrast from `palette.py`, type, imagery and icon rules, each as a testable rule with a do and a don't (the way Spotify's developer design guidelines present logo, color and artwork rules). The sheet is what later agents and people read first.
 
 
