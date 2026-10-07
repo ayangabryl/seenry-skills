@@ -159,7 +159,7 @@
     {
       "name": "search_reference_assets",
       "title": "Find screens and slides inside collections",
-      "description": "Search individual published assets across website, app, deck, branding, section and motion collections. Every query concept must match the same asset’s labels, flow, reference name or domain. Returns original indices, match evidence and exact inspection calls. Use id or site to constrain a product; omitted q browses all indexed assets. Search is lexical with disclosed aliases, not visual recognition. Costs 1 credit.",
+      "description": "Search individual published assets across website, app, deck, branding, section and motion collections. Every query concept must match the same asset’s labels, flow, reference name or domain. Returns original indices, match evidence and exact inspection calls. Use id or site to constrain a product; omitted q browses all indexed assets. Search is lexical with disclosed aliases, not visual recognition. Where the library has been AI-tagged, results also match and return aiTags inferred from the pixels by Gemini (screen, components, styles such as pill buttons, patterns, named design principles and why it works), marked as not human-reviewed; verify them on the pixels. Costs 1 credit.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
