@@ -70,6 +70,7 @@ class CheckGate(unittest.TestCase):
         (self.project/'.seenry/explore/pick.json').write_text('{}')
         for name in ['a.png','b.png']:
             (self.project/'.seenry/refs'/name).write_bytes(b'local test reference')
+        (self.project/'.seenry/refs'/'kept.md').write_text('- a.png: two-column hero with the product working; fits a tool people try first.\n')
         self.configure()
 
     def tearDown(self):
@@ -544,5 +545,12 @@ class CheckGate(unittest.TestCase):
         self.assertIn('reusing its critic verdict',second.stdout,second.stdout+second.stderr)
         self.assertEqual((self.scripts/'critic-calls.log').read_text().count('called'),1)
         self.assertTrue(self.latest_history()['reusedCritic'])
+
+    def test_low_reference_fit_blocks_a_high_overall_score(self):
+        (self.scripts/'critic.mjs').write_text(CRITIC.replace("{scores:{overall:9}}","{scores:{overall:9,reference_fit:6},fixes:[]}"))
+        r=self.run_gate()
+        self.assertNotEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertIn('Reference fit 6/10',r.stdout)
+        self.assertNotIn('PASS round',r.stdout)
 
 if __name__=='__main__': unittest.main()

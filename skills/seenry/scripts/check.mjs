@@ -132,6 +132,7 @@ const motionSpec = join(dir, 'motion.md'), design = join(project, 'DESIGN.md');
 const missing = [
   !existsSync(join(dir, 'research', 'pack.md')) && `research pack: run node ${join(here, 'research.mjs')} --type <type> --terms "<words>" (or research by hand with the Seenry MCP tools and write ${join(dir, 'research', 'pack.md')})`,
   refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
+  refCount >= 2 && !existsSync(join(dir, 'refs', 'kept.md')) && `references: write ${join(dir, 'refs', 'kept.md')} with one line per kept reference: its file, what you take from it (layout, message order, proof, type scale) and why it fits this brief`,
   (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
   (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
   !native && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three first-screen compositions in ${join(dir, 'explore')}/ and run node ${join(here, 'pick.mjs')} on them`,
@@ -213,14 +214,17 @@ let motionRun = motionPlanned ? startMotion() : null;
 const critic = sameBoard
   ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
   : await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'),
-  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : [])]);
+  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : [])]);
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
+// The page has to hold up beside the references it kept, not only score well in general.
+const referenceFit = verdict.scores.reference_fit ?? null, designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7);
+if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
 const roundExtras = {boardHash, criticFile: relative(dir, out), ...(sameBoard ? {reusedCritic: true} : {})};
 // Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
 // critic round; earlier rounds rely on the static motion scan above. PASS still requires the full motion judgment.
-if (fast && !native && verdict.scores.overall < goal && priorCritic + 1 < criticCap) {
+if (fast && !native && !designMet && priorCritic + 1 < criticCap) {
   history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint, ...roundExtras});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}). Motion is judged in the browser once the critic passes or on round ${criticCap} of ${criticCap}. Apply the design fixes listed above, most visible first, then run check.mjs again.`);
@@ -283,7 +287,7 @@ if (!/^https?:/.test(target) && existsSync(target)) {
 }
 writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
-if (verdict.scores.overall >= goal && !motionBlocks && !motionFloorFailures.length && motionScore >= 9) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Scope: ${motionCoverage ? "captured interaction labels only; other components unverified" : "legacy overall-only evidence; per-criterion coverage unverified"}. Critic trail: ${trail}.`); process.exit(0); }
+if (designMet && !motionBlocks && !motionFloorFailures.length && motionScore >= 9) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Scope: ${motionCoverage ? "captured interaction labels only; other components unverified" : "legacy overall-only evidence; per-criterion coverage unverified"}. Critic trail: ${trail}.`); process.exit(0); }
 const scored = history.filter(h => h.critic && !h.reusedCritic && (h.motionSkipped || (Number.isFinite(h.motion) && !h.motionError))).map(h => h.critic.overall), best = Math.max(...scored, ...history.filter(h => h.reusedCritic).map(h => h.critic.overall));
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
 if (motionFloorFailures.length) console.log('Below the required floor: ' + motionFloorFailures.join(' · '));
