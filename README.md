@@ -15,6 +15,7 @@ Agent skills that make an AI work like a design studio. Seenry fixes a strict fr
 
 ## What makes it different
 
+- **It looks before it designs.** With Seenry MCP the agent searches a library of more than 100,000 captured app screens and nearly 2,000 websites, matched by category ("analytics hero", "payments pricing") as well as by name. It surveys up to eight real references side by side, keeps the three or four that fit the brief with a reason for each, measures their type, radius and spacing, then designs its own page and credits what it kept in `DESIGN.md`.
 - **A system before styling.** 4px grid, one spacing scale, one radius family with concentric nesting (`inner = outer − inset`), one sans family (plus mono for data), one accent color, rings instead of heavy shadows. Starter [tokens.css](skills/seenry/assets/tokens.css) and a [DESIGN.md template](skills/seenry/assets/DESIGN.template.md) keep page 12 consistent with page 1.
 - **Studio process.** Brief → research → frame → material → explore 3 compositions → critique → refine → verify. [Structured exploration](skills/seenry/references/exploration.md) varies arrangement, scale, anchors and density inside the frame, never the frame itself.
 - **Real material.** `seenry-assets` sources CC0 and public-domain photos (Openverse), permissive icon sets (Lucide, Phosphor, Tabler via Iconify) and open fonts, or generates art-directed images through OpenAI or Gemini, and writes a license manifest.
