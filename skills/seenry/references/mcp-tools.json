@@ -159,7 +159,7 @@
     {
       "name": "search_reference_assets",
       "title": "Find screens and slides inside collections",
-      "description": "Search individual published assets across website, app, deck, branding, section and motion collections. Every query concept must match the same asset’s labels, flow, reference name or domain. Returns original indices, match evidence and exact inspection calls. Use id or site to constrain a product; omitted q browses all indexed assets. Search is lexical with disclosed aliases, not visual recognition. Where the library has been AI-tagged, results also match and return aiTags inferred from the pixels by Gemini (screen, components, styles such as pill buttons, patterns, named design principles and why it works), marked as not human-reviewed; verify them on the pixels. Costs 1 credit.",
+      "description": "Search individual published assets across website, app, deck, branding, section and motion collections. Every query concept must match the same asset across published labels, current AI annotations, or eligible company/product context. For product category plus UI requests, such as finance buttons, use this tool with family apps. productContext is provider-reported structured product classification; companyContext is separately inferred. These contexts cannot establish visible UI or flow/style evidence. Returns original indices, match evidence and exact inspection calls. Use id or site to constrain a product; omitted q browses all indexed assets. Search is lexical with disclosed aliases, not visual recognition. Where the library has been AI-tagged, results also match and return aiTags inferred from the pixels by Gemini (screen, components, styles such as pill buttons, patterns, named design principles and why it works), marked as not human-reviewed; verify them on the pixels. Costs 1 credit.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -1248,7 +1248,7 @@
     {
       "name": "search_app_screens",
       "title": "Find app screens with pixels",
-      "description": "Search published app screens with inline pixels and context handoffs. Ranked mode removes request filler, expands disclosed vocabulary aliases, requires every remaining concept, ranks title/flow evidence, and interleaves apps. Use exact for literal metadata terms. Explore allows partial lexical matches, preserves intent anchors and reports unsupported terms; inspect pixels to resolve them. No mode is semantic or visual search.",
+      "description": "Search observed published app screen labels and flows with inline pixels and context handoffs. Company/industry/product category plus UI requests belong in search_reference_assets with family apps; this tool does not search company or product context. Ranked mode removes request filler, expands disclosed vocabulary aliases, requires every remaining concept, ranks title/flow evidence, and interleaves apps. Use exact for literal metadata terms. Explore allows partial lexical matches, preserves intent anchors and reports unsupported terms; inspect pixels to resolve them. No mode is semantic or visual search.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
