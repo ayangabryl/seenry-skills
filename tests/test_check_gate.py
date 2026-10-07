@@ -553,4 +553,10 @@ class CheckGate(unittest.TestCase):
         self.assertIn('Reference fit 6/10',r.stdout)
         self.assertNotIn('PASS round',r.stdout)
 
+    def test_copied_reference_blocks_a_passing_score(self):
+        (self.scripts/'critic.mjs').write_text(CRITIC.replace("{scores:{overall:9}}","{scores:{overall:9,reference_fit:9},copies_reference:'a.png',fixes:[]}"))
+        r=self.run_gate()
+        self.assertNotEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertIn('Copied reference',r.stdout)
+
 if __name__=='__main__': unittest.main()

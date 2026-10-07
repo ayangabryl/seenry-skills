@@ -132,7 +132,7 @@ const motionSpec = join(dir, 'motion.md'), design = join(project, 'DESIGN.md');
 const missing = [
   !existsSync(join(dir, 'research', 'pack.md')) && `research pack: run node ${join(here, 'research.mjs')} --type <type> --terms "<words>" (or research by hand with the Seenry MCP tools and write ${join(dir, 'research', 'pack.md')})`,
   refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
-  refCount >= 2 && !existsSync(join(dir, 'refs', 'kept.md')) && `references: write ${join(dir, 'refs', 'kept.md')} with one line per kept reference: its file, what you take from it (layout, message order, proof, type scale) and why it fits this brief`,
+  refCount >= 2 && !existsSync(join(dir, 'refs', 'kept.md')) && `references: write ${join(dir, 'refs', 'kept.md')} with one decision card per kept reference: its file, the job and decision it makes, its measured numbers, what you take and how you transform it`,
   (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
   (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
   !native && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three first-screen compositions in ${join(dir, 'explore')}/ and run node ${join(here, 'pick.mjs')} on them`,
@@ -219,7 +219,8 @@ process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
 // The page has to hold up beside the references it kept, not only score well in general.
-const referenceFit = verdict.scores.reference_fit ?? null, designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7);
+const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7) && !copied;
+if (copied) console.log(`\nCopied reference: the critic found a section that reproduces ${copied} nearly unchanged. Rework it: combine the lesson with another reference or the brand idea so the page is your own.`);
 if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
 const roundExtras = {boardHash, criticFile: relative(dir, out), ...(sameBoard ? {reusedCritic: true} : {})};
 // Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
