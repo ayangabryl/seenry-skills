@@ -5,7 +5,7 @@
     {
       "name": "research_design_brief",
       "title": "Research a design brief",
-      "description": "Compare up to three short query angles, survey up to eight shortlisted candidates (one per product, with thumbnails) and deep-read the two strongest with pixels, context, measured source evidence and a decision rubric tied to the supplied brief. Hard filters constrain website site/page_type, section site/element app app_id/flow, or branding category (Branding/Guidelines); unsupported combinations fail. App research uses exploratory matches with explicit unsupported terms. The agent supplies structural/source queries and judges visual fit; this is bounded lexical research, not an autonomous taste model. Costs 10 credits total, including internal reads.",
+      "description": "Compare up to three short query angles, survey up to eight shortlisted candidates (one per product, with thumbnails), measure the surveyed website captures together (shared headline, body, radius and padding ranges, brand colors and fonts) and deep-read the two strongest with pixels, context, source evidence and a decision rubric tied to the supplied brief. Hard filters constrain website site/page_type, section site/element app app_id/flow, or branding category (Branding/Guidelines); unsupported combinations fail. App research uses exploratory matches with explicit unsupported terms. The agent supplies structural/source queries and judges visual fit; this is bounded lexical research, not an autonomous taste model. Costs 10 credits total, including internal reads.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
