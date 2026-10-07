@@ -218,7 +218,7 @@ function inspect({phone}) {
   for (const el of document.body.querySelectorAll('p,span,small,figcaption,li,div')) {
     if (!vis(el) || el.children.length > 2 || el.closest('footer')) continue;
     const t = (el.textContent || '').trim();
-    if (t.length < 200 && /\b(illustrative|placeholder|demo data|sample data|for demonstration|invented|fictional|not real|lorem ipsum)\b/i.test(t)) f.processNote.push(`"${t.slice(0, 60)}"`);
+    if (t.length < 200 && /\b(illustrative|placeholder|demo (data|content)|sample (data|content|details|copy|text)|dummy (data|content|text)|example (data|content)|for demonstration|invented|fictional|not real|lorem ipsum|replace (this|with your))\b|\b(are|is) (sample|placeholder|example)\b/i.test(t)) f.processNote.push(`"${t.slice(0, 60)}"`);
   }
   const controls = [...document.querySelectorAll('button,input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,a[class*=btn],a[class*=button],[role=button]')].filter(vis);
   const radii = [];
