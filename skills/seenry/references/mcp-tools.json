@@ -456,6 +456,61 @@
       }
     },
     {
+      "name": "borrow_references",
+      "title": "Borrow from other industries",
+      "description": "Find screens from unrelated industries that do the same communicative job as your idea (for a habit tracker that forgives missed days: scoreboards, almanacs, transit timetables). Matches AI-tagged purpose, patterns and principles by words; excludes sites in the named category; one result per product, at most two per industry. Costs 3 credits.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "job": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200,
+            "description": "The job the screen must do, in plain words, e.g. \"progress that forgives a missed day\"."
+          },
+          "exclude_category": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80,
+            "description": "The product category to leave out, e.g. \"habit tracker\"."
+          },
+          "families": {
+            "maxItems": 6,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "websites",
+                "apps",
+                "sections",
+                "branding",
+                "decks",
+                "motion"
+              ]
+            }
+          },
+          "limit": {
+            "default": 8,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          }
+        },
+        "required": [
+          "job",
+          "exclude_category"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
       "name": "get_library_guide",
       "title": "Choose a research workflow",
       "description": "Discover the library model, curated skills, tool routing, pagination and evidence limits before research.",
