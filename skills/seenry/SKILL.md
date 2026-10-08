@@ -13,7 +13,7 @@ The standard is simple: **clean, premium, no AI slop, at the level of the best b
 
 Work in the project's existing stack. If the project has tokens, components or a `DESIGN.md`, read them first and extend them.
 
-**Finished means the gate passed.** Any new page, screen, dashboard or redesign is not done until `node scripts/check.mjs <file or url> --brief <brief>` prints PASS for it, at desktop and phone. Run it even when the page looks finished, the request was one line or you are short on time; never report done, or hand over a preview link, on a page the gate has not seen. If it still fails after the rounds below, say so and list the remaining failures instead of calling it done.
+**Finished means the gate passed.** Any new page, screen, dashboard or redesign is not done until `node scripts/check.mjs <file or url> --brief <brief>` prints PASS for it, at desktop and phone. Run it even when the page looks finished, the request was one line or you are short on time; never report done, or hand over a preview link, on a page the gate has not seen. If it still fails after the rounds below, say so and list the remaining failures instead of calling it done. Never end your turn while image generation, a build or the check is still running in the background: wait for it, then finish, because in one-shot and headless sessions ending the turn ends the work.
 
 ## Start complete, then remove the tells
 
