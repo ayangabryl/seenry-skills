@@ -9,13 +9,7 @@ import "./home.css";
 const repository = "https://github.com/ayangabryl/seenry-skills";
 const command = "npx skills add ayangabryl/seenry-skills";
 const enter = [0.16, 1, 0.3, 1];
-const exitEase = [0.4, 0, 1, 1];
 const indicator = { duration: 0.18, ease: enter };
-const lift = {
-  initial: { opacity: 0, y: 4 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.12, delay: 0.02, ease: enter } },
-  exit: { opacity: 0, y: -4, transition: { duration: 0.07, ease: exitEase } },
-};
 const shown = "inset(0% 0% 0% 0%)";
 const hidden = (dir) => (dir > 0 ? "inset(0% 0% 0% 100%)" : "inset(0% 100% 0% 0%)");
 const livePath = (slug) => `/live/${slug}/index.html`;
@@ -46,6 +40,17 @@ const pairs = [
     beforeAlt: "Without a skill: Habitual, “Tiny habits. Big streaks.” with an italic orange accent word, a pill badge and floating cards around a phone.",
     afterAlt: "With Seenry: Kept, “Miss Tuesday. Still on track.” on yellow beside the app’s week view, where a missed day still counts as on track.",
   },
+];
+
+const skills = [
+  ["seenry", "Pages, sites and components. It studies real references, explores three directions, builds one and reviews it blind before it stops. The pages above."],
+  ["seenry-motion", "Decides whether something should move at all, then the curve, duration, interruption and reduced-motion behaviour, with tested recipes you can run."],
+  ["seenry-review", "Ranked, fixable findings for a live screen, a branch or pull request, or one component pushed through every state and size."],
+  ["seenry-assets", "Licence-clear photos, icons and fonts, or generated images, with a manifest of every file’s source, licence and prompt."],
+  ["seenry-branding", "Researches identity systems and writes a BRAND.md with the colour, type, imagery and naming rules later agents follow."],
+  ["seenry-apps", "Native-feeling mobile screens and flows in SwiftUI, UIKit, React Native, Expo or Flutter, held to a strict platform grid."],
+  ["seenry-decks", "Plans a presentation as a sequence, from real decks in the Seenry library, before it designs a slide."],
+  ["seenry-video", "Product films as code: story, shot list, voiceover and sound, rendered frame by frame from real captures."],
 ];
 
 const faq = [
@@ -83,30 +88,6 @@ function Tabs({ items, value, onChange, label }) {
         </button>
       ))}
     </div>
-  );
-}
-
-function Prompt({ text, meta }) {
-  return (
-    <p className="h-prompt">
-      <span aria-hidden="true">&gt;</span> {text}
-      {meta && <em>{meta}</em>}
-    </p>
-  );
-}
-
-function Section({ id, name, lead, children, first = false }) {
-  return (
-    <section className={"h-sec" + (first ? " h-sec-first" : "")} id={id} aria-labelledby={`${id}-name`}>
-      <div className="h-col">
-        <h2 className="h-sec-name" id={`${id}-name`}>
-          <span aria-hidden="true">/</span>
-          {name}
-        </h2>
-        {lead && <p className="h-sec-lead">{lead}</p>}
-      </div>
-      {children}
-    </section>
   );
 }
 
@@ -157,7 +138,7 @@ function Wipe({ id, dir, children }) {
         initial="enter"
         animate="show"
         exit="leave"
-        transition={{ duration: reduced ? 0 : 0.42, ease: enter }}
+        transition={{ duration: reduced ? 0 : 0.36, ease: enter }}
       >
         {children}
       </motion.div>
@@ -212,7 +193,42 @@ function Scroller({ src, alt }) {
   );
 }
 
-function SamePrompt({ onOpen }) {
+function Typed({ text }) {
+  const [shown, setShown] = useState(text);
+  const current = useRef(text);
+  useEffect(() => {
+    const from = current.current;
+    current.current = text;
+    if (from === text) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return setShown(text);
+    let same = 0;
+    while (same < from.length && from[same] === text[same]) same++;
+    const steps = [];
+    for (let i = from.length; i >= same; i--) steps.push(from.slice(0, i));
+    for (let i = same + 1; i <= text.length; i++) steps.push(text.slice(0, i));
+    const per = Math.min(16, 640 / steps.length);
+    const start = performance.now();
+    const timer = setInterval(() => {
+      const i = Math.min(steps.length - 1, Math.floor((performance.now() - start) / per));
+      setShown(steps[i]);
+      if (i === steps.length - 1) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [text]);
+  return (
+    <>
+      <span className="h-typed-sizer" aria-hidden="true">
+        {pairs.reduce((a, p) => (p.prompt.length > a.length ? p.prompt : a), "")}
+      </span>
+      <span className="h-typed" aria-hidden="true">
+        {shown}
+        <i className="h-caret" />
+      </span>
+    </>
+  );
+}
+
+function Hero({ onOpen }) {
   const [pairId, setPairId] = useState("bakery");
   const dir = useRef(1);
   const pair = pairs.find((p) => p.id === pairId);
@@ -226,56 +242,61 @@ function SamePrompt({ onOpen }) {
     { key: "after", label: "With Seenry", live: `${pair.id}-with`, alt: pair.afterAlt },
   ].map((side) => ({ ...side, preview: { desktop: `/work/${pair.id}-${side.key}.webp`, phone: `/work/${pair.id}-${side.key}-390.webp` } }));
   return (
-    <div className="h-real h-same">
-      <div className="h-same-top">
-        <div className="h-clip">
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div key={pair.id} {...lift}>
-              <Prompt text={pair.prompt} meta="Claude Sonnet 5.5, same model" />
-            </motion.div>
-          </AnimatePresence>
-        </div>
-        <Tabs label="Example" value={pairId} onChange={choose} items={pairs} />
-      </div>
-      <div className="h-compare">
-        {sides.map((s) => (
-          <figure key={s.key} className={`h-compare-${s.key}`}>
-            <figcaption>
-              <span>{s.label}</span>
-              <button
-                type="button"
-                aria-haspopup="dialog"
-                aria-label={`Open the live page, ${s.label}`}
-                onPointerEnter={() => preload(s.preview)}
-                onFocus={() => preload(s.preview)}
-                onClick={(event) =>
-                  onOpen({
-                    slug: s.live,
-                    name: `${pair.label}, ${s.key === "before" ? "no skill" : "with Seenry"}`,
-                    prompt: pair.prompt,
-                    model: "Claude Sonnet 5.5",
-                    preview: s.preview,
-                    rect: event.currentTarget.closest("figure").querySelector(".h-crop").getBoundingClientRect(),
-                  })
-                }
-              >
-                Open live <ArrowUpRight size={14} aria-hidden="true" />
-              </button>
-            </figcaption>
-            <div className="h-crop">
-              <Wipe id={pair.id} dir={dir.current}>
-                <Scroller src={`/work/${pair.id}-${s.key}-page.webp`} alt={s.alt} />
-              </Wipe>
-            </div>
-          </figure>
-        ))}
-      </div>
-      <p className="h-note">
-        <span className="h-hint-mouse">Hover a page to scroll through it. </span>
-        <span className="h-hint-touch">Tap a page to scroll through it. </span>
-        {pair.change}
+    <section className="h-hero" aria-labelledby="hero-title">
+      <h1 id="hero-title" className="h-hero-title" aria-label={pair.prompt}>
+        <Typed text={pair.prompt} />
+      </h1>
+      <p className="h-hero-sub">
+        Teach your coding agent good design. This sentence went to Claude Sonnet 5.5 twice: once on its own, once with
+        the Seenry skills installed.
       </p>
-    </div>
+      <Command />
+      <p className="h-hero-meta">For Claude Code, Codex and Cursor. Open source, Apache 2.0.</p>
+      <div className="h-same">
+        <div className="h-same-top">
+          <p>
+            Same prompt · Claude Sonnet 5.5 · Seenry skill only, no MCP.{" "}
+            <span className="h-hint-mouse">Hover a page to scroll it.</span>
+            <span className="h-hint-touch">Tap a page to scroll it.</span>
+          </p>
+          <Tabs label="Prompt" value={pairId} onChange={choose} items={pairs} />
+        </div>
+        <div className="h-compare">
+          {sides.map((s) => (
+            <figure key={s.key} className={`h-compare-${s.key}`}>
+              <figcaption>
+                <span>{s.label}</span>
+                <button
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-label={`Open the live page, ${s.label}`}
+                  onPointerEnter={() => preload(s.preview)}
+                  onFocus={() => preload(s.preview)}
+                  onClick={(event) =>
+                    onOpen({
+                      slug: s.live,
+                      name: `${pair.label}, ${s.key === "before" ? "no skill" : "with Seenry"}`,
+                      prompt: pair.prompt,
+                      model: "Claude Sonnet 5.5",
+                      preview: s.preview,
+                      rect: event.currentTarget.closest("figure").querySelector(".h-crop").getBoundingClientRect(),
+                    })
+                  }
+                >
+                  Open live <ArrowUpRight size={14} aria-hidden="true" />
+                </button>
+              </figcaption>
+              <div className="h-crop">
+                <Wipe id={pair.id} dir={dir.current}>
+                  <Scroller src={`/work/${pair.id}-${s.key}-page.webp`} alt={s.alt} />
+                </Wipe>
+              </div>
+            </figure>
+          ))}
+        </div>
+        <p className="h-same-note">{pair.change}</p>
+      </div>
+    </section>
   );
 }
 
@@ -374,9 +395,9 @@ function Viewer({ open, onClose }) {
               </button>
             </div>
           </div>
-          <div className="h-viewer-prompt">
-            <Prompt text={open.prompt} />
-          </div>
+          <p className="h-viewer-prompt">
+            <span aria-hidden="true">&gt;</span> {open.prompt}
+          </p>
           <div className="h-viewer-frame" data-device={device} data-loaded={loaded}>
             <img className="h-viewer-preview" src={open.preview[device]} alt="" />
             {mounted && <iframe key={open.slug} src={livePath(open.slug)} title={`${open.name}, the live site`} onLoad={() => setLoaded(true)} />}
@@ -418,7 +439,7 @@ function MotionDemo() {
     else if (slot.current) slot.current.textContent = total.toLocaleString("en-US", money);
   }, [total, mode]);
   return (
-    <div className="h-wide">
+    <div className="h-motion-demo">
       <div className="h-cart">
         <div className="h-cart-line">
           <img src="/work/lowfold-bag.webp" alt="" width="240" height="240" />
@@ -453,14 +474,6 @@ function MotionDemo() {
         </div>
         <Toggle label="Motion" value={mode} onChange={setMode} items={[{ id: "before", label: "Before" }, { id: "after", label: "With seenry-motion" }]} />
       </div>
-      <p className="h-note">
-        A cart line from Lowfold Coffee, one of the examples. Before, the total is replaced. With the skill’s number
-        transition, only the changed digits roll, in the direction of the change, and nothing around them moves. Reduced
-        motion gets the instant swap.{" "}
-        <a href="/motion">
-          Browse the motion library <ArrowUpRight size={14} aria-hidden="true" />
-        </a>
-      </p>
     </div>
   );
 }
@@ -472,97 +485,80 @@ export default function Home() {
       <a className="r-skip" href="#main">
         Skip to content
       </a>
-      <header className="h-header h-col">
+      <header className="h-header">
         <a href="https://seenry.design" className="h-wordmark" data-wordmark>
           seenry.
         </a>
-        <a href={repository}>
-          GitHub <ArrowUpRight size={14} aria-hidden="true" />
-        </a>
+        <nav aria-label="Page">
+          <a href="#motion">Motion</a>
+          <a href="#skills">Skills</a>
+          <a href="#faq">FAQ</a>
+          <a href={repository}>
+            GitHub <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+        </nav>
       </header>
       <main id="main">
-        <section className="h-intro h-col" aria-labelledby="intro-title">
-          <h1 id="intro-title">
-            <span aria-hidden="true">/</span>skills
-          </h1>
-          <p>
-            Design skills for your coding agent. Before it builds a page, it studies real references and explores three
-            directions; before it stops, it reviews its own work blind and fixes what it finds.
-          </p>
-          <Command />
-          <p className="h-intro-links">
-            <a href={repository}>
-              GitHub <ArrowUpRight size={14} aria-hidden="true" />
+        <Hero onOpen={setOpen} />
+
+        <section className="h-band h-split" id="motion" aria-labelledby="motion-title">
+          <div className="h-split-head">
+            <h2 id="motion-title">Motion with a reason.</h2>
+            <p>
+              seenry-motion on a real cart line. Before, the total is simply replaced. With the skill’s number transition,
+              only the changed digits roll, in the direction of the change, and nothing around them moves.
+            </p>
+            <a className="h-link" href="/motion">
+              Browse the motion library <ArrowUpRight size={14} aria-hidden="true" />
             </a>
-            <a href="https://seenry.design/mcp">
-              Seenry MCP <ArrowUpRight size={14} aria-hidden="true" />
-            </a>
-            <span>Claude Code, Codex and Cursor</span>
-          </p>
+          </div>
+          <MotionDemo />
         </section>
 
-        <Section id="seenry" name="seenry" first lead={<>The core skill for pages and components. The same one-line prompt, without a skill and with Seenry:</>}>
-          <SamePrompt onOpen={setOpen} />
-        </Section>
-
-        <Section
-          id="seenry-motion"
-          name="seenry-motion"
-          lead={<>Decides whether something should move at all, then picks the curve, duration, interruption and reduced-motion behaviour, with tested recipes and assets you can run.</>}
-        >
-          <MotionDemo />
-        </Section>
-
-        <Section id="more-skills" name="more-skills" lead={<>Installed with the rest, each runs when your request needs it.</>}>
-          <div className="h-col">
-            <ul className="h-also">
-              <li>
-                <code>seenry-review</code> Ranked, fixable findings for a live screen, a branch or pull request, or one
-                component pushed through every state and size. It can also explain how an interface you point it at was
-                built.
-              </li>
-              <li>
-                <code>seenry-assets</code> Finds license-clear photos, icons and fonts, or generates images when your agent
-                has an image model, and writes a manifest with every file’s source, licence and prompt.
-              </li>
-              <li>
-                <code>seenry-branding</code> Researches identity systems and writes a BRAND.md, linked from DESIGN.md, with
-                the colour, type, imagery and naming rules later agents follow.
-              </li>
-              <li>
-                <code>seenry-apps</code> Native-feeling mobile screens and flows in SwiftUI, UIKit, React Native, Expo or
-                Flutter, held to a strict platform grid.
-              </li>
-              <li>
-                <code>seenry-decks</code> Researches presentation decks in the Seenry library, keeping slide order and
-                narrative roles, so a deck is planned as a sequence.
-              </li>
-              <li>
-                <code>seenry-video</code> Product films as code: story, shot list, voiceover and sound, rendered frame by
-                frame from real captures.
-              </li>
-            </ul>
+        <section className="h-band h-split" id="skills" aria-labelledby="skills-title">
+          <div className="h-split-head">
+            <h2 id="skills-title">Eight skills, one install.</h2>
+            <p>Your agent loads the one your request needs. You keep prompting the way you do now, or name a skill.</p>
           </div>
-        </Section>
+          <ul className="h-skills">
+            {skills.map(([name, text]) => (
+              <li key={name}>
+                <code>{name}</code>
+                <p>{text}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-        <Section id="faq" name="faq">
-          <div className="h-col">
-            <div className="h-faq">
-              {faq.map(([q, a]) => (
-                <details key={q}>
-                  <summary>{q}</summary>
-                  <p>{a}</p>
-                </details>
-              ))}
-            </div>
+        <section className="h-band h-faq-band" id="faq" aria-labelledby="faq-title">
+          <div className="h-split-head">
+            <h2 id="faq-title">Questions.</h2>
           </div>
-        </Section>
+          <div className="h-faq">
+            {faq.map(([q, a]) => (
+              <details key={q}>
+                <summary>{q}</summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="h-close" aria-labelledby="close-title">
+          <h2 id="close-title">Same prompt. Better design.</h2>
+          <Command />
+        </section>
       </main>
-      <footer className="h-footer h-col">
-        <a href="https://seenry.design">Seenry</a>
+      <footer className="h-footer">
+        <a href="https://seenry.design" className="h-wordmark" data-wordmark>
+          seenry.
+        </a>
         <span>Apache 2.0</span>
+        <a href="https://seenry.design/mcp">
+          Seenry MCP <ArrowUpRight size={14} aria-hidden="true" />
+        </a>
         <a href={repository}>
-          Source <ArrowUpRight size={14} aria-hidden="true" />
+          GitHub <ArrowUpRight size={14} aria-hidden="true" />
         </a>
       </footer>
       <Viewer open={open} onClose={() => setOpen(null)} />
