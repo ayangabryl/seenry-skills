@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<script>(function(){if(window.top!==window)return;addEventListener('DOMContentLoaded',function(){var d=document.createElement('a');d.href='https://skill.seenry.design/#examples';d.textContent='Example page built by an AI agent with Seenry skills. Not a real business.';d.setAttribute('style','position:fixed;left:12px;bottom:12px;z-index:2147483647;max-width:calc(100% - 24px);padding:10px 14px;border-radius:10px;background:#1c1c1c;color:#fff;font:500 14px/1.4 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.25)');document.body.appendChild(d);});})();</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alder Street Bakery | Sourdough out at 6:30, gone by noon</title>
+<meta name="description" content="Naturally leavened sourdough, laminated pastry and coffee, baked every morning at 214 Alder Street. See what is out of the oven and what is left, then reserve a loaf.">
+<meta name="theme-color" content="#f0cf45">
+<link rel="preload" href="assets/fonts/Newsreader-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Alder Street Bakery, back to top">Alder Street Bakery</a>
+    <nav class="nav" aria-label="Main">
+      <a href="#bake">Today's bake</a>
+      <a href="#bread">Our bread</a>
+      <a href="#menu">Menu</a>
+      <a href="#visit">Visit</a>
+    </nav>
+    <span class="top-open" data-open-line></span>
+    <button class="btn btn-ink btn-sm" type="button" data-reserve>Reserve a loaf</button>
+    <button class="menu-btn" type="button" aria-label="Open menu" aria-controls="navSheet" data-open-nav><svg class="i"><use href="#i-menu"/></svg></button>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero" aria-labelledby="h1">
+  <div class="wrap">
+    <div class="hero-copy">
+      <h1 class="display" id="h1">Sourdough out at 6:30. Gone by noon.</h1>
+      <p class="lead">Naturally leavened loaves, laminated pastry and coffee, baked from 4 am at 214 Alder Street and sold until the racks are empty.</p>
+      <div class="hero-actions">
+        <button class="btn btn-ink" type="button" data-reserve>Reserve a loaf</button>
+        <a class="btn btn-line" href="#bake">See today's bake</a>
+      </div>
+      <p class="hero-live" data-hero-live aria-live="polite"></p>
+    </div>
+    <div class="shelf" aria-labelledby="shelf-h">
+      <img class="shelf-img" src="assets/img/hero.png" width="1122" height="1402" alt="A country sourdough boule with a blistered, deeply caramelized crust and a bold ear, resting on a linen cloth" fetchpriority="high">
+      <div class="shelf-head"><h2 id="shelf-h">On the shelf</h2><span class="shelf-time num" data-shelf-time></span></div>
+      <ol class="shelf-rows" data-shelf-rows></ol>
+      <a class="shelf-link" href="#bake">See the full bake and hold a loaf<svg class="i"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<section class="band-dark pad" id="bake" aria-labelledby="bake-h">
+  <div class="wrap">
+    <div class="board-head">
+      <div>
+        <h2 class="display" id="bake-h">Every bake has a time. Then it's gone.</h2>
+        <p class="lead">Drag the clock to watch a morning go. When we're open, it shows what is on the shelf right now.</p>
+      </div>
+      <div class="readout" aria-hidden="true">
+        <div class="big num" data-clock>6:30<small>am</small></div>
+        <div class="sub" data-clock-sub></div>
+      </div>
+    </div>
+
+    <div class="scrub">
+      <div class="scrub-row">
+        <div class="scrub-track">
+          <input id="clock" type="range" min="360" max="900" step="5" value="570" aria-label="Time of day">
+          <div class="scrub-ticks" aria-hidden="true"><span style="left:0">6 am</span><span style="left:22.2%">8</span><span style="left:44.4%">10</span><span style="left:66.7%">12</span><span style="left:88.9%">2</span><span style="left:100%">3 pm</span></div>
+        </div>
+        <button class="btn btn-line-light btn-sm" type="button" data-now hidden>Back to now</button>
+      </div>
+    </div>
+
+    <div class="rows" data-rows></div>
+
+    <div class="board-foot">
+      <span>Held items wait at the counter until 15 minutes after your pickup time.</span>
+      <span>Pay in the shop. Card or cash.</span>
+    </div>
+  </div>
+</section>
+
+<section class="story" id="bread" aria-labelledby="bread-h">
+  <div class="wrap">
+    <div class="story-head">
+      <h2 class="display" id="bread-h">A loaf that's out at 6:30 started 36 hours earlier.</h2>
+      <p class="lead">Flour, water, salt and our own starter. No yeast, no shortcuts, nothing added to make it faster.</p>
+    </div>
+    <div class="story-grid">
+      <figure class="story-photo">
+        <img src="assets/img/hands.png" width="1536" height="1024" alt="A baker's floury hands shaping a round of dough on an oak bench">
+      </figure>
+      <ol class="steps">
+        <li class="step-row"><div class="when">6:30 pm<small>Sunday</small></div><p><b>Build the levain</b>Rye starter, flour and warm water, left to wake up for fifteen hours.</p></li>
+        <li class="step-row"><div class="when">10 am<small>Monday</small></div><p><b>Mix</b>Levain, flour, water and salt, rested before anything is worked.</p></li>
+        <li class="step-row"><div class="when">11 am<small>Monday</small></div><p><b>Four folds, by hand</b>One every 45 minutes until the dough holds its own shape.</p></li>
+        <li class="step-row"><div class="when">6 pm<small>Monday</small></div><p><b>Shape and chill</b>Into baskets and the cold room for the night, where the flavor builds.</p></li>
+        <li class="step-row out"><div class="when">6:30 am<small>Tuesday</small></div><p><b>Out of the oven</b>Loaded at 4:30, baked hard and dark, cooled on the rack and onto the shelf.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="menu" id="menu" aria-labelledby="menu-h">
+  <div class="wrap">
+    <div class="menu-grid">
+      <div class="menu-side">
+        <div>
+          <h2 class="display" id="menu-h">The menu</h2>
+          <p class="lead" style="margin-top:20px">Short on purpose. Everything is baked on the premises that morning.</p>
+        </div>
+        <figure>
+          <img src="assets/img/croissant.png" width="1024" height="1024" alt="A butter croissant torn open to show its honeycomb layers">
+          <figcaption>Butter croissant: 27 layers, out at 7:00.</figcaption>
+        </figure>
+      </div>
+
+      <div>
+        <div class="tabrail">
+          <div class="tabs" role="tablist" aria-label="Menu sections">
+            <button class="tab" role="tab" id="t-bread" aria-controls="p-bread" aria-selected="true" type="button">Bread</button>
+            <button class="tab" role="tab" id="t-pastry" aria-controls="p-pastry" aria-selected="false" tabindex="-1" type="button">Pastry</button>
+            <button class="tab" role="tab" id="t-savory" aria-controls="p-savory" aria-selected="false" tabindex="-1" type="button">Savory</button>
+            <button class="tab" role="tab" id="t-coffee" aria-controls="p-coffee" aria-selected="false" tabindex="-1" type="button">Coffee</button>
+          </div>
+          <span class="tab-bar" data-tabbar aria-hidden="true"></span>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-bread" aria-labelledby="t-bread" tabindex="0">
+          <div class="item"><h3>Country sourdough</h3><span class="p num">$9</span><p>White and whole wheat, 36-hour ferment. 900 g, baked dark.</p></div>
+          <div class="item"><h3>Seeded rye</h3><span class="p num">$9.50</span><p>Sunflower, flax and caraway on a rye sour. Slices thin, keeps a week.</p></div>
+          <div class="item"><h3>Baguette</h3><span class="p num">$4</span><p>Long cold ferment, crackling crust, open crumb.</p></div>
+          <div class="item"><h3>Rosemary focaccia</h3><span class="p num">$6</span><p>A generous square, olive oil and flaky salt.</p></div>
+          <div class="item"><h3>Olive and thyme loaf</h3><span class="p num">$10</span><p>Castelvetrano olives folded through country dough.</p></div>
+          <div class="item"><h3>Sandwich loaf</h3><span class="p num">$8</span><p>Soft, tall and sliced to order. Sold whole or half.</p></div>
+        </div>
+        <div class="panel" role="tabpanel" id="p-pastry" aria-labelledby="t-pastry" tabindex="0" hidden>
+          <div class="item"><h3>Butter croissant</h3><span class="p num">$4.25</span><p>Three days of folding, 27 layers, cultured butter.</p></div>
+          <div class="item"><h3>Cardamom morning bun</h3><span class="p num">$4.75</span><p>Croissant dough rolled with cardamom sugar and orange zest.</p></div>
+          <div class="item"><h3>Pain au chocolat</h3><span class="p num">$4.75</span><p>Two batons of dark chocolate, laminated dough.</p></div>
+          <div class="item"><h3>Almond croissant</h3><span class="p num">$5.25</span><p>Yesterday's croissant, filled, dipped and baked again.</p></div>
+          <div class="item"><h3>Seasonal fruit galette</h3><span class="p num">$6.50</span><p>A slice. Whatever the market has: plums, apples, rhubarb.</p></div>
+          <div class="item"><h3>Chocolate rye cookie</h3><span class="p num">$3.50</span><p>Rye flour, dark chocolate chunks, sea salt.</p></div>
+        </div>
+        <div class="panel" role="tabpanel" id="p-savory" aria-labelledby="t-savory" tabindex="0" hidden>
+          <div class="item"><h3>Ham, gruyère and mustard</h3><span class="p num">$11</span><p>On a fresh baguette, with cornichons.</p></div>
+          <div class="item"><h3>Tomato, mozzarella and basil</h3><span class="p num">$10.50</span><p>On rosemary focaccia, with olive oil.</p></div>
+          <div class="item"><h3>Egg and chive croissant</h3><span class="p num">$8.50</span><p>Soft scrambled eggs in a split butter croissant.</p></div>
+          <div class="item"><h3>Whipped ricotta toast</h3><span class="p num">$8</span><p>Country sourdough, honey and black pepper.</p></div>
+          <div class="item"><h3>Soup of the day</h3><span class="p num">$9</span><p>Served with a thick slice of sourdough.</p></div>
+        </div>
+        <div class="panel" role="tabpanel" id="p-coffee" aria-labelledby="t-coffee" tabindex="0" hidden>
+          <div class="item"><h3>Espresso</h3><span class="p num">$3.25</span><p>A medium-roast blend from a roaster two towns over.</p></div>
+          <div class="item"><h3>Cortado</h3><span class="p num">$4</span><p>Espresso cut with an equal measure of warm milk.</p></div>
+          <div class="item"><h3>Flat white</h3><span class="p num">$4.75</span><p>Double shot, steamed milk, no foam to speak of.</p></div>
+          <div class="item"><h3>Drip coffee</h3><span class="p num">$3</span><p>Refills are $1.50 if you're staying.</p></div>
+          <div class="item"><h3>Loose-leaf tea</h3><span class="p num">$3.75</span><p>Black, green or mint, brewed by the pot.</p></div>
+          <div class="item"><h3>Hot chocolate</h3><span class="p num">$4.50</span><p>Dark chocolate melted into whole milk.</p></div>
+        </div>
+        <p class="fine">Oat milk is always available. Ask at the counter about allergens.</p>
+      </div>
+    </div>
+
+    <div class="cakes" id="cakes">
+      <img src="assets/img/buns.png" width="1536" height="1152" alt="A tray of glossy cardamom morning buns">
+      <div>
+        <h2 class="display">Cakes and party boxes, with two days' notice.</h2>
+        <p class="lead">Birthday cakes, dessert tables and boxes of a dozen pastries for the office. Tell us the day and the headcount and we'll handle the rest.</p>
+        <div class="tiers">
+          <div class="tier"><b class="num">$42</b><span>Six-inch cake, serves 8</span></div>
+          <div class="tier"><b class="num">$58</b><span>Eight-inch cake, serves 14</span></div>
+          <div class="tier"><b class="num">$48</b><span>Box of 12 assorted pastries</span></div>
+        </div>
+        <a class="btn btn-ink" href="mailto:orders@alderstreetbakery.com?subject=Cake%20or%20party%20box%20order">Request an order<svg class="i"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="quote" aria-label="What neighbors say">
+  <div class="wrap">
+    <figure>
+      <blockquote>I plan my Tuesdays around the 7:00 croissants. If I'm late the rye is gone, and I've made my peace with that.</blockquote>
+      <figcaption>Marta K.<span>Lives on Alder Street, two doors down</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="visit" id="visit" aria-labelledby="visit-h">
+  <div class="wrap">
+    <div class="visit-photo"><img src="assets/img/rack.png" width="1536" height="864" alt="A steel rack of just-baked loaves and baguettes in the bakery at dawn"></div>
+    <div class="visit-grid">
+      <div>
+        <h2 class="display" id="visit-h">Come by. We're on the corner.</h2>
+        <p class="open-line" data-open-line-big></p>
+        <ul class="hours" aria-label="Opening hours">
+          <li class="closed" data-day="1"><span>Monday</span><span>Closed</span></li>
+          <li data-day="2"><span>Tuesday</span><span>6:30 am to 3:00 pm</span></li>
+          <li data-day="3"><span>Wednesday</span><span>6:30 am to 3:00 pm</span></li>
+          <li data-day="4"><span>Thursday</span><span>6:30 am to 3:00 pm</span></li>
+          <li data-day="5"><span>Friday</span><span>6:30 am to 3:00 pm</span></li>
+          <li data-day="6"><span>Saturday</span><span>6:30 am to 3:00 pm</span></li>
+          <li data-day="0"><span>Sunday</span><span>6:30 am to 3:00 pm</span></li>
+        </ul>
+        <div class="where">
+          <span><b>214 Alder Street</b>, at the corner of 3rd Avenue</span>
+          <span>Free 30-minute parking on Alder. The 14 bus stops at the corner.</span>
+        </div>
+        <div class="visit-actions">
+          <a class="btn btn-ink" href="https://www.google.com/maps/search/?api=1&amp;query=214+Alder+Street"><svg class="i"><use href="#i-pin"/></svg>Get directions</a>
+          <a class="btn btn-line" href="tel:+15555550143"><svg class="i"><use href="#i-phone"/></svg>555-0143</a>
+        </div>
+      </div>
+      <div>
+        <div class="map" role="img" aria-label="Street map: the bakery is on the north side of Alder Street, just east of 3rd Avenue. The 14 bus stops at the corner.">
+          <div class="map-in">
+            <svg viewBox="0 0 600 420" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <rect x="40" y="36" width="250" height="124" rx="14" class="m-park"/>
+              <rect x="0" y="215" width="600" height="30" class="m-road"/>
+              <rect x="0" y="300" width="600" height="24" class="m-road"/>
+              <rect x="360" y="0" width="30" height="420" class="m-road"/>
+              <rect x="150" y="245" width="22" height="175" class="m-road"/>
+              <rect x="400" y="168" width="82" height="42" rx="6" class="m-bakery"/>
+              <rect x="400" y="248" width="60" height="44" rx="6" class="m-block"/>
+              <rect x="486" y="248" width="94" height="44" rx="6" class="m-block"/>
+              <rect x="400" y="336" width="180" height="60" rx="6" class="m-block"/>
+              <rect x="200" y="248" width="150" height="44" rx="6" class="m-block"/>
+              <rect x="500" y="168" width="80" height="42" rx="6" class="m-block"/>
+              <rect x="200" y="168" width="150" height="42" rx="6" class="m-block"/>
+              <circle cx="441" cy="189" r="9" class="m-pin"/>
+            </svg>
+            <span class="lbl lbl-alder">Alder Street</span>
+            <span class="lbl lbl-mill">Mill Street</span>
+            <span class="lbl lbl-third">3rd Avenue</span>
+            <span class="lbl lbl-park">Pell Park</span>
+            <span class="lbl lbl-bus">14 bus</span>
+            <span class="lbl lbl-bakery">Alder Street Bakery</span>
+          </div>
+        </div>
+        <p class="map-note">Find us by the line out the door before 8 am.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-mark">Alder Street Bakery</div>
+    <div class="foot-grid">
+      <div>
+        <h3>Visit</h3>
+        <ul><li>214 Alder Street</li><li>Corner of 3rd Avenue</li></ul>
+      </div>
+      <div>
+        <h3>Hours</h3>
+        <ul><li>Tuesday to Sunday</li><li>6:30 am to 3:00 pm</li><li>Closed Monday</li></ul>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <ul><li><a href="tel:+15555550143">555-0143</a></li><li><a href="mailto:orders@alderstreetbakery.com">orders@alderstreetbakery.com</a></li></ul>
+      </div>
+      <div>
+        <h3>On this page</h3>
+        <ul><li><a href="#bake">Today's bake</a></li><li><a href="#bread">Our bread</a></li><li><a href="#menu">Menu</a></li><li><a href="#cakes">Cakes and party boxes</a></li><li><a href="#visit">Visit</a></li></ul>
+      </div>
+    </div>
+    <div class="foot-base"><span>&copy; 2026 Alder Street Bakery</span><span>Baked on the premises every morning.</span></div>
+  </div>
+</footer>
+
+<div class="tray" data-tray role="region" aria-label="Your reservation">
+  <p><span data-tray-count></span><span data-tray-total></span></p>
+  <button class="btn btn-ink" type="button" data-open-dialog>Reserve for pickup</button>
+</div>
+
+<dialog id="reserveDlg" aria-labelledby="dlgTitle">
+  <form method="dialog" class="dlg" data-form novalidate>
+    <h2 id="dlgTitle">Reserve for pickup</h2>
+    <p class="lead">We'll set these aside at the counter. Pay when you collect.</p>
+    <div class="lines" data-lines></div>
+    <div class="field-row">
+      <div class="field"><label for="f-name">Name</label><input id="f-name" name="name" autocomplete="given-name" required></div>
+      <div class="field"><label for="f-phone">Phone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required></div>
+    </div>
+    <div class="field"><label for="f-time">Pickup time</label><select id="f-time" name="time"></select></div>
+    <p class="error" data-error role="alert" hidden></p>
+    <div class="dlg-actions">
+      <button class="btn btn-line" type="button" data-close>Cancel</button>
+      <button class="btn btn-ink" type="submit">Reserve</button>
+    </div>
+  </form>
+  <div class="dlg done" data-done hidden>
+    <h2 data-done-title>Reserved</h2>
+    <p class="lead" data-done-text></p>
+    <button class="btn btn-ink" type="button" data-close>Done</button>
+  </div>
+</dialog>
+
+<dialog class="sheet" id="navSheet" aria-label="Menu">
+  <div class="dlg">
+    <div class="sheet-top"><a class="mark" href="#top" data-close-nav>Alder Street Bakery</a><button class="menu-btn" style="display:inline-flex;margin-left:0" type="button" aria-label="Close menu" data-close-nav><svg class="i"><use href="#i-x"/></svg></button></div>
+    <nav aria-label="Mobile">
+      <a href="#bake" data-close-nav>Today's bake</a>
+      <a href="#bread" data-close-nav>Our bread</a>
+      <a href="#menu" data-close-nav>Menu</a>
+      <a href="#visit" data-close-nav>Visit</a>
+    </nav>
+    <button class="btn btn-ink" type="button" data-reserve data-close-nav>Reserve a loaf</button>
+  </div>
+</dialog>
+
+</body>
+</html>

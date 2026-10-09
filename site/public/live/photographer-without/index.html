@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<script>(function(){if(window.top!==window)return;addEventListener('DOMContentLoaded',function(){var d=document.createElement('a');d.href='https://skill.seenry.design/#examples';d.textContent='Example page built by an AI agent with Seenry skills. Not a real business.';d.setAttribute('style','position:fixed;left:12px;bottom:12px;z-index:2147483647;max-width:calc(100% - 24px);padding:10px 14px;border-radius:10px;background:#1c1c1c;color:#fff;font:500 14px/1.4 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.25)');document.body.appendChild(d);});})();</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Name — Wedding Photographer</title>
+<meta name="description" content="Timeless, unposed wedding photography for couples who want to remember how it felt.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#top">Your Name</a>
+  <button class="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="links">Menu</button>
+  <nav id="links" class="links">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#investment">Investment</a>
+    <a href="#words">Kind Words</a>
+    <a href="#contact" class="cta">Inquire</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-img" data-src="images/hero.jpg"></div>
+    <div class="hero-copy">
+      <p class="eyebrow">Wedding photography · Based in Your City, available worldwide</p>
+      <h1>Honest, quiet photographs of the day you actually had.</h1>
+      <a class="btn" href="#work">View the work</a>
+    </div>
+  </section>
+
+  <section id="work" class="section">
+    <div class="section-head">
+      <h2>Selected work</h2>
+      <div class="filters" role="group" aria-label="Filter gallery">
+        <button class="on" data-filter="all">All</button>
+        <button data-filter="ceremony">Ceremony</button>
+        <button data-filter="portraits">Portraits</button>
+        <button data-filter="details">Details</button>
+        <button data-filter="celebration">Celebration</button>
+      </div>
+    </div>
+    <div id="gallery" class="gallery"></div>
+  </section>
+
+  <section id="about" class="section about">
+    <div class="about-img" data-src="images/about.jpg"></div>
+    <div class="about-copy">
+      <h2>Hello, I'm Your Name.</h2>
+      <p>I've photographed weddings for X years, from courthouse elopements to three-day celebrations. I'm not much for stiff poses. I'd rather stand back, pay attention, and catch the glance between you and your grandmother during the first dance.</p>
+      <p>You'll get a relaxed planning process, one photographer who knows your story, and a gallery that feels like you.</p>
+      <a class="btn ghost" href="#contact">Tell me about your day</a>
+    </div>
+  </section>
+
+  <section id="investment" class="section">
+    <h2>Investment</h2>
+    <p class="lede">Every wedding is different. These are starting points, and I'm happy to tailor a collection to you.</p>
+    <div class="cards">
+      <article>
+        <h3>Elopement</h3>
+        <p class="price">from $1,800</p>
+        <ul><li>Up to 3 hours of coverage</li><li>Ceremony and portraits</li><li>Online gallery, 100+ images</li></ul>
+      </article>
+      <article class="featured">
+        <h3>Full Day</h3>
+        <p class="price">from $4,200</p>
+        <ul><li>Up to 8 hours of coverage</li><li>Getting ready to first dance</li><li>Engagement session included</li><li>Online gallery, 500+ images</li></ul>
+      </article>
+      <article>
+        <h3>Weekend</h3>
+        <p class="price">from $6,800</p>
+        <ul><li>Two days of coverage</li><li>Second photographer</li><li>Heirloom album</li><li>Online gallery, 800+ images</li></ul>
+      </article>
+    </div>
+  </section>
+
+  <section id="words" class="section quotes">
+    <h2>Kind words</h2>
+    <blockquote>
+      <p>“We forgot you were even there, and somehow you captured every moment we'd have missed.”</p>
+      <cite>Name &amp; Name</cite>
+    </blockquote>
+    <blockquote>
+      <p>“Calm, funny, and so good with our families. The photos make us cry every time.”</p>
+      <cite>Name &amp; Name</cite>
+    </blockquote>
+  </section>
+
+  <section id="contact" class="section contact">
+    <h2>Let's talk</h2>
+    <p class="lede">Share your date and venue and I'll reply within two days.</p>
+    <form id="form" action="https://formspree.io/f/your-form-id" method="POST">
+      <label>Your names<input name="names" required autocomplete="name"></label>
+      <label>Email<input type="email" name="email" required autocomplete="email"></label>
+      <label>Wedding date<input type="date" name="date"></label>
+      <label>Venue / location<input name="venue"></label>
+      <label class="wide">Tell me about your day<textarea name="message" rows="5"></textarea></label>
+      <button class="btn" type="submit">Send inquiry</button>
+      <p id="status" role="status"></p>
+    </form>
+  </section>
+</main>
+
+<footer>
+  <p>© <span id="year"></span> Your Name Photography</p>
+  <p><a href="https://instagram.com/">Instagram</a> · <a href="mailto:hello@example.com">hello@example.com</a></p>
+</footer>
+
+<div id="lightbox" class="lightbox" hidden>
+  <button class="lb-close" aria-label="Close">×</button>
+  <button class="lb-prev" aria-label="Previous">‹</button>
+  <img alt="">
+  <button class="lb-next" aria-label="Next">›</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

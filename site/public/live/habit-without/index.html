@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<script>(function(){if(window.top!==window)return;addEventListener('DOMContentLoaded',function(){var d=document.createElement('a');d.href='https://skill.seenry.design/#examples';d.textContent='Example page built by an AI agent with Seenry skills. Not a real business.';d.setAttribute('style','position:fixed;left:12px;bottom:12px;z-index:2147483647;max-width:calc(100% - 24px);padding:10px 14px;border-radius:10px;background:#1c1c1c;color:#fff;font:500 14px/1.4 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.25)');document.body.appendChild(d);});})();</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Habitual — Small habits, big streaks</title>
+<meta name="description" content="Habitual is a calm, beautiful habit tracker. Build routines that stick with streaks, gentle reminders and insights that keep you going.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fbf8f3;
+  --surface: #ffffff;
+  --ink: #1d1b16;
+  --muted: #6b665b;
+  --line: #ebe5d9;
+  --accent: #e8590c;
+  --accent-ink: #ffffff;
+  --accent-soft: #fff0e6;
+  --green: #2f9e6b;
+  --green-soft: #e3f5ec;
+  --lvl0: #efe9dd;
+  --lvl1: #ffd8b8;
+  --lvl2: #ffb27a;
+  --lvl3: #f27e35;
+  --lvl4: #e8590c;
+  --shadow: 0 1px 2px rgba(29,27,22,.05), 0 12px 32px -8px rgba(29,27,22,.12);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14120f;
+    --surface: #1e1b17;
+    --ink: #f4efe6;
+    --muted: #a39d90;
+    --line: #2e2a24;
+    --accent: #ff7a2e;
+    --accent-ink: #1a0e05;
+    --accent-soft: #2e1d11;
+    --green: #4cc790;
+    --green-soft: #15291f;
+    --lvl0: #2a2620;
+    --lvl1: #5a3418;
+    --lvl2: #8f4c1d;
+    --lvl3: #cf6a26;
+    --lvl4: #ff7a2e;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px -8px rgba(0,0,0,.6);
+  }
+}
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 17px/1.6 Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: Fraunces, Georgia, serif; font-weight: 600; line-height: 1.1; letter-spacing: -.02em; }
+a { color: inherit; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: Fraunces, serif; font-weight: 600; font-size: 22px; text-decoration: none; }
+.logo i { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; }
+.logo svg { width: 18px; height: 18px; }
+.nav-links { display: flex; gap: 28px; align-items: center; font-size: 15px; color: var(--muted); }
+.nav-links a { text-decoration: none; }
+.nav-links a:hover { color: var(--ink); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 24px;
+  border-radius: 999px; font: 600 16px Inter, sans-serif; text-decoration: none;
+  background: var(--accent); color: var(--accent-ink); border: 0; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); box-shadow: none; }
+.btn.small { min-height: 40px; padding: 0 18px; font-size: 15px; }
+
+.hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; padding: 56px 0 96px; }
+.pill { display: inline-flex; gap: 8px; align-items: center; padding: 6px 14px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: 14px; margin-bottom: 24px; }
+.hero h1 { font-size: clamp(42px, 6vw, 76px); margin-bottom: 24px; }
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero p.lead { font-size: 20px; color: var(--muted); max-width: 30em; margin-bottom: 36px; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.proof { margin-top: 32px; display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 15px; }
+
+.stage { position: relative; display: grid; place-items: center; }
+.stage::before {
+  content: ""; position: absolute; inset: 6% 0 0; border-radius: 48px;
+  background: radial-gradient(circle at 30% 20%, var(--accent-soft), transparent 70%);
+}
+.phone {
+  position: relative; width: 300px; padding: 14px; border-radius: 44px;
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+  transform: rotate(2deg);
+}
+.screen { padding: 14px 8px 8px; }
+.screen .date { font-size: 13px; color: var(--muted); }
+.screen h3 { font-size: 26px; margin: 2px 0 16px; }
+.ring-card { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 22px; background: var(--accent-soft); margin-bottom: 14px; }
+.ring { width: 64px; height: 64px; flex: none; }
+.ring-card b { display: block; font-size: 15px; }
+.ring-card span { font-size: 13px; color: var(--muted); }
+.habit { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-top: 1px solid var(--line); font-size: 15px; font-weight: 500; }
+.habit .emoji { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--lvl0); font-size: 18px; }
+.habit small { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+.habit .chk { margin-left: auto; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; }
+.habit.done .chk { background: var(--green); border-color: var(--green); }
+.habit.done .chk::after { content: ""; width: 6px; height: 11px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) translate(-1px,-1px); }
+.float {
+  position: absolute; background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  padding: 12px 16px; box-shadow: var(--shadow); font-size: 14px; display: flex; gap: 10px; align-items: center;
+}
+.float.a { left: -6%; top: 14%; transform: rotate(-4deg); }
+.float.b { right: -4%; bottom: 12%; transform: rotate(3deg); }
+.float b { font-size: 15px; display: block; line-height: 1.3; }
+.float span { color: var(--muted); font-size: 12px; }
+.float .fl { font-size: 24px; }
+
+section { padding: 88px 0; }
+.eyebrow { color: var(--accent); font-weight: 600; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+.head { max-width: 640px; margin-bottom: 56px; }
+.head h2 { font-size: clamp(32px, 4.4vw, 52px); margin-bottom: 16px; }
+.head p { color: var(--muted); font-size: 19px; }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 32px; transition: transform .2s, box-shadow .2s; }
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.card .ic { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 24px; background: var(--accent-soft); margin-bottom: 22px; }
+.card:nth-child(2) .ic { background: var(--green-soft); }
+.card:nth-child(5) .ic { background: var(--green-soft); }
+.card h3 { font-size: 23px; margin-bottom: 10px; }
+.card p { color: var(--muted); font-size: 16px; }
+
+.insight { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 40px; padding: 56px; }
+.insight h2 { font-size: clamp(30px, 4vw, 46px); margin-bottom: 16px; }
+.insight p { color: var(--muted); margin-bottom: 24px; }
+.insight ul { list-style: none; padding: 0; display: grid; gap: 12px; }
+.insight li { display: flex; gap: 12px; align-items: center; font-weight: 500; }
+.insight li::before { content: ""; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/14px no-repeat; }
+.heat { display: grid; grid-template-columns: repeat(18, 1fr); gap: 5px; }
+.heat span { aspect-ratio: 1; border-radius: 5px; background: var(--lvl0); }
+.heat .l1 { background: var(--lvl1); } .heat .l2 { background: var(--lvl2); }
+.heat .l3 { background: var(--lvl3); } .heat .l4 { background: var(--lvl4); }
+.heat-meta { display: flex; justify-content: space-between; margin-top: 18px; color: var(--muted); font-size: 14px; }
+.heat-meta b { color: var(--ink); font-family: Fraunces, serif; font-size: 28px; display: block; line-height: 1.1; }
+
+.steps { counter-reset: s; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.step { counter-increment: s; }
+.step::before { content: counter(s); display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: var(--bg); font: 600 20px Fraunces, serif; margin-bottom: 20px; }
+.step h3 { font-size: 24px; margin-bottom: 8px; }
+.step p { color: var(--muted); }
+
+.final { text-align: center; background: var(--accent); color: var(--accent-ink); border-radius: 44px; padding: 80px 24px; margin-bottom: 72px; position: relative; overflow: hidden; }
+.final::before, .final::after { content: ""; position: absolute; width: 360px; height: 360px; border-radius: 50%; background: rgba(255,255,255,.1); }
+.final::before { left: -120px; top: -160px; } .final::after { right: -140px; bottom: -200px; }
+.final > * { position: relative; }
+.final h2 { font-size: clamp(34px, 5vw, 60px); margin-bottom: 16px; }
+.final p { opacity: .9; font-size: 19px; margin-bottom: 32px; }
+.final .btn { background: var(--accent-ink); color: var(--accent); box-shadow: none; }
+@media (prefers-color-scheme: dark) { .final .btn { background: #1a0e05; color: var(--accent); } }
+
+footer { border-top: 1px solid var(--line); padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+footer nav { padding: 0; gap: 24px; }
+
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity .7s, transform .7s; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } .btn, .card { transition: none; } }
+
+@media (max-width: 900px) {
+  .hero, .insight { grid-template-columns: 1fr; }
+  .hero { padding-bottom: 64px; }
+  .grid, .steps { grid-template-columns: 1fr; }
+  .insight { padding: 32px 24px; gap: 32px; }
+  .nav-links a:not(.btn) { display: none; }
+  section { padding: 64px 0; }
+  .float.a { left: 0; } .float.b { right: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav aria-label="Main">
+    <a class="logo" href="#"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></i>Habitual</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#insights">Insights</a>
+      <a href="#how">How it works</a>
+      <a class="btn small" href="#get">Get the app</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <div class="pill"><span aria-hidden="true">🔥</span> Build routines that actually stick</div>
+      <h1>Tiny habits. <em>Big</em> streaks.</h1>
+      <p class="lead">Habitual is the calm, beautiful way to build better routines. Check in once a day, watch your streaks grow, and let gentle nudges do the rest.</p>
+      <div class="cta">
+        <a class="btn" href="#get">Start free today</a>
+        <a class="btn ghost" href="#how">See how it works</a>
+      </div>
+      <p class="proof">Free to start. No account needed. Your data stays yours.</p>
+    </div>
+
+    <div class="stage" aria-hidden="true">
+      <div class="phone">
+        <div class="screen">
+          <div class="date">Thursday, Oct 9</div>
+          <h3>Today</h3>
+          <div class="ring-card">
+            <svg class="ring" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" fill="none" stroke="var(--line)" stroke-width="8"/>
+              <circle cx="32" cy="32" r="26" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="54" transform="rotate(-90 32 32)"/>
+              <text x="32" y="37" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink)" font-family="Inter">2/3</text>
+            </svg>
+            <div><b>Almost there</b><span>One more to complete your day</span></div>
+          </div>
+          <div class="habit done"><div class="emoji">💧</div><div>Drink water<small>21 day streak</small></div><div class="chk"></div></div>
+          <div class="habit done"><div class="emoji">📖</div><div>Read 10 pages<small>9 day streak</small></div><div class="chk"></div></div>
+          <div class="habit"><div class="emoji">🧘</div><div>Meditate<small>4 day streak</small></div><div class="chk"></div></div>
+        </div>
+      </div>
+      <div class="float a"><span class="fl">🔥</span><div><b>21 day streak</b><span>Personal best</span></div></div>
+      <div class="float b"><span class="fl">🎉</span><div><b>Week complete</b><span>7 of 7 days</span></div></div>
+    </div>
+  </header>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <div class="head reveal">
+      <div class="eyebrow">Features</div>
+      <h2>Everything you need. Nothing you don't.</h2>
+      <p>No clutter, no guilt trips. Just the tools that help you show up tomorrow.</p>
+    </div>
+    <div class="grid">
+      <article class="card reveal"><div class="ic" aria-hidden="true">⚡</div><h3>One-tap check-ins</h3><p>Log a habit in a second. Open the app, tap, done. Friction is the enemy of consistency.</p></article>
+      <article class="card reveal"><div class="ic" aria-hidden="true">🔥</div><h3>Streaks that motivate</h3><p>See your momentum build day after day, with forgiving freeze days so one slip never wipes your progress.</p></article>
+      <article class="card reveal"><div class="ic" aria-hidden="true">🔔</div><h3>Smart reminders</h3><p>Nudges that arrive at the right moment, and quietly step aside once you've already checked in.</p></article>
+      <article class="card reveal"><div class="ic" aria-hidden="true">📅</div><h3>Flexible schedules</h3><p>Daily, weekdays only, three times a week. Build a routine that fits your real life.</p></article>
+      <article class="card reveal"><div class="ic" aria-hidden="true">📊</div><h3>Clear insights</h3><p>Heatmaps and weekly summaries reveal your patterns, your best days and what to tweak.</p></article>
+      <article class="card reveal"><div class="ic" aria-hidden="true">🌙</div><h3>Light and dark</h3><p>A soft, focused interface that looks great morning or midnight, and respects your system setting.</p></article>
+    </div>
+  </div>
+</section>
+
+<section id="insights">
+  <div class="wrap">
+    <div class="insight reveal">
+      <div>
+        <div class="eyebrow">Insights</div>
+        <h2>See your progress, not just a number.</h2>
+        <p>Every check-in paints your year. Spot your strongest weeks, notice what derails you, and celebrate how far you've come.</p>
+        <ul>
+          <li>Year-at-a-glance heatmap</li>
+          <li>Completion rate for every habit</li>
+          <li>Weekly recap, delivered Sunday</li>
+        </ul>
+      </div>
+      <div aria-hidden="true">
+        <div class="heat" id="heat"></div>
+        <div class="heat-meta">
+          <div><b>86%</b>completion rate</div>
+          <div><b>21</b>current streak</div>
+          <div><b>34</b>longest streak</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="head reveal">
+      <div class="eyebrow">How it works</div>
+      <h2>Up and running in a minute.</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><h3>Pick your habits</h3><p>Start with one or two small ones. Drink water, stretch, read a page. Small is the point.</p></div>
+      <div class="step reveal"><h3>Check in daily</h3><p>Tap to mark it done. Reminders help you remember, and stay out of your way when you have.</p></div>
+      <div class="step reveal"><h3>Watch it grow</h3><p>Streaks and insights turn showing up into something you look forward to.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap" id="get">
+  <div class="final reveal">
+    <h2>Your best habits start today.</h2>
+    <p>Join Habitual and make tomorrow's you proud.</p>
+    <a class="btn" href="#">Download the app</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>&copy; 2026 Habitual. Made with care.</div>
+    <nav aria-label="Footer"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var heat = document.getElementById('heat');
+  var seed = 7, html = '';
+  for (var i = 0; i < 126; i++) {
+    seed = (seed * 9301 + 49297) % 233280;
+    var r = seed / 233280, ramp = 0.25 + (i / 126) * 0.6;
+    var v = r < 1 - ramp ? 0 : Math.min(4, Math.ceil((r - (1 - ramp)) / ramp * 4));
+    html += '<span class="' + (v ? 'l' + v : '') + '"></span>';
+  }
+  heat.innerHTML = html;
+
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  els.forEach(function (e) { io.observe(e); });
+})();
+</script>
+</body>
+</html>

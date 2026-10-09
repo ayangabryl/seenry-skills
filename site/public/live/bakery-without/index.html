@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<script>(function(){if(window.top!==window)return;addEventListener('DOMContentLoaded',function(){var d=document.createElement('a');d.href='https://skill.seenry.design/#examples';d.textContent='Example page built by an AI agent with Seenry skills. Not a real business.';d.setAttribute('style','position:fixed;left:12px;bottom:12px;z-index:2147483647;max-width:calc(100% - 24px);padding:10px 14px;border-radius:10px;background:#1c1c1c;color:#fff;font:500 14px/1.4 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.25)');document.body.appendChild(d);});})();</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corner Crumb Bakery</title>
+<meta name="description" content="Fresh bread, pastries, and cakes baked every morning in the neighborhood.">
+<style>
+:root {
+  --cream: #fbf5ea;
+  --paper: #fffdf8;
+  --crust: #b5651d;
+  --crust-dark: #8a4a12;
+  --ink: #2e2118;
+  --muted: #6b5a4c;
+  --line: #e8dcc6;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cream: #1d1610;
+    --paper: #261d15;
+    --crust: #e0974f;
+    --crust-dark: #f0b273;
+    --ink: #f4ead9;
+    --muted: #c4b49f;
+    --line: #3b2f23;
+  }
+}
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.6;
+}
+a { color: var(--crust-dark); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--crust); outline-offset: 3px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+h1, h2, h3 { font-family: var(--serif); line-height: 1.15; }
+h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 12px; }
+
+header {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--cream) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; flex-wrap: wrap; }
+.brand { font-family: var(--serif); font-size: 1.35rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+nav ul { list-style: none; padding: 0; display: flex; gap: 4px; flex-wrap: wrap; }
+nav a { display: inline-block; padding: 10px 12px; color: var(--ink); text-decoration: none; border-radius: 8px; font-weight: 500; }
+nav a:hover { background: var(--line); }
+
+.hero { padding: clamp(56px, 12vw, 120px) 0; text-align: center; border-bottom: 1px solid var(--line); }
+.eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: .8rem; color: var(--crust-dark); font-weight: 600; margin-bottom: 16px; }
+.hero h1 { font-size: clamp(2.4rem, 8vw, 4.8rem); max-width: 14ch; margin: 0 auto 20px; }
+.hero p.lead { font-size: 1.15rem; color: var(--muted); max-width: 52ch; margin: 0 auto 32px; }
+.btn {
+  display: inline-block; padding: 14px 28px; border-radius: 999px;
+  background: var(--crust); color: #fff; font-weight: 600; text-decoration: none;
+  min-height: 44px;
+}
+.btn:hover { background: var(--crust-dark); color: #fff; }
+.btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--line); margin-left: 8px; }
+.btn.ghost:hover { background: var(--line); color: var(--ink); }
+
+section { padding: clamp(48px, 8vw, 88px) 0; }
+.intro { color: var(--muted); max-width: 56ch; margin-bottom: 36px; }
+
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+.card h3 { font-size: 1.35rem; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid var(--crust); display: inline-block; }
+.item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.item:last-child { border-bottom: 0; }
+.item strong { display: block; font-weight: 600; }
+.item span.desc { font-size: .9rem; color: var(--muted); }
+.price { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.note { margin-top: 24px; color: var(--muted); font-size: .95rem; }
+
+.about { background: var(--paper); border-block: 1px solid var(--line); }
+.about .cols { display: grid; gap: 40px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: center; }
+.about p + p { margin-top: 14px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
+.stats div { padding: 20px 8px; border: 1px solid var(--line); border-radius: 14px; background: var(--cream); }
+.stats b { display: block; font-family: var(--serif); font-size: 2rem; color: var(--crust-dark); }
+.stats span { font-size: .85rem; color: var(--muted); }
+
+.visit { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 10px 0; border-bottom: 1px solid var(--line); font-weight: 400; }
+th { font-weight: 600; }
+td { text-align: right; font-variant-numeric: tabular-nums; }
+address { font-style: normal; margin-bottom: 14px; }
+.card p + p { margin-top: 8px; }
+
+footer { padding: 32px 0; text-align: center; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); }
+
+@media (max-width: 560px) {
+  .btn.ghost { margin: 12px 0 0; }
+  nav a { padding: 10px 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top">Corner Crumb Bakery</a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#about">Our story</a></li>
+        <li><a href="#visit">Visit</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Baked fresh every morning</p>
+      <h1>Warm bread, made around the corner.</h1>
+      <p class="lead">Small-batch loaves, flaky pastries, and celebration cakes, baked before sunrise for the neighbors we love.</p>
+      <a class="btn" href="#menu">See the menu</a>
+      <a class="btn ghost" href="#visit">Find us</a>
+    </div>
+  </div>
+
+  <section id="menu" aria-labelledby="menu-h">
+    <div class="wrap">
+      <h2 id="menu-h">What's baking</h2>
+      <p class="intro">Our menu follows the seasons and the oven. Everything sells out eventually, so come early for the best pick.</p>
+      <div class="menu-grid">
+        <div class="card">
+          <h3>Breads</h3>
+          <div class="item"><div><strong>Country Sourdough</strong><span class="desc">Slow-fermented, crackly crust</span></div><span class="price">$8.00</span></div>
+          <div class="item"><div><strong>Seeded Multigrain</strong><span class="desc">Oats, sunflower, flax</span></div><span class="price">$8.50</span></div>
+          <div class="item"><div><strong>Classic Baguette</strong><span class="desc">Baked twice daily</span></div><span class="price">$4.00</span></div>
+          <div class="item"><div><strong>Cinnamon Raisin Loaf</strong><span class="desc">Swirled by hand</span></div><span class="price">$9.00</span></div>
+        </div>
+        <div class="card">
+          <h3>Pastries</h3>
+          <div class="item"><div><strong>Butter Croissant</strong><span class="desc">Laminated over three days</span></div><span class="price">$4.25</span></div>
+          <div class="item"><div><strong>Pain au Chocolat</strong><span class="desc">Dark chocolate batons</span></div><span class="price">$4.75</span></div>
+          <div class="item"><div><strong>Cardamom Bun</strong><span class="desc">Pearl sugar on top</span></div><span class="price">$4.50</span></div>
+          <div class="item"><div><strong>Seasonal Fruit Danish</strong><span class="desc">Ask what's in season</span></div><span class="price">$5.00</span></div>
+        </div>
+        <div class="card">
+          <h3>Sweets &amp; Cakes</h3>
+          <div class="item"><div><strong>Chocolate Chip Cookie</strong><span class="desc">Brown butter, sea salt</span></div><span class="price">$3.25</span></div>
+          <div class="item"><div><strong>Lemon Tart</strong><span class="desc">Shortbread crust</span></div><span class="price">$5.50</span></div>
+          <div class="item"><div><strong>Carrot Cake Slice</strong><span class="desc">Cream cheese frosting</span></div><span class="price">$6.00</span></div>
+          <div class="item"><div><strong>Custom Celebration Cake</strong><span class="desc">Order 3 days ahead</span></div><span class="price">from $48</span></div>
+        </div>
+      </div>
+      <p class="note">Please let us know about allergies. Our kitchen handles wheat, dairy, eggs, and tree nuts.</p>
+    </div>
+  </section>
+
+  <section id="about" class="about" aria-labelledby="about-h">
+    <div class="wrap cols">
+      <div>
+        <h2 id="about-h">Our story</h2>
+        <p>We started with one oven, one recipe, and a belief that a good loaf can brighten a whole street. Every morning begins at 4 a.m. with flour, water, salt, and time.</p>
+        <p>We use local butter and eggs, mill-fresh flour, and no shortcuts. Come by, say hello, and we'll probably remember your order by the second visit.</p>
+      </div>
+      <div class="stats" aria-label="Bakery highlights">
+        <div><b>4 a.m.</b><span>First bake</span></div>
+        <div><b>100%</b><span>Made in-house</span></div>
+        <div><b>7 days</b><span>Open weekly</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="visit" aria-labelledby="visit-h">
+    <div class="wrap">
+      <h2 id="visit-h">Visit us</h2>
+      <p class="intro">Walk in, or call ahead to reserve a loaf or place a cake order.</p>
+      <div class="visit">
+        <div class="card">
+          <h3>Hours</h3>
+          <table>
+            <tr><th scope="row">Monday - Friday</th><td>6:30 am - 6:00 pm</td></tr>
+            <tr><th scope="row">Saturday</th><td>7:00 am - 5:00 pm</td></tr>
+            <tr><th scope="row">Sunday</th><td>7:00 am - 2:00 pm</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Find us</h3>
+          <address>123 Main Street<br>Your Town, ST 00000</address>
+          <p><a href="tel:+15555550123">(555) 555-0123</a></p>
+          <p><a href="mailto:hello@cornercrumb.example">hello@cornercrumb.example</a></p>
+          <p><a href="#">@cornercrumb</a> on Instagram</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">&copy; 2026 Corner Crumb Bakery. Baked with care.</div>
+</footer>
+</body>
+</html>

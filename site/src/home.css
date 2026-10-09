@@ -18,6 +18,14 @@ html {
 body {
   background: var(--h-canvas);
 }
+.r-skip {
+  top: 10px;
+  transform: translateY(-160%);
+  transition: transform 160ms var(--h-e);
+}
+.r-skip:focus {
+  transform: none;
+}
 :where(main, .h-header, .h-footer) a {
   transition: color 140ms ease-out;
 }
@@ -27,6 +35,10 @@ body {
 }
 .h-wide {
   width: min(1040px, calc(100% - 32px));
+  margin-inline: auto;
+}
+.h-real {
+  width: min(1280px, calc(100% - 32px));
   margin-inline: auto;
 }
 strong {
@@ -39,7 +51,7 @@ strong {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 96px;
+  height: 80px;
   font-size: 15px;
   color: var(--h-text-2);
 }
@@ -58,7 +70,7 @@ strong {
 
 /* Intro. */
 .h-intro {
-  padding-top: 48px;
+  padding-top: 24px;
 }
 .h-intro h1 {
   margin: 0;
@@ -175,7 +187,7 @@ strong {
   scroll-margin-top: 24px;
 }
 .h-sec-first {
-  padding-top: 64px;
+  padding-top: 56px;
 }
 .h-sec-name {
   display: flex;
@@ -201,7 +213,8 @@ strong {
   color: var(--h-text-2);
   text-wrap: pretty;
 }
-.h-sec > .h-wide {
+.h-sec > .h-wide,
+.h-sec > .h-real {
   margin-top: 32px;
 }
 .h-note {
@@ -298,6 +311,7 @@ strong {
 .h-tabs button {
   position: relative;
   min-height: 44px;
+  white-space: nowrap;
   font-size: 16px;
   color: var(--h-text-3);
   transition: color 140ms ease-out;
@@ -321,25 +335,29 @@ strong {
   }
 }
 
-/* Same prompt, side by side. */
+/* Same prompt, side by side, at actual size. */
 .h-same-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 8px;
-  padding: 0 4px;
-}
-.h-same-top .h-toggle {
-  display: none;
-}
-.h-compare-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+  gap: 24px;
   margin-bottom: 12px;
   padding: 0 4px;
+}
+.h-same-top > .h-clip {
+  flex: 1;
+  min-width: 0;
+}
+.h-same-top .h-prompt {
+  margin: 0;
+  padding: 0;
+}
+.h-same-top .h-prompt em {
+  display: block;
+  margin: 2px 0 0;
+}
+.h-same-top .h-tabs {
+  flex: none;
 }
 .h-compare {
   display: grid;
@@ -350,354 +368,63 @@ strong {
   margin: 0;
 }
 .h-compare figcaption {
-  margin: 0 0 8px 4px;
-  font-size: 15px;
-  color: var(--h-text-3);
-}
-.h-compare-after figcaption {
-  font-weight: 500;
-  color: var(--h-text-1);
-}
-.h-compare-switch {
-  display: none;
-}
-
-/* Three explored first screens: the pick large, the others beside it. */
-.h-explore {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-  margin-top: 64px;
-}
-.h-explore figure {
-  margin: 0;
-}
-.h-explore img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-  box-shadow: var(--h-ring);
-}
-.h-explore-win img {
-  box-shadow: 0 0 0 2px var(--h-text-1);
-}
-.h-explore-side {
-  display: grid;
-  align-content: start;
-  gap: 16px;
-}
-.h-explore-side summary {
-  display: none;
-}
-.h-explore-notes {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin: 8px 0 0;
-  padding: 0 4px;
-  list-style: none;
-}
-.h-explore-notes li {
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--h-text-1);
-}
-.h-explore-notes span {
-  display: block;
-  margin-bottom: 2px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--h-text-3);
-}
-.h-explore figcaption {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 10px 4px 0;
-  font-size: 15px;
-  color: var(--h-text-2);
-}
-.h-explore figcaption b {
-  font-size: 18px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-.h-explore-win figcaption {
-  color: var(--h-text-1);
-}
-.h-explore .h-note {
-  grid-column: 1 / -1;
-  margin-top: 0;
-}
-
-/* Benchmark, unboxed. */
-.h-bench-result {
-  margin: 0 0 28px;
-  padding: 0 4px;
-  font-size: 30px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--h-text-1);
-}
-.h-chart {
-  margin: 0;
-}
-.h-bars {
-  display: grid;
-  gap: 18px;
-  margin: 0;
-}
-.h-bars > div {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  align-items: center;
-  gap: 20px;
-}
-.h-bars dt {
-  font-size: 17px;
-  color: var(--h-text-2);
-}
-.h-bars dd {
-  margin: 0;
-}
-.h-bar-track {
-  position: relative;
-  display: block;
-  height: 32px;
-  margin-right: 64px;
-}
-.h-bar {
-  display: block;
-  width: calc(var(--v) * 100%);
-  height: 100%;
-  border-radius: 6px;
-  background: #dcdcdc;
-}
-.h-bar-value {
-  position: absolute;
-  top: 50%;
-  left: calc(var(--v) * 100% + 12px);
-  transform: translateY(-50%);
-  font-size: 20px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--h-text-2);
-}
-.h-bar-lead dt,
-.h-bar-lead .h-bar-value {
-  font-weight: 500;
-  color: var(--h-text-1);
-}
-.h-bar-lead .h-bar {
-  background: var(--h-text-1);
-}
-.h-axis {
-  position: relative;
-  height: 22px;
-  margin: 12px 64px 0 220px;
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
-  color: var(--h-text-3);
-}
-.h-axis span {
-  position: absolute;
-  left: calc(var(--t) * 100%);
-  transform: translateX(-50%);
-}
-.h-chart figcaption {
-  margin: 6px 0 0 220px;
-  font-size: 15px;
-  color: var(--h-text-3);
-}
-.h-facts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin: 40px 0 0;
-  padding: 0 4px;
-  list-style: none;
-}
-.h-facts strong {
-  display: block;
-  font-size: 28px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-.h-facts span {
-  display: block;
-  margin-top: 4px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--h-text-2);
-}
-.h-again {
-  margin-top: 40px;
-}
-
-/* Examples: one large page, chosen from a grouped strip. */
-.h-gallery-frame {
-  height: min(640px, 58vw);
-}
-.h-gallery-frame picture,
-.h-gallery-frame img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.h-gallery-frame img {
-  will-change: transform;
-}
-.h-gallery-foot {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  min-height: 56px;
-  padding: 8px 4px 0;
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 15px;
+  color: var(--h-text-3);
 }
-.h-gallery-name {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 16px;
-}
-.h-gallery-name b {
+.h-compare-after figcaption > span {
   font-weight: 500;
+  color: var(--h-text-1);
 }
-.h-gallery-actions {
-  display: flex;
-  gap: 20px;
-}
-.h-gallery-actions button {
+.h-compare figcaption button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   min-height: 44px;
   font-size: 15px;
   color: var(--h-text-1);
   transition: color 140ms ease-out;
 }
-.h-strip {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 28px 16px;
-  margin-top: 32px;
-}
-.h-strip-group {
-  grid-column: span var(--n);
-}
-.h-strip-group p {
-  margin: 0 0 10px;
-  padding: 0 2px;
-  font-size: 15px;
-  color: var(--h-text-3);
-}
-.h-strip-group > div {
-  display: grid;
-  grid-template-columns: repeat(var(--n), 1fr);
-  gap: 16px;
-}
-.h-thumb {
-  display: grid;
-  gap: 8px;
-  padding: 0;
-  text-align: left;
-  font-size: 15px;
-  color: var(--h-text-2);
-  transition: color 140ms ease-out, transform 120ms ease-out;
-}
-.h-thumb:active {
-  transform: scale(0.97);
-  transition-duration: 70ms;
-}
-.h-thumb img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: var(--h-ring);
-  transition: box-shadow 160ms ease-out;
-}
-.h-thumb[aria-pressed="true"] {
-  color: var(--h-text-1);
-}
-.h-thumb[aria-pressed="true"] img {
-  box-shadow: 0 0 0 2px var(--h-text-1);
-}
-.h-thumb:focus-visible {
-  outline: none;
-}
-.h-thumb:focus-visible img {
-  box-shadow: 0 0 0 2px var(--h-text-1), 0 0 0 4px var(--h-canvas), 0 0 0 6px var(--h-text-3);
-}
-@media (hover: hover) {
-  .h-thumb:hover {
-    color: var(--h-text-1);
-  }
-  .h-thumb:hover img {
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.22);
-  }
-  .h-thumb[aria-pressed="true"]:hover img {
-    box-shadow: 0 0 0 2px var(--h-text-1);
-  }
-  .h-gallery-actions button:hover {
-    color: var(--h-text-3);
-  }
-}
-.h-card {
-  display: block;
-  width: 100%;
-  padding: 0;
-  text-align: left;
-  transition: transform 120ms ease-out;
-}
-.h-card:active {
-  transform: scale(0.99);
-}
-.h-card-shot {
-  display: block;
+.h-crop {
+  position: relative;
+  height: 560px;
   overflow: hidden;
   border-radius: 12px;
+  background: var(--h-surface);
   box-shadow: var(--h-ring);
-  transition: box-shadow 160ms ease-out;
 }
-.h-card-shot img {
+.h-wipe {
+  position: absolute;
+  inset: 0;
+}
+.h-scroll {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.h-scroll img {
   display: block;
   width: 100%;
   height: auto;
-  transition: transform 320ms var(--h-e);
+  will-change: transform;
 }
-.h-card-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  padding: 10px 4px 0;
-  font-size: 15px;
-  color: var(--h-text-3);
+.h-hint-touch {
+  display: none;
 }
-.h-card-meta b {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--h-text-1);
-}
-.h-card:focus-visible {
-  outline: none;
-}
-.h-card:focus-visible .h-card-shot {
-  box-shadow: 0 0 0 2px var(--h-text-1);
+@media (hover: none) {
+  .h-hint-mouse {
+    display: none;
+  }
+  .h-hint-touch {
+    display: inline;
+  }
 }
 @media (hover: hover) {
-  .h-card:hover .h-card-shot {
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
-  }
-  .h-card:hover .h-card-shot img {
-    transform: scale(1.015);
-  }
-  .h-featured-actions button:hover {
+  .h-compare figcaption button:hover {
     color: var(--h-text-3);
   }
 }
@@ -715,33 +442,9 @@ strong {
   background: var(--h-surface);
   color: var(--h-text-1);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transform: scale(0.98);
-  transition: opacity 120ms ease-out, transform 120ms ease-out, overlay 120ms allow-discrete, display 120ms allow-discrete;
-}
-.h-viewer[open] {
-  opacity: 1;
-  transform: none;
-  transition-duration: 220ms;
-  transition-timing-function: var(--h-e);
-}
-@starting-style {
-  .h-viewer[open] {
-    opacity: 0;
-    transform: scale(0.98);
-  }
 }
 .h-viewer::backdrop {
-  background: rgba(18, 18, 18, 0);
-  transition: background 220ms ease-out, overlay 220ms allow-discrete, display 220ms allow-discrete;
-}
-.h-viewer[open]::backdrop {
   background: rgba(18, 18, 18, 0.6);
-}
-@starting-style {
-  .h-viewer[open]::backdrop {
-    background: rgba(18, 18, 18, 0);
-  }
 }
 .h-viewer-inner {
   display: flex;
@@ -768,7 +471,16 @@ strong {
 .h-viewer-tools {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+}
+.h-viewer-tools > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-size: 15px;
+  color: var(--h-text-1);
+  transition: color 140ms ease-out;
 }
 .h-viewer-close {
   display: grid;
@@ -790,156 +502,48 @@ strong {
   padding: 10px 24px 14px;
 }
 .h-viewer-frame {
+  position: relative;
   flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  display: flex;
+  justify-content: center;
   margin: 0 12px 12px;
+  overflow: hidden;
   border-radius: 12px;
   background: var(--h-panel);
   box-shadow: var(--h-ring);
 }
-.h-viewer-frame img {
-  display: block;
+.h-viewer-preview {
+  position: absolute;
+  top: 0;
+  left: 50%;
   width: 100%;
   height: auto;
+  transform: translateX(-50%);
 }
-.h-viewer-frame[data-device="phone"] img {
+.h-viewer-frame[data-device="phone"] .h-viewer-preview {
+  width: min(390px, 100%);
+}
+.h-viewer-frame iframe {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--h-surface);
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.h-viewer-frame[data-loaded="true"] iframe {
+  opacity: 1;
+}
+.h-viewer-frame[data-device="phone"] iframe {
   width: 390px;
-  margin: 24px auto;
-  border-radius: 24px;
-  box-shadow: var(--h-ring);
+  max-width: 100%;
 }
-
-/* Review: the instruction above its fix. */
-.h-review blockquote {
-  max-width: 800px;
-  margin: 0 0 28px;
-  padding: 0 4px;
-}
-.h-review blockquote p {
-  margin: 0;
-  font-size: 26px;
-  line-height: 1.35;
-  letter-spacing: -0.015em;
-  color: var(--h-text-1);
-  text-wrap: balance;
-}
-.h-review blockquote footer {
-  margin-top: 12px;
-  font-size: 15px;
-  color: var(--h-text-3);
-}
-.h-revision {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  align-items: start;
-}
-.h-revision figure {
-  margin: 0;
-}
-.h-revision figcaption {
-  margin: 0 0 8px 4px;
-  font-size: 15px;
-  color: var(--h-text-3);
-}
-.h-revision-after figcaption {
-  font-weight: 500;
-  color: var(--h-text-1);
-}
-
-/* Assets: the finished page first, its source photographs after. */
-.h-assets-page {
-  margin: 0;
-}
-.h-assets-page figcaption {
-  padding: 10px 4px 0;
-  font-size: 15px;
-  color: var(--h-text-3);
-}
-.h-photos {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  max-width: 640px;
-  margin-top: 28px;
-}
-.h-photos figure {
-  margin: 0;
-}
-.h-photos img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  height: auto;
-  object-fit: cover;
-  border-radius: 8px;
-}
-.h-photos figcaption {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 2px 0;
-  font-size: 15px;
-  color: var(--h-text-1);
-}
-.h-photos figcaption b {
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Branding: the interface first, the palette after. */
-.h-brand {
-  display: grid;
-  grid-template-columns: 8fr 4fr;
-  gap: 32px;
-  align-items: center;
-}
-.h-brand figure {
-  margin: 0;
-}
-.h-brand-rules {
-  display: grid;
-  gap: 24px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.h-brand-rules li {
-  font-size: 16px;
-  line-height: 1.55;
-  color: var(--h-text-2);
-}
-.h-brand-rules b {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--h-text-1);
-}
-.h-swatches {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  margin-top: 24px;
-  padding: 0 4px;
-}
-.h-swatches span {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  color: var(--h-text-1);
-}
-.h-swatches i {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  box-shadow: var(--h-ring);
-}
-.h-swatches code {
-  font-family: var(--h-mono);
-  font-size: 14px;
-  color: var(--h-text-3);
+@media (hover: hover) {
+  .h-viewer-tools > a:hover {
+    color: var(--h-text-3);
+  }
 }
 
 /* Motion demo: a cart line from one of the examples. */
@@ -987,6 +591,15 @@ strong {
   font-size: 17px;
   font-variant-numeric: tabular-nums;
 }
+.h-cart-count {
+  display: inline-grid;
+  justify-items: center;
+  min-width: 1ch;
+  overflow: hidden;
+}
+.h-cart-count > span {
+  display: block;
+}
 .h-cart-qty button {
   display: grid;
   place-items: center;
@@ -1011,33 +624,6 @@ strong {
 }
 .h-cart .h-toggle {
   background: var(--h-surface);
-}
-
-/* Steps inside one run. */
-.h-step {
-  margin-top: 96px;
-}
-.h-sec-lead + .h-step,
-.h-col + .h-step {
-  margin-top: 40px;
-}
-.h-step h3 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  color: var(--h-text-1);
-}
-.h-step-run {
-  margin: 6px 0 0;
-  font-size: 15px;
-  color: var(--h-text-3);
-}
-.h-step > .h-wide {
-  margin-top: 24px;
-}
-.h-step .h-explore {
-  margin-top: 24px;
 }
 
 /* More skills and FAQ. */
@@ -1164,59 +750,17 @@ strong {
   .h-sec-lead {
     font-size: 17px;
   }
-  .h-step {
-    margin-top: 72px;
-  }
-  .h-step h3 {
-    font-size: 20px;
-  }
   .h-same-top {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  .h-same-top .h-toggle {
-    display: inline-flex;
+  .h-crop {
+    height: 420px;
   }
   .h-prompt em {
     display: block;
     margin: 4px 0 0;
-  }
-  .h-explore-side summary {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    font-size: 16px;
-    color: var(--h-text-1);
-    cursor: pointer;
-  }
-  .h-explore-notes {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .h-strip {
-    grid-template-columns: 1fr;
-  }
-  .h-strip-group {
-    grid-column: 1;
-  }
-  .h-strip-group > div {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-  .h-gallery-frame {
-    height: 540px;
-  }
-  .h-gallery-foot {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-  .h-revision {
-    grid-template-columns: 1fr;
-  }
-  .h-review blockquote p {
-    font-size: 21px;
   }
   .h-cart {
     padding: 24px 12px 16px;
@@ -1233,52 +777,8 @@ strong {
     grid-column: 2;
   }
   .h-compare {
-    display: block;
-    position: relative;
-  }
-  .h-compare figure {
-    transition: clip-path 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .h-compare-after {
-    position: absolute;
-    inset: 0;
-  }
-  .h-compare[data-side="before"] .h-compare-after {
-    clip-path: inset(0 0 0 100%);
-  }
-  .h-compare[data-side="after"] .h-compare-after {
-    clip-path: inset(0);
-  }
-  .h-compare-after figcaption,
-  .h-compare-before figcaption {
-    background: var(--h-canvas);
-  }
-  .h-explore,
-  .h-brand {
     grid-template-columns: 1fr;
-  }
-  .h-explore-side {
-    grid-template-columns: 1fr 1fr;
-  }
-  .h-bars > div {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-  .h-bar-track {
-    height: 24px;
-  }
-  .h-axis,
-  .h-chart figcaption {
-    margin-left: 0;
-  }
-  .h-facts {
-    grid-template-columns: 1fr;
-  }
-  .h-photos {
-    gap: 8px;
-  }
-  .h-photos figcaption {
-    flex-direction: column;
+    gap: 24px;
   }
   .h-viewer {
     width: 100vw;
@@ -1289,32 +789,23 @@ strong {
     flex-wrap: wrap;
     padding: 12px 12px 0 16px;
   }
-  .h-viewer-tools .h-toggle:last-of-type {
+  .h-viewer-devices {
     display: none;
   }
   .h-viewer-frame {
     margin: 0;
     border-radius: 0;
   }
-  .h-viewer-frame[data-device="phone"] img {
-    width: 100%;
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .h-scroll {
+    overflow-y: auto;
+  }
   .h-copy-idle,
   .h-copy-done,
-  .h-compare figure,
-  .h-card-shot img,
-  .h-viewer,
-  .h-viewer::backdrop,
+  .h-viewer-frame iframe,
   .h-faq summary::after {
     transition: none;
-  }
-  .h-gallery-frame {
-    overflow-y: auto;
   }
 }

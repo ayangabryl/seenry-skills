@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<script>(function(){if(window.top!==window)return;addEventListener('DOMContentLoaded',function(){var d=document.createElement('a');d.href='https://skill.seenry.design/#examples';d.textContent='Example page built by an AI agent with Seenry skills. Not a real business.';d.setAttribute('style','position:fixed;left:12px;bottom:12px;z-index:2147483647;max-width:calc(100% - 24px);padding:10px 14px;border-radius:10px;background:#1c1c1c;color:#fff;font:500 14px/1.4 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.25)');document.body.appendChild(d);});})();</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kept: the habit tracker that counts weeks, not days</title>
+<meta name="description" content="Kept is an iPhone habit tracker with weekly targets. Hit your target on any days and the week is kept, so one missed day never resets your streak.">
+<meta name="theme-color" content="#FBD826">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="3" width="5" height="18" rx="1"/><rect x="5" y="3" width="5" height="18" rx="1"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></symbol>
+  <symbol id="i-mark" viewBox="0 0 28 28"><path d="M5 4v20M11 4v20M17 4v20M23 4v20"/><path d="M1.5 21 26.5 7"/></symbol>
+</svg>
+
+<header class="hero" id="top">
+  <div class="container">
+    <nav class="nav" aria-label="Main">
+      <a class="logo" href="#top" aria-label="Kept, home">
+        <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
+        <span>kept</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="#week">How it works</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <a class="btn btn--sm" href="#download">Get Kept</a>
+    </nav>
+
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <h1 data-in style="--d:0ms"><span>Miss Tuesday.</span> <span>Still on track.</span></h1>
+        <p class="lead" data-in style="--d:60ms">Kept is a habit tracker that counts weeks, not days. Set a target like three runs a week, hit it on any days, and the week is kept.</p>
+        <div class="hero__actions" data-in style="--d:120ms">
+          <a class="btn" href="#download">Download for iPhone</a>
+          <a class="btn btn--ghost" href="#week">See how a week works</a>
+        </div>
+        <p class="hero__hint" data-in style="--d:180ms">
+          Run has a missed Tuesday and is still on track. Tap Thursday on the phone to keep the week.
+          <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg>
+        </p>
+      </div>
+
+      <div class="hero__stage" data-in style="--d:120ms">
+        <svg class="hero__tally" viewBox="0 0 320 560" aria-hidden="true"><path d="M40 0V560M120 0V560M200 0V560M280 0V560"/><path d="M-30 470 330 130"/></svg>
+        <div class="phone" data-seenry-signature="week-strip">
+          <div class="phone__screen">
+            <div class="phone__island" aria-hidden="true"></div>
+            <div class="phone__status" aria-hidden="true"><span>9:41</span></div>
+            <header class="phone__head">
+              <p class="phone__date">Thursday 8 October</p>
+              <h2>This week</h2>
+            </header>
+
+            <article class="habit" data-habit data-target="3" data-weeks="30" data-state="track">
+              <div class="habit__top">
+                <div>
+                  <h3>Run</h3>
+                  <p class="habit__sub"><span class="num" data-weeks-out>30</span> weeks kept</p>
+                </div>
+                <p class="habit__target">3 a week</p>
+              </div>
+              <div class="days" role="group" aria-label="Run, this week">
+                <button class="day" type="button" aria-pressed="true" aria-label="Monday, done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">M</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Tuesday, not done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">T</span></button>
+                <button class="day" type="button" aria-pressed="true" aria-label="Wednesday, done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">W</span></button>
+                <button class="day day--today" type="button" aria-pressed="false" aria-label="Thursday, today, not done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">T</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Friday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">F</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Saturday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">S</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Sunday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">S</span></button>
+              </div>
+              <div class="habit__foot" aria-live="polite">
+                <p class="habit__count"><b class="num" data-done>2</b> of 3 this week</p>
+                <p class="pill" data-pill>On track</p>
+              </div>
+            </article>
+
+            <article class="habit" data-habit data-target="5" data-weeks="12" data-state="track">
+              <div class="habit__top">
+                <div>
+                  <h3>Read 20 minutes</h3>
+                  <p class="habit__sub"><span class="num" data-weeks-out>12</span> weeks kept</p>
+                </div>
+                <p class="habit__target">5 a week</p>
+              </div>
+              <div class="days" role="group" aria-label="Read 20 minutes, this week">
+                <button class="day" type="button" aria-pressed="true" aria-label="Monday, done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">M</span></button>
+                <button class="day" type="button" aria-pressed="true" aria-label="Tuesday, done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">T</span></button>
+                <button class="day" type="button" aria-pressed="true" aria-label="Wednesday, done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">W</span></button>
+                <button class="day day--today" type="button" aria-pressed="false" aria-label="Thursday, today, not done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">T</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Friday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">F</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Saturday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">S</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Sunday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">S</span></button>
+              </div>
+              <div class="habit__foot" aria-live="polite">
+                <p class="habit__count"><b class="num" data-done>3</b> of 5 this week</p>
+                <p class="pill" data-pill>On track</p>
+              </div>
+            </article>
+
+            <article class="habit" data-habit data-target="5" data-weeks="4" data-state="risk">
+              <div class="habit__top">
+                <div>
+                  <h3>Stretch</h3>
+                  <p class="habit__sub"><span class="num" data-weeks-out>4</span> weeks kept</p>
+                </div>
+                <p class="habit__target">5 a week</p>
+              </div>
+              <div class="days" role="group" aria-label="Stretch, this week">
+                <button class="day" type="button" aria-pressed="true" aria-label="Monday, done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">M</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Tuesday, not done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">T</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Wednesday, not done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">W</span></button>
+                <button class="day day--today" type="button" aria-pressed="false" aria-label="Thursday, today, not done"><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">T</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Friday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">F</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Saturday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">S</span></button>
+                <button class="day" type="button" aria-pressed="false" aria-label="Sunday" disabled><svg aria-hidden="true"><use href="#i-check"/></svg><span aria-hidden="true">S</span></button>
+              </div>
+              <div class="habit__foot" aria-live="polite">
+                <p class="habit__count"><b class="num" data-done>1</b> of 5 this week</p>
+                <p class="pill" data-pill>At risk</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="week band-ink" id="week" aria-labelledby="week-h">
+  <div class="container">
+    <div class="week__head">
+      <h2 id="week-h">A streak should survive a bad Tuesday.</h2>
+      <p class="lead">Kept counts weeks, not days. Hit your target on any days and the week is kept. Miss a day and nothing resets; the tally just keeps growing.</p>
+    </div>
+
+    <figure class="tally" data-draw>
+      <svg viewBox="0 0 1216 264" role="img" aria-label="A tally of 31 weeks kept. Three of them are marked in yellow: weeks that had a missed day.">
+        <path style="--i:0" pathLength="1" d="M30 16V232"/>
+          <path style="--i:1" pathLength="1" d="M66 16V232"/>
+          <path style="--i:2" pathLength="1" d="M102 16V232"/>
+          <path style="--i:3" pathLength="1" d="M138 16V232"/>
+          <path style="--i:4" pathLength="1" d="M12 196L156 56"/>
+          <path style="--i:5" pathLength="1" d="M220 16V232"/>
+          <path style="--i:6" pathLength="1" d="M256 16V232"/>
+          <path style="--i:7" pathLength="1" d="M292 16V232"/>
+          <path class="y" style="--i:8" pathLength="1" d="M328 16V232"/>
+          <path style="--i:9" pathLength="1" d="M202 196L346 56"/>
+          <path style="--i:10" pathLength="1" d="M410 16V232"/>
+          <path style="--i:11" pathLength="1" d="M446 16V232"/>
+          <path style="--i:12" pathLength="1" d="M482 16V232"/>
+          <path style="--i:13" pathLength="1" d="M518 16V232"/>
+          <path style="--i:14" pathLength="1" d="M392 196L536 56"/>
+          <path style="--i:15" pathLength="1" d="M600 16V232"/>
+          <path class="y" style="--i:16" pathLength="1" d="M636 16V232"/>
+          <path style="--i:17" pathLength="1" d="M672 16V232"/>
+          <path style="--i:18" pathLength="1" d="M708 16V232"/>
+          <path style="--i:19" pathLength="1" d="M582 196L726 56"/>
+          <path style="--i:20" pathLength="1" d="M790 16V232"/>
+          <path style="--i:21" pathLength="1" d="M826 16V232"/>
+          <path style="--i:22" pathLength="1" d="M862 16V232"/>
+          <path class="y" style="--i:23" pathLength="1" d="M898 16V232"/>
+          <path style="--i:24" pathLength="1" d="M772 196L916 56"/>
+          <path style="--i:25" pathLength="1" d="M980 16V232"/>
+          <path style="--i:26" pathLength="1" d="M1016 16V232"/>
+          <path style="--i:27" pathLength="1" d="M1052 16V232"/>
+          <path style="--i:28" pathLength="1" d="M1088 16V232"/>
+          <path style="--i:29" pathLength="1" d="M962 196L1106 56"/>
+          <path style="--i:30" pathLength="1" d="M1170 16V232"/>
+      </svg>
+      <figcaption class="tally__cap">
+        <p class="tally__big"><span class="num">31</span> weeks kept</p>
+        <p class="tally__meta">Run, 3 a week, since 2 March</p>
+      </figcaption>
+    </figure>
+
+    <ul class="notes">
+      <li>
+        <svg class="notes__stroke" viewBox="0 0 12 56" aria-hidden="true"><path d="M6 6V50"/></svg>
+        <div><h3>Week of 27 April</h3><p>Missed Tuesday. Ran Wednesday, Friday and Saturday instead. Kept.</p></div>
+      </li>
+      <li>
+        <svg class="notes__stroke" viewBox="0 0 12 56" aria-hidden="true"><path d="M6 6V50"/></svg>
+        <div><h3>Week of 22 June</h3><p>Missed Monday and Tuesday. Ran Thursday, Friday and Sunday. Kept.</p></div>
+      </li>
+      <li>
+        <svg class="notes__stroke" viewBox="0 0 12 56" aria-hidden="true"><path d="M6 6V50"/></svg>
+        <div><h3>Week of 10 August</h3><p>Travelling. Ran Friday, then Saturday and a hike on Sunday. Kept.</p></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="features" id="features" aria-labelledby="features-h">
+  <div class="container">
+    <h2 id="features-h" class="features__title">Quiet until the week is at risk.</h2>
+
+    <div class="features__grid">
+      <article class="card card--lock">
+        <div class="card__copy">
+          <h3>One nudge, only when a habit needs every day left.</h3>
+          <p>No daily nagging. Kept stays silent while you are on track, and speaks once in the evening when a week is slipping.</p>
+          <ul class="quiet">
+            <li><b>Run, 2 of 3</b><span>Nothing sent</span></li>
+            <li><b>Read, 3 of 5</b><span>Nothing sent</span></li>
+            <li data-sent><b>Stretch, 1 of 5</b><span>Sent at 6:42 pm</span></li>
+          </ul>
+        </div>
+        <div class="lock" aria-hidden="true">
+          <div class="lock__screen">
+            <p class="lock__date">Thursday 8 October</p>
+            <p class="lock__time">6:42</p>
+            <div class="notif">
+              <div class="notif__icon"><svg><use href="#i-mark"/></svg></div>
+              <div class="notif__body">
+                <p class="notif__app"><span>Kept</span><span>now</span></p>
+                <p class="notif__title">Stretch needs every day left</p>
+                <p class="notif__text">Five minutes tonight keeps the week alive. Friday, Saturday and Sunday are still open.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="features__side">
+        <article class="card card--pause">
+          <h3>Pause a week when life happens</h3>
+          <p>Sick or travelling? Pause the week. It will not count, and it will not break anything.</p>
+          <div class="pause" data-pause data-on="true">
+            <div class="pause__text">
+              <svg class="icon" aria-hidden="true"><use href="#i-pause"/></svg>
+              <div>
+                <p class="pause__title" data-pause-title>Paused</p>
+                <p class="pause__sub" data-pause-sub>Mon 12 to Sun 18 October</p>
+              </div>
+            </div>
+            <button class="switch" type="button" role="switch" aria-checked="true" aria-label="Pause next week"><span></span></button>
+          </div>
+        </article>
+
+        <article class="card card--health">
+          <h3>Health checks off the workouts</h3>
+          <p>Connect Apple Health and runs, walks and workouts tick the right day by themselves.</p>
+          <ul class="synced">
+            <li>
+              <span class="synced__tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>
+              <span class="synced__name">Run, 42 min</span>
+              <span class="synced__when">Today, 7:12</span>
+            </li>
+            <li>
+              <span class="synced__tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>
+              <span class="synced__name">Walk, 31 min</span>
+              <span class="synced__when">Wednesday</span>
+            </li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="story" aria-label="A Kept user">
+  <figure class="story__photo">
+    <img src="assets/img/doorstep.jpg" width="1122" height="1402" alt="Worn running shoes on an oak floor just inside an open front door, early sun across the boards" loading="lazy" decoding="async">
+  </figure>
+  <div class="story__body">
+    <blockquote>
+      <p>I missed a Tuesday in April and it just said on track. Any other app and I would have deleted it by Wednesday.</p>
+      <footer>Marisol, runs three mornings a week</footer>
+    </blockquote>
+  </div>
+</section>
+
+<section class="pricing band-sunken" id="pricing" aria-labelledby="pricing-h">
+  <div class="container pricing__grid">
+    <div class="pricing__intro">
+      <h2 id="pricing-h">Free to start. Plus when you want more.</h2>
+      <p class="lead">Track three habits for free, as long as you like. Kept Plus adds unlimited habits and the extras.</p>
+      <div class="segmented" role="group" aria-label="Billing period" data-billing>
+        <button type="button" aria-pressed="false" data-value="monthly">Monthly</button>
+        <button type="button" aria-pressed="true" data-value="yearly">Yearly <small>Save 39%</small></button>
+      </div>
+    </div>
+
+    <div class="plans">
+      <article class="plan">
+        <h3>Free</h3>
+        <p class="price"><span class="price__n">$0</span><span class="price__u">forever</span></p>
+        <p class="price__alt">No card needed</p>
+        <ul class="ticks">
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Three habits</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Weekly targets</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>At-risk reminders</li>
+        </ul>
+        <a class="btn btn--outline" href="#download">Download free</a>
+      </article>
+
+      <article class="plan plan--plus">
+        <h3>Kept Plus</h3>
+        <p class="price"><span class="price__n" data-price>$29</span><span class="price__u" data-unit>a year</span></p>
+        <p class="price__alt" data-alt>or $3.99 a month</p>
+        <ul class="ticks">
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Unlimited habits</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Health sync</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Paused weeks</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Home screen widgets</li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg>Export your history</li>
+        </ul>
+        <a class="btn btn--yellow" href="#download">Start with Plus</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq" aria-labelledby="faq-h">
+  <div class="container faq__grid">
+    <h2 id="faq-h">Questions people ask first.</h2>
+    <div class="faq__list">
+      <details class="acc" name="faq" open>
+        <summary>What counts as a week?</summary>
+        <div class="acc__body"><p>Monday to Sunday by default. If your week starts on Sunday, change it in Settings and your history moves with it.</p></div>
+      </details>
+      <details class="acc" name="faq">
+        <summary>Can I still track a habit every day?</summary>
+        <div class="acc__body"><p>Yes. Set the target to seven a week and every day counts. Most people start with three or four and raise it later.</p></div>
+      </details>
+      <details class="acc" name="faq">
+        <summary>What happens to my habits if I leave Plus?</summary>
+        <div class="acc__body"><p>Nothing is deleted. Your three most recent habits stay active on Free, and the rest are archived with their full history, ready if you come back.</p></div>
+      </details>
+      <details class="acc" name="faq">
+        <summary>Does Kept work without Health?</summary>
+        <div class="acc__body"><p>Yes. Health sync is optional. Without it you tick days off yourself, one tap each.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="closing" id="download" aria-labelledby="closing-h">
+  <div class="container closing__grid">
+    <div class="closing__copy">
+      <h2 id="closing-h">Start your first week.</h2>
+      <p class="lead">Free on iPhone. Pick a habit, pick a target, and let the week do the counting.</p>
+      <a class="btn" href="https://apps.apple.com">Download for iPhone</a>
+    </div>
+    <svg class="closing__tally" data-draw viewBox="0 0 220 300" aria-hidden="true">
+      <path style="--i:0" pathLength="1" d="M30 14V270"/>
+      <path style="--i:1" pathLength="1" d="M78 14V270"/>
+      <path style="--i:2" pathLength="1" d="M126 14V270"/>
+      <path style="--i:3" pathLength="1" d="M174 14V270"/>
+      <path style="--i:4" pathLength="1" d="M6 232L198 56"/>
+    </svg>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer__row">
+    <a class="logo" href="#top" aria-label="Kept, back to top">
+      <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
+      <span>kept</span>
+    </a>
+    <ul class="footer__links">
+      <li><a href="#week">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="mailto:hello@kept.app">hello@kept.app</a></li>
+    </ul>
+    <p class="footer__legal">Kept for iPhone. Made for people who miss a Tuesday.</p>
+  </div>
+</footer>
+
+</body>
+</html>
