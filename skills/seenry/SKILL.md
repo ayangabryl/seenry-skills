@@ -93,6 +93,16 @@ Taste is trained, not invented: it comes from looking hard at the best work and 
 
 For changes inside an existing app, follow [Inside an existing project](#inside-an-existing-project) instead of this flow.
 
+## Design first: do what AI usually does not
+
+Every model reaches for the same first screen: headline and subhead on the left, two buttons, a product card or illustration on the right, a pill badge, three stats. Plain models already build that cleanly, so matching it is no result. Before writing code, write in `.seenry/idea.md` the AI default for this brief in one line, then build at least one of these moves into the first screen, taken from the category's best brands:
+- **Art direction carries the page:** one real photograph, a product at full bleed or type set as the image, not a framed mockup beside text.
+- **Scale contrast:** one element far larger than anything else (a number, a word, the object), everything around it quiet.
+- **A specific claim:** a noun, number or mechanism only this product can say ("612 pairs, each numbered by hand"), never a mood.
+- **Editorial composition:** an asymmetric grid, a crop that leaves the frame, a page that reads like a publication rather than a template.
+- **The product's own behavior made visible:** the one interaction or detail that proves the claim, at real scale.
+If the first screen could swap in another brand's name and still work, it is the AI default; rebuild it before the gate. The critic scores `idea` and `category_fit` against exactly this.
+
 ## The standard
 
 Leading teams look premium for one root reason: they ranked the job, then removed everything that does not serve it. Calm is the visible result. The reasons behind each rule are in [premium](references/premium.md).
