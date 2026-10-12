@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** The finishing gate. One command per round:
  *
- *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png] [--dir .seenry] [--target 9] [--critic-rounds n] [--fast] [--playwright path]
+ *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png] [--dir .seenry] [--target 9] [--mode quick|polish|showcase] [--critic-rounds n] [--fast] [--playwright path]
  *  node check.mjs --screens home.png,detail.png,sheet.png --video rec.mov --brief BRIEF.md   (native apps: SwiftUI,
  *    UIKit, React Native, Flutter; simulator screenshots in flow order and a screen recording of the interactions)
  *
@@ -111,18 +111,28 @@ const checkedVersions = new Set(completedReviews().filter(h => native || h.motio
 // Only critic rounds count toward the budget: board fixes are cheap and must never eat the rounds of design feedback.
 const criticRounds = history.filter(h => h.critic && !h.reusedCritic).length;
 // --critic-rounds caps design-feedback rounds for time-boxed work; the target score is unchanged.
-const fast = args.includes('--fast');
-const criticCap = Number(flag('critic-rounds', 0)) || (fast ? 3 : null);
+// --mode quick (the skill's default): one critic round, static motion scan, deliver with the score. polish: up to four
+// critic rounds, stopping at leader level. showcase: the full gate with a second direction. The target is 9 in all modes.
+const mode = flag('mode', args.includes('--fast') ? 'fast' : 'showcase');
+const quick = mode === 'quick', polish = mode === 'polish';
+const fast = mode === 'fast' || quick || polish;
+const leader = 8, level = n => n >= goal ? 'pass' : n >= leader ? 'leader level' : 'below leader level';
+const criticCap = Number(flag('critic-rounds', 0)) || (quick ? 1 : polish ? 4 : mode === 'fast' ? 3 : null);
 if ((criticRounds >= (criticCap ?? 8) || round > 20) && !history.some(h => h.stop)) {
   history[history.length - 1].stop = criticRounds >= (criticCap ?? 8) ? `${criticCap ?? 'eight'} critic rounds` : 'twenty rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+}
+if (quick && history.filter(h => h.critic && !h.reusedCritic).length >= 2) {
+  const n = history.filter(h => h.critic).pop().critic.overall;
+  console.log(`QUICK done: the critic has seen this page twice (last ${n}/10, ${level(n)}). Deliver now and report the score and level; run --mode polish if the person wants more.`);
+  process.exit(n >= leader ? 0 : 3);
 }
 const stoppedAt = history.find(h => h.stop);
 if (stoppedAt && (!fingerprint || !checkedVersions.has(fingerprint))) {
   console.log(`The current version changed or cannot be matched to the last checked round (${stoppedAt.round}). Running one verification round before you report.`);
 } else if (stoppedAt) {
   const best = completedReviews().sort((a, b) => b.critic.overall - a.critic.overall)[0];
-  console.log(`STOPPED at round ${stoppedAt.round}: ${stoppedAt.stop}. No new PASS is recorded. Best fully reviewed candidate: ${best ? `round ${best.round}, critic ${best.critic.overall}, motion ${best.motion}` : 'none'}. Report remaining quality gaps; a stopping budget is not acceptance.${existsSync(firstDirection) ? '' : ' Below the target with no new direction used yet: go back to the exploration step, build a different idea, and run check.mjs with --new-direction once before reporting.'}`);
+  console.log(`STOPPED at round ${stoppedAt.round}: ${stoppedAt.stop}. No new PASS is recorded. Best fully reviewed candidate: ${best ? `round ${best.round}, critic ${best.critic.overall}, motion ${best.motion}` : 'none'}. Report remaining quality gaps; a stopping budget is not acceptance.${quick || polish || existsSync(firstDirection) ? '' : ' Below the target with no new direction used yet: go back to the exploration step, build a different idea, and run check.mjs with --new-direction once before reporting.'}`);
   process.exit(3);
 }
 
@@ -164,8 +174,8 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   const data = existsSync(report) ? JSON.parse(readFileSync(report, 'utf8')) : null;
   const passed = data && data.images.every(i => i.overall >= 8);
   if (data && history.length && !history[history.length - 1].photoChecked) history[history.length - 1].photoChecked = true;
-  if (photos.length && data && !passed && checks >= 3) {
-    console.log(`\n■ photographs  best effort after three photo checks (${data.images.map(i => i.overall).join('/')}); not blocking. Keep the strongest versions and move on.`);
+  if (photos.length && data && !passed && checks >= (quick || polish ? 1 : 3)) {
+    console.log(`\n■ photographs  best effort after ${quick || polish ? 'one photo check' : 'three photo checks'} (${data.images.map(i => i.overall).join('/')}); not blocking. Keep the strongest versions and move on.`);
   } else if (photos.length && !passed) {
     blockers++;
     console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
@@ -207,7 +217,7 @@ const runAsync = (args) => new Promise((resolveRun) => {
 });
 runAsync.children = [];
 const priorCritic = history.filter(h => h.critic && !h.reusedCritic).length;
-const motionPlanned = native || !fast || priorCritic + 1 >= criticCap;
+const motionPlanned = !quick && (native || !fast || priorCritic + 1 >= criticCap);
 const motionDir = mkdtempSync(join(review, `motion-${round}-`));
 const lastMotion = completedReviews().filter(h => h.motionEvidence).map(h => join(dir, h.motionEvidence, 'motion.json')).filter(existsSync).pop();
 const motionArgs = native
@@ -235,6 +245,13 @@ if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${re
 const roundExtras = {boardHash, criticFile: relative(dir, out), ...(sameBoard ? {reusedCritic: true} : {})};
 // Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
 // critic round; earlier rounds rely on the static motion scan above. PASS still requires the full motion judgment.
+if (quick && !native) {
+  history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint, ...roundExtras, stop: 'quick mode: one critic round'});
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+  const n = verdict.scores.overall;
+  console.log(`\nQUICK round ${round}: critic ${n}/10, ${level(n)} (leader level is ${leader}, pass is ${goal}; motion checked statically, not judged in the browser). Apply the fixes above once, most visible first, then deliver and report this score and level. For more, run check.mjs --mode polish.`);
+  process.exit(n >= leader ? 0 : 3);
+}
 if (fast && !native && !designMet && priorCritic + 1 < criticCap) {
   history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint, ...roundExtras});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
@@ -303,17 +320,18 @@ const scored = history.filter(h => h.critic && !h.reusedCritic && (h.motionSkipp
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
 if (motionFloorFailures.length) console.log('Below the required floor: ' + motionFloorFailures.join(' · '));
 console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
-if (stalled && !history.some(h => h.rootChange)) {
+if (stalled && !history.some(h => h.rootChange) && !(polish && best >= leader)) {
   history[history.length - 1].rootChange = true;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   console.log(`LAST ROUND: the critic has not improved for two rounds (best ${best}). Make one root-level change to the weakest dimension (type scale and weights, palette, or imagery), then run check.mjs one final time.`);
   process.exit(1);
 }
-if (stalled || scored.length >= (criticCap ?? 6)) {
-  history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : `${criticCap ?? 'six'} critic rounds`;
+const leaderStall = polish && scored.length >= 2 && best >= leader && verdict.scores.overall <= Math.max(...scored.slice(0, -1));
+if (leaderStall || stalled || scored.length >= (criticCap ?? 6)) {
+  history[history.length - 1].stop = leaderStall ? 'leader level reached and no longer improving' : stalled ? 'no improvement after a root-level change' : `${criticCap ?? 'six'} critic rounds`;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   const bestRound = completedReviews().filter(h => h.critic.overall === best).pop() || completedReviews().sort((a, b) => b.critic.overall - a.critic.overall)[0] || history.filter(h => h.critic).pop();
-  console.log(`STOP: ${history[history.length - 1].stop}. The quality target was not reached. Best fully reviewed candidate: critic ${best}, motion ${bestRound.motion}, round ${bestRound.round}. Its code is in ${join(review, `round-${bestRound.round}`)} (HTML, CSS and JS, not images). Report unresolved gaps; do not call this a pass or publish it as accepted.${existsSync(firstDirection) ? '' : ' No new direction used yet: go back to the exploration step, build the page on a different idea from idea.md, and run check.mjs with --new-direction before reporting.'}`);
+  console.log(`STOP: ${history[history.length - 1].stop}. The quality target was not reached. Best fully reviewed candidate: critic ${best} (${level(best)}), motion ${bestRound.motion}, round ${bestRound.round}. Its code is in ${join(review, `round-${bestRound.round}`)} (HTML, CSS and JS, not images). Report unresolved gaps; do not call this a pass or publish it as accepted.${quick || polish || existsSync(firstDirection) ? '' : ' No new direction used yet: go back to the exploration step, build the page on a different idea from idea.md, and run check.mjs with --new-direction before reporting.'}`);
   process.exit(3);
 }
 process.exit(1);
