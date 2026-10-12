@@ -83,7 +83,7 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 | Tell | Fix |
 | --- | --- |
 | Two or more filled primary buttons side by side | One primary; the other secondary or text |
-| Hover effects that scale cards up and add shadows | One-step surface/border change |
+| Hover effects that lift cards (`translateY(-2px)` and up) or scale them, especially with a growing drop shadow | One-step surface or border change; press feedback (`scale(.97)`) belongs on `:active` |
 | Icons at different sizes and stroke weights | 16/20/24, one stroke |
 | Missing focus, empty, error and loading states | Render all states (see [components](components.md)) |
 | Modal for everything | Inline edit, popover or page by consequence |

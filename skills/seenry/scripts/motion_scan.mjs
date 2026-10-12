@@ -45,6 +45,12 @@ for (const file of files) {
   const text = readFileSync(file, 'utf8');
   if (/prefers-reduced-motion|motion-reduce:|motion-safe:|useReducedMotion|reducedMotion|matchMedia\(\s*['"]\(prefers-reduced-motion/.test(text)) reducedMotion = true;
   const lines = text.split('\n');
+  // Hover lift: a surface that rises (negative translate or scale up) and grows a shadow on hover is the template tell
+  // users read as generated. A one-step surface or border change is the fix; a press scale on :active is fine.
+  for (const m of text.matchAll(/([^{}]*:hover[^{}]*)\{([^}]*)\}/g)) {
+    const body = m[2], lift = /translate(?:Y|3d)?\([^)]*-\s*\d|scale\(\s*1\.0*[1-9]/.test(body), shadow = /box-shadow|drop-shadow/.test(body);
+    if (lift) add(shadow ? 'violation' : 'warn', file, text.slice(0, m.index + m[1].search(/\S/)).split('\n').length, 'hover-lift', `"${m[1].trim().slice(-60)}" ${shadow ? 'lifts and grows a shadow' : 'lifts'} on hover; use a one-step surface or border change instead`);
+  }
   lines.forEach((raw, idx) => {
     const line = idx + 1, l = raw.trim();
     if (!l || l.startsWith('//') || l.startsWith('*')) return;

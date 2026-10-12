@@ -183,6 +183,7 @@ Never reach for DM Sans, Plus Jakarta Sans, Space Grotesk, Poppins or Montserrat
 **Copy.** Plain, specific, short. Headlines say what it is or does for this audience; labels name the thing; empty states say what happened and the one next action.
 
 **Motion.** The core rules, from `seenry-motion`:
+- **No hover lift.** Cards and tiles never rise or grow a shadow on hover; that move reads as a template. Hover is a one-step surface or border change; press feedback goes on `:active`. `motion_scan.mjs` blocks it.
 - **Frequency decides.** Used 100+ times a day (keyboard, command menus, list arrows): no animation. Tens of times (hover, tabs, toggles): 120–160ms, color and opacity. Occasional (menus, dialogs, sheets, toasts): 180–240ms enter, faster exit. Rare (first load, success, onboarding): room for one expressive moment.
 - **Easing:** ease-out for things entering or responding (`cubic-bezier(0.23, 1, 0.32, 1)`), ease-in-out for things moving on screen, never linear except for continuous loops; springs for anything dragged or interrupted.
 - **From where, to where.** Anchored layers grow from their trigger (`transform-origin` at the trigger); a centered confirmation dialog can use a centered origin and native backdrop. Choose the origin and exit for the relationship being explained. When a scale entrance is appropriate, start near full size, not scale 0; keep essential content immediately readable for keyboard and reduced-motion paths.
