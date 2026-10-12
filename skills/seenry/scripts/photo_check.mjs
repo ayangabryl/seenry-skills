@@ -32,7 +32,7 @@ ${refs.length ? 'The reference screens show the level of imagery the site must m
 Each candidate will be used as: ${flag('use', 'a hero image')}.
 
 Score each candidate 1-10 (8 = a professional shoot for a premium brand; 5 = acceptable stock; 3 = obviously generated):
-- realism: would a viewer believe this is a photograph (or a deliberate high-end render)? Subtract for AI tells: garbled or fake text on labels, warped geometry, melted edges, impossible reflections, plastic skin, extra fingers, over-smooth surfaces, HDR glow.
+- realism: would a viewer believe this is a photograph (or a deliberate high-end render)? Subtract for AI tells: garbled or fake text on labels, warped geometry, melted edges, impossible reflections, plastic skin, extra fingers, over-smooth surfaces, HDR glow. Mechanical, technical and anatomical subjects (watch movements, engines, circuit boards, instruments, hands, food, architecture) must make physical sense to an expert in that field: parts that connect and could work, the right count and placement of components, plausible finishing. A specialist customer spots a fake mechanism at once, so implausible mechanical detail caps realism at 4 however polished it looks; when a faithful subject cannot be generated, recommend a crop, angle or subject that does not expose the mechanism.
 - light: one clear, soft, motivated light source; controlled shadows; no flat or muddy light.
 - composition: subject placement, crop and negative space suited to the slot; product fills the frame enough to read at phone size.
 - premium: styling, props, surface and color grade at the level of the references; no clichés (sunset circles, floating objects, gradient blobs, coffee beans scattered everywhere, steam wisps, bokeh fairy lights).

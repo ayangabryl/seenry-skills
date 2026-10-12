@@ -9,7 +9,7 @@
  *  2. With zero blockers, runs critic.mjs: a fresh model scores the page against the reference screens.
  *  3. Prints PASS when the critic's overall reaches --target (default 9: a local heuristic, not evidence of outperforming another product), else FAIL with the fixes to apply.
  *  Rounds are numbered; every critic result is kept as <dir>/review/critic-N.json and summarized in check.json. */
-import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, statSync, lstatSync, copyFileSync, rmSync} from 'node:fs';
+import {existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, statSync, lstatSync, copyFileSync, rmSync, renameSync} from 'node:fs';
 import {resolve, join, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync, spawn} from 'node:child_process';
@@ -30,6 +30,16 @@ let refs = flag('refs');
 // crops and motion frames made a weak, noisy bar that scored America.gov itself 5/10.
 const pickFrom = d => existsSync(d) ? readdirSync(d).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).slice(0, 3).map(f => join(d, f)).join(',') : '';
 if (!refs) refs = pickFrom(join(dir, 'research', 'bar')) || pickFrom(join(dir, 'refs'));
+// A stalled concept gets one fresh budget on a different idea; the first direction's rounds stay on disk and in the report.
+const firstDirection = join(review, 'direction-1');
+if (args.includes('--new-direction')) {
+  const prior = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
+  if (existsSync(firstDirection)) { console.log('A new direction was already used. Report the best result of both directions with its unresolved criteria.'); process.exit(1); }
+  if (!prior.some(h => h.stop)) { console.log('--new-direction is for a review that stopped below the target. Keep applying fixes.'); process.exit(1); }
+  mkdirSync(firstDirection, {recursive: true});
+  for (const f of readdirSync(review)) if (f !== 'direction-1') renameSync(join(review, f), join(firstDirection, f));
+  console.log(`Direction 1 archived in ${firstDirection} (best critic ${Math.max(...prior.filter(h => h.critic).map(h => h.critic.overall))}). Reviewing the new direction with a fresh budget.`);
+}
 const history = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
 const round = history.length + 1;
 // Bind the review to local source AND material. HTML alone misses changes in linked CSS,
@@ -112,7 +122,7 @@ if (stoppedAt && (!fingerprint || !checkedVersions.has(fingerprint))) {
   console.log(`The current version changed or cannot be matched to the last checked round (${stoppedAt.round}). Running one verification round before you report.`);
 } else if (stoppedAt) {
   const best = completedReviews().sort((a, b) => b.critic.overall - a.critic.overall)[0];
-  console.log(`STOPPED at round ${stoppedAt.round}: ${stoppedAt.stop}. No new PASS is recorded. Best fully reviewed candidate: ${best ? `round ${best.round}, critic ${best.critic.overall}, motion ${best.motion}` : 'none'}. Report remaining quality gaps; a stopping budget is not acceptance.`);
+  console.log(`STOPPED at round ${stoppedAt.round}: ${stoppedAt.stop}. No new PASS is recorded. Best fully reviewed candidate: ${best ? `round ${best.round}, critic ${best.critic.overall}, motion ${best.motion}` : 'none'}. Report remaining quality gaps; a stopping budget is not acceptance.${existsSync(firstDirection) ? '' : ' Below the target with no new direction used yet: go back to the exploration step, build a different idea, and run check.mjs with --new-direction once before reporting.'}`);
   process.exit(3);
 }
 
@@ -303,7 +313,7 @@ if (stalled || scored.length >= (criticCap ?? 6)) {
   history[history.length - 1].stop = stalled ? 'no improvement after a root-level change' : `${criticCap ?? 'six'} critic rounds`;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   const bestRound = completedReviews().filter(h => h.critic.overall === best).pop() || completedReviews().sort((a, b) => b.critic.overall - a.critic.overall)[0] || history.filter(h => h.critic).pop();
-  console.log(`STOP: ${history[history.length - 1].stop}. The quality target was not reached. Best fully reviewed candidate: critic ${best}, motion ${bestRound.motion}, round ${bestRound.round}. Its code is in ${join(review, `round-${bestRound.round}`)} (HTML, CSS and JS, not images). Report unresolved gaps; do not call this a pass or publish it as accepted.`);
+  console.log(`STOP: ${history[history.length - 1].stop}. The quality target was not reached. Best fully reviewed candidate: critic ${best}, motion ${bestRound.motion}, round ${bestRound.round}. Its code is in ${join(review, `round-${bestRound.round}`)} (HTML, CSS and JS, not images). Report unresolved gaps; do not call this a pass or publish it as accepted.${existsSync(firstDirection) ? '' : ' No new direction used yet: go back to the exploration step, build the page on a different idea from idea.md, and run check.mjs with --new-direction before reporting.'}`);
   process.exit(3);
 }
 process.exit(1);

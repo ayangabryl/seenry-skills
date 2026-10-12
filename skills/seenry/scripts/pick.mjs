@@ -54,18 +54,18 @@ if (!found) { console.log(`Board written to ${join(out, 'board.png')}; no Codex 
 const brief = flag('brief') && existsSync(flag('brief')) ? readFileSync(flag('brief'), 'utf8') : '';
 const schema = {type: 'object', additionalProperties: false, required: ['ranking', 'scores', 'winner_why', 'take_from_others'], properties: {
   ranking: {type: 'array', items: {type: 'string'}},
-  scores: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['label', 'premium', 'clarity', 'distinctiveness', 'idea', 'phone', 'overall'], properties: {label: {type: 'string'}, ...Object.fromEntries(['premium', 'clarity', 'distinctiveness', 'idea', 'phone', 'overall'].map(k => [k, {type: 'integer', minimum: 1, maximum: 10}]))}}},
+  scores: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['label', 'premium', 'clarity', 'distinctiveness', 'idea', 'category_fit', 'phone', 'overall'], properties: {label: {type: 'string'}, ...Object.fromEntries(['premium', 'clarity', 'distinctiveness', 'idea', 'category_fit', 'phone', 'overall'].map(k => [k, {type: 'integer', minimum: 1, maximum: 10}]))}}},
   winner_why: {type: 'string'}, take_from_others: {type: 'array', items: {type: 'string'}}}};
 const prompt = `You are a design director choosing one first-screen direction to develop, the way a studio picks after an exploration round. Image 1 is a board: each row is one candidate first screen (label on the left), desktop 1440 and phone 390, same content, different composition.${refs.length ? ` The following ${refs.length} image(s) are reference screens from top companies: the bar.` : ''}
 
 The brief:
 ${brief}
 
-Standard: clean, premium, no AI slop, at big-company level, with one clear idea that belongs to this product. Score each candidate 1-10 on premium, clarity (is the promise and the first action obvious in two seconds), distinctiveness (would it look wrong on a competitor's page), idea (does the composition itself express the product's idea), phone, and overall. Rank them, say in two sentences why the winner wins, and list what to take from the others into the winner. Do not open any files other than the attached images.`;
+Standard: clean, premium, no AI slop, at big-company level, with one clear idea that belongs to this product. Score each candidate 1-10 on premium, clarity (is the promise and the first action obvious in two seconds), distinctiveness (would it look wrong on a competitor's page), idea (does the composition itself express the product's idea), category_fit (name the category and two or three of its best brands: would they ship this composition? a software split with a boxed product card for a physical or luxury product scores 5 or lower), phone, and overall. overall is never more than one point above the lower of idea and category_fit. If every candidate is a competent template (6 or lower overall), say so plainly and describe the composition class the category's best brands use, so the designer builds a new direction instead of polishing one of these. Rank them, say in two sentences why the winner wins, and list what to take from the others into the winner. Do not open any files other than the attached images.`;
 let verdict;
 try { verdict = askModel(found, {images: [join(out, 'board.png'), ...refs], prompt, schema}); } catch (e) { console.error(`pick failed: ${e.message}`); process.exit(1); }
 writeFileSync(join(out, 'pick.json'), JSON.stringify({files: shots.map(s => ({label: s.label, file: s.file})), ...verdict}, null, 2));
-for (const s of verdict.scores) console.log(`${s.label} ${shots.find(x => x.label === s.label)?.file}: overall ${s.overall} · premium ${s.premium} · clarity ${s.clarity} · distinct ${s.distinctiveness} · idea ${s.idea} · phone ${s.phone}`);
+for (const s of verdict.scores) console.log(`${s.label} ${shots.find(x => x.label === s.label)?.file}: overall ${s.overall} · premium ${s.premium} · clarity ${s.clarity} · distinct ${s.distinctiveness} · idea ${s.idea} · category ${s.category_fit} · phone ${s.phone}`);
 console.log(`\nWinner: ${verdict.ranking[0]} (${shots.find(x => x.label === verdict.ranking[0])?.file}). ${verdict.winner_why}`);
 for (const t of verdict.take_from_others) console.log(`  + ${t}`);
 console.log(`\nWritten to ${join(out, 'pick.json')} and board.png`);
