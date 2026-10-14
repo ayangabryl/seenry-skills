@@ -53,7 +53,7 @@ test('explicit refs override even a broken manifest and retain caller order', t 
 test('legacy selection warns and prefers sorted research bar images', t => {
   const f = fixture(t); rmSync(f.manifest); writeFileSync(join(f.dir, 'research/bar/z.png'), 'z');
   const warnings = []; const e = selectReferences({dir: f.dir, warn: x => warnings.push(x)});
-  assert.equal(e.origin, 'legacy'); assert.match(e.entries[0].path, /bar\/z.png$/); assert.match(warnings[0], /WARNING.*manifest/);
+  assert.equal(e.origin, 'legacy'); assert.equal(e.entries[0].path, join(f.dir, 'research', 'bar', 'z.png')); assert.match(warnings[0], /WARNING.*manifest/);
 });
 test('critic receives identical roles, notes, and selected paths without a paid model call', t => {
   const f = fixture(t), evidence = selectReferences({dir: f.dir});
