@@ -50,6 +50,7 @@ class CheckGate(unittest.TestCase):
         for p in [self.scripts, self.project/'.seenry/research', self.project/'.seenry/refs', self.project/'.seenry/explore']:
             p.mkdir(parents=True)
         shutil.copyfile(ROOT/'skills/seenry/scripts/check.mjs',self.scripts/'check.mjs')
+        shutil.copyfile(ROOT/'skills/seenry/scripts/reference_manifest.mjs',self.scripts/'reference_manifest.mjs')
         contract=ROOT/'skills/seenry/scripts/motion_contract.mjs'
         if contract.exists(): shutil.copyfile(contract,self.scripts/'motion_contract.mjs')
         (self.scripts/'review_board.mjs').write_text(BOARD)
@@ -111,6 +112,63 @@ class CheckGate(unittest.TestCase):
         history=json.loads(p.read_text());history[-1]['stop']='test completed round budget'
         p.write_text(json.dumps(history))
         return (self.project/'.seenry/review/board-calls.log').read_text()
+
+    def write_reference_manifest(self):
+        entries = []
+        for name, role in [('a', 'craft'), ('b', 'mechanism')]:
+            entries.append({'id': name, 'path': name+'.png', 'role': role, 'source': 'MCP reference '+name,
+                            'observation': 'Expanded row is visible', 'application': 'Use row hierarchy',
+                            'limitations': 'Behavior unverified', 'state': 'expanded'})
+        path = self.project/'.seenry/refs/manifest.json'
+        path.write_text(json.dumps({'version': 1, 'entries': entries}))
+        return path
+
+    def test_manifest_handoff_uses_identical_board_and_critic_paths(self):
+        self.write_reference_manifest()
+        bar = self.project/'.seenry/research/bar';bar.mkdir()
+        (bar/'unrelated.png').write_bytes(b'not kept')
+        (self.scripts/'review_board.mjs').write_text(BOARD+"writeFileSync(join(out,'board-args.json'),JSON.stringify(a));")
+        (self.scripts/'critic.mjs').write_text(CRITIC+"writeFileSync(a[a.indexOf('--out')+1]+'.args',JSON.stringify(a));")
+        result = self.run_gate()
+        self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+        review = self.project/'.seenry/review'
+        evidence = json.loads((review/'reference-evidence.json').read_text())
+        self.assertEqual([e['id'] for e in evidence['entries']], ['a','b'])
+        expected = ','.join(e['path'] for e in evidence['entries'])
+        board = json.loads((review/'board-args.json').read_text())
+        critic = json.loads((review/'critic-1.json.args').read_text())
+        self.assertEqual(board[board.index('--refs')+1], expected)
+        self.assertEqual(critic[critic.index('--refs')+1], expected)
+        self.assertEqual(Path(critic[critic.index('--reference-evidence')+1]).resolve(), (review/'reference-evidence-1.json').resolve())
+
+    def test_manifest_note_change_prevents_pixel_identical_critic_reuse(self):
+        manifest = self.write_reference_manifest()
+        (self.scripts/'review_board.mjs').write_text(BOARD.replace("'mock pixels '+process.hrtime.bigint()", "'constant mock pixels'"))
+        first = self.run_gate();self.assertEqual(first.returncode,0,first.stdout+first.stderr)
+        data = json.loads(manifest.read_text());data['entries'][0]['observation'] = 'Changed visible observation'
+        manifest.write_text(json.dumps(data))
+        second = self.run_gate();self.assertEqual(second.returncode,0,second.stdout+second.stderr)
+        history = json.loads((self.project/'.seenry/review/check.json').read_text())
+        self.assertNotEqual(history[0]['hash'],history[1]['hash'])
+        self.assertNotEqual(history[0]['referenceHash'],history[1]['referenceHash'])
+        self.assertFalse(history[1].get('reusedCritic'))
+
+    def test_mechanism_only_manifest_cannot_pass_with_passing_stubs(self):
+        manifest = self.write_reference_manifest()
+        data = json.loads(manifest.read_text())
+        for entry in data['entries']: entry['role'] = 'mechanism'
+        manifest.write_text(json.dumps(data))
+        result = self.run_gate()
+        self.assert_blocked(result)
+        self.assertIn('at least one craft reference', result.stdout)
+        self.assertFalse((self.project/'.seenry/review/critic-1.json').exists())
+
+    def test_invalid_manifest_fails_before_rendering(self):
+        manifest = self.write_reference_manifest();manifest.write_text('{')
+        result = self.run_gate()
+        self.assertEqual(result.returncode,2)
+        self.assertIn('cannot read manifest',result.stderr)
+        self.assertFalse((self.project/'.seenry/review/board-calls.log').exists())
 
     def test_valid_complete_evidence_passes(self):
         result=self.run_gate()

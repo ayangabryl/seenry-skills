@@ -38,7 +38,7 @@ Score each candidate 1–5 on:
 - **Restraint:** can it be done cleanly, with no decoration, in the Seenry standard?
 - **Buildability:** can it be built well in this stack and time, with a real still state?
 
-Pick the highest total. Then carry the same idea through the page: the hero, one signature moment, the imagery, the copy and at least one small detail should all express it. Everything else stays quiet.
+Treat the total as a shortlist, not evidence that the idea works. Render the decisive task transition and compare it with the familiar alternative using [the evidence design loop](evidence-design-loop.md#choose-by-demonstrated-consequence). If all options are ordinary, revise the mechanism once before extending the page. Choose the clearest demonstrated benefit. Then carry the same idea through the page: the hero, one signature moment, the imagery, the copy and at least one small detail should all express it. Everything else stays quiet.
 
 ## 4. Use kits as tools, never as ideas
 

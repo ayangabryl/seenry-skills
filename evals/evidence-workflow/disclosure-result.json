@@ -1,0 +1,15 @@
+{
+  "test": "Rendered truthful-disclosure regression",
+  "viewports": {
+    "390": [
+      "\"Replace this text before publishing.\""
+    ],
+    "1440": [
+      "\"Replace this text before publishing.\""
+    ]
+  },
+  "truthfulDisclosuresFlagged": false,
+  "unfinishedAuthoringTextFlagged": true,
+  "totalBlockers": 8,
+  "limitation": "Fixture intentionally has unrelated typography and motion blockers; this is not a page quality pass."
+}

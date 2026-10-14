@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** The finishing gate. One command per round:
  *
- *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png] [--dir .seenry] [--target 9] [--mode quick|polish|showcase] [--critic-rounds n] [--fast] [--playwright path]
+ *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png | --manifest .seenry/refs/manifest.json] [--dir .seenry] [--target 9] [--mode quick|polish|showcase] [--critic-rounds n] [--fast] [--playwright path]
  *  node check.mjs --screens home.png,detail.png,sheet.png --video rec.mov --brief BRIEF.md   (native apps: SwiftUI,
  *    UIKit, React Native, Flutter; simulator screenshots in flow order and a screen recording of the interactions)
  *
@@ -16,20 +16,24 @@ import {spawnSync, spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {validMotionVerdict, motionAcceptance, MOTION_ACCEPTANCE_POLICY} from './motion_contract.mjs';
 
+import {selectReferences, evidenceDigest} from './reference_manifest.mjs';
+
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const native = flag('screens'), video = flag('video');
 const target = native ? null : args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));
-if (!target && !native) { console.error('Usage: node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png]'); process.exit(2); }
+if (!target && !native) { console.error('Usage: node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png | --manifest .seenry/refs/manifest.json]'); process.exit(2); }
 const dir = resolve(flag('dir', '.seenry')), review = join(dir, 'review');
 const goal = Number(flag('target', '9'));
 mkdirSync(review, {recursive: true});
-let refs = flag('refs');
-// The critic's bar is the leaders' home-page first screens from research.mjs, never the builder's own picks: section
-// crops and motion frames made a weak, noisy bar that scored America.gov itself 5/10.
-const pickFrom = d => existsSync(d) ? readdirSync(d).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).slice(0, 3).map(f => join(d, f)).join(',') : '';
-if (!refs) refs = pickFrom(join(dir, 'research', 'bar')) || pickFrom(join(dir, 'refs'));
+let referenceEvidence;
+try { referenceEvidence = selectReferences({dir, refs: args.includes('--refs') ? flag('refs', '') : undefined,
+  manifest: args.includes('--manifest') ? flag('manifest', '') : undefined}); }
+catch (e) { console.error(e.message); process.exit(2); }
+const refs = referenceEvidence.entries.map(e => e.path).join(',');
+referenceEvidence.kept = existsSync(join(dir, 'refs', 'kept.md')) ? readFileSync(join(dir, 'refs', 'kept.md'), 'utf8').trim().slice(0, 2400) : '';
+const referenceHash = evidenceDigest(referenceEvidence);
 // A stalled concept gets one fresh budget on a different idea; the first direction's rounds stay on disk and in the report.
 const firstDirection = join(review, 'direction-1');
 if (args.includes('--new-direction')) {
@@ -40,16 +44,20 @@ if (args.includes('--new-direction')) {
   for (const f of readdirSync(review)) if (f !== 'direction-1') renameSync(join(review, f), join(firstDirection, f));
   console.log(`Direction 1 archived in ${firstDirection} (best critic ${Math.max(...prior.filter(h => h.critic).map(h => h.critic.overall))}). Reviewing the new direction with a fresh budget.`);
 }
+const evidencePath = join(review, 'reference-evidence.json');
+writeFileSync(evidencePath, JSON.stringify(referenceEvidence, null, 2));
 const history = existsSync(join(review, 'check.json')) ? JSON.parse(readFileSync(join(review, 'check.json'), 'utf8')) : [];
 const round = history.length + 1;
+const roundEvidencePath = join(review, `reference-evidence-${round}.json`);
+writeFileSync(roundEvidencePath, JSON.stringify(referenceEvidence, null, 2));
 // Bind the review to local source AND material. HTML alone misses changes in linked CSS,
 // scripts, images and fonts. Review outputs are excluded so producing evidence does not
 // invalidate itself. Live URLs and symlinked inputs cannot prove immutable identity.
 function projectFingerprint() {
   if (native) {
-    const h = createHash('sha256');
+    const h = createHash('sha256').update(referenceHash);
     if (!video) return {digest: null, reusable: false};
-    for (const path of [...native.split(','), video, flag('brief'), ...(refs || '').split(',')].filter(Boolean)) {
+    for (const path of [...native.split(','), video, flag('brief'), ...(existsSync(join(dir, 'refs', 'kept.md')) ? [join(dir, 'refs', 'kept.md')] : []), ...(!['legacy', 'explicit'].includes(referenceEvidence.origin) ? [referenceEvidence.origin] : []), ...(refs || '').split(',')].filter(Boolean)) {
       if (!existsSync(path) || !lstatSync(path).isFile()) return {digest: null, reusable: false};
       h.update(JSON.stringify([resolve(path), statSync(path).size])); h.update(readFileSync(path));
     }
@@ -57,6 +65,7 @@ function projectFingerprint() {
   }
   if (/^https?:/.test(target) || !existsSync(target)) return {digest: null, reusable: false};
   const root = dirname(resolve(target)), h = createHash('sha256');
+  h.update(referenceHash);
   h.update('target:' + resolve(target));
   const extensions = /\.(html?|css|[cm]?js|jsx|tsx?|json|svg|png|jpe?g|webp|gif|avif|ico|woff2?|ttf|otf|eot|mp4|webm|mov|mp3|wav|ogg)$/i;
   let unverifiable = false;
@@ -95,7 +104,7 @@ function projectFingerprint() {
   };
   walk(root);
   for (const p of [flag('brief'), join(root, 'DESIGN.md'), join(dir, 'idea.md'), join(dir, 'motion.md'),
-    join(dir, 'research', 'pack.md'), join(dir, 'explore', 'pick.json'), ...(refs || '').split(',')].filter(Boolean)) {
+    join(dir, 'research', 'pack.md'), join(dir, 'refs', 'kept.md'), ...(referenceEvidence.origin !== 'legacy' && referenceEvidence.origin !== 'explicit' ? [referenceEvidence.origin] : []), join(dir, 'explore', 'pick.json'), ...(refs || '').split(',')].filter(Boolean)) {
     if (existsSync(p)) add(resolve(p), 'input:' + relative(root, resolve(p)));
   }
   return {digest: h.digest('hex'), reusable: !unverifiable};
@@ -147,12 +156,13 @@ if (board.status === 2) { process.stderr.write(board.stderr); process.exit(2); }
 let blockers = native ? 0 : JSON.parse(readFileSync(join(review, 'board.json'), 'utf8')).blockers;
 // The studio steps must have happened: research, references, a motion spec and the design record.
 const project = !/^https?:/.test(target) && existsSync(target) ? dirname(resolve(target)) : process.cwd();
-const refCount = existsSync(join(dir, 'refs')) ? readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).length : 0;
+const refCount = referenceEvidence.entries.length;
 const motionSpec = join(dir, 'motion.md'), design = join(project, 'DESIGN.md');
 const missing = [
+  !referenceEvidence.entries.some(e => e.role === 'craft') && 'references: at least one craft reference is required to calibrate acceptance; mechanism analogies alone cannot establish the visual quality bar',
   !existsSync(join(dir, 'research', 'pack.md')) && `research pack: run node ${join(here, 'research.mjs')} --type <type> --terms "<words>" (or research by hand with the Seenry MCP tools and write ${join(dir, 'research', 'pack.md')})`,
-  refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
-  refCount >= 2 && !existsSync(join(dir, 'refs', 'kept.md')) && `references: write ${join(dir, 'refs', 'kept.md')} with one decision card per kept reference: its file, the job and decision it makes, its measured numbers, what you take and how you transform it`,
+  refCount < 2 && `references: select at least 2 (ideally 3) reference images via the manifest, --refs, or copy them into ${join(dir, 'refs')}/`,
+  refCount >= 2 && ['legacy', 'explicit'].includes(referenceEvidence.origin) && !existsSync(join(dir, 'refs', 'kept.md')) && `references: write ${join(dir, 'refs', 'kept.md')} with one decision card per kept reference: its file, the job and decision it makes, its measured numbers, what you take and how you transform it`,
   (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
   (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
   !native && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three first-screen compositions in ${join(dir, 'explore')}/ and run node ${join(here, 'pick.mjs')} on them`,
@@ -228,13 +238,13 @@ const motionArgs = native
 // round. An unchanged project still gets fresh judging, and motion always gets fresh evidence.
 const boardHash = existsSync(join(review, 'board.png')) && existsSync(join(review, 'first.png'))
   ? createHash('sha256').update(readFileSync(join(review, 'board.png'))).update(readFileSync(join(review, 'first.png'))).digest('hex') : null;
-const sameBoard = boardHash && fingerprint && history.filter(h => h.critic && h.boardHash === boardHash && h.hash !== fingerprint && h.criticFile && existsSync(join(dir, h.criticFile))).pop();
+const sameBoard = boardHash && fingerprint && history.filter(h => h.critic && h.boardHash === boardHash && h.referenceHash === referenceHash && h.hash !== fingerprint && h.criticFile && existsSync(join(dir, h.criticFile))).pop();
 const startMotion = () => runAsync(motionArgs);
 let motionRun = motionPlanned ? startMotion() : null;
 const critic = sameBoard
   ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
   : await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'),
-  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : [])]);
+  '--out', out, '--reference-evidence', roundEvidencePath, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : [])]);
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
@@ -242,20 +252,20 @@ const verdict = JSON.parse(readFileSync(out, 'utf8'));
 const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7) && !copied;
 if (copied) console.log(`\nCopied reference: the critic found a section that reproduces ${copied} nearly unchanged. Rework it: combine the lesson with another reference or the brand idea so the page is your own.`);
 if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
-const roundExtras = {boardHash, criticFile: relative(dir, out), ...(sameBoard ? {reusedCritic: true} : {})};
+const roundExtras = {boardHash, referenceHash, referenceEvidence: relative(dir, roundEvidencePath), criticFile: relative(dir, out), ...(sameBoard ? {reusedCritic: true} : {})};
 // Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
 // critic round; earlier rounds rely on the static motion scan above. PASS still requires the full motion judgment.
 if (quick && !native) {
   history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint, ...roundExtras, stop: 'quick mode: one critic round'});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   const n = verdict.scores.overall;
-  console.log(`\nQUICK round ${round}: critic ${n}/10, ${level(n)} (leader level is ${leader}, pass is ${goal}; motion checked statically, not judged in the browser). Apply the fixes above once, most visible first, then deliver and report this score and level. For more, run check.mjs --mode polish.`);
+  console.log(`\nQUICK round ${round}: critic ${n}/10, ${level(n)} (leader level is ${leader}, pass is ${goal}; motion checked statically, not judged in the browser). Resolve supported findings in their observed viewport and state, then deliver and report this score and level. For more, run check.mjs --mode polish.`);
   process.exit(n >= leader ? 0 : 3);
 }
 if (fast && !native && !designMet && priorCritic + 1 < criticCap) {
   history.push({round, blockers: 0, critic: verdict.scores, motion: null, motionSkipped: true, hash: fingerprint, ...roundExtras});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}). Motion is judged in the browser once the critic passes or on round ${criticCap} of ${criticCap}. Apply the design fixes listed above, most visible first, then run check.mjs again.`);
+  console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}). Motion is judged in the browser once the critic passes or on round ${criticCap} of ${criticCap}. Resolve supported design findings in their observed viewport and state, most visible first, then run check.mjs again.`);
   process.exit(1);
 }
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
@@ -319,7 +329,7 @@ if (designMet && !motionBlocks && !motionFloorFailures.length && motionScore >= 
 const scored = history.filter(h => h.critic && !h.reusedCritic && (h.motionSkipped || (Number.isFinite(h.motion) && !h.motionError))).map(h => h.critic.overall), best = Math.max(...scored, ...history.filter(h => h.reusedCritic).map(h => h.critic.overall));
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
 if (motionFloorFailures.length) console.log('Below the required floor: ' + motionFloorFailures.join(' · '));
-console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
+console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Resolve supported design and motion findings in their observed viewport and state, most visible first, then run check.mjs again. Verify hypotheses before making changes.`);
 if (stalled && !history.some(h => h.rootChange) && !(polish && best >= leader)) {
   history[history.length - 1].rootChange = true;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));

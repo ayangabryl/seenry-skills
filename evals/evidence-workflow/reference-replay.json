@@ -1,0 +1,30 @@
+{
+  "scope": "Selection replay on frozen Tally evidence, not a new visual-quality comparison",
+  "before": [
+    {
+      "file": "freshbooks-com.png",
+      "sha256": "c1f7e984d2a8d29d7c74eeb311a92cdf51d98233c2287e95f16e4a0c638aec60"
+    },
+    {
+      "file": "getharvest-com.png",
+      "sha256": "f060e131d963540f3096ec36864a48ca3ff2896e4a86a53a344344c58e6278cf"
+    },
+    {
+      "file": "linear-app.png",
+      "sha256": "a74d3417094e7cd5d3720b3a819be0312fe1fe2dbe3a14e2d1d85154c1e3f2b6"
+    }
+  ],
+  "after": [
+    {
+      "id": "R-midday",
+      "file": "midday.webp",
+      "sha256": "cd7545198cc0f66f530361b06214cff26df02b5fa14a5f787fb2279e1eb6330a"
+    },
+    {
+      "id": "R-stripe",
+      "file": "stripe.webp",
+      "sha256": "1fde557a9743b15c3a94454d5cd80078b13e52ad6f259311d5be6a5ab3b34638"
+    }
+  ],
+  "originalFilesModified": false
+}
