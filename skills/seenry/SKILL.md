@@ -13,6 +13,8 @@ The standard is simple: **clean, premium, no AI slop, at the level of the best b
 
 Product truth comes before presentation: use supplied or verified claims, prices and outcomes. Do not invent evidence, customer proof or functional capabilities to satisfy a design pattern. When an action is only a local demonstration, acknowledge its actual result honestly.
 
+**Review the whole changed flow.** An entry-screen comparison cannot accept a flow. Inspect populated review, editing, validation/recovery and completion states at desktop and phone, plus expanded disclosures and dialogs that appear there. Use the same content and shell keylines across states; check action placement, control alignment and long-content reflow. Exercise the actual transitions, repeated input, keyboard and reduced motion. Distinguish configured motion from observed playback; never promote a functional or first-screen win into a whole-flow quality claim. If a state was not reviewed, name it as unverified.
+
 Work in the project's existing stack. If the project has tokens, components or a `DESIGN.md`, read them first and extend them.
 
 **Scope first.** The existing-project path below owns verification, output locations and token choices for changes inside an established app, including redesigns. Its rules override the greenfield defaults, numeric style bans and brand exploration below.
