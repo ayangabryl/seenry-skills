@@ -58,7 +58,11 @@ function generate({prompt, out}) {
   return new Promise(done => {
     const work = mkdtempSync(join(tmpdir(), 'seenry-image-'));
     const ask = `Generate exactly one image with your image generation tool from the description below, then copy the generated file into the current working directory as image.png. Do not generate more than one image and do not edit it. Reply only with "saved".\n\nDescription: ${prompt}`;
-    const child = spawn(found.bin, ['exec', '--skip-git-repo-check', '-s', 'workspace-write', ...(model ? ['-m', model] : []), ask], {cwd: work, stdio: ['ignore', 'pipe', 'pipe']});
+    // Each generation gets its own Codex home (login copied in), so parallel runs never share generated_images.
+    const home = join(work, '.codex-home'); mkdirSync(home, {recursive: true});
+    const realHome = process.env.CODEX_HOME || join(process.env.HOME || '', '.codex');
+    for (const f of ['auth.json', 'config.toml']) if (existsSync(join(realHome, f))) copyFileSync(join(realHome, f), join(home, f));
+    const child = spawn(found.bin, ['exec', '--skip-git-repo-check', '-s', 'workspace-write', ...(model ? ['-m', model] : []), ask], {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], env: {...process.env, CODEX_HOME: home}});
     let log = '';
     child.stdout.on('data', d => { log += d; }); child.stderr.on('data', d => { log += d; });
     const timer = setTimeout(() => child.kill('SIGTERM'), 600000);
@@ -75,10 +79,10 @@ function generate({prompt, out}) {
   });
 }
 
-// One at a time: parallel Codex runs share ~/.codex/generated_images and can each copy the same newest file, which
-// silently turned three variants into three copies of one image.
-let ok = 0;
-for (const job of jobs) ok += (await generate(job)) ? 1 : 0;
+// Three at a time: each run has its own Codex home, so variants can no longer collide in a shared generated_images.
+let ok = 0, next = 0;
+const parallel = Math.max(1, Math.min(4, Number(flag('parallel', '3'))));
+await Promise.all(Array.from({length: Math.min(parallel, jobs.length)}, async () => { while (next < jobs.length) { const job = jobs[next++]; if (await generate(job)) ok++; } }));
 if (variants > 1) {
   const {createHash} = await import('node:crypto');
   const sums = jobs.map(j => resolve(j.out)).filter(existsSync).map(f => createHash('sha1').update(readFileSync(f)).digest('hex'));
