@@ -44,6 +44,13 @@ class MotionScan(unittest.TestCase):
         self.assertIn('off-token-delay', details)
         self.assertIn('stagger', details)
 
+    def test_page_choreography_keyframes_get_their_own_range(self):
+        _, result = scan({'a.css': '.hero { animation: rise 1200ms cubic-bezier(.16, 1, .3, 1) 300ms both; }\n'
+                                   '.slow { animation: rise 2400ms cubic-bezier(.16, 1, .3, 1) both; }\n'
+                                   '@media (prefers-reduced-motion: reduce) { * { animation: none; } }\n'})
+        self.assertEqual(rules(result, 'violation'), ['too-long'])
+        self.assertNotIn('off-token-delay', rules(result, 'warn'))
+
     def test_loops_and_tailwind_classes(self):
         _, result = scan({'a.css': '.spinner { animation: spin 1.2s linear infinite; }\n',
                           'b.tsx': 'export const B = () => <div className="transition-transform duration-[2000ms] motion-reduce:transition-none" />\n'})

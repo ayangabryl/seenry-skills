@@ -72,14 +72,18 @@ for (const file of files) {
         if (!times.length) continue;
         const isDelay = part === '-delay';
         const [duration, delay] = isDelay ? [null, times[0]] : [times[0], times[1]];
-        if (duration != null && !(kind === 'animation' && infinite)) {
+        // Keyframe animations are page choreography (entrances, reveals, scenes): they keep one family, but need the
+        // time to register, so they get their own range instead of the interface tokens.
+        if (duration != null && kind === 'animation' && !infinite) {
+          if (duration > 1800) add('violation', file, line, 'too-long', `${duration}ms; page choreography stays at or under 1600ms (scrub long scenes to scroll instead)`);
+        } else if (duration != null && !(kind === 'animation' && infinite)) {
           if (duration > 800) add('violation', file, line, 'too-long', `${duration}ms; interface motion stays at or under 280ms, a rare decorative moment under 800ms`);
           else if (duration > 280) add('warn', file, line, 'long', `${duration}ms is above the 280ms spatial token; keep it only if the distance or meaning needs it`);
           else if (!DURATIONS.some(t => Math.abs(t - duration) <= 5)) add('warn', file, line, 'off-token-duration', `${duration}ms; nearest token ${nearest(duration, DURATIONS)}ms`);
         }
-        if (delay != null && delay > 0 && !DELAYS.some(t => Math.abs(t - delay) <= 5)) add('warn', file, line, 'off-token-delay', `delay ${delay}ms; delays are 0, 40, 60 or 80ms`);
+        if (delay != null && delay > 0 && kind !== 'animation' && !DELAYS.some(t => Math.abs(t - delay) <= 5)) add('warn', file, line, 'off-token-delay', `delay ${delay}ms; delays are 0, 40, 60 or 80ms`);
       }
-      if (!infinite && /(^|[\s,])linear([\s,]|$)/.test(value) && !/linear\(/.test(value)) add('warn', file, line, 'linear-easing', 'linear easing on interface motion reads mechanical; use E, M, F or X (or a linear() spring)');
+      if (!infinite && kind !== 'animation' && /(^|[\s,])linear([\s,]|$)/.test(value) && !/linear\(/.test(value)) add('warn', file, line, 'linear-easing', 'linear easing on interface motion reads mechanical; use E, M, F or X (or a linear() spring)');
       if (/(^|[\s,])(ease|ease-in-out|ease-in)([\s,;]|$)/.test(value)) add('warn', file, line, 'default-easing', `browser default easing in "${value.trim()}"; use a token curve (E enter, M move, F fade, X leave)`);
       for (const c of value.matchAll(/cubic-bezier\(([^)]+)\)/g)) {
         const pts = c[1].split(',').map(Number);
@@ -89,7 +93,7 @@ for (const file of files) {
     // Stagger built from an index variable.
     for (const m of l.matchAll(/calc\(\s*var\(--[\w-]+\)\s*\*\s*(\d*\.?\d+)(ms|s)\s*\)/g)) {
       const step = ms(m[1], m[2]);
-      if (step > 20) add('warn', file, line, 'stagger', `stagger step ${step}ms; use about 20ms and cap the whole group at 60ms`);
+      if (step > (/animation/.test(l) ? 120 : 20)) add('warn', file, line, 'stagger', `stagger step ${step}ms; interface groups use about 20ms, page reveals 60–120ms`);
     }
     // Tailwind classes.
     for (const m of l.matchAll(/\b(duration|delay)-(\[(\d*\.?\d+)(ms|s)\]|(\d+))(?![\w-])/g)) {
