@@ -8,12 +8,12 @@ Material decides whether a page feels real. Generated gradients and stock illust
 
 Before styling, decide what the main visual is:
 
-1. **The product itself** (best for software): a real, cropped UI with plausible data. Build it as HTML/CSS in the page, not as a blurry screenshot, so it stays sharp and responsive.
+1. **The product itself on a stage** (best for software): a real, cropped UI with plausible data, built as HTML/CSS so it stays sharp, set on a ground with light and material: a generated render or photograph behind or around it, an atmospheric gradient field, or a full brand-color field. The UI alone on the page background is not a finished hero.
 2. **The subject** (for physical products, places, food, people): real photography supplied by the user, or licensed stock chosen for a specific composition, color temperature and crop.
 3. **Type-led** (for tools, docs, editorial): no hero image; the headline, a precise grid and one detail carry the identity.
 4. **A crafted brand visual** (Raycast's diagonal light, Resend's rendered cube, Vercel's triangle): one abstract object with material and light, used in one place. Only when there is a way to produce it at quality (supplied asset, 3D render, carefully built CSS/SVG/canvas).
 
-If none of these can be produced at quality, choose type-led. A weak illustration is worse than none.
+For software, combine 1 and 4: the stage art is the crafted visual and the product is what stands on it. `scripts/image.mjs` produces renders and atmospheres at quality on any host, so "no way to produce it" is rarely true; generate three variants and keep the photo check's best. If none of these can be produced at quality, choose type-led. A weak illustration is worse than none.
 
 ## Rules
 
