@@ -57,15 +57,19 @@ Type is the fastest route to distinctiveness and the most common sign of a templ
 - A serif is fine when the concept is editorial, archival, literary or craft; it is not a shortcut to "premium". Never an italic accent word.
 - Tune it: tracking by size, `text-wrap: balance`, tabular figures, real punctuation. Load real files (Google Fonts, Fontshare or self-hosted WOFF2); never let a missing font fall back silently.
 
-Starting points by quality, not defaults (rotate; do not reuse last project's choice):
+Starting points by voice, never by category (rotate; never reuse the previous project's choice, and two brands in one category should not share a display face). Every face below is free on Google Fonts or Fontshare.
 
 | Voice | Display candidates | Text candidates |
 | --- | --- | --- |
-| Engineered, hi-fi, technical | Archivo (expanded widths), Familjen Grotesk, Martian Grotesk, Unbounded (sparingly) | Archivo, Schibsted Grotesk, IBM Plex Sans; mono: Martian Mono, JetBrains Mono, Azeret Mono |
-| Poster, club, loud | Big Shoulders Display, Anton, Tanker (Fontshare) | Hanken Grotesk, Work Sans |
-| Craft, archival, printed | Young Serif, Gloock, Zodiak (Fontshare), Petrona | Literata, Source Serif 4, Instrument Sans |
-| Ledger, finance, precise | Schibsted Grotesk, Geist, Switzer (Fontshare) | same family; mono: IBM Plex Mono, Geist Mono |
-| Friendly, soft, social | Gabarito, Open Runde, Figtree | Figtree, Nunito Sans |
+| Engineered, hi-fi, technical | Archivo (expanded or condensed widths), Martian Grotesk, Familjen Grotesk | IBM Plex Sans, Archivo; mono: Martian Mono, JetBrains Mono, Azeret Mono |
+| Ledger, finance, precise | Switzer, Geist, General Sans (Fontshare), Inter Tight at poster scale | same family; mono: IBM Plex Mono, Geist Mono |
+| Poster, club, loud | Big Shoulders Display, Anton, Tanker, Panchang (Fontshare), Climate Crisis | Work Sans, Archivo |
+| Craft, archival, printed | Young Serif, Gloock, Zodiak, Erode (Fontshare), Petrona | Literata, Instrument Sans |
+| Luxury, fashion, high contrast | Bodoni Moda, Boska (Fontshare), Gambetta (Fontshare), Italiana | Hanken Grotesk, Satoshi (Fontshare) |
+| Editorial, literary | Libre Caslon Display, EB Garamond, Sentient (Fontshare), Source Serif 4 Display | Source Serif 4, Inter |
+| Warm, humanist, hospitality | Bricolage Grotesque, Albert Sans, Author (Fontshare), Rosaline | Albert Sans, Figtree |
+| Friendly, soft, social | Gabarito, Open Runde, Figtree, Chillax (Fontshare) | Figtree, Nunito Sans |
+| Geometric, architectural | Syne at 700 only for a wordmark, Unbounded (sparingly), Cabinet Grotesk (Fontshare), Supreme (Fontshare) | Satoshi, Manrope |
 
 ## 5. Color with an origin
 

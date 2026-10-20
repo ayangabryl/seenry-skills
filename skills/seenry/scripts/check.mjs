@@ -94,7 +94,7 @@ function projectFingerprint() {
     }
   };
   walk(root);
-  for (const p of [flag('brief'), join(root, 'DESIGN.md'), join(dir, 'idea.md'), join(dir, 'motion.md'),
+  for (const p of [flag('brief'), join(root, 'DESIGN.md'), join(dir, 'idea.md'), join(dir, 'identity.md'), join(dir, 'motion.md'),
     join(dir, 'research', 'pack.md'), join(dir, 'explore', 'pick.json'), ...(refs || '').split(',')].filter(Boolean)) {
     if (existsSync(p)) add(resolve(p), 'input:' + relative(root, resolve(p)));
   }
@@ -156,6 +156,7 @@ const missing = [
   (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
   (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
   !native && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three first-screen compositions in ${join(dir, 'explore')}/ and run node ${join(here, 'pick.mjs')} on them`,
+  !native && (!existsSync(join(dir, 'identity.md')) || readFileSync(join(dir, 'identity.md'), 'utf8').length < 500 || !existsSync(join(dir, 'identity.html'))) && `identity: write ${join(dir, 'identity.md')} (truth, visual idea, type voice, color world, graphic device, image treatment, voice line, motion behavior) and render it as ${join(dir, 'identity.html')}, following the Identity first section of SKILL.md`,
   (!existsSync(join(dir, 'idea.md')) || readFileSync(join(dir, 'idea.md'), 'utf8').length < 600) && `idea: write ${join(dir, 'idea.md')} following references/design-thinking.md (claim, proof, moment, material, five candidate ideas with scores, the chosen idea and where it shows)`,
   native && !video && 'motion recording: record the interactions (xcrun simctl io booted recordVideo rec.mov, or adb shell screenrecord) and pass --video rec.mov',
   !native && !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see SKILL.md) and mark its root element with data-seenry-signature="<name>"',
