@@ -73,7 +73,7 @@ if (variants > 1) {
     const report = resolve(dirname(shot.out), `.photo-${Date.now()}.json`);
     spawnSync('node', [join(here, 'photo_check.mjs'), ...cands, '--use', shot.use || 'photograph on a web page', '--brand', flag('brand', 'the brand'), '--out', report, ...(flag('refs') ? ['--refs', flag('refs')] : [])], {stdio: 'inherit'});
     let best = cands[0];
-    try { const imgs = JSON.parse(readFileSync(report, 'utf8')).images; const i = imgs.reduce((b, x, k) => x.overall > imgs[b].overall ? k : b, 0); best = cands[i] || best; console.log(`best for ${shot.out}: ${best.split('/').pop()} (${imgs[i].overall}/10)`); } catch {}
+    try { const imgs = JSON.parse(readFileSync(report, 'utf8')).images; const i = imgs.reduce((b, x, k) => (x.overall > imgs[b].overall || (x.overall === imgs[b].overall && (x.concept || 0) > (imgs[b].concept || 0))) ? k : b, 0); best = cands[i] || best; console.log(`best for ${shot.out}: ${best.split('/').pop()} (${imgs[i].overall}/10)`); } catch {}
     copyFileSync(best, resolve(shot.out));
   }
 }

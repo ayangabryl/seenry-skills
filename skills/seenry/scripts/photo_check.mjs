@@ -19,7 +19,7 @@ const min = Number(flag('min', '8')), out = resolve(flag('out', '.seenry/review/
 const found = findCli(process.env.SEENRY_CRITIC);
 if (!found) { console.error('No working Codex or Claude CLI found; review the images yourself against the rules in SKILL.md.'); process.exit(2); }
 
-const KEYS = ['realism', 'light', 'composition', 'premium', 'fit', 'overall'];
+const KEYS = ['realism', 'light', 'composition', 'premium', 'fit', 'concept', 'overall'];
 const schema = {type: 'object', additionalProperties: false, required: ['images'], properties: {images: {type: 'array', items: {
   type: 'object', additionalProperties: false, required: ['image', ...KEYS, 'problems', 'better_prompt'], properties: {
     image: {type: 'string'}, ...Object.fromEntries(KEYS.map(k => [k, {type: 'integer', minimum: 1, maximum: 10}])),
@@ -37,6 +37,7 @@ Score each candidate 1-10 (8 = a professional shoot for a premium brand; 5 = acc
 - composition: subject placement, crop and negative space suited to the slot; product fills the frame enough to read at phone size.
 - premium: styling, props, surface and color grade at the level of the references; no clichés (sunset circles, floating objects, gradient blobs, coffee beans scattered everywhere, steam wisps, bokeh fairy lights).
 - fit: matches the brand and the slot.
+- concept: is this a directed image with its own angle (an unexpected scale, crop, object or staging), or the first picture anyone would generate for this category? 9-10 directed, 5 the default category scene. It does not lower overall on its own; it breaks ties between variants.
 - overall.
 List the concrete problems, then write a better generation prompt that fixes them (subject, set and surface, light, lens and distance, composition for the slot, color grade, what to exclude, including "no text on labels" when a label would garble).
 Do not open any files other than the attached images.`;

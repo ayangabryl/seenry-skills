@@ -138,7 +138,7 @@ if (stoppedAt && (!fingerprint || !checkedVersions.has(fingerprint))) {
 }
 
 const pw = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
-const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
+const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
 // Native apps have no DOM to inspect: their screenshots are laid out as the board and the critic and motion judge do the review.
 const board = native
   ? spawnSync('node', [join(here, 'screens.mjs'), '--screens', native, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
