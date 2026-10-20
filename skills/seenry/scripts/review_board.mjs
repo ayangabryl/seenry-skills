@@ -38,7 +38,7 @@ function inspect({phone}) {
   const ownText = el => [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
   const label = el => `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${(el.textContent || '').trim().slice(0, 40)}"`;
   const els = [...document.body.querySelectorAll('*')].filter(el => ownText(el) && vis(el));
-  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: [], dividers: [], curvedUnderline: [], dashLabel: [], glyphIcon: [], repeatedPhoto: [], textWall: [], washed: []};
+  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: [], dividers: [], deviceOnce: [], curvedUnderline: [], dashLabel: [], glyphIcon: [], repeatedPhoto: [], textWall: [], washed: []};
   const weights = new Set(), headings = [...document.querySelectorAll('h1,h2,h3,[role=heading]')].filter(vis);
   const canvas = document.createElement('canvas').getContext('2d');
   const paint = document.createElement('canvas'); paint.width = paint.height = 1;
@@ -65,19 +65,20 @@ function inspect({phone}) {
         if (ratio < 4.5 && !el.closest('button:disabled,[aria-disabled="true"],del,s')) f.faint.push(`${ratio.toFixed(1)}:1 ${label(el)}`);
       }
     }
-    if (upper && tracked && size <= 14) {
+    const device = el.closest('[data-seenry-device]');
+    if (upper && tracked && size <= 14 && !device) {
       const r = el.getBoundingClientRect();
       const below = headings.find(h => { const hr = h.getBoundingClientRect(); return !h.contains(el) && hr.top >= r.bottom - 2 && hr.top - r.bottom < 80 && hr.left < r.right && hr.right > r.left; });
       if (below) f.eyebrow.push(`${label(el)} above ${label(below)}`);
     }
     // Sentence-case eyebrows count too: a short small line sitting right on top of a display heading, aligned with it.
-    else if (size <= 15 && text.length >= 3 && text.length <= 60 && ![...el.querySelectorAll('*')].some(c => !(c.closest('svg') || (['SPAN', 'I'].includes(c.tagName) && !c.textContent.trim()))) && !el.closest('a,button,nav,label,li,figcaption,[role=tab],[role=status]')) {
+    else if (!device && size <= 15 && text.length >= 3 && text.length <= 60 && ![...el.querySelectorAll('*')].some(c => !(c.closest('svg') || (['SPAN', 'I'].includes(c.tagName) && !c.textContent.trim()))) && !el.closest('a,button,nav,label,li,figcaption,[role=tab],[role=status]')) {
       const r = el.getBoundingClientRect(), mid = (r.left + r.right) / 2;
       const below = headings.find(h => { const hr = h.getBoundingClientRect(); return parseFloat(getComputedStyle(h).fontSize) >= 32 && !h.contains(el) && hr.top >= r.bottom - 2 && hr.top - r.bottom < 32 && (Math.abs(hr.left - r.left) <= 4 || Math.abs((hr.left + hr.right) / 2 - mid) <= 4); });
       if (below) f.eyebrow.push(`${label(el)} above ${label(below)}`);
     }
     if (upper && tracked && size <= 14 && letters.length > 3) f.caps.push(label(el));
-    if (size <= 16 && numbered.test(text)) f.numbered.push(label(el));
+    if (size <= 16 && numbered.test(text) && !device) f.numbered.push(label(el));
     if (weight >= 700 && !el.closest('header a[href="/"], [data-wordmark], .logo, .wordmark')) f.heavy.push(`${weight} ${label(el)}`);
     if (/^h[12]$/i.test(el.tagName) || el.closest('h1,h2')) {
       const h = el.closest('h1,h2');
@@ -129,13 +130,16 @@ function inspect({phone}) {
       }
     }
   }
+  const devices = {};
+  for (const el of document.querySelectorAll('[data-seenry-device]')) if (vis(el)) devices[el.dataset.seenryDevice] = (devices[el.dataset.seenryDevice] || 0) + 1;
+  for (const [name, n] of Object.entries(devices)) if (n < 3) f.deviceOnce.push(`${name} used ${n}×`);
   for (const [name, n] of hits) if (n >= 3) f.defaultColor.push(`Tailwind ${name} used on ${n} elements; derive the accent from the brand and correct it in OKLCH`);
   // Colored dots in front of text ("● Active") read as generated UI; a dot is allowed only when it is the whole
   // message and marked so: data-seenry-dot="live|presence|unread".
   const dotLike = (st, w, h) => w > 0 && w <= 12 && h > 0 && h <= 12 && (parseFloat(st.borderTopLeftRadius) >= Math.min(w, h) / 2 - 0.5 || st.borderTopLeftRadius.includes('%'))
     && toRGBA(st.backgroundColor)[3] > 0.5;
   for (const el of document.body.querySelectorAll('*')) {
-    if (!vis(el) || el.closest('[data-seenry-dot]')) continue;
+    if (!vis(el) || el.closest('[data-seenry-dot],[data-seenry-device]')) continue;
     const text = (el.textContent || '').trim();
     if (text.length < 2) continue;
     const b = getComputedStyle(el, '::before');
@@ -371,7 +375,7 @@ const cells = [['This page', join(out, 'first-1440.png')], ...refs.map(r => [r.s
 await shot(`<div style="display:flex;flex-wrap:wrap;gap:16px;padding:16px">${cells.map(([n, p]) => `<figure style="margin:0"><figcaption style="padding:0 0 6px">${n}</figcaption>${clip(uri(p), 720, 450)}</figure>`).join('')}</div>`, 'first.png', 16 + cells.length * 736 > 1488 ? 1488 : 16 + cells.length * 736);
 await browser.close();
 
-const names = {washed: 'washed palette: pale tinted panels in several hues (use neutral surfaces and one committed brand color at full strength)', textWall: 'too much text (cut paragraphs to two sentences and the first screen to a headline, one line of support and an action)', repeatedPhoto: 'the same photograph used twice on one screen (give every card and the hero its own image)', dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'eyebrow label above a title (drop it and let the heading carry the section)', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', pageOverflow: 'content wider than the screen: the page scrolls sideways or cuts it off (put wide tables and rows in their own overflow-x:auto container, or recompose them as stacked rows on phone)', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)', curvedUnderline: 'one-sided border on a rounded element: an accent rail down a card or a tab underline that bends at its ends (separate cards by tone and space; draw indicators as a straight ::after bar)', dashLabel: 'short rule or dash in front of a label (let the label stand alone, or cut it)', orphan: 'a word stranded alone on a headline\'s last line', weakAction: 'no primary action that reads as the action (filled, 44px+ tall on desktop, 48px+ on phone, 15px+ label)', headlineCrowd: 'headline jammed under the navigation', glyphIcon: 'typed symbol used as an icon or logo (arrows, stars, sparkles, check marks or emoji as text; use a wordmark or SVG mark and icons from one real icon set)'};
+const names = {deviceOnce: 'a declared identity device used fewer than three times (a device is a system across sections; otherwise it is decoration: use it consistently or remove it)', washed: 'washed palette: pale tinted panels in several hues (use neutral surfaces and one committed brand color at full strength)', textWall: 'too much text (cut paragraphs to two sentences and the first screen to a headline, one line of support and an action)', repeatedPhoto: 'the same photograph used twice on one screen (give every card and the hero its own image)', dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'eyebrow label above a title (drop it and let the heading carry the section)', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', pageOverflow: 'content wider than the screen: the page scrolls sideways or cuts it off (put wide tables and rows in their own overflow-x:auto container, or recompose them as stacked rows on phone)', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)', curvedUnderline: 'one-sided border on a rounded element: an accent rail down a card or a tab underline that bends at its ends (separate cards by tone and space; draw indicators as a straight ::after bar)', dashLabel: 'short rule or dash in front of a label (let the label stand alone, or cut it)', orphan: 'a word stranded alone on a headline\'s last line', weakAction: 'no primary action that reads as the action (filled, 44px+ tall on desktop, 48px+ on phone, 15px+ label)', headlineCrowd: 'headline jammed under the navigation', glyphIcon: 'typed symbol used as an icon or logo (arrows, stars, sparkles, check marks or emoji as text; use a wordmark or SVG mark and icons from one real icon set)'};
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);
