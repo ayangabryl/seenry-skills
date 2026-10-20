@@ -234,8 +234,9 @@ const startMotion = () => runAsync(motionArgs);
 let motionRun = motionPlanned ? startMotion() : null;
 const critic = sameBoard
   ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
-  : await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'),
-  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : [])]);
+  : (existsSync(join(dir, 'identity.html')) && spawnSync(process.execPath, [join(here, 'render_page.mjs'), join(dir, 'identity.html'), join(review, 'identity.png'), ...(pw ? ['--playwright', pw] : [])], {stdio: 'ignore'}),
+    await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'), ...(existsSync(join(review, 'identity.png')) ? ['--identity', join(review, 'identity.png')] : []),
+  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : [])]));
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));

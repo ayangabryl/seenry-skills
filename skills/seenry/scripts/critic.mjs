@@ -20,6 +20,7 @@ const board = resolve(flag('board', '.seenry/review/board.png'));
 const first = resolve(flag('first', '.seenry/review/first.png'));
 const out = resolve(flag('out', '.seenry/review/critic.json'));
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
+const identityBoard = flag('identity') && existsSync(resolve(flag('identity'))) ? resolve(flag('identity')) : '';
 const keptPath = flag('kept');
 const kept = keptPath && existsSync(keptPath) ? readFileSync(keptPath, 'utf8').trim().slice(0, 2400) : '';
 const briefPath = flag('brief');
@@ -58,11 +59,12 @@ if (!found) { console.error('No working critic CLI found (codex or claude). Ask 
 const {cli} = found;
 
 const screen = resolve(dirname(first), 'first-1440.png');
-const images = [board, first, ...refs, ...(existsSync(screen) ? [screen] : [])];
+const images = [board, first, ...refs, ...(existsSync(screen) ? [screen] : []), ...(identityBoard ? [identityBoard] : [])];
 const listing = [`image 1 = the candidate: full desktop page at half scale (left) and phone page (right)`,
   `image 2 = the candidate's desktop first screen beside the reference screens`,
   ...refs.map((r, i) => `image ${i + 3} = reference ${r.split('/').pop()}`),
-  ...(existsSync(screen) ? [`image ${refs.length + 3} = the candidate's desktop first screen at full 1440 size: judge text size and weight here`] : [])].join('\n');
+  ...(existsSync(screen) ? [`image ${refs.length + 3} = the candidate's desktop first screen at full 1440 size: judge text size and weight here`] : []),
+  ...(identityBoard ? [`image ${images.length} = the designer's own identity board (wordmark, type, color, device, a poster): what the page promised to be`] : [])].join('\n');
 const KEYS = ['premium', 'clean', 'no_slop', 'idea', 'identity', 'category_fit', 'imagery', 'typography', 'layout', 'craft', 'mobile', ...(refs.length ? ['reference_fit'] : []), 'overall'];
 const schema = {type: 'object', additionalProperties: false, required: ['scores', 'slop', 'verdict', 'fixes', ...(refs.length ? ['copies_reference'] : [])], properties: {
   scores: {type: 'object', additionalProperties: false, required: KEYS, properties: Object.fromEntries(KEYS.map(k => [k, {type: 'integer', minimum: 1, maximum: 10}]))},
@@ -90,7 +92,7 @@ Score 1-10, calibrated so that the reference screens score about 8-9 and a compe
 - clean: calm, uncluttered, clear hierarchy, nothing decorative that does not help the job.
 - no_slop: 10 = none of the AI-generated tells; subtract for each: uppercase letter-spaced labels or eyebrows, numbered labels like "01 /", italic serif accent words, trendy default fonts, default AI palettes (cream+terracotta, plum+peach, navy+lime), clip-art imagery (sunset circles, vinyl records, flat product stand-ins), colored KPI hero cards with decoration, pill badges everywhere, tilted floating cards with stickers, floating toast or notification cards around a product mock, cards that lift with a growing drop shadow on hover, a row of three invented stats under the hero, a struck-through word in the headline, a hero that explains itself with labels, tooltips and instruction lines, the product inside an app-style card with tabs, heavy 700+ weights, gradient blobs, generic slogans, tiny or faint text.
 - idea: is there one clear idea that comes from this product's own claim and proof, carried through the hero, imagery, copy and a signature detail? A page assembled from generic patterns, or one that borrows another brand's signature idea, scores low even when it is clean. If putting a reference's or a category leader's logo on it would make it read as that brand's page, idea is 6 or lower.
-- identity: is there a designed identity, the way a studio would deliver one: one typographic voice with character set with conviction, one color used as a full field, one graphic device that comes from the brand's truth and repeats across sections, and one consistent image treatment? Cover the logo: if the page is still recognizable as this brand, 8+; if it reads as a well-made template with a palette applied, 6 or lower.
+- identity: is there a designed identity, the way a studio would deliver one: one typographic voice with character set with conviction, one color used as a full field, one graphic device that comes from the brand's truth and repeats across sections, and one consistent image treatment? Cover the logo: if the page is still recognizable as this brand, 8+; if it reads as a well-made template with a palette applied, 6 or lower.${identityBoard ? ' Compare the page with the designer\'s identity board (last image): a page that sets the board\'s type, color field, device and poster composition with less confidence than the board itself, or drops them into ordinary web sections, is identity 6 or lower, and say what from the board the page lost.' : ''}
 - category_fit: name the category and two or three of its best brands, then ask whether they would ship this first screen. A composition imported from another category (a SaaS split with a boxed product card for a luxury object, dashboard cards on an editorial or hospitality page, an app-store hero for a physical product) is 5 or lower. Luxury and physical products let the object own the frame; boxed media, tabs, tooltips and instruction lines around the hero object are UI chrome that cheapens it.
 - imagery: real photography or a faithful render of the actual subject earns points; generated imagery with implausible detail (mechanisms, hands, text, food, architecture or products that do not make physical sense, mismatched lighting) is a slop tell and scores 4 or lower however polished it looks, because the target customer notices. No imagery where the category expects it scores low; decorative stock scores low.
 - typography, layout, craft, mobile. Layout includes vertical rhythm: a headline jammed under the nav, or a column stretched to match an image's height with dead gaps instead of being composed, costs at least two points.${refs.length ? `
