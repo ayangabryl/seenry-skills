@@ -9,13 +9,33 @@
  *  Write prompts like a photographer (see SKILL.md Imagery and seenry-assets/references/generation.md): subject, set
  *  and surface, one light, lens and distance, composition for the slot and ratio, color grade, exclusions, and
  *  "no text" on labels. Then run photo_check.mjs on the results. Needs a working, signed-in `codex` CLI. */
-import {existsSync, readFileSync, copyFileSync, mkdirSync, mkdtempSync, readdirSync, statSync} from 'node:fs';
+import {existsSync, readFileSync, copyFileSync, mkdirSync, mkdtempSync, readdirSync, statSync, rmSync} from 'node:fs';
 import {resolve, dirname, join, extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn} from 'node:child_process';
 import {findCli} from './model_cli.mjs';
 
 const args = process.argv.slice(2);
+// --background: start the same job detached and return at once, so the page is built while images generate. A pending
+// marker (.seenry/images.pending) stays until the job ends; check.mjs and `image.mjs --wait` wait for it.
+const pendingFile = resolve(process.env.SEENRY_DIR || '.seenry', 'images.pending');
+if (args.includes('--wait')) {
+  const start = Date.now();
+  while (existsSync(pendingFile) && Date.now() - start < 30 * 60 * 1000) await new Promise(r => setTimeout(r, 3000));
+  console.log(existsSync(pendingFile) ? 'Images still generating after 30 minutes; check .seenry/images.log.' : 'Images ready.');
+  process.exit(0);
+}
+if (args.includes('--background')) {
+  const {openSync, writeFileSync: write} = await import('node:fs');
+  mkdirSync(dirname(pendingFile), {recursive: true});
+  const log = openSync(resolve(dirname(pendingFile), 'images.log'), 'a');
+  const child = spawn(process.execPath, [new URL(import.meta.url).pathname, ...args.filter(a => a !== '--background'), '--pending'], {detached: true, stdio: ['ignore', log, log]});
+  write(pendingFile, String(child.pid));
+  child.unref();
+  console.log(`Generating in the background (pid ${child.pid}, log .seenry/images.log). Build the page with the final file names now; check.mjs waits for the images before it reviews.`);
+  process.exit(0);
+}
+if (args.includes('--pending')) process.on('exit', () => { try { rmSync(pendingFile); } catch {} });
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const variants = Math.max(1, Math.min(4, Number(flag('variants', '1'))));
 const base = flag('batch') ? JSON.parse(readFileSync(resolve(flag('batch')), 'utf8')) : [{prompt: flag('prompt'), out: flag('out'), use: flag('use')}];

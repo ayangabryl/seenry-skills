@@ -138,6 +138,12 @@ if (stoppedAt && (!fingerprint || !checkedVersions.has(fingerprint))) {
 }
 
 const pw = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
+// Images started with image.mjs --background: wait for them so the review sees the real photographs.
+if (existsSync(join(dir, 'images.pending'))) {
+  console.log('Waiting for background image generation to finish…');
+  const waitStart = Date.now();
+  while (existsSync(join(dir, 'images.pending')) && Date.now() - waitStart < 30 * 60 * 1000) await new Promise(r => setTimeout(r, 3000));
+}
 const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
 // Native apps have no DOM to inspect: their screenshots are laid out as the board and the critic and motion judge do the review.
 const board = native
