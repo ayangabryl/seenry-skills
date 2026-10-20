@@ -14,6 +14,7 @@ import {resolve, join, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync, spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
+import {homedir} from 'node:os';
 import {validMotionVerdict, motionAcceptance, MOTION_ACCEPTANCE_POLICY} from './motion_contract.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -149,6 +150,20 @@ let blockers = native ? 0 : JSON.parse(readFileSync(join(review, 'board.json'), 
 const project = !/^https?:/.test(target) && existsSync(target) ? dirname(resolve(target)) : process.cwd();
 const refCount = existsSync(join(dir, 'refs')) ? readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).length : 0;
 const motionSpec = join(dir, 'motion.md'), design = join(project, 'DESIGN.md');
+// Remember this project's identity so the next one can differ from it (the skill reads the last ten).
+try {
+  const idFile = join(dir, 'identity.md');
+  if (existsSync(idFile)) {
+    const text = readFileSync(idFile, 'utf8');
+    // The text under a numbered or bold heading, up to the next heading, flattened to one line.
+    const section = name => { const m = text.match(new RegExp(`${name}[^\\n]*?[.:]\\**\\s*([\\s\\S]*?)(?=\\n\\s*(?:\\d+[.)]|#|- \\*\\*)|$)`, 'i')); return (m?.[1] || '').replace(/[*_`]/g, '').replace(/\s+/g, ' ').trim().slice(0, 180); };
+    const entry = {project: resolve(project), at: new Date().toISOString(), type: section('typographic voice') || section('type voice'), color: section('colou?r world'), device: section('graphic device') || section('device')};
+    const histDir = join(homedir(), '.config', 'seenry'), hist = join(histDir, 'history.json');
+    mkdirSync(histDir, {recursive: true});
+    const list = existsSync(hist) ? JSON.parse(readFileSync(hist, 'utf8')) : [];
+    writeFileSync(hist, JSON.stringify([...list.filter(e => e.project !== entry.project), entry].slice(-20), null, 2));
+  }
+} catch {}
 const missing = [
   !existsSync(join(dir, 'research', 'pack.md')) && `research pack: run node ${join(here, 'research.mjs')} --type <type> --terms "<words>" (or research by hand with the Seenry MCP tools and write ${join(dir, 'research', 'pack.md')})`,
   refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
