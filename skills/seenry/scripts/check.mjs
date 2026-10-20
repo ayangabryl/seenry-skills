@@ -247,6 +247,9 @@ const boardHash = existsSync(join(review, 'board.png')) && existsSync(join(revie
 const sameBoard = boardHash && fingerprint && history.filter(h => h.critic && h.boardHash === boardHash && h.hash !== fingerprint && h.criticFile && existsSync(join(dir, h.criticFile))).pop();
 const startMotion = () => runAsync(motionArgs);
 let motionRun = motionPlanned ? startMotion() : null;
+// Craft at 100%: the detail critic reviews each section at full size while the main critic judges the board.
+const detailOut = join(review, 'detail.json');
+const detailRun = native ? null : runAsync([join(here, 'detail_critic.mjs'), target, '--out', detailOut, ...(pw ? ['--playwright', pw] : [])]);
 const critic = sameBoard
   ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
   : (existsSync(join(dir, 'identity.html')) && spawnSync(process.execPath, [join(here, 'render_page.mjs'), join(dir, 'identity.html'), join(review, 'identity.png'), ...(pw ? ['--playwright', pw] : [])], {stdio: 'ignore'}),
@@ -255,8 +258,15 @@ const critic = sameBoard
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
+let craft = null;
+if (detailRun) {
+  const d = await detailRun;
+  if (d.status === 0 && existsSync(detailOut)) { process.stdout.write('\n' + d.stdout); craft = JSON.parse(readFileSync(detailOut, 'utf8')).craft; }
+  else console.log('\nDetail critic did not run; craft at full size is unverified this round.');
+}
 // The page has to hold up beside the references it kept, not only score well in general.
-const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7) && !copied;
+const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7) && !copied && (craft === null || craft >= 8);
+if (craft !== null && craft < 8) console.log(`\nCraft ${craft}/10 at full size: apply the detail fixes above too; a page does not pass below 8 on craft.`);
 if (copied) console.log(`\nCopied reference: the critic found a section that reproduces ${copied} nearly unchanged. Rework it: combine the lesson with another reference or the brand idea so the page is your own.`);
 if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
 const roundExtras = {boardHash, criticFile: relative(dir, out), ...(sameBoard ? {reusedCritic: true} : {})};
