@@ -14,7 +14,7 @@ import {resolve, join, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync, spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {homedir} from 'node:os';
+import {recordIdentity} from './history.mjs';
 import {validMotionVerdict, motionAcceptance, MOTION_ACCEPTANCE_POLICY} from './motion_contract.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -151,19 +151,7 @@ const project = !/^https?:/.test(target) && existsSync(target) ? dirname(resolve
 const refCount = existsSync(join(dir, 'refs')) ? readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).length : 0;
 const motionSpec = join(dir, 'motion.md'), design = join(project, 'DESIGN.md');
 // Remember this project's identity so the next one can differ from it (the skill reads the last ten).
-try {
-  const idFile = join(dir, 'identity.md');
-  if (existsSync(idFile)) {
-    const text = readFileSync(idFile, 'utf8');
-    // The text under a numbered or bold heading, up to the next heading, flattened to one line.
-    const section = name => { const m = text.match(new RegExp(`${name}[^\\n]*?[.:]\\**\\s*([\\s\\S]*?)(?=\\n\\s*(?:\\d+[.)]|#|- \\*\\*)|$)`, 'i')); return (m?.[1] || '').replace(/[*_`]/g, '').replace(/\s+/g, ' ').trim().slice(0, 180); };
-    const entry = {project: resolve(project), at: new Date().toISOString(), type: section('typographic voice') || section('type voice'), color: section('colou?r world'), device: section('graphic device') || section('device')};
-    const histDir = join(homedir(), '.config', 'seenry'), hist = join(histDir, 'history.json');
-    mkdirSync(histDir, {recursive: true});
-    const list = existsSync(hist) ? JSON.parse(readFileSync(hist, 'utf8')) : [];
-    writeFileSync(hist, JSON.stringify([...list.filter(e => e.project !== entry.project), entry].slice(-20), null, 2));
-  }
-} catch {}
+try { recordIdentity(dir, project); } catch {}
 const missing = [
   !existsSync(join(dir, 'research', 'pack.md')) && `research pack: run node ${join(here, 'research.mjs')} --type <type> --terms "<words>" (or research by hand with the Seenry MCP tools and write ${join(dir, 'research', 'pack.md')})`,
   refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
@@ -265,8 +253,8 @@ if (detailRun) {
   else console.log('\nDetail critic did not run; craft at full size is unverified this round.');
 }
 // The page has to hold up beside the references it kept, not only score well in general.
-const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7) && !copied && (craft === null || craft >= 8);
-if (craft !== null && craft < 8) console.log(`\nCraft ${craft}/10 at full size: apply the detail fixes above too; a page does not pass below 8 on craft.`);
+const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7) && !copied && (quick || craft === null || craft >= 8);
+if (craft !== null && craft < 8) console.log(quick ? `\nCraft ${craft}/10 at full size (advice in quick mode): apply the detail fixes that do not flatten the identity; never trade the identity's scale or device for tidiness.` : `\nCraft ${craft}/10 at full size: apply the detail fixes above too; a page does not pass below 8 on craft.`);
 if (copied) console.log(`\nCopied reference: the critic found a section that reproduces ${copied} nearly unchanged. Rework it: combine the lesson with another reference or the brand idea so the page is your own.`);
 if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
 const roundExtras = {boardHash, criticFile: relative(dir, out), ...(sameBoard ? {reusedCritic: true} : {})};
