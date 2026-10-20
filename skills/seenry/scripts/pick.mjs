@@ -56,7 +56,7 @@ const schema = {type: 'object', additionalProperties: false, required: ['ranking
   ranking: {type: 'array', items: {type: 'string'}},
   scores: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['label', 'premium', 'clarity', 'distinctiveness', 'idea', 'identity', 'category_fit', 'phone', 'overall'], properties: {label: {type: 'string'}, ...Object.fromEntries(['premium', 'clarity', 'distinctiveness', 'idea', 'identity', 'category_fit', 'phone', 'overall'].map(k => [k, {type: 'integer', minimum: 1, maximum: 10}]))}}},
   winner_why: {type: 'string'}, take_from_others: {type: 'array', items: {type: 'string'}}}};
-const prompt = `You are a design director choosing one first-screen direction to develop, the way a studio picks after an exploration round. Image 1 is a board: each row is one candidate first screen (label on the left), desktop 1440 and phone 390, same content, different composition.${refs.length ? ` The following ${refs.length} image(s) are reference screens from top companies: the bar.` : ''}
+const prompt = `You are a design director choosing one identity to develop, the way a studio picks after an exploration round. Image 1 is a board: each row is one candidate identity board (label on the left), desktop 1440 and phone 390: its wordmark, type, color, device, image treatment and two posters (the hero and an ordinary section such as pricing or FAQ). Judge both posters; an identity that only works in its hero is weaker than one that carries into the ordinary section.${refs.length ? ` The following ${refs.length} image(s) are reference screens from top companies: the bar.` : ''}
 
 The brief:
 ${brief}
