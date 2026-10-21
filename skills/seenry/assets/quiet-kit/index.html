@@ -41,14 +41,19 @@
     </form>
     <p class="capture-note rise" style="--i:3" aria-live="polite">Free for one account. iPhone and Android.</p>
 
-    <div class="stage" data-stage>
-      <div class="tile"><img src="img/cypresses.jpg" alt="" style="object-position:30% 40%"></div>
-      <div class="tile plain"></div>
-      <div class="tile"><img src="img/drawing.jpg" alt="" style="object-position:60% 50%"></div>
-      <figure class="device device--float" style="--w:290px">
+    <div class="pano" data-stage>
+      <img class="pano-art" src="img/cypresses.jpg" alt="">
+      <div class="pano-card left">
+        <div class="card-title">September <small>Closed Oct 1</small></div>
+        <div class="big-num">$1,188</div>
+        <small class="muted">left after $4,212 spent</small>
+        <div class="bar"><i style="flex:44;background:#2b4c7e"></i><i style="flex:15;background:#5f8f5a"></i><i style="flex:12;background:#d4693e"></i><i style="flex:10;background:#c9972f"></i><i style="flex:19;background:#d8d3c9"></i></div>
+      </div>
+      <figure class="device device--float">
         <div class="device-screen"><img src="img/screen.png" alt="Penny's September summary: $1,188 left over after $4,212 spent, with rent, groceries, eating out and subscriptions listed."></div>
       </figure>
-      <div class="lifted"><small>Eating out, September</small><b>+$142</b><small>Up from August. Mostly Fridays.</small></div>
+      <div class="pano-card right"><small class="muted">Eating out, September</small><b class="delta">+$142</b><small class="muted">Up from August. Mostly Fridays.</small></div>
+      <div class="month" aria-hidden="true"><span>Sep 2</span><div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="first"></i></div><span class="oct">Oct 1 · your statement</span></div>
     </div>
 
     <div class="banks" aria-label="Works with">
@@ -61,20 +66,8 @@
       <h2 class="rise">One connection.<br><span class="soft">Every account, in plain words.</span></h2>
       <p class="rise" style="--i:1">No budgets to set up and nothing to categorize by hand. Penny reads what your bank sends and writes it down the way you would.</p>
     </div>
-    <div class="features">
-      <article class="feature rise">
-        <div class="tile"><img src="img/reapers.jpg" alt="">
-          <div class="card">
-            <div class="card-title">Connected <small>4 accounts</small></div>
-            <div class="row"><span class="dot" style="background:#e8edf5;color:#2b4c7e">C</span><span class="name">Chase checking</span><span class="ok">Synced</span></div>
-            <div class="row"><span class="dot" style="background:#f3ece4;color:#8a5a2b">A</span><span class="name">Amex Gold</span><span class="ok">Synced</span></div>
-            <div class="row"><span class="dot" style="background:#ebf2e9;color:#3f6b3a">W</span><span class="name">Wise USD</span><span class="ok">Synced</span></div>
-          </div>
-        </div>
-        <h3>Connect once</h3>
-        <p>Read-only access through Plaid. Penny can see balances and payments, and can never move money.</p>
-      </article>
-      <article class="feature rise" style="--i:1">
+    <div class="bento">
+      <article class="feature big rise">
         <div class="tile"><img src="img/lilies.jpg" alt="">
           <div class="card">
             <div class="card-title">Tuesday <small>6 payments</small></div>
@@ -86,7 +79,20 @@
         <h3>Sorted as it happens</h3>
         <p>Bank codes become real names and categories the moment a payment posts. Fix one, and Penny remembers.</p>
       </article>
-      <article class="feature rise" style="--i:2">
+            <div class="stack">
+        <article class="feature rise">
+        <div class="tile"><img src="img/reapers.jpg" alt="">
+          <div class="card">
+            <div class="card-title">Connected <small>4 accounts</small></div>
+            <div class="row"><span class="dot" style="background:#e8edf5;color:#2b4c7e">C</span><span class="name">Chase checking</span><span class="ok">Synced</span></div>
+            <div class="row"><span class="dot" style="background:#f3ece4;color:#8a5a2b">A</span><span class="name">Amex Gold</span><span class="ok">Synced</span></div>
+            <div class="row"><span class="dot" style="background:#ebf2e9;color:#3f6b3a">W</span><span class="name">Wise USD</span><span class="ok">Synced</span></div>
+          </div>
+        </div>
+        <h3>Connect once</h3>
+        <p>Read-only access through Plaid. Penny can see balances and payments, and can never move money.</p>
+      </article>
+              <article class="feature rise" style="--i:2">
         <div class="tile"><img src="img/bridge.jpg" alt="">
           <div class="card">
             <div class="card-title">September <small>Closed Oct 1</small></div>
@@ -98,6 +104,8 @@
         <h3>Your month on the 1st</h3>
         <p>One statement in plain words: what came in, what went out, and what changed since last month.</p>
       </article>
+    </div>
+      </div>
     </div>
   </section>
 
@@ -128,35 +136,29 @@
   </section>
 
   <section class="section wrap" id="pricing">
-    <div class="center-head">
-      <h2 class="rise">Pricing</h2>
-      <div class="toggle rise" role="group" aria-label="Billing period" data-toggle>
-        <button type="button" aria-pressed="true" data-period="month">Monthly</button>
-        <button type="button" aria-pressed="false" data-period="year">Annual <span class="save">Save 20%</span></button>
+    <div class="pricing">
+      <div class="pricing-head">
+        <h2 class="rise">One account is free.<br><span class="soft">Every account is $4.</span></h2>
+        <p class="rise" style="--i:1">No card to start. Cancel from the app in one tap, and your history stays yours to export.</p>
+        <div class="toggle rise" role="group" aria-label="Billing period" data-toggle>
+          <button type="button" aria-pressed="true" data-period="month">Monthly</button>
+          <button type="button" aria-pressed="false" data-period="year">Annual <span class="save">Save 20%</span></button>
+        </div>
       </div>
-    </div>
-    <div class="plans">
-      <article class="plan rise">
-        <div class="plan-head">Free</div>
-        <div class="price"><b>$0</b>/month</div>
-        <p class="for">For one checking account or card.</p>
-        <ul><li>Automatic categories</li><li>Your monthly statement on the 1st</li><li>12 months of history</li></ul>
-        <a class="btn btn-soft" href="#start">Get started</a>
-      </article>
-      <article class="plan pop rise" style="--i:1">
-        <div class="plan-head">Plus <span class="chip">Most popular</span></div>
-        <div class="price"><b data-price="4" data-year="3.20">$4</b>/month</div>
-        <p class="for">For everyone with more than one account.</p>
-        <ul><li class="inc">Everything in Free, plus:</li><li>Unlimited banks and cards</li><li>Month-on-month changes</li><li>Subscription tracking</li><li>Full history and CSV export</li></ul>
-        <a class="btn btn-dark" href="#start">Start 14-day trial</a>
-      </article>
-      <article class="plan rise" style="--i:2">
-        <div class="plan-head">Household</div>
-        <div class="price"><b data-price="7" data-year="5.60">$7</b>/month</div>
-        <p class="for">For two people sharing a month.</p>
-        <ul><li class="inc">Everything in Plus, plus:</li><li>Two members, one statement</li><li>Shared and personal categories</li><li>Who-paid-what summary</li></ul>
-        <a class="btn btn-soft" href="#start">Get started</a>
-      </article>
+      <div class="plan-rows">
+        <article class="plan-row rise">
+          <div><h3>Free</h3><p>One checking account or card, your statement on the 1st, 12 months of history.</p></div>
+          <div class="pr"><b>$0</b><a class="btn btn-soft" href="#start">Get started</a></div>
+        </article>
+        <article class="plan-row pop rise" style="--i:1">
+          <div><h3>Plus <span class="chip">Most chosen</span></h3><p>Unlimited banks and cards, month-on-month changes, subscription tracking, full history and CSV export.</p></div>
+          <div class="pr"><b data-price="4" data-year="3.20">$4</b><span class="per">/month</span><a class="btn btn-dark" href="#start">Start 14-day trial</a></div>
+        </article>
+        <article class="plan-row rise" style="--i:2">
+          <div><h3>Household</h3><p>Two people, one statement, shared and personal categories, and who paid what.</p></div>
+          <div class="pr"><b data-price="7" data-year="5.60">$7</b><span class="per">/month</span><a class="btn btn-soft" href="#start">Get started</a></div>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -174,7 +176,7 @@
   </section>
 
   <section class="section wrap" id="start">
-    <div class="cta">
+    <div class="cta flip">
       <div class="cta-copy rise">
         <h2>Your month, finally clear.</h2>
         <p>Join thousands of people who stopped guessing where it went. Free for one account, no card needed.</p>
@@ -209,6 +211,7 @@
 <script>
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {rootMargin: '0px 0px -8% 0px'});
   document.querySelectorAll('.rise, [data-stage]').forEach(el => io.observe(el));
+  document.querySelectorAll('.ticks i').forEach((t, i) => t.style.setProperty('--d', i));
   document.querySelectorAll('[data-capture]').forEach(form => form.addEventListener('submit', e => {
     e.preventDefault();
     const note = form.nextElementSibling;

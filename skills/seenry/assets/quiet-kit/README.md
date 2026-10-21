@@ -12,14 +12,20 @@ imagery.
 | Section | What it is | Adapt |
 | --- | --- | --- |
 | Navigation | one pill bar: mark and name, four links, dark pill action | links to sections that exist |
-| Hero | centered headline, second line in the secondary color, one sentence, email capture, a row of three image tiles with the real app screen in a device across the middle tile and one card lifted out | the product's promise; a real screen rendered with `scripts/mockup_screen.mjs` |
+| Hero | centered headline, second line in the secondary color, one sentence, email capture, then one wide painting with the real app screen standing in it, two cards beside it and the product's own device along the bottom (Penny: the month's days with the 1st marked) | the product's promise; a real screen rendered with `scripts/mockup_screen.mjs`; the device fits inside its frame |
 | Proof row | "works with" names in muted type | real integrations or press only |
-| Feature tiles | three images, each carrying one real UI card, with a short title and line below | one feature per tile, each card shows that feature working |
+| Feature bento | one large image tile and two stacked, each carrying one real UI card, with a short title and line below | one feature per tile, each card shows that feature working |
 | Split | a quiet copy panel with three measured stats beside an image carrying a comparison card | the change or result the product makes visible |
-| Pricing | centered title, monthly or annual toggle, three soft cards, the popular one with a thin image band and the dark action | the real plans |
+| Pricing | the offer as a two-tone title with a toggle, plans as calm rows beside it, the chosen one raised on white | the real plans |
 | FAQ | two-tone title left, accordion right | five real questions |
 | Closing | a soft panel with headline and email capture beside a portrait or photograph | the same promise, shorter |
 | Footer | mark, line, three link columns, legal line, a large faint mark | real links |
+
+**Make it yours, never a copy.** The kit carries the reference's level (register, type, calm, craft), not its layout. For every new product change at least the hero composition and two other sections from the alternatives below, and give the hero one device from the product's own idea. A page a viewer could mistake for the reference is a failed page, however good it looks.
+- Hero: one wide painting with the device in it (this kit) · a row of three tiles with the device across the middle · the headline left with the device and one card right · an angled pair of devices on a single image.
+- Features: bento (this kit) · three equal tiles · alternating image and text rows · one long horizontal scroll of cards.
+- Pricing: rows beside the title (this kit) · three cards with a toggle · one plan with a comparison line.
+- Closing: image and panel (this kit, either side) · a full-width image band with the headline on it · a centered panel with the capture alone.
 
 Rules that keep it at the reference level:
 - Tokens in `styles.css` only (type scale 13–56, 4px spacing, three radii, motion tokens). Headlines weight 500 at

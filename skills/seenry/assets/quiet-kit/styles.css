@@ -55,10 +55,8 @@ p { margin: 0; }
 
 /* Navigation: one pill bar */
 .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; padding-top: var(--space-4); }
-.nav-bar {
-  display: flex; align-items: center; gap: var(--space-8); height: 52px; padding: 0 var(--space-2) 0 var(--space-5);
-  background: rgb(235 233 227 / 0.86); backdrop-filter: blur(16px); border-radius: var(--radius-sm);
-}
+.nav { background: rgb(244 243 239 / 0.86); backdrop-filter: blur(16px); padding-top: 0; }
+.nav-bar { display: flex; align-items: center; gap: var(--space-8); height: 64px; }
 .brand { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; font-size: var(--text-body); letter-spacing: -0.01em; }
 .brand svg { width: 20px; height: 20px; }
 .nav-links { display: flex; gap: var(--space-6); margin-inline: auto; font-size: var(--text-small); color: var(--ink-2); }
@@ -224,4 +222,66 @@ p { margin: 0; }
   .cta-copy { padding: var(--space-8); }
   .section { padding-top: var(--space-24); }
   .hero { padding-top: var(--space-16); }
+}
+
+/* Hero panorama: one painting, the phone standing in it, the month ribbon along the bottom */
+.pano { position: relative; height: 690px; margin-top: var(--space-16); border-radius: 24px; overflow: hidden; background: var(--surface-2); }
+.pano-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
+.pano::after { content: ""; position: absolute; inset: auto 0 0; height: 140px; background: linear-gradient(transparent, rgb(20 20 18 / 0.35)); pointer-events: none; }
+.pano .device { --w: 258px; position: absolute; left: 50%; top: 50%; translate: -50% -54%; z-index: 2; }
+.pano-card { position: absolute; z-index: 3; width: 248px; padding: var(--space-4) var(--space-5); text-align: left; background: var(--card); border-radius: var(--radius-md); box-shadow: var(--shadow-card); font-size: var(--text-label); }
+.pano-card.left { left: calc(50% - 418px); top: 150px; }
+.pano-card.right { right: calc(50% - 400px); top: 330px; width: 220px; }
+.pano-card .delta { display: block; margin: 2px 0; font-size: var(--text-heading); font-weight: 600; letter-spacing: -0.02em; }
+.muted { color: var(--ink-3); }
+.month { position: absolute; z-index: 3; left: var(--space-8); right: var(--space-8); bottom: var(--space-6); display: flex; align-items: center; gap: var(--space-4); color: #fff; font-size: var(--text-label); font-weight: 500; }
+.ticks { flex: 1; display: flex; justify-content: space-between; align-items: flex-end; height: 18px; }
+.ticks i { width: 2px; height: 10px; border-radius: 1px; background: rgb(255 255 255 / 0.55); }
+.ticks i.first { height: 18px; width: 3px; background: #fff; }
+.month .oct { white-space: nowrap; }
+
+/* Features bento */
+.bento { display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-3); }
+.bento .stack { display: grid; gap: var(--space-3); }
+.feature.big .tile { height: 640px; }
+.bento .stack .tile { height: 240px; }
+.bento .stack .feature .card { width: 70%; }
+.bento .stack .feature { display: grid; }
+
+/* Pricing as rows beside the title */
+.pricing { display: grid; grid-template-columns: 1fr 1.5fr; gap: var(--space-12); align-items: start; }
+.pricing-head p { margin-top: var(--space-4); color: var(--ink-2); max-width: 360px; }
+.pricing-head .toggle { margin-top: var(--space-6); }
+.plan-rows { display: grid; gap: var(--space-3); }
+.plan-row { display: flex; justify-content: space-between; align-items: center; gap: var(--space-8); padding: var(--space-6); background: var(--surface); border-radius: var(--radius-md); }
+.plan-row h3 { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-lead); letter-spacing: -0.01em; }
+.plan-row p { margin-top: var(--space-1); color: var(--ink-2); font-size: var(--text-small); max-width: 380px; }
+.plan-row.pop { background: var(--card); box-shadow: var(--shadow-card); }
+.pr { display: flex; align-items: baseline; gap: var(--space-2); flex: none; }
+.pr b { font-size: var(--text-title); font-weight: 500; letter-spacing: -0.03em; }
+.pr .per { color: var(--ink-3); font-size: var(--text-small); margin-right: var(--space-4); }
+.pr .btn { align-self: center; }
+.cta.flip { grid-template-columns: 1fr 1.45fr; }
+.cta.flip .tile { order: -1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html.js .pano-art { scale: 1.06; transition: scale var(--dur-scene-3) var(--ease-out); }
+  html.js .pano.in .pano-art { scale: 1; }
+  html.js .pano .device { translate: -50% -46%; opacity: 0; transition: translate var(--dur-scene-3) var(--ease-out) 200ms, opacity var(--dur-scene-1) var(--ease-out) 200ms; }
+  html.js .pano.in .device { translate: -50% -54%; opacity: 1; }
+  html.js .pano-card { opacity: 0; translate: 0 12px; transition: opacity var(--dur-scene-1) var(--ease-out) 650ms, translate var(--dur-scene-2) var(--ease-out) 650ms; }
+  html.js .pano-card.right { transition-delay: 800ms; }
+  html.js .pano.in .pano-card { opacity: 1; translate: none; }
+  html.js .ticks i { transform: scaleY(0); transform-origin: bottom; transition: transform var(--dur-scene-1) var(--ease-out); transition-delay: calc(900ms + var(--d, 0) * 18ms); }
+  html.js .pano.in .ticks i { transform: none; }
+}
+@media (max-width: 960px) {
+  .pano { height: 640px; }
+  .pano .device { translate: -50% -55% !important; }
+  .pano .device { --w: 230px; }
+  .pano-card { display: none; }
+  .month span:first-child { display: none; }
+  .bento, .pricing, .cta.flip { grid-template-columns: 1fr; }
+  .feature.big .tile { height: 420px; }
+  .plan-row { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
 }
