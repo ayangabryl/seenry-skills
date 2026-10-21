@@ -43,33 +43,50 @@ Run them on the chosen direction's first render at 1440 and 390:
 These are what every model reaches for. Use one only when the concept demands it, and write down why. Items marked never allowed have no exception.
 
 - **Palettes:** cream `#F5F1E8`-ish paper with a terracotta or orange accent; forest green with cream; dark plum or aubergine with peach; near-black with one neon; indigo-to-violet gradients.
-- **Type:** untuned Inter or `system-ui` as the whole identity; Instrument Serif, Fraunces, Playfair Display, DM Serif, Cormorant; a condensed display serif; **an italic serif accent word inside a headline** ("better *together*", "a lot of *feeling*"); Space Grotesk; Clash Display; Bricolage Grotesque.
+- **Type:** untuned Inter or `system-ui` (default tracking, weight 700) as the whole identity; Instrument Serif, Fraunces, Playfair Display, DM Serif, Cormorant; a condensed display serif; **an italic serif accent word inside a headline** ("better *together*", "a lot of *feeling*"); Space Grotesk; Clash Display; Bricolage Grotesque.
 - **Imagery:** a sunset circle over wavy hills as album or product art; a vinyl record sliding out of a sleeve; a kraft coffee bag with a colored band; floating tilted UI cards with sticker badges ("3 listening with you").
 - **Structure:** (never allowed: an uppercase eyebrow above a title, numbered labels such as "01 /" or "(001)"); a three-step row; three equal icon cards; "Most popular" middle tier; a full-width accent CTA band before the footer; a quote section with a giant curly quote.
 - **Copy:** "X is better together", "Built for the way you Y", "A little X. A lot of Y."
 
-## 4. Type with a voice
+## 4. Type: chosen like the leaders choose it
 
-Type is the fastest route to distinctiveness and the most common sign of a template. Choose a pairing from the concept and write the reason in one sentence ("wide grotesque from hi-fi faceplate lettering; mono for the receiver's readouts").
+Type decides whether a page reads as premium faster than anything else. Choose it from evidence, not from a list of interesting faces: blind judges and the owner both found Seenry's characterful picks (Archivo, Funnel, Young Serif on a VPN) heavier and more generic than the leaders' quiet neo-grotesks.
 
-- Two families is normal for brand surfaces: a **display face with character** and a **workhorse text face** (or one superfamily with a width or optical-size axis). Add a mono only for data.
-- Product UI (dashboards, settings, tables) stays a quiet text face at 13–15px, but the brand still needs a voice: the wordmark, page title, big numbers or status stamps can carry the display face.
-- A serif is fine when the concept is editorial, archival, literary or craft; it is not a shortcut to "premium". Never an italic accent word.
-- Tune it: tracking by size, `text-wrap: balance`, tabular figures, real punctuation. Load real files (Google Fonts, Fontshare or self-hosted WOFF2); never let a missing font fall back silently.
+**What the leaders actually use** (measured live, October 2026, headline at 1440):
 
-Starting points by voice, never by category (rotate; never reuse the previous project's choice, and two brands in one category should not share a display face). Every face below is free on Google Fonts or Fontshare.
+| Site | Family | Headline size / weight / tracking | Body |
+| --- | --- | --- | --- |
+| Linear | Inter Variable | 64 / 510 / -2.2% | same, 15 |
+| Attio | Inter Display + Inter | 64 / 600 / -2% | Inter 18 |
+| Notion | Inter (custom) | 96 / 600 / -4.8% | same, 14 |
+| Brex | Inter | 72 / 500 / -2% | same |
+| Raycast | Inter | 64 / 600 / 0 | same, 18 |
+| Vercel | Geist | 64 / 400 / -6% | same, 24 |
+| Stripe | Söhne | 48 / 300 / -2% | same |
+| Ramp | Lausanne | 64 / 400 / 0 | same, 14 |
+| Framer | GT Walsheim + Inter | 54 / 500 / -4% | Inter 14 |
+| Mercury | Arcadia | 49 / 480 / 0 | same, 16 |
+| Monarch | Copernicus (serif) + Oracle | 48 / 350 / -6.7% | Oracle 16 |
 
-| Voice | Display candidates | Text candidates |
+The pattern: a neutral neo-grotesk, usually **one family** for headline and body, headlines at **48–72px**, weight **300–600** (rarely bold), tracking **-2% to -6%** at display size, 9–14 sizes in all. A serif headline appears where the brand is editorial or calm (Monarch), set light and tight.
+
+**How to choose:**
+1. Read the type of the references you kept: `node scripts/type_probe.mjs <url> <url> …` (family, headline size, weight, tracking, line height, body, number of sizes), or `get_tokens` through Seenry MCP. Write the measurements in `idea.md`.
+2. Choose in the same tier with a free face. Licensed faces (Söhne, Lausanne, GT Walsheim) have free equivalents below; never claim the licensed name.
+3. Default to one family. Add a second only when the identity needs a distinct voice (an editorial serif headline, a mono for real data), and say why in one sentence.
+4. Set it like the leaders: headline weight 400–600, tracking -2% to -4% from 40px up (Inter and Geist take -2 to -3%), line height 1.0–1.1 for display and 1.4–1.6 for body, `text-wrap: balance`, tabular figures in data. A calm brand can set the second headline line in the secondary text color instead of a second weight.
+
+**Free faces by tier** (Google Fonts, Fontshare or OFL; fit decides, and two brands may share a face: variety comes from color, imagery and the device, never from a worse font):
+
+| Tier | Faces | Use for |
 | --- | --- | --- |
-| Engineered, hi-fi, technical | Archivo (expanded or condensed widths), Martian Grotesk, Familjen Grotesk | IBM Plex Sans, Archivo; mono: Martian Mono, JetBrains Mono, Azeret Mono |
-| Ledger, finance, precise | Switzer, Geist, General Sans (Fontshare), Inter Tight at poster scale | same family; mono: IBM Plex Mono, Geist Mono |
-| Poster, club, loud | Big Shoulders Display, Anton, Tanker, Panchang (Fontshare), Climate Crisis | Work Sans, Archivo |
-| Craft, archival, printed | Young Serif, Gloock, Zodiak, Erode (Fontshare), Petrona | Literata, Instrument Sans |
-| Luxury, fashion, high contrast | Bodoni Moda, Boska (Fontshare), Gambetta (Fontshare), Italiana | Hanken Grotesk, Satoshi (Fontshare) |
-| Editorial, literary | Libre Caslon Display, EB Garamond, Sentient (Fontshare), Source Serif 4 Display | Source Serif 4, Inter |
-| Warm, humanist, hospitality | Bricolage Grotesque, Albert Sans, Author (Fontshare), Rosaline | Albert Sans, Figtree |
-| Friendly, soft, social | Gabarito, Open Runde, Figtree, Chillax (Fontshare) | Figtree, Nunito Sans |
-| Geometric, architectural | Syne at 700 only for a wordmark, Unbounded (sparingly), Cabinet Grotesk (Fontshare), Supreme (Fontshare) | Satoshi, Manrope |
+| Refined neo-grotesk (default) | Inter / Inter Display, Geist, Switzer, General Sans, Satoshi, Instrument Sans, Onest | software, fintech, product, most brands |
+| Warm grotesk | Figtree, Hanken Grotesk, Albert Sans, Manrope | consumer, health, friendly products |
+| Calm serif headline + grotesk body | Newsreader, Source Serif 4, Libre Caslon Display, Literata (headline only, light and tight; never an italic accent word) | editorial, finance with a calm voice, hospitality, culture |
+| Expressive display (only when the identity is loud) | Archivo expanded, Big Shoulders, Anton, Young Serif, Gloock, Bodoni Moda | posters, clubs, food, fashion: one word at poster scale, never the whole page |
+| Mono for data | Geist Mono, JetBrains Mono, IBM Plex Mono | real numbers, code, timestamps |
+
+Untuned type is the template tell, not Inter itself: Inter at default tracking and weight 700 reads generated; Inter Display at 56px, weight 500, -2.5% reads like Linear.
 
 ## 5. Color with an origin
 

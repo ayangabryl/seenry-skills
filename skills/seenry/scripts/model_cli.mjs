@@ -1,7 +1,8 @@
 /** Run a fresh, blind model process (Codex CLI or Claude Code) on images and a prompt, and get JSON back.
  *  Shared by critic.mjs and photo_check.mjs. Override the CLI with SEENRY_CRITIC=codex|claude and the binaries with
- *  SEENRY_CODEX_BIN / SEENRY_CLAUDE_BIN. Codex runs on SEENRY_CODEX_MODEL if set, else gpt-6.1-sol, falling back to
- *  gpt-6-sol and then the CLI's default when an account does not offer a model. */
+ *  SEENRY_CODEX_BIN / SEENRY_CLAUDE_BIN. Codex runs on SEENRY_CODEX_MODEL if set, else the models this account
+ *  offers (read from Codex's models cache, so a plan change never leaves the critics on a retired model), then the
+ *  CLI's default. */
 import {existsSync, readFileSync, writeFileSync, mkdtempSync} from 'node:fs';
 import {join, dirname} from 'node:path';
 import {tmpdir, homedir, userInfo} from 'node:os';
@@ -29,6 +30,16 @@ export function findCli(preferred) {
   return null;
 }
 
+/** Codex models to try, best first: SEENRY_CODEX_MODEL, then the listed models in the account's models cache. */
+export function codexModels() {
+  const listed = [];
+  try {
+    const cache = JSON.parse(readFileSync(join(process.env.CODEX_HOME || join(homedir(), '.codex'), 'models_cache.json'), 'utf8'));
+    for (const m of cache.models || []) if (m.slug && m.visibility === 'list') listed.push(m.slug);
+  } catch {}
+  return [...new Set([process.env.SEENRY_CODEX_MODEL, ...listed, ...(listed.length ? [] : ['gpt-6.1-sol', 'gpt-6-sol'])].filter(Boolean))];
+}
+
 /** Returns the parsed JSON, or throws with the CLI's error output. */
 export function askModel({cli, bin}, {images, prompt, schema}) {
   const work = mkdtempSync(join(tmpdir(), 'seenry-model-'));
@@ -36,7 +47,7 @@ export function askModel({cli, bin}, {images, prompt, schema}) {
     const schemaFile = join(work, 'schema.json'), result = join(work, 'out.json');
     writeFileSync(schemaFile, JSON.stringify(schema));
     let last = '';
-    for (const model of [...new Set([process.env.SEENRY_CODEX_MODEL, 'gpt-6.1-sol', 'gpt-6-sol', ''])].filter(m => m !== undefined)) {
+    for (const model of [...codexModels(), '']) {
       const cmd = ['exec', '--skip-git-repo-check', '-s', 'read-only', ...(model ? ['-m', model] : []), '-c', `model_reasoning_effort="${process.env.SEENRY_CRITIC_EFFORT || 'medium'}"`, '--output-schema', schemaFile, '-o', result];
       for (const img of images) cmd.push('-i', img);
       cmd.push('--', prompt);

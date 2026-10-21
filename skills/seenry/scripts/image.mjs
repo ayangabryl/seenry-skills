@@ -13,7 +13,7 @@ import {existsSync, readFileSync, copyFileSync, mkdirSync, mkdtempSync, readdirS
 import {resolve, dirname, join, extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn} from 'node:child_process';
-import {findCli} from './model_cli.mjs';
+import {findCli, codexModels} from './model_cli.mjs';
 
 const args = process.argv.slice(2);
 // --background: start the same job detached and return at once, so the page is built while images generate. A pending
@@ -45,11 +45,11 @@ if (!jobs.length || jobs.some(j => !j.prompt || !j.out)) { console.error('Usage:
 const found = findCli('codex');
 if (!found) { console.error('No working Codex CLI found, so no image model is available. Use the host image tool, seenry-assets (OPENAI_API_KEY or GEMINI_API_KEY), license-clear photos, or the no-photo fallback in SKILL.md.'); process.exit(2); }
 
-// The image tool runs inside a Codex session; use a model this account offers (gpt-6.1-sol, else gpt-6-sol).
+// The image tool runs inside a Codex session; use the first model this account offers.
 let model = process.env.SEENRY_CODEX_MODEL || null;
 if (!model) {
   const {spawnSync} = await import('node:child_process');
-  for (const m of ['gpt-6.1-sol', 'gpt-6-sol']) {
+  for (const m of codexModels()) {
     const t = spawnSync(found.bin, ['exec', '--skip-git-repo-check', '-s', 'read-only', '-m', m, 'Reply only: ok'], {encoding: 'utf8', timeout: 120000});
     if (t.status === 0 && !/not supported/i.test(t.stdout + t.stderr)) { model = m; break; }
   }
