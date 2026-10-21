@@ -144,7 +144,8 @@ if (existsSync(join(dir, 'images.pending'))) {
   const waitStart = Date.now();
   while (existsSync(join(dir, 'images.pending')) && Date.now() - waitStart < 30 * 60 * 1000) await new Promise(r => setTimeout(r, 3000));
 }
-const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
+const quietRegister = existsSync(join(dir, 'identity.md')) && /register[^\n]{0,40}quiet|quiet premium/i.test(readFileSync(join(dir, 'identity.md'), 'utf8'));
+const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(quietRegister ? ['--quiet'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
 // Native apps have no DOM to inspect: their screenshots are laid out as the board and the critic and motion judge do the review.
 const board = native
   ? spawnSync('node', [join(here, 'screens.mjs'), '--screens', native, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
