@@ -4,6 +4,7 @@ Python 3.9+, standard library only. Every command appends to <out>/manifest.json
 
   images   Openverse search (CC0 / public domain by default), downloads files
   art      Public-domain artworks from The Met Open Access (CC0), full resolution
+  art-set  One art-directed set in one style family (frames trimmed, resized): imagery without a generator
   icons    Iconify search restricted to permissively licensed sets, downloads SVGs
   icon     Download named icons, e.g. lucide:play ph:pause-fill
   generate Text-to-image through OpenAI or Gemini when an API key is set
@@ -12,6 +13,7 @@ Python 3.9+, standard library only. Every command appends to <out>/manifest.json
 Examples:
   python3 assets.py images "vinyl record studio" --count 6 --out assets/raw
   python3 assets.py art "hands fresco" --count 6 --out assets/art
+  python3 assets.py art-set --style impressionist --subject "field garden water" --count 8 --out img
   python3 assets.py icons "calendar" --set lucide --count 4 --out assets/icons
   python3 assets.py icon lucide:play lucide:pause --out assets/icons
   python3 assets.py generate "..." --provider openai --size 1536x1024 --out assets/gen
@@ -283,6 +285,103 @@ def cmd_art(args):
         print('Nothing usable. Search is by keyword: try the subject and the medium ("hands fresco", "coins engraving").', file=sys.stderr)
 
 
+# Style families for art-set: one coherent look per page, like a photo series shot in one light.
+ART_STYLES = {
+    'impressionist': {'departments': [11, 1], 'artists': ['Monet', 'Van Gogh', 'Pissarro', 'Sisley', 'Renoir', 'Morisot', 'Corot', 'Courbet', 'Sargent', 'Cassatt', 'Cézanne', 'Boudin'], 'kinds': ('Paintings',), 'use': 'calm, warm, human: finance, wellness, hospitality, consumer apps'},
+    'dutch': {'departments': [11], 'artists': ['Claesz', 'Heda', 'Kalf', 'Ruysch', 'Huysum', 'Vermeer', 'Hooch', 'Ruisdael', 'Hobbema', 'Cuyp'], 'kinds': ('Paintings',), 'use': 'food, craft, objects, interiors, retail'},
+    'japanese': {'departments': [6], 'artists': ['Hokusai', 'Hiroshige', 'Hasui', 'Utamaro', 'Kuniyoshi', 'Yoshida'], 'kinds': ('Prints', 'Paintings'), 'use': 'precise, graphic, calm: software, tools, travel'},
+    'drawings': {'departments': [9, 11], 'artists': ['Rembrandt', 'Degas', 'Seurat', 'Van Gogh', 'Ingres', 'Dürer', 'Piranesi', 'Constable'], 'kinds': ('Drawings', 'Prints'), 'use': 'quiet, editorial, architectural: studios, publishing, developer tools'},
+    'american': {'departments': [1, 11], 'artists': ['Homer', 'Inness', 'Church', 'Bierstadt', 'Kensett', 'Sargent', 'Hassam', 'Twachtman', 'Whistler'], 'kinds': ('Paintings',), 'use': 'open landscapes and light: outdoors, travel, energy'},
+    'photographs': {'departments': [19], 'artists': ['Stieglitz', 'Steichen', 'Atget', 'Emerson', 'Talbot', 'Evans', 'Strand', 'White'], 'kinds': ('Photographs',), 'use': 'documentary, black and white: culture, editorial, archives'},
+}
+
+
+def trim_frame(path, max_side):
+    """Remove museum frames and scan borders: trim a uniform edge, then a small safety margin; resize."""
+    try:
+        from PIL import Image, ImageChops
+    except ImportError:
+        return False
+    im = Image.open(path).convert('RGB')
+    w, h = im.size
+    inner = im.crop((int(w * .02), int(h * .02), int(w * .98), int(h * .98)))
+    bg = Image.new('RGB', inner.size, inner.getpixel((0, 0)))
+    diff = ImageChops.difference(inner, bg).convert('L').point(lambda v: 255 if v > 28 else 0)
+    box = diff.getbbox()
+    if box and (box[2] - box[0]) > inner.size[0] * .6 and (box[3] - box[1]) > inner.size[1] * .6:
+        inner = inner.crop(box)
+    w, h = inner.size
+    inner = inner.crop((int(w * .025), int(h * .025), int(w * .975), int(h * .975)))
+    inner.thumbnail((max_side, max_side))
+    inner.save(path, quality=86)
+    return True
+
+
+def cmd_art_set(args):
+    style = ART_STYLES[args.style]
+    out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
+    subjects = [w for w in (args.subject or '').split() if w] or ['']
+    want = args.count + 3  # a few extra, then drop the works that break the set's light and color
+    entries, per_artist, seen = [], {}, set()
+    for artist in style['artists']:
+        if len(entries) >= want:
+            break
+        for subject in subjects:
+            if len(entries) >= want or per_artist.get(artist, 0) >= args.per_artist:
+                break
+            for dept in style['departments']:
+                params = {'q': f'{artist} {subject}'.strip(), 'hasImages': 'true', 'isPublicDomain': 'true', 'departmentId': dept, 'limit': 12}
+                try:
+                    ids = json.loads(fetch(MET + '/search?' + urlencode(params))[0]).get('objectIDs') or []
+                except Exception:
+                    continue
+                for oid in ids:
+                    if oid in seen or len(entries) >= want or per_artist.get(artist, 0) >= args.per_artist:
+                        continue
+                    seen.add(oid)
+                    try:
+                        obj = json.loads(fetch(f'{MET_OBJECTS}/{oid}')[0])
+                    except Exception:
+                        continue
+                    name_ok = artist.lower().split()[-1] in (obj.get('artistDisplayName') or '').lower()
+                    kind_ok = (obj.get('classification') or '') in style['kinds'] or any(k.lower() in (obj.get('objectName') or '').lower() for k in style['kinds'])
+                    url = obj.get('primaryImage')
+                    if not (obj.get('isPublicDomain') and url and name_ok and kind_ok):
+                        continue
+                    try:
+                        body, ctype = fetch(url)
+                    except Exception:
+                        continue
+                    name = f"{args.style}-{slug(obj.get('title') or 'work', 32)}-{oid}.jpg"
+                    (out / name).write_bytes(body)
+                    trim_frame(out / name, args.max_side)
+                    per_artist[artist] = per_artist.get(artist, 0) + 1
+                    entries.append({
+                        'file': name, 'kind': 'artwork', 'style': args.style, 'title': obj.get('title'), 'creator': obj.get('artistDisplayName'),
+                        'date': obj.get('objectDate'), 'medium': obj.get('medium'), 'source_page': obj.get('objectURL'), 'source_file': url,
+                        'provider': 'The Metropolitan Museum of Art Open Access', 'license': 'CC0 1.0',
+                        'license_url': 'https://creativecommons.org/publicdomain/zero/1.0/', 'retrieved': now(),
+                        'notes': 'Frame trimmed. Credit the paintings in the footer.',
+                    })
+                    print(f"{name}  {obj.get('artistDisplayName')}, {obj.get('objectDate')}")
+    try:
+        from PIL import Image, ImageStat
+        def tone(e):
+            im = Image.open(out / e['file']).convert('HSV').resize((64, 64)); st = ImageStat.Stat(im)
+            return st.mean[2] / 255, st.mean[1] / 255
+        tones = {e['file']: tone(e) for e in entries}
+        med = lambda xs: sorted(xs)[len(xs) // 2]
+        mv, ms = med([t[0] for t in tones.values()]), med([t[1] for t in tones.values()])
+        entries.sort(key=lambda e: abs(tones[e['file']][0] - mv) * 2 + abs(tones[e['file']][1] - ms))
+        for e in entries[args.count:]:
+            (out / e['file']).unlink(missing_ok=True); print(f"dropped {e['file']} (breaks the set's light or color)")
+        entries = entries[:args.count]
+    except ImportError:
+        pass
+    path = record(out, entries)
+    print(f"{len(entries)} {args.style} work(s) → {path}. Use: {style['use']}. Review them together (assets.py sheet --out {args.out}) and drop any that break the set.")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='command', required=True)
@@ -292,6 +391,9 @@ def main(argv=None):
     p.add_argument('--min-width', type=int, default=800); p.add_argument('--out', default='assets/raw'); p.set_defaults(run=cmd_images)
     p = sub.add_parser('art'); p.add_argument('query'); p.add_argument('--count', type=int, default=6); p.add_argument('--medium')
     p.add_argument('--out', default='assets/art'); p.set_defaults(run=cmd_art)
+    p = sub.add_parser('art-set'); p.add_argument('--style', choices=sorted(ART_STYLES), default='impressionist'); p.add_argument('--subject', default='')
+    p.add_argument('--count', type=int, default=8); p.add_argument('--per-artist', type=int, default=2); p.add_argument('--max-side', type=int, default=1800)
+    p.add_argument('--out', default='assets/art'); p.set_defaults(run=cmd_art_set)
     p = sub.add_parser('icons'); p.add_argument('query'); p.add_argument('--set', choices=sorted(ICON_SETS)); p.add_argument('--count', type=int, default=6)
     p.add_argument('--size', type=int); p.add_argument('--color'); p.add_argument('--out', default='assets/icons'); p.set_defaults(run=cmd_icons)
     p = sub.add_parser('icon'); p.add_argument('names', nargs='+'); p.add_argument('--size', type=int); p.add_argument('--color')

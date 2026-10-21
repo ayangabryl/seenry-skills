@@ -27,6 +27,7 @@ Then take the first route that can produce it at quality:
 
 | Need | Source | License to check | Tool |
 | --- | --- | --- | --- |
+| Paintings, drawings, prints (one art-directed set) | The Met Open Access | CC0 | `assets.py art-set --style <family>` |
 | Photos | Openverse (aggregates Flickr, Wikimedia, StockSnap and others) | CC0 or Public Domain Mark by default | `assets.py images` |
 | Photos (API key or manual) | Unsplash, Pexels | Unsplash License, Pexels License (free commercial use, no resale as-is) | host browser or their APIs |
 | UI icons | Lucide (ISC), Phosphor (MIT), Tabler (MIT), Heroicons (MIT), Iconoir (MIT), Radix (MIT) through Iconify | Permissive; the tool refuses unlisted sets | `assets.py icons` / `icon` |

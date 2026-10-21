@@ -30,8 +30,9 @@ imagery.
 Rules that keep it at the reference level:
 - Tokens in `styles.css` only (type scale 13–56, 4px spacing, three radii, motion tokens). Headlines weight 500 at
   -0.028em; body 15px; nothing a visitor reads under 13px.
-- Imagery: paintings or photographs as color, never flat brand-color fields. Without an image generator use
-  public-domain art (`seenry-assets` → `assets.py art "<subject> <medium>"`), cropped tight, frames removed.
+- Imagery: paintings or photographs as color, never flat brand-color fields. Without an image generator, art-direct
+  one set: `assets.py art-set --style impressionist --subject "field garden water"` (Penny's set: Van Gogh, Sargent,
+  Courbet, Corot), cropped tight, frames removed, one family per page.
 - Cards on images are real product UI with real numbers, one idea each, white with a soft shadow.
 - Motion: the hero tiles settle, the device rises and the lifted card arrives after it; sections rise once. Reduced
   motion shows everything at rest.
