@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mockup demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap">
+<link rel="stylesheet" href="../device.css">
+<style>
+body{margin:0;background:#f4f3ef;color:#16171a;font:400 18px/1.5 "Inter",system-ui,sans-serif}
+.hero{max-width:1200px;margin:0 auto;padding:96px 24px 0;text-align:center}
+h1{font-size:56px;line-height:1.04;font-weight:500;letter-spacing:-.03em;margin:0}h1 span{color:#8a8a8f}
+p{color:#5f6066;margin:20px auto 0;max-width:460px}
+.stage{position:relative;max-width:1200px;margin:56px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;height:600px}
+.tile{border-radius:20px;overflow:hidden;position:relative}.tile img{width:100%;height:100%;object-fit:cover}
+.tile.art img{object-position:30% 60%;transform:scale(1.4)}
+.tile.plain{background:#e7e4dc;display:grid;place-items:center}
+.stage .device{position:absolute;left:50%;top:44px;translate:-50% 0;z-index:2}
+.lifted{left:calc(50% + 150px);top:300px;z-index:3;padding:16px 18px;width:220px;font-size:14px}
+.lifted b{display:block;font-size:24px;font-weight:600;letter-spacing:-.02em}.lifted small{color:#6e6f75}
+</style>
+<section class="hero"><h1>Where every dollar went.<br><span>Sorted by the 1st.</span></h1><p>Penny closes your month into one clear statement, every card and account reconciled.</p></section>
+<div class="stage">
+  <div class="tile art"><img src="art/wheat-field-with-cypresses-436535.jpg" alt=""></div>
+  <div class="tile plain"></div>
+  <div class="tile art"><img src="art/wheat-field-335537.jpg" alt=""></div>
+  <figure class="device device--float" style="--w:300px"><div class="device-screen"><img src="screen.png" alt="Penny's September summary"></div></figure>
+  <div class="lifted"><small>Eating out, September</small><b>+$142</b><small>Up from August. Mostly Fridays.</small></div>
+</div>
+</html>

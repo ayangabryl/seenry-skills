@@ -101,5 +101,6 @@ if (variants > 1) {
     copyFileSync(best, resolve(shot.out));
   }
 }
+if (!ok) console.log(`No image was generated (the account's image tool may be unavailable: a 403 means it is blocked, not out of credits). Do not ship a type-only page: use public-domain art (python3 ${join(here, '..', '..', 'seenry-assets', 'scripts', 'assets.py')} art "<subject> <medium>"), Openverse photos (assets.py images) and product screens in device mockups (assets/mockup/README.md), and say so in the report.`);
 console.log(`${ok}/${jobs.length} image(s) generated.${variants > 1 ? ' The best variant of each shot now has the requested name.' : ` Next: node ${join(here, 'photo_check.mjs')} <images> --use "<slot>" --brand "<brand>"`}`);
 process.exit(ok === jobs.length ? 0 : 1);

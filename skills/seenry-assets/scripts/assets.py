@@ -3,6 +3,7 @@
 Python 3.9+, standard library only. Every command appends to <out>/manifest.json.
 
   images   Openverse search (CC0 / public domain by default), downloads files
+  art      Public-domain artworks from The Met Open Access (CC0), full resolution
   icons    Iconify search restricted to permissively licensed sets, downloads SVGs
   icon     Download named icons, e.g. lucide:play ph:pause-fill
   generate Text-to-image through OpenAI or Gemini when an API key is set
@@ -10,6 +11,7 @@ Python 3.9+, standard library only. Every command appends to <out>/manifest.json
 
 Examples:
   python3 assets.py images "vinyl record studio" --count 6 --out assets/raw
+  python3 assets.py art "hands fresco" --count 6 --out assets/art
   python3 assets.py icons "calendar" --set lucide --count 4 --out assets/icons
   python3 assets.py icon lucide:play lucide:pause --out assets/icons
   python3 assets.py generate "..." --provider openai --size 1536x1024 --out assets/gen
@@ -238,6 +240,49 @@ def cmd_sheet(args):
     print(target)
 
 
+MET = 'https://collectionapi.metmuseum.org/public/collection/v1.1'
+MET_OBJECTS = 'https://collectionapi.metmuseum.org/public/collection/v1/objects'
+
+
+def cmd_art(args):
+    """Paintings, drawings and prints The Met has released as CC0: concept imagery without an image generator."""
+    out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
+    params = {'q': args.query, 'hasImages': 'true', 'isPublicDomain': 'true', 'limit': min(args.count * 6, 60)}
+    if args.medium:
+        params['medium'] = args.medium
+    data, _ = fetch(MET + '/search?' + urlencode(params))
+    ids = json.loads(data).get('objectIDs') or []
+    entries = []
+    for oid in ids:
+        if len(entries) >= args.count:
+            break
+        try:
+            obj = json.loads(fetch(f'{MET_OBJECTS}/{oid}')[0])
+        except Exception as error:
+            print(f'skip {oid}: {error}', file=sys.stderr); continue
+        url = obj.get('primaryImage')
+        if not obj.get('isPublicDomain') or not url:
+            continue
+        try:
+            body, ctype = fetch(url)
+        except Exception as error:
+            print(f'skip {url}: {error}', file=sys.stderr); continue
+        name = f"{slug(obj.get('title') or args.query)}-{oid}{ext_for(ctype, url)}"
+        (out / name).write_bytes(body)
+        entries.append({
+            'file': name, 'kind': 'artwork', 'title': obj.get('title'), 'creator': obj.get('artistDisplayName') or None,
+            'date': obj.get('objectDate'), 'medium': obj.get('medium'), 'source_page': obj.get('objectURL'), 'source_file': url,
+            'provider': 'The Metropolitan Museum of Art Open Access', 'license': 'CC0 1.0',
+            'license_url': 'https://creativecommons.org/publicdomain/zero/1.0/', 'query': args.query, 'retrieved': now(),
+            'notes': 'Public domain; credit is optional but kind. Crop and treat it as part of the identity.',
+        })
+        print(f"{name}  {obj.get('artistDisplayName') or 'unknown'}, {obj.get('objectDate')}  {obj.get('objectURL')}")
+    path = record(out, entries)
+    print(f'{len(entries)} artwork(s) → {path}')
+    if not entries:
+        print('Nothing usable. Search is by keyword: try the subject and the medium ("hands fresco", "coins engraving").', file=sys.stderr)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='command', required=True)
@@ -245,6 +290,8 @@ def main(argv=None):
     p.add_argument('--license', default='cc0,pdm', help='Openverse license codes, e.g. cc0,pdm or cc0,pdm,by')
     p.add_argument('--orientation', choices=['landscape', 'portrait', 'square']); p.add_argument('--category', choices=['photograph', 'illustration', 'digitized_artwork'])
     p.add_argument('--min-width', type=int, default=800); p.add_argument('--out', default='assets/raw'); p.set_defaults(run=cmd_images)
+    p = sub.add_parser('art'); p.add_argument('query'); p.add_argument('--count', type=int, default=6); p.add_argument('--medium')
+    p.add_argument('--out', default='assets/art'); p.set_defaults(run=cmd_art)
     p = sub.add_parser('icons'); p.add_argument('query'); p.add_argument('--set', choices=sorted(ICON_SETS)); p.add_argument('--count', type=int, default=6)
     p.add_argument('--size', type=int); p.add_argument('--color'); p.add_argument('--out', default='assets/icons'); p.set_defaults(run=cmd_icons)
     p = sub.add_parser('icon'); p.add_argument('names', nargs='+'); p.add_argument('--size', type=int); p.add_argument('--color')
