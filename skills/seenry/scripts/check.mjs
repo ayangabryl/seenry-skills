@@ -204,6 +204,11 @@ if (!native && existsSync(join(here, 'motion_scan.mjs'))) {
     console.log('\n■ ' + scan.stdout.trim().split('\n').join('\n  '));
   } else if (scan.stdout) console.log('\n' + scan.stdout.trim().split('\n').slice(0, 6).join('\n  '));
 }
+// Token lint: every size, space, radius and duration from the token file, never typed one at a time.
+if (!native && existsSync(join(here, 'token_lint.mjs'))) {
+  const lint = spawnSync('node', [join(here, 'token_lint.mjs'), project, ...(args.includes('--changed') ? ['--changed'] : [])], {encoding: 'utf8'});
+  if (lint.status === 1) { blockers++; console.log('\n■ ' + lint.stdout.trim().split('\n').join('\n  ')); }
+}
 if (blockers) {
   const last = history[history.length - 1];
   if (last && !last.critic && fingerprint && last.hash === fingerprint) {

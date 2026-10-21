@@ -53,6 +53,9 @@ jobs:
       - run: node --check skills/seenry/scripts/browser_evidence.mjs
       - run: node --check skills/seenry/scripts/choreography.mjs
       - run: node --check skills/seenry/assets/scene/scene.js
+      - run: node --check skills/seenry/scripts/token_lint.mjs
+      - run: node --check skills/seenry/scripts/token_convert.mjs
+      - run: node --check skills/seenry/scripts/existing_check.mjs
       - run: node --check skills/seenry-video/scripts/render.mjs
       - run: node --check skills/seenry-video/scripts/film_critic.mjs
       - run: node --check skills/seenry-motion/assets/confirmation-burst/confirmation-burst.mjs

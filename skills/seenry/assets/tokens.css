@@ -56,12 +56,17 @@
   --shadow-float: 0 0 0 1px var(--color-border), 0 4px 12px oklch(0 0 0 / 0.06), 0 16px 32px oklch(0 0 0 / 0.08);
   --scrim: oklch(0 0 0 / 0.4);
 
-  /* Motion */
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --dur-fast: 120ms;
-  --dur-base: 200ms;
-  --dur-slow: 320ms;
+  /* Motion: interface (state changes) and page (entrances, reveals, scenes). Nothing else is typed. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --dur-1: 120ms;  /* press, hover, color */
+  --dur-2: 180ms;  /* toggles, tabs, small surfaces */
+  --dur-3: 240ms;  /* dialogs, sheets, list moves */
+  --dur-scene-1: 600ms;  /* reveals */
+  --dur-scene-2: 900ms;  /* image unmask, headline lines */
+  --dur-scene-3: 1200ms; /* the first-screen entrance */
+  --stagger: 80ms;
 }
 
 @media (min-width: 480px) { :root { --gutter: 24px; } }

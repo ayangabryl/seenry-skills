@@ -57,14 +57,21 @@ for (const [i, s] of slices.entries()) {
   await page.screenshot({path: file, fullPage: true, clip: {x: 0, y: s.y, width: 1440, height: Math.min(s.h, total - s.y)}});
   images.push(file);
 }
+if (args.includes('--app')) {
+  const phone = await browser.newPage({viewport: {width: 390, height: 844}, deviceScaleFactor: 2});
+  await phone.goto(/^https?:/.test(target) ? target : pathToFileURL(resolve(target)).href, {waitUntil: 'networkidle'}).catch(() => {});
+  await phone.waitForTimeout(800);
+  const file = join(work, 'phone.png'); await phone.screenshot({path: file}); images.push(file); slices.push({name: 'phone first screen (390px)'});
+}
 await browser.close();
 
 const schema = {type: 'object', additionalProperties: false, required: ['craft', 'sections', 'fixes'], properties: {
   craft: {type: 'integer', minimum: 1, maximum: 10},
   sections: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['section', 'score', 'note'], properties: {section: {type: 'string'}, score: {type: 'integer', minimum: 1, maximum: 10}, note: {type: 'string'}}}},
   fixes: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['section', 'element', 'problem', 'fix'], properties: {section: {type: 'string'}, element: {type: 'string'}, problem: {type: 'string'}, fix: {type: 'string'}}}}}};
-const listing = slices.map((s, i) => `image ${i + 1} = section "${s.name}" at full 1440 size`).join('\n');
-const prompt = `You are a senior art director at a design studio doing the final 100% review before a site goes to the client. You are not judging the concept, the idea or the colors: only craft, the hundreds of small decisions that separate studio work from a competent template. Each image is one section of the page at its real size:
+const listing = slices.map((s, i) => `image ${i + 1} = ${/phone/.test(s.name) ? s.name : `section "${s.name}" at full 1440 size`}`).join('\n');
+const app = args.includes('--app');
+const prompt = `${app ? 'You are the head of product design at a company known for the best product UI (Linear, Stripe, Vercel) doing the final 100% review of a changed screen in an existing app before it merges.' : 'You are a senior art director at a design studio doing the final 100% review before a site goes to the client.'} You are not judging the concept, the idea or the colors: only craft, the hundreds of small decisions that separate studio work from a competent template. Each image is one section of the page at its real size:
 ${listing}
 
 Look closely at each section for:
@@ -74,7 +81,7 @@ Look closely at each section for:
 - images: crops that cut the subject awkwardly, mismatched treatments, images that sit loose in their frame
 - controls and small parts: buttons, inputs, chips and icons that do not share one height, radius or stroke; icons misaligned with their labels
 - finish: anything that looks unconsidered at 100%
-
+${app ? '- app screens: table, meta and helper text under 13px or under 4.5:1 contrast (the most common reason reviewers mark app screens down), controls that do not share one height, density that wastes the width or crams it, a save model that is unclear (switches that save instantly next to a Save button), destructive actions that shout, and on the phone image: dead space, a header that pushes the content below the fold, rows that wrap badly\n' : ''}
 Score craft 1-10 for the whole page (10 = studio-grade finish everywhere; 8 = a few visible slips; 6 = competent but loose; 4 = careless) and each section. Then list the fixes that matter most, most visible first, at most 10: the section, the exact element, the problem and a concrete change in px, weight or alignment. Never suggest text smaller than 16px for paragraphs or 14px for labels. Do not open any files other than the attached images.`;
 let verdict;
 try { verdict = askModel(found, {images, prompt, schema}); } catch (e) { console.error(`detail critic failed: ${e.message}`); process.exit(1); }
