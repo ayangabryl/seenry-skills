@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scene demo</title>
+<link rel="stylesheet" href="scene.css"><script src="scene.js" defer></script>
+<style>body{margin:0;font:18px/1.5 system-ui;background:#f4f1ea;color:#1b1b1b}h1{font-size:96px;line-height:1;margin:0}section{padding:10vh 6vw}.hero{min-height:100vh;display:grid;align-content:end}.ph{height:50vh;background:#7a6a55}
+[data-scene-stage]{display:grid;place-items:center}.box{width:40vw;height:40vh;background:#3d5a4a;scale:calc(1 + var(--a)*1.2)}svg{width:60vw}.cap{position:absolute;bottom:10vh;left:6vw;opacity:0}[data-beat="0"] .c0,[data-beat="1"] .c1,[data-beat="2"] .c2{opacity:1}html:not([data-motion=full]) .cap{position:static;opacity:1}
+[data-track] span{display:block;width:40vw;height:50vh;margin-right:2vw;background:#c9b79c}</style>
+<section class="hero"><div class="ph" data-enter="unmask"></div><h1><span class="scene-line"><span data-enter="line" style="--i:1">Roasted Tuesday.</span></span><span class="scene-line"><span data-enter="line" style="--i:2">At your door.</span></span></h1><p data-enter style="--i:4">Small batches.</p></section>
+<section data-scene data-beats=".33,.66" id="s1"><div data-scene-stage><div class="box"></div><p class="cap c0">One</p><p class="cap c1">Two</p><p class="cap c2">Three</p></div></section>
+<section data-scene id="s2"><div data-scene-stage><svg viewBox="0 0 200 60" data-draw><path d="M0 50 L40 10 L40 50 L80 10 L80 50 L120 10 L120 50" fill="none" stroke="#1b1b1b"/></svg><b data-count="1892">1892</b></div></section>
+<section data-scene id="s3" style="--scene-length:300vh"><div data-scene-stage style="place-items:center start"><div data-track><span></span><span></span><span></span><span></span></div></div></section>
+<section><p data-enter>End.</p></section></html>
