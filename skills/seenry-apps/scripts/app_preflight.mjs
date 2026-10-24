@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Mechanical slop count for app UI source (web prototypes, React Native, CSS). Counts, not taste.
+// Mechanical slop count for app UI source (web prototypes, React Native, CSS, SwiftUI, Compose, Flutter). Counts, not taste.
 // node app_preflight.mjs <file or dir>... [--json]   exits 1 when any check fails
 import {readFileSync, readdirSync, statSync} from 'node:fs';
 import {join, extname} from 'node:path';
 
 const args = process.argv.slice(2), json = args.includes('--json'), roots = args.filter(a => a !== '--json');
 if (!roots.length) { console.error('usage: app_preflight.mjs <file or dir>... [--json]'); process.exit(2); }
-const EXT = new Set(['.html', '.htm', '.css', '.scss', '.js', '.jsx', '.ts', '.tsx', '.mjs', '.vue', '.svelte']);
+const EXT = new Set(['.html', '.htm', '.css', '.scss', '.js', '.jsx', '.ts', '.tsx', '.mjs', '.vue', '.svelte', '.swift', '.kt', '.dart']);
 const SKIP = /node_modules|\.git|dist|build|\.next|\.expo|research|\.seenry/;
 const files = [];
 const walk = p => { const s = statSync(p); if (s.isDirectory()) { if (!SKIP.test(p)) for (const f of readdirSync(p)) walk(join(p, f)); } else if (EXT.has(extname(p))) files.push(p); };
@@ -42,6 +42,20 @@ const starts = new Set([...visible.matchAll(/>\s*(get started|start now|let'?s g
 const html = src.filter(([f]) => /\.html?$/.test(f));
 const head = html.flatMap(([f, s]) => [!/<!doctype html>/i.test(s) && `${f}: no <!doctype html>`, !/<meta[^>]+charset/i.test(s) && `${f}: no <meta charset="utf-8">`, !/<meta[^>]+name=["']?viewport/i.test(s) && `${f}: no viewport meta`].filter(Boolean));
 
+// Generated tells that screenshot critics miss: tracked uppercase labels, numbered labels, italic accent words,
+// monospace used as texture and dots in front of text.
+const native = src.filter(([f]) => /\.(swift|kt|dart|jsx|tsx)$/.test(f)).map(([, s]) => s).join('\n');
+const capsTracked = (native.match(/(\.textCase\(\.uppercase\)|\.uppercased\(\)|textTransform:\s*['"]uppercase)[\s\S]{0,160}?(\.tracking\(|\.kerning\(|letterSpacing)/g) || []).length
+  + (native.match(/(\.tracking\(|\.kerning\(|letterSpacing)[^)\n]*\)[\s\S]{0,160}?(\.textCase\(\.uppercase\)|\.uppercased\(\))/g) || []).length
+  + (native.match(/Text\(\s*"[A-Z][A-Z0-9 ·.,&'-]{2,}"\s*\)[\s\S]{0,200}?\.(tracking|kerning)\(/g) || []).length
+  + (all.match(/text-transform\s*:\s*uppercase[^}]*letter-spacing|letter-spacing[^}]*text-transform\s*:\s*uppercase/gi) || []).length;
+const numbered = (all.match(/["'>·]\s*[^"'<\n]{0,40}?\b(No\.\s?\d|№\s?\d|Step 0\d)|["'>]\s*(0\d\s*[\/.–—]|\(0\d{1,2}\))/gi) || []).length;
+const italicAccent = (native.match(/Text\([^)]*\)[^\n]{0,80}\.italic\(\)[^\n]{0,40}\+|\+\s*Text\([^)]*\)[^\n]{0,80}\.italic\(\)/g) || []).length
+  + (native.match(/\*[A-Za-z]+\*/g) && /Text\(\s*"[^"]*\*[A-Za-z]+\*[^"]*"/.test(native) ? 1 : 0)
+  + (all.match(/<(em|i)>[^<]{1,24}<\/\1>[^<]{0,40}<\/h[1-3]/gi) || []).length;
+const mono = (native.match(/design:\s*\.monospaced|\.monospaced\(\)|FontFamily\.Monospace|['"](Menlo|Courier|SF Mono|JetBrains Mono|IBM Plex Mono|Space Mono)/g) || []).length
+  + (all.match(/font-family\s*:[^;]*mono/gi) || []).length;
+const dots = (native.match(/Circle\(\)[^\n]{0,80}\.frame\(width:\s*[2-9](\.\d+)?\s*,\s*height:\s*[2-9]/g) || []).length;
 const checks = [
   ['one accent', accentFams.length <= 1, accentFams.length ? `non-status hue families: ${accentFams.join(', ')}` : 'neutrals and status colors only'],
   ['one grey family', !(warm >= 3 && cool >= 3), `warm greys ${warm}, cool greys ${cool}`],
@@ -50,6 +64,11 @@ const checks = [
   ['gradients', gradients <= 2 || 'warn', `${gradients} (each needs a reason from the reference look)`],
   ['type families', fonts.size <= 2, [...fonts].join(', ') || 'system'],
   ['one label per intent', starts.size <= 1, [...starts].join(' / ') || 'n/a'],
+  ['no tracked caps labels', capsTracked === 0, capsTracked ? `${capsTracked} uppercase labels with tracking (sentence case, no tracking)` : 'none'],
+  ['no numbered labels', numbered === 0, numbered ? `${numbered} ("No. 001", "01 /", "Step 01")` : 'none'],
+  ['no italic accent word', italicAccent === 0, italicAccent ? `${italicAccent} italic word set inside a headline` : 'none'],
+  ['mono only for figures', mono <= 1, `${mono} monospaced uses (texture of timestamps and mono notes reads as generated)`],
+  ['no dots before text', dots <= 1 || 'warn', `${dots} small circles (a dot is only for live, presence or unread)`],
   ['encoding', mojibake === 0, mojibake ? `${mojibake} mojibake sequences (missing charset?)` : 'clean'],
   ['document head', head.length === 0, head.join('; ') || (html.length ? 'doctype, charset, viewport' : 'n/a')],
 ];
