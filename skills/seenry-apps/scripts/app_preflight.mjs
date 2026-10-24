@@ -19,6 +19,12 @@ const hsl = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, 
 const colors = [];
 for (const m of all.matchAll(/#([0-9a-f]{3}|[0-9a-f]{6})\b/gi)) { let h = m[1]; if (h.length === 3) h = [...h].map(c => c + c).join(''); colors.push(hsl(...[0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)))); }
 for (const m of all.matchAll(/rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/gi)) colors.push(hsl(+m[1], +m[2], +m[3]));
+for (const m of all.matchAll(/(?:0x|Color\(0xFF|Color\(0xff)([0-9a-fA-F]{6})\b/g)) colors.push(hsl(...[0, 2, 4].map(i => parseInt(m[1].slice(i, i + 2), 16))));
+for (const m of all.matchAll(/red:\s*([\d.]+)\s*,\s*green:\s*([\d.]+)\s*,\s*blue:\s*([\d.]+)/g)) { const v = [m[1], m[2], m[3]].map(Number); const k = v.some(x => x > 1) ? 1 : 255; colors.push(hsl(...v.map(x => x * k))); }
+// The palettes the skills list as generated: cream or warm off-white with terracotta, clay or rust.
+const creamGround = colors.some(([h, s, l]) => l > 0.88 && h >= 20 && h < 60 && s > 0.12);
+const terracotta = colors.some(([h, s, l]) => h >= 8 && h < 32 && s > 0.35 && l > 0.3 && l < 0.7);
+
 const status = h => h < 15 || h >= 345 || (h >= 90 && h < 165) || (h >= 30 && h < 55);
 const fam = h => Math.round(h / 30) % 12;
 const chroma = colors.filter(([, s, l]) => s > .35 && l > .18 && l < .85);
@@ -69,6 +75,7 @@ const checks = [
   ['no italic accent word', italicAccent === 0, italicAccent ? `${italicAccent} italic word set inside a headline` : 'none'],
   ['mono only for figures', mono <= 1, `${mono} monospaced uses (texture of timestamps and mono notes reads as generated)`],
   ['no dots before text', dots <= 1 || 'warn', `${dots} small circles (a dot is only for live, presence or unread)`],
+  ['no cream + terracotta', !(creamGround && terracotta), creamGround && terracotta ? 'warm cream ground with a terracotta/clay accent: the default generated palette (choose the accent from the product\'s own idea)' : 'clear'],
   ['encoding', mojibake === 0, mojibake ? `${mojibake} mojibake sequences (missing charset?)` : 'clean'],
   ['document head', head.length === 0, head.join('; ') || (html.length ? 'doctype, charset, viewport' : 'n/a')],
 ];
