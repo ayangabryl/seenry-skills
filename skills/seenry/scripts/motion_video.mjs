@@ -24,7 +24,7 @@ const frames = join(out, 'frames');
 rmSync(frames, {recursive: true, force: true}); mkdirSync(frames, {recursive: true});
 
 // Frames where the picture changes, with their times; a still recording yields almost none, which is itself a finding.
-const r = spawnSync('ffmpeg', ['-hide_banner', '-i', video, '-vf', "select='gt(scene,0.004)',showinfo,scale=240:-2", '-vsync', 'vfr', join(frames, 'f%04d.png')], {encoding: 'utf8', maxBuffer: 64e6});
+const r = spawnSync('ffmpeg', ['-hide_banner', '-i', video, '-vf', "select='gt(scene,0.004)',showinfo,scale=240:-2", '-fps_mode', 'vfr', join(frames, 'f%04d.png')], {encoding: 'utf8', maxBuffer: 64e6});
 const times = [...(r.stderr || '').matchAll(/pts_time:([\d.]+)/g)].map(m => Number(m[1]));
 let files = readdirSync(frames).filter(f => f.endsWith('.png')).sort();
 const all = files.map((f, i) => ({f, t: times[i] ?? i}));
