@@ -67,6 +67,8 @@ const banned = /instrument\s*serif|fraunces|playfair|space\s*grotesk|clash\s*dis
 const bannedFonts = new Set([...all.matchAll(/(?:font-family\s*:[^;]*|Font\.custom\(\s*"[^"]*"|fontFamily\s*:\s*['"][^'"]*|UIFont\(name:\s*"[^"]*")/g)].map(m => (m[0].match(banned) || [])[0]).filter(Boolean));
 const walkFonts = p => { try { const st = statSync(p); if (st.isDirectory()) { if (!/node_modules|\.git|build|DerivedData/.test(p)) for (const f of readdirSync(p)) walkFonts(join(p, f)); } else if (/\.(ttf|otf|woff2?)$/i.test(p) && banned.test(p.replace(/[-_]/g, ' '))) bannedFonts.add(p.split('/').pop()); } catch {} };
 roots.forEach(walkFonts);
+let justified = false;
+for (const r of roots) for (const lp of [join(r, '.seenry', 'look.md'), join(r, '..', '.seenry', 'look.md'), join(r, '..', '..', '.seenry', 'look.md')]) { try { const txt = readFileSync(lp, 'utf8'); if ([...bannedFonts].every(f => new RegExp(f.replace(/[-_].*$/, '').replace(/([A-Z])/g, ' $1').trim().split(/\s+/)[0], 'i').test(txt))) justified = true; } catch {} }
 const checks = [
   ['one accent', accentFams.length <= 1, accentFams.length ? `non-status hue families: ${accentFams.join(', ')}` : 'neutrals and status colors only'],
   ['one grey family', !(warm >= 3 && cool >= 3), `warm greys ${warm}, cool greys ${cool}`],
@@ -81,7 +83,7 @@ const checks = [
   ['mono only for figures', mono <= 1, `${mono} monospaced uses (texture of timestamps and mono notes reads as generated)`],
   ['no dots before text', dots <= 1 || 'warn', `${dots} small circles (a dot is only for live, presence or unread)`],
   ['no cream + terracotta', !(creamGround && terracotta), creamGround && terracotta ? 'warm cream ground with a terracotta/clay accent: the default generated palette (choose the accent from the product\'s own idea)' : 'clear'],
-  ['no trendy default face', bannedFonts.size === 0, bannedFonts.size ? `${[...bannedFonts].join(', ')} (Instrument Serif, Fraunces, Playfair, Space Grotesk and Clash Display read as generated flavor; choose a face from the identity)` : 'clear'],
+  ['face chosen on purpose', !bannedFonts.size || justified || 'warn', bannedFonts.size ? (justified ? `${[...bannedFonts].join(', ')}: reason given in look.md` : `${[...bannedFonts].join(', ')} is a common default; fine when it suits the identity, so name it in .seenry/look.md with the reason it fits`) : 'clear'],
   ['encoding', mojibake === 0, mojibake ? `${mojibake} mojibake sequences (missing charset?)` : 'clean'],
   ['document head', head.length === 0, head.join('; ') || (html.length ? 'doctype, charset, viewport' : 'n/a')],
 ];
