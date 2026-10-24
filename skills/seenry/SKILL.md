@@ -144,7 +144,7 @@ Leading teams look premium for one root reason: they ranked the job, then remove
 **Never ship these (check.mjs blocks most of them):**
 - Eyebrows by reflex: a short small line above a title, in any case ("Good to know", "Your neighborhood yoga studio" over the h1). Cut it; the title says it, and card facts such as duration or level go under the title. Uppercase letter-spaced labels are slop anywhere.
 - Numbered labels: "01 /", "(001)", "No. 03", "Step 01". Numbers only where order is real, as plain figures.
-- The exception is a label or marker system that is the identity's own device, the way a studio uses one: one consistent marker or index that comes from this brand's idea on every section, in sentence case, set with the same care as the headlines. Mark its elements `data-seenry-device="<name>"`; review_board then treats it as a system and flags it when it appears fewer than three times. Uppercase letter-spaced labels stay out.
+- The exception is a label or marker system that is the identity's own device, the way a studio uses one: one consistent marker or index that comes from this brand's idea on every section, in sentence case, set with the same care as the headlines. Mark its elements `data-seenry-device="<name>"`; review_board treats a small marker as a system and flags it when it appears fewer than three times. A graphic device (a diagram, step circles, a timeline) is the opposite: use it once or twice where it explains most, never in hero, middle and closing alike (review_board flags three or more sections). Uppercase letter-spaced labels stay out.
 - Weights of 700 or more in UI, or more than three weights on a page.
 - Italic serif accent words in headlines; trendy default faces used for flavor (Instrument Serif, Fraunces, Playfair, Space Grotesk, Clash Display).
 - The default AI palettes: cream + terracotta or orange, plum + peach, navy + lime, forest green + cream as a costume, purple gradients.
@@ -168,6 +168,8 @@ Leading teams look premium for one root reason: they ranked the job, then remove
   - crude drawn diagrams and CSS illustrations: labelled boxes, sine waves, outlined pills standing for people;
   - testimonials from invented people with initials in a circle and a metadata line ("3 sessions · May 2026"); use a real photo, or the quote with a plain name;
   - small objects in large empty fields: a 300px photo floating in a 1440px band, a short list in the right third with nothing on the left. A section is filled by one large thing, not spaced out to look calm;
+  - a page made only of type, rules and drawn shapes. Every new page carries real material at real size at least twice: the product's own interface on a stage (software), art-directed photography (places, food, people, objects) or video. Removing decoration must be replaced by stronger material, never by nothing;
+  - one visual idea (step circles, a timeline, a chip row, a mini-diagram) repeated in hero, middle and closing. Use it once, where it explains most;
   - every page built from the same skeleton whatever the brand. If the tidepool surf school and the butcher would share a wireframe, the design was not thought for either.
 
 **The details live in [the standard](references/standard.md); read it before building, and apply all of it. In short:**
