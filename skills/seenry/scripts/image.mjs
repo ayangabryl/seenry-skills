@@ -54,6 +54,8 @@ if (!model) {
     if (t.status === 0 && !/not supported/i.test(t.stdout + t.stderr)) { model = m; break; }
   }
 }
+// The image tool is missing for the whole account when one job reports it; stop instead of retrying every job.
+let toolMissing = false;
 function generate({prompt, out}) {
   return new Promise(done => {
     const work = mkdtempSync(join(tmpdir(), 'seenry-image-'));
@@ -69,7 +71,7 @@ function generate({prompt, out}) {
     child.on('close', () => {
       clearTimeout(timer);
       const made = readdirSync(work).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).map(f => join(work, f)).sort((a, b) => statSync(b).size - statSync(a).size)[0];
-      if (!made) { console.error(`✗ ${out}: no image was produced. ${log.slice(-600)}`); return done(false); }
+      if (!made) { if (/tool (is |isn.t |is not )?(un)?available|no image generation tool|unavailable in this session/i.test(log)) toolMissing = true; console.error(`✗ ${out}: no image was produced. ${log.slice(-600)}`); return done(false); }
       const dest = resolve(out);
       mkdirSync(dirname(dest), {recursive: true});
       copyFileSync(made, extname(dest) ? dest : dest + extname(made));
@@ -82,7 +84,7 @@ function generate({prompt, out}) {
 // Three at a time: each run has its own Codex home, so variants can no longer collide in a shared generated_images.
 let ok = 0, next = 0;
 const parallel = Math.max(1, Math.min(4, Number(flag('parallel', '3'))));
-await Promise.all(Array.from({length: Math.min(parallel, jobs.length)}, async () => { while (next < jobs.length) { const job = jobs[next++]; if (await generate(job)) ok++; } }));
+await Promise.all(Array.from({length: Math.min(parallel, jobs.length)}, async () => { while (next < jobs.length && !toolMissing) { const job = jobs[next++]; if (await generate(job)) ok++; } }));
 if (variants > 1) {
   const {createHash} = await import('node:crypto');
   const sums = jobs.map(j => resolve(j.out)).filter(existsSync).map(f => createHash('sha1').update(readFileSync(f)).digest('hex'));
@@ -101,6 +103,6 @@ if (variants > 1) {
     copyFileSync(best, resolve(shot.out));
   }
 }
-if (!ok) console.log(`No image was generated (the account's image tool may be unavailable: a 403 means it is blocked, not out of credits). Do not ship a type-only page: art-direct one public-domain set (python3 ${join(here, '..', '..', 'seenry-assets', 'scripts', 'assets.py')} art-set --style impressionist|dutch|japanese|drawings|american|photographs --subject "<words>"), Openverse photos (assets.py images) and product screens in device mockups (assets/mockup/README.md), and say so in the report.`);
+if (!ok) console.log(`No image was generated (the account's image tool may be unavailable: a 403 means it is blocked, not out of credits). Do not ship a type-only page and do not swap in unrelated art. Produce the same subject another way: build objects in code (SceneKit or RealityKit with PBR materials for 3D objects, SVG or SwiftUI shapes for stickers), source license-clear photos of that exact subject (python3 ${join(here, '..', '..', 'seenry-assets', 'scripts', 'assets.py')} images --q "<subject>"), and say so in the report.`);
 console.log(`${ok}/${jobs.length} image(s) generated.${variants > 1 ? ' The best variant of each shot now has the requested name.' : ` Next: node ${join(here, 'photo_check.mjs')} <images> --use "<slot>" --brand "<brand>"`}`);
 process.exit(ok === jobs.length ? 0 : 1);
