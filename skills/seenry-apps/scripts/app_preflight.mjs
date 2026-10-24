@@ -62,6 +62,11 @@ const italicAccent = (native.match(/Text\([^)]*\)[^\n]{0,80}\.italic\(\)[^\n]{0,
 const mono = (native.match(/design:\s*\.monospaced|\.monospaced\(\)|FontFamily\.Monospace|['"](Menlo|Courier|SF Mono|JetBrains Mono|IBM Plex Mono|Space Mono)/g) || []).length
   + (all.match(/font-family\s*:[^;]*mono/gi) || []).length;
 const dots = (native.match(/Circle\(\)[^\n]{0,80}\.frame\(width:\s*[2-9](\.\d+)?\s*,\s*height:\s*[2-9]/g) || []).length;
+// Trendy default faces the web skill bans as generated flavor, in any stack (font-family, Font.custom, bundled files).
+const banned = /instrument\s*serif|fraunces|playfair|space\s*grotesk|clash\s*display/i;
+const bannedFonts = new Set([...all.matchAll(/(?:font-family\s*:[^;]*|Font\.custom\(\s*"[^"]*"|fontFamily\s*:\s*['"][^'"]*|UIFont\(name:\s*"[^"]*")/g)].map(m => (m[0].match(banned) || [])[0]).filter(Boolean));
+const walkFonts = p => { try { const st = statSync(p); if (st.isDirectory()) { if (!/node_modules|\.git|build|DerivedData/.test(p)) for (const f of readdirSync(p)) walkFonts(join(p, f)); } else if (/\.(ttf|otf|woff2?)$/i.test(p) && banned.test(p.replace(/[-_]/g, ' '))) bannedFonts.add(p.split('/').pop()); } catch {} };
+roots.forEach(walkFonts);
 const checks = [
   ['one accent', accentFams.length <= 1, accentFams.length ? `non-status hue families: ${accentFams.join(', ')}` : 'neutrals and status colors only'],
   ['one grey family', !(warm >= 3 && cool >= 3), `warm greys ${warm}, cool greys ${cool}`],
@@ -76,6 +81,7 @@ const checks = [
   ['mono only for figures', mono <= 1, `${mono} monospaced uses (texture of timestamps and mono notes reads as generated)`],
   ['no dots before text', dots <= 1 || 'warn', `${dots} small circles (a dot is only for live, presence or unread)`],
   ['no cream + terracotta', !(creamGround && terracotta), creamGround && terracotta ? 'warm cream ground with a terracotta/clay accent: the default generated palette (choose the accent from the product\'s own idea)' : 'clear'],
+  ['no trendy default face', bannedFonts.size === 0, bannedFonts.size ? `${[...bannedFonts].join(', ')} (Instrument Serif, Fraunces, Playfair, Space Grotesk and Clash Display read as generated flavor; choose a face from the identity)` : 'clear'],
   ['encoding', mojibake === 0, mojibake ? `${mojibake} mojibake sequences (missing charset?)` : 'clean'],
   ['document head', head.length === 0, head.join('; ') || (html.length ? 'doctype, charset, viewport' : 'n/a')],
 ];
