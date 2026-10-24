@@ -87,6 +87,8 @@ Check the craft claims on the pixels (spacing, type detail, density, finish) and
 The brief:
 ${brief}
 
+Reward design thinking in the small parts: when the product's idea shows up simply in ordinary components (progress in the product's own unit, selection that changes the object, buttons written as the user's reply, a payoff made from the user's answers) and stays instantly legible, that is the strongest sign of a designed product; credit it under idea and craft. A metaphor that needs learning, or one applied to everything, is a gimmick.
+
 When the idea is physical objects (a brand printed on a thing, a collection, a table of items), they must read as real objects: material, construction details and depth with one consistent light. Flat colored rectangles with a label, arranged in a tidy grid, cost at least two points on craft and imagery.
 
 When the brief names an existing app as the reference, judge against what it asked for. "Similar to", "like" or "replicate" asks for that app's look with new content: resemblance is the goal, so do not mark it down for looking like the reference; mark down only unchanged copy, assets or wordmark. "Inspired by" asks for the reference's core ideas in a new look: reproducing its signature surface (its wordmark treatment, ground, exact lines or layout) is copying and scores low on idea and identity, while carrying its principles in new material scores well. If research/core.md principles are quoted in the brief, check each one is visibly carried.
