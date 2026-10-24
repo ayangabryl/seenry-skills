@@ -3,6 +3,8 @@
 
   python3 measure_screen.py ref.png                      list elements of one screen
   python3 measure_screen.py ref.png mine.png             compare a reference frame with your screen at the same beat
+  python3 measure_screen.py ref.png mine.png --closeup 100,300,200,200   also save closeup.png: that region (in points)
+                                                                     of both screens side by side at 3x, to judge the effect itself
   options: --points 402 (screen width in points), --json
 
 Elements are regions that differ from the ground, merged when they nearly touch, so a text line or a glass orb
@@ -18,7 +20,7 @@ opt = lambda name, d: sys.argv[sys.argv.index(f'--{name}') + 1] if f'--{name}' i
 points = float(opt('points', 402))
 if not args:
     print(__doc__); sys.exit(2)
-args = [a for a in args if a != opt('points', None)]
+args = [a for a in args if a not in (opt('points', None), opt('closeup', None))]
 
 
 def measure(path):
@@ -95,3 +97,15 @@ if len(ms) == 2:
     extra = len(b['large']) - len(used)
     print(f"  extra large elements in yours: {extra}" + ('  <- off' if extra > max(1, len(a['large']) // 3) else ''))
     print(f"  small specks {a['specks']} → {b['specks']}")
+
+if len(args) >= 2 and opt('closeup', None):
+    x, y, w, h = (float(v) for v in opt('closeup', '').split(','))
+    tiles = []
+    for p in args[:2]:
+        im = Image.open(p).convert('RGB')
+        k = im.width / points
+        tiles.append(im.crop((round(x * k), round(y * k), round((x + w) * k), round((y + h) * k))).resize((round(w * 3), round(h * 3))))
+    out = Image.new('RGB', (tiles[0].width * 2 + 24, tiles[0].height), 'white')
+    out.paste(tiles[0], (0, 0)); out.paste(tiles[1], (tiles[0].width + 24, 0))
+    out.save('closeup.png')
+    print('\ncloseup.png: reference left, yours right. Look at what the effect shows, not only its outline.')
