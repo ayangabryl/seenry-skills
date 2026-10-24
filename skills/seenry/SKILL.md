@@ -168,7 +168,7 @@ Leading teams look premium for one root reason: they ranked the job, then remove
   - crude drawn diagrams and CSS illustrations: labelled boxes, sine waves, outlined pills standing for people;
   - testimonials from invented people with initials in a circle and a metadata line ("3 sessions · May 2026"); use a real photo, or the quote with a plain name;
   - small objects in large empty fields: a 300px photo floating in a 1440px band, a short list in the right third with nothing on the left. A section is filled by one large thing, not spaced out to look calm;
-  - a page made only of type, rules and drawn shapes. Every new page carries real material at real size at least twice: the product's own interface on a stage (software), art-directed photography (places, food, people, objects) or video. Removing decoration must be replaced by stronger material, never by nothing;
+  - a page made only of type, rules and drawn shapes. Every new page carries real material at real size at least twice: the product's own interface on a stage (software), art-directed photography (places, food, people, objects) or video. Removing decoration must be replaced by stronger material, never by nothing. For software the material is the product: at least one large stage of its real interface (marked `data-seenry-product`); museum prints, borrowed artworks and stock photos never stand in for it;
   - one visual idea (step circles, a timeline, a chip row, a mini-diagram) repeated in hero, middle and closing. Use it once, where it explains most;
   - every page built from the same skeleton whatever the brand. If the tidepool surf school and the butcher would share a wireframe, the design was not thought for either.
 

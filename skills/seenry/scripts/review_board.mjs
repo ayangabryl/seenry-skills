@@ -33,7 +33,7 @@ async function loadPlaywright() {
   process.exit(2);
 }
 
-function inspect({phone, studio, quiet}) {
+function inspect({phone, studio, quiet, software}) {
   const vis = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && +s.opacity > 0 && !el.closest('[aria-hidden="true"],svg'); };
   const ownText = el => [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
   const label = el => `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${(el.textContent || '').trim().slice(0, 40)}"`;
@@ -167,6 +167,8 @@ function inspect({phone, studio, quiet}) {
       .concat([...document.querySelectorAll('section, div, figure')].filter(el => realSize(el, 480, 300) && /url\(/.test(getComputedStyle(el).backgroundImage)))
       .concat([...document.querySelectorAll('[data-seenry-product]')].filter(el => realSize(el, 560, 340)));
     const momentsOf = new Set(material.map(el => Math.round((el.getBoundingClientRect().top + scrollY) / (innerHeight * 0.8))));
+    const stages = [...document.querySelectorAll('[data-seenry-product]')].filter(el => realSize(el, 560, 340)).length;
+    if (software && !stages) f.noMaterial.push('software page with no product interface at real size: borrowed art, prints or stock photos never stand in for the product (build its real UI on a stage and mark it data-seenry-product)');
     if (momentsOf.size < 2) f.noMaterial.push(`${momentsOf.size} moment(s) of photography, video or product interface at real size (480×300 or larger; mark an HTML product stage with data-seenry-product)`);
     // One visual idea used three or more times (the same step circles, chips or mini-diagram in hero, band and footer).
     const secOf = el => el.closest('section, header, footer, main > *');
@@ -287,10 +289,10 @@ function inspect({phone, studio, quiet}) {
       }
       if (split >= 3) f.splitHeader.push(`${split} sections open with the same header (title left, small note right)`);
     }
-    for (const el of document.querySelectorAll('span,div,figure,i')) {
+    for (const el of document.querySelectorAll('span,div,figure,i,li')) {
       const bx = el.getBoundingClientRect(); if (!bx.width || getComputedStyle(el).visibility === 'hidden' || el.closest('svg')) continue;
       const t = el.textContent.trim(), r = el.getBoundingClientRect(), st = getComputedStyle(el);
-      if (/^[A-Z]{1,2}$/.test(t) && r.width >= 20 && r.width <= 64 && Math.abs(r.width - r.height) < 4 && (parseFloat(st.borderTopLeftRadius) >= r.width / 2 - 1 || st.borderTopLeftRadius.includes('%'))) f.initialsAvatar.push(label(el));
+      if (/^[A-Z]{1,2}$/.test(t) && r.width >= 16 && r.width <= 64 && Math.abs(r.width - r.height) < 4 && (parseFloat(st.borderTopLeftRadius) >= r.width / 2 - 1 || st.borderTopLeftRadius.includes('%'))) f.initialsAvatar.push(label(el));
     }
   }
   const devices = {};
@@ -494,7 +496,7 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
   await page.evaluate(() => document.fonts && document.fonts.ready);
   await page.waitForTimeout(800);
   if (w === 1440) await page.screenshot({path: join(out, 'first-1440.png')});
-  report.widths[w] = await page.evaluate(inspect, {phone: w < 768, studio: args.includes('--studio'), quiet: args.includes('--quiet')});
+  report.widths[w] = await page.evaluate(inspect, {phone: w < 768, studio: args.includes('--studio'), quiet: args.includes('--quiet'), software: args.includes('--software')});
   // The full-page still shows the composition, not the motion: pinned scenes leave a screen of blank travel and
   // scroll-drawn layers render empty, so it is taken in the reduced-motion version (every scene in its final state).
   {
