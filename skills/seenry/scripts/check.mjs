@@ -149,7 +149,10 @@ if (existsSync(join(dir, 'images.pending'))) {
 const quietRegister = existsSync(join(dir, 'identity.md')) && /register[^\n]{0,40}quiet|quiet premium/i.test(readFileSync(join(dir, 'identity.md'), 'utf8'));
 const briefText = flag('brief') && existsSync(flag('brief')) ? readFileSync(flag('brief'), 'utf8') : '';
 const software = /\b(saas|software|app|apps|platform|tool|dashboard|api|sdk|plugin|extension|workspace|subscription)\b/i.test(briefText);
-const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(quietRegister ? ['--quiet'] : []), ...(software ? ['--software'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
+// A named reference's own patterns (chapter numbers, a serif accent, pill tags) are allowed when the pattern map lists them.
+const patternFile = join(dir, 'refs', 'patterns.md');
+const allowed = existsSync(patternFile) ? ((readFileSync(patternFile, 'utf8').match(/^Allow:\s*(.+)$/mi) || [])[1] || '').trim() : '';
+const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(allowed ? ['--allow', allowed] : []), ...(quietRegister ? ['--quiet'] : []), ...(software ? ['--software'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
 // Native apps have no DOM to inspect: their screenshots are laid out as the board and the critic and motion judge do the review.
 const board = native
   ? spawnSync('node', [join(here, 'screens.mjs'), '--screens', native, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
@@ -273,7 +276,7 @@ const critic = sameBoard
   ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
   : (existsSync(join(dir, 'identity.html')) && spawnSync(process.execPath, [join(here, 'render_page.mjs'), join(dir, 'identity.html'), join(review, 'identity.png'), ...(pw ? ['--playwright', pw] : [])], {stdio: 'ignore'}),
     await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'), ...(existsSync(join(review, 'identity.png')) ? ['--identity', join(review, 'identity.png')] : []),
-  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : [])]));
+  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : []), ...(existsSync(join(dir, 'refs', 'patterns.md')) ? ['--patterns', join(dir, 'refs', 'patterns.md')] : [])]));
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
