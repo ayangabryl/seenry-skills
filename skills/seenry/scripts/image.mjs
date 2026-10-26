@@ -71,6 +71,7 @@ function generate({prompt, out}) {
     child.on('close', () => {
       clearTimeout(timer);
       const made = readdirSync(work).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).map(f => join(work, f)).sort((a, b) => statSync(b).size - statSync(a).size)[0];
+      if (!made && /\b429\b|too many requests/i.test(log)) { console.error(`… ${out}: rate limited, retrying with one worker.`); return done('limited'); }
       if (!made) { if (/tool (is |isn.t |is not )?(un)?available|no image generation tool|unavailable in this session/i.test(log)) toolMissing = true; console.error(`✗ ${out}: no image was produced. ${log.slice(-600)}`); return done(false); }
       const dest = resolve(out);
       mkdirSync(dirname(dest), {recursive: true});
@@ -82,9 +83,19 @@ function generate({prompt, out}) {
 }
 
 // Three at a time: each run has its own Codex home, so variants can no longer collide in a shared generated_images.
-let ok = 0, next = 0;
-const parallel = Math.max(1, Math.min(4, Number(flag('parallel', '3'))));
-await Promise.all(Array.from({length: Math.min(parallel, jobs.length)}, async () => { while (next < jobs.length && !toolMissing) { const job = jobs[next++]; if (await generate(job)) ok++; } }));
+// A 429 means the account's image rate is saturated: drop to one worker and retry that shot after a pause rather than
+// failing it, so the batch never has to be restarted by hand.
+let ok = 0, slots = Math.max(1, Math.min(4, Number(flag('parallel', '3'))));
+const queue = [...jobs], tries = new Map();
+await Promise.all(Array.from({length: Math.min(slots, jobs.length)}, async (_, id) => {
+  while (queue.length && !toolMissing && id < slots) {
+    const job = queue.shift(), result = await generate(job);
+    if (result === true) { ok++; continue; }
+    const n = (tries.get(job) || 0) + 1;
+    if (result === 'limited' && n <= 3) { tries.set(job, n); slots = 1; queue.push(job); await new Promise(r => setTimeout(r, 20000 * n)); }
+    else if (result === 'limited') console.error(`✗ ${job.out}: still rate limited after 3 retries.`);
+  }
+}));
 if (variants > 1) {
   const {createHash} = await import('node:crypto');
   const sums = jobs.map(j => resolve(j.out)).filter(existsSync).map(f => createHash('sha1').update(readFileSync(f)).digest('hex'));

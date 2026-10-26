@@ -224,6 +224,16 @@ if (blockers) {
   process.exit(1);
 }
 
+// Quick mode's one critic round is spent: after the fixes are applied, re-check the board only and report the last
+// critic score, rather than paying for a second critic call that quick mode would not act on anyway.
+if (quick && stoppedAt) {
+  const n = history.filter(h => h.critic).pop()?.critic?.overall;
+  history.push({round, blockers: 0, critic: null, hash: fingerprint, stop: 'quick mode: verified board after fixes'});
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+  console.log(`\nQUICK verified: 0 blockers after the fixes. Deliver now and report the critic's ${n}/10 (${level(n)}) from round ${stoppedAt.round}; run --mode polish for another critic round.`);
+  process.exit(n >= leader ? 0 : 3);
+}
+
 const out = join(review, `critic-${round}.json`);
 // The critic and the motion judge are independent, so when this round will judge motion anyway they run together.
 const runAsync = (args) => new Promise((resolveRun) => {
