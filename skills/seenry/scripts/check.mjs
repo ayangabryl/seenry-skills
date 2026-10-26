@@ -185,7 +185,9 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   const report = join(review, 'photos.json');
   const checks = history.filter(h => h.photoChecked).length;
   const data = existsSync(report) ? JSON.parse(readFileSync(report, 'utf8')) : null;
-  const passed = data && data.images.every(i => i.overall >= 8);
+  // Quick mode keeps any usable image (6+); regenerating 7s doubled run time for no visible gain. Polish and showcase hold 8.
+  const photoFloor = quick ? 6 : 8;
+  const passed = data && data.images.every(i => i.overall >= photoFloor);
   if (data && history.length && !history[history.length - 1].photoChecked) history[history.length - 1].photoChecked = true;
   if (photos.length && data && !passed && checks >= (quick || polish ? 1 : 3)) {
     console.log(`\n■ photographs  best effort after ${quick || polish ? 'one photo check' : 'three photo checks'} (${data.images.map(i => i.overall).join('/')}); not blocking. Keep the strongest versions and move on.`);
@@ -193,7 +195,7 @@ if (!/^https?:/.test(target) && existsSync(target)) {
     blockers++;
     console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
     console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>"${refs ? ' --refs ' + refs : ''} --out ${report}`);
-    console.log('  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
+    console.log(quick ? '  Regenerate only images under 6 (wrong subject, text, broken anatomy), once, with the prompt it writes; keep everything at 6 or above.' : '  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
   }
 }
 // Static motion scan: token, easing, transition-all and reduced-motion checks from source, in well under a second.
