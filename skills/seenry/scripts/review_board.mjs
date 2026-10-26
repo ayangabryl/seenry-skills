@@ -184,11 +184,11 @@ function inspect({phone, studio, quiet, software}) {
     }
     for (const [cls, secs] of motif) if (secs.size >= 3) f.repeatedMotif.push(`.${cls} in ${secs.size} sections`);
     if (quiet) {
-      const imagery = [...document.querySelectorAll('img, picture, video')].filter(el => big(el) && !inDevice(el) && !el.closest('nav, footer, [data-wordmark]'))
+      const imagery = [...document.querySelectorAll('img, picture, video, canvas')].filter(el => big(el) && !inDevice(el) && !el.closest('nav, footer, [data-wordmark]'))
         .concat([...document.querySelectorAll('section, div, figure')].filter(el => big(el) && /url\(/.test(getComputedStyle(el).backgroundImage) && !inDevice(el)));
       const area = el => { const r = el.getBoundingClientRect(); const top = Math.max(0, r.top + scrollY), bottom = Math.min(innerHeight, r.bottom + scrollY); return Math.max(0, bottom - top) * r.width; };
       const heroArea = imagery.reduce((a, el) => a + area(el), 0);
-      if (heroArea < innerWidth * innerHeight * 0.22) f.heroNoImage.push(`${Math.round(heroArea / (innerWidth * innerHeight) * 100)}% of the first screen is photograph or painting (a quiet page leads with imagery: about a quarter or more; a phone screenshot does not count)`);
+      if (heroArea < innerWidth * innerHeight * 0.22) f.heroNoImage.push(`${Math.round(heroArea / (innerWidth * innerHeight) * 100)}% of the first screen is photograph, painting or a rendered scene (a quiet page leads with imagery: about a quarter or more; a phone screenshot does not count)`);
       const moments = new Set(imagery.map(el => Math.round((el.getBoundingClientRect().top + scrollY) / (innerHeight * 0.8))));
       if (moments.size < 3) f.fewImages.push(`${moments.size} image moment(s) down the page (a quiet page needs the hero and at least two more)`);
       const bands = [...document.querySelectorAll('section, header, footer, main > *, div')].filter(el => { const r = el.getBoundingClientRect(); if (r.width < innerWidth * 0.6 || r.height < 280) return false; const c = toRGBA(getComputedStyle(el).backgroundColor); if (c[3] < 0.9) return false; const mx = Math.max(...c.slice(0, 3)) / 255, mn = Math.min(...c.slice(0, 3)) / 255, l = (mx + mn) / 2, d = mx - mn; const sat = d ? d / (1 - Math.abs(2 * l - 1)) : 0; return sat > 0.35 && l > 0.12 && l < 0.85; });
