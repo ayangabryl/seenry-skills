@@ -13,11 +13,13 @@ import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
 import {findCli, askModel} from './model_cli.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const video = flag('video') && resolve(flag('video'));
 const out = resolve(flag('out', '.seenry/review/motion'));
+markWorkDir(out);
 if (!video || !existsSync(video)) { console.error('Usage: node motion_video.mjs --video rec.mov --out <dir> [--brief BRIEF.md]'); process.exit(2); }
 if (spawnSync('ffmpeg', ['-version']).status !== 0) { console.error('ffmpeg is required (brew install ffmpeg).'); process.exit(2); }
 const frames = join(out, 'frames');

@@ -30,6 +30,7 @@ import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 import {findCli, askModel} from './model_cli.mjs';
 import {MOTION_SCORE_KEYS, MOTION_VERDICT_SCHEMA, validMotionVerdict, motionAcceptance} from './motion_contract.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -52,6 +53,7 @@ const target = args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1]
 if (!target) { console.error('Usage: node motion_judge.mjs <url | file.html> [--out dir] [--max 8] [--selector css] [--runs 3] [--slow 4]'); process.exit(2); }
 const url = /^https?:|^file:/.test(target) ? target : pathToFileURL(resolve(target)).href;
 const out = resolve(flag('out', '.seenry/review/motion')); mkdirSync(out, {recursive: true});
+markWorkDir(out);
 const only = flag('selector'); // e.g. "[data-replay]" to judge specific controls such as a gallery's replay buttons
 const max = Number(flag('max', only ? '40' : '8'));
 const runs = Math.max(1, Number(flag('runs', '3')));

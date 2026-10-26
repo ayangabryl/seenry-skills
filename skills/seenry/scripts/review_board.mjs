@@ -12,6 +12,7 @@ import {mkdirSync, writeFileSync, readFileSync, existsSync} from 'node:fs';
 import {resolve, join, extname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -19,6 +20,7 @@ const target = args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1]
 if (!target) { console.error('Usage: node review_board.mjs <url | file.html> [--refs a.png,b.png] [--out dir]'); process.exit(2); }
 const url = /^https?:|^file:/.test(target) ? target : pathToFileURL(resolve(target)).href;
 const out = resolve(flag('out', '.seenry/review'));
+markWorkDir(out);
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
 mkdirSync(out, {recursive: true});
 

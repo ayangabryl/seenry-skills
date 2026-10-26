@@ -3,9 +3,11 @@
 import {mkdirSync,writeFileSync,readFileSync,existsSync,readdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {SeenryClient,ENDPOINT} from './mcp-client.mjs';
+import {markWorkDir} from './workdir.mjs';
 const args=process.argv.slice(2);
 const flag=(name,fallback)=>{const i=args.indexOf(`--${name}`);return i<0?fallback:args[i+1];};
 const out=resolve(flag('out','.seenry/research'));
+markWorkDir(out);
 const type=flag('type','landing');
 const family=flag('family',type==='app'?'apps':'websites');
 const families=['websites','sections','apps','branding','decks','motion'];

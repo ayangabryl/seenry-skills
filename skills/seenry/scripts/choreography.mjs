@@ -15,12 +15,14 @@ import {tmpdir} from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {findCli, askModel} from './model_cli.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const target = args.find((a, i) => !a.startsWith('--') && !(args[i - 1] || '').startsWith('--'));
 if (!target) { console.error('usage: choreography.mjs <url | file.html> [--out file] [--identity identity.md]'); process.exit(2); }
 const out = resolve(flag('out', '.seenry/review/choreography.json'));
+markWorkDir(out);
 const identityPath = flag('identity');
 const identity = identityPath && existsSync(identityPath) ? readFileSync(identityPath, 'utf8') : '';
 const score = (identity.match(/^#+\s*motion[^\n]*\n([\s\S]*?)(?=\n#+\s|$)/im)?.[1] || '').trim().slice(0, 1600);

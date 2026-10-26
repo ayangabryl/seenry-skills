@@ -9,6 +9,7 @@
 import {existsSync, writeFileSync, mkdirSync} from 'node:fs';
 import {resolve, dirname, basename} from 'node:path';
 import {findCli, askModel} from './model_cli.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -16,6 +17,7 @@ const images = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 
 if (!images.length || images.some(p => !existsSync(p))) { console.error('Usage: node photo_check.mjs <image> [...] --use "<slot>" [--refs a.png,b.png] [--brand "<brand>"] [--medium "<oil painting>"]'); process.exit(2); }
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
 const min = Number(flag('min', '8')), out = resolve(flag('out', '.seenry/review/photos.json'));
+markWorkDir(out);
 const found = findCli(process.env.SEENRY_CRITIC);
 if (!found) { console.error('No working Codex or Claude CLI found; review the images yourself against the rules in SKILL.md.'); process.exit(2); }
 

@@ -12,12 +12,14 @@ import {tmpdir} from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {findCli, askModel} from './model_cli.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const target = args.find((a, i) => !a.startsWith('--') && !(args[i - 1] || '').startsWith('--'));
 if (!target) { console.error('usage: detail_critic.mjs <url | file.html> [--out file] [--max 6]'); process.exit(2); }
 const out = resolve(flag('out', '.seenry/review/detail.json'));
+markWorkDir(out);
 const max = Math.max(2, Math.min(8, Number(flag('max', 6))));
 
 async function loadPlaywright() {

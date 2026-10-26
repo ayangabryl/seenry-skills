@@ -13,12 +13,14 @@ import {spawn} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {mkdtempSync} from 'node:fs';
 import {findCli, askModel} from './model_cli.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const board = resolve(flag('board', '.seenry/review/board.png'));
 const first = resolve(flag('first', '.seenry/review/first.png'));
 const out = resolve(flag('out', '.seenry/review/critic.json'));
+markWorkDir(out);
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
 const identityBoard = flag('identity') && existsSync(resolve(flag('identity'))) ? resolve(flag('identity')) : '';
 const keptPath = flag('kept');

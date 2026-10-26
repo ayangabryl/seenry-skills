@@ -14,11 +14,13 @@ import {resolve, dirname, join, extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn} from 'node:child_process';
 import {findCli, codexModels} from './model_cli.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 // --background: start the same job detached and return at once, so the page is built while images generate. A pending
 // marker (.seenry/images.pending) stays until the job ends; check.mjs and `image.mjs --wait` wait for it.
 const pendingFile = resolve(process.env.SEENRY_DIR || '.seenry', 'images.pending');
+markWorkDir(pendingFile);
 if (args.includes('--wait')) {
   const start = Date.now();
   while (existsSync(pendingFile) && Date.now() - start < 30 * 60 * 1000) await new Promise(r => setTimeout(r, 3000));

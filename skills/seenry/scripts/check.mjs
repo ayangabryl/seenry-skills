@@ -16,6 +16,7 @@ import {spawnSync, spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {recordIdentity} from './history.mjs';
 import {validMotionVerdict, motionAcceptance, MOTION_ACCEPTANCE_POLICY} from './motion_contract.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -24,6 +25,7 @@ const native = flag('screens'), video = flag('video');
 const target = native ? null : args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));
 if (!target && !native) { console.error('Usage: node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png]'); process.exit(2); }
 const dir = resolve(flag('dir', '.seenry')), review = join(dir, 'review');
+markWorkDir(dir);
 const goal = Number(flag('target', '9'));
 mkdirSync(review, {recursive: true});
 let refs = flag('refs');
