@@ -194,7 +194,7 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   } else if (photos.length && !passed) {
     blockers++;
     console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
-    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>"${refs ? ' --refs ' + refs : ''} --out ${report}`);
+    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" [--medium "<image medium from identity.md, e.g. oil painting>"]${refs ? ' --refs ' + refs : ''} --out ${report}`);
     console.log(quick ? '  Regenerate only images under 6 (wrong subject, text, broken anatomy), once, with the prompt it writes; keep everything at 6 or above.' : '  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
   }
 }

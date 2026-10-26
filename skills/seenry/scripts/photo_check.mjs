@@ -13,7 +13,7 @@ import {findCli, askModel} from './model_cli.mjs';
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const images = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--'))).map(p => resolve(p));
-if (!images.length || images.some(p => !existsSync(p))) { console.error('Usage: node photo_check.mjs <image> [...] --use "<slot>" [--refs a.png,b.png] [--brand "<brand>"]'); process.exit(2); }
+if (!images.length || images.some(p => !existsSync(p))) { console.error('Usage: node photo_check.mjs <image> [...] --use "<slot>" [--refs a.png,b.png] [--brand "<brand>"] [--medium "<oil painting>"]'); process.exit(2); }
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
 const min = Number(flag('min', '8')), out = resolve(flag('out', '.seenry/review/photos.json'));
 const found = findCli(process.env.SEENRY_CRITIC);
@@ -28,7 +28,7 @@ const listing = [...images.map((p, i) => `image ${i + 1} = candidate ${basename(
 const prompt = `You are the art director for ${flag('brand', 'a premium brand')}. You approve or reject imagery before it goes on the site. The standard is the photography of Apple, Aesop, ARKET and Stripe: real, calm, precisely lit, art-directed, never stock-like or AI-looking.
 
 ${listing}
-${refs.length ? 'The reference screens show the level of imagery the site must match.\n' : ''}
+${refs.length ? 'The reference screens show the level of imagery the site must match.\n' : ''}${flag('medium') ? `The intended medium is: ${flag('medium')}. It is a deliberate choice, not a flaw. Judge realism as how convincing the image is in that medium (a believable oil painting, a crafted illustration), never as how photographic it is, and keep that medium in the better prompt.\n` : ''}
 Each candidate will be used as: ${flag('use', 'a hero image')}.
 
 Score each candidate 1-10 (8 = a professional shoot for a premium brand; 5 = acceptable stock; 3 = obviously generated):
