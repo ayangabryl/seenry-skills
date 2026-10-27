@@ -98,6 +98,9 @@ Study at least two identity presentations first (`search_designs {family: "brand
 
 ## Do not repeat yourself
 
+This applies to new identities. A page made like a named site takes that site's look; the history check does not apply to it.
+
+
 - Run `node scripts/history.mjs --list` first. It prints the face, hero color and device of recent identities on this machine.
 - Fit comes first. Then check it is not a copy: never the same hue family and kind of device together.
 - A face may repeat when it fits. When an identity is close, change the color or the device, never downgrade the type.

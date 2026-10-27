@@ -19,6 +19,13 @@
 
 Either way, never use its logo, name, copy, images or paid fonts. Use the brand's own name, copy and artwork in the site's image medium, and the nearest free fonts.
 
+## Resemblance is the score
+
+- **A named-site page passes at reference fit 8, and its overall score is capped at its reference fit.** Polish rounds therefore work on resemblance first: a page cannot score well by drifting toward a generic look.
+- **The critic checks the site itself, not only your pattern map.** It lists every recognizable element of the reference the page lacks or carries worse (the hero object and how type and imagery layer, the color and light in each state, the header, the section moves, the signature components) and puts them first in its fixes.
+- **Closeness is never marked down** for "like", "design it like", "based on" and "replicate". What keeps it from being a copy is the brand's own name, copy and artwork, and never reusing the site's words, logo or images.
+- **Each state keeps the reference's light.** If the site's night stays luminous, yours does too; a state that turns darker or greyer than the reference's is a missing signature.
+
 ## What changes in the flow
 
 - **The reference is the identity.** Skip the three identity boards and `pick.mjs`; `check.mjs` accepts `patterns.md` in their place. Still write `identity.md`: the brand's own idea lives in its name, copy, artwork and one signature detail.

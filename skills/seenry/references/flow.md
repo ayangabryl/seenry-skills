@@ -105,7 +105,7 @@ The boards are the exploration; there is no separate sketch round.
 - At most one follows category conventions as the safe control; one is built on the outside reference.
 - None repeats an identity in `~/.config/seenry/history.json`.
 - A quiet software product starts from the [quiet kit](../assets/quiet-kit/README.md); its boards differ in imagery, the app screen's idea and copy. House style: the owner's reference standard, chosen over bolder boards the blind pick favored.
-- A reference the person shows sets register and level, never the layout one to one: change the hero and at least two sections, because an exact copy fails even when it looks good.
+- A reference the person shows for register or level (not "design it like X") sets register and level, never the layout one to one: change the hero and at least two sections, because an exact copy fails even when it looks good. A named site follows [named site](named-site.md) instead, where resemblance is the goal.
 
 Then:
 

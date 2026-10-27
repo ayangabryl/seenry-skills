@@ -329,11 +329,12 @@ if (choreoRun) {
   else console.log('\nChoreography critic did not run; page motion is unverified this round.');
 }
 // The page has to hold up beside the references it kept, not only score well in general.
-const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7) && !copied && (quick || craft === null || craft >= 8) && (quick || choreo === null || choreo >= 8.5);
+const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= (named ? 8 : 7)) && !copied && (quick || craft === null || craft >= 8) && (quick || choreo === null || choreo >= 8.5);
 if (craft !== null && craft < 8) console.log(quick ? `\nCraft ${craft}/10 at full size (advice in quick mode): apply the detail fixes that do not flatten the identity; never trade the identity's scale or device for tidiness.` : `\nCraft ${craft}/10 at full size: apply the detail fixes above too; a page does not pass below 8 on craft.`);
 if (choreo !== null && choreo < 8.5) console.log(`\nChoreography ${choreo}/10: apply the choreography fixes above${quick ? ' in this round, the scenes first' : '; a page does not pass below 8.5 on choreography'}. Build the held scenes and the entrance sequence; a uniform fade-up on every block is not choreography.${quick ? ` Then confirm with \`node ${join(here, 'choreography.mjs')} <url> --identity ${join(dir, 'identity.md')}\` (about a minute) and fix again once if scenes still score under 8.` : ''}`);
 if (copied) console.log(`\nCopied reference: the critic found a section that reproduces ${copied} nearly unchanged. Rework it: combine the lesson with another reference or the brand idea so the page is your own.`);
-if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
+if (named && referenceFit !== null && referenceFit < 8) console.log(`\nReference fit ${referenceFit}/10: a page made like a named site passes at 8. The overall score is capped at it, so bring back the missing signatures listed above before anything else.`);
+else if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
 const roundExtras = {boardHash, criticFile: relative(dir, out), craft, choreography: choreo, ...(sameBoard ? {reusedCritic: true} : {})};
 // Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
 // critic round; earlier rounds rely on the static motion scan above. PASS still requires the full motion judgment.
