@@ -164,6 +164,7 @@ Grep the page for each pattern. Every hit is fixed or defended to a designer in 
 | Tells and fixes | [anti-slop](references/anti-slop.md) |
 | Libraries and stack | [libraries](references/libraries.md), [stack](references/stack.md) |
 | The optional design sheet | [sheet](references/sheet.md) |
+| Where each rule comes from (Emil Kowalski, Jakub Krehel, measured leaders, testing) | [sources](references/sources.md) |
 
 Scripts are in `scripts/`. The ones the flow uses: `research.mjs`, `bar.mjs`, `pick.mjs`, `history.mjs`, `image.mjs`, `photo_check.mjs`, `check.mjs` (runs `review_board.mjs`, `token_lint.mjs`, `motion_scan.mjs`, `critic.mjs`, `detail_critic.mjs`, `motion_judge.mjs`), `existing_check.mjs`, `token_convert.mjs`, `palette.py`, `mockup_screen.mjs`.
 
