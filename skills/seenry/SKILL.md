@@ -33,6 +33,7 @@ The route decides how much of this skill applies. A small fix with the full flow
 A page is done when `node scripts/check.mjs <file or url> --brief <brief> --mode quick` has run at desktop and phone, its blockers are cleared and the critic's fixes are applied. Self-review is not a substitute: in testing, the builder rated 9 what blind review rated 6 to 7.
 
 - The last tool call before the final reply is `check.mjs`, and the reply quotes its score line.
+- The critic judges the page while scrolling, not only stills, and images are judged in place. A page that breaks mid-scroll does not pass however good its stills are.
 - Report the level the critic gave: pass (9), leader level (8), or below leader level (7 or less) with the remaining gaps. Never a self-score.
 - Never end the turn while images, a build or the check still run in the background. In headless sessions, ending the turn ends the work.
 - Existing-project changes use `existing_check.mjs` instead; see their route.
@@ -59,7 +60,7 @@ Each step leaves a file the gate checks for. Missing files are blockers, so the 
 | 4. Identity | Truth, visual idea, type voice, color world, one device, image treatment, voice line, motion score | `.seenry/identity.md` |
 | 5. Explore and pick blind | Three identity boards from the three strongest ideas, then `pick.mjs` | `.seenry/explore/a,b,c.html`, `pick.json`, `.seenry/identity.html` |
 | 6. Motion spec | Each moving thing: trigger, property, duration, easing, interruption, reduced motion, source | `.seenry/motion.md` |
-| 7. Material | Start every image in one background batch right after the pick, then build while it runs | images that passed `photo_check.mjs` |
+| 7. Material | Start every image in one background batch right after the pick, then build while it runs. Use as many as the page uses well, including custom SVG or PNG artwork | images that passed `photo_check.mjs --page` in place |
 | 8. Build | The board's hero poster becomes the first screen; every section applies the identity | the page, with one `data-seenry-signature` element |
 | 9. Edit, then check | Cut copy by a third, craft pass at 100%, then `check.mjs` | review rounds in `.seenry/review/` |
 | 10. Record | Brand guidelines and the references kept and set aside | `DESIGN.md` with a "Brand guidelines" section |

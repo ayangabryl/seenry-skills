@@ -201,7 +201,7 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   } else if (photos.length && !passed) {
     blockers++;
     console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
-    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" [--medium "<image medium from identity.md, e.g. oil painting>"]${refs ? ' --refs ' + refs : ''} --out ${report}`);
+    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" --page ${target} [--medium "<image medium from identity.md, e.g. oil painting>"]${refs ? ' --refs ' + refs : ''} --out ${report}`);
     console.log(quick ? '  Regenerate only images under 6 (wrong subject, text, broken anatomy), once, with the prompt it writes; keep everything at 6 or above.' : '  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
   }
 }
@@ -274,11 +274,22 @@ const detailRun = native ? null : runAsync([join(here, 'detail_critic.mjs'), tar
 // Page choreography: the board is a still, so a third critic films the entrance and a scroll and judges how the page moves.
 const choreoOut = join(review, 'choreography.json');
 const choreoRun = native ? null : runAsync([join(here, 'choreography.mjs'), target, '--out', choreoOut, ...(existsSync(join(dir, 'identity.md')) ? ['--identity', join(dir, 'identity.md')] : []), ...(pw ? ['--playwright', pw] : [])]);
+// The critic also sees the page while scrolling, paired with the named site when patterns.md gives its address.
+const scrollOut = join(review, 'scroll.png');
+const refUrl = existsSync(join(dir, 'refs', 'patterns.md')) ? (readFileSync(join(dir, 'refs', 'patterns.md'), 'utf8').match(/https?:\/\/[^\s)>\]]+/) || [])[0] : '';
+let scrollArgs = [];
+if (!native && !sameBoard) {
+  const strip = spawnSync(process.execPath, [join(here, 'scroll_strip.mjs'), target, '--out', scrollOut, ...(refUrl ? ['--ref', refUrl] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8', timeout: 240000});
+  if (strip.status === 0 && existsSync(scrollOut)) {
+    scrollArgs = ['--scroll', scrollOut, ...(existsSync(scrollOut.replace(/\.png$/, '-phone.png')) ? ['--scroll-phone', scrollOut.replace(/\.png$/, '-phone.png')] : []), ...(/paired with/.test(strip.stdout) ? ['--scroll-paired'] : [])];
+    process.stdout.write(strip.stdout);
+  } else console.log('Scroll strip did not render; the critic judges stills only this round.');
+}
 const critic = sameBoard
   ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
   : (existsSync(join(dir, 'identity.html')) && spawnSync(process.execPath, [join(here, 'render_page.mjs'), join(dir, 'identity.html'), join(review, 'identity.png'), ...(pw ? ['--playwright', pw] : [])], {stdio: 'ignore'}),
     await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'), ...(existsSync(join(review, 'identity.png')) ? ['--identity', join(review, 'identity.png')] : []),
-  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : []), ...(existsSync(join(dir, 'refs', 'patterns.md')) ? ['--patterns', join(dir, 'refs', 'patterns.md')] : [])]));
+  '--out', out, ...scrollArgs, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : []), ...(existsSync(join(dir, 'refs', 'patterns.md')) ? ['--patterns', join(dir, 'refs', 'patterns.md')] : [])]));
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));

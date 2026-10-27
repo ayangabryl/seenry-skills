@@ -13,8 +13,8 @@ Never go below it. Plain models now build competent pages alone, so a page built
 | Research | One `research_design_brief` survey of the category; one search for the most important body section (`search_sections`, or pricing, schedule, menu or work); one `borrow_references` call outside the category |
 | References | At least three opened at full size with `get_reference_context` or `get_screenshot`, one of them a category leader pulled by name, each with a decision card in `.seenry/refs/kept.md` |
 | Identity | Three identity boards and a `pick.mjs` run. The pick is what gives the page its identity, so it is never skipped |
-| Imagery | One background batch right after the pick, at most six generated images (one per slot). Other states of the same subject (time of day, season, a second city) come from grading or cropping an image you have. Keep every image the photo check scores 6 or more. When the generator is rate limited, finish with what you have |
-| Gate | `check.mjs --mode quick`: board blockers, one critic round, one round of its fixes. A second run re-checks the board only |
+| Imagery | One background batch right after the pick, as many images as the page uses well: generated pictures, plus custom artwork drawn for this brand as SVG or PNG (a mark, a device, an illustration system). Keep every image the in-place photo check scores 6 or more. When the generator is rate limited, finish with what you have |
+| Gate | `check.mjs --mode quick`: board blockers, one critic round, one round of its fixes. A second run re-checks the board only. The critic sees scroll frames, paired with the named site when there is one |
 
 Preview on the dev server while you work and run the production build once at the end. When `check.mjs` lists blockers, fix all of them before running it again, not one per round.
 

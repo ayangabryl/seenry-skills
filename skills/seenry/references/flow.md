@@ -125,7 +125,8 @@ Write `.seenry/motion.md`: for each moving thing, the trigger, what moves, durat
 
 - Start images right after the pick: write the jobs file from the identity's image treatment and run `node scripts/image.mjs --batch jobs.json --variants 3 --brand "<brand>" --background`. It returns at once.
 - Build with the final file names. `check.mjs` waits for the images; `image.mjs --wait` waits by hand. A page that waits for its photographs wastes five to twelve minutes.
-- Every image goes through `photo_check.mjs`. Imagery rules: [the standard](standard.md) and [seenry-assets](../../seenry-assets/SKILL.md). Illustration: [building](building.md#craft-illustration-and-ambient-visuals).
+- Use as many images as the page uses well. Custom artwork made for this brand counts as much as generated pictures: draw marks, devices and illustration systems as SVG, or render them to PNG.
+- Every image goes through `photo_check.mjs --page <the page>`, which judges it as it sits on the page: its crop, its edges and how it meets the ground and the type. A good image used badly fails; a modest one used well passes. Imagery rules: [the standard](standard.md) and [seenry-assets](../../seenry-assets/SKILL.md). Illustration: [building](building.md#craft-illustration-and-ambient-visuals).
 
 ## 8. Build
 
@@ -157,7 +158,7 @@ Studios judge at full size; the critic sees half scale. Render each section at 1
 
 ### Run the gate
 
-`node scripts/check.mjs <file or url> --brief <brief> --mode quick`. It checks the artifacts, the board, photographs, the blind critic, the detail critic and the motion judge.
+`node scripts/check.mjs <file or url> --brief <brief> --mode quick`. It checks the artifacts, the board, photographs in place, the blind critic, the detail critic and the motion judge. The critic sees the page while scrolling as well as stills ([scroll_strip.mjs](../scripts/scroll_strip.mjs)): frames at even points down the page, so anything that only goes wrong mid-scroll counts. For a named site, each frame is paired with the reference at the same point of its page.
 
 | Signal | Do |
 | --- | --- |
@@ -191,7 +192,8 @@ Studios judge at full size; the critic sees half scale. Render each section at 1
 | [research.mjs](../scripts/research.mjs) | Bounded scripted research, at most 11 credits |
 | [bar.mjs](../scripts/bar.mjs) | Captures leaders' live first screens when the library lacks them |
 | [image.mjs](../scripts/image.mjs) | Image generation through the Codex CLI, single or batched, in the background |
-| [photo_check.mjs](../scripts/photo_check.mjs) | A blind art director scores each image for its slot and rewrites weak prompts |
+| [photo_check.mjs](../scripts/photo_check.mjs) | A blind art director scores each image in place on the page (`--page`) and rewrites weak prompts |
+| [scroll_strip.mjs](../scripts/scroll_strip.mjs) | Films the page by wheel at even points, paired with the named site's frames when there is one |
 | [screens.mjs](../scripts/screens.mjs), [motion_video.mjs](../scripts/motion_video.mjs) | The board and motion judge for native apps and filmed interactions |
 | [audit_page.mjs](../scripts/audit_page.mjs), [system_audit.mjs](../scripts/system_audit.mjs), [optical_audit.mjs](../scripts/optical_audit.mjs) | System and optical audits: rendered sizes, off-grid spacing, ink alignment, off-center icons |
 | [palette.py](../scripts/palette.py) | OKLCH ramps and light and dark tokens with WCAG and APCA measured |
