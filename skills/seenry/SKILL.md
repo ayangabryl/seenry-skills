@@ -22,6 +22,7 @@ The route decides how much of this skill applies. A small fix with the full flow
 | The request | Route | Read |
 | --- | --- | --- |
 | A change inside an app that has its own screens and styles | Existing project: keep its system, fix presentation fully | [existing project](references/existing-project.md) |
+| "Unslop this", "make it not look AI-made", "redesign this screen" | Unslop: keep every feature, rebuild the look from deep research, full gate | [unslop](references/unslop.md) |
 | A new page, site or redesign | The flow below | this file, then the files each step names |
 | One line ("landing page for my habit tracker") | The flow below in quick mode | [new-site holds](references/new-site.md) |
 | "Like X", "based on X", "inspired by X", "replicate X" | The flow, with the named site as the identity | [named site](references/named-site.md) |
@@ -80,7 +81,10 @@ Give `.seenry/` a `.gitignore` containing `*` when you create it yourself. The s
 7. **The claim is specific and leads.** The headline names something only this product can say: a noun, fact or mechanism. A mood any competitor could print is not a claim.
 8. **Consecutive sections change composition.** The same heading, paragraph and cards rhythm twice reads as a template.
 9. **Motion explains a change or it does not run.** Interface motion stays under 300ms; page choreography has its own slower clock. Rules in `seenry-motion`.
-10. **Copy is the owner's real site.** Believable names, prices and hours. Never a note on the page that content is sample or placeholder; tell the owner what to swap in the report.
+10. **Slop is anything that reads as AI-made at a glance,** not only the listed tells. The critic scores it as `looks_ai`; a clean page in the familiar AI default does not pass.
+11. **Every affordance works.** A shortcut hint, badge or button with nothing behind it is removed or wired up.
+12. **Gate markers tell the truth.** `data-seenry-*` attributes describe the page; never add one, or restructure markup, to pass a check. An app screen gets `Surface: app` in `BRIEF.md`, and landing-page checks skip themselves.
+13. **Copy is the owner's real site.** Believable names, prices and hours. Never a note on the page that content is sample or placeholder; tell the owner what to swap in the report.
 
 ## Never ship
 
@@ -110,6 +114,8 @@ The review board blocks most of these by name. Each row has its fix, because a b
 | A small object floating in a large empty band | One large thing fills a section | Sparse is not calm |
 | Four-up icon grids, nine-plus logo walls, chip clouds | One clear example, three strong points, six known marks | Template furniture |
 | Text people read under 13px, or grey that fails contrast | The size floors in [the standard](references/standard.md) | Unreadable at review scale |
+| A shortcut hint, badge or label with nothing behind it (⌘K with no command menu) | Wire it up or remove it | It promises a feature that is not there |
+| The familiar AI default: house palette, the standard skeleton for this screen, every block at equal weight | One element leads; identity from this product's idea | Reads as generated with zero tells |
 | Letters clipped by a mask (`overflow: hidden` on tight display lines) | `padding-block: 0.15em` with a matching negative margin | Slices the tail of g and y |
 | Type on an image without a calm field or scrim | 3:1 for large, 4.5:1 for small text over the whole image | The board measures every pixel |
 
@@ -150,6 +156,7 @@ Grep the page for each pattern. Every hit is fixed or defended to a designer in 
 | Identity method, boards, motion score | [identity](references/identity.md) |
 | What a one-line brief must include | [new-site holds](references/new-site.md) |
 | Changes inside an existing app | [existing project](references/existing-project.md), [surfaces](references/surfaces.md) |
+| Unslop or redesign an existing screen | [unslop](references/unslop.md) |
 | "Like X" and replicas | [named site](references/named-site.md), [replication](references/replication.md) |
 | Floors: type, color, radius, scale, imagery, motion | [the standard](references/standard.md) |
 | Components, transitions, signature, illustration | [building](references/building.md) |

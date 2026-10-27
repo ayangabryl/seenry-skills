@@ -165,12 +165,14 @@ if (existsSync(join(dir, 'images.pending'))) {
 }
 const quietRegister = existsSync(join(dir, 'identity.md')) && /register[^\n]{0,40}quiet|quiet premium/i.test(readFileSync(join(dir, 'identity.md'), 'utf8'));
 const briefText = flag('brief') && existsSync(flag('brief')) ? readFileSync(flag('brief'), 'utf8') : '';
+// An app screen (dashboard, settings, a tool) is judged as product UI, not as a landing page.
+const appSurface = flag('surface') === 'app' || /^surface:\s*(app|dashboard|product)/mi.test(briefText);
 const software = /\b(saas|software|app|apps|platform|tool|dashboard|api|sdk|plugin|extension|workspace|subscription)\b/i.test(briefText);
 // A named reference's own patterns (chapter numbers, a serif accent, pill tags) are allowed when the pattern map lists them.
 const patternFile = join(dir, 'refs', 'patterns.md');
 const refUrl = existsSync(patternFile) ? (readFileSync(patternFile, 'utf8').match(/https?:\/\/[^\s)>\]]+/) || [])[0] || '' : '';
 const allowed = existsSync(patternFile) ? ((readFileSync(patternFile, 'utf8').match(/^Allow:\s*(.+)$/mi) || [])[1] || '').trim() : '';
-const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(allowed ? ['--allow', allowed] : []), ...(existsSync(patternFile) ? ['--named'] : []), ...(quietRegister ? ['--quiet'] : []), ...(software ? ['--software'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
+const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(allowed ? ['--allow', allowed] : []), ...(existsSync(patternFile) ? ['--named'] : []), ...(appSurface ? ['--app'] : []), ...(quietRegister ? ['--quiet'] : []), ...(software ? ['--software'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
 // Native apps have no DOM to inspect: their screenshots are laid out as the board and the critic and motion judge do the review.
 const board = native
   ? spawnSync('node', [join(here, 'screens.mjs'), '--screens', native, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})

@@ -23,7 +23,7 @@ const critic = new Promise(done => {
   let stdout = '', stderr = ''; child.stdout.on('data', d => stdout += d); child.stderr.on('data', d => stderr += d);
   child.on('close', status => done({status, stdout, stderr}));
 });
-const board = run('review_board.mjs', [target, '--out', out]);
+const board = run('review_board.mjs', [target, '--out', out, ...(flag('surface') === 'page' ? [] : ['--app'])]);
 if (board.status === 2) { process.stderr.write(board.stderr); process.exit(2); }
 process.stdout.write(board.stdout);
 if (existsSync(join(out, 'board.json'))) blockers += JSON.parse(readFileSync(join(out, 'board.json'), 'utf8')).blockers;

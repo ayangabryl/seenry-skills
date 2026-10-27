@@ -4,7 +4,7 @@ The table in SKILL.md is the order. This file is the detail for each step. Chang
 
 ## 1. Brief
 
-Audience, the one job of the surface, the real content, what is fixed, and one sentence of intent. Two minutes.
+Audience, the one job of the surface, the real content, what is fixed, and one sentence of intent. Two minutes. For an app screen (a dashboard, settings, a tool), start `BRIEF.md` with `Surface: app`, so the gate judges it as product UI rather than a landing page.
 
 Then write the inventory: the eight to twelve things the best products put on this kind of screen.
 

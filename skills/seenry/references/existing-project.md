@@ -2,7 +2,7 @@
 
 The owner wants a pull request they can merge, not a rebrand. A change that looks great but does not look like their app has failed. So has a timid cleanup.
 
-Use this route when the request adds or changes something in an app with its own screens and styles ("fix the settings page", "add a pricing page", "make this modal nicer").
+Use this route when the request adds or changes something in an app with its own screens and styles ("fix the settings page", "add a pricing page", "make this modal nicer"). When the request is to unslop or redesign a screen ("unslop this", "make it not look AI-made"), the app's current look is the problem: use [unslop](unslop.md) instead.
 
 ## 1. Read the app before writing anything
 
