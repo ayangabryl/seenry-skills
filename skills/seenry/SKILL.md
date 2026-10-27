@@ -35,7 +35,7 @@ A page is done when `node scripts/check.mjs <file or url> --brief <brief> --mode
 - The last tool call before the final reply is `check.mjs`, and the reply quotes its score line.
 - The critic judges the page while scrolling, not only stills, and images are judged in place. A page that breaks mid-scroll does not pass however good its stills are.
 - Report the level the critic gave: pass (9), leader level (8), or below leader level (7 or less) with the remaining gaps. Never a self-score.
-- Never end the turn while images, a build or the check still run in the background. In headless sessions, ending the turn ends the work.
+- Never end the turn while images, a build or the check still run. In headless sessions, ending the turn ends the work. Run `check.mjs` in the foreground with a long timeout; if your shell moves it to the background, block on `node scripts/check.mjs <file or url> --await`, which waits for the running gate and prints its result.
 - Existing-project changes use `existing_check.mjs` instead; see their route.
 
 ## Modes

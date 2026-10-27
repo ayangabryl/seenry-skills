@@ -28,6 +28,23 @@ const dir = resolve(flag('dir', '.seenry')), review = join(dir, 'review');
 markWorkDir(dir);
 const goal = Number(flag('target', '9'));
 mkdirSync(review, {recursive: true});
+// A gate that runs in the background must never be abandoned: ending the turn while it runs ends the work in headless
+// sessions. --await blocks until the running gate finishes, then prints its full output and exits with its code.
+const running = join(review, 'check.running'), lastRun = join(review, 'last-run.json');
+if (args.includes('--await')) {
+  const alive = () => { if (!existsSync(running)) return false; try { process.kill(Number(readFileSync(running, 'utf8')), 0); return true; } catch { return false; } };
+  const start = Date.now();
+  while (alive() && Date.now() - start < 45 * 60000) await new Promise(r => setTimeout(r, 5000));
+  if (!existsSync(lastRun)) { console.log('No finished gate run found. Run check.mjs in the foreground.'); process.exit(2); }
+  const last = JSON.parse(readFileSync(lastRun, 'utf8'));
+  process.stdout.write(last.log);
+  process.exit(last.code);
+}
+writeFileSync(running, String(process.pid));
+const captured = [];
+const rawWrite = process.stdout.write.bind(process.stdout);
+process.stdout.write = (chunk, ...rest) => { captured.push(String(chunk)); return rawWrite(chunk, ...rest); };
+process.on('exit', code => { try { writeFileSync(lastRun, JSON.stringify({code, log: captured.join('')})); rmSync(running, {force: true}); } catch {} });
 let refs = flag('refs');
 // The critic's bar is the leaders' home-page first screens from research.mjs, never the builder's own picks: section
 // crops and motion frames made a weak, noisy bar that scored America.gov itself 5/10.
@@ -151,8 +168,9 @@ const briefText = flag('brief') && existsSync(flag('brief')) ? readFileSync(flag
 const software = /\b(saas|software|app|apps|platform|tool|dashboard|api|sdk|plugin|extension|workspace|subscription)\b/i.test(briefText);
 // A named reference's own patterns (chapter numbers, a serif accent, pill tags) are allowed when the pattern map lists them.
 const patternFile = join(dir, 'refs', 'patterns.md');
+const refUrl = existsSync(patternFile) ? (readFileSync(patternFile, 'utf8').match(/https?:\/\/[^\s)>\]]+/) || [])[0] || '' : '';
 const allowed = existsSync(patternFile) ? ((readFileSync(patternFile, 'utf8').match(/^Allow:\s*(.+)$/mi) || [])[1] || '').trim() : '';
-const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(allowed ? ['--allow', allowed] : []), ...(quietRegister ? ['--quiet'] : []), ...(software ? ['--software'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
+const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(allowed ? ['--allow', allowed] : []), ...(existsSync(patternFile) ? ['--named'] : []), ...(quietRegister ? ['--quiet'] : []), ...(software ? ['--software'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
 // Native apps have no DOM to inspect: their screenshots are laid out as the board and the critic and motion judge do the review.
 const board = native
   ? spawnSync('node', [join(here, 'screens.mjs'), '--screens', native, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
@@ -201,9 +219,15 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   } else if (photos.length && !passed) {
     blockers++;
     console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
-    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" --page ${target} [--medium "<image medium from identity.md, e.g. oil painting>"]${refs ? ' --refs ' + refs : ''} --out ${report}`);
+    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" --page ${target}${existsSync(patternFile) ? ' --patterns ' + patternFile : ''} [--medium "<image medium from identity.md, e.g. oil painting>"]${refs ? ' --refs ' + refs : ''} --out ${report}`);
     console.log(quick ? '  Regenerate only images under 6 (wrong subject, text, broken anatomy), once, with the prompt it writes; keep everything at 6 or above.' : '  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
   }
+}
+// A named site lends its patterns, never its words.
+if (!native && refUrl) {
+  const overlap = spawnSync(process.execPath, [join(here, 'copy_overlap.mjs'), target, '--ref', refUrl, ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8', timeout: 180000});
+  if (overlap.status === 1) { blockers++; console.log('\n■ ' + overlap.stdout.trim().split('\n').join('\n  ')); }
+  else if (overlap.stdout) console.log('\n' + overlap.stdout.trim());
 }
 // Static motion scan: token, easing, transition-all and reduced-motion checks from source, in well under a second.
 const scanReport = join(review, 'motion-scan.json');
@@ -270,13 +294,12 @@ const startMotion = () => runAsync(motionArgs);
 let motionRun = motionPlanned ? startMotion() : null;
 // Craft at 100%: the detail critic reviews each section at full size while the main critic judges the board.
 const detailOut = join(review, 'detail.json');
-const detailRun = native ? null : runAsync([join(here, 'detail_critic.mjs'), target, '--out', detailOut, ...(pw ? ['--playwright', pw] : [])]);
+const detailRun = native ? null : runAsync([join(here, 'detail_critic.mjs'), target, '--out', detailOut, ...(existsSync(patternFile) ? ['--patterns', patternFile] : []), ...(pw ? ['--playwright', pw] : [])]);
 // Page choreography: the board is a still, so a third critic films the entrance and a scroll and judges how the page moves.
 const choreoOut = join(review, 'choreography.json');
-const choreoRun = native ? null : runAsync([join(here, 'choreography.mjs'), target, '--out', choreoOut, ...(existsSync(join(dir, 'identity.md')) ? ['--identity', join(dir, 'identity.md')] : []), ...(pw ? ['--playwright', pw] : [])]);
+const choreoRun = native ? null : runAsync([join(here, 'choreography.mjs'), target, '--out', choreoOut, ...(existsSync(patternFile) ? ['--patterns', patternFile] : []), ...(existsSync(join(dir, 'identity.md')) ? ['--identity', join(dir, 'identity.md')] : []), ...(pw ? ['--playwright', pw] : [])]);
 // The critic also sees the page while scrolling, paired with the named site when patterns.md gives its address.
 const scrollOut = join(review, 'scroll.png');
-const refUrl = existsSync(join(dir, 'refs', 'patterns.md')) ? (readFileSync(join(dir, 'refs', 'patterns.md'), 'utf8').match(/https?:\/\/[^\s)>\]]+/) || [])[0] : '';
 let scrollArgs = [];
 if (!native && !sameBoard) {
   const strip = spawnSync(process.execPath, [join(here, 'scroll_strip.mjs'), target, '--out', scrollOut, ...(refUrl ? ['--ref', refUrl] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8', timeout: 240000});

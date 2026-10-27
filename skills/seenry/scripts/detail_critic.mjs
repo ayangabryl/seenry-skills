@@ -13,6 +13,7 @@ import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {findCli, askModel} from './model_cli.mjs';
 import {markWorkDir} from './workdir.mjs';
+import {namedIntent} from './named.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -84,7 +85,7 @@ Look closely at each section for:
 - controls and small parts: buttons, inputs, chips and icons that do not share one height, radius or stroke; icons misaligned with their labels
 - finish: anything that looks unconsidered at 100%
 ${app ? '- app screens: table, meta and helper text under 13px or under 4.5:1 contrast (the most common reason reviewers mark app screens down), controls that do not share one height, density that wastes the width or crams it, a save model that is unclear (switches that save instantly next to a Save button), destructive actions that shout, and on the phone image: dead space, a header that pushes the content below the fold, rows that wrap badly\n' : ''}
-Score craft 1-10 for the whole page (10 = studio-grade finish everywhere; 8 = a few visible slips; 6 = competent but loose; 4 = careless) and each section. Then list the fixes that matter most, most visible first, at most 10: the section, the exact element, the problem and a concrete change in px, weight or alignment. Never suggest text smaller than 16px for paragraphs or 14px for labels. Do not open any files other than the attached images.`;
+Score craft 1-10 for the whole page (10 = studio-grade finish everywhere; 8 = a few visible slips; 6 = competent but loose; 4 = careless) and each section. Then list the fixes that matter most, most visible first, at most 10: the section, the exact element, the problem and a concrete change in px, weight or alignment. Never suggest text smaller than 16px for paragraphs or 14px for labels. ${namedIntent(flag('patterns'), 'detail')}Do not open any files other than the attached images.`;
 let verdict;
 try { verdict = askModel(found, {images, prompt, schema}); } catch (e) { console.error(`detail critic failed: ${e.message}`); process.exit(1); }
 mkdirSync(dirname(out), {recursive: true});

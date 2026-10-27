@@ -22,4 +22,6 @@ Either way, never use its logo, name, copy, images or paid fonts. Use the brand'
 ## What changes in the flow
 
 - **The reference is the identity.** Skip the three identity boards and `pick.mjs`; `check.mjs` accepts `patterns.md` in their place. Still write `identity.md`: the brand's own idea lives in its name, copy, artwork and one signature detail.
-- **Allowed patterns.** If the site itself uses something the board normally blocks, list those keys on one line in `patterns.md`: `Allow: numbered, italicAccent`. Craft checks (clipped text, type on images, small or faint text, missing fonts, fixed overlays, phone hero) can never be allowed.
+- **Every judge reads the pattern map.** The critic, the detail critic, the motion critic and the photo check are all told which patterns, image medium and motion were asked for, so none of them marks the reference's own choices down.
+- **Its words are not yours.** `check.mjs` compares the page's text with the named site and blocks any run of five or more shared words. Write every line in the brand's own voice.
+- **Allowed patterns.** If the site itself uses something the board normally blocks, list those keys on one line in `patterns.md`: `Allow: numbered, italicAccent`. When the board blocks something the site does on purpose, it prints the key to add. Craft checks (clipped text, type on images, small or faint text, missing fonts, fixed overlays, phone hero) can never be allowed.

@@ -96,7 +96,7 @@ Check the craft claims on the pixels (spacing, type detail, density, finish) and
 The person named a site to be inspired by. The designer's pattern map lists that site's recognizable patterns and how this brand carries each one:
 ${patterns}
 
-For this site, matching its composition, type treatment, material and components is what was asked for. Check each listed pattern is visibly carried in this brand's own way; a pattern that was dropped or flattened into a generic version costs reference_fit.` : ''}
+For this site, matching its composition, type treatment, material and components is what was asked for. Check each listed pattern is visibly carried in this brand's own way; a pattern that was dropped or flattened into a generic version costs reference_fit. Never count a listed pattern as slop, decoration, a stand-in or a cliché: the person asked for it. Judge only whether it is carried at the reference's level and in this brand's own way.` : ''}
 
 The brief:
 ${brief}

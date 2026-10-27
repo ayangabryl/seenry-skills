@@ -193,6 +193,7 @@ Studios judge at full size; the critic sees half scale. Render each section at 1
 | [bar.mjs](../scripts/bar.mjs) | Captures leaders' live first screens when the library lacks them |
 | [image.mjs](../scripts/image.mjs) | Image generation through the Codex CLI, single or batched, in the background |
 | [photo_check.mjs](../scripts/photo_check.mjs) | A blind art director scores each image in place on the page (`--page`) and rewrites weak prompts |
+| [copy_overlap.mjs](../scripts/copy_overlap.mjs) | Blocks any run of five or more words shared with the named site |
 | [scroll_strip.mjs](../scripts/scroll_strip.mjs) | Films the page by wheel at even points, paired with the named site's frames when there is one |
 | [screens.mjs](../scripts/screens.mjs), [motion_video.mjs](../scripts/motion_video.mjs) | The board and motion judge for native apps and filmed interactions |
 | [audit_page.mjs](../scripts/audit_page.mjs), [system_audit.mjs](../scripts/system_audit.mjs), [optical_audit.mjs](../scripts/optical_audit.mjs) | System and optical audits: rendered sizes, off-grid spacing, ink alignment, off-center icons |

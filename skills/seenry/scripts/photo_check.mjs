@@ -13,6 +13,7 @@ import {tmpdir} from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {findCli, askModel} from './model_cli.mjs';
+import {namedIntent} from './named.mjs';
 import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
@@ -66,6 +67,8 @@ if (pageTarget) {
     await browser.close();
   }
 }
+// The named site's pattern map, given or found beside the page, tells the art director which medium is intended.
+const patternsPath = flag('patterns') || [pageTarget && !/^https?:/.test(pageTarget) ? join(dirname(resolve(pageTarget)), '.seenry', 'refs', 'patterns.md') : '', resolve('.seenry/refs/patterns.md')].find(p => p && existsSync(p));
 const KEYS = ['realism', 'light', 'composition', 'premium', 'fit', 'concept', 'overall'];
 const schema = {type: 'object', additionalProperties: false, required: ['images'], properties: {images: {type: 'array', items: {
   type: 'object', additionalProperties: false, required: ['image', ...KEYS, 'problems', 'better_prompt'], properties: {
@@ -76,7 +79,7 @@ const prompt = `You are the art director for ${flag('brand', 'a premium brand')}
 
 ${listing}
 ${refs.length ? 'The reference screens show the level of imagery the site must match.\n' : ''}${flag('medium') ? `The intended medium is: ${flag('medium')}. It is a deliberate choice, not a flaw. Judge realism as how convincing the image is in that medium (a believable oil painting, a crafted illustration), never as how photographic it is, and keep that medium in the better prompt.\n` : ''}
-Each candidate will be used as: ${flag('use', 'a hero image')}.${inPlace ? `\nCandidates marked "shown in place" are crops of the rendered page with the image and its surroundings. Judge the image as it sits there: its crop, its edges (a transparent cut-out should melt into the page, never show a hard or haloed edge), how its tone meets the ground and the type around it, and whether it reads at that size. Use the surrounding page only as context; do not score the page's own text or UI.` : ''}
+${namedIntent(patternsPath, 'photo')}Each candidate will be used as: ${flag('use', 'a hero image')}.${inPlace ? `\nCandidates marked "shown in place" are crops of the rendered page with the image and its surroundings. Judge the image as it sits there: its crop, its edges (a transparent cut-out should melt into the page, never show a hard or haloed edge), how its tone meets the ground and the type around it, and whether it reads at that size. Use the surrounding page only as context; do not score the page's own text or UI.` : ''}
 
 Score each candidate 1-10 (8 = a professional shoot for a premium brand; 5 = acceptable stock; 3 = obviously generated):
 - realism: would a viewer believe this is a photograph (or a deliberate high-end render)? Subtract for AI tells: garbled or fake text on labels, warped geometry, melted edges, impossible reflections, plastic skin, extra fingers, over-smooth surfaces, HDR glow. Mechanical, technical and anatomical subjects (watch movements, engines, circuit boards, instruments, hands, food, architecture) must make physical sense to an expert in that field: parts that connect and could work, the right count and placement of components, plausible finishing. A specialist customer spots a fake mechanism at once, so implausible mechanical detail caps realism at 4 however polished it looks; when a faithful subject cannot be generated, recommend a crop, angle or subject that does not expose the mechanism.
