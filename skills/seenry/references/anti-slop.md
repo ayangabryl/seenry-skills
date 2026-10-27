@@ -63,7 +63,7 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 | Large headline starting right of the body text below | Pull back the side bearing (−0.02 to −0.06em) |
 | Card nested in a tinted panel with the same radius, or overflowing it | Concentric radii and inset, or drop the panel |
 | Everything the same size and weight | One dominant element, clear subordinates |
-| No fine detail anywhere | One detail layer: metadata, mono labels, live values |
+| No fine detail anywhere | One detail layer: metadata, tabular figures, live values |
 | The first layout shipped without alternatives | Explore 3 compositions in the frame and critique ([exploration](exploration.md)) |
 
 ## Content
@@ -105,3 +105,40 @@ Run this list against the rendered page (desktop 1440 and phone 390) before show
 ## Measure it
 
 Run [the system audit](../scripts/system_audit.mjs) in the page (Playwright or the browser console) to count distinct font sizes, weights, families, radii, shadows and colors, list off-grid paddings, gaps and margins, and flag nested radius violations. Numbers do not replace looking, but they catch drift you stop seeing after the third iteration.
+
+## The blocked list in full
+
+The never-ship table in SKILL.md is the summary; this is the complete list with its exceptions. Size floors are in [the standard](standard.md#size-floors), not here.
+
+Leading teams look premium for one root reason: they ranked the job, then removed everything that does not serve it. Calm is the visible result. The reasons behind each rule are in [premium](premium.md).
+
+**Never ship these (check.mjs blocks most of them):**
+- Eyebrows by reflex: a short small line above a title, in any case ("Good to know", "Your neighborhood yoga studio" over the h1). Cut it; the title says it, and card facts such as duration or level go under the title. Uppercase letter-spaced labels are slop anywhere.
+- Numbered labels: "01 /", "(001)", "No. 03", "Step 01". Numbers only where order is real, as plain figures.
+- The exception is a label or marker system that is the identity's own device, the way a studio uses one: one consistent marker or index that comes from this brand's idea on every section, in sentence case, set with the same care as the headlines. Mark its elements `data-seenry-device="<name>"`; review_board treats a small marker as a system and flags it when it appears fewer than three times. A graphic device (a diagram, step circles, a timeline) is the opposite: use it once or twice where it explains most, never in hero, middle and closing alike (review_board flags three or more sections). Uppercase letter-spaced labels stay out.
+- Weights of 700 or more in UI, or more than three weights on a page.
+- Italic serif accent words in headlines; trendy default faces used for flavor (Instrument Serif, Fraunces, Playfair, Space Grotesk, Clash Display).
+- The default AI palettes: cream + terracotta or orange, plum + peach, navy + lime, forest green + cream as a costume, purple gradients.
+- Clip-art imagery: sunset circles, vinyl records, flat SVG product stand-ins, tilted floating cards with sticker badges, gradient blobs, glows.
+- Colored KPI hero cards with rings or stripes, a decorative icon tile in every card (icons that help people recognize an option or a section are fine), a card per row, saturated pill badges down a column.
+- Generic slogans ("X is better together", "Built for the way you Y"), fake stats, lorem.
+- Text people must read under 13px, or in a light grey that fails contrast.
+- Template furniture: rows of example chips, four-up icon feature grids, logo walls of nine or more marks, outlined mini-cards repeated down a section. Show one clear example, three strong points, or the six marks people recognize.
+- Framework default colors as the brand: Tailwind blue-600/indigo-500, violet-600, emerald-500, orange-500 on near-black. Derive the accent from the brand or its material and correct it in OKLCH (below).
+- One-sided borders as decoration: an accent rail down the left edge of a card, quote or callout (`border-left: 3px solid`), or a selected tab, filter or link marked with `border-bottom` on an element with a corner radius, so the line bends at its ends. Separate cards by surface tone and spacing; draw a tab indicator as its own straight bar (check.mjs blocks both).
+- Text symbols standing in for icons or a logo: an asterisk, sparkle, star or emoji as the brand mark, Unicode arrows (↗ → ←), check marks or bullets typed as characters inside buttons and links. An asterisk, sparkle, star, burst or flower is the default AI logo whether it is typed or drawn as SVG, and so are decorative ✳ ✦ ✧ scattered as ornaments; never use one. Logos are a wordmark set in the brand type, or a mark drawn from the product's own idea; icons come from one real icon set as SVG (Lucide, Phosphor or Tabler) at a consistent size and stroke (check.mjs blocks typed symbols).
+- A short rule or dash in front of a label ("— A notebook that thinks with you", a 20px line before an eyebrow). The label stands alone, in sentence case, or is cut.
+- Colored dots in front of text ("● Active", "● Paid", status pills with a leading dot). A dot is only right when it is the whole message: a live or recording indicator, online presence on an avatar, an unread marker in a list; mark those with `data-seenry-dot="live|presence|unread"` (check.mjs blocks any other dot before text).
+- "Many" drawn as a cloud or wall of tiny chips, domains, logos or dots (it turns the claim into decoration), and production notes in the page body ("these marks are invented", "demo data", "placeholder"); a one-line disclosure in the footer is fine.
+- Placeholder art: blurred gradient blobs, CSS gradients or code-drawn shapes standing in for album covers, product photos or avatars.
+- **The second-generation tells.** Once the old tells are banned, generated pages converge on a new house look, and blind readers spot it at once. Never:
+  - a two-tone headline whose second sentence is set in grey ("Pay for the studio. Not every chair." with the second line muted), more than once per page; a headline says one thing in one color;
+  - the same section header everywhere: title on the left, a small muted note on the right, then a ruled list. Each section opens the way its content needs (a photograph, a number, a quote, straight into the product);
+  - monospace as flavor: mono captions, timestamps, "2 of 4 left" meta lines and receipt text scattered as texture. Mono is for code and aligned figures in a real table;
+  - a fabricated data widget in every section (tide curves, seat pips, sparklines, receipts, dot charts). One signature moment carries the idea; other sections use real material;
+  - crude drawn diagrams and CSS illustrations: labelled boxes, sine waves, outlined pills standing for people;
+  - testimonials from invented people with initials in a circle and a metadata line ("3 sessions · May 2026"); use a real photo, or the quote with a plain name;
+  - small objects in large empty fields: a 300px photo floating in a 1440px band, a short list in the right third with nothing on the left. A section is filled by one large thing, not spaced out to look calm;
+  - a page made only of type, rules and drawn shapes. Every new page carries real material at real size at least twice: the product's own interface on a stage (software), art-directed photography (places, food, people, objects) or video. Removing decoration must be replaced by stronger material, never by nothing. For software the material is the product: at least one large stage of its real interface (marked `data-seenry-product`); museum prints, borrowed artworks and stock photos never stand in for it;
+  - one visual idea (step circles, a timeline, a chip row, a mini-diagram) repeated in hero, middle and closing. Use it once, where it explains most;
+  - every page built from the same skeleton whatever the brand. If the tidepool surf school and the butcher would share a wireframe, the design was not thought for either.

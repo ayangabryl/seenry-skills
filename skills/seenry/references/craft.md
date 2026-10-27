@@ -47,7 +47,7 @@ Geometric alignment comes first and is covered in [alignment](alignment.md): key
 
 ## Motion in components
 
-- Enter/exit: opacity + 4–8px translate or scale 0.96→1, 150–220ms `cubic-bezier(0.23, 1, 0.32, 1)`. Exits faster than entrances.
+- Enter/exit: opacity + 4–8px translate or scale 0.96→1, 150–220ms on `--ease-out`. Exits faster than entrances.
 - Popovers scale from their trigger (`transform-origin` at the trigger side); modals from center.
 - Things used hundreds of times a day (command menus, keyboard actions) do not animate.
 - Respect `prefers-reduced-motion`: keep opacity, remove movement.

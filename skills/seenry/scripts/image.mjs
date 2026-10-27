@@ -6,7 +6,7 @@
  *  --variants 3 --brand "<brand>" [--refs a.png,b.png]   generate 3 candidates per shot and keep the one photo_check.mjs
  *                                                         scores highest (the others stay beside it as -v2, -v3)
  *
- *  Write prompts like a photographer (see SKILL.md Imagery and seenry-assets/references/generation.md): subject, set
+ *  Write prompts like a photographer (see references/standard.md Imagery and seenry-assets/references/generation.md): subject, set
  *  and surface, one light, lens and distance, composition for the slot and ratio, color grade, exclusions, and
  *  "no text" on labels. Then run photo_check.mjs on the results. Needs a working, signed-in `codex` CLI. */
 import {existsSync, readFileSync, copyFileSync, mkdirSync, mkdtempSync, readdirSync, statSync, rmSync} from 'node:fs';
@@ -45,7 +45,7 @@ const base = flag('batch') ? JSON.parse(readFileSync(resolve(flag('batch')), 'ut
 const jobs = base.flatMap(j => variants === 1 ? [j] : Array.from({length: variants}, (_, v) => ({...j, shot: j.out, out: j.out.replace(/(\.[a-z]+)?$/i, m => `-v${v + 1}` + (m || '.png'))})));
 if (!jobs.length || jobs.some(j => !j.prompt || !j.out)) { console.error('Usage: node image.mjs --prompt "<prompt>" --out <file.png> | --batch <jobs.json>'); process.exit(2); }
 const found = findCli('codex');
-if (!found) { console.error('No working Codex CLI found, so no image model is available. Use the host image tool, seenry-assets (OPENAI_API_KEY or GEMINI_API_KEY), license-clear photos, or the no-photo fallback in SKILL.md.'); process.exit(2); }
+if (!found) { console.error('No working Codex CLI found, so no image model is available. Use the host image tool, seenry-assets (OPENAI_API_KEY or GEMINI_API_KEY), license-clear photos, or the museum art set in references/new-site.md.'); process.exit(2); }
 
 // The image tool runs inside a Codex session; use the first model this account offers.
 let model = process.env.SEENRY_CODEX_MODEL || null;

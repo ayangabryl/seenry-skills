@@ -19,7 +19,7 @@ const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolv
 const min = Number(flag('min', '8')), out = resolve(flag('out', '.seenry/review/photos.json'));
 markWorkDir(out);
 const found = findCli(process.env.SEENRY_CRITIC);
-if (!found) { console.error('No working Codex or Claude CLI found; review the images yourself against the rules in SKILL.md.'); process.exit(2); }
+if (!found) { console.error('No working Codex or Claude CLI found; review the images yourself against the imagery rules in references/standard.md.'); process.exit(2); }
 
 const KEYS = ['realism', 'light', 'composition', 'premium', 'fit', 'concept', 'overall'];
 const schema = {type: 'object', additionalProperties: false, required: ['images'], properties: {images: {type: 'array', items: {

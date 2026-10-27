@@ -166,17 +166,19 @@ const refCount = existsSync(join(dir, 'refs')) ? readdirSync(join(dir, 'refs')).
 const motionSpec = join(dir, 'motion.md'), design = join(project, 'DESIGN.md');
 // Remember this project's identity so the next one can differ from it (the skill reads the last ten).
 try { recordIdentity(dir, project); } catch {}
+// A named site is the identity (references/named-site.md): its pattern map replaces the three boards.
+const named = existsSync(join(dir, 'refs', 'patterns.md'));
 const missing = [
   !existsSync(join(dir, 'research', 'pack.md')) && `research pack: run node ${join(here, 'research.mjs')} --type <type> --terms "<words>" (or research by hand with the Seenry MCP tools and write ${join(dir, 'research', 'pack.md')})`,
   refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
   refCount >= 2 && !existsSync(join(dir, 'refs', 'kept.md')) && `references: write ${join(dir, 'refs', 'kept.md')} with one decision card per kept reference: its file, the job and decision it makes, its measured numbers, what you take and how you transform it`,
   (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
   (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
-  !native && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three identity boards in ${join(dir, 'explore')}/ (a.html, b.html, c.html) and run node ${join(here, 'pick.mjs')} on them`,
-  !native && (!existsSync(join(dir, 'identity.md')) || readFileSync(join(dir, 'identity.md'), 'utf8').length < 500 || !existsSync(join(dir, 'identity.html'))) && `identity: write ${join(dir, 'identity.md')} (truth, visual idea, type voice, color world, graphic device, image treatment, voice line, motion behavior) and render it as ${join(dir, 'identity.html')}, following the Identity first section of SKILL.md`,
+  !native && !named && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three identity boards in ${join(dir, 'explore')}/ (a.html, b.html, c.html) and run node ${join(here, 'pick.mjs')} on them`,
+  !native && (!existsSync(join(dir, 'identity.md')) || readFileSync(join(dir, 'identity.md'), 'utf8').length < 500 || (!named && !existsSync(join(dir, 'identity.html')))) && `identity: write ${join(dir, 'identity.md')} (truth, visual idea, type voice, color world, graphic device, image treatment, voice line, motion behavior) and render it as ${join(dir, 'identity.html')}, following references/identity.md`,
   (!existsSync(join(dir, 'idea.md')) || readFileSync(join(dir, 'idea.md'), 'utf8').length < 600) && `idea: write ${join(dir, 'idea.md')} following references/design-thinking.md (claim, proof, moment, material, five candidate ideas with scores, the chosen idea and where it shows)`,
   native && !video && 'motion recording: record the interactions (xcrun simctl io booted recordVideo rec.mov, or adb shell screenrecord) and pass --video rec.mov',
-  !native && !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see SKILL.md) and mark its root element with data-seenry-signature="<name>"',
+  !native && !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see references/building.md) and mark its root element with data-seenry-signature="<name>"',
 ].filter(Boolean);
 if (missing.length) {
   blockers += missing.length;
