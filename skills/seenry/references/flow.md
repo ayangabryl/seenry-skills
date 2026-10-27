@@ -65,6 +65,32 @@ The hero is built in that class with its own idea. A software split (headline le
 - **Outside the category.** `borrow_references` with the job your idea must do and the category to leave out. Keep one. The ownable move comes from here and from the idea, never from the category survey.
 - **Studio grade.** Save one studio site or a rebrand-film frame with its card, so the critic judges against studio work too.
 
+### Keep only references that are good, whatever their fame
+
+Most library screens are records of what exists, not examples of great design, and the curated set is small. Before a reference is kept, it must earn its place on the pixels:
+
+| Check | Keep when |
+| --- | --- |
+| Fit | It does the same job for a similar audience, or the job your idea must do |
+| Hierarchy | One clear first read; support is visibly smaller |
+| Type | Tuned: few sizes, deliberate weights and tracking, nothing default |
+| Spacing | A visible rhythm; more space between groups than inside them |
+| Material | Real product, photography or art at real size, not filler |
+| Identity | Recognizable with the logo covered |
+
+Use the signals the library has, then confirm on the pixels: curated picks (`search_curated_references`) when they cover the brief, the quality prior in `search_sections`, and the AI tags' "why it works". A famous name is not a reason; a weak screen from a famous site is still weak. Conventions may come from any screen, but the craft bar comes only from screens that pass this table.
+
+### Walk every screen of the kept references
+
+A sample of a site lies; its language lives in the whole journey. For each of the two or three references you keep:
+
+1. `get_website_flow` (or `list_sites` then its pages) for every captured page.
+2. Each page top to bottom: `get_page`, then `get_reference_context` or `get_screenshot` per section; `get_reference_sequence` for long pages captured in parts.
+3. `get_page_motion` for its recording, when it has one.
+4. Write `.seenry/refs/<site>.md` as you go: each page, its sections in order, what each does and how, measured type and spacing, motion. Signed media links expire within the hour; notes and ids last.
+
+Then write the synthesis at the top of `kept.md`: what every kept reference does (conventions to meet), what only the best one does (the edge to reach), and what they all do badly (your opening). This costs roughly 75 to 90 credits per build and pays for itself in the middle of the page, where builds most often go generic.
+
 ### Write a decision card per kept reference
 
 Save each screen at full size in `.seenry/refs/` (its `inspect` call). One card per file in `kept.md`:

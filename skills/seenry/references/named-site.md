@@ -4,7 +4,7 @@
 
 ## The steps
 
-1. **Pull the site.** In Seenry: `list_sites` with its domain, then its pages, recordings (`get_page_motion`) and DESIGN.md. If it is missing, capture the live site with `bar.mjs`. Look at every page you will mirror, not only the hero.
+1. **Pull the whole site.** In Seenry: `list_sites` with its domain, then every captured page top to bottom, every section, every recording (`get_page_motion`) and its DESIGN.md, with notes per page in `.seenry/refs/<site>.md` ([walk every screen](flow.md#walk-every-screen-of-the-kept-references)). If it is missing, capture the live site with `bar.mjs`.
 2. **Measure before you design.** On the live page at 1440 and 390, measure the header in each state (over the hero and after scrolling: distance from the top, side padding, each control's position, size and gap), the hero type stack and scale, content widths and section order. Write the numbers into DESIGN.md and build to them. Eyeballed headers are the most common miss.
 3. **Map its patterns.** Write `.seenry/refs/patterns.md`, starting with a line `Reference: https://<the site>` so the gate can film it beside yours: its five to seven recognizable patterns (layout moves, type treatment, image medium and color mood in every state, signature components, motion), each with how this brand wears it.
 4. **Take its motion from the recordings.** Entrance order and timing, scroll choreography, the signature interaction, and the move between header states: a glide, never a jump.

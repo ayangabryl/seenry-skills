@@ -56,7 +56,7 @@ Each step leaves a file the gate checks for. Missing files are blockers, so the 
 | --- | --- | --- |
 | 1. Brief | Audience, the one job of the surface, the real content, what is fixed | `BRIEF.md` |
 | 2. Draft the idea | The claim, its proof and five candidate ideas, before any research. Ideas only, no palette or layout | `.seenry/idea.md` |
-| 3. Research | Survey the category, study the key body section, borrow one reference from outside the category, open at least three references at full size, measure them | `.seenry/research/pack.md`, `.seenry/refs/` images, `.seenry/refs/kept.md` |
+| 3. Research | Survey the category wide, keep only references that pass on the pixels, then walk every page and section of the two or three you keep; borrow one from outside the category; measure them | `.seenry/research/pack.md`, `.seenry/refs/` images and notes per site, `.seenry/refs/kept.md` |
 | 4. Identity | Truth, visual idea, type voice, color world, one device, image treatment, voice line, motion score | `.seenry/identity.md` |
 | 5. Explore and pick blind | Three identity boards from the three strongest ideas, then `pick.mjs` | `.seenry/explore/a,b,c.html`, `pick.json`, `.seenry/identity.html` |
 | 6. Motion spec | Each moving thing: trigger, property, duration, easing, interruption, reduced motion, source | `.seenry/motion.md` |
@@ -74,7 +74,7 @@ Give `.seenry/` a `.gitignore` containing `*` when you create it yourself. The s
 1. **Write the inventory before the layout.** List the eight to twelve things leaders put on this kind of screen, with data, actions and states. A clean screen missing one is unfinished.
 2. **Remove decoration, never content.** Slop rules cut eyebrows and filler. They never cut affordances, recognition icons or sections a visitor looks for.
 3. **One token file, every value from it.** Type steps, the 4px space scale, three radii plus full, motion tokens. Typed values are blocked by `token_lint.mjs`. Values live in [system](references/system.md) and [the standard](references/standard.md).
-4. **Research decides conventions, never identity.** The survey says what the category always does. Color, type and composition come from the idea, or every brand in a category looks alike.
+4. **Research decides conventions, never identity.** The survey says what the category always does. Color, type and composition come from the idea, or every brand in a category looks alike. Fame is not quality: a reference is kept because its pixels pass, never because of its name.
 5. **Real material at real size, at least twice.** Product UI on a stage for software; art-directed photography or art for places, food, people and objects. Removing decoration without adding material leaves a page that is empty, not calm.
 6. **One idea per view, one signature per page.** One dominant element per section; one crafted signature component, from the chosen idea, marked `data-seenry-signature`.
 7. **The claim is specific and leads.** The headline names something only this product can say: a noun, fact or mechanism. A mood any competitor could print is not a claim.
