@@ -167,7 +167,8 @@ Then the states that only appear in use. Each of these shipped once on a reviewe
 - **Dialogs opening.** Open each dialog with the mouse. Focus lands on the dialog, not a ringed field; rings show on keyboard focus only.
 - **Pinned headers.** Scroll a long table. One rule under the pinned header, not a border plus a shadow, and the rounded panel stays rounded (`overflow: clip` on the panel).
 - **Sort indicators.** Only the sorted column shows its arrow; other headers hint on hover. Changing direction swaps the glyph instantly; a rotating chevron reads as a glitch.
-- **Hover bands in rounded containers.** A row hover fill has the container's inner radius at its ends, never square corners against a rounded panel.
+- **Cards side by side share a height.** Two panels in one row end on the same line; the shorter one spreads its rows evenly (rows grow, content stays tight in each) rather than stopping early or ending in a blank tail.
+- **Hover bands in rounded containers.** A row hover fill has the container's inner radius at its ends, never square corners against a rounded panel, and the rules above and below the hovered row step aside so the band does not sit on lines.
 - **Pinned toolbars on phone.** Only search and filters stay pinned; counts and sort scroll away. The pinned region is opaque with one rule under it, so no row shows through.
 
 ## Research a component
