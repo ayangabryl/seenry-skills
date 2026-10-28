@@ -33,6 +33,7 @@ These came from builds that failed in review. Each guards against a failure seen
 | Banned tells were replaced by a new generated house look | The second-generation tells in [anti-slop](anti-slop.md#the-blocked-list-in-full) |
 | Clean pages with no decided identity scored 6 | Identity before layout ([identity](identity.md)) |
 | A standard Opus 5.5 dashboard had no listed tells and still read as AI-made; "unslop" only tidied it | The critic's `looks_ai` glance score and the [unslop](unslop.md) route |
+| The full-gate unslop stopped reading as AI-made but read as junior work: four action styles, red for five meanings, a gimmick headline; 13 critic rounds moved it one point | The critic's `seniority` score and `junior_tells`; unslop builds on the best reference's execution; four critic rounds per direction |
 | An agent added a gate attribute and turned a header into a div to pass a landing-page check on a dashboard | `Surface: app` skips landing-page checks; gate markers must tell the truth |
 
 ## The owner's preferences

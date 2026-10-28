@@ -137,7 +137,8 @@ const mode = flag('mode', args.includes('--fast') ? 'fast' : 'showcase');
 const quick = mode === 'quick', polish = mode === 'polish';
 const fast = mode === 'fast' || quick || polish;
 const leader = 8, level = n => n >= goal ? 'pass' : n >= leader ? 'leader level' : 'below leader level';
-const criticCap = Number(flag('critic-rounds', 0)) || (quick ? 1 : polish ? 4 : mode === 'fast' ? 3 : null);
+// Showcase rounds rarely gain after the fourth; the time is better spent on a second direction.
+const criticCap = Number(flag('critic-rounds', 0)) || (quick ? 1 : polish ? 4 : mode === 'fast' ? 3 : 4);
 if ((criticRounds >= (criticCap ?? 8) || round > 20) && !history.some(h => h.stop)) {
   history[history.length - 1].stop = criticRounds >= (criticCap ?? 8) ? `${criticCap ?? 'eight'} critic rounds` : 'twenty rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));

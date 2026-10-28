@@ -81,7 +81,7 @@ Give `.seenry/` a `.gitignore` containing `*` when you create it yourself. The s
 7. **The claim is specific and leads.** The headline names something only this product can say: a noun, fact or mechanism. A mood any competitor could print is not a claim.
 8. **Consecutive sections change composition.** The same heading, paragraph and cards rhythm twice reads as a template.
 9. **Motion explains a change or it does not run.** Interface motion stays under 300ms; page choreography has its own slower clock. Rules in `seenry-motion`.
-10. **Slop is anything that reads as AI-made at a glance,** not only the listed tells. The critic scores it as `looks_ai`; a clean page in the familiar AI default does not pass.
+10. **Slop is anything that reads as AI-made at a glance,** not only the listed tells. The critic scores it as `looks_ai`; a clean page in the familiar AI default does not pass. Junior execution fails the same way: the critic's `seniority` score asks whether a senior designer at the reference's company would ship the screen as it is.
 11. **Every affordance works.** A shortcut hint, badge or button with nothing behind it is removed or wired up.
 12. **Gate markers tell the truth.** `data-seenry-*` attributes describe the page; never add one, or restructure markup, to pass a check. An app screen gets `Surface: app` in `BRIEF.md`, and landing-page checks skip themselves.
 13. **Copy is the owner's real site.** Believable names, prices and hours. Never a note on the page that content is sample or placeholder; tell the owner what to swap in the report.
@@ -116,6 +116,7 @@ The review board blocks most of these by name. Each row has its fix, because a b
 | Text people read under 13px, or grey that fails contrast | The size floors in [the standard](references/standard.md) | Unreadable at review scale |
 | A shortcut hint, badge or label with nothing behind it (⌘K with no command menu) | Wire it up or remove it | It promises a feature that is not there |
 | The familiar AI default: house palette, the standard skeleton for this screen, every block at equal weight | One element leads; identity from this product's idea | Reads as generated with zero tells |
+| A clever idea drawn roughly: several action styles, one color for several meanings, blocks on no shared edge, size-mixing in one line | The best reference's execution, with one signature element drawn at its finish | Reads as a junior designer's work |
 | Letters clipped by a mask (`overflow: hidden` on tight display lines) | `padding-block: 0.15em` with a matching negative margin | Slices the tail of g and y |
 | Type on an image without a calm field or scrim | 3:1 for large, 4.5:1 for small text over the whole image | The board measures every pixel |
 
