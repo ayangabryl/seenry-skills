@@ -95,6 +95,7 @@ Measured defaults below match what leading product sites ship (see [benchmarks](
 ### Tabs and segmented control
 
 - Tabs (navigation between views): 13–14/500, text-2 inactive, text-1 active with a 2px underline indicator the width of the label; 16–24 between tabs; baseline-aligned with the section title. Draw the indicator as its own straight bar (an absolutely positioned `::after` or a shared indicator element, square or 1px-rounded ends), never as `border-bottom` on the tab: buttons and links usually carry a corner radius, and a one-sided border on a rounded box curves up at both ends. A filter row of three to five options reads better as a segmented control than as underlined tabs.
+- Metric tabs (a row of figures that switches a chart) follow the same rule: inactive figures in text-2, the active one in text-1, the indicator the width of its label and figure. Never a tinted band behind the inactive tabs with the active one cut out in white and a full-cell bar under it: that reads as a stuck-out card, not a selection.
 - Segmented (switching a value): container surface-2, radius md, inset 2–3; thumb surface-1 with a raised shadow, radius `md − inset`. Item height 28–32. The thumb slides between items (200ms ease-out).
 
 ### Menu, dropdown, popover

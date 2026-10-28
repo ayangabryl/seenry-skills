@@ -271,7 +271,6 @@ if (quick && stoppedAt) {
 }
 
 const out = join(review, `critic-${round}.json`);
-// The critic and the motion judge are independent, so when this round will judge motion anyway they run together.
 const runAsync = (args) => new Promise((resolveRun) => {
   const child = spawn('node', args, {stdio: ['ignore', 'pipe', 'pipe']});
   let stdout = '', stderr = '';
@@ -281,7 +280,6 @@ const runAsync = (args) => new Promise((resolveRun) => {
 });
 runAsync.children = [];
 const priorCritic = history.filter(h => h.critic && !h.reusedCritic).length;
-const motionPlanned = !quick && (native || !fast || priorCritic + 1 >= criticCap);
 const motionDir = mkdtempSync(join(review, `motion-${round}-`));
 const lastMotion = completedReviews().filter(h => h.motionEvidence).map(h => join(dir, h.motionEvidence, 'motion.json')).filter(existsSync).pop();
 const motionArgs = native
@@ -294,13 +292,16 @@ const boardHash = existsSync(join(review, 'board.png')) && existsSync(join(revie
   ? createHash('sha256').update(readFileSync(join(review, 'board.png'))).update(readFileSync(join(review, 'first.png'))).digest('hex') : null;
 const sameBoard = boardHash && fingerprint && history.filter(h => h.critic && h.boardHash === boardHash && h.hash !== fingerprint && h.criticFile && existsSync(join(dir, h.criticFile))).pop();
 const startMotion = () => runAsync(motionArgs);
-let motionRun = motionPlanned ? startMotion() : null;
+// The motion judge makes its own model calls; run alongside the critics, all three hit rate limits and it failed every
+// round, so it starts after them.
+let motionRun = null;
 // Craft at 100%: the detail critic reviews each section at full size while the main critic judges the board.
 const detailOut = join(review, 'detail.json');
 const detailRun = native ? null : runAsync([join(here, 'detail_critic.mjs'), target, '--out', detailOut, ...(existsSync(patternFile) ? ['--patterns', patternFile] : []), ...(pw ? ['--playwright', pw] : [])]);
 // Page choreography: the board is a still, so a third critic films the entrance and a scroll and judges how the page moves.
 const choreoOut = join(review, 'choreography.json');
-const choreoRun = native ? null : runAsync([join(here, 'choreography.mjs'), target, '--out', choreoOut, ...(existsSync(patternFile) ? ['--patterns', patternFile] : []), ...(existsSync(join(dir, 'identity.md')) ? ['--identity', join(dir, 'identity.md')] : []), ...(pw ? ['--playwright', pw] : [])]);
+// App screens have interface motion, not page entrances; the choreography critic is calibrated for pages.
+const choreoRun = native || appSurface ? null : runAsync([join(here, 'choreography.mjs'), target, '--out', choreoOut, ...(existsSync(patternFile) ? ['--patterns', patternFile] : []), ...(existsSync(join(dir, 'identity.md')) ? ['--identity', join(dir, 'identity.md')] : []), ...(pw ? ['--playwright', pw] : [])]);
 // The critic also sees the page while scrolling, paired with the named site when patterns.md gives its address.
 const scrollOut = join(review, 'scroll.png');
 let scrollArgs = [];
@@ -357,7 +358,8 @@ if (fast && !native && !designMet && priorCritic + 1 < criticCap) {
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
 // Every attempt owns fresh evidence; a prior result must never satisfy a new run.
 if (!motionRun) motionRun = startMotion();
-const mj = await motionRun;
+let mj = await motionRun;
+if (mj.status !== 0) { console.log('\nMotion judge failed once; retrying.'); mj = await startMotion(); }
 process.stdout.write('\n' + mj.stdout);
 let motion = null, motionError = null;
 const motionPath = join(motionDir, 'motion.json');
