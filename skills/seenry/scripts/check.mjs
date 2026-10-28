@@ -316,7 +316,7 @@ const critic = sameBoard
   ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
   : (existsSync(join(dir, 'identity.html')) && spawnSync(process.execPath, [join(here, 'render_page.mjs'), join(dir, 'identity.html'), join(review, 'identity.png'), ...(pw ? ['--playwright', pw] : [])], {stdio: 'ignore'}),
     await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'), ...(existsSync(join(review, 'identity.png')) ? ['--identity', join(review, 'identity.png')] : []),
-  '--out', out, ...scrollArgs, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : []), ...(existsSync(join(dir, 'refs', 'patterns.md')) ? ['--patterns', join(dir, 'refs', 'patterns.md')] : [])]));
+  '--out', out, ...scrollArgs, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : []), ...(existsSync(join(dir, 'decisions.md')) ? ['--decisions', join(dir, 'decisions.md')] : []), ...(existsSync(join(dir, 'refs', 'patterns.md')) ? ['--patterns', join(dir, 'refs', 'patterns.md')] : [])]));
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
@@ -415,18 +415,13 @@ writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
 if (designMet && !motionBlocks && !motionFloorFailures.length && motionScore >= 9) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Scope: ${motionCoverage ? "captured interaction labels only; other components unverified" : "legacy overall-only evidence; per-criterion coverage unverified"}. Critic trail: ${trail}.`); process.exit(0); }
 const scored = history.filter(h => h.critic && !h.reusedCritic && (h.motionSkipped || (Number.isFinite(h.motion) && !h.motionError))).map(h => h.critic.overall), best = Math.max(...scored, ...history.filter(h => h.reusedCritic).map(h => h.critic.overall));
+// Two critic rounds without a gain end the loop: past that, rounds trade one set of small notes for another.
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
 if (motionFloorFailures.length) console.log('Below the required floor: ' + motionFloorFailures.join(' · '));
 console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
-if (stalled && !history.some(h => h.rootChange) && !(polish && best >= leader)) {
-  history[history.length - 1].rootChange = true;
-  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  console.log(`LAST ROUND: the critic has not improved for two rounds (best ${best}). Make one root-level change to the weakest dimension (type scale and weights, palette, or imagery), then run check.mjs one final time.`);
-  process.exit(1);
-}
 const leaderStall = polish && scored.length >= 2 && best >= leader && verdict.scores.overall <= Math.max(...scored.slice(0, -1));
 if (leaderStall || stalled || scored.length >= (criticCap ?? 6)) {
-  history[history.length - 1].stop = leaderStall ? 'leader level reached and no longer improving' : stalled ? 'no improvement after a root-level change' : `${criticCap ?? 'six'} critic rounds`;
+  history[history.length - 1].stop = leaderStall ? 'leader level reached and no longer improving' : stalled ? 'no gain in two critic rounds' : `${criticCap ?? 'six'} critic rounds`;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   const bestRound = completedReviews().filter(h => h.critic.overall === best).pop() || completedReviews().sort((a, b) => b.critic.overall - a.critic.overall)[0] || history.filter(h => h.critic).pop();
   console.log(`STOP: ${history[history.length - 1].stop}. The quality target was not reached. Best fully reviewed candidate: critic ${best} (${level(best)}), motion ${bestRound.motion}, round ${bestRound.round}. Its code is in ${join(review, `round-${bestRound.round}`)} (HTML, CSS and JS, not images). Report unresolved gaps; do not call this a pass or publish it as accepted.${quick || polish || existsSync(firstDirection) ? '' : ' No new direction used yet: go back to the exploration step, build the page on a different idea from idea.md, and run check.mjs with --new-direction before reporting.'}`);
