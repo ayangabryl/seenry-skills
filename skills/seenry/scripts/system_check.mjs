@@ -106,7 +106,41 @@ function inspect() {
   const ps = primary ? getComputedStyle(primary) : null;
   const flatPrimary = ps ? (ps.backgroundImage === 'none' && ps.boxShadow === 'none') : false;
   const stillPrimary = ps ? ps.transitionDuration.split(',').every(d => parseFloat(d) === 0) : false;
-  return {flatPrimary, stillPrimary, overflow: document.documentElement.scrollWidth > innerWidth + 1, faint: faint.slice(0, 6), faintCount: faint.length, primaries, emoji, small: small.slice(0, 6)};
+  // Foundations: concentric radii, connected dividers, depth budget (foundations/*.md).
+  const px = v => parseFloat(v) || 0;
+  const label = el => (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : el.tagName.toLowerCase());
+  const radiusIssues = [];
+  for (const el of document.querySelectorAll('body *')) {
+    if (!visible(el)) continue;
+    const r = px(getComputedStyle(el).borderTopLeftRadius); if (r < 2 || r > 200) continue;
+    let p = el.parentElement, pr = 0;
+    while (p && p !== document.body) { pr = px(getComputedStyle(p).borderTopLeftRadius); if (pr >= 2 && pr <= 200) break; p = p.parentElement; }
+    if (!p || p === document.body) continue;
+    const a = el.getBoundingClientRect(), b = p.getBoundingClientRect(), bs = getComputedStyle(p);
+    const inset = Math.min(a.left - b.left - px(bs.borderLeftWidth), a.top - b.top - px(bs.borderTopWidth));
+    if (inset < 0 || inset > 12) continue;
+    const ecs = getComputedStyle(el); if (a.width < b.width * 0.4 || (ecs.backgroundColor === 'rgba(0, 0, 0, 0)' && px(ecs.borderTopWidth) === 0 && ecs.backgroundImage === 'none' && !/^(IMG|VIDEO|CANVAS|PICTURE)$/.test(el.tagName))) continue;
+    if (Math.abs(a.left - b.left - px(bs.borderLeftWidth) - (a.top - b.top - px(bs.borderTopWidth))) > 3) continue;
+    const want = Math.max(0, pr - inset);
+    if (Math.abs(r - want) > 2) radiusIssues.push(`${label(el)} ${Math.round(r)}px in ${label(p)} ${Math.round(pr)}px at ${Math.round(inset)}px inset (want ${Math.round(want)}px)`);
+  }
+  const dividerIssues = [];
+  const lined = [...document.querySelectorAll('body *')].filter(el => visible(el) && el.offsetHeight > 0 && (el.tagName === 'HR' || (() => { const cs = getComputedStyle(el); return px(cs.borderTopWidth) > 0 && cs.borderTopStyle !== 'none' && px(cs.borderLeftWidth) === 0 && px(cs.borderRightWidth) === 0; })()));
+  for (const el of lined) {
+    let c = el.parentElement;
+    while (c && c !== document.body) { const cs = getComputedStyle(c); if (px(cs.borderLeftWidth) > 0 || px(cs.borderTopLeftRadius) > 0 || (cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent')) break; c = c.parentElement; }
+    if (!c || c === document.body) continue;
+    const cs = getComputedStyle(c), a = el.getBoundingClientRect(), b = c.getBoundingClientRect();
+    if (a.width < b.width * 0.5) continue;
+    if (c.matches('.ui-shell, main, body > *') || b.width > innerWidth * 0.85) continue;
+    const gl = a.left - b.left - px(cs.borderLeftWidth), gr = b.right - px(cs.borderRightWidth) - a.right;
+    const pl = px(cs.paddingLeft), pr2 = px(cs.paddingRight);
+    const ok = g => Math.abs(g) <= 2;
+    const side = (g, pad) => ok(g) || Math.abs(g - pad) <= 2;
+    if (!(side(gl, pl) && side(gr, pr2))) dividerIssues.push(`${label(el)} in ${label(c)}: ends ${Math.round(gl)}px / ${Math.round(gr)}px from the edges (padding ${Math.round(pl)}px)`);
+  }
+  const raised = [...document.querySelectorAll('button, a.ui-button, .ui-button, [role=button]')].filter(visible).filter(el => !el.closest('[popover], dialog, .ui-toast')).filter(el => { const cs = getComputedStyle(el); const blur = (cs.boxShadow.match(/(-?\d+(?:\.\d+)?)px\s+(-?\d+(?:\.\d+)?)px\s+(\d+(?:\.\d+)?)px/g) || []).some(m => { const n = m.match(/[\d.]+/g).map(Number); return n[2] > 2 && !/inset/.test(cs.boxShadow.split(m)[0].split(',').pop()); }); return blur || /gradient/.test(cs.backgroundImage) && !/gradient\([^)]*transparent[^)]*\)$/.test(cs.backgroundImage); });
+  return {radiusIssues: radiusIssues.slice(0, 6), radiusCount: radiusIssues.length, dividerIssues: dividerIssues.slice(0, 6), dividerCount: dividerIssues.length, raisedCount: raised.length, raised: raised.slice(0, 4).map(label), flatPrimary, stillPrimary, overflow: document.documentElement.scrollWidth > innerWidth + 1, faint: faint.slice(0, 6), faintCount: faint.length, primaries, emoji, small: small.slice(0, 6)};
 }
 for (const f of pages) for (const [w, h] of [[1440, 900], [390, 844]]) for (const theme of ['light', 'dark']) {
   const page = await browser.newPage({viewport: {width: w, height: h}});
@@ -126,7 +160,32 @@ for (const f of pages) for (const [w, h] of [[1440, 900], [390, 844]]) for (cons
   if (r.emoji.length) fail.push(`${at}: emoji in text (${r.emoji.slice(0, 4).join(' ')})`);
   if (r.flatPrimary && theme === 'light' && w === 1440) fail.push(`${at}: craft: the primary button is a flat fill (no gradient or edge)`);
   if (r.stillPrimary && theme === 'light' && w === 1440) fail.push(`${at}: craft: the primary button has no transition`);
+  if (theme === 'light' && r.radiusCount) fail.push(`${at}: foundations/radius: ${r.radiusCount} nested radii not concentric (${r.radiusIssues.join('; ')})`);
+  if (theme === 'light' && r.dividerCount) fail.push(`${at}: foundations/dividers: ${r.dividerCount} rules neither full bleed nor at the content inset (${r.dividerIssues.join('; ')})`);
+  if (theme === 'light' && w === 1440 && f !== 'gallery.html' && r.raisedCount > 1) fail.push(`${at}: foundations/depth: ${r.raisedCount} raised controls in one view (${r.raised.join(', ')}); only the primary is raised`);
   if (r.small.length) fail.push(`${at}: touch targets under 24px (${r.small.join(', ')})`);
+  if (w === 1440) {
+    const focusIssues = [];
+    await page.evaluate(() => { document.activeElement?.blur(); window.scrollTo(0, 0); });
+    for (let i = 0; i < 6; i++) {
+      await page.keyboard.press('Tab');
+      await page.waitForTimeout(320);
+      const res = await page.evaluate(() => {
+        const e = document.activeElement; if (!e || e === document.body) return null;
+        const lum = c => { const m = c.match(/[\d.]+/g); if (!m || !/^rgba?\(/.test(c)) return null; const [r, g, b] = m.slice(0, 3).map(Number).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+        const cs = getComputedStyle(e), ow = parseFloat(cs.outlineWidth) || 0, ring = /0px 0px 0px (\d+(?:\.\d+)?)px/.exec(cs.boxShadow);
+        const width = cs.outlineStyle !== 'none' ? ow : ring ? parseFloat(ring[1]) : 0;
+        const name = `${e.tagName.toLowerCase()} "${(e.getAttribute('aria-label') || e.textContent || '').trim().slice(0, 20)}"`;
+        if (width < 2) return `${name} ring ${width}px`;
+        const color = cs.outlineStyle !== 'none' ? cs.outlineColor : (cs.boxShadow.match(/rgba?\([^)]*\)/) || [''])[0];
+        let bgEl = e.parentElement, bg = 'rgb(255, 255, 255)'; while (bgEl) { const b = getComputedStyle(bgEl).backgroundColor; if (b && !/rgba\(0, 0, 0, 0\)|transparent/.test(b)) { bg = b; break; } bgEl = bgEl.parentElement; }
+        const a = lum(color), b = lum(bg); if (a != null && b != null && (Math.max(a, b) + .05) / (Math.min(a, b) + .05) < 3) return `${name} ring contrast under 3:1`;
+        return '';
+      });
+      if (res) focusIssues.push(res);
+    }
+    if (focusIssues.length) fail.push(`${at}: foundations/focus: ${focusIssues.slice(0, 4).join('; ')}`);
+  }
   if (f === 'blocks/dashboard.html' && w === 1440 && theme === 'light') await page.screenshot({path: join(out, 'dashboard-1440.png')});
   await page.close();
 }

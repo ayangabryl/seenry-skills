@@ -2,21 +2,19 @@
 
 The contract makes a system complete; this file makes it premium. A system passes only when its controls feel made, not merely styled, and every state change moves with intent. Measured against the best published agent design systems, the gap is always the same: flat color swaps, one duration for everything, and components that do not move.
 
-## Buttons are objects
+## Material budget: one made object per view
 
-Each system designs its own primary material, named in SYSTEM.md (a lit key, a slab with an under-glow, a soft pill with a warm sheen), built from layers rather than one fill:
+Premium is restraint first. The best product UIs (Linear, Vercel, Stripe, Emil Kowalski's own work) are flat hairline surfaces where depth is rare and therefore meaningful. A screen full of raised, glossy, 3D buttons reads as a template, not as craft. So each system spends depth on exactly one thing per view, the primary action, and everything else is flat and precise. See [depth and material](foundations/depth.md).
 
-| Layer | What it does | How |
-| --- | --- | --- |
-| Body | The color and its depth | `background-color` plus a gradient: lighter at the top or a soft radial core, never a flat fill on the primary |
-| Edge | Separates it from the surface | `box-shadow`: an inset top highlight (0.5–1px, white at low alpha) and a hairline rim or a contact shadow below |
-| Sheen | Catches light | `::after` with a top-to-transparent gradient, inset from the sides, its opacity animated on press |
-| Hover | Brightens without a jump | `::before` holding the hover body, faded in with opacity over `--dur-state`; never a background swap that snaps |
-| Press | Feels pressed | `scale: var(--scale-press)` (0.97–0.99) in `--dur-press` (50–80ms) with `--ease-out`, the sheen dims and the core darkens; release returns over `--dur-release` (160–220ms) |
-| Pending | Keeps its place | label and spinner stacked in one grid cell (`grid-area: 1/1`); the label fades, the arc spins, width never changes |
-| Disabled | Clearly off | material layers removed, a flat field with faint text; no opacity-only dimming on the primary |
+| Control | Treatment |
+| --- | --- |
+| Primary (one per view) | The system's named material, kept subtle: a body that is at most a gentle 2–4% tonal gradient, a 0.5–1px inner top highlight at low alpha, a hairline edge or a soft contact shadow under 2px blur radius at rest. Hover fades in a slightly lighter body on `::before` over `--dur-state`. Press scales to `--scale-press` (0.97–0.99) in `--dur-press` (50–80ms); release over `--dur-release` (160–220ms). No glow halos, no thick bevels, no visible gloss bands on light themes. |
+| Secondary | Flat surface with a 1px frame; the frame and fill shift a step on hover; the same press scale. No gradient, no highlight. |
+| Ghost, icon, menu items, tabs, chips | Flat; a tint on hover and pressed. |
+| Pending | Label and spinner stacked in one grid cell; the label fades, the arc spins, width never changes. |
+| Disabled | Flat field and faint text; material removed; never opacity alone on the primary. |
 
-Secondary buttons are a framed surface whose frame color changes on hover; ghost buttons gain a tint. One primary per view, one icon size per button size, labels optically centered (check the cap height, not the box).
+The test: cover the primary and the screen should look like a well-set document, all hairlines and type. If anything else looks raised, it is over-designed.
 
 ## Motion tokens
 
@@ -52,6 +50,10 @@ All durations become 0ms and `--scale-press` becomes 1 under `prefers-reduced-mo
 Motion never moves layout, never delays an accepted state, and never animates on keyboard-driven repeat actions.
 
 Sequence motion on the animation clock, not on timers: delays live in CSS (`transition-delay`), and one step hands off to the next on `transitionend` or an animation's `finished` promise, never `setTimeout`. Timers drift from the animation clock under slow motion, reduced frame rates and the motion judge, so handoffs fire out of order. Keep a finite animation running through any wait so the state never looks settled early.
+
+## Foundations
+
+Every value traces to [the foundations](foundations/README.md): radius, focus, dividers, depth, targets, type, color and motion, each with its research and a check. They outrank taste.
 
 ## Typography and detail
 
