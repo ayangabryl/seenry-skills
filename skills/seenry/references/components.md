@@ -160,6 +160,16 @@ Render and screenshot these before calling a component done:
 - overflow: 2x longer text, 1-character text, 5-digit numbers, missing image, RTL if supported
 - narrow container (320px) and wide container
 
+Then the states that only appear in use. Each of these shipped once on a reviewed page and was caught only by eye; the review board now checks the first four:
+
+- **Tooltips at the edges.** Hover the first and last mark of every chart. The tooltip shifts inside its container (never clipped by an `overflow` ancestor) and its pointer stays on the anchor.
+- **Selects.** No select drawn by the browser: same height, radius and border as the fields, and the same chevron as every other dropdown.
+- **Dialogs opening.** Open each dialog with the mouse. Focus lands on the dialog, not a ringed field; rings show on keyboard focus only.
+- **Pinned headers.** Scroll a long table. One rule under the pinned header, not a border plus a shadow, and the rounded panel stays rounded (`overflow: clip` on the panel).
+- **Sort indicators.** Only the sorted column shows its arrow; other headers hint on hover. Changing direction swaps the glyph instantly; a rotating chevron reads as a glitch.
+- **Hover bands in rounded containers.** A row hover fill has the container's inner radius at its ends, never square corners against a rounded panel.
+- **Pinned toolbars on phone.** Only search and filters stay pinned; counts and sort scroll away. The pinned region is opaque with one rule under it, so no row shows through.
+
 ## Research a component
 
 Before building anything non-trivial, look at how 3–4 strong products render the same component. With Seenry MCP: `search_sections` with `element` set to the section kind, `search_app_screens` for mobile patterns, or `get_design` / `get_tokens` on a named site to read real radii, type and shadows. Record in the spec card's `Ref` line what you measured and adopted. See [research](research.md).

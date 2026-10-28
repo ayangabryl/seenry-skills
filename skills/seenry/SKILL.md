@@ -148,6 +148,7 @@ Grep the page for each pattern. Every hit is fixed or defended to a designer in 
 | `overflow: hidden` on a display line without block padding | Pad the mask |
 | A second `data-seenry-signature` | Keep one |
 | No `prefers-reduced-motion` branch | Add the resting state |
+| A tooltip, select, dialog, pinned header or sort arrow not tried in use | Run the [in-use states](references/components.md#states-checklist) |
 
 ## Files
 

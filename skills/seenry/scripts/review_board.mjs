@@ -594,6 +594,52 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
     }
     return out;
   });
+  // States the stills never show: a tooltip at the edge of its chart, a select the browser draws, a dialog that
+  // opens with a focus ring, a pinned header over a rounded panel. Each was shipped once and caught only by eye.
+  if (w === 1440) {
+    // The interaction probe above leaves dialogs and selections changed; start the sweep from a fresh load.
+    await page.reload({waitUntil: 'networkidle'}); await page.waitForTimeout(600);
+    const gaps = [];
+    gaps.push(...await page.evaluate(() => {
+      const out = [];
+      const selects = [...document.querySelectorAll('select')].filter(sel => getComputedStyle(sel).appearance !== 'none' && !sel.closest('[hidden]'));
+      if (selects.length) out.push(`${selects.length} select(s) drawn by the browser (style them like the fields, with the project's chevron)`);
+      for (const el of document.querySelectorAll('th,thead,[role=columnheader]')) {
+        const c = getComputedStyle(el); if (c.position !== 'sticky') continue;
+        if (parseFloat(c.borderBottomWidth) > 0 && /0px 1px 0px/.test(c.boxShadow)) { out.push('pinned table header draws two rules (a border and a shadow)'); break; }
+        let a = el.parentElement; while (a && !(parseFloat(getComputedStyle(a).borderTopLeftRadius) > 0)) a = a.parentElement;
+        if (a && getComputedStyle(a).overflow === 'visible' && c.backgroundColor !== 'rgba(0, 0, 0, 0)') { out.push('pinned table header paints square corners over its rounded panel (clip the panel with overflow: clip)'); break; }
+      }
+      return out;
+    }));
+    const tipSel = '[role=tooltip],[class*=tooltip],[id*=tooltip]';
+    const triggers = await page.evaluate(() => { const els = [...document.querySelectorAll('[aria-describedby],[data-tooltip],[data-tip],svg [tabindex],[role=img][tabindex]')].filter(el => { const r = el.getBoundingClientRect(); return r.width > 4 && r.height > 4; }); els.forEach((el, i) => el.setAttribute('data-seenry-tip', String(i))); return els.length; });
+    for (const i of triggers ? [0, triggers - 1] : []) {
+      const loc = page.locator(`[data-seenry-tip="${i}"]`);
+      await loc.scrollIntoViewIfNeeded().catch(() => {}); await loc.hover({force: true}).catch(() => {}); await page.waitForTimeout(450);
+      const bad = await page.evaluate(({i, tipSel}) => {
+        const tip = [...document.querySelectorAll(tipSel)].find(t => { const st = getComputedStyle(t), r = t.getBoundingClientRect(); return st.visibility !== 'hidden' && +st.opacity > 0.5 && r.width > 8; });
+        if (!tip) return null;
+        const r = tip.getBoundingClientRect();
+        let clip = document.querySelector(`[data-seenry-tip="${i}"]`); while (clip && clip !== document.body && !/hidden|clip/.test(getComputedStyle(clip).overflow)) clip = clip.parentElement;
+        const box = clip && clip !== document.body ? clip.getBoundingClientRect() : {left: 0, top: 0, right: innerWidth, bottom: innerHeight};
+        const cut = r.left < box.left - 1 || r.right > box.right + 1 || r.top < box.top - 1 || r.bottom > box.bottom + 1;
+        const overflow = [...tip.querySelectorAll('*')].some(n => n.scrollWidth > n.clientWidth + 1 && n.clientWidth > 0);
+        return cut || overflow ? 'tooltip is cut off at the edge of its container (shift it inside and keep its pointer on the anchor)' : null;
+      }, {i, tipSel});
+      if (bad) { gaps.push(bad); break; }
+    }
+    await page.mouse.move(2, 2);
+    const openers = await page.evaluate(() => { const els = [...document.querySelectorAll('button')].filter(b => /^\W*(new|add|create|invite|edit)\b/i.test((b.textContent || '').trim()) && b.getBoundingClientRect().width > 0 && !b.closest('nav')).slice(0, 3); els.forEach((b, i) => b.setAttribute('data-seenry-open', String(i))); return els.length; });
+    for (let i = 0; i < openers; i++) {
+      const box = await page.locator(`[data-seenry-open="${i}"]`).boundingBox().catch(() => null); if (!box) continue;
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2); await page.waitForTimeout(450);
+      const ring = await page.evaluate(() => { const d = document.querySelector('dialog[open],[aria-modal=true]'); const a = document.activeElement; return !!d && a && a !== d && d.contains(a) && a.matches(':focus-visible') && getComputedStyle(a).outlineStyle !== 'none'; });
+      await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+      if (ring) { gaps.push('a dialog opens with a focus ring on its first field after a mouse click (focus the dialog, ring on keyboard focus only)'); break; }
+    }
+    report.stateGaps = gaps;
+  }
   await page.close();
 }
 
@@ -652,6 +698,8 @@ if (!m.reducedMotion) motionGaps.push('no prefers-reduced-motion handling');
 console.log(`\n■ motion  transitions ${m.withTransition}/${m.interactive} · press ${m.pressState ? 'yes' : 'no'} · reduced-motion ${m.reducedMotion ? 'yes' : 'no'} · keyframes ${m.keyframes}`);
 for (const g of motionGaps) console.log(`  ${g}`);
 blockers += motionGaps.length;
+for (const g of report.stateGaps || []) console.log(`  state: ${g}`);
+blockers += (report.stateGaps || []).length;
 report.blockers = blockers;
 writeFileSync(join(out, 'board.json'), JSON.stringify(report, null, 2));
 console.log(`\n${blockers} blocker(s). Look at ${join(out, 'board.png')} and ${join(out, 'first.png')} before scoring.`);
