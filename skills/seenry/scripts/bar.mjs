@@ -11,11 +11,13 @@ import {mkdirSync, writeFileSync, existsSync} from 'node:fs';
 import {resolve, join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const type = flag('type', 'landing');
 const out = resolve(flag('out', '.seenry/research')), barDir = join(out, 'bar');
+markWorkDir(out);
 mkdirSync(barDir, {recursive: true});
 const LEADERS = {
   landing: ['stripe.com', 'linear.app', 'vercel.com', 'apple.com', 'raycast.com', 'mercury.com', 'framer.com', 'arc.net'],

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Mechanical slop count for app UI source (web prototypes, React Native, CSS). Counts, not taste.
+// Mechanical slop count for app UI source (web prototypes, React Native, CSS, SwiftUI, Compose, Flutter). Counts, not taste.
 // node app_preflight.mjs <file or dir>... [--json]   exits 1 when any check fails
 import {readFileSync, readdirSync, statSync} from 'node:fs';
 import {join, extname} from 'node:path';
 
 const args = process.argv.slice(2), json = args.includes('--json'), roots = args.filter(a => a !== '--json');
 if (!roots.length) { console.error('usage: app_preflight.mjs <file or dir>... [--json]'); process.exit(2); }
-const EXT = new Set(['.html', '.htm', '.css', '.scss', '.js', '.jsx', '.ts', '.tsx', '.mjs', '.vue', '.svelte']);
+const EXT = new Set(['.html', '.htm', '.css', '.scss', '.js', '.jsx', '.ts', '.tsx', '.mjs', '.vue', '.svelte', '.swift', '.kt', '.dart']);
 const SKIP = /node_modules|\.git|dist|build|\.next|\.expo|research|\.seenry/;
 const files = [];
 const walk = p => { const s = statSync(p); if (s.isDirectory()) { if (!SKIP.test(p)) for (const f of readdirSync(p)) walk(join(p, f)); } else if (EXT.has(extname(p))) files.push(p); };
@@ -19,6 +19,12 @@ const hsl = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, 
 const colors = [];
 for (const m of all.matchAll(/#([0-9a-f]{3}|[0-9a-f]{6})\b/gi)) { let h = m[1]; if (h.length === 3) h = [...h].map(c => c + c).join(''); colors.push(hsl(...[0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)))); }
 for (const m of all.matchAll(/rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/gi)) colors.push(hsl(+m[1], +m[2], +m[3]));
+for (const m of all.matchAll(/(?:0x|Color\(0xFF|Color\(0xff)([0-9a-fA-F]{6})\b/g)) colors.push(hsl(...[0, 2, 4].map(i => parseInt(m[1].slice(i, i + 2), 16))));
+for (const m of all.matchAll(/red:\s*([\d.]+)\s*,\s*green:\s*([\d.]+)\s*,\s*blue:\s*([\d.]+)/g)) { const v = [m[1], m[2], m[3]].map(Number); const k = v.some(x => x > 1) ? 1 : 255; colors.push(hsl(...v.map(x => x * k))); }
+// The palettes the skills list as generated: cream or warm off-white with terracotta, clay or rust.
+const creamGround = colors.some(([h, s, l]) => l > 0.88 && h >= 20 && h < 60 && s > 0.12);
+const terracotta = colors.some(([h, s, l]) => h >= 8 && h < 32 && s > 0.35 && l > 0.3 && l < 0.7);
+
 const status = h => h < 15 || h >= 345 || (h >= 90 && h < 165) || (h >= 30 && h < 55);
 const fam = h => Math.round(h / 30) % 12;
 const chroma = colors.filter(([, s, l]) => s > .35 && l > .18 && l < .85);
@@ -42,6 +48,27 @@ const starts = new Set([...visible.matchAll(/>\s*(get started|start now|let'?s g
 const html = src.filter(([f]) => /\.html?$/.test(f));
 const head = html.flatMap(([f, s]) => [!/<!doctype html>/i.test(s) && `${f}: no <!doctype html>`, !/<meta[^>]+charset/i.test(s) && `${f}: no <meta charset="utf-8">`, !/<meta[^>]+name=["']?viewport/i.test(s) && `${f}: no viewport meta`].filter(Boolean));
 
+// Generated tells that screenshot critics miss: tracked uppercase labels, numbered labels, italic accent words,
+// monospace used as texture and dots in front of text.
+const native = src.filter(([f]) => /\.(swift|kt|dart|jsx|tsx)$/.test(f)).map(([, s]) => s).join('\n');
+const capsTracked = (native.match(/(\.textCase\(\.uppercase\)|\.uppercased\(\)|textTransform:\s*['"]uppercase)[\s\S]{0,160}?(\.tracking\(|\.kerning\(|letterSpacing)/g) || []).length
+  + (native.match(/(\.tracking\(|\.kerning\(|letterSpacing)[^)\n]*\)[\s\S]{0,160}?(\.textCase\(\.uppercase\)|\.uppercased\(\))/g) || []).length
+  + (native.match(/Text\(\s*"[A-Z][A-Z0-9 ·.,&'-]{2,}"\s*\)[\s\S]{0,200}?\.(tracking|kerning)\(/g) || []).length
+  + (all.match(/text-transform\s*:\s*uppercase[^}]*letter-spacing|letter-spacing[^}]*text-transform\s*:\s*uppercase/gi) || []).length;
+const numbered = (all.match(/["'>·]\s*[^"'<\n]{0,40}?\b(No\.\s?\d|№\s?\d|Step 0\d)|["'>]\s*(0\d\s*[\/.–—]|\(0\d{1,2}\))/gi) || []).length;
+const italicAccent = (native.match(/Text\([^)]*\)[^\n]{0,80}\.italic\(\)[^\n]{0,40}\+|\+\s*Text\([^)]*\)[^\n]{0,80}\.italic\(\)/g) || []).length
+  + (native.match(/\*[A-Za-z]+\*/g) && /Text\(\s*"[^"]*\*[A-Za-z]+\*[^"]*"/.test(native) ? 1 : 0)
+  + (all.match(/<(em|i)>[^<]{1,24}<\/\1>[^<]{0,40}<\/h[1-3]/gi) || []).length;
+const mono = (native.match(/design:\s*\.monospaced|\.monospaced\(\)|FontFamily\.Monospace|['"](Menlo|Courier|SF Mono|JetBrains Mono|IBM Plex Mono|Space Mono)/g) || []).length
+  + (all.match(/font-family\s*:[^;]*mono/gi) || []).length;
+const dots = (native.match(/Circle\(\)[^\n]{0,80}\.frame\(width:\s*[2-9](\.\d+)?\s*,\s*height:\s*[2-9]/g) || []).length;
+// Trendy default faces the web skill bans as generated flavor, in any stack (font-family, Font.custom, bundled files).
+const banned = /instrument\s*serif|fraunces|playfair|space\s*grotesk|clash\s*display/i;
+const bannedFonts = new Set([...all.matchAll(/(?:font-family\s*:[^;]*|Font\.custom\(\s*"[^"]*"|fontFamily\s*:\s*['"][^'"]*|UIFont\(name:\s*"[^"]*")/g)].map(m => (m[0].match(banned) || [])[0]).filter(Boolean));
+const walkFonts = p => { try { const st = statSync(p); if (st.isDirectory()) { if (!/node_modules|\.git|build|DerivedData/.test(p)) for (const f of readdirSync(p)) walkFonts(join(p, f)); } else if (/\.(ttf|otf|woff2?)$/i.test(p) && banned.test(p.replace(/[-_]/g, ' '))) bannedFonts.add(p.split('/').pop()); } catch {} };
+roots.forEach(walkFonts);
+let justified = false;
+for (const r of roots) for (const lp of [join(r, '.seenry', 'look.md'), join(r, '..', '.seenry', 'look.md'), join(r, '..', '..', '.seenry', 'look.md')]) { try { const txt = readFileSync(lp, 'utf8'); if ([...bannedFonts].every(f => new RegExp(f.replace(/[-_].*$/, '').replace(/([A-Z])/g, ' $1').trim().split(/\s+/)[0], 'i').test(txt))) justified = true; } catch {} }
 const checks = [
   ['one accent', accentFams.length <= 1, accentFams.length ? `non-status hue families: ${accentFams.join(', ')}` : 'neutrals and status colors only'],
   ['one grey family', !(warm >= 3 && cool >= 3), `warm greys ${warm}, cool greys ${cool}`],
@@ -50,6 +77,13 @@ const checks = [
   ['gradients', gradients <= 2 || 'warn', `${gradients} (each needs a reason from the reference look)`],
   ['type families', fonts.size <= 2, [...fonts].join(', ') || 'system'],
   ['one label per intent', starts.size <= 1, [...starts].join(' / ') || 'n/a'],
+  ['no tracked caps labels', capsTracked === 0, capsTracked ? `${capsTracked} uppercase labels with tracking (sentence case, no tracking)` : 'none'],
+  ['no numbered labels', numbered === 0, numbered ? `${numbered} ("No. 001", "01 /", "Step 01")` : 'none'],
+  ['no italic accent word', italicAccent === 0, italicAccent ? `${italicAccent} italic word set inside a headline` : 'none'],
+  ['mono only for figures', mono <= 1, `${mono} monospaced uses (texture of timestamps and mono notes reads as generated)`],
+  ['no dots before text', dots <= 1 || 'warn', `${dots} small circles (a dot is only for live, presence or unread)`],
+  ['no cream + terracotta', !(creamGround && terracotta), creamGround && terracotta ? 'warm cream ground with a terracotta/clay accent: the default generated palette (choose the accent from the product\'s own idea)' : 'clear'],
+  ['face chosen on purpose', !bannedFonts.size || justified || 'warn', bannedFonts.size ? (justified ? `${[...bannedFonts].join(', ')}: reason given in look.md` : `${[...bannedFonts].join(', ')} is a common default; fine when it suits the identity, so name it in .seenry/look.md with the reason it fits`) : 'clear'],
   ['encoding', mojibake === 0, mojibake ? `${mojibake} mojibake sequences (missing charset?)` : 'clean'],
   ['document head', head.length === 0, head.join('; ') || (html.length ? 'doctype, charset, viewport' : 'n/a')],
 ];

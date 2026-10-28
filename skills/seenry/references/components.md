@@ -95,6 +95,7 @@ Measured defaults below match what leading product sites ship (see [benchmarks](
 ### Tabs and segmented control
 
 - Tabs (navigation between views): 13–14/500, text-2 inactive, text-1 active with a 2px underline indicator the width of the label; 16–24 between tabs; baseline-aligned with the section title. Draw the indicator as its own straight bar (an absolutely positioned `::after` or a shared indicator element, square or 1px-rounded ends), never as `border-bottom` on the tab: buttons and links usually carry a corner radius, and a one-sided border on a rounded box curves up at both ends. A filter row of three to five options reads better as a segmented control than as underlined tabs.
+- Metric tabs (a row of figures that switches a chart) follow the same rule: inactive figures in text-2, the active one in text-1, the indicator the width of its label and figure. Never a tinted band behind the inactive tabs with the active one cut out in white and a full-cell bar under it: that reads as a stuck-out card, not a selection.
 - Segmented (switching a value): container surface-2, radius md, inset 2–3; thumb surface-1 with a raised shadow, radius `md − inset`. Item height 28–32. The thumb slides between items (200ms ease-out).
 
 ### Menu, dropdown, popover
@@ -158,6 +159,17 @@ Render and screenshot these before calling a component done:
 - selected / checked / expanded / current
 - overflow: 2x longer text, 1-character text, 5-digit numbers, missing image, RTL if supported
 - narrow container (320px) and wide container
+
+Then the states that only appear in use. Each of these shipped once on a reviewed page and was caught only by eye; the review board now checks the first four:
+
+- **Tooltips at the edges.** Hover the first and last mark of every chart. The tooltip shifts inside its container (never clipped by an `overflow` ancestor) and its pointer stays on the anchor.
+- **Selects.** No select drawn by the browser: same height, radius and border as the fields, and the same chevron as every other dropdown.
+- **Dialogs opening.** Open each dialog with the mouse. Focus lands on the dialog, not a ringed field; rings show on keyboard focus only.
+- **Pinned headers.** Scroll a long table. One rule under the pinned header, not a border plus a shadow, and the rounded panel stays rounded (`overflow: clip` on the panel).
+- **Sort indicators.** Only the sorted column shows its arrow; other headers hint on hover. Changing direction swaps the glyph instantly; a rotating chevron reads as a glitch.
+- **Cards side by side share a height.** Two panels in one row end on the same line; the shorter one spreads its rows evenly (rows grow, content stays tight in each) rather than stopping early or ending in a blank tail.
+- **Hover bands in rounded containers.** A row hover fill has the container's inner radius at its ends, never square corners against a rounded panel, and the rules above and below the hovered row step aside so the band does not sit on lines.
+- **Pinned toolbars on phone.** Only search and filters stay pinned; counts and sort scroll away. The pinned region is opaque with one rule under it, so no row shows through.
 
 ## Research a component
 

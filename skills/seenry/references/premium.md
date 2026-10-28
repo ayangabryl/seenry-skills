@@ -26,7 +26,7 @@ Frequent users come to find a record, compare it, spot the exception and act. St
 
 - **Weight is assigned by role.** 400 for repeated values, 500 for row anchors, labels, navigation and buttons, 600 for sparse titles and the one key figure. Linear describes the redesign as a modest heading shift with quiet repeated labels. When money, names and states are all 700, every row shouts equally and nothing leads.
 - **Heavy weights have one legitimate place:** a single marketing display line or one isolated figure in a brand's own face. Never in repeated UI.
-- **Small, even sizes.** App screens run on 13–14px values, 12px headers and meta, 24px page titles. The largest text names the work ("Invoices"), not a decorative category.
+- **Small, even sizes.** App screens run on 13–14px values, 13px headers and meta (the floor in [the standard](standard.md#size-floors)), 24px page titles. The largest text names the work ("Invoices"), not a decorative category.
 - **One workhorse sans in the app; mono only for technical strings.** Stripe shows keys and error strings in mono and everything else proportional. Money in mono looks like code; right-aligned tabular numerals already align it.
 - **Direct labels, no prefaces.** None of the leaders put an uppercase letter-spaced eyebrow above the page title or number their sections ("01 /", "(001)"). The title says where you are; a preface only adds composition before the work.
 - **Money is precise and quiet.** `$1,250.00`, `−$312.25`: real minus, consistent cents, right-aligned tabular figures in columns. Mercury shrinks cents in a large summary figure; Ramp pairs the current period with a quieter lifetime total in one cell.

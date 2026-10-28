@@ -1,5 +1,14 @@
 # The system
 
+## One token system, everywhere
+
+Studio work reads as decided because it uses few values, each on purpose: the studio sites we measured render 5 to 11 font sizes; Seenry pages rendered 15 to 26, with ten spacing values off the grid and a dozen durations, typed one at a time. Before any layout, new page or existing app, the project has one token file and every style uses it:
+- **Type:** six to nine steps (display, title, heading, lead, body, small, label), the display step may be fluid with `clamp()` defined once in the token. Never a size typed in a component.
+- **Space:** the 4px scale (4, 8, 12, 16, 24, 32, 48, 64, 96, 128, plus 20, 40, 56, 80 if needed). Component padding, gaps and section spacing come only from it.
+- **Radius:** at most three plus full; nested corners concentric.
+- **Motion:** `--dur-1/2/3` (120, 180, 240ms) for state changes, `--dur-scene-1/2/3` (600, 900, 1200ms) for page choreography, `--stagger`, and two or three easings. Every transition and animation uses them.
+Start from [the starter tokens](../assets/tokens.css) for a new site and change the values to the identity; in an existing project use its tokens or theme (Tailwind's scale, CSS variables). When the owner asks for that cleanup and its sizes, spacing, radii or durations are typed values (color variables alone are not a token system), never convert by hand (in testing that took the whole session and the design scored lower): run `node scripts/token_convert.mjs <styles folder>` to see the scale it builds from the values the app already uses (near sizes merged, spacing on the 4px scale, radii merged to three, durations on the motion tokens), then `--apply` to write the token block and rewrite the declarations in one pass, and spend the time on design. `token_lint.mjs` (run by check.mjs and existing_check.mjs; `--changed` for edits in an existing repo) blocks typed values and Tailwind arbitrary values wherever the project has a scale (every new site, Tailwind, or size and spacing variables) and only advises in a legacy stylesheet without one, where the conversion is the owner's call. For new sites the review board also blocks rendered drift: more than nine font sizes, padding or gaps off the 4px scale, more than seven durations or four radii.
+
 A design system for an LLM is a short list of allowed values. The fewer values, the more consistent every later component will be. Define these once in CSS custom properties (or the project's token format), write them into `DESIGN.md`, and use nothing else.
 
 If the project already has tokens, map them onto these roles and keep the project's values. Only fill the gaps.

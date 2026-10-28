@@ -104,8 +104,7 @@ Untuned type is the template tell, not Inter itself: Inter at default tracking a
 
 Judges and users read the rendered page, often scaled down. Tiny, faint text reads as unfinished.
 
-- Marketing body 16–18px; supporting copy ≥ 15px; metadata ≥ 13px at text-2 contrast. Phone supporting copy ≥ 15px.
-- Product UI 14px for table cells and 13px for meta, never 11–12px for anything people need to read. Mono labels at 11–12px only when they are decoration.
+- Size floors for marketing pages and product UI are in [the standard](standard.md#size-floors).
 - Fill sections: a section with one headline and three short lines in 600px of empty space looks sparse. Either give it content (a real UI crop, data, an image) or merge it.
 
 ## 8. Phone as its own composition

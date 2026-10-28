@@ -12,12 +12,14 @@ import {resolve, join, basename} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {findCli, askModel} from './model_cli.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const files = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--'))).map(f => resolve(f));
 if (files.length < 2 || files.some(f => !existsSync(f))) { console.error('Usage: node pick.mjs a.html b.html [c.html] --brief BRIEF.md [--refs a.png,b.png]'); process.exit(2); }
 const out = resolve(flag('out', '.seenry/explore')); mkdirSync(out, {recursive: true});
+markWorkDir(out);
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
 
 async function loadPlaywright() {

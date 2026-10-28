@@ -10,12 +10,14 @@ import {readFileSync, existsSync, mkdirSync} from 'node:fs';
 import {resolve, join, extname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const list = v => (v || '').split(',').map(s => s.trim()).filter(Boolean).map(p => resolve(p));
 const screens = list(flag('screens')), refs = list(flag('refs')).filter(existsSync);
 const out = resolve(flag('out', '.seenry/review'));
+markWorkDir(out);
 if (!screens.length || screens.some(s => !existsSync(s))) { console.error('Usage: node screens.mjs --screens a.png,b.png [--refs x.png] --out .seenry/review (every screenshot must exist)'); process.exit(2); }
 mkdirSync(out, {recursive: true});
 

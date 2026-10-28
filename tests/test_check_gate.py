@@ -50,8 +50,9 @@ class CheckGate(unittest.TestCase):
         for p in [self.scripts, self.project/'.seenry/research', self.project/'.seenry/refs', self.project/'.seenry/explore']:
             p.mkdir(parents=True)
         shutil.copyfile(ROOT/'skills/seenry/scripts/check.mjs',self.scripts/'check.mjs')
-        contract=ROOT/'skills/seenry/scripts/motion_contract.mjs'
-        if contract.exists(): shutil.copyfile(contract,self.scripts/'motion_contract.mjs')
+        for name in ('motion_contract.mjs','history.mjs','workdir.mjs'):
+            dep=ROOT/'skills/seenry/scripts'/name
+            if dep.exists(): shutil.copyfile(dep,self.scripts/name)
         (self.scripts/'review_board.mjs').write_text(BOARD)
         (self.scripts/'screens.mjs').write_text(BOARD)
         (self.scripts/'critic.mjs').write_text(CRITIC)
@@ -66,6 +67,8 @@ class CheckGate(unittest.TestCase):
         (self.project/'brief.md').write_text('Test the gate offline.')
         (self.project/'.seenry/idea.md').write_text('Idea fixture. '*60)
         (self.project/'.seenry/motion.md').write_text('Motion fixture. '*40)
+        (self.project/'.seenry/identity.md').write_text('Identity fixture. '*40)
+        (self.project/'.seenry/identity.html').write_text('<p>Identity fixture</p>')
         (self.project/'.seenry/research/pack.md').write_text('Test pack')
         (self.project/'.seenry/explore/pick.json').write_text('{}')
         for name in ['a.png','b.png']:
@@ -217,7 +220,7 @@ class CheckGate(unittest.TestCase):
 
     def test_completed_quality_failures_obey_stopping_budget(self):
         self.configure(output=self.quality_result(),exit_code=1)
-        for _ in range(3): self.assertEqual(self.run_gate().returncode,1)
+        for _ in range(2): self.assertEqual(self.run_gate().returncode,1)
         stopped=self.run_gate();self.assertEqual(stopped.returncode,3,stopped.stdout+stopped.stderr)
         self.assertIn('quality target was not reached',stopped.stdout)
         calls=(self.project/'.seenry/review/board-calls.log').read_text()

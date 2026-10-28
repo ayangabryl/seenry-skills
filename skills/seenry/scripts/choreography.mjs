@@ -15,12 +15,15 @@ import {tmpdir} from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {findCli, askModel} from './model_cli.mjs';
+import {markWorkDir} from './workdir.mjs';
+import {namedIntent} from './named.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
 const target = args.find((a, i) => !a.startsWith('--') && !(args[i - 1] || '').startsWith('--'));
 if (!target) { console.error('usage: choreography.mjs <url | file.html> [--out file] [--identity identity.md]'); process.exit(2); }
 const out = resolve(flag('out', '.seenry/review/choreography.json'));
+markWorkDir(out);
 const identityPath = flag('identity');
 const identity = identityPath && existsSync(identityPath) ? readFileSync(identityPath, 'utf8') : '';
 const score = (identity.match(/^#+\s*motion[^\n]*\n([\s\S]*?)(?=\n#+\s|$)/im)?.[1] || '').trim().slice(0, 1600);
@@ -82,10 +85,10 @@ const prompt = `You are the creative director of a top independent design studio
 ${score ? `The designer's motion score for this page:\n${score}\n` : ''}
 Judge only the motion and choreography, not the layout or the colors:
 - entrance: does the first screen arrive as a sequence with a clear order (the subject first, then the headline, then the rest), with enough scale and time to register, or does it simply appear or fade in at once?
-- scenes: are there two or three scroll scenes where a section holds while something visibly transforms in a way that proves the idea (layers separate, an image unmasks or changes framing, a drawing builds, a number or diagram resolves), or is every section the same small fade-up?
+- scenes: if the page holds a scroll scene, does it earn the time by showing a transformation that proves the idea, or is it a pinned band that adds scroll without meaning (penalise that; a page with no scene and confident static composition is fine)
 - device: does the identity's graphic device or drawing travel and link sections, drawn in as the page reaches it?
 - restraint: one easing and timing family, text that is readable at every frame, nothing that moves only to move.
-Calibrate: 3 = almost nothing moves; 5 = a uniform fade-up on every block; 6.5 = a nice entrance and some reveals; 8 = choreographed with one or two real scenes; 9 = a page that feels directed like a film, scenes that carry the idea; 10 = the best studio work you know. Score each part and the whole (decimals allowed). In "missing", say in one sentence what a top studio would have done that this page does not. Then list at most 6 fixes, most impactful first: the section, the move (what should happen as the visitor scrolls or arrives) and how to build it (CSS scroll-driven animation with animation-timeline: view() and an animation-range, a position: sticky stage inside a taller section, clip-path or mask reveals, GSAP ScrollTrigger with scrub and pin, staggered line reveals), with durations and distances. Keep text readable and keep a reduced-motion version. Do not open any files other than the attached images.`;
+Calibrate: 3 = almost nothing moves; 5 = a uniform fade-up on every block; 6.5 = a nice entrance and some reveals; 8 = choreographed with one or two real scenes; 9 = a page that feels directed like a film, scenes that carry the idea; 10 = the best studio work you know. Score each part and the whole (decimals allowed). In "missing", say in one sentence what a top studio would have done that this page does not. Then list at most 6 fixes, most impactful first: the section, the move (what should happen as the visitor scrolls or arrives) and how to build it (CSS scroll-driven animation with animation-timeline: view() and an animation-range, a position: sticky stage inside a taller section, clip-path or mask reveals, GSAP ScrollTrigger with scrub and pin, staggered line reveals), with durations and distances. Keep text readable and keep a reduced-motion version. ${namedIntent(flag('patterns'), 'motion')}Do not open any files other than the attached images.`;
 let verdict;
 try { verdict = askModel(found, {images, prompt, schema}); } catch (e) { console.error(`choreography critic failed: ${e.message}`); process.exit(1); }
 mkdirSync(dirname(out), {recursive: true});

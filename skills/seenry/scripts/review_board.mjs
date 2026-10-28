@@ -12,6 +12,7 @@ import {mkdirSync, writeFileSync, readFileSync, existsSync} from 'node:fs';
 import {resolve, join, extname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
+import {markWorkDir} from './workdir.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -19,6 +20,7 @@ const target = args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1]
 if (!target) { console.error('Usage: node review_board.mjs <url | file.html> [--refs a.png,b.png] [--out dir]'); process.exit(2); }
 const url = /^https?:|^file:/.test(target) ? target : pathToFileURL(resolve(target)).href;
 const out = resolve(flag('out', '.seenry/review'));
+markWorkDir(out);
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
 mkdirSync(out, {recursive: true});
 
@@ -33,12 +35,12 @@ async function loadPlaywright() {
   process.exit(2);
 }
 
-function inspect({phone, studio, quiet}) {
+function inspect({phone, studio, quiet, software}) {
   const vis = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && +s.opacity > 0 && !el.closest('[aria-hidden="true"],svg'); };
   const ownText = el => [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
   const label = el => `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${(el.textContent || '').trim().slice(0, 40)}"`;
   const els = [...document.body.querySelectorAll('*')].filter(el => ownText(el) && vis(el));
-  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: [], dividers: [], deviceOnce: [], phoneHero: [], tokenDrift: [], clichePalette: [], repeatedVisual: [], heroNoImage: [], fewImages: [], brandBand: [], noScrollScene: [], noDrawnLayer: [], typeFlat: [], denseHero: [], tooMuchCopy: [], heavyCaption: [], curvedUnderline: [], dashLabel: [], glyphIcon: [], repeatedPhoto: [], textWall: [], washed: []};
+  const f = {dotText: [], defaultColor: [], radiusAwkward: [], radiusMixed: [], small: [], desktopSmall: [], faint: [], caps: [], eyebrow: [], numbered: [], heavy: [], italicAccent: [], fallback: [], tabularPunct: [], clipped: [], fixed: [], tokenCloud: [], processNote: [], dividers: [], deviceOnce: [], phoneHero: [], tokenDrift: [], clichePalette: [], repeatedVisual: [], heroNoImage: [], fewImages: [], brandBand: [], noMaterial: [], repeatedMotif: [], twoToneHead: [], monoGarnish: [], splitHeader: [], initialsAvatar: [], typeFlat: [], denseHero: [], tooMuchCopy: [], heavyCaption: [], curvedUnderline: [], dashLabel: [], glyphIcon: [], repeatedPhoto: [], textWall: [], washed: []};
   const weights = new Set(), headings = [...document.querySelectorAll('h1,h2,h3,[role=heading]')].filter(vis);
   const canvas = document.createElement('canvas').getContext('2d');
   const paint = document.createElement('canvas'); paint.width = paint.height = 1;
@@ -160,12 +162,33 @@ function inspect({phone, studio, quiet}) {
       if (blocks.has(sig)) dup.push(`block .${String(el.className).split(' ')[0]}`); else blocks.set(sig, 1);
     }
     if (dup.length) f.repeatedVisual.push(dup.slice(0, 4).join(', '));
+    // Real material: a page built only from type, rules and circles reads as a sketch. It needs photographs, video or
+    // the product's own interface (an HTML product stage marked data-seenry-product) at real size, at least twice.
+    const realSize = (el, w, h) => { const r = el.getBoundingClientRect(); return r.width >= w && r.height >= h && getComputedStyle(el).visibility !== 'hidden'; };
+    const material = [...document.querySelectorAll('img, picture, video')].filter(el => realSize(el, 480, 300) && !(el.tagName === 'IMG' && el.closest('picture')) && !el.closest('nav, footer'))
+      .concat([...document.querySelectorAll('section, div, figure')].filter(el => realSize(el, 480, 300) && /url\(/.test(getComputedStyle(el).backgroundImage)))
+      .concat([...document.querySelectorAll('[data-seenry-product]')].filter(el => realSize(el, 560, 340)));
+    const momentsOf = new Set(material.map(el => Math.round((el.getBoundingClientRect().top + scrollY) / (innerHeight * 0.8))));
+    const stages = [...document.querySelectorAll('[data-seenry-product]')].filter(el => realSize(el, 560, 340)).length;
+    if (software && !stages) f.noMaterial.push('software page with no product interface at real size: borrowed art, prints or stock photos never stand in for the product (build its real UI on a stage and mark it data-seenry-product)');
+    if (momentsOf.size < 2) f.noMaterial.push(`${momentsOf.size} moment(s) of photography, video or product interface at real size (480×300 or larger; mark an HTML product stage with data-seenry-product)`);
+    // One visual idea used three or more times (the same step circles, chips or mini-diagram in hero, band and footer).
+    const secOf = el => el.closest('section, header, footer, main > *');
+    const motif = new Map();
+    for (const el of document.querySelectorAll('body [class], [data-seenry-device]')) {
+      if (el.closest('nav, button, a, label, form, table, [role=tablist]') || el.matches('button, a, input, li, h1, h2, h3, h4, p')) continue;
+      const r = el.getBoundingClientRect(), dev = !!el.dataset.seenryDevice; if (r.height < 32 || r.width < 120 || (!dev && el.children.length < 3)) continue;
+      if (!dev && (el.querySelector('h1, h2, h3, p, button, a') || (el.textContent || '').trim().split(/\s+/).length > 14)) continue;
+      const cls = el.dataset.seenryDevice ? 'device ' + el.dataset.seenryDevice : String(el.className.baseVal ?? el.className).split(/\s+/)[0]; const sec = secOf(el); if (!cls || !sec) continue;
+      if (!motif.has(cls)) motif.set(cls, new Set()); motif.get(cls).add(sec);
+    }
+    for (const [cls, secs] of motif) if (secs.size >= 3) f.repeatedMotif.push(`.${cls} in ${secs.size} sections`);
     if (quiet) {
-      const imagery = [...document.querySelectorAll('img, picture, video')].filter(el => big(el) && !inDevice(el) && !el.closest('nav, footer, [data-wordmark]'))
+      const imagery = [...document.querySelectorAll('img, picture, video, canvas')].filter(el => big(el) && !inDevice(el) && !el.closest('nav, footer, [data-wordmark]'))
         .concat([...document.querySelectorAll('section, div, figure')].filter(el => big(el) && /url\(/.test(getComputedStyle(el).backgroundImage) && !inDevice(el)));
       const area = el => { const r = el.getBoundingClientRect(); const top = Math.max(0, r.top + scrollY), bottom = Math.min(innerHeight, r.bottom + scrollY); return Math.max(0, bottom - top) * r.width; };
       const heroArea = imagery.reduce((a, el) => a + area(el), 0);
-      if (heroArea < innerWidth * innerHeight * 0.22) f.heroNoImage.push(`${Math.round(heroArea / (innerWidth * innerHeight) * 100)}% of the first screen is photograph or painting (a quiet page leads with imagery: about a quarter or more; a phone screenshot does not count)`);
+      if (heroArea < innerWidth * innerHeight * 0.22) f.heroNoImage.push(`${Math.round(heroArea / (innerWidth * innerHeight) * 100)}% of the first screen is photograph, painting or a rendered scene (a quiet page leads with imagery: about a quarter or more; a phone screenshot does not count)`);
       const moments = new Set(imagery.map(el => Math.round((el.getBoundingClientRect().top + scrollY) / (innerHeight * 0.8))));
       if (moments.size < 3) f.fewImages.push(`${moments.size} image moment(s) down the page (a quiet page needs the hero and at least two more)`);
       const bands = [...document.querySelectorAll('section, header, footer, main > *, div')].filter(el => { const r = el.getBoundingClientRect(); if (r.width < innerWidth * 0.6 || r.height < 280) return false; const c = toRGBA(getComputedStyle(el).backgroundColor); if (c[3] < 0.9) return false; const mx = Math.max(...c.slice(0, 3)) / 255, mn = Math.min(...c.slice(0, 3)) / 255, l = (mx + mn) / 2, d = mx - mn; const sat = d ? d / (1 - Math.abs(2 * l - 1)) : 0; return sat > 0.35 && l > 0.12 && l < 0.85; });
@@ -212,7 +235,8 @@ function inspect({phone, studio, quiet}) {
     if (radii.size > 4) notes.push(`${radii.size} corner radii (${[...radii].sort((a, b) => a - b).join(' ')})`);
     if (notes.length) f.tokenDrift.push(notes.join('; '));
   }
-  // New studio pages are choreographed and drawn: at least one scroll scene and a drawn SVG layer used twice.
+  // Studio pages: editing limits and typographic range. Scroll scenes and drawn layers are no longer required;
+  // forcing them produced pinned empty bands and crude diagrams on every page.
   if (studio && !phone) {
     const timelines = document.getAnimations().filter(a => a.timeline && !(a.timeline instanceof DocumentTimeline)).length;
     const triggers = window.ScrollTrigger?.getAll?.().length || 0;
@@ -229,14 +253,11 @@ function inspect({phone, studio, quiet}) {
     }
     for (const t of window.ScrollTrigger?.getAll?.() || []) if (t.pin || t.vars?.scrub) scenes.add(host(t.trigger || t.pin));
     for (const el of document.querySelectorAll('*')) if (getComputedStyle(el).position === 'sticky' && el.parentElement && el.parentElement.getBoundingClientRect().height > innerHeight * 1.5 && el.getBoundingClientRect().height > innerHeight * 0.5) scenes.add(host(el));
-    if (!timelines && !triggers && !pinned) f.noScrollScene.push('no scroll-driven animation, ScrollTrigger or pinned scene');
-    else if (scenes.size < 2) f.noScrollScene.push(`${scenes.size} scroll scene(s) where something large transforms or holds (need two or three)`);
     const drawn = [...document.querySelectorAll('svg')].filter(sv => { const r = sv.getBoundingClientRect(); return r.width >= 120 && r.height >= 80 && sv.querySelector('path,line,polyline,circle,rect') && !sv.closest('nav,button,a,[data-wordmark]'); }).length;
-    if (drawn < 2) f.noDrawnLayer.push(`${drawn} drawn SVG illustration(s) at 120px or larger`);
     // Studio editing: one message on the first screen, a page that says it once, captions of one short line.
     const wordsIn = t => t.trim().split(/\s+/).filter(Boolean).length;
     const copy = [...document.querySelectorAll('body *')].filter(el => vis(el) && !el.closest('nav,footer,script,style,[aria-hidden=true]')).map(el => ({el, t: ownText(el)})).filter(x => x.t);
-    const heroWords = copy.filter(x => { const r = x.el.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0 && !x.el.closest('header'); }).reduce((a, x) => a + wordsIn(x.t), 0);
+    const heroWords = copy.filter(x => { const r = x.el.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0 && !(h => h && !h.parentElement.closest('main,article,section,aside'))(x.el.closest('header')); }).reduce((a, x) => a + wordsIn(x.t), 0);
     const pageWords = copy.reduce((a, x) => a + wordsIn(x.t), 0);
     if (heroWords > 45) f.denseHero.push(`${heroWords} words in the first screen (studio limit about 45: headline, one line, one action)`);
     if (pageWords > 700) f.tooMuchCopy.push(`${pageWords} words on the page (studio limit about 700; cut each section to one message)`);
@@ -248,8 +269,36 @@ function inspect({phone, studio, quiet}) {
     const flatSections = sectionsBelow.filter(sc => { const own = below.filter(el => sc.contains(el)); const lv = new Set(own.map(el => Math.round(parseFloat(getComputedStyle(el).fontSize) / 4) * 4)); return own.length >= 3 && lv.size < 3; }).length;
     if (sizes.size < 5 || (sectionsBelow.length >= 3 && flatSections / sectionsBelow.length > 0.5)) f.typeFlat.push(`${sizes.size} text sizes below the first screen; ${flatSections} of ${sectionsBelow.length} sections use fewer than three levels`);
   }
+  // Second-generation tells: the house look generated pages converge on once the classic tells are banned.
+  {
+    const lumOf = c => { const [r, g, b] = toRGBA(c); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    let twoTone = 0;
+    for (const h of headings) {
+      if (parseFloat(getComputedStyle(h).fontSize) < 24) continue;
+      const base = lumOf(getComputedStyle(h).color);
+      const muted = [...h.querySelectorAll('span,em,small')].some(sp => sp.textContent.trim().split(/\s+/).length >= 2 && Math.abs(lumOf(getComputedStyle(sp).color) - base) > 40);
+      if (muted) { twoTone++; if (twoTone > 1) f.twoToneHead.push(label(h)); }
+    }
+    const mono = els.filter(el => /mono|courier|consolas|menlo/i.test(getComputedStyle(el).fontFamily) && !el.closest('pre,code,kbd,samp,table,[role=table],[data-seenry-device]') && ownText(el).length > 2);
+    if (mono.length > 6) f.monoGarnish.push(`${mono.length} monospace text elements outside code and tables (${mono.slice(0, 3).map(label).join(', ')})`);
+    if (!phone) {
+      let split = 0;
+      for (const h of document.querySelectorAll('section h2, main > * h2')) {
+        if (!vis(h)) continue;
+        const hr = h.getBoundingClientRect(), sec = h.closest('section, main > *');
+        const note = [...sec.querySelectorAll('p')].find(p => { if (!vis(p) || p.contains(h)) return false; const r = p.getBoundingClientRect(); return r.left > hr.right + 24 && Math.abs(r.top - hr.top) < Math.max(80, hr.height) && parseFloat(getComputedStyle(p).fontSize) < parseFloat(getComputedStyle(h).fontSize) / 1.6; });
+        if (note) split++;
+      }
+      if (split >= 3) f.splitHeader.push(`${split} sections open with the same header (title left, small note right)`);
+    }
+    for (const el of document.querySelectorAll('span,div,figure,i,li')) {
+      const bx = el.getBoundingClientRect(); if (!bx.width || getComputedStyle(el).visibility === 'hidden' || el.closest('svg')) continue;
+      const t = el.textContent.trim(), r = el.getBoundingClientRect(), st = getComputedStyle(el);
+      if (/^[A-Z]{1,2}$/.test(t) && r.width >= 16 && r.width <= 64 && Math.abs(r.width - r.height) < 4 && (parseFloat(st.borderTopLeftRadius) >= r.width / 2 - 1 || st.borderTopLeftRadius.includes('%'))) f.initialsAvatar.push(label(el));
+    }
+  }
   const devices = {};
-  for (const el of document.querySelectorAll('[data-seenry-device]')) if (vis(el)) devices[el.dataset.seenryDevice] = (devices[el.dataset.seenryDevice] || 0) + 1;
+  for (const el of document.querySelectorAll('[data-seenry-device]')) if (vis(el) && el.getBoundingClientRect().height < 40) devices[el.dataset.seenryDevice] = (devices[el.dataset.seenryDevice] || 0) + 1;
   for (const [name, n] of Object.entries(devices)) if (n < 3) f.deviceOnce.push(`${name} used ${n}×`);
   for (const [name, n] of hits) if (n >= 3) f.defaultColor.push(`Tailwind ${name} used on ${n} elements; derive the accent from the brand and correct it in OKLCH`);
   // Colored dots in front of text ("● Active") read as generated UI; a dot is allowed only when it is the whole
@@ -429,7 +478,7 @@ function inspect({phone, studio, quiet}) {
     if (lines.length > 1 && words.filter(w => Math.abs(w.top - lines.at(-1)) < 4).length === 1) f.orphan.push(`${label(h)}: "${words.at(-1).text}" alone on the last line (rebalance with text-wrap: balance or a deliberate break)`);
   }
   const pageBg = getComputedStyle(document.body).backgroundColor;
-  const actions = [...document.querySelectorAll('a[href],button')].filter(el => firstScreen(el) && !el.closest('nav,header') && (el.textContent || '').trim().length > 1);
+  const actions = [...document.querySelectorAll('a[href],button')].filter(el => firstScreen(el) && !el.closest('nav') && !(h => h && !h.parentElement.closest('main,article,section,aside'))(el.closest('header')) && (el.textContent || '').trim().length > 1);
   if (actions.length) {
     const filled = actions.filter(el => { const bg = getComputedStyle(el).backgroundColor; return !/rgba\(\s*0,\s*0,\s*0,\s*0\)|transparent/.test(bg) && bg !== pageBg; });
     const minH = phone ? 48 : 44, strong = filled.filter(el => el.getBoundingClientRect().height >= minH && parseFloat(getComputedStyle(el).fontSize) >= 15);
@@ -438,6 +487,73 @@ function inspect({phone, studio, quiet}) {
   const h1 = [...document.querySelectorAll('h1')].find(firstScreen), bar = [...document.querySelectorAll('header,nav')].filter(firstScreen).sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
   if (!phone && h1 && bar && !bar.contains(h1)) { const gap = h1.getBoundingClientRect().top - bar.getBoundingClientRect().bottom; if (gap >= 0 && gap < 64) f.headlineCrowd.push(`${label(h1)} starts ${Math.round(gap)}px below the navigation (give it at least 64px, usually 96px+ at 1440)`); }
   return {findings: f, weights: [...weights].sort(), motion};
+}
+
+// Letters cut by their own box: a line-reveal mask (overflow hidden) on a headline set tighter than its glyphs slices
+// descenders and accents (the tail of a g, the top of an É). Compares each text run's glyph box with the clipping box.
+async function clippedText(page) {
+  return page.evaluate(() => {
+    const clipper = el => { for (let e = el, k = 0; e && k < 4; e = e.parentElement, k++) { const c = getComputedStyle(e); if (/hidden|clip/.test(c.overflowX + c.overflowY) || c.clipPath !== 'none') return e; } return null; };
+    const found = [];
+    for (const t of document.querySelectorAll('h1,h2,h3,h4,p,a,span,strong,em,li,button,label')) {
+      if (![...t.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
+      const s = getComputedStyle(t);
+      if (s.webkitLineClamp !== 'none' && s.webkitLineClamp || s.textOverflow === 'ellipsis' || s.visibility === 'hidden') continue;
+      const c = clipper(t); if (!c) continue;
+      const r = document.createRange(); r.selectNodeContents(t);
+      const ink = r.getBoundingClientRect(), box = c.getBoundingClientRect();
+      if (!ink.width || !box.width || ink.bottom < 0 || ink.top > document.documentElement.scrollHeight) continue;
+      const over = Math.max(box.top - ink.top, ink.bottom - box.bottom);
+      if (over > 2 && over < ink.height * 0.6) found.push(`"${t.textContent.trim().slice(0, 30)}" loses ${Math.round(over)}px of its letters to ${c.tagName.toLowerCase()}${c.className ? '.' + String(c.className).split(' ')[0] : ''} (overflow ${getComputedStyle(c).overflowY}): give the mask room for descenders and accents (padding-block 0.15em with a matching negative margin, or line-height of at least 1.1), or drop the mask once the line has entered`);
+    }
+    return found.slice(0, 6);
+  });
+}
+
+// Type set on a photograph or painting: hide the glyphs, sample the pixels behind each first-screen text block and
+// compare the text color with the busiest tenth of them. Scrims, shades and text shadows stay in the sample.
+async function textOverImage(page) {
+  const blocks = await page.evaluate(() => {
+    const imageLike = el => /^(IMG|VIDEO|CANVAS|PICTURE|svg)$/.test(el.tagName) || /url\(/.test(getComputedStyle(el).backgroundImage);
+    const out = [];
+    for (const el of document.querySelectorAll('h1,h2,h3,p,a,button,span,small,time,strong')) {
+      const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+      if (!r.width || !r.height || r.top >= innerHeight || r.bottom <= 0 || s.visibility === 'hidden' || +s.opacity === 0) continue;
+      if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
+      if (/rgba?\(\d+, \d+, \d+, 0\)/.test(s.backgroundColor) === false && s.backgroundColor !== 'transparent') continue;
+      const stack = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      const i = stack.indexOf(el);
+      if (i < 0 || !stack.slice(i + 1).some(imageLike)) continue;
+      const size = parseFloat(s.fontSize), bold = parseInt(s.fontWeight) >= 700;
+      const m = s.color.match(/[\d.]+/g).map(Number);
+      out.push({label: (el.textContent || '').trim().slice(0, 40), rect: {x: Math.max(0, r.left), y: Math.max(0, r.top), width: Math.min(r.width, innerWidth - Math.max(0, r.left)), height: Math.min(r.height, innerHeight - Math.max(0, r.top))}, color: m.slice(0, 3), large: size >= 24 || (bold && size >= 18.66), size, weight: s.fontWeight});
+      el.setAttribute('data-seenry-glyph', '');
+    }
+    const style = document.createElement('style'); style.id = 'seenry-glyph-hide';
+    style.textContent = '[data-seenry-glyph]{color:transparent!important;-webkit-text-fill-color:transparent!important}';
+    document.head.append(style);
+    return out.slice(0, 24);
+  });
+  const found = [];
+  for (const b of blocks) {
+    if (b.rect.width < 4 || b.rect.height < 4) continue;
+    const png = (await page.screenshot({clip: b.rect})).toString('base64');
+    const worst = await page.evaluate(async ({png, color}) => {
+      const img = new Image(); img.src = 'data:image/png;base64,' + png; await img.decode();
+      const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, c.width, c.height).data;
+      const lum = ([r, gr, bl]) => [r, gr, bl].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((s, v, k) => s + v * [0.2126, 0.7152, 0.0722][k], 0);
+      const lt = lum(color), ratios = [];
+      for (let k = 0; k < d.length; k += 16) { const lb = lum([d[k], d[k + 1], d[k + 2]]); ratios.push((Math.max(lt, lb) + 0.05) / (Math.min(lt, lb) + 0.05)); }
+      ratios.sort((a, b) => a - b);
+      return ratios[Math.floor(ratios.length * 0.1)] || 21;
+    }, {png, color: b.color});
+    const need = b.large ? 3 : 4.5;
+    if (worst < need) found.push(`"${b.label}" (${Math.round(b.size)}px/${b.weight}) reaches only ${worst.toFixed(1)}:1 over the busiest tenth of the image behind it (needs ${need}:1): move it onto a calm part of the image, add a scrim or shade under it, or use a heavier weight with a shadow`);
+  }
+  await page.evaluate(() => { document.getElementById('seenry-glyph-hide')?.remove(); document.querySelectorAll('[data-seenry-glyph]').forEach(e => e.removeAttribute('data-seenry-glyph')); });
+  return found;
 }
 
 const {chromium} = await loadPlaywright();
@@ -449,7 +565,9 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
   await page.evaluate(() => document.fonts && document.fonts.ready);
   await page.waitForTimeout(800);
   if (w === 1440) await page.screenshot({path: join(out, 'first-1440.png')});
-  report.widths[w] = await page.evaluate(inspect, {phone: w < 768, studio: args.includes('--studio'), quiet: args.includes('--quiet')});
+  report.widths[w] = await page.evaluate(inspect, {phone: w < 768, studio: args.includes('--studio'), quiet: args.includes('--quiet'), software: args.includes('--software')});
+  report.widths[w].findings.textOverImage = await textOverImage(page);
+  report.widths[w].findings.clippedText = await clippedText(page);
   // The full-page still shows the composition, not the motion: pinned scenes leave a screen of blank travel and
   // scroll-drawn layers render empty, so it is taken in the reduced-motion version (every scene in its final state).
   {
@@ -461,7 +579,7 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
   }
   if (w === 1440) report.interactions = await page.evaluate(async () => {
     const controls = [...document.querySelectorAll('input[type=radio],[role=tab],[role=radio],[aria-pressed],button:not([type=submit])')]
-      .filter(el => { const r = el.getBoundingClientRect(); return r.width && r.height && !el.closest('a[href],form[action],nav,header,footer') && !el.disabled; }).slice(0, 10);
+      .filter(el => { const r = el.getBoundingClientRect(); return r.width && r.height && !el.closest('a[href],form[action],nav,footer') && !(h => h && !h.parentElement.closest('main,article,section,aside'))(el.closest('header')) && !el.disabled; }).slice(0, 10);
     const out = [];
     for (const el of controls) {
       const before = document.body.innerText;
@@ -476,6 +594,52 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
     }
     return out;
   });
+  // States the stills never show: a tooltip at the edge of its chart, a select the browser draws, a dialog that
+  // opens with a focus ring, a pinned header over a rounded panel. Each was shipped once and caught only by eye.
+  if (w === 1440) {
+    // The interaction probe above leaves dialogs and selections changed; start the sweep from a fresh load.
+    await page.reload({waitUntil: 'networkidle'}); await page.waitForTimeout(600);
+    const gaps = [];
+    gaps.push(...await page.evaluate(() => {
+      const out = [];
+      const selects = [...document.querySelectorAll('select')].filter(sel => getComputedStyle(sel).appearance !== 'none' && !sel.closest('[hidden]'));
+      if (selects.length) out.push(`${selects.length} select(s) drawn by the browser (style them like the fields, with the project's chevron)`);
+      for (const el of document.querySelectorAll('th,thead,[role=columnheader]')) {
+        const c = getComputedStyle(el); if (c.position !== 'sticky') continue;
+        if (parseFloat(c.borderBottomWidth) > 0 && /0px 1px 0px/.test(c.boxShadow)) { out.push('pinned table header draws two rules (a border and a shadow)'); break; }
+        let a = el.parentElement; while (a && !(parseFloat(getComputedStyle(a).borderTopLeftRadius) > 0)) a = a.parentElement;
+        if (a && getComputedStyle(a).overflow === 'visible' && c.backgroundColor !== 'rgba(0, 0, 0, 0)') { out.push('pinned table header paints square corners over its rounded panel (clip the panel with overflow: clip)'); break; }
+      }
+      return out;
+    }));
+    const tipSel = '[role=tooltip],[class*=tooltip],[id*=tooltip]';
+    const triggers = await page.evaluate(() => { const els = [...document.querySelectorAll('[aria-describedby],[data-tooltip],[data-tip],svg [tabindex],[role=img][tabindex]')].filter(el => { const r = el.getBoundingClientRect(); return r.width > 4 && r.height > 4; }); els.forEach((el, i) => el.setAttribute('data-seenry-tip', String(i))); return els.length; });
+    for (const i of triggers ? [0, triggers - 1] : []) {
+      const loc = page.locator(`[data-seenry-tip="${i}"]`);
+      await loc.scrollIntoViewIfNeeded().catch(() => {}); await loc.hover({force: true}).catch(() => {}); await page.waitForTimeout(450);
+      const bad = await page.evaluate(({i, tipSel}) => {
+        const tip = [...document.querySelectorAll(tipSel)].find(t => { const st = getComputedStyle(t), r = t.getBoundingClientRect(); return st.visibility !== 'hidden' && +st.opacity > 0.5 && r.width > 8; });
+        if (!tip) return null;
+        const r = tip.getBoundingClientRect();
+        let clip = document.querySelector(`[data-seenry-tip="${i}"]`); while (clip && clip !== document.body && !/hidden|clip/.test(getComputedStyle(clip).overflow)) clip = clip.parentElement;
+        const box = clip && clip !== document.body ? clip.getBoundingClientRect() : {left: 0, top: 0, right: innerWidth, bottom: innerHeight};
+        const cut = r.left < box.left - 1 || r.right > box.right + 1 || r.top < box.top - 1 || r.bottom > box.bottom + 1;
+        const overflow = [...tip.querySelectorAll('*')].some(n => n.scrollWidth > n.clientWidth + 1 && n.clientWidth > 0);
+        return cut || overflow ? 'tooltip is cut off at the edge of its container (shift it inside and keep its pointer on the anchor)' : null;
+      }, {i, tipSel});
+      if (bad) { gaps.push(bad); break; }
+    }
+    await page.mouse.move(2, 2);
+    const openers = await page.evaluate(() => { const els = [...document.querySelectorAll('button')].filter(b => /^\W*(new|add|create|invite|edit)\b/i.test((b.textContent || '').trim()) && b.getBoundingClientRect().width > 0 && !b.closest('nav')).slice(0, 3); els.forEach((b, i) => b.setAttribute('data-seenry-open', String(i))); return els.length; });
+    for (let i = 0; i < openers; i++) {
+      const box = await page.locator(`[data-seenry-open="${i}"]`).boundingBox().catch(() => null); if (!box) continue;
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2); await page.waitForTimeout(450);
+      const ring = await page.evaluate(() => { const d = document.querySelector('dialog[open],[aria-modal=true]'); const a = document.activeElement; return !!d && a && a !== d && d.contains(a) && a.matches(':focus-visible') && getComputedStyle(a).outlineStyle !== 'none'; });
+      await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+      if (ring) { gaps.push('a dialog opens with a focus ring on its first field after a mouse click (focus the dialog, ring on keyboard focus only)'); break; }
+    }
+    report.stateGaps = gaps;
+  }
   await page.close();
 }
 
@@ -501,15 +665,26 @@ const cells = [['This page', join(out, 'first-1440.png')], ...refs.map(r => [r.s
 await shot(`<div style="display:flex;flex-wrap:wrap;gap:16px;padding:16px">${cells.map(([n, p]) => `<figure style="margin:0"><figcaption style="padding:0 0 6px">${n}</figcaption>${clip(uri(p), 720, 450)}</figure>`).join('')}</div>`, 'first.png', 16 + cells.length * 736 > 1488 ? 1488 : 16 + cells.length * 736);
 await browser.close();
 
-const names = {repeatedVisual: 'the same chart, diagram or image shown twice on the page (each visual appears once; show something different in the second place)', heroNoImage: 'quiet page whose first screen is not led by imagery (put a photograph or painting at large size in the hero, with the product on or beside it)', fewImages: 'too few image moments for the quiet register (the hero and at least two more sections carry a photograph or painting)', brandBand: 'a full-width band of saturated brand color in the quiet register (keep surfaces off-white and ink; let imagery carry color)', clichePalette: 'a palette the skill lists as generated (cream with terracotta, forest green with cream or mustard, plum with peach): use warm off-white or white with ink and let imagery carry color, or a brand color that is not on that list', tokenDrift: 'token drift: values typed one at a time instead of picked from the token scale (define the type scale, 4px space scale, radii and motion durations once and use only those; snap near values to the nearest step)', denseHero: 'crowded first screen (one message: headline, one supporting line and one action; move facts, captions and secondary links below)', tooMuchCopy: 'too much copy (cut every section to one message and the page by about a third; studios say it once)', heavyCaption: 'caption longer than one short line (keep captions to one line of 18 words or fewer, or cut them)', typeFlat: 'flat typography in the middle (use the identity\'s type scale: two or more levels per section and a different lead move in neighbouring sections, such as a large pull quote in the text face, a captioned grid, a measured number with its annotation or a margin note)', noScrollScene: 'too few scroll scenes (two or three sections that hold on a sticky stage or scrub while the subject visibly transforms: framing, mask, a drawing that builds; built with CSS scroll-driven animations or GSAP ScrollTrigger pin and scrub; filter or opacity changes alone do not count)', noDrawnLayer: 'no drawn layer (an SVG illustration system from the device, used in at least two sections, drawn in on scroll)', phoneHero: 'phone first screen shows no hero visual (bring the product, photograph or display type into the first 844px: shorten the copy, drop the announcement bar and secondary button above it, or mark type-as-image with data-seenry-hero-visual)', deviceOnce: 'a declared identity device used fewer than three times (a device is a system across sections; otherwise it is decoration: use it consistently or remove it)', washed: 'washed palette: pale tinted panels in several hues (use neutral surfaces and one committed brand color at full strength)', textWall: 'too much text (cut paragraphs to two sentences and the first screen to a headline, one line of support and an action)', repeatedPhoto: 'the same photograph used twice on one screen (give every card and the hero its own image)', dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'eyebrow label above a title (drop it and let the heading carry the section)', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', pageOverflow: 'content wider than the screen: the page scrolls sideways or cuts it off (put wide tables and rows in their own overflow-x:auto container, or recompose them as stacked rows on phone)', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)', curvedUnderline: 'one-sided border on a rounded element: an accent rail down a card or a tab underline that bends at its ends (separate cards by tone and space; draw indicators as a straight ::after bar)', dashLabel: 'short rule or dash in front of a label (let the label stand alone, or cut it)', orphan: 'a word stranded alone on a headline\'s last line', weakAction: 'no primary action that reads as the action (filled, 44px+ tall on desktop, 48px+ on phone, 15px+ label)', headlineCrowd: 'headline jammed under the navigation', glyphIcon: 'typed symbol used as an icon or logo (arrows, stars, sparkles, check marks or emoji as text; use a wordmark or SVG mark and icons from one real icon set)'};
+// --allow numbered,italicAccent: tells the named reference itself uses, listed in .seenry/refs/patterns.md. Craft checks
+// (contrast, clipping, small text) can never be allowed.
+const craftKeys = new Set(['clippedText', 'textOverImage', 'small', 'desktopSmall', 'faint', 'fallback', 'fixed', 'phoneHero']);
+const allow = new Set(String((args.includes('--allow') ? args[args.indexOf('--allow') + 1] : '') || '').split(',').map(s => s.trim()).filter(k => k && !craftKeys.has(k)));
+const names = {clippedText: 'letters cut off by their own box (descenders or accents sliced by an overflow mask)', textOverImage: 'text set on a photograph or painting without enough contrast against the image behind it', repeatedVisual: 'the same chart, diagram or image shown twice on the page (each visual appears once; show something different in the second place)', heroNoImage: 'quiet page whose first screen is not led by imagery (put a photograph or painting at large size in the hero, with the product on or beside it)', fewImages: 'too few image moments for the quiet register (the hero and at least two more sections carry a photograph or painting)', brandBand: 'a full-width band of saturated brand color in the quiet register (keep surfaces off-white and ink; let imagery carry color)', clichePalette: 'a palette the skill lists as generated (cream with terracotta, forest green with cream or mustard, plum with peach): use warm off-white or white with ink and let imagery carry color, or a brand color that is not on that list', tokenDrift: 'token drift: values typed one at a time instead of picked from the token scale (define the type scale, 4px space scale, radii and motion durations once and use only those; snap near values to the nearest step)', denseHero: 'crowded first screen (one message: headline, one supporting line and one action; move facts, captions and secondary links below)', tooMuchCopy: 'too much copy (cut every section to one message and the page by about a third; studios say it once)', heavyCaption: 'caption longer than one short line (keep captions to one line of 18 words or fewer, or cut them)', typeFlat: 'flat typography in the middle (use the identity\'s type scale: two or more levels per section and a different lead move in neighbouring sections, such as a large pull quote in the text face, a captioned grid, a measured number with its annotation or a margin note)', noMaterial: 'no real material (a page made only of type, rules and drawn shapes reads as a sketch: show the product\'s own interface on a stage, art-directed photography or video at real size, at least twice)', repeatedMotif: 'one visual motif repeated in three or more sections (a device used everywhere becomes a tic; use it once where it explains most)', twoToneHead: 'two-tone headline used more than once (a grey second sentence in a headline is a generated tell; one color per headline, and say it in one sentence)', monoGarnish: 'monospace used as texture (captions, timestamps and meta lines in mono read as generated; keep mono for code and aligned table figures)', splitHeader: 'the same section header on three or more sections (title left, small note right): open each section the way its content needs', initialsAvatar: 'initials in a circle standing in for a person (use a real photo, or the name alone)', phoneHero: 'phone first screen shows no hero visual (bring the product, photograph or display type into the first 844px: shorten the copy, drop the announcement bar and secondary button above it, or mark type-as-image with data-seenry-hero-visual)', deviceOnce: 'a declared identity device used fewer than three times (a device is a system across sections; otherwise it is decoration: use it consistently or remove it)', washed: 'washed palette: pale tinted panels in several hues (use neutral surfaces and one committed brand color at full strength)', textWall: 'too much text (cut paragraphs to two sentences and the first screen to a headline, one line of support and an action)', repeatedPhoto: 'the same photograph used twice on one screen (give every card and the hero its own image)', dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'eyebrow label above a title (drop it and let the heading carry the section)', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', pageOverflow: 'content wider than the screen: the page scrolls sideways or cuts it off (put wide tables and rows in their own overflow-x:auto container, or recompose them as stacked rows on phone)', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)', curvedUnderline: 'one-sided border on a rounded element: an accent rail down a card or a tab underline that bends at its ends (separate cards by tone and space; draw indicators as a straight ::after bar)', dashLabel: 'short rule or dash in front of a label (let the label stand alone, or cut it)', orphan: 'a word stranded alone on a headline\'s last line', weakAction: 'no primary action that reads as the action (filled, 44px+ tall on desktop, 48px+ on phone, 15px+ label)', headlineCrowd: 'headline jammed under the navigation', glyphIcon: 'typed symbol used as an icon or logo (arrows, stars, sparkles, check marks or emoji as text; use a wordmark or SVG mark and icons from one real icon set)'};
+const named = args.includes('--named');
+// A <header> inside main, an article or a section is that section's header, not site navigation, so its buttons count.
+// App screens (dashboards, settings, tools) are not landing pages: a hero visual, image moments, a word budget or a
+// product stage do not apply, and tables, dividers and initials avatars are normal there.
+const appSkip = args.includes('--app') ? new Set(['phoneHero', 'heroNoImage', 'fewImages', 'noMaterial', 'tooMuchCopy', 'splitHeader', 'denseHero', 'headlineCrowd', 'brandBand', 'initialsAvatar', 'dividers', 'repeatedVisual']) : new Set();
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);
   if (r.weights.length > 3) blockers++;
   for (const [k, list] of Object.entries(r.findings)) {
     if (!list.length) continue;
+    if (appSkip.has(k)) continue;
+    if (allow.has(k)) { console.log(`  allowed by the pattern map: ${names[k]} ×${list.length}`); continue; }
     blockers++;
-    console.log(`  ${names[k]} ×${list.length}`);
+    console.log(`  ${names[k]} ×${list.length}${named && !craftKeys.has(k) ? `  [${k}: if the named site does this on purpose, add it to the Allow line in patterns.md]` : ''}`);
     for (const x of [...new Set(list)].slice(0, 4)) console.log(`    ${x}`);
   }
 }
@@ -523,6 +698,8 @@ if (!m.reducedMotion) motionGaps.push('no prefers-reduced-motion handling');
 console.log(`\n■ motion  transitions ${m.withTransition}/${m.interactive} · press ${m.pressState ? 'yes' : 'no'} · reduced-motion ${m.reducedMotion ? 'yes' : 'no'} · keyframes ${m.keyframes}`);
 for (const g of motionGaps) console.log(`  ${g}`);
 blockers += motionGaps.length;
+for (const g of report.stateGaps || []) console.log(`  state: ${g}`);
+blockers += (report.stateGaps || []).length;
 report.blockers = blockers;
 writeFileSync(join(out, 'board.json'), JSON.stringify(report, null, 2));
 console.log(`\n${blockers} blocker(s). Look at ${join(out, 'board.png')} and ${join(out, 'first.png')} before scoring.`);

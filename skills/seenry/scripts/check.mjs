@@ -16,6 +16,7 @@ import {spawnSync, spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {recordIdentity} from './history.mjs';
 import {validMotionVerdict, motionAcceptance, MOTION_ACCEPTANCE_POLICY} from './motion_contract.mjs';
+import {markWorkDir} from './workdir.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -24,8 +25,26 @@ const native = flag('screens'), video = flag('video');
 const target = native ? null : args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')));
 if (!target && !native) { console.error('Usage: node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png]'); process.exit(2); }
 const dir = resolve(flag('dir', '.seenry')), review = join(dir, 'review');
+markWorkDir(dir);
 const goal = Number(flag('target', '9'));
 mkdirSync(review, {recursive: true});
+// A gate that runs in the background must never be abandoned: ending the turn while it runs ends the work in headless
+// sessions. --await blocks until the running gate finishes, then prints its full output and exits with its code.
+const running = join(review, 'check.running'), lastRun = join(review, 'last-run.json');
+if (args.includes('--await')) {
+  const alive = () => { if (!existsSync(running)) return false; try { process.kill(Number(readFileSync(running, 'utf8')), 0); return true; } catch { return false; } };
+  const start = Date.now();
+  while (alive() && Date.now() - start < 45 * 60000) await new Promise(r => setTimeout(r, 5000));
+  if (!existsSync(lastRun)) { console.log('No finished gate run found. Run check.mjs in the foreground.'); process.exit(2); }
+  const last = JSON.parse(readFileSync(lastRun, 'utf8'));
+  process.stdout.write(last.log);
+  process.exit(last.code);
+}
+writeFileSync(running, String(process.pid));
+const captured = [];
+const rawWrite = process.stdout.write.bind(process.stdout);
+process.stdout.write = (chunk, ...rest) => { captured.push(String(chunk)); return rawWrite(chunk, ...rest); };
+process.on('exit', code => { try { writeFileSync(lastRun, JSON.stringify({code, log: captured.join('')})); rmSync(running, {force: true}); } catch {} });
 let refs = flag('refs');
 // The critic's bar is the leaders' home-page first screens from research.mjs, never the builder's own picks: section
 // crops and motion frames made a weak, noisy bar that scored America.gov itself 5/10.
@@ -118,7 +137,8 @@ const mode = flag('mode', args.includes('--fast') ? 'fast' : 'showcase');
 const quick = mode === 'quick', polish = mode === 'polish';
 const fast = mode === 'fast' || quick || polish;
 const leader = 8, level = n => n >= goal ? 'pass' : n >= leader ? 'leader level' : 'below leader level';
-const criticCap = Number(flag('critic-rounds', 0)) || (quick ? 1 : polish ? 4 : mode === 'fast' ? 3 : null);
+// Showcase rounds rarely gain after the fourth; the time is better spent on a second direction.
+const criticCap = Number(flag('critic-rounds', 0)) || (quick ? 1 : polish ? 4 : mode === 'fast' ? 3 : 4);
 if ((criticRounds >= (criticCap ?? 8) || round > 20) && !history.some(h => h.stop)) {
   history[history.length - 1].stop = criticRounds >= (criticCap ?? 8) ? `${criticCap ?? 'eight'} critic rounds` : 'twenty rounds';
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
@@ -145,7 +165,15 @@ if (existsSync(join(dir, 'images.pending'))) {
   while (existsSync(join(dir, 'images.pending')) && Date.now() - waitStart < 30 * 60 * 1000) await new Promise(r => setTimeout(r, 3000));
 }
 const quietRegister = existsSync(join(dir, 'identity.md')) && /register[^\n]{0,40}quiet|quiet premium/i.test(readFileSync(join(dir, 'identity.md'), 'utf8'));
-const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(quietRegister ? ['--quiet'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
+const briefText = flag('brief') && existsSync(flag('brief')) ? readFileSync(flag('brief'), 'utf8') : '';
+// An app screen (dashboard, settings, a tool) is judged as product UI, not as a landing page.
+const appSurface = flag('surface') === 'app' || /^surface:\s*(app|dashboard|product)/mi.test(briefText);
+const software = /\b(saas|software|app|apps|platform|tool|dashboard|api|sdk|plugin|extension|workspace|subscription)\b/i.test(briefText);
+// A named reference's own patterns (chapter numbers, a serif accent, pill tags) are allowed when the pattern map lists them.
+const patternFile = join(dir, 'refs', 'patterns.md');
+const refUrl = existsSync(patternFile) ? (readFileSync(patternFile, 'utf8').match(/https?:\/\/[^\s)>\]]+/) || [])[0] || '' : '';
+const allowed = existsSync(patternFile) ? ((readFileSync(patternFile, 'utf8').match(/^Allow:\s*(.+)$/mi) || [])[1] || '').trim() : '';
+const boardArgs = [join(here, 'review_board.mjs'), target, '--out', review, '--studio', ...(allowed ? ['--allow', allowed] : []), ...(existsSync(patternFile) ? ['--named'] : []), ...(appSurface ? ['--app'] : []), ...(quietRegister ? ['--quiet'] : []), ...(software ? ['--software'] : []), ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])];
 // Native apps have no DOM to inspect: their screenshots are laid out as the board and the critic and motion judge do the review.
 const board = native
   ? spawnSync('node', [join(here, 'screens.mjs'), '--screens', native, '--out', review, ...(refs ? ['--refs', refs] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'})
@@ -159,17 +187,19 @@ const refCount = existsSync(join(dir, 'refs')) ? readdirSync(join(dir, 'refs')).
 const motionSpec = join(dir, 'motion.md'), design = join(project, 'DESIGN.md');
 // Remember this project's identity so the next one can differ from it (the skill reads the last ten).
 try { recordIdentity(dir, project); } catch {}
+// A named site is the identity (references/named-site.md): its pattern map replaces the three boards.
+const named = existsSync(join(dir, 'refs', 'patterns.md'));
 const missing = [
   !existsSync(join(dir, 'research', 'pack.md')) && `research pack: run node ${join(here, 'research.mjs')} --type <type> --terms "<words>" (or research by hand with the Seenry MCP tools and write ${join(dir, 'research', 'pack.md')})`,
   refCount < 2 && `references: copy at least 2 (ideally 3) first screens from the pack into ${join(dir, 'refs')}/`,
   refCount >= 2 && !existsSync(join(dir, 'refs', 'kept.md')) && `references: write ${join(dir, 'refs', 'kept.md')} with one decision card per kept reference: its file, the job and decision it makes, its measured numbers, what you take and how you transform it`,
   (!existsSync(motionSpec) || readFileSync(motionSpec, 'utf8').length < 400) && `motion spec: write ${motionSpec} from the 2 studied motion references (trigger, property, duration, easing, stagger, interruption, reduced motion, source)`,
   (!existsSync(design) || !/brand guidelines/i.test(readFileSync(design, 'utf8'))) && `design record: ${design} with a "Brand guidelines" section and why each reference was chosen`,
-  !native && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three identity boards in ${join(dir, 'explore')}/ (a.html, b.html, c.html) and run node ${join(here, 'pick.mjs')} on them`,
-  !native && (!existsSync(join(dir, 'identity.md')) || readFileSync(join(dir, 'identity.md'), 'utf8').length < 500 || !existsSync(join(dir, 'identity.html'))) && `identity: write ${join(dir, 'identity.md')} (truth, visual idea, type voice, color world, graphic device, image treatment, voice line, motion behavior) and render it as ${join(dir, 'identity.html')}, following the Identity first section of SKILL.md`,
+  !native && !named && !existsSync(join(dir, 'explore', 'pick.json')) && `exploration: build three identity boards in ${join(dir, 'explore')}/ (a.html, b.html, c.html) and run node ${join(here, 'pick.mjs')} on them`,
+  !native && (!existsSync(join(dir, 'identity.md')) || readFileSync(join(dir, 'identity.md'), 'utf8').length < 500 || (!named && !existsSync(join(dir, 'identity.html')))) && `identity: write ${join(dir, 'identity.md')} (truth, visual idea, type voice, color world, graphic device, image treatment, voice line, motion behavior) and render it as ${join(dir, 'identity.html')}, following references/identity.md`,
   (!existsSync(join(dir, 'idea.md')) || readFileSync(join(dir, 'idea.md'), 'utf8').length < 600) && `idea: write ${join(dir, 'idea.md')} following references/design-thinking.md (claim, proof, moment, material, five candidate ideas with scores, the chosen idea and where it shows)`,
   native && !video && 'motion recording: record the interactions (xcrun simctl io booted recordVideo rec.mov, or adb shell screenrecord) and pass --video rec.mov',
-  !native && !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see SKILL.md) and mark its root element with data-seenry-signature="<name>"',
+  !native && !/^https?:/.test(target) && existsSync(target) && !/data-seenry-signature/.test(readFileSync(target, 'utf8')) && 'signature moment: add one crafted signature component (see references/building.md) and mark its root element with data-seenry-signature="<name>"',
 ].filter(Boolean);
 if (missing.length) {
   blockers += missing.length;
@@ -183,16 +213,24 @@ if (!/^https?:/.test(target) && existsSync(target)) {
   const report = join(review, 'photos.json');
   const checks = history.filter(h => h.photoChecked).length;
   const data = existsSync(report) ? JSON.parse(readFileSync(report, 'utf8')) : null;
-  const passed = data && data.images.every(i => i.overall >= 8);
+  // Quick mode keeps any usable image (6+); regenerating 7s doubled run time for no visible gain. Polish and showcase hold 8.
+  const photoFloor = quick ? 6 : 8;
+  const passed = data && data.images.every(i => i.overall >= photoFloor);
   if (data && history.length && !history[history.length - 1].photoChecked) history[history.length - 1].photoChecked = true;
   if (photos.length && data && !passed && checks >= (quick || polish ? 1 : 3)) {
     console.log(`\n■ photographs  best effort after ${quick || polish ? 'one photo check' : 'three photo checks'} (${data.images.map(i => i.overall).join('/')}); not blocking. Keep the strongest versions and move on.`);
   } else if (photos.length && !passed) {
     blockers++;
     console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
-    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>"${refs ? ' --refs ' + refs : ''} --out ${report}`);
-    console.log('  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
+    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" --page ${target}${existsSync(patternFile) ? ' --patterns ' + patternFile : ''} [--medium "<image medium from identity.md, e.g. oil painting>"]${refs ? ' --refs ' + refs : ''} --out ${report}`);
+    console.log(quick ? '  Regenerate only images under 6 (wrong subject, text, broken anatomy), once, with the prompt it writes; keep everything at 6 or above.' : '  Regenerate anything under 8 with the prompt it writes (at most three attempts per image), then run check.mjs again.');
   }
+}
+// A named site lends its patterns, never its words.
+if (!native && refUrl) {
+  const overlap = spawnSync(process.execPath, [join(here, 'copy_overlap.mjs'), target, '--ref', refUrl, ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8', timeout: 180000});
+  if (overlap.status === 1) { blockers++; console.log('\n■ ' + overlap.stdout.trim().split('\n').join('\n  ')); }
+  else if (overlap.stdout) console.log('\n' + overlap.stdout.trim());
 }
 // Static motion scan: token, easing, transition-all and reduced-motion checks from source, in well under a second.
 const scanReport = join(review, 'motion-scan.json');
@@ -222,8 +260,17 @@ if (blockers) {
   process.exit(1);
 }
 
+// Quick mode's one critic round is spent: after the fixes are applied, re-check the board only and report the last
+// critic score, rather than paying for a second critic call that quick mode would not act on anyway.
+if (quick && stoppedAt) {
+  const n = history.filter(h => h.critic).pop()?.critic?.overall;
+  history.push({round, blockers: 0, critic: null, hash: fingerprint, stop: 'quick mode: verified board after fixes'});
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+  console.log(`\nQUICK verified: 0 blockers after the fixes. Deliver now and report the critic's ${n}/10 (${level(n)}) from round ${stoppedAt.round}; run --mode polish for another critic round.`);
+  process.exit(n >= leader ? 0 : 3);
+}
+
 const out = join(review, `critic-${round}.json`);
-// The critic and the motion judge are independent, so when this round will judge motion anyway they run together.
 const runAsync = (args) => new Promise((resolveRun) => {
   const child = spawn('node', args, {stdio: ['ignore', 'pipe', 'pipe']});
   let stdout = '', stderr = '';
@@ -233,7 +280,6 @@ const runAsync = (args) => new Promise((resolveRun) => {
 });
 runAsync.children = [];
 const priorCritic = history.filter(h => h.critic && !h.reusedCritic).length;
-const motionPlanned = !quick && (native || !fast || priorCritic + 1 >= criticCap);
 const motionDir = mkdtempSync(join(review, `motion-${round}-`));
 const lastMotion = completedReviews().filter(h => h.motionEvidence).map(h => join(dir, h.motionEvidence, 'motion.json')).filter(existsSync).pop();
 const motionArgs = native
@@ -246,18 +292,31 @@ const boardHash = existsSync(join(review, 'board.png')) && existsSync(join(revie
   ? createHash('sha256').update(readFileSync(join(review, 'board.png'))).update(readFileSync(join(review, 'first.png'))).digest('hex') : null;
 const sameBoard = boardHash && fingerprint && history.filter(h => h.critic && h.boardHash === boardHash && h.hash !== fingerprint && h.criticFile && existsSync(join(dir, h.criticFile))).pop();
 const startMotion = () => runAsync(motionArgs);
-let motionRun = motionPlanned ? startMotion() : null;
+// The motion judge makes its own model calls; run alongside the critics, all three hit rate limits and it failed every
+// round, so it starts after them.
+let motionRun = null;
 // Craft at 100%: the detail critic reviews each section at full size while the main critic judges the board.
 const detailOut = join(review, 'detail.json');
-const detailRun = native ? null : runAsync([join(here, 'detail_critic.mjs'), target, '--out', detailOut, ...(pw ? ['--playwright', pw] : [])]);
+const detailRun = native ? null : runAsync([join(here, 'detail_critic.mjs'), target, '--out', detailOut, ...(existsSync(patternFile) ? ['--patterns', patternFile] : []), ...(pw ? ['--playwright', pw] : [])]);
 // Page choreography: the board is a still, so a third critic films the entrance and a scroll and judges how the page moves.
 const choreoOut = join(review, 'choreography.json');
-const choreoRun = native ? null : runAsync([join(here, 'choreography.mjs'), target, '--out', choreoOut, ...(existsSync(join(dir, 'identity.md')) ? ['--identity', join(dir, 'identity.md')] : []), ...(pw ? ['--playwright', pw] : [])]);
+// App screens have interface motion, not page entrances; the choreography critic is calibrated for pages.
+const choreoRun = native || appSurface ? null : runAsync([join(here, 'choreography.mjs'), target, '--out', choreoOut, ...(existsSync(patternFile) ? ['--patterns', patternFile] : []), ...(existsSync(join(dir, 'identity.md')) ? ['--identity', join(dir, 'identity.md')] : []), ...(pw ? ['--playwright', pw] : [])]);
+// The critic also sees the page while scrolling, paired with the named site when patterns.md gives its address.
+const scrollOut = join(review, 'scroll.png');
+let scrollArgs = [];
+if (!native && !sameBoard) {
+  const strip = spawnSync(process.execPath, [join(here, 'scroll_strip.mjs'), target, '--out', scrollOut, ...(refUrl ? ['--ref', refUrl] : []), ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8', timeout: 240000});
+  if (strip.status === 0 && existsSync(scrollOut)) {
+    scrollArgs = ['--scroll', scrollOut, ...(existsSync(scrollOut.replace(/\.png$/, '-phone.png')) ? ['--scroll-phone', scrollOut.replace(/\.png$/, '-phone.png')] : []), ...(/paired with/.test(strip.stdout) ? ['--scroll-paired'] : [])];
+    process.stdout.write(strip.stdout);
+  } else console.log('Scroll strip did not render; the critic judges stills only this round.');
+}
 const critic = sameBoard
   ? (copyFileSync(join(dir, sameBoard.criticFile), out), {status: 0, stdout: `Board unchanged since round ${sameBoard.round}: reusing its critic verdict (${sameBoard.critic.overall}/10). Change what the page shows before the next round.\n`, stderr: ''})
   : (existsSync(join(dir, 'identity.html')) && spawnSync(process.execPath, [join(here, 'render_page.mjs'), join(dir, 'identity.html'), join(review, 'identity.png'), ...(pw ? ['--playwright', pw] : [])], {stdio: 'ignore'}),
     await runAsync([join(here, 'critic.mjs'), '--board', join(review, 'board.png'), '--first', join(review, 'first.png'), ...(existsSync(join(review, 'identity.png')) ? ['--identity', join(review, 'identity.png')] : []),
-  '--out', out, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : [])]));
+  '--out', out, ...scrollArgs, ...(flag('brief') ? ['--brief', flag('brief')] : []), ...(refs ? ['--refs', refs] : []), ...(existsSync(join(dir, 'refs', 'kept.md')) ? ['--kept', join(dir, 'refs', 'kept.md')] : []), ...(existsSync(join(dir, 'decisions.md')) ? ['--decisions', join(dir, 'decisions.md')] : []), ...(existsSync(join(dir, 'refs', 'patterns.md')) ? ['--patterns', join(dir, 'refs', 'patterns.md')] : [])]));
 process.stdout.write(critic.stdout);
 if (critic.status !== 0) { for (const c of runAsync.children) try { c.kill(); } catch {} process.stderr.write(critic.stderr); console.log('\nThe critic did not run. Fix the cause above and rerun; do not substitute your own review.'); process.exit(critic.status === 2 ? 2 : 1); }
 const verdict = JSON.parse(readFileSync(out, 'utf8'));
@@ -274,11 +333,12 @@ if (choreoRun) {
   else console.log('\nChoreography critic did not run; page motion is unverified this round.');
 }
 // The page has to hold up beside the references it kept, not only score well in general.
-const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= 7) && !copied && (quick || craft === null || craft >= 8) && (quick || choreo === null || choreo >= 8.5);
+const referenceFit = verdict.scores.reference_fit ?? null, copied = String(verdict.copies_reference || '').trim(), designMet = verdict.scores.overall >= goal && (referenceFit === null || referenceFit >= (named ? 8 : 7)) && !copied && (quick || craft === null || craft >= 8) && (quick || choreo === null || choreo >= 8.5);
 if (craft !== null && craft < 8) console.log(quick ? `\nCraft ${craft}/10 at full size (advice in quick mode): apply the detail fixes that do not flatten the identity; never trade the identity's scale or device for tidiness.` : `\nCraft ${craft}/10 at full size: apply the detail fixes above too; a page does not pass below 8 on craft.`);
 if (choreo !== null && choreo < 8.5) console.log(`\nChoreography ${choreo}/10: apply the choreography fixes above${quick ? ' in this round, the scenes first' : '; a page does not pass below 8.5 on choreography'}. Build the held scenes and the entrance sequence; a uniform fade-up on every block is not choreography.${quick ? ` Then confirm with \`node ${join(here, 'choreography.mjs')} <url> --identity ${join(dir, 'identity.md')}\` (about a minute) and fix again once if scenes still score under 8.` : ''}`);
 if (copied) console.log(`\nCopied reference: the critic found a section that reproduces ${copied} nearly unchanged. Rework it: combine the lesson with another reference or the brand idea so the page is your own.`);
-if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
+if (named && referenceFit !== null && referenceFit < 8) console.log(`\nReference fit ${referenceFit}/10: a page made like a named site passes at 8. The overall score is capped at it, so bring back the missing signatures listed above before anything else.`);
+else if (referenceFit !== null && referenceFit < 7) console.log(`\nReference fit ${referenceFit}/10: the page does not yet carry what it kept from its references. Apply the reference fixes above.`);
 const roundExtras = {boardHash, criticFile: relative(dir, out), craft, choreography: choreo, ...(sameBoard ? {reusedCritic: true} : {})};
 // Fast mode: the browser motion judge is the slowest step, so it runs once the critic passes or on the last allowed
 // critic round; earlier rounds rely on the static motion scan above. PASS still requires the full motion judgment.
@@ -298,7 +358,8 @@ if (fast && !native && !designMet && priorCritic + 1 < criticCap) {
 // Motion and interaction: play the page's controls and judge the filmstrips; screenshots cannot show motion.
 // Every attempt owns fresh evidence; a prior result must never satisfy a new run.
 if (!motionRun) motionRun = startMotion();
-const mj = await motionRun;
+let mj = await motionRun;
+if (mj.status !== 0) { console.log('\nMotion judge failed once; retrying.'); mj = await startMotion(); }
 process.stdout.write('\n' + mj.stdout);
 let motion = null, motionError = null;
 const motionPath = join(motionDir, 'motion.json');
@@ -354,18 +415,13 @@ writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
 const trail = history.filter(h => h.critic).map(h => h.critic.overall).join(' → ');
 if (designMet && !motionBlocks && !motionFloorFailures.length && motionScore >= 9) { console.log(`\nPASS round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore}/10. Scope: ${motionCoverage ? "captured interaction labels only; other components unverified" : "legacy overall-only evidence; per-criterion coverage unverified"}. Critic trail: ${trail}.`); process.exit(0); }
 const scored = history.filter(h => h.critic && !h.reusedCritic && (h.motionSkipped || (Number.isFinite(h.motion) && !h.motionError))).map(h => h.critic.overall), best = Math.max(...scored, ...history.filter(h => h.reusedCritic).map(h => h.critic.overall));
+// Two critic rounds without a gain end the loop: past that, rounds trade one set of small notes for another.
 const stalled = scored.length >= 3 && Math.max(...scored.slice(-2)) <= Math.max(...scored.slice(0, -2));
 if (motionFloorFailures.length) console.log('Below the required floor: ' + motionFloorFailures.join(' · '));
 console.log(`\nFAIL round ${round}: critic ${verdict.scores.overall}/10 (target ${goal}), motion ${motionScore ?? 'not judged'}/10 (target 9)${motionBlocks ? `, ${motionBlocks} motion violation(s)` : ''}. Critic trail: ${trail}. Apply every design and motion fix listed above, most visible first, then run check.mjs again.`);
-if (stalled && !history.some(h => h.rootChange) && !(polish && best >= leader)) {
-  history[history.length - 1].rootChange = true;
-  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  console.log(`LAST ROUND: the critic has not improved for two rounds (best ${best}). Make one root-level change to the weakest dimension (type scale and weights, palette, or imagery), then run check.mjs one final time.`);
-  process.exit(1);
-}
 const leaderStall = polish && scored.length >= 2 && best >= leader && verdict.scores.overall <= Math.max(...scored.slice(0, -1));
 if (leaderStall || stalled || scored.length >= (criticCap ?? 6)) {
-  history[history.length - 1].stop = leaderStall ? 'leader level reached and no longer improving' : stalled ? 'no improvement after a root-level change' : `${criticCap ?? 'six'} critic rounds`;
+  history[history.length - 1].stop = leaderStall ? 'leader level reached and no longer improving' : stalled ? 'no gain in two critic rounds' : `${criticCap ?? 'six'} critic rounds`;
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   const bestRound = completedReviews().filter(h => h.critic.overall === best).pop() || completedReviews().sort((a, b) => b.critic.overall - a.critic.overall)[0] || history.filter(h => h.critic).pop();
   console.log(`STOP: ${history[history.length - 1].stop}. The quality target was not reached. Best fully reviewed candidate: critic ${best} (${level(best)}), motion ${bestRound.motion}, round ${bestRound.round}. Its code is in ${join(review, `round-${bestRound.round}`)} (HTML, CSS and JS, not images). Report unresolved gaps; do not call this a pass or publish it as accepted.${quick || polish || existsSync(firstDirection) ? '' : ' No new direction used yet: go back to the exploration step, build the page on a different idea from idea.md, and run check.mjs with --new-direction before reporting.'}`);
