@@ -195,7 +195,7 @@ let critic = null;
 if (args.includes('--critic') && existsSync(join(dir, 'blocks/dashboard.html'))) {
   const review = join(out, 'review');
   const character = (readFileSync(join(dir, 'SYSTEM.md'), 'utf8').match(/## Character\s+([\s\S]*?)\n## /) || [, ''])[1].trim();
-  writeFileSync(join(out, 'BRIEF.md'), `Surface: app\n\nThe ${name} design system's dashboard block, a reference screen agents build from.\n\n${character}\n`);
+  writeFileSync(join(out, 'BRIEF.md'), `Surface: app\n\nThe ${name} design system's dashboard block, a reference screen agents build from.\n\n${character}\n\nIts layout follows this product category's conventions on purpose (Seenry's convention-before-invention rule: people should read the screen at a glance). Do not mark it down for being a familiar layout; judge the craft (type, spacing, alignment, radii, dividers, color, states, motion) and whether the product decisions (what leads, what can be acted on) are right for this product.\n`);
   const pw = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
   const board = spawnSync('node', [join(here, 'review_board.mjs'), join(dir, 'blocks/dashboard.html'), '--out', review, '--app', ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8'});
   if (board.status === 2) fail.push('review board could not render the dashboard');

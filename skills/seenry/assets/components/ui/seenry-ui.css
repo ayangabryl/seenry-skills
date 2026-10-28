@@ -97,7 +97,8 @@ button:active:not(:disabled){transform:scale(.98)}
 
 /* Segmented thumb: slides to the pressed option; systems restyle .ui-segmented-thumb. */
 .ui-segmented[data-thumb]{position:relative;isolation:isolate}
-.ui-segmented-thumb{position:absolute;top:0;left:0;z-index:-1;border-radius:var(--r-sm);background:var(--surface);box-shadow:0 1px 2px oklch(0 0 0/.09),0 0 0 1px var(--line);pointer-events:none;transition:transform var(--dur-slide,220ms) var(--ease-out),opacity var(--t-fast) var(--ease-out)}
+/* The thumb fills the group and reveals the pressed option with clip-path, so only a compositor-friendly property moves. Systems set --thumb-radius (concentric: group radius minus its padding) and its fill; edges are inset shadows because outer ones would be clipped. */
+.ui-segmented-thumb{position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);clip-path:var(--thumb-clip,inset(50%));pointer-events:none;transition:clip-path var(--dur-slide,220ms) var(--ease-out),opacity var(--t-fast) var(--ease-out)}
 .ui-segmented[data-thumb] button[aria-pressed=true]{background:transparent;box-shadow:none}
 /* Toast entrance from its own first frame, so it animates in without a script flip. */
 @starting-style{.ui-toast[data-state=visible]{opacity:0;transform:translateY(8px)}}
