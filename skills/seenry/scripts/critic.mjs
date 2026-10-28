@@ -31,10 +31,11 @@ const kept = keptPath && existsSync(keptPath) ? readFileSync(keptPath, 'utf8').t
 // Decisions the designer or owner already made; without them each round reverses the last one's advice.
 const decisionsPath = flag('decisions');
 const decisions = decisionsPath && existsSync(decisionsPath) ? readFileSync(decisionsPath, 'utf8').trim().slice(0, 2400) : '';
-const beyond = refs.length > 0 && !patterns;
 // A pattern map means the person named a site to be inspired by: its patterns are the brief, not copying.
 const patternsPath = flag('patterns');
 const patterns = patternsPath && existsSync(patternsPath) ? readFileSync(patternsPath, 'utf8').trim().slice(0, 2400) : '';
+// Without a named site, references are the craft floor and the critic looks for where the page beats them.
+const beyond = refs.length > 0 && !patterns;
 const briefPath = flag('brief');
 const brief = briefPath && existsSync(briefPath) ? readFileSync(briefPath, 'utf8') : (flag('job') || 'A web page.');
 for (const f of [board, first]) if (!existsSync(f)) { console.error(`Missing ${f}. Run review_board.mjs first.`); process.exit(2); }
