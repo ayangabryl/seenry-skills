@@ -51,6 +51,8 @@ All durations become 0ms and `--scale-press` becomes 1 under `prefers-reduced-mo
 
 Motion never moves layout, never delays an accepted state, and never animates on keyboard-driven repeat actions.
 
+Sequence motion on the animation clock, not on timers: delays live in CSS (`transition-delay`), and one step hands off to the next on `transitionend` or an animation's `finished` promise, never `setTimeout`. Timers drift from the animation clock under slow motion, reduced frame rates and the motion judge, so handoffs fire out of order. Keep a finite animation running through any wait so the state never looks settled early.
+
 ## Typography and detail
 
 - Optical sizes: tighter tracking on display sizes (−0.02 to −0.04em), none on body.
