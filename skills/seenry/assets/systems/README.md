@@ -13,6 +13,8 @@ Six complete systems for product screens: dashboards, consoles, lists, settings,
 | [bloom](bloom/SYSTEM.md) | Rounded, five category hues in small doses, one violet-blue primary | Scheduling, courses, communities, creator tools | Plus Jakarta Sans | Phosphor duotone | light |
 | [studio](studio/SYSTEM.md) | Black and white, big titles, the work as the loudest thing, one red-orange | Creative tools, media libraries, video and design review | Bricolage Grotesque with Instrument Sans | Heroicons | light |
 
+Every system meets [the craft standard](CRAFT.md): buttons built as layered objects with a real press, motion tokens for press, state, overlays and travel, and every state change animated.
+
 ## Choosing one
 
 1. **Fit first.** Match the product's category and the mood of the brief to the *use it for* lines above; each SYSTEM.md also says what it is not for.

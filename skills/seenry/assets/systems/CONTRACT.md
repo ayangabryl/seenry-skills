@@ -1,6 +1,6 @@
 # System contract
 
-Every system in this folder restyles the same markup. A screen built with one system switches to another by changing two stylesheet links, so the choice of system is a design decision, never a rewrite.
+Every system in this folder restyles the same markup, to the bar in [the craft standard](CRAFT.md). A screen built with one system switches to another by changing two stylesheet links, so the choice of system is a design decision, never a rewrite.
 
 ## Files
 

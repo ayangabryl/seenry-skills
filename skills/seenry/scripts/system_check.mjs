@@ -53,6 +53,23 @@ for (const f of pages) {
 }
 if (iconSets.size > 1) fail.push(`more than one icon set across the system: ${[...iconSets].join(', ')}`);
 
+// Craft (CRAFT.md): motion tokens with a reduced-motion branch, layered buttons, real press and overlay motion.
+const tokensCss = readFileSync(join(dir, 'tokens.css'), 'utf8');
+const missingTokens = ['--dur-press', '--dur-release', '--dur-state', '--dur-overlay', '--dur-slide', '--dur-enter', '--scale-press'].filter(t => !new RegExp(`${t}\\s*:`).test(tokensCss));
+if (missingTokens.length) fail.push(`craft: motion tokens missing from tokens.css: ${missingTokens.join(', ')}`);
+if (!/prefers-reduced-motion\s*:\s*reduce[\s\S]{0,400}--dur-press\s*:\s*0/.test(tokensCss + css)) fail.push('craft: no reduced-motion branch that sets the durations to 0');
+const craft = [
+  [/\.ui-button[^{]*data-variant=["']?primary["']?[^{]*::before/, 'the primary button has no ::before hover layer'],
+  [/\.ui-button[^{]*data-variant=["']?primary["']?[^{]*::after/, 'the primary button has no ::after sheen layer'],
+  [/:active[^{]*\{[^}]*scale\s*:\s*var\(--scale-press\)/, 'no press that scales with --scale-press'],
+  [/var\(--dur-press\)/, 'nothing uses --dur-press'],
+  [/var\(--dur-release\)/, 'nothing uses --dur-release'],
+  [/@starting-style/, 'no @starting-style entrance for dialogs, menus or popovers'],
+  [/grid-template-rows/, 'no grid-template-rows height transition for accordions'],
+  [/transform-origin/, 'overlays do not grow from their trigger (no transform-origin)'],
+];
+for (const [re, msg] of craft) if (!re.test(css)) fail.push(`craft: ${msg}`);
+
 // Rendered checks.
 async function loadPlaywright() {
   const explicit = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
@@ -85,7 +102,11 @@ function inspect() {
   const primaries = [...document.querySelectorAll('.ui-button[data-variant=primary]')].filter(visible).length;
   const emoji = (document.body.innerText.match(/\p{Extended_Pictographic}/gu) || []).filter(e => !/[©®™↗↘]/.test(e));
   const small = innerWidth < 500 ? [...document.querySelectorAll('button,a[href],input:not([type=hidden]),select,[role=tab],[role=menuitem]')].filter(visible).filter(el => { const r = el.getBoundingClientRect(); const l = el.closest('label'); const lr = l?.getBoundingClientRect(); return Math.min(r.width, r.height) < 24 && !(lr && lr.height >= 44) && !el.closest('p,li>p,td'); }).map(el => (el.getAttribute('aria-label') || el.textContent).trim().slice(0, 24)) : [];
-  return {overflow: document.documentElement.scrollWidth > innerWidth + 1, faint: faint.slice(0, 6), faintCount: faint.length, primaries, emoji, small: small.slice(0, 6)};
+  const primary = [...document.querySelectorAll('.ui-button[data-variant=primary]')].find(visible);
+  const ps = primary ? getComputedStyle(primary) : null;
+  const flatPrimary = ps ? (ps.backgroundImage === 'none' && ps.boxShadow === 'none') : false;
+  const stillPrimary = ps ? ps.transitionDuration.split(',').every(d => parseFloat(d) === 0) : false;
+  return {flatPrimary, stillPrimary, overflow: document.documentElement.scrollWidth > innerWidth + 1, faint: faint.slice(0, 6), faintCount: faint.length, primaries, emoji, small: small.slice(0, 6)};
 }
 for (const f of pages) for (const [w, h] of [[1440, 900], [390, 844]]) for (const theme of ['light', 'dark']) {
   const page = await browser.newPage({viewport: {width: w, height: h}});
@@ -103,6 +124,8 @@ for (const f of pages) for (const [w, h] of [[1440, 900], [390, 844]]) for (cons
   if (r.faintCount) fail.push(`${at}: ${r.faintCount} text(s) under contrast (${r.faint.join('; ')})`);
   if (f !== 'gallery.html' && r.primaries > 1) fail.push(`${at}: ${r.primaries} filled primary buttons visible`);
   if (r.emoji.length) fail.push(`${at}: emoji in text (${r.emoji.slice(0, 4).join(' ')})`);
+  if (r.flatPrimary && theme === 'light' && w === 1440) fail.push(`${at}: craft: the primary button is a flat fill (no gradient or edge)`);
+  if (r.stillPrimary && theme === 'light' && w === 1440) fail.push(`${at}: craft: the primary button has no transition`);
   if (r.small.length) fail.push(`${at}: touch targets under 24px (${r.small.join(', ')})`);
   if (f === 'blocks/dashboard.html' && w === 1440 && theme === 'light') await page.screenshot({path: join(out, 'dashboard-1440.png')});
   await page.close();
