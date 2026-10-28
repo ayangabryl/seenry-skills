@@ -71,10 +71,12 @@ Unless the owner says no motion, every state change you touch transitions on the
 | Hover and press | `--dur-1` |
 | Toggles, tabs with a sliding indicator, segmented controls | `--dur-2` |
 | Dialogs, sheets, menus, toasts, list changes | `--dur-3`, enter on `--ease-out`, leave faster |
+| Tooltips and chart hover cards | Open on `--dur-1` with opacity and scale 0.96 from the point that touches the anchor; moving to a neighbour keeps it open and glides it (ease-in-out, about 140ms) while the values crossfade; leaving closes it in 70–80ms, opacity only, on an ease-in |
+| Switching what a chart shows | The old marks sink into the baseline and the new ones rise from it, staggered; never a whole-chart crossfade |
 | Loading | Skeletons that cross-fade to content |
 | Numbers | Change in place |
 
-Use the app's motion library if it has one. Keep a reduced-motion version. Interface motion only: no scroll scenes in an app.
+Use the app's motion library if it has one, or the recipes in [seenry-motion](../../seenry-motion/references/recipes.md). Keep a reduced-motion version. Interface motion only: no scroll scenes in an app.
 
 ## 8. Verify the way a reviewer would
 

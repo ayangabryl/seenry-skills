@@ -242,6 +242,37 @@ async function run(reduced) {
     if (await page.evaluate(() => !!document.querySelector('dialog[open],[aria-modal=true],[popover]:popover-open'))) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); }
     rows.push({label: t.label, anims, reverseAnims, shift: +(after.shift - before.shift).toFixed(3), longFrames: after.long - before.long, held: Math.max(0, after.held - before.held), crop, shots});
   }
+  // Tooltips open on hover, which the click probes never trigger: find what reveals one and film it opening,
+  // gliding to a neighbour and closing.
+  if (!only && (!labels || /tooltip/i.test(labels))) {
+    const TIP = '[role=tooltip],[class*=tooltip],[id*=tooltip],[class*=popover]:not(dialog)';
+    const shown = () => page.evaluate(sel => [...document.querySelectorAll(sel)].filter(el => { const r = el.getBoundingClientRect(), st = getComputedStyle(el); return r.width > 8 && r.height > 8 && st.visibility !== 'hidden' && st.display !== 'none' && +st.opacity > 0.5; }).length, TIP);
+    const cands = await page.evaluate(() => { const out = []; for (const el of document.querySelectorAll('[aria-describedby],[data-tooltip],[data-tip],svg [tabindex],[role=img][tabindex],[class*=tip-trigger]')) { const r = el.getBoundingClientRect(); if (r.width > 4 && r.height > 4 && out.length < 8) { el.setAttribute('data-seenry-hover', String(out.length)); out.push(out.length); } } return out; });
+    let found = null;
+    for (const i of cands) {
+      const l = page.locator(`[data-seenry-hover="${i}"]`); await page.mouse.move(2, 2); await page.waitForTimeout(250);
+      const before = await shown(); await l.hover({timeout: 1500, force: true}).catch(() => {}); await page.waitForTimeout(400);
+      if (await shown() > before) { found = i; break; }
+    }
+    if (found !== null) {
+      const l = page.locator(`[data-seenry-hover="${found}"]`), next = page.locator(`[data-seenry-hover="${found + 1}"]`);
+      await page.mouse.move(2, 2); await page.waitForTimeout(400);
+      const shots = []; let box = await l.evaluate(el => { const r = (el.closest('figure,section,article,[class*=card],[class*=chart]') || el).getBoundingClientRect(); return {x: r.left, y: r.top, w: r.width, h: r.height}; });
+      const shoot = async (group, label, t0) => { const a = Date.now(); const buf = await page.screenshot({type: 'jpeg', quality: 82}); shots.push({group, label: t0 ? `${label} ${Math.round(((a + Date.now()) / 2 - t0) / SLOW)}ms` : label, buf}); };
+      await slow(true);
+      const t0 = Date.now(); await l.hover({force: true}).catch(() => {});
+      const anims = await page.evaluate(snapAnimations);
+      if (!reduced) {
+        for (const ms of [30, 60, 100, 150, 220]) { const w = ms * SLOW - (Date.now() - t0); if (w > 0) await page.waitForTimeout(w); await shoot('enter', 'tooltip open', t0); }
+        if (await next.count()) { const t1 = Date.now(); await next.hover({force: true}).catch(() => {}); for (const ms of [40, 100, 200]) { const w = ms * SLOW - (Date.now() - t1); if (w > 0) await page.waitForTimeout(w); await shoot('interrupt', 'to neighbour', t1); } }
+        const t2 = Date.now(); await page.mouse.move(2, 2); for (const ms of [40, 100, 200]) { const w = ms * SLOW - (Date.now() - t2); if (w > 0) await page.waitForTimeout(w); await shoot('interrupt', 'close', t2); }
+      } else await page.waitForTimeout(500);
+      await slow(false);
+      for (const lr of await page.evaluate(layerRects, TIP)) box = union(box, lr);
+      rows.push({label: 'Tooltip', anims, reverseAnims: [], shift: 0, longFrames: 0, held: 0, crop: clampBox({x: box.x - 12, y: box.y - 40, w: box.w + 24, h: box.h + 52}), shots});
+    }
+    await page.evaluate(() => document.querySelectorAll('[data-seenry-hover]').forEach(n => n.removeAttribute('data-seenry-hover')));
+  }
   await ctx.close();
   return rows;
 }
