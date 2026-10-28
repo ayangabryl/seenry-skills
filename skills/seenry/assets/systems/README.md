@@ -22,4 +22,8 @@ Six complete systems for product screens: dashboards, consoles, lists, settings,
 
 ## Using one
 
-Copy `seenry-ui.css`, `seenry-ui.js` and the system's `tokens.css` and `system.css` into the project (or port them to its stack's theme), open the system's blocks for the screen you are building, follow its SYSTEM.md rules, and build with its classes and tokens only. When a component is missing, compose it from the system's tokens and existing classes and say what you built; never invent a value.
+Plain CSS: copy `seenry-ui.css`, `seenry-ui.js` and the system's `tokens.css` and `system.css` into the project. Tailwind v4 or shadcn/ui: copy `tokens.css` and `theme.tailwind.css` and import the theme after Tailwind; utilities such as `bg-primary`, `text-muted-foreground` and `rounded-lg` then take the system's values. Then open the system's `gallery.html` and the block for the screen you are building, follow its SYSTEM.md rules, and build with its classes and tokens only. When a component is missing, compose it from the system's tokens and existing classes and say what you built; never invent a value.
+
+## Checking one
+
+`node scripts/system_check.mjs assets/systems/<name>` checks a system against the [contract](CONTRACT.md): files and blocks, every class styled, no typed values, one icon set, and every page rendered at 1440 and 390 in both themes for sideways scroll, errors, contrast, one primary per view, emoji and touch targets. `--critic` adds the blind critic on the dashboard, which must score 8. After changing `tokens.css`, run `node scripts/system_theme.mjs assets/systems/<name>` to regenerate the Tailwind theme.

@@ -22,6 +22,9 @@
   --content-max:1360px;--gutter:32px;--detail-w:minmax(0,1.35fr);--list-w:minmax(320px,1fr);
   --settings-label-w:320px;--field-max:340px;--search-w:280px;
   --icon:20px;--icon-sm:16px;--mark:6px;--hairline:1px;--rule:2px;
+  --step:24px;
+  --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z'/%3E%3C/svg%3E");
+  --auth-w:380px;--code-max:320px;--dropzone-min:240px;--progress-h:6px;--meter-h:8px;--alert-icon:20px;
   --avatar:28px;--avatar-sm:22px;--thumb-w:88px;--thumb-w-sm:64px;--tile-min:200px;
   --switch-w:34px;--switch-h:20px;--knob:16px;
   --chart-h:220px;--chart-swatch:10px;--axis-w:40px;--scrub-h:4px;--marker:8px;--play:56px;
@@ -34,9 +37,9 @@
   --ok:#1a7340;--ok-bg:#e8f5ed;--warn:#8a5a00;--warn-bg:#fdf3dc;--bad:#c21f1f;--bad-bg:#fdeaea;--info:#1f4fbf;--info-bg:#e9effc;
 
   --tile-1:#e8e8e8;--tile-2:#d9d9d9;--tile-3:#c7c7c7;--tile-4:#b3b3b3;--tile-ink:#8c8c8c;
-  --knob-bg:#ffffff;--knob-on:#ffffff;--scrim:#0a0a0acc;--on-scrim:#ffffff;--backdrop:#0a0a0a66;
+  --knob-bg:#ffffff;--knob-on:#ffffff;--on-invert-2:#bdbdbd;--check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E");--scrim:#0a0a0af0;--on-scrim:#ffffff;--backdrop:#0a0a0a66;
 
-  --r-sm:6px;--r-md:8px;--r-lg:8px;--r-xl:12px;--r-full:999px;
+  --r-xs:4px;--r-sm:6px;--r-md:8px;--r-lg:8px;--r-xl:12px;--r-full:999px;
   --t-fast:120ms;--t-base:180ms;--t-layer:220ms;
   --ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1);
   --shadow-float:0 1px 2px #0000000f,0 16px 40px #0000001f;
@@ -57,7 +60,7 @@
   --focus:0 0 0 3px #ff5b2959;
   --ok:#5fd18e;--ok-bg:#0f2a1a;--warn:#f0bf5a;--warn-bg:#2e2108;--bad:#ff7b7b;--bad-bg:#331010;--info:#8fb0ff;--info-bg:#111d3a;
   --tile-1:#1c1c1c;--tile-2:#262626;--tile-3:#333333;--tile-4:#454545;--tile-ink:#5c5c5c;
-  --knob-bg:#fafafa;--knob-on:#000000;--scrim:#000000cc;--backdrop:#000000a6;
+  --knob-bg:#fafafa;--knob-on:#000000;--on-invert-2:#4d4d4d;--check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E");--scrim:#000000f0;--backdrop:#000000a6;
   --shadow-float:0 0 0 1px #ffffff14,0 16px 40px #000000b3;
   --chart-1:#fafafa;--chart-2:#7a7a7a;--chart-3:#ff5b29;--chart-4:#3d3d3d;--chart-5:#b8b8b8;
   --chart-grid:#1f1f1f;--chart-axis:#999999;
@@ -72,7 +75,7 @@
   --focus:0 0 0 3px #ff5b2959;
   --ok:#5fd18e;--ok-bg:#0f2a1a;--warn:#f0bf5a;--warn-bg:#2e2108;--bad:#ff7b7b;--bad-bg:#331010;--info:#8fb0ff;--info-bg:#111d3a;
   --tile-1:#1c1c1c;--tile-2:#262626;--tile-3:#333333;--tile-4:#454545;--tile-ink:#5c5c5c;
-  --knob-bg:#fafafa;--knob-on:#000000;--scrim:#000000cc;--backdrop:#000000a6;
+  --knob-bg:#fafafa;--knob-on:#000000;--on-invert-2:#4d4d4d;--check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E");--scrim:#000000f0;--backdrop:#000000a6;
   --shadow-float:0 0 0 1px #ffffff14,0 16px 40px #000000b3;
   --chart-1:#fafafa;--chart-2:#7a7a7a;--chart-3:#ff5b29;--chart-4:#3d3d3d;--chart-5:#b8b8b8;
   --chart-grid:#1f1f1f;--chart-axis:#999999;
@@ -87,7 +90,7 @@
   --focus:0 0 0 3px #d6380a40;
   --ok:#1a7340;--ok-bg:#e8f5ed;--warn:#8a5a00;--warn-bg:#fdf3dc;--bad:#c21f1f;--bad-bg:#fdeaea;--info:#1f4fbf;--info-bg:#e9effc;
   --tile-1:#e8e8e8;--tile-2:#d9d9d9;--tile-3:#c7c7c7;--tile-4:#b3b3b3;--tile-ink:#8c8c8c;
-  --knob-bg:#ffffff;--knob-on:#ffffff;--scrim:#0a0a0acc;--backdrop:#0a0a0a66;
+  --knob-bg:#ffffff;--knob-on:#ffffff;--on-invert-2:#bdbdbd;--check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E");--scrim:#0a0a0af0;--backdrop:#0a0a0a66;
   --shadow-float:0 1px 2px #0000000f,0 16px 40px #0000001f;
   --chart-1:#0a0a0a;--chart-2:#8c8c8c;--chart-3:#d6380a;--chart-4:#c7c7c7;--chart-5:#4d4d4d;
   --chart-grid:#ededed;--chart-axis:#666666;

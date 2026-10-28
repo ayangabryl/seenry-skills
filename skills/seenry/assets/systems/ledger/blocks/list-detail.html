@@ -25,7 +25,7 @@
       </div>
       <div class="ui-nav-group">
         <p class="ui-nav-label">Receivables</p>
-        <a class="ui-nav-item" href="list-detail.html" aria-current="page"><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoices</span><span class="ui-nav-count">137</span></a>
+        <a class="ui-nav-item" href="list-detail.html" aria-current="page"><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoices</span></a>
         <a class="ui-nav-item" href="#"><i class="ti ti-users" aria-hidden="true"></i><span>Customers</span></a>
         <a class="ui-nav-item" href="#"><i class="ti ti-cash" aria-hidden="true"></i><span>Payments</span></a>
         <a class="ui-nav-item" href="#"><i class="ti ti-receipt-refund" aria-hidden="true"></i><span>Credit notes</span></a>
@@ -175,8 +175,5 @@
   </div>
   <div class="ui-command__footer">↑ ↓ to move · Enter to select · Esc to close</div>
 </dialog>
-<script>
-document.querySelector('[data-nav-toggle]').addEventListener('click',e=>{const shell=e.currentTarget.closest('.ui-shell');const open=shell.dataset.nav!=='open';shell.dataset.nav=open?'open':'';e.currentTarget.setAttribute('aria-expanded',String(open));});
-</script>
 </body>
 </html>

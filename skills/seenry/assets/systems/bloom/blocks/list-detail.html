@@ -20,8 +20,6 @@
   .day h3 span{font:var(--type-small);color:var(--text-3)}
   .slot{min-width:calc(var(--space-8) + var(--space-1));font:var(--type-label);font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
   .slot small{display:block;font:var(--type-small);color:var(--text-3)}
-  .sessions .ui-list-item{align-items:stretch}
-  .sessions .ui-list-item>div,.sessions .ui-list-item>.ui-list-meta{align-self:center}
   .rsvp{display:grid;justify-items:end;gap:calc(var(--space-1) / 2)}
   .detail-actions{display:flex;flex-wrap:wrap;gap:var(--space-2);padding-top:var(--space-5);border-top:var(--hairline) solid var(--line)}
   .detail-actions .ui-button:last-child{margin-left:auto}
@@ -35,10 +33,10 @@
 </head>
 <body>
 <div class="ui-shell">
-  <aside class="ui-sidebar" aria-label="Workspace">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
     <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School">
       <span class="ui-avatar" data-shape="square" aria-hidden="true">H</span>
-      <span>Halftone School<small>Spring cohort</small></span>
+      <span>Halftone School<small>Commons workspace</small></span>
       <i class="ph-bold ph-caret-up-down" aria-hidden="true"></i>
     </button>
     <nav class="ui-nav" aria-label="Main">
@@ -66,15 +64,13 @@
 
   <main>
     <header class="ui-topbar">
-      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-label="Open navigation" aria-expanded="false"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
       <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Halftone School</a></li><li aria-current="page">Sessions</li></ol></nav>
-      <div class="ui-topbar-actions">
-        <button class="ui-button ui-search" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
-        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
-      </div>
+      <button class="ui-button" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
     </header>
 
-    <div class="ui-content">
+    <div>
       <div class="ui-page-header">
         <div>
           <h1 class="ui-page-title">Sessions</h1>
@@ -104,25 +100,25 @@
           <div class="day">
             <h3>Today<span>Wed, Oct 28</span></h3>
             <ul class="ui-list">
-              <li><button class="ui-list-item" type="button"><span class="slot">9:30<small>45 min</small></span><span class="ui-mark" data-shape="edge" data-cat="4"></span><div><span>Studio critique: onboarding flows</span><span class="ui-list-meta">Critique · Room 2 · Maya Okafor</span></div><span class="ui-list-meta rsvp"><span>22 of 24</span></span></button></li>
-              <li><button class="ui-list-item" type="button"><span class="slot">11:00<small>60 min</small></span><span class="ui-mark" data-shape="edge" data-cat="3"></span><div><span>Office hours with Daniel</span><span class="ui-list-meta">Office hours · Zoom · Daniel Reyes</span></div><span class="ui-list-meta rsvp"><span>4 booked</span></span></button></li>
-              <li><button class="ui-list-item" type="button" aria-current="true"><span class="slot">13:30<small>90 min</small></span><span class="ui-mark" data-shape="edge" data-cat="1"></span><div><span>Motion workshop: easing and timing</span><span class="ui-list-meta">Workshop · Studio 2 · Lena Fischer</span></div><span class="ui-list-meta rsvp"><span>21 of 24</span></span></button></li>
-              <li><button class="ui-list-item" type="button"><span class="slot">16:00<small>2 h</small></span><span class="ui-mark" data-shape="edge" data-cat="2"></span><div><span>Portfolio reviews, 1:1 slots</span><span class="ui-list-meta">Review · Room 4 · Sam Whitfield</span></div><span class="ui-list-meta rsvp"><span>6 of 8</span></span></button></li>
-              <li><button class="ui-list-item" type="button"><span class="slot">18:30<small>60 min</small></span><span class="ui-mark" data-shape="edge" data-cat="5"></span><div><span>Type club: variable fonts</span><span class="ui-list-meta">Community · Library</span></div><span class="ui-list-meta rsvp"><span class="ui-status" data-status="warn">No host</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">9:30<small>45 min</small></span><div><span>Studio critique: onboarding flows</span><span class="ui-list-meta"><span class="ui-mark" data-cat="4"></span>Critique · Room 2 · Maya Okafor</span></div><span class="ui-list-meta rsvp"><span>22 of 24</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">11:00<small>60 min</small></span><div><span>Office hours with Daniel</span><span class="ui-list-meta"><span class="ui-mark" data-cat="3"></span>Office hours · Zoom · Daniel Reyes</span></div><span class="ui-list-meta rsvp"><span>4 booked</span></span></button></li>
+              <li><button class="ui-list-item" type="button" aria-current="true"><span class="slot">13:30<small>90 min</small></span><div><span>Motion workshop: easing and timing</span><span class="ui-list-meta"><span class="ui-mark" data-cat="1"></span>Workshop · Studio 2 · Lena Fischer</span></div><span class="ui-list-meta rsvp"><span>21 of 24</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">16:00<small>2 h</small></span><div><span>Portfolio reviews, 1:1 slots</span><span class="ui-list-meta"><span class="ui-mark" data-cat="2"></span>Review · Room 4 · Sam Whitfield</span></div><span class="ui-list-meta rsvp"><span>6 of 8</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">18:30<small>60 min</small></span><div><span>Type club: variable fonts</span><span class="ui-list-meta"><span class="ui-mark" data-cat="5"></span>Community · Library</span></div><span class="ui-list-meta rsvp"><span class="ui-status" data-status="warn">No host</span></span></button></li>
             </ul>
           </div>
           <div class="day">
             <h3>Tomorrow<span>Thu, Oct 29</span></h3>
             <ul class="ui-list">
-              <li><button class="ui-list-item" type="button"><span class="slot">10:00<small>60 min</small></span><span class="ui-mark" data-shape="edge" data-cat="3"></span><div><span>Synthesis lab: affinity mapping</span><span class="ui-list-meta">Workshop · Zoom · Daniel Reyes</span></div><span class="ui-list-meta rsvp"><span>30 of 41</span></span></button></li>
-              <li><button class="ui-list-item" type="button"><span class="slot">14:00<small>45 min</small></span><span class="ui-mark" data-shape="edge" data-cat="4"></span><div><span>Design systems 101</span><span class="ui-list-meta">Lecture · Main hall · Maya Okafor</span></div><span class="ui-list-meta rsvp"><span>48 of 62</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">10:00<small>60 min</small></span><div><span>Synthesis lab: affinity mapping</span><span class="ui-list-meta"><span class="ui-mark" data-cat="3"></span>Workshop · Zoom · Daniel Reyes</span></div><span class="ui-list-meta rsvp"><span>30 of 41</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">14:00<small>45 min</small></span><div><span>Design systems 101</span><span class="ui-list-meta"><span class="ui-mark" data-cat="4"></span>Lecture · Main hall · Maya Okafor</span></div><span class="ui-list-meta rsvp"><span>48 of 62</span></span></button></li>
             </ul>
           </div>
           <div class="day">
             <h3>Friday<span>Oct 30</span></h3>
             <ul class="ui-list">
-              <li><button class="ui-list-item" type="button"><span class="slot">12:00<small>30 min</small></span><span class="ui-mark" data-shape="edge" data-cat="1"></span><div><span>Prototype check-ins</span><span class="ui-list-meta">Check-in · Zoom · Lena Fischer</span></div><span class="ui-list-meta rsvp"><span class="ui-status" data-status="idle">Draft</span></span></button></li>
-              <li><button class="ui-list-item" type="button"><span class="slot">17:00<small>90 min</small></span><span class="ui-mark" data-shape="edge" data-cat="5"></span><div><span>Friday show and tell</span><span class="ui-list-meta">Community · Main hall · Priya Raman</span></div><span class="ui-list-meta rsvp"><span>57 going</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">12:00<small>30 min</small></span><div><span>Prototype check-ins</span><span class="ui-list-meta"><span class="ui-mark" data-cat="1"></span>Check-in · Zoom · Lena Fischer</span></div><span class="ui-list-meta rsvp"><span class="ui-status" data-status="idle">Draft</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">17:00<small>90 min</small></span><div><span>Friday show and tell</span><span class="ui-list-meta"><span class="ui-mark" data-cat="5"></span>Community · Main hall · Priya Raman</span></div><span class="ui-list-meta rsvp"><span>57 going</span></span></button></li>
             </ul>
           </div>
         </section>
@@ -140,7 +136,7 @@
           <div class="ui-detail-row"><span><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Going</span>
             <span class="fill">
               <span class="who"><span class="ui-avatar-group" aria-label="Ana Lima, Kenji Sato, Zoe Martin and 18 others"><span class="ui-avatar" data-cat="4" aria-hidden="true">AL</span><span class="ui-avatar" data-cat="3" aria-hidden="true">KS</span><span class="ui-avatar" data-cat="2" aria-hidden="true">ZM</span><span class="ui-avatar" data-cat="5" aria-hidden="true">+18</span></span></span>
-              <span class="ui-meter"><progress class="ui-progress" max="24" value="21" aria-label="21 of 24 seats taken">21 of 24</progress><b>21/24</b></span>
+              <span class="ui-meter"><meter min="0" max="24" low="18" high="22" optimum="12" value="21" aria-label="21 of 24 seats taken">21 of 24</meter><b>21 of 24</b></span>
             </span>
           </div>
           <div class="ui-detail-row"><span><i class="ph-duotone ph-record" aria-hidden="true"></i>Recording</span><span><span class="ui-status" data-status="ok">Saves to course library</span></span></div>
@@ -169,10 +165,5 @@
   <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
 </dialog>
 
-<script>
-  document.querySelectorAll('[data-nav-toggle]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const s=b.closest('.ui-shell'),open=!s.hasAttribute('data-nav-open');s.toggleAttribute('data-nav-open',open);b.setAttribute('aria-expanded',String(open))}));
-  document.addEventListener('click',e=>{const s=document.querySelector('.ui-shell[data-nav-open]');if(s&&!e.target.closest('.ui-sidebar')){s.removeAttribute('data-nav-open');s.querySelector('[data-nav-toggle]').setAttribute('aria-expanded','false')}});
-  document.addEventListener('keydown',e=>{const s=document.querySelector('.ui-shell[data-nav-open]');if(e.key==='Escape'&&s){s.removeAttribute('data-nav-open');s.querySelector('[data-nav-toggle]').focus()}});
-</script>
 </body>
 </html>

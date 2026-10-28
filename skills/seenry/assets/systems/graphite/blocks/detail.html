@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lead enrichment · Halyard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Primary">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, current Northbeam">
+      <span class="ui-workspace-mark" aria-hidden="true">N</span>
+      <span>Northbeam</span>
+      <i data-lucide="chevrons-up-down"></i>
+    </button>
+    <div class="ui-quick">
+      <button class="ui-button" type="button"><i data-lucide="search"></i>Search<span class="ui-kbd">⌘K</span></button>
+      <button class="ui-button" type="button" data-icon aria-label="New run"><i data-lucide="square-pen"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html"><i data-lucide="house"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="inbox"></i>Review queue<span class="ui-nav-count">4</span></a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="activity"></i>Runs</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-agents">
+      <span class="ui-nav-label" id="nav-agents">Agents</span>
+      <a class="ui-nav-item" href="detail.html" aria-current="page"><i data-lucide="user-search"></i>Lead enrichment</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="mail"></i>Inbox triage</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="calendar-check"></i>Meeting follow-ups</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="trending-down"></i>Churn signals</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="megaphone"></i>Ad spend digest<span class="ui-nav-count">3</span></a>
+      <a class="ui-nav-item" href="#"><i data-lucide="file-text"></i>Release notes</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-workspace">
+      <span class="ui-nav-label" id="nav-workspace">Workspace</span>
+      <a class="ui-nav-item" href="#"><i data-lucide="plug"></i>Integrations</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="book-open"></i>Knowledge</a>
+      <a class="ui-nav-item" href="billing.html"><i data-lucide="credit-card"></i>Billing</a>
+      <a class="ui-nav-item" href="settings.html"><i data-lucide="settings"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MR</span>
+      <span>Maya Ruiz<small>Admin</small></span>
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Help"><i data-lucide="circle-help"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Northbeam</a></li><li><a href="#">Agents</a></li><li aria-current="page">Lead enrichment</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Notifications"><i data-lucide="bell"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-main">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Lead enrichment</h1>
+          <p class="ui-page-sub">Enriches new HubSpot list members and matches them to Salesforce accounts</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" type="button"><i data-lucide="pause"></i>Pause</button>
+          <button class="ui-button" type="button" data-variant="primary"><i data-lucide="play"></i>Run now</button>
+          <button class="ui-button" type="button" data-icon data-menu-trigger="agent-menu" aria-label="More actions"><i data-lucide="ellipsis"></i></button>
+          <div id="agent-menu" class="ui-menu" role="menu" popover="auto">
+            <button role="menuitem" data-value="edit">Edit instructions</button>
+            <button role="menuitem" data-value="duplicate">Duplicate agent</button>
+            <button role="menuitem" data-value="copy">Copy agent ID</button>
+            <hr>
+            <button role="menuitem" data-value="archive">Archive</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-alert" data-status="warn" role="status">
+        <i data-lucide="circle-pause" aria-hidden="true"></i>
+        <div><strong>38 enriched leads are waiting for approval</strong><p>Run run_8F2KQ4 paused before writing to HubSpot and Salesforce, as the approval policy requires.</p></div>
+        <a class="ui-button" href="list-detail.html">Review</a>
+      </div>
+
+      <div class="ui-stat-strip">
+        <dl class="ui-stat"><dt>Runs, 14 days</dt><dd>6,412</dd><small><i data-lucide="arrow-up-right"></i>18.2% vs previous 14 days</small></dl>
+        <dl class="ui-stat"><dt>Success rate</dt><dd>98.9%</dd><small>71 failed · 64 recovered on retry</small></dl>
+        <dl class="ui-stat"><dt>Spend, October</dt><dd>$412.80</dd><small>$0.064 per run · budget $600</small></dl>
+      </div>
+
+      <div class="ui-grid" data-cols="2-1">
+        <div class="ui-stack">
+          <section class="ui-card" aria-labelledby="activity-title">
+            <div class="ui-card-head">
+              <h2 id="activity-title">Activity</h2>
+              <div class="ui-chips" role="group" aria-label="Filter activity">
+                <button class="ui-chip" type="button" aria-pressed="true">All</button>
+                <button class="ui-chip" type="button" aria-pressed="false">Runs</button>
+                <button class="ui-chip" type="button" aria-pressed="false">Changes</button>
+                <button class="ui-chip" type="button" aria-pressed="false">Approvals</button>
+              </div>
+            </div>
+            <ol class="ui-timeline">
+              <li class="ui-timeline-item" data-status="warn"><span aria-hidden="true"></span><div><span>Run <span class="ui-mono">run_8F2KQ4</span> paused for approval</span><small>38 contacts updated, 31 accounts matched, 7 accounts to create</small></div><time datetime="2026-10-28T09:44">12m ago</time></li>
+              <li class="ui-timeline-item"><span class="ui-avatar" aria-hidden="true">DO</span><div><span><b>Dana Okafor</b> raised the spend limit to $2.50 per run</span><small>Was $1.50. Long company pages were stopping runs early.</small></div><time datetime="2026-10-28T07:52">2h ago</time></li>
+              <li class="ui-timeline-item" data-status="ok"><span aria-hidden="true"></span><div><span>Run <span class="ui-mono">run_8E7T1B</span> succeeded</span><small>41 contacts enriched in 2m 58s · $1.74</small></div><time datetime="2026-10-28T05:30">4h ago</time></li>
+              <li class="ui-timeline-item" data-status="bad"><span aria-hidden="true"></span><div><span>Run <span class="ui-mono">run_8E2LQ0</span> failed, then recovered</span><small>Salesforce returned <code class="ui-code">REQUEST_LIMIT_EXCEEDED</code>; the retry at 07:14 succeeded.</small></div><time datetime="2026-10-27T07:10">Yesterday</time></li>
+              <li class="ui-timeline-item"><span class="ui-avatar" aria-hidden="true">MR</span><div><span><b>Maya Ruiz</b> approved 52 leads from <span class="ui-mono">run_8D9WQ2</span></span><small>Synced to HubSpot and Salesforce in 14s</small></div><time datetime="2026-10-27T16:02">Yesterday</time></li>
+              <li class="ui-timeline-item"><span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span><div><span><b>Dana Okafor</b> added the list “Q4 webinar: pipeline hygiene”</span><small>Trigger now watches 3 HubSpot lists</small></div><time datetime="2026-10-24">Oct 24</time></li>
+            </ol>
+          </section>
+
+          <section class="ui-card" aria-labelledby="instr-title">
+            <div class="ui-card-head">
+              <div><h2 id="instr-title">Instructions</h2><p>Version 7 · edited by Dana Okafor on Oct 21</p></div>
+              <button class="ui-button" type="button" data-variant="ghost" data-size="sm"><i data-lucide="history"></i>History</button>
+            </div>
+            <figure class="ui-code">
+              <figcaption>instructions.md<button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" data-copy aria-label="Copy instructions"><i data-lucide="copy"></i></button></figcaption>
+<pre><code><b>For each new member of the watched HubSpot lists:</b>
+1. Find the company domain from the email; skip free mail providers.
+2. Read the company site and LinkedIn page. Record size, industry, HQ.
+3. Match to a Salesforce account by domain. <i># never by name alone</i>
+4. Set title and seniority from the contact's LinkedIn headline.
+5. Assign owners round robin within the West AE pod.
+<b>Stop and ask for review before any CRM write.</b></code></pre>
+            </figure>
+          </section>
+        </div>
+
+        <div class="ui-stack">
+          <section class="ui-card" aria-labelledby="facts-title">
+            <div class="ui-card-head"><h2 id="facts-title">Details</h2><button class="ui-button" type="button" data-variant="ghost" data-size="sm">Edit</button></div>
+            <dl class="ui-data-list">
+              <div><dt>Owner</dt><dd><span class="ui-avatar" aria-hidden="true">DO</span>Dana Okafor</dd></div>
+              <div><dt>Status</dt><dd><span class="ui-status" data-status="warn">Needs review</span></dd></div>
+              <div><dt>Model</dt><dd><span class="ui-mono">claude-sonnet-4-5</span></dd></div>
+              <div><dt>Trigger</dt><dd><span class="ui-logo" data-brand="hubspot"></span>New list members</dd></div>
+              <div><dt>Schedule</dt><dd>Every 15 min, weekdays</dd></div>
+              <div><dt>Approval</dt><dd>Before CRM writes</dd></div>
+              <div><dt>Agent ID</dt><dd><span class="ui-mono">agt_3KD92P</span></dd></div>
+              <div><dt>Created</dt><dd>Sep 2, 2026</dd></div>
+            </dl>
+          </section>
+
+          <section class="ui-card ui-stack" aria-labelledby="budget-title">
+            <div class="ui-card-head"><div><h2 id="budget-title">Budget this month</h2><p>Resets Nov 1</p></div></div>
+            <div class="ui-usage"><span>Model spend</span><span>$412.80 of $600</span><meter class="ui-meter" min="0" max="600" low="450" high="540" optimum="0" value="412.8" aria-label="Model spend, $412.80 of $600"></meter></div>
+            <div class="ui-usage"><span>Runs</span><span>6,412 of 10,000</span><meter class="ui-meter" min="0" max="10000" low="8000" high="9500" optimum="0" value="6412" aria-label="Runs, 6,412 of 10,000"></meter></div>
+          </section>
+
+          <section class="ui-card" data-flush aria-labelledby="apps-title">
+            <div class="ui-card-head"><h2 id="apps-title">Connected apps</h2></div>
+            <ul class="ui-list">
+              <li><div class="ui-list-item"><span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span><span><span>HubSpot</span><span class="ui-list-meta">Read lists · write contacts</span></span><span class="ui-status" data-status="ok">Connected</span></div></li>
+              <li><div class="ui-list-item"><span class="ui-logo-tile"><span class="ui-logo" data-brand="salesforce"></span></span><span><span>Salesforce</span><span class="ui-list-meta">Query and write accounts</span></span><span class="ui-status" data-status="ok">Connected</span></div></li>
+              <li><div class="ui-list-item"><span class="ui-logo-tile"><i data-lucide="globe"></i></span><span><span>Web search</span><span class="ui-list-meta">Company sites and LinkedIn</span></span><span class="ui-status" data-status="ok">On</span></div></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="../../../components/ui/seenry-ui.js"></script>
+<script>
+lucide.createIcons();
+</script>
+</body>
+</html>

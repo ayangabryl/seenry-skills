@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,7 +30,7 @@
     </nav>
     <nav class="ui-nav" aria-labelledby="nav-agents">
       <span class="ui-nav-label" id="nav-agents">Agents</span>
-      <a class="ui-nav-item" href="#"><i data-lucide="user-search"></i>Lead enrichment</a>
+      <a class="ui-nav-item" href="detail.html"><i data-lucide="user-search"></i>Lead enrichment</a>
       <a class="ui-nav-item" href="#"><i data-lucide="mail"></i>Inbox triage</a>
       <a class="ui-nav-item" href="#"><i data-lucide="calendar-check"></i>Meeting follow-ups</a>
       <a class="ui-nav-item" href="#"><i data-lucide="trending-down"></i>Churn signals</a>
@@ -41,7 +41,7 @@
       <span class="ui-nav-label" id="nav-workspace">Workspace</span>
       <a class="ui-nav-item" href="#"><i data-lucide="plug"></i>Integrations</a>
       <a class="ui-nav-item" href="#"><i data-lucide="book-open"></i>Knowledge</a>
-      <a class="ui-nav-item" href="#"><i data-lucide="gauge"></i>Usage</a>
+      <a class="ui-nav-item" href="billing.html"><i data-lucide="credit-card"></i>Billing</a>
       <a class="ui-nav-item" href="settings.html"><i data-lucide="settings"></i>Settings</a>
     </nav>
     <div class="ui-sidebar-foot">
@@ -54,29 +54,19 @@
   <div>
     <header class="ui-topbar">
       <button class="ui-button" type="button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation"><i data-lucide="menu"></i></button>
-      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Northbeam</a></li><li aria-current="page">Overview</li></ol></nav>
+      <div class="ui-topbar-title"><h1>Overview</h1><span data-hide-phone>6 agents · 9 integrations</span></div>
       <div class="ui-topbar-actions">
-        <button class="ui-button" type="button" data-variant="ghost" data-size="sm" data-hide-phone>Feedback</button>
+        <button class="ui-button" type="button" data-size="sm" data-hide-phone><i data-lucide="calendar"></i>Oct 15 – Oct 28</button>
+        <button class="ui-button" type="button" data-size="sm" data-variant="primary"><i data-lucide="plus"></i>New agent</button>
         <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Notifications"><i data-lucide="bell"></i></button>
       </div>
     </header>
 
     <main class="ui-main">
-      <div class="ui-page-header">
-        <div>
-          <h1 class="ui-page-title">Overview</h1>
-          <p class="ui-page-sub">6 agents across 9 integrations · Oct 15 – Oct 28</p>
-        </div>
-        <div class="ui-page-actions">
-          <button class="ui-button" type="button"><i data-lucide="calendar"></i>Last 14 days</button>
-          <button class="ui-button" type="button" data-variant="primary"><i data-lucide="plus"></i>New agent</button>
-        </div>
-      </div>
-
       <div class="ui-stat-strip">
         <dl class="ui-stat"><dt>Runs</dt><dd>18,204</dd><small><i data-lucide="arrow-up-right"></i>12.4% vs previous 14 days</small></dl>
-        <dl class="ui-stat"><dt>Success rate</dt><dd>97.8%</dd><small><i data-lucide="arrow-down-right"></i>0.6 pts · 409 failed runs</small></dl>
-        <dl class="ui-stat"><dt>Model spend</dt><dd>$1,284.60</dd><small>$0.071 per run · budget $2,500</small></dl>
+        <dl class="ui-stat"><dt>Success rate</dt><dd>97.8%</dd><small><i data-lucide="arrow-down-right"></i>0.6 pts lower · 409 failed runs</small></dl>
+        <dl class="ui-stat"><dt>Model spend, October</dt><dd>$1,284.60</dd><meter class="ui-meter" min="0" max="2500" low="2125" high="2375" optimum="0" value="1284.6" aria-label="$1,284.60 of the $2,500 October budget"></meter><small>$1,215 left of $2,500 · $0.071 per run</small></dl>
       </div>
 
       <div class="ui-grid" data-cols="2-1">
@@ -84,7 +74,7 @@
           <div class="ui-card-head">
             <div>
               <h2 id="chart-title">Runs per day</h2>
-              <p>Succeeded and failed, all agents</p>
+              <p>Failures peaked at 88 on Oct 26, when the Sheets token expired</p>
             </div>
             <ul class="ui-chart-legend">
               <li>Succeeded</li>
@@ -94,34 +84,34 @@
           <div class="ui-chart" id="runs-chart"></div>
         </section>
 
-        <section class="ui-card" data-flush aria-labelledby="queue-title">
+        <section class="ui-card" data-flush data-phone-first aria-labelledby="queue-title">
           <div class="ui-card-head">
             <div>
-              <h2 id="queue-title">Needs review</h2>
-              <p>4 runs are waiting on a person</p>
+              <h2 id="queue-title">Needs a person</h2>
+              <p>3 approvals and 1 broken connection</p>
             </div>
             <a class="ui-button" data-variant="ghost" data-size="sm" href="list-detail.html">View all</a>
           </div>
           <ul class="ui-list">
             <li><a class="ui-list-item" href="list-detail.html">
               <span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span>
-              <span><span>Approve 38 enriched leads</span><span class="ui-list-meta">Lead enrichment · 12m ago</span></span>
-              <span class="ui-status" data-status="warn">Review</span>
+              <span><span>Approve 38 enriched leads</span><span class="ui-list-meta"><span class="ui-status" data-status="warn">Approval</span> · Lead enrichment</span></span>
+              <span class="ui-list-meta">12m</span><i data-lucide="chevron-right"></i>
             </a></li>
             <li><a class="ui-list-item" href="list-detail.html">
               <span class="ui-logo-tile"><span class="ui-logo" data-brand="googlesheets"></span></span>
-              <span><span>Sheets token expired</span><span class="ui-list-meta">Ad spend digest · 3 failures</span></span>
-              <span class="ui-status" data-status="bad">Failed</span>
+              <span><span>Reconnect Google Sheets</span><span class="ui-list-meta"><span class="ui-status" data-status="bad">Token expired</span> · Ad spend digest</span></span>
+              <span class="ui-list-meta">26m</span><i data-lucide="chevron-right"></i>
             </a></li>
             <li><a class="ui-list-item" href="list-detail.html">
               <span class="ui-logo-tile"><span class="ui-logo" data-brand="intercom"></span></span>
-              <span><span>Reply to Brightline renewal</span><span class="ui-list-meta">Inbox triage · 1h ago</span></span>
-              <span class="ui-status" data-status="warn">Review</span>
+              <span><span>Reply to Brightline renewal</span><span class="ui-list-meta"><span class="ui-status" data-status="warn">Draft reply</span> · Inbox triage</span></span>
+              <span class="ui-list-meta">1h</span><i data-lucide="chevron-right"></i>
             </a></li>
             <li><a class="ui-list-item" href="list-detail.html">
               <span class="ui-logo-tile"><span class="ui-logo" data-brand="stripe"></span></span>
-              <span><span>Fieldstone churn risk 0.78</span><span class="ui-list-meta">Churn signals · 2h ago</span></span>
-              <span class="ui-status" data-status="warn">Review</span>
+              <span><span>Fieldstone churn risk 0.78</span><span class="ui-list-meta"><span class="ui-status" data-status="warn">Approval</span> · Churn signals</span></span>
+              <span class="ui-list-meta">2h</span><i data-lucide="chevron-right"></i>
             </a></li>
           </ul>
         </section>
@@ -136,21 +126,21 @@
           <table class="ui-table" data-ui-table id="agents">
             <thead><tr>
               <th scope="col" data-sort>Agent</th>
-              <th scope="col">Integrations</th>
+              <th scope="col" data-hide-phone>Integrations</th>
               <th scope="col" data-sort>Status</th>
-              <th scope="col" data-sort class="num">Runs</th>
-              <th scope="col" data-sort class="num">Success</th>
-              <th scope="col" data-sort class="num">p50 time</th>
+              <th scope="col" data-sort class="num" data-hide-phone>Runs</th>
+              <th scope="col" data-sort class="num" data-hide-phone>Success</th>
+              <th scope="col" data-sort class="num" data-hide-phone>p50 time</th>
               <th scope="col" data-sort class="num">Spend</th>
-              <th scope="col">Last run</th>
+              <th scope="col" data-hide-phone>Last run</th>
             </tr></thead>
             <tbody>
-              <tr><td>Lead enrichment</td><td><span class="ui-cell"><span class="ui-logo" data-brand="hubspot"></span><span class="ui-logo" data-brand="salesforce"></span></span></td><td data-sort="2"><span class="ui-status" data-status="warn">Needs review</span></td><td class="num" data-sort="6412">6,412</td><td class="num" data-sort="98.9">98.9%</td><td class="num" data-sort="3.1">3.1s</td><td class="num" data-sort="412.80">$412.80</td><td>2m ago</td></tr>
-              <tr><td>Inbox triage</td><td><span class="ui-cell"><span class="ui-logo" data-brand="intercom"></span><span class="ui-logo" data-brand="gmail"></span></span></td><td data-sort="1"><span class="ui-status" data-status="ok">Healthy</span></td><td class="num" data-sort="5208">5,208</td><td class="num" data-sort="99.4">99.4%</td><td class="num" data-sort="1.8">1.8s</td><td class="num" data-sort="186.20">$186.20</td><td>Just now</td></tr>
-              <tr><td>Meeting follow-ups</td><td><span class="ui-cell"><span class="ui-logo" data-brand="gmail"></span><span class="ui-logo" data-brand="salesforce"></span></span></td><td data-sort="1"><span class="ui-status" data-status="ok">Healthy</span></td><td class="num" data-sort="3106">3,106</td><td class="num" data-sort="97.2">97.2%</td><td class="num" data-sort="4.0">4.0s</td><td class="num" data-sort="221.70">$221.70</td><td>18m ago</td></tr>
-              <tr><td>Churn signals</td><td><span class="ui-cell"><span class="ui-logo" data-brand="snowflake"></span><span class="ui-logo" data-brand="stripe"></span></span></td><td data-sort="2"><span class="ui-status" data-status="warn">Slow</span></td><td class="num" data-sort="1944">1,944</td><td class="num" data-sort="96.1">96.1%</td><td class="num" data-sort="7.4">7.4s</td><td class="num" data-sort="268.10">$268.10</td><td>41m ago</td></tr>
-              <tr><td>Ad spend digest</td><td><span class="ui-cell"><span class="ui-logo" data-brand="googlesheets"></span><span class="ui-logo" data-brand="slack"></span></span></td><td data-sort="3"><span class="ui-status" data-status="bad">Failing</span></td><td class="num" data-sort="1122">1,122</td><td class="num" data-sort="88.4">88.4%</td><td class="num" data-sort="9.8">9.8s</td><td class="num" data-sort="137.40">$137.40</td><td>26m ago</td></tr>
-              <tr><td>Release notes</td><td><span class="ui-cell"><span class="ui-logo" data-brand="linear"></span><span class="ui-logo" data-brand="notion"></span></span></td><td data-sort="0"><span class="ui-status" data-status="idle">Scheduled</span></td><td class="num" data-sort="412">412</td><td class="num" data-sort="100">100%</td><td class="num" data-sort="12.6">12.6s</td><td class="num" data-sort="58.40">$58.40</td><td>Yesterday</td></tr>
+              <tr><td>Lead enrichment</td><td data-hide-phone><span class="ui-cell"><span class="ui-logo" data-brand="hubspot"></span><span class="ui-logo" data-brand="salesforce"></span></span></td><td data-sort="2"><span class="ui-status" data-status="warn">Needs review</span></td><td data-hide-phone class="num" data-sort="6412">6,412</td><td data-hide-phone class="num" data-sort="98.9">98.9%</td><td data-hide-phone class="num" data-sort="3.1">3.1s</td><td class="num" data-sort="412.80">$412.80</td><td data-hide-phone>2m ago</td></tr>
+              <tr><td>Inbox triage</td><td data-hide-phone><span class="ui-cell"><span class="ui-logo" data-brand="intercom"></span><span class="ui-logo" data-brand="gmail"></span></span></td><td data-sort="2"><span class="ui-status" data-status="warn">Needs review</span></td><td data-hide-phone class="num" data-sort="5208">5,208</td><td data-hide-phone class="num" data-sort="99.4">99.4%</td><td data-hide-phone class="num" data-sort="1.8">1.8s</td><td class="num" data-sort="186.20">$186.20</td><td data-hide-phone>Just now</td></tr>
+              <tr><td>Meeting follow-ups</td><td data-hide-phone><span class="ui-cell"><span class="ui-logo" data-brand="gmail"></span><span class="ui-logo" data-brand="salesforce"></span></span></td><td data-sort="1"><span class="ui-status" data-status="ok">Healthy</span></td><td data-hide-phone class="num" data-sort="3106">3,106</td><td data-hide-phone class="num" data-sort="97.2">97.2%</td><td data-hide-phone class="num" data-sort="4.0">4.0s</td><td class="num" data-sort="221.70">$221.70</td><td data-hide-phone>18m ago</td></tr>
+              <tr><td>Churn signals</td><td data-hide-phone><span class="ui-cell"><span class="ui-logo" data-brand="snowflake"></span><span class="ui-logo" data-brand="stripe"></span></span></td><td data-sort="2"><span class="ui-status" data-status="warn">Needs review</span></td><td data-hide-phone class="num" data-sort="1944">1,944</td><td data-hide-phone class="num" data-sort="96.1">96.1%</td><td data-hide-phone class="num" data-sort="7.4">7.4s</td><td class="num" data-sort="268.10">$268.10</td><td data-hide-phone>41m ago</td></tr>
+              <tr><td>Ad spend digest</td><td data-hide-phone><span class="ui-cell"><span class="ui-logo" data-brand="googlesheets"></span><span class="ui-logo" data-brand="slack"></span></span></td><td data-sort="3"><span class="ui-status" data-status="bad">Failing</span></td><td data-hide-phone class="num" data-sort="1122">1,122</td><td data-hide-phone class="num" data-sort="88.4">88.4%</td><td data-hide-phone class="num" data-sort="9.8">9.8s</td><td class="num" data-sort="137.40">$137.40</td><td data-hide-phone>26m ago</td></tr>
+              <tr><td>Release notes</td><td data-hide-phone><span class="ui-cell"><span class="ui-logo" data-brand="linear"></span><span class="ui-logo" data-brand="notion"></span></span></td><td data-sort="0"><span class="ui-status" data-status="idle">Scheduled</span></td><td data-hide-phone class="num" data-sort="412">412</td><td data-hide-phone class="num" data-sort="100">100%</td><td data-hide-phone class="num" data-sort="12.6">12.6s</td><td class="num" data-sort="58.40">$58.40</td><td data-hide-phone>Yesterday</td></tr>
             </tbody>
           </table>
         </div>
@@ -163,15 +153,6 @@
 <script src="../../../components/ui/seenry-ui.js"></script>
 <script>
 lucide.createIcons();
-
-(function nav(){
-  const shell = document.querySelector('.ui-shell');
-  const toggle = document.querySelector('[data-nav-toggle]');
-  const set = open => { shell.toggleAttribute('data-nav-open', open); toggle.setAttribute('aria-expanded', String(open)); };
-  toggle.addEventListener('click', () => set(!shell.hasAttribute('data-nav-open')));
-  shell.addEventListener('click', e => { if (e.target === shell) set(false); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
-})();
 
 (function chart(){
   const days = [
@@ -206,7 +187,7 @@ lucide.createIcons();
       g.append(node('title', {}, `${label}: ${(total - failed).toLocaleString()} succeeded, ${failed} failed`));
       g.append(node('rect', { class: 'bar-hit', x: left + slot * i, y: top, width: slot, height: plotH }));
       g.append(node('rect', { class: 's1', x, y: y(total - failed), width: barW, height: y(0) - y(total - failed) }));
-      g.append(node('rect', { class: 's2', x, y: y(total), width: barW, height: Math.max(y(total - failed) - y(total), px('--space-half')) }));
+      g.append(node('rect', { class: 's2', x, y: y(total), width: barW, height: Math.max(y(total - failed) - y(total), px('--space-half') + px('--bw')) }));
       svg.append(g);
       if (i % labelEvery === 0) svg.append(node('text', { class: 'tick', x: x + barW / 2, y: h - px('--space-1'), 'text-anchor': 'middle' }, label));
     });

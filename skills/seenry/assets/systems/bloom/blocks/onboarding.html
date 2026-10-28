@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Get started · Commons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .setup{padding:0}
+  .setup>.ui-steps{padding:var(--space-5) var(--space-6);border-bottom:var(--hairline) solid var(--line)}
+  .question{display:grid;gap:var(--space-5);max-width:calc(var(--settings-control-w) * 2);padding:var(--space-6)}
+  .question h2{font:var(--type-subtitle);letter-spacing:var(--track-snug)}
+  .question>header p{margin-top:var(--space-1);font:var(--type-body);color:var(--text-2)}
+  .colors{display:flex;flex-wrap:wrap;gap:var(--space-2);margin:0;padding:0;border:0}
+  .colors legend{margin-bottom:var(--space-2);padding:0;font:var(--type-label)}
+  .setup-foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);padding:var(--space-4) var(--space-6);border-top:var(--hairline) solid var(--line)}
+  .setup-foot small{margin-right:auto;font:var(--type-small);color:var(--text-3)}
+  .later{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:var(--space-5);align-items:start;margin-top:var(--space-5)}
+  .empty-mark{display:grid;place-items:center;width:var(--empty-icon);height:var(--empty-icon);margin-bottom:var(--space-2);border-radius:50%;background:var(--accent-subtle);color:var(--accent-ink)}
+  .empty-mark i{font-size:calc(var(--icon-lg) * 1.4)}
+  .invite{display:grid;gap:var(--space-3);align-content:start}
+  .invite .ui-section-head{margin-bottom:0}
+  .invite>p{font:var(--type-body);color:var(--text-2)}
+  .ui-sidebar .ui-nav-label+p{padding:var(--space-1) var(--space-3);font:var(--type-small);color:var(--text-3)}
+  @media (max-width:64em){.later{grid-template-columns:minmax(0,1fr)}}
+  @media (max-width:48em){.setup>.ui-steps,.question,.setup-foot{padding-inline:var(--space-4)}.setup-foot .ui-button{flex:1}.setup-foot small{flex-basis:100%}}
+</style>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School">
+      <span class="ui-avatar" data-shape="square" aria-hidden="true">H</span>
+      <span>Halftone School<small>Setting up</small></span>
+      <i class="ph-bold ph-caret-up-down" aria-hidden="true"></i>
+    </button>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="onboarding.html" aria-current="page"><i class="ph-duotone ph-squares-four" aria-hidden="true"></i><span>Overview</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i><span>Calendar</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-video-camera" aria-hidden="true"></i><span>Sessions</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-users-three" aria-hidden="true"></i><span>Learners</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i><span>Discussions</span></a>
+      <a class="ui-nav-item" href="settings.html"><i class="ph-duotone ph-gear-six" aria-hidden="true"></i><span>Settings</span></a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-courses">
+      <span class="ui-nav-label" id="nav-courses">Courses</span>
+      <p>Your first course appears here.</p>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" data-cat="5" aria-hidden="true">PR</span>
+      <span>Priya Raman<small>Program lead</small></span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Sign out"><i class="ph-bold ph-sign-out" aria-hidden="true"></i></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Halftone School</a></li><li aria-current="page">Get started</li></ol></nav>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Help"><i class="ph-duotone ph-question" aria-hidden="true"></i></button>
+    </header>
+
+    <div>
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Welcome, Priya</h1>
+          <p class="ui-page-sub">Four short questions and Halftone School is ready for learners. Everything can be changed later in Settings.</p>
+        </div>
+      </div>
+
+      <section class="ui-section setup" aria-labelledby="q-title">
+        <ol class="ui-steps" aria-label="Setup progress">
+          <li class="ui-step"><span>School</span></li>
+          <li class="ui-step" aria-current="step"><span>First course</span></li>
+          <li class="ui-step"><span>Invite learners</span></li>
+          <li class="ui-step"><span>First session</span></li>
+        </ol>
+        <form class="question">
+          <header>
+            <h2 id="q-title">What is your first course called?</h2>
+            <p>Learners see this name on their schedule and on every session in it.</p>
+          </header>
+          <label class="ui-field"><span class="ui-label">Course name</span><input class="ui-input" value="Product Design Foundations" autocomplete="off"><span class="ui-help">Short names read best in the calendar.</span></label>
+          <fieldset class="colors">
+            <legend>Color</legend>
+            <button type="button" class="ui-chip" aria-pressed="true"><span class="ui-mark" data-cat="4"></span>Sky</button>
+            <button type="button" class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="1"></span>Tomato</button>
+            <button type="button" class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="3"></span>Green</button>
+            <button type="button" class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="2"></span>Amber</button>
+            <button type="button" class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="5"></span>Pink</button>
+          </fieldset>
+          <label class="ui-field"><span class="ui-label">Length</span><span class="ui-slider"><input type="range" min="4" max="16" value="12" style="--fill:66.67%" aria-valuetext="12 weeks"><output>12 weeks</output></span></label>
+          <label class="ui-field"><span class="ui-label">Sessions run in</span><span class="ui-combobox"><input list="zones" value="Europe/Lisbon" autocomplete="off"></span><span class="ui-help">Learners always see times in their own zone.</span></label>
+          <datalist id="zones"><option value="Europe/Lisbon"><option value="Europe/London"><option value="Europe/Berlin"><option value="America/New_York"><option value="America/Sao_Paulo"><option value="Asia/Singapore"></datalist>
+        </form>
+        <div class="setup-foot">
+          <small>Step 2 of 4 · about a minute left</small>
+          <button class="ui-button" data-variant="ghost"><i class="ph-bold ph-arrow-left" aria-hidden="true"></i>Back</button>
+          <button class="ui-button" data-variant="primary">Continue<i class="ph-bold ph-arrow-right" aria-hidden="true"></i></button>
+        </div>
+      </section>
+
+      <div class="later">
+        <section class="ui-section" aria-labelledby="week-title">
+          <div class="ui-section-head"><div><h2 id="week-title">This week</h2><p>Sessions, RSVPs and attendance</p></div></div>
+          <div class="ui-empty">
+            <span class="empty-mark"><i class="ph-duotone ph-calendar-blank" aria-hidden="true"></i></span>
+            <h3>No sessions yet</h3>
+            <p>Once your first course has a session, this week's schedule and who is coming show up here.</p>
+            <button class="ui-button"><i class="ph-bold ph-calendar-plus" aria-hidden="true"></i>Import from Google Calendar</button>
+          </div>
+        </section>
+        <section class="ui-section invite" aria-labelledby="invite-title">
+          <div class="ui-section-head"><div><h2 id="invite-title">Invite link</h2><p>Anyone with it can join as a learner</p></div></div>
+          <div class="ui-code">
+            <header><span>Join link</span><button class="ui-button" data-variant="ghost" data-size="sm" data-copy="https://commons.app/join/halftone-7q2k" data-toast-message="Link copied"><i class="ph-bold ph-copy" aria-hidden="true"></i>Copy</button></header>
+            <pre><code>commons.app/join/halftone-7q2k</code></pre>
+          </div>
+          <p>Or add learners by email in step 3. The link expires in 14 days.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

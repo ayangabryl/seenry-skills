@@ -22,6 +22,23 @@ function Example() {
 
 Use unique IDs when several instances appear on a page. React owns application state; the kit handles presentation and keyboard behavior. Listen for `seenry:change`, `seenry:select`, and `seenry:results` where applicable. All touch targets grow to at least 44px on narrow screens. Motion is short, interruptible, and removed for reduced-motion users.
 
+## Phone navigation
+
+Under 768px a system's sidebar becomes a drawer. Put a menu button in the top bar; the script toggles `data-nav-open` on the closest `.ui-shell`, keeps `aria-expanded` in sync, closes on an outside click or Escape and returns focus to the button.
+
+```html
+<button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><!-- menu icon --></button>
+```
+
+## Slider and copy button
+
+A range input gets `--fill` (its position as a percentage) for styling the filled track, and writes its value into `<output for="id">`; `data-format="{} GB"` formats it. A button with `data-copy` copies the text of the selector it names, or of the nearest `.ui-code` block, sets `data-copied` for 1.6s and shows a toast.
+
+```html
+<input class="ui-slider" type="range" id="seats" min="1" max="50" value="12"><output for="seats"></output>
+<div class="ui-code"><pre><code>npx seenry init</code></pre><button class="ui-button" data-variant="ghost" data-icon data-copy aria-label="Copy command"><!-- icon --></button></div>
+```
+
 ## Button
 
 Use for an action. Choose one primary action per group; secondary, ghost, and danger express decreasing emphasis or destructive intent. `data-size="sm|lg"` gives 32/44px (36px default); `data-icon` makes a square icon button. Add `disabled` and `aria-busy="true" data-loading` during work. Icon-only buttons need an accessible name.

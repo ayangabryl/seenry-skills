@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up · Hearth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .setup{min-height:100dvh;display:grid;grid-template-rows:auto 1fr}
+  .setup-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);min-height:var(--topbar-h);padding:0 var(--gutter);border-bottom:var(--hairline) solid var(--line)}
+  .brand{display:flex;align-items:center;gap:var(--space-3);font:var(--type-label);color:var(--text)}
+  .brand .ui-avatar{border-radius:var(--r-sm);background:var(--accent);color:var(--on-accent)}
+  .setup main{display:grid;align-content:start;gap:var(--space-7);width:min(100%,calc(var(--onboard-w) + var(--gutter) * 2));margin-inline:auto;padding:var(--space-7) var(--gutter) var(--space-8)}
+  .question{display:grid;gap:var(--space-5)}
+  .question .ui-card{display:grid;gap:var(--space-5)}
+  .chips{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+  .ui-card .chips-label{color:var(--text-3);font:var(--type-small);margin-bottom:calc(var(--space-3) * -1)}
+  .step-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding-top:var(--space-5);border-top:var(--hairline) solid var(--line)}
+  .step-foot span{color:var(--text-3);font:var(--type-small)}
+  .step-foot div{display:flex;gap:var(--space-2)}
+  .landing>p{color:var(--text-3);font:var(--type-small);margin-bottom:var(--space-3)}
+  .landing .ui-card{padding:0;overflow:hidden}
+  .landing-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding:var(--space-4) var(--space-6);border-bottom:var(--hairline) solid var(--line)}
+  .landing-head strong{font:var(--type-heading);color:var(--text)}
+  .landing .ui-empty>i{display:grid;place-items:center;width:var(--avatar-lg);height:var(--avatar-lg);margin-bottom:var(--space-2);border-radius:50%;background:var(--surface-2);color:var(--text-2)}
+  .landing .ui-empty p{max-width:calc(var(--measure) * .7)}
+  @media (max-width:47.9375em){.setup main{gap:var(--space-6);padding-top:var(--space-5)}.step-foot{flex-wrap:wrap}.step-foot span{flex:1 1 100%}.step-foot div{flex:1 1 100%}.step-foot .ui-button{flex:1 1 0}.landing-head{padding-inline:var(--space-4)}}
+</style>
+</head>
+<body>
+<div class="setup">
+  <header class="setup-bar">
+    <span class="brand"><span class="ui-avatar" aria-hidden="true">H</span>Hearth</span>
+    <a class="ui-button" data-variant="ghost" href="dashboard.html">Finish later</a>
+  </header>
+  <main>
+    <ol class="ui-steps" aria-label="Setup progress">
+      <li class="ui-step"><span>Household</span></li>
+      <li class="ui-step" aria-current="step"><span>Bank</span></li>
+      <li class="ui-step"><span>Budget</span></li>
+      <li class="ui-step"><span>Bills</span></li>
+    </ol>
+
+    <section class="question" aria-labelledby="q-title">
+      <div>
+        <h1 class="ui-page-title" id="q-title">Where does most of your spending happen?</h1>
+        <p class="ui-page-sub">Connect the account you use for groceries and bills. You can add the Apple Card and the rest later.</p>
+      </div>
+      <div class="ui-card">
+        <label class="ui-field ui-combobox"><span class="ui-label">Bank or credit union</span>
+          <span class="ui-control"><span class="ui-affix"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></span><input list="banks" value="SchoolsFirst FCU" autocomplete="off"></span>
+        </label>
+        <datalist id="banks"><option value="SchoolsFirst FCU"><option value="Schwab Bank"><option value="Chase"><option value="Bank of America"><option value="Wells Fargo"><option value="Golden 1 Credit Union"></datalist>
+        <p class="chips-label">Popular in California</p>
+        <div class="chips" aria-label="Popular banks">
+              <button class="ui-chip" type="button" aria-pressed="false">Chase</button>
+              <button class="ui-chip" type="button" aria-pressed="false">Bank of America</button>
+              <button class="ui-chip" type="button" aria-pressed="false">Wells Fargo</button>
+              <button class="ui-chip" type="button" aria-pressed="true">SchoolsFirst FCU</button>
+              <button class="ui-chip" type="button" aria-pressed="false">Ally</button>
+              <button class="ui-chip" type="button" aria-pressed="false">Capital One</button>
+        </div>
+        <div class="ui-progress"><span id="import-label">Importing 90 days from SchoolsFirst checking</span><span>62%</span><progress max="100" value="62" aria-labelledby="import-label"></progress></div>
+        <div class="ui-alert" role="note"><i class="ph ph-lock-simple" aria-hidden="true"></i><p>Hearth can read transactions only. It can never move money.</p></div>
+        <div class="step-foot">
+          <span>Step 2 of 4 · about a minute left</span>
+          <div><a class="ui-button" data-variant="ghost" href="#">Back</a><button class="ui-button" data-variant="primary" disabled aria-describedby="import-label">Continue</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing" aria-labelledby="landing-title">
+      <p>When you finish, Hearth opens here</p>
+      <div class="ui-card">
+        <div class="landing-head"><strong id="landing-title">October</strong><span class="ui-status" data-status="idle">Waiting for first import</span></div>
+        <div class="ui-empty">
+          <i class="ph ph-receipt" aria-hidden="true"></i>
+          <h3>No transactions yet</h3>
+          <p>They appear as soon as the SchoolsFirst import finishes, sorted into categories you can change.</p>
+          <button class="ui-button"><i class="ph ph-plus" aria-hidden="true"></i>Add one by hand</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

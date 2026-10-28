@@ -2,6 +2,7 @@
 :root{
   color-scheme:light;
   --font:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 
   --bg:#f7f6f4;
   --surface:#ffffff;
@@ -24,6 +25,7 @@
   --warn:#8a5a00;--warn-bg:#fdf2dc;
   --bad:#c2362b;--bad-bg:#fdecea;
   --info:#2160c4;--info-bg:#e6effc;
+  --warn-fill:#df9a2b;--bad-fill:#d9473b;
 
   /* Five category hues: ink for text, bg for tinted chips and avatars, mark for dots, bars and calendar edges. */
   --cat-1:#b2361f;--cat-1-bg:#fdebe7;--cat-1-mark:#ec5f47;
@@ -41,13 +43,13 @@
   --shadow-float:0 2px 6px rgb(31 30 28/.06),0 16px 40px rgb(31 30 28/.12);
   --scrim:rgb(20 19 18/.36);
 
-  --type-title:700 26px/32px var(--font);
-  --type-subtitle:700 20px/28px var(--font);
+  --type-title:600 26px/32px var(--font);
+  --type-subtitle:600 20px/28px var(--font);
   --type-heading:600 16px/24px var(--font);
   --type-body:400 15px/22px var(--font);
   --type-label:500 14px/20px var(--font);
   --type-small:400 13px/18px var(--font);
-  --type-stat:700 30px/36px var(--font);
+  --type-stat:600 30px/36px var(--font);
   --track-tight:-.02em;
   --track-snug:-.01em;
 
@@ -64,9 +66,10 @@
   --switch-w:38px;--switch-h:22px;--knob:16px;--knob-gap:2px;--check:18px;
   --progress-h:8px;--chart-h:200px;--axis-w:32px;--menu-min:220px;--dialog-w:460px;--sheet-w:420px;
   --measure:56ch;--input-phone:16px;
+  --thumb:20px;--step:28px;--auth-w:420px;--side-w:340px;--empty-icon:56px;--swatch:56px;
 
-  --chart-1:#6a5ae8;--chart-2:#ec5f47;--chart-3:#3aa865;--chart-4:#3b95e3;--chart-5:#e49b2f;
-  --chart-muted:#d8d3fa;
+  --chart-1:#5543d9;--chart-2:#ec5f47;--chart-3:#3aa865;--chart-4:#3b95e3;--chart-5:#e49b2f;
+  --chart-muted:#b4b0c4;
   --chart-grid:#ebe9e4;--chart-axis:#6b6862;
 }
 
@@ -81,9 +84,9 @@
   --bg:#131315;--surface:#1b1b1e;--surface-2:#232327;--hover:#2a2a2f;
   --line:#2f2f35;--line-strong:#46464d;
   --text:#f2f1ef;--text-2:#c9c7c3;--text-3:#a3a19c;
-  --accent:#6a5ae8;--accent-hover:#7b6cf0;--accent-subtle:#25213f;--accent-ink:#b4a9ff;--on-accent:#ffffff;
+  --accent:#6a5ae8;--accent-hover:#5a4ad6;--accent-subtle:#25213f;--accent-ink:#b4a9ff;--on-accent:#ffffff;
   --focus:0 0 0 3px color-mix(in oklab,var(--accent) 45%,transparent);
-  --ok:#7fd6a0;--ok-bg:#1b3325;--warn:#f2c36e;--warn-bg:#382b16;--bad:#ff9c88;--bad-bg:#3a211c;--info:#86c2f7;--info-bg:#1a2c3f;
+  --ok:#7fd6a0;--ok-bg:#1b3325;--warn:#f2c36e;--warn-bg:#382b16;--bad:#ff9c88;--bad-bg:#3a211c;--info:#86c2f7;--info-bg:#1a2c3f;--warn-fill:#e6a845;--bad-fill:#f0735c;
   --cat-1:#ff9c88;--cat-1-bg:#3a211c;--cat-1-mark:#f0735c;
   --cat-2:#f2c36e;--cat-2-bg:#382b16;--cat-2-mark:#e6a845;
   --cat-3:#7fd6a0;--cat-3-bg:#1b3325;--cat-3-mark:#4cbf79;
@@ -94,7 +97,7 @@
   --shadow-float:0 2px 6px rgb(0 0 0/.3),0 16px 40px rgb(0 0 0/.5);
   --scrim:rgb(0 0 0/.56);
   --chart-1:#7b6cf0;--chart-2:#f0735c;--chart-3:#4cbf79;--chart-4:#4ea4ee;--chart-5:#e6a845;
-  --chart-muted:#3a3466;
+  --chart-muted:#5a576b;
   --chart-grid:#2a2a30;--chart-axis:#a3a19c;
 }
 
@@ -104,9 +107,9 @@
     --bg:#131315;--surface:#1b1b1e;--surface-2:#232327;--hover:#2a2a2f;
     --line:#2f2f35;--line-strong:#46464d;
     --text:#f2f1ef;--text-2:#c9c7c3;--text-3:#a3a19c;
-    --accent:#6a5ae8;--accent-hover:#7b6cf0;--accent-subtle:#25213f;--accent-ink:#b4a9ff;--on-accent:#ffffff;
+    --accent:#6a5ae8;--accent-hover:#5a4ad6;--accent-subtle:#25213f;--accent-ink:#b4a9ff;--on-accent:#ffffff;
     --focus:0 0 0 3px color-mix(in oklab,var(--accent) 45%,transparent);
-    --ok:#7fd6a0;--ok-bg:#1b3325;--warn:#f2c36e;--warn-bg:#382b16;--bad:#ff9c88;--bad-bg:#3a211c;--info:#86c2f7;--info-bg:#1a2c3f;
+    --ok:#7fd6a0;--ok-bg:#1b3325;--warn:#f2c36e;--warn-bg:#382b16;--bad:#ff9c88;--bad-bg:#3a211c;--info:#86c2f7;--info-bg:#1a2c3f;--warn-fill:#e6a845;--bad-fill:#f0735c;
     --cat-1:#ff9c88;--cat-1-bg:#3a211c;--cat-1-mark:#f0735c;
     --cat-2:#f2c36e;--cat-2-bg:#382b16;--cat-2-mark:#e6a845;
     --cat-3:#7fd6a0;--cat-3-bg:#1b3325;--cat-3-mark:#4cbf79;
@@ -117,7 +120,7 @@
     --shadow-float:0 2px 6px rgb(0 0 0/.3),0 16px 40px rgb(0 0 0/.5);
     --scrim:rgb(0 0 0/.56);
     --chart-1:#7b6cf0;--chart-2:#f0735c;--chart-3:#4cbf79;--chart-4:#4ea4ee;--chart-5:#e6a845;
-    --chart-muted:#3a3466;
+    --chart-muted:#5a576b;
     --chart-grid:#2a2a30;--chart-axis:#a3a19c;
   }
 }

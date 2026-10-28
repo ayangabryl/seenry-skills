@@ -72,7 +72,26 @@
   function initDemos(root){all('[data-toast-message]',root).forEach(b=>{if(b.dataset.uiDemoReady)return;b.dataset.uiDemoReady='true';b.addEventListener('click',()=>toast(b.dataset.toastMessage,{description:b.dataset.toastDescription||''}));});all('[data-number-target]',root).forEach(b=>{if(b.dataset.uiDemoReady)return;b.dataset.uiDemoReady='true';b.addEventListener('click',()=>{const el=document.getElementById(b.dataset.numberTarget);if(el)number(el,Number(el.dataset.next||'18642'),{style:'currency',currency:'USD',maximumFractionDigits:0});});});}
   function initGallerySwitch(root){all('[data-gallery-switch]',root).forEach(group=>{if(group.dataset.uiGalleryReady)return;group.dataset.uiGalleryReady='true';group.addEventListener('click',e=>{const button=e.target.closest('[data-gallery-value]');if(button)document.body.dataset.galleryView=button.dataset.galleryValue;});});}
   function initGalleryJump(root){all('[data-gallery-jump]',root).forEach(select=>{if(select.dataset.uiGalleryReady)return;select.dataset.uiGalleryReady='true';select.addEventListener('change',()=>{const id=select.value+(document.body.dataset.galleryView==='dark'?'-dark':'');document.getElementById(id)?.scrollIntoView({behavior:reduced()?'instant':'smooth',block:'start'});});});}
-  function init(root=document){if(root===document)initGallery();initTabs(root);initSegmented(root);initMenus(root);initTooltips(root);initDialogs(root);initTables(root);initCommand(root);initDemos(root);initGallerySwitch(root);initGalleryJump(root);}
+  // Phone navigation: [data-nav-toggle] opens the closest .ui-shell's sidebar (data-nav-open); outside click and Escape close it and return focus.
+  function initNav(root){all('[data-nav-toggle]',root).forEach(toggle=>{if(toggle.dataset.uiReady)return;toggle.dataset.uiReady='true';const shell=toggle.closest('.ui-shell');if(!shell)return;
+    const set=open=>{shell.toggleAttribute('data-nav-open',open);all('[data-nav-toggle]',shell).forEach(t=>t.setAttribute('aria-expanded',String(open)));if(open)(shell.querySelector('.ui-sidebar a,.ui-sidebar button')||shell.querySelector('.ui-sidebar'))?.focus();};
+    toggle.setAttribute('aria-expanded','false');
+    toggle.addEventListener('click',e=>{e.stopPropagation();set(!shell.hasAttribute('data-nav-open'));});
+    document.addEventListener('click',e=>{if(shell.hasAttribute('data-nav-open')&&!e.target.closest('.ui-sidebar'))set(false);});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&shell.hasAttribute('data-nav-open')){set(false);toggle.focus();}});
+  });}
+  // Range sliders publish their position as --fill (0-100%) and mirror the value into an <output for>.
+  function initSliders(root){all('input[type=range]',root).forEach(input=>{if(input.dataset.uiReady)return;input.dataset.uiReady='true';
+    const out=input.id?document.querySelector('output[for~="'+input.id+'"]'):null;
+    const sync=()=>{const min=+input.min||0,max=+(input.max||100);input.style.setProperty('--fill',((input.value-min)/(max-min)*100)+'%');if(out)out.textContent=input.dataset.format?input.dataset.format.replace('{}',input.value):input.value;};
+    input.addEventListener('input',sync);sync();});}
+  // [data-copy] copies the text of the element it names (a selector), or of the nearest code block, and says so for 1.6s.
+  function initCopy(root){all('[data-copy]',root).forEach(button=>{if(button.dataset.uiReady)return;button.dataset.uiReady='true';
+    button.addEventListener('click',async()=>{const sel=button.dataset.copy;const source=sel&&sel!=='true'?document.querySelector(sel):button.closest('.ui-code')?.querySelector('code,pre');
+      const text=source?source.innerText:'';try{await navigator.clipboard.writeText(text);}catch{return;}
+      const label=button.getAttribute('aria-label');button.dataset.copied='';button.setAttribute('aria-label','Copied');toast?.('Copied to clipboard');
+      setTimeout(()=>{delete button.dataset.copied;if(label)button.setAttribute('aria-label',label);else button.removeAttribute('aria-label');},1600);});});}
+  function init(root=document){if(root===document)initGallery();initNav(root);initSliders(root);initCopy(root);initTabs(root);initSegmented(root);initMenus(root);initTooltips(root);initDialogs(root);initTables(root);initCommand(root);initDemos(root);initGallerySwitch(root);initGalleryJump(root);}
   window.SeenryUI={init,toast,number,swap,pop};window.SeenryMotion=Object.assign({toast,number,swap,pop},window.SeenryMotion||{});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>init());else init();
 })();

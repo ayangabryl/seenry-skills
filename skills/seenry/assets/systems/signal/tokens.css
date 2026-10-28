@@ -9,6 +9,7 @@
   --surface:#11151a;
   --surface-2:#171c22;
   --hover:#1d232a;
+  --selected:#1a2436;
   --line:#232a32;
   --line-strong:#38424d;
   --text:#e8ecf1;
@@ -105,6 +106,13 @@
   --chart-axis-w:52px;
   --chart-tag-w:96px;
   --chart-tag-w-phone:76px;
+  --bar-h:4px;
+  --thumb:12px;
+  --step-gap:8px;
+  --auth-w:380px;
+  --code-max-h:280px;
+  --gallery-nav-w:232px;
+  --gallery-swatch:40px;
 
   --chart-1:#2f62ff;
   --chart-2:#8b95a1;
@@ -122,6 +130,7 @@
     --surface:#ffffff;
     --surface-2:#f0f2f5;
     --hover:#e9ecf0;
+    --selected:#e3e9f6;
     --line:#dfe3e8;
     --line-strong:#c3cad3;
     --text:#0d1117;
@@ -160,6 +169,7 @@
   --surface:#ffffff;
   --surface-2:#f0f2f5;
   --hover:#e9ecf0;
+  --selected:#e3e9f6;
   --line:#dfe3e8;
   --line-strong:#c3cad3;
   --text:#0d1117;
@@ -197,6 +207,7 @@
   --surface:#11151a;
   --surface-2:#171c22;
   --hover:#1d232a;
+  --selected:#1a2436;
   --line:#232a32;
   --line-strong:#38424d;
   --text:#e8ecf1;

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · Commons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .providers{display:grid;gap:var(--space-2)}
+  .label-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3)}
+  .label-row a{font:var(--type-small);font-weight:600}
+  @media (max-width:48em){.label-row{align-items:center}.label-row a{display:inline-flex;align-items:center;min-height:var(--touch)}}
+  .ui-auth .ui-tab-panel{display:grid;gap:var(--space-5);padding-top:0}
+  .ui-auth .ui-tab-panel[hidden]{display:none}
+  .ui-auth .ui-tabs [role=tab]{flex:1}
+</style>
+</head>
+<body>
+<main class="ui-auth">
+  <section aria-labelledby="auth-title">
+    <header>
+      <span class="ui-avatar" data-size="lg" data-shape="square" aria-hidden="true">C</span>
+      <h1 id="auth-title">Welcome back to Commons</h1>
+      <p>Halftone School · spring cohort</p>
+    </header>
+
+    <div class="ui-tabs" role="tablist" aria-label="Account">
+      <button role="tab" id="t-in" aria-selected="true" aria-controls="p-in">Sign in</button>
+      <button role="tab" id="t-up" aria-selected="false" aria-controls="p-up">Create account</button>
+    </div>
+
+    <div class="ui-tab-panel" role="tabpanel" id="p-in" aria-labelledby="t-in">
+      <div class="providers">
+        <button class="ui-button" data-size="lg"><i class="ph-bold ph-google-logo" aria-hidden="true"></i>Continue with Google</button>
+        <button class="ui-button" data-size="lg"><i class="ph-bold ph-key" aria-hidden="true"></i>Continue with school SSO</button>
+      </div>
+      <div role="separator">or with email</div>
+      <div class="ui-alert" data-status="bad" role="alert">
+        <i class="ph-duotone ph-warning-circle" aria-hidden="true"></i>
+        <p>That password does not match <strong>priya@halftone.school</strong>. 2 tries left before a 10 minute pause.</p>
+      </div>
+      <form>
+        <label class="ui-field"><span class="ui-label">Email</span><input class="ui-input" type="email" value="priya@halftone.school" autocomplete="email"></label>
+        <div class="ui-field" data-invalid>
+          <span class="label-row"><label class="ui-label" for="pw">Password</label><a href="#">Forgot password?</a></span>
+          <input class="ui-input" id="pw" type="password" value="hunter-two" aria-invalid="true" aria-describedby="pw-error" autocomplete="current-password">
+          <span class="ui-error" id="pw-error">Check the password and try again.</span>
+        </div>
+        <label class="ui-choice"><input type="checkbox" checked><span>Keep me signed in on this device</span></label>
+        <button class="ui-button" data-variant="primary" data-size="lg" type="submit">Sign in</button>
+      </form>
+    </div>
+
+    <div class="ui-tab-panel" role="tabpanel" id="p-up" aria-labelledby="t-up" hidden>
+      <div class="providers">
+        <button class="ui-button" data-size="lg"><i class="ph-bold ph-google-logo" aria-hidden="true"></i>Sign up with Google</button>
+      </div>
+      <div role="separator">or with email</div>
+      <form>
+        <label class="ui-field"><span class="ui-label">Full name</span><input class="ui-input" autocomplete="name" placeholder="Priya Raman"></label>
+        <label class="ui-field"><span class="ui-label">Work email</span><input class="ui-input" type="email" autocomplete="email" placeholder="you@school.org"></label>
+        <label class="ui-field"><span class="ui-label">Password</span><input class="ui-input" type="password" autocomplete="new-password" aria-describedby="pw-help"><span class="ui-help" id="pw-help">At least 10 characters.</span></label>
+        <button class="ui-button" data-variant="primary" data-size="lg" type="submit">Create account</button>
+      </form>
+      <p><small>By creating an account you agree to the <a href="#">Terms</a> and <a href="#">Privacy policy</a>.</small></p>
+    </div>
+  </section>
+  <p>New to Commons? Schools start with a <a href="#">free 30-day trial</a>.</p>
+</main>
+</body>
+</html>

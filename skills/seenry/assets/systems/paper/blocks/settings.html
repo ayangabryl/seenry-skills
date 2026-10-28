@@ -151,12 +151,6 @@
 </div>
 <script>
   (() => {
-    const shell = document.getElementById('shell');
-    const toggle = shell.querySelector('[data-nav-toggle]');
-    const set = open => { shell.dataset.nav = open ? 'open' : ''; toggle.setAttribute('aria-expanded', String(open)); };
-    toggle.addEventListener('click', () => set(shell.dataset.nav !== 'open'));
-    shell.addEventListener('click', e => { if (shell.dataset.nav === 'open' && !e.target.closest('.ui-sidebar, [data-nav-toggle]')) set(false); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && shell.dataset.nav === 'open') { set(false); toggle.focus(); } });
     document.getElementById('appearance').addEventListener('seenry:change', e => {
       const v = e.detail.value;
       if (v === 'system') document.documentElement.removeAttribute('data-theme');

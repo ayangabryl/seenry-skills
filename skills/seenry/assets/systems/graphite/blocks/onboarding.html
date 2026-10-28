@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get started · Halyard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Primary">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, current Northbeam">
+      <span class="ui-workspace-mark" aria-hidden="true">N</span>
+      <span>Northbeam</span>
+      <i data-lucide="chevrons-up-down"></i>
+    </button>
+    <div class="ui-quick">
+      <button class="ui-button" type="button"><i data-lucide="search"></i>Search<span class="ui-kbd">⌘K</span></button>
+      <button class="ui-button" type="button" data-icon aria-label="New run"><i data-lucide="square-pen"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html" aria-current="page"><i data-lucide="house"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="inbox"></i>Review queue</a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="activity"></i>Runs</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-workspace">
+      <span class="ui-nav-label" id="nav-workspace">Workspace</span>
+      <a class="ui-nav-item" href="#"><i data-lucide="plug"></i>Integrations</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="book-open"></i>Knowledge</a>
+      <a class="ui-nav-item" href="billing.html"><i data-lucide="credit-card"></i>Billing</a>
+      <a class="ui-nav-item" href="settings.html"><i data-lucide="settings"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MR</span>
+      <span>Maya Ruiz<small>Admin</small></span>
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Help"><i data-lucide="circle-help"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Northbeam</a></li><li aria-current="page">Get started</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Notifications"><i data-lucide="bell"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-main" data-narrow>
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Welcome to Halyard, Maya</h1>
+          <p class="ui-page-sub">Set up Northbeam in four steps. Most teams finish in about five minutes.</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" type="button" data-variant="ghost">Skip setup</button>
+        </div>
+      </div>
+
+      <section class="ui-card ui-setup" aria-labelledby="q-title">
+        <ol class="ui-steps" aria-label="Setup progress">
+          <li class="ui-step"><span>Workspace</span></li>
+          <li class="ui-step" aria-current="step"><span>Connect apps</span></li>
+          <li class="ui-step"><span>First agent</span></li>
+          <li class="ui-step"><span>Invite team</span></li>
+        </ol>
+        <fieldset class="ui-setup-question">
+          <legend><h2 id="q-title">Which apps should agents work in?</h2><p>Halyard reads and writes through these. You choose what each agent may touch later.</p></legend>
+          <div class="ui-grid" data-cols="2">
+<label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span><span><span>HubSpot</span><small>Contacts, companies, lists</small></span><input type="checkbox" name="apps" value="hubspot" checked></label>
+<label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="salesforce"></span></span><span><span>Salesforce</span><small>Accounts, opportunities</small></span><input type="checkbox" name="apps" value="salesforce" checked></label>
+<label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="slack"></span></span><span><span>Slack</span><small>Alerts and review requests</small></span><input type="checkbox" name="apps" value="slack" checked></label>
+<label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="gmail"></span></span><span><span>Gmail</span><small>Drafts and follow-ups</small></span><input type="checkbox" name="apps" value="gmail"></label>
+<label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="intercom"></span></span><span><span>Intercom</span><small>Conversations and tags</small></span><input type="checkbox" name="apps" value="intercom"></label>
+<label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="googlesheets"></span></span><span><span>Google Sheets</span><small>Reports and exports</small></span><input type="checkbox" name="apps" value="googlesheets"></label>
+          </div>
+        </fieldset>
+        <div class="ui-setup-foot">
+          <span class="ui-list-meta">Step 2 of 4 · 3 apps selected</span>
+          <button class="ui-button" type="button" data-variant="ghost">Back</button>
+          <button class="ui-button" type="button" data-variant="primary">Connect 3 apps<i data-lucide="arrow-right"></i></button>
+        </div>
+      </section>
+
+      <section class="ui-section" aria-labelledby="agents-title">
+        <div class="ui-section-head"><h2 id="agents-title">Agents</h2><span class="ui-list-meta">What you will see after setup</span></div>
+        <div class="ui-card ui-empty">
+          <span class="ui-logo-tile" aria-hidden="true"><i data-lucide="bot"></i></span>
+          <h3>No agents yet</h3>
+          <p>Agents you create appear here with their runs, spend and anything waiting on a person.</p>
+          <button class="ui-button" type="button"><i data-lucide="layout-template"></i>Browse templates</button>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="../../../components/ui/seenry-ui.js"></script>
+<script>
+lucide.createIcons();
+</script>
+</body>
+</html>

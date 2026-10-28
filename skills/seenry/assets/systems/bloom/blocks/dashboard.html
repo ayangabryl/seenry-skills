@@ -13,25 +13,43 @@
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="../../../components/ui/seenry-ui.js" defer></script>
 <style>
-  .dash-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:var(--space-5);margin-block:var(--space-5)}
-  .dash-grid>.ui-section:first-child{display:flex;flex-direction:column}
+  .dash-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--space-5);margin-block:var(--space-5)}
+  .dash-grid>.ui-section:last-child{display:flex;flex-direction:column}
   .dash-grid .ui-chart{flex:1;grid-template-rows:minmax(var(--chart-h),1fr) auto}
   .today time{display:block;min-width:calc(var(--space-8) + var(--space-1));font:var(--type-label);font-weight:600;color:var(--text)}
   .today time small{display:block;font:var(--type-small);color:var(--text-3)}
-  .today .ui-list-item{align-items:stretch}
-  .today .ui-list-item>div{align-self:center}
-  .today .ui-avatar{align-self:center}
   .who{display:flex;align-items:center;gap:var(--space-2);font-weight:500;color:var(--text-2)}
   .course{display:flex;align-items:center;gap:var(--space-3)}
+  .ui-chart-axis .now{color:var(--text);font-weight:600}
+  .cohort{width:calc(var(--sidebar-w) + var(--space-8));margin-top:var(--space-3)}
+  .ui-stat small a{color:var(--accent-ink);font-weight:600;text-decoration:none}
+  .ui-stat small a:hover{text-decoration:underline}
+  @media (max-width:48em){.today .ui-list-item>div>span{white-space:normal}.today .ui-list-item{padding-block:var(--space-3)}.ui-stat small a{display:inline-flex;align-items:center;min-height:var(--touch)}}
+  .assign{color:var(--accent-ink)}
+  .open-seat{width:var(--avatar-sm);height:var(--avatar-sm);border:var(--hairline) dashed var(--line-strong);border-radius:50%}
   @media (max-width:64em){.dash-grid{grid-template-columns:minmax(0,1fr)}}
+  @media (max-width:48em){
+    #courses thead{display:none}
+    #courses,#courses tbody{display:block}
+    #courses tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name status" "bar bar" "next next";gap:var(--space-2) var(--space-3);padding:var(--space-4);border-bottom:var(--hairline) solid var(--line)}
+    #courses tr:last-child{border-bottom:0}
+    #courses td{display:block;height:auto;padding:0;border:0;white-space:normal}
+    #courses td:nth-child(1){grid-area:name}
+    #courses td:nth-child(2),#courses td:nth-child(3){display:none}
+    #courses td:nth-child(4){grid-area:next;font:var(--type-small);color:var(--text-3)}
+    #courses td:nth-child(4)::before{content:"Next session: "}
+    #courses td:nth-child(5){grid-area:bar}
+    #courses td:nth-child(5) .ui-progress{width:100%}
+    #courses td:nth-child(6){grid-area:status}
+  }
 </style>
 </head>
 <body>
 <div class="ui-shell">
-  <aside class="ui-sidebar" aria-label="Workspace">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
     <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School">
       <span class="ui-avatar" data-shape="square" aria-hidden="true">H</span>
-      <span>Halftone School<small>Spring cohort</small></span>
+      <span>Halftone School<small>Commons workspace</small></span>
       <i class="ph-bold ph-caret-up-down" aria-hidden="true"></i>
     </button>
     <nav class="ui-nav" aria-label="Main">
@@ -59,68 +77,31 @@
 
   <main>
     <header class="ui-topbar">
-      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-label="Open navigation" aria-expanded="false"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
-      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Halftone School</a></li><li aria-current="page">Overview</li></ol></nav>
-      <div class="ui-topbar-actions">
-        <button class="ui-button ui-search" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
-        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
-      </div>
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+      <button class="ui-button" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
     </header>
 
-    <div class="ui-content">
+    <div>
       <div class="ui-page-header">
         <div>
           <h1 class="ui-page-title">Overview</h1>
           <p class="ui-page-sub">Spring cohort, week 7 of 12 · Wednesday, October 28</p>
+          <span class="ui-progress cohort" data-shape="segments"><progress max="12" value="6.4" aria-label="Spring cohort, week 7 of 12">Week 7 of 12</progress></span>
         </div>
         <div class="ui-page-actions">
-          <button class="ui-button"><i class="ph-bold ph-user-plus" aria-hidden="true"></i>Invite learners</button>
+          <button class="ui-button" data-variant="ghost"><i class="ph-bold ph-user-plus" aria-hidden="true"></i>Invite learners</button>
           <button class="ui-button" data-variant="primary"><i class="ph-bold ph-plus" aria-hidden="true"></i>Schedule session</button>
         </div>
       </div>
 
       <div class="ui-stat-strip">
-        <dl class="ui-stat"><dt><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Active learners</dt><dd>184</dd><small><b>+12</b> since last week</small></dl>
-        <dl class="ui-stat"><dt><i class="ph-duotone ph-check-circle" aria-hidden="true"></i>Average completion</dt><dd>62%</dd><small><b>+7 pts</b> since week 5</small></dl>
-        <dl class="ui-stat"><dt><i class="ph-duotone ph-calendar-check" aria-hidden="true"></i>Sessions this week</dt><dd>14</dd><small>5 today, 3 still need a host</small></dl>
+        <dl class="ui-stat"><dt><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Active learners</dt><dd>184</dd><small><b>+12</b> since week 6</small></dl>
+        <dl class="ui-stat"><dt><i class="ph-duotone ph-check-circle" aria-hidden="true"></i>Average completion</dt><dd>62%</dd><small><b>+4 pts</b> since week 6 · 2 courses under 60%</small></dl>
+        <dl class="ui-stat"><dt><i class="ph-duotone ph-calendar-check" aria-hidden="true"></i>Sessions this week</dt><dd>14</dd><small>5 today · <a href="list-detail.html">3 need a host</a></small></dl>
       </div>
 
       <div class="dash-grid">
-        <section class="ui-section" aria-labelledby="activity-title">
-          <div class="ui-section-head">
-            <div>
-              <h2 id="activity-title">Weekly activity</h2>
-              <p>Posts, replies and check-ins across all courses</p>
-            </div>
-            <ul class="ui-chart-legend">
-              <li><span class="ui-mark" data-shape="square" data-cat="accent"></span>Completed week</li>
-              <li><span class="ui-mark" data-shape="square" data-cat="muted"></span>This week so far</li>
-            </ul>
-          </div>
-          <figure class="ui-chart" role="img" aria-label="Weekly activity for the last 12 weeks, rising from 212 in the week of August 10 to 498 in the week of October 19. 214 so far this week.">
-            <div class="ui-chart-axis" data-axis="y" aria-hidden="true"><span style="--p:0">600</span><span style="--p:33.333">400</span><span style="--p:66.667">200</span><span style="--p:100">0</span></div>
-            <svg viewBox="0 0 120 100" preserveAspectRatio="none" aria-hidden="true">
-              <line data-role="grid" x1="0" x2="120" y1="0" y2="0" vector-effect="non-scaling-stroke"/>
-              <line data-role="grid" x1="0" x2="120" y1="33.333" y2="33.333" vector-effect="non-scaling-stroke"/>
-              <line data-role="grid" x1="0" x2="120" y1="66.667" y2="66.667" vector-effect="non-scaling-stroke"/>
-              <rect data-series="1" x="2.2" y="64.67" width="5.6" height="35.33"><title>Aug 10: 212</title></rect>
-              <rect data-series="1" x="12.2" y="58.67" width="5.6" height="41.33"><title>Aug 17: 248</title></rect>
-              <rect data-series="1" x="22.2" y="49.83" width="5.6" height="50.17"><title>Aug 24: 301</title></rect>
-              <rect data-series="1" x="32.2" y="40.67" width="5.6" height="59.33"><title>Aug 31: 356</title></rect>
-              <rect data-series="1" x="42.2" y="43" width="5.6" height="57"><title>Sep 7: 342</title></rect>
-              <rect data-series="1" x="52.2" y="35.17" width="5.6" height="64.83"><title>Sep 14: 389</title></rect>
-              <rect data-series="1" x="62.2" y="31.33" width="5.6" height="68.67"><title>Sep 21: 412</title></rect>
-              <rect data-series="1" x="72.2" y="37.17" width="5.6" height="62.83"><title>Sep 28: 377</title></rect>
-              <rect data-series="1" x="82.2" y="27.33" width="5.6" height="72.67"><title>Oct 5: 436</title></rect>
-              <rect data-series="1" x="92.2" y="23.17" width="5.6" height="76.83"><title>Oct 12: 461</title></rect>
-              <rect data-series="1" x="102.2" y="17" width="5.6" height="83"><title>Oct 19: 498</title></rect>
-              <rect data-series="muted" x="112.2" y="64.33" width="5.6" height="35.67"><title>Oct 26, so far: 214</title></rect>
-              <line data-role="baseline" x1="0" x2="120" y1="100" y2="100" vector-effect="non-scaling-stroke"/>
-            </svg>
-            <div class="ui-chart-axis" data-axis="x" aria-hidden="true"><span>Aug 10</span><span>17</span><span>24</span><span>31</span><span>Sep 7</span><span>14</span><span>21</span><span>28</span><span>Oct 5</span><span>12</span><span>19</span><span>26</span></div>
-          </figure>
-        </section>
-
         <section class="ui-section today" aria-labelledby="today-title">
           <div class="ui-section-head">
             <div>
@@ -132,54 +113,78 @@
           <ul class="ui-list">
             <li class="ui-list-item">
               <time datetime="09:30">9:30<small>45 min</small></time>
-              <span class="ui-mark" data-shape="edge" data-cat="4"></span>
-              <div><span>Studio critique: onboarding flows</span><span class="ui-list-meta">Foundations · Room 2</span></div>
+              <div><span>Studio critique: onboarding flows</span><span class="ui-list-meta"><span class="ui-mark" data-cat="4"></span>Foundations · Room 2</span></div>
               <span class="ui-avatar" data-cat="4" aria-label="Maya Okafor">MO</span>
             </li>
             <li class="ui-list-item">
               <time datetime="11:00">11:00<small>60 min</small></time>
-              <span class="ui-mark" data-shape="edge" data-cat="3"></span>
-              <div><span>Office hours with Daniel</span><span class="ui-list-meta">Research Methods · Zoom</span></div>
+              <div><span>Office hours with Daniel</span><span class="ui-list-meta"><span class="ui-mark" data-cat="3"></span>Research Methods · Zoom</span></div>
               <span class="ui-avatar" data-cat="3" aria-label="Daniel Reyes">DR</span>
             </li>
             <li class="ui-list-item">
               <time datetime="13:30">13:30<small>90 min</small></time>
-              <span class="ui-mark" data-shape="edge" data-cat="1"></span>
-              <div><span>Motion workshop: easing and timing</span><span class="ui-list-meta">Interaction &amp; Motion · Studio 2</span></div>
+              <div><span>Motion workshop: easing and timing</span><span class="ui-list-meta"><span class="ui-mark" data-cat="1"></span>Interaction &amp; Motion · Studio 2</span></div>
               <span class="ui-avatar" data-cat="1" aria-label="Lena Fischer">LF</span>
             </li>
             <li class="ui-list-item">
               <time datetime="16:00">16:00<small>2 h</small></time>
-              <span class="ui-mark" data-shape="edge" data-cat="2"></span>
-              <div><span>Portfolio reviews, 1:1 slots</span><span class="ui-list-meta">Portfolio Studio · 6 of 8 booked</span></div>
+              <div><span>Portfolio reviews, 1:1 slots</span><span class="ui-list-meta"><span class="ui-mark" data-cat="2"></span>Portfolio Studio · 6 of 8 booked</span></div>
               <span class="ui-avatar" data-cat="2" aria-label="Sam Whitfield">SW</span>
             </li>
             <li class="ui-list-item">
               <time datetime="18:30">18:30<small>60 min</small></time>
-              <span class="ui-mark" data-shape="edge" data-cat="5"></span>
-              <div><span>Type club: variable fonts</span><span class="ui-list-meta">Community · Library</span></div>
-              <span class="ui-status" data-status="warn">No host</span>
+              <div><span>Type club: variable fonts</span><span class="ui-list-meta"><span class="ui-mark" data-cat="5"></span>Community · Library</span></div>
+              <button class="ui-button assign" data-variant="ghost" data-size="sm"><span class="open-seat" aria-hidden="true"></span>Assign host</button>
             </li>
           </ul>
+        </section>
+
+        <section class="ui-section" aria-labelledby="activity-title">
+          <div class="ui-section-head">
+            <h2 id="activity-title">Check-ins per week</h2>
+            <ul class="ui-chart-legend">
+              <li><span class="ui-mark" data-shape="square" data-cat="muted"></span>Past weeks</li>
+              <li><span class="ui-mark" data-shape="square" data-cat="accent"></span>Week 7, so far</li><li><span class="ui-mark" data-shape="square" data-cat="empty"></span>Upcoming</li>
+            </ul>
+          </div>
+          <figure class="ui-chart" role="img" aria-label="Session check-ins per cohort week. Week 1 212, week 2 268, week 3 301, week 4 164 during spring break, week 5 356, week 6 412. Week 7 so far 214; weeks 8 to 12 are still to come.">
+            <div class="ui-chart-axis" data-axis="y" aria-hidden="true"><span style="--p:0">450</span><span style="--p:33.333">300</span><span style="--p:66.667">150</span><span style="--p:100">0</span></div>
+            <svg viewBox="0 0 120 100" preserveAspectRatio="none" aria-hidden="true">
+              <line data-role="grid" x1="0" x2="120" y1="0" y2="0" vector-effect="non-scaling-stroke"/>
+              <line data-role="grid" x1="0" x2="120" y1="33.333" y2="33.333" vector-effect="non-scaling-stroke"/>
+              <line data-role="grid" x1="0" x2="120" y1="66.667" y2="66.667" vector-effect="non-scaling-stroke"/>
+              <rect data-series="past" x="2.8" y="52.89" width="4.4" height="47.11"><title>Week 1: 212</title></rect>
+              <rect data-series="past" x="12.8" y="40.44" width="4.4" height="59.56"><title>Week 2: 268</title></rect>
+              <rect data-series="past" x="22.8" y="33.11" width="4.4" height="66.89"><title>Week 3: 301</title></rect>
+              <rect data-series="past" x="32.8" y="63.56" width="4.4" height="36.44"><title>Week 4, spring break: 164</title></rect>
+              <rect data-series="past" x="42.8" y="20.89" width="4.4" height="79.11"><title>Week 5: 356</title></rect>
+              <rect data-series="past" x="52.8" y="8.44" width="4.4" height="91.56"><title>Week 6: 412</title></rect>
+              <rect data-series="1" x="62.8" y="52.44" width="4.4" height="47.56"><title>Week 7, so far: 214</title></rect>
+              <rect data-series="empty" x="72.8" y="96" width="4.4" height="4"><title>Week 8, upcoming</title></rect>
+              <rect data-series="empty" x="82.8" y="96" width="4.4" height="4"><title>Week 9, upcoming</title></rect>
+              <rect data-series="empty" x="92.8" y="96" width="4.4" height="4"><title>Week 10, upcoming</title></rect>
+              <rect data-series="empty" x="102.8" y="96" width="4.4" height="4"><title>Week 11, upcoming</title></rect>
+              <rect data-series="empty" x="112.8" y="96" width="4.4" height="4"><title>Week 12, upcoming</title></rect>
+              <line data-role="baseline" x1="0" x2="120" y1="100" y2="100" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <div class="ui-chart-axis" data-axis="x" aria-hidden="true"><span>Wk 1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span class="now">7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span></div>
+          </figure>
         </section>
       </div>
 
       <section class="ui-section" aria-labelledby="courses-title">
         <div class="ui-section-head">
-          <div>
-            <h2 id="courses-title">Courses</h2>
-            <p>Completion counts finished lessons and submitted projects</p>
-          </div>
+          <h2 id="courses-title">Courses</h2>
           <a href="#">View all courses</a>
         </div>
         <div class="ui-table-wrap">
           <table class="ui-table" data-ui-table id="courses">
             <thead><tr><th scope="col" data-sort>Course</th><th scope="col">Lead</th><th scope="col" class="num" data-sort>Learners</th><th scope="col">Next session</th><th scope="col" data-sort>Completion</th><th scope="col">Status</th></tr></thead>
             <tbody>
-              <tr><td data-sort="Product Design Foundations"><span class="course"><span class="ui-mark" data-cat="4"></span>Product Design Foundations</span></td><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="4" aria-hidden="true">MO</span>Maya Okafor</span></td><td class="num">62</td><td>Today, 9:30</td><td data-sort="74"><span class="ui-meter"><progress class="ui-progress" max="100" value="74" aria-label="Product Design Foundations completion">74%</progress><b>74%</b></span></td><td><span class="ui-status" data-status="ok">On track</span></td></tr>
-              <tr><td data-sort="Interaction and Motion"><span class="course"><span class="ui-mark" data-cat="1"></span>Interaction &amp; Motion</span></td><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="1" aria-hidden="true">LF</span>Lena Fischer</span></td><td class="num">48</td><td>Today, 13:30</td><td data-sort="66"><span class="ui-meter"><progress class="ui-progress" max="100" value="66" aria-label="Interaction and Motion completion">66%</progress><b>66%</b></span></td><td><span class="ui-status" data-status="ok">On track</span></td></tr>
-              <tr><td data-sort="Research Methods"><span class="course"><span class="ui-mark" data-cat="3"></span>Research Methods</span></td><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="3" aria-hidden="true">DR</span>Daniel Reyes</span></td><td class="num">41</td><td>Thu, 10:00</td><td data-sort="58"><span class="ui-meter"><progress class="ui-progress" max="100" value="58" aria-label="Research Methods completion">58%</progress><b>58%</b></span></td><td><span class="ui-status" data-status="warn">Needs attention</span></td></tr>
-              <tr><td data-sort="Portfolio Studio"><span class="course"><span class="ui-mark" data-cat="2"></span>Portfolio Studio</span></td><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="2" aria-hidden="true">SW</span>Sam Whitfield</span></td><td class="num">33</td><td>Today, 16:00</td><td data-sort="41"><span class="ui-meter"><progress class="ui-progress" max="100" value="41" aria-label="Portfolio Studio completion">41%</progress><b>41%</b></span></td><td><span class="ui-status" data-status="bad">Behind by 2 weeks</span></td></tr>
+              <tr><td data-sort="Product Design Foundations"><span class="course"><span class="ui-mark" data-cat="4"></span>Product Design Foundations</span></td><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="4" aria-hidden="true">MO</span>Maya Okafor</span></td><td class="num">62</td><td>Today, 9:30</td><td data-sort="81"><span class="ui-progress"><progress max="100" value="81" aria-label="Product Design Foundations completion">81%</progress><b>81%</b></span></td><td><span class="ui-status" data-status="ok"><i class="ph-bold ph-check-circle" aria-hidden="true"></i>On track</span></td></tr>
+              <tr><td data-sort="Interaction and Motion"><span class="course"><span class="ui-mark" data-cat="1"></span>Interaction &amp; Motion</span></td><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="1" aria-hidden="true">LF</span>Lena Fischer</span></td><td class="num">48</td><td>Today, 13:30</td><td data-sort="66"><span class="ui-progress"><progress max="100" value="66" aria-label="Interaction and Motion completion">66%</progress><b>66%</b></span></td><td><span class="ui-status" data-status="ok"><i class="ph-bold ph-check-circle" aria-hidden="true"></i>On track</span></td></tr>
+              <tr><td data-sort="Research Methods"><span class="course"><span class="ui-mark" data-cat="3"></span>Research Methods</span></td><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="3" aria-hidden="true">DR</span>Daniel Reyes</span></td><td class="num">41</td><td>Thu, 10:00</td><td data-sort="47"><span class="ui-progress"><progress max="100" value="47" aria-label="Research Methods completion">47%</progress><b>47%</b></span></td><td><span class="ui-status" data-status="warn"><i class="ph-bold ph-warning" aria-hidden="true"></i>Needs attention</span></td></tr>
+              <tr><td data-sort="Portfolio Studio"><span class="course"><span class="ui-mark" data-cat="2"></span>Portfolio Studio</span></td><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="2" aria-hidden="true">SW</span>Sam Whitfield</span></td><td class="num">33</td><td>Today, 16:00</td><td data-sort="41"><span class="ui-progress"><progress max="100" value="41" aria-label="Portfolio Studio completion">41%</progress><b>41%</b></span></td><td><span class="ui-status" data-status="bad"><i class="ph-bold ph-clock-countdown" aria-hidden="true"></i>Behind by 2 weeks</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -200,10 +205,5 @@
   <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
 </dialog>
 
-<script>
-  document.querySelectorAll('[data-nav-toggle]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const s=b.closest('.ui-shell'),open=!s.hasAttribute('data-nav-open');s.toggleAttribute('data-nav-open',open);b.setAttribute('aria-expanded',String(open))}));
-  document.addEventListener('click',e=>{const s=document.querySelector('.ui-shell[data-nav-open]');if(s&&!e.target.closest('.ui-sidebar')){s.removeAttribute('data-nav-open');s.querySelector('[data-nav-toggle]').setAttribute('aria-expanded','false')}});
-  document.addEventListener('keydown',e=>{const s=document.querySelector('.ui-shell[data-nav-open]');if(e.key==='Escape'&&s){s.removeAttribute('data-nav-open');s.querySelector('[data-nav-toggle]').focus()}});
-</script>
 </body>
 </html>

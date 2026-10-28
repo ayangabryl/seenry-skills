@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -28,13 +28,18 @@
       <a class="ui-nav-item" href="#"><i class="ri-stack-line"></i>Services<span class="ui-nav-count">7</span></a>
       <a class="ui-nav-item" href="#"><i class="ri-file-list-3-line"></i>Logs</a>
       <a class="ui-nav-item" href="#"><i class="ri-line-chart-line"></i>Metrics</a>
-      <a class="ui-nav-item" href="#"><i class="ri-alarm-warning-line"></i>Alerts<span class="ui-nav-count" data-tone="bad">2</span></a>
+      <a class="ui-nav-item" href="detail.html"><i class="ri-alarm-warning-line"></i>Incidents<span class="ui-nav-count">1</span></a>
     </nav>
     <nav class="ui-nav" aria-label="Configuration">
       <span class="ui-nav-label">Configuration</span>
       <a class="ui-nav-item" href="#"><i class="ri-key-2-line"></i>Variables</a>
       <a class="ui-nav-item" href="#"><i class="ri-global-line"></i>Domains</a>
       <a class="ui-nav-item" href="settings.html"><i class="ri-settings-3-line"></i>Settings</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Workspace">
+      <span class="ui-nav-label">Workspace</span>
+      <a class="ui-nav-item" href="#"><i class="ri-team-line"></i>Members</a>
+      <a class="ui-nav-item" href="billing.html"><i class="ri-bank-card-line"></i>Billing</a>
     </nav>
     <div class="ui-sidebar-foot">
       <span class="ui-avatar" aria-hidden="true">MO</span>
@@ -43,9 +48,9 @@
     </div>
   </aside>
 
-  <div class="ui-main">
+  <div>
     <header class="ui-topbar">
-      <button class="ui-button ui-menu-button" data-variant="ghost" data-icon aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><i class="ri-menu-line"></i></button>
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ri-menu-line"></i></button>
       <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb">
         <li><a href="#">ledgerline</a></li>
         <li><a href="#">payments-core</a></li>
@@ -58,7 +63,7 @@
       </div>
     </header>
 
-    <main class="ui-content">
+    <main>
       <div class="ui-page-header">
         <div>
           <h1 class="ui-page-title">Deployments</h1>
@@ -79,7 +84,7 @@
       </div>
 
       <div class="signal-pane">
-        <section class="ui-panel" aria-label="Deployment list">
+        <section class="ui-card" aria-label="Deployment list">
           <div class="ui-list" role="listbox" aria-label="Deployments">
             <button class="ui-list-item" role="option" aria-selected="false">
               <i class="ri-git-commit-line" aria-hidden="true"></i>
@@ -141,7 +146,7 @@
             <button role="tab" id="steps-tab" aria-selected="false" aria-controls="steps-panel">Build steps</button>
           </div>
           <div class="ui-tab-panel" role="tabpanel" id="facts-panel" aria-labelledby="facts-tab">
-            <dl class="ui-detail-rows">
+            <dl class="ui-data-list">
               <div class="ui-detail-row"><dt>Service</dt><dd class="mono">api-gateway</dd></div>
               <div class="ui-detail-row"><dt>Commit</dt><dd class="mono"><a href="#">9c2e71b</a><span>main</span></dd></div>
               <div class="ui-detail-row"><dt>Author</dt><dd><span class="ui-avatar" aria-hidden="true">DR</span>Dani Reyes</dd></div>
@@ -167,7 +172,6 @@
   </div>
 </div>
 <script>
-document.querySelector('.ui-menu-button').addEventListener('click',e=>{const b=e.currentTarget;b.setAttribute('aria-expanded',String(b.getAttribute('aria-expanded')!=='true'));});
 document.querySelectorAll('[role=option]').forEach(o=>o.addEventListener('click',()=>{document.querySelectorAll('[role=option]').forEach(x=>x.setAttribute('aria-selected',String(x===o)));}));
 </script>
 </body>

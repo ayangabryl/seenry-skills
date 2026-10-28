@@ -23,10 +23,10 @@
 </head>
 <body>
 <div class="ui-shell">
-  <aside class="ui-sidebar" aria-label="Workspace">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
     <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School">
       <span class="ui-avatar" data-shape="square" aria-hidden="true">H</span>
-      <span>Halftone School<small>Spring cohort</small></span>
+      <span>Halftone School<small>Commons workspace</small></span>
       <i class="ph-bold ph-caret-up-down" aria-hidden="true"></i>
     </button>
     <nav class="ui-nav" aria-label="Main">
@@ -54,15 +54,13 @@
 
   <main>
     <header class="ui-topbar">
-      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-label="Open navigation" aria-expanded="false"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
       <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Halftone School</a></li><li aria-current="page">Settings</li></ol></nav>
-      <div class="ui-topbar-actions">
-        <button class="ui-button ui-search" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
-        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
-      </div>
+      <button class="ui-button" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
     </header>
 
-    <div class="ui-content">
+    <div>
       <div class="settings">
       <div class="ui-page-header">
         <div>
@@ -140,10 +138,5 @@
   <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
 </dialog>
 
-<script>
-  document.querySelectorAll('[data-nav-toggle]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const s=b.closest('.ui-shell'),open=!s.hasAttribute('data-nav-open');s.toggleAttribute('data-nav-open',open);b.setAttribute('aria-expanded',String(open))}));
-  document.addEventListener('click',e=>{const s=document.querySelector('.ui-shell[data-nav-open]');if(s&&!e.target.closest('.ui-sidebar')){s.removeAttribute('data-nav-open');s.querySelector('[data-nav-toggle]').setAttribute('aria-expanded','false')}});
-  document.addEventListener('keydown',e=>{const s=document.querySelector('.ui-shell[data-nav-open]');if(e.key==='Escape'&&s){s.removeAttribute('data-nav-open');s.querySelector('[data-nav-toggle]').focus()}});
-</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,7 +30,7 @@
     </nav>
     <nav class="ui-nav" aria-labelledby="nav-agents">
       <span class="ui-nav-label" id="nav-agents">Agents</span>
-      <a class="ui-nav-item" href="#"><i data-lucide="user-search"></i>Lead enrichment</a>
+      <a class="ui-nav-item" href="detail.html"><i data-lucide="user-search"></i>Lead enrichment</a>
       <a class="ui-nav-item" href="#"><i data-lucide="mail"></i>Inbox triage</a>
       <a class="ui-nav-item" href="#"><i data-lucide="calendar-check"></i>Meeting follow-ups</a>
       <a class="ui-nav-item" href="#"><i data-lucide="trending-down"></i>Churn signals</a>
@@ -41,12 +41,12 @@
       <span class="ui-nav-label" id="nav-workspace">Workspace</span>
       <a class="ui-nav-item" href="#"><i data-lucide="plug"></i>Integrations</a>
       <a class="ui-nav-item" href="#"><i data-lucide="book-open"></i>Knowledge</a>
-      <a class="ui-nav-item" href="#"><i data-lucide="gauge"></i>Usage</a>
+      <a class="ui-nav-item" href="billing.html"><i data-lucide="credit-card"></i>Billing</a>
       <a class="ui-nav-item" href="settings.html"><i data-lucide="settings"></i>Settings</a>
     </nav>
     <div class="ui-sidebar-foot">
       <span class="ui-avatar" aria-hidden="true">MR</span>
-      <span>Maya Ruiz<small>Admin</small></span>
+      <div><span>Maya Ruiz</span><small>Admin</small></div>
       <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Help"><i data-lucide="circle-help"></i></button>
     </div>
   </aside>
@@ -56,7 +56,6 @@
       <button class="ui-button" type="button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation"><i data-lucide="menu"></i></button>
       <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Northbeam</a></li><li><a href="#">Runs</a></li><li aria-current="page">Needs review</li></ol></nav>
       <div class="ui-topbar-actions">
-        <button class="ui-button" type="button" data-variant="ghost" data-size="sm" data-hide-phone>Feedback</button>
         <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Notifications"><i data-lucide="bell"></i></button>
       </div>
     </header>
@@ -160,11 +159,11 @@
 
           <div class="ui-detail-body">
             <h3>Steps</h3>
-            <ol class="ui-steps">
-              <li><span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span><span>Pulled 38 contacts from list<small>hubspot.lists.members</small></span><time>0.8s</time></li>
-              <li><span class="ui-logo-tile"><i data-lucide="globe"></i></span><span>Researched 34 company domains<small>web.search · 4 had no site</small></span><time>2m 41s</time></li>
-              <li><span class="ui-logo-tile"><span class="ui-logo" data-brand="salesforce"></span></span><span>Matched 31 existing accounts<small>salesforce.query · 7 new</small></span><time>22s</time></li>
-              <li><span class="ui-logo-tile"><i data-lucide="user-check"></i></span><span>Waiting for approval<small>Policy: approval before CRM writes</small></span><span class="ui-status" data-status="warn">Paused</span></li>
+            <ol class="ui-timeline">
+              <li class="ui-timeline-item"><span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span><div><span>Pulled 38 contacts from list</span><small>hubspot.lists.members</small></div><time>0.8s</time></li>
+              <li class="ui-timeline-item"><span class="ui-logo-tile"><i data-lucide="globe"></i></span><div><span>Researched 34 company domains</span><small>web.search · 4 had no site</small></div><time>2m 41s</time></li>
+              <li class="ui-timeline-item"><span class="ui-logo-tile"><span class="ui-logo" data-brand="salesforce"></span></span><div><span>Matched 31 existing accounts</span><small>salesforce.query · 7 new</small></div><time>22s</time></li>
+              <li class="ui-timeline-item"><span class="ui-logo-tile"><i data-lucide="user-check"></i></span><div><span>Waiting for approval</span><small>Policy: approval before CRM writes</small></div><span class="ui-status" data-status="warn">Paused</span></li>
             </ol>
           </div>
 
@@ -186,16 +185,6 @@ owner.assign      38   round robin · West AE pod</pre>
 <script src="../../../components/ui/seenry-ui.js"></script>
 <script>
 lucide.createIcons();
-
-(function nav(){
-  const shell = document.querySelector('.ui-shell');
-  const toggle = document.querySelector('[data-nav-toggle]');
-  const set = open => { shell.toggleAttribute('data-nav-open', open); toggle.setAttribute('aria-expanded', String(open)); };
-  toggle.addEventListener('click', () => set(!shell.hasAttribute('data-nav-open')));
-  shell.addEventListener('click', e => { if (e.target === shell) set(false); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
-})();
-
 </script>
 </body>
 </html>

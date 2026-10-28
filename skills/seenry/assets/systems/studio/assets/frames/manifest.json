@@ -1,0 +1,107 @@
+{
+ "purpose": "Sample footage frames for the studio blocks. Stand-ins for a customer's own work; replace with the product's real media.",
+ "assets": [
+  {
+   "file": "halden-pour.jpg",
+   "license": "CC0",
+   "title": "File:Barista pouring milk (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Barista_pouring_milk_(Unsplash).jpg",
+   "author": "Tim Wright"
+  },
+  {
+   "file": "halden-brew.jpg",
+   "license": "CC0",
+   "title": "File:Brewing coffee in a jug (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Brewing_coffee_in_a_jug_(Unsplash).jpg",
+   "author": "Karl Fredrickson kfred"
+  },
+  {
+   "file": "halden-latte.jpg",
+   "license": "CC0",
+   "title": "File:Coffee and Friends (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Coffee_and_Friends_(Unsplash).jpg",
+   "author": "Nathan Dumlao nate_dumlao"
+  },
+  {
+   "file": "lowtide-chorus.jpg",
+   "license": "CC0",
+   "title": "File:Austin Neill 2017 (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Austin_Neill_2017_(Unsplash).jpg",
+   "author": "Austin Neill arstyy"
+  },
+  {
+   "file": "lowtide-stage.jpg",
+   "license": "CC0",
+   "title": "File:Band member under red floodlights (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Band_member_under_red_floodlights_(Unsplash).jpg",
+   "author": "Melanie van Leeuwen strompictures"
+  },
+  {
+   "file": "ridgeline-ridge.jpg",
+   "license": "CC0",
+   "title": "File:Adventurous Mountain Hikes (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Adventurous_Mountain_Hikes_(Unsplash).jpg",
+   "author": "Galen Crout"
+  },
+  {
+   "file": "ridgeline-peak.jpg",
+   "license": "CC0",
+   "title": "File:Burning Mountain (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Burning_Mountain_(Unsplash).jpg",
+   "author": "Kaidi Guo kaidi_guo"
+  },
+  {
+   "file": "aldea-hall.jpg",
+   "license": "CC0",
+   "title": "File:Kimbell Art Museum (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Kimbell_Art_Museum_(Unsplash).jpg",
+   "author": "V\u00edctor Hugo huggomena"
+  },
+  {
+   "file": "aldea-skylight.jpg",
+   "license": "CC0",
+   "title": "File:Classical parliament interior (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Classical_parliament_interior_(Unsplash).jpg",
+   "author": "Frederic K\u00f6berl internetztube"
+  },
+  {
+   "file": "aldea-ceiling.jpg",
+   "license": "CC0",
+   "title": "File:White ceiling architecture (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:White_ceiling_architecture_(Unsplash).jpg",
+   "author": "Jeremy Yap jeremyyappy"
+  },
+  {
+   "file": "aldea-concrete.jpg",
+   "license": "CC0",
+   "title": "File:Black white concrete interior (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Black_white_concrete_interior_(Unsplash).jpg",
+   "author": "Verne Ho verneho"
+  },
+  {
+   "file": "ostra-hands.jpg",
+   "license": "CC0",
+   "title": "File:Black and white pottery (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Black_and_white_pottery_(Unsplash).jpg",
+   "author": "Quino Al quinoal"
+  },
+  {
+   "file": "portrait-ines.jpg",
+   "license": "CC0",
+   "title": "File:Chic and Glamorous (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Chic_and_Glamorous_(Unsplash).jpg",
+   "author": "Henri Meilhac henrimeilhac"
+  },
+  {
+   "file": "fieldnote-mic.jpg",
+   "license": "CC0",
+   "title": "File:Blue condenser microphone (Unsplash).jpg",
+   "source": "https://commons.wikimedia.org/wiki/File:Blue_condenser_microphone_(Unsplash).jpg",
+   "author": "Kelly Sikkema kelsikkema"
+  },
+  {
+   "file": "aldea-selects.jpg",
+   "note": "Contact sheet composed from aldea-hall, aldea-skylight, aldea-ceiling, aldea-concrete"
+  }
+ ]
+}

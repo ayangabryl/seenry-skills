@@ -80,18 +80,18 @@
 
       <div class="split">
         <ul class="ui-list" aria-label="Transactions">
-          <li class="ui-list-heading">Today, Wednesday Oct 28</li>
+          <li class="ui-list-meta">Today, Wednesday Oct 28</li>
           <li><button class="ui-list-item" aria-current="true"><i class="ph ph-shopping-cart" aria-hidden="true"></i><span><strong>Whole Foods Market</strong><span class="ui-list-meta">Groceries · Chase Sapphire ··4417</span></span><span class="num">−$142.38</span></button></li>
           <li><button class="ui-list-item"><i class="ph ph-coffee" aria-hidden="true"></i><span><strong>Blue Bottle Coffee</strong><span class="ui-list-meta">Dining out · Apple Card</span></span><span class="num">−$11.50</span></button></li>
-          <li class="ui-list-heading">Tuesday, Oct 27</li>
+          <li class="ui-list-meta">Tuesday, Oct 27</li>
           <li><button class="ui-list-item"><i class="ph ph-briefcase" aria-hidden="true"></i><span><strong>Lumen Health payroll</strong><span class="ui-list-meta">Income · SchoolsFirst checking</span></span><span class="num amount-in">+$3,412.50</span></button></li>
           <li><button class="ui-list-item"><i class="ph ph-shopping-cart" aria-hidden="true"></i><span><strong>Trader Joe's</strong><span class="ui-list-meta"><span class="ui-status" data-status="warn">Needs a category</span></span></span><span class="num">−$64.18</span></button></li>
           <li><button class="ui-list-item"><i class="ph ph-gas-pump" aria-hidden="true"></i><span><strong>Chevron</strong><span class="ui-list-meta">Transport · Chase Freedom ··8203</span></span><span class="num">−$48.20</span></button></li>
-          <li class="ui-list-heading">Monday, Oct 26</li>
+          <li class="ui-list-meta">Monday, Oct 26</li>
           <li><button class="ui-list-item"><i class="ph ph-baby" aria-hidden="true"></i><span><strong>Kumon Learning Center</strong><span class="ui-list-meta">Kids and childcare · SchoolsFirst checking</span></span><span class="num">−$180.00</span></button></li>
           <li><button class="ui-list-item"><i class="ph ph-television" aria-hidden="true"></i><span><strong>Netflix</strong><span class="ui-list-meta">Subscriptions · Apple Card · Monthly</span></span><span class="num">−$22.99</span></button></li>
           <li><button class="ui-list-item"><i class="ph ph-pill" aria-hidden="true"></i><span><strong>Walgreens</strong><span class="ui-list-meta">Health · Apple Card</span></span><span class="num">−$23.47</span></button></li>
-          <li class="ui-list-heading">Sunday, Oct 25</li>
+          <li class="ui-list-meta">Sunday, Oct 25</li>
           <li><button class="ui-list-item"><i class="ph ph-arrows-left-right" aria-hidden="true"></i><span><strong>Venmo to Priya Shah</strong><span class="ui-list-meta"><span class="ui-status" data-status="warn">Needs a category</span></span></span><span class="num">−$40.00</span></button></li>
           <li><button class="ui-list-item"><i class="ph ph-storefront" aria-hidden="true"></i><span><strong>Tartine Bakery</strong><span class="ui-list-meta">Dining out · Chase Sapphire ··4417</span></span><span class="num">−$36.75</span></button></li>
         </ul>
@@ -131,12 +131,6 @@
 </div>
 <script>
   (() => {
-    const shell = document.getElementById('shell');
-    const toggle = shell.querySelector('[data-nav-toggle]');
-    const set = open => { shell.dataset.nav = open ? 'open' : ''; toggle.setAttribute('aria-expanded', String(open)); };
-    toggle.addEventListener('click', () => set(shell.dataset.nav !== 'open'));
-    shell.addEventListener('click', e => { if (shell.dataset.nav === 'open' && !e.target.closest('.ui-sidebar, [data-nav-toggle]')) set(false); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && shell.dataset.nav === 'open') { set(false); toggle.focus(); } });
     document.querySelectorAll('button.ui-list-item').forEach(item => item.addEventListener('click', () => {
       document.querySelectorAll('button.ui-list-item[aria-current]').forEach(x => x.removeAttribute('aria-current'));
       item.setAttribute('aria-current', 'true');
