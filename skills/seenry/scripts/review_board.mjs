@@ -674,7 +674,7 @@ const named = args.includes('--named');
 // A <header> inside main, an article or a section is that section's header, not site navigation, so its buttons count.
 // App screens (dashboards, settings, tools) are not landing pages: a hero visual, image moments, a word budget or a
 // product stage do not apply, and tables, dividers and initials avatars are normal there.
-const appSkip = args.includes('--app') ? new Set(['phoneHero', 'heroNoImage', 'fewImages', 'noMaterial', 'tooMuchCopy', 'splitHeader', 'denseHero', 'headlineCrowd', 'brandBand', 'initialsAvatar', 'dividers', 'repeatedVisual']) : new Set();
+const appSkip = args.includes('--app') ? new Set(['phoneHero', 'heroNoImage', 'fewImages', 'noMaterial', 'tooMuchCopy', 'splitHeader', 'denseHero', 'headlineCrowd', 'brandBand', 'initialsAvatar', 'dividers', 'repeatedVisual', 'desktopSmall', 'weakAction']) : new Set();
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);

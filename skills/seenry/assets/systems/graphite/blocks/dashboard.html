@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview · Halyard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Primary">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, current Northbeam">
+      <span class="ui-workspace-mark" aria-hidden="true">N</span>
+      <span>Northbeam</span>
+      <i data-lucide="chevrons-up-down"></i>
+    </button>
+    <div class="ui-quick">
+      <button class="ui-button" type="button"><i data-lucide="search"></i>Search<span class="ui-kbd">⌘K</span></button>
+      <button class="ui-button" type="button" data-icon aria-label="New run"><i data-lucide="square-pen"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html" aria-current="page"><i data-lucide="house"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="inbox"></i>Review queue<span class="ui-nav-count">4</span></a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="activity"></i>Runs</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-agents">
+      <span class="ui-nav-label" id="nav-agents">Agents</span>
+      <a class="ui-nav-item" href="#"><i data-lucide="user-search"></i>Lead enrichment</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="mail"></i>Inbox triage</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="calendar-check"></i>Meeting follow-ups</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="trending-down"></i>Churn signals</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="megaphone"></i>Ad spend digest<span class="ui-nav-count">3</span></a>
+      <a class="ui-nav-item" href="#"><i data-lucide="file-text"></i>Release notes</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-workspace">
+      <span class="ui-nav-label" id="nav-workspace">Workspace</span>
+      <a class="ui-nav-item" href="#"><i data-lucide="plug"></i>Integrations</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="book-open"></i>Knowledge</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="gauge"></i>Usage</a>
+      <a class="ui-nav-item" href="settings.html"><i data-lucide="settings"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MR</span>
+      <span>Maya Ruiz<small>Admin</small></span>
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Help"><i data-lucide="circle-help"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Northbeam</a></li><li aria-current="page">Overview</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-button" type="button" data-variant="ghost" data-size="sm" data-hide-phone>Feedback</button>
+        <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Notifications"><i data-lucide="bell"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-main">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Overview</h1>
+          <p class="ui-page-sub">6 agents across 9 integrations · Oct 15 – Oct 28</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" type="button"><i data-lucide="calendar"></i>Last 14 days</button>
+          <button class="ui-button" type="button" data-variant="primary"><i data-lucide="plus"></i>New agent</button>
+        </div>
+      </div>
+
+      <div class="ui-stat-strip">
+        <dl class="ui-stat"><dt>Runs</dt><dd>18,204</dd><small><i data-lucide="arrow-up-right"></i>12.4% vs previous 14 days</small></dl>
+        <dl class="ui-stat"><dt>Success rate</dt><dd>97.8%</dd><small><i data-lucide="arrow-down-right"></i>0.6 pts · 409 failed runs</small></dl>
+        <dl class="ui-stat"><dt>Model spend</dt><dd>$1,284.60</dd><small>$0.071 per run · budget $2,500</small></dl>
+      </div>
+
+      <div class="ui-grid" data-cols="2-1">
+        <section class="ui-card" aria-labelledby="chart-title">
+          <div class="ui-card-head">
+            <div>
+              <h2 id="chart-title">Runs per day</h2>
+              <p>Succeeded and failed, all agents</p>
+            </div>
+            <ul class="ui-chart-legend">
+              <li>Succeeded</li>
+              <li style="--swatch:var(--chart-2)">Failed</li>
+            </ul>
+          </div>
+          <div class="ui-chart" id="runs-chart"></div>
+        </section>
+
+        <section class="ui-card" data-flush aria-labelledby="queue-title">
+          <div class="ui-card-head">
+            <div>
+              <h2 id="queue-title">Needs review</h2>
+              <p>4 runs are waiting on a person</p>
+            </div>
+            <a class="ui-button" data-variant="ghost" data-size="sm" href="list-detail.html">View all</a>
+          </div>
+          <ul class="ui-list">
+            <li><a class="ui-list-item" href="list-detail.html">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span>
+              <span><span>Approve 38 enriched leads</span><span class="ui-list-meta">Lead enrichment · 12m ago</span></span>
+              <span class="ui-status" data-status="warn">Review</span>
+            </a></li>
+            <li><a class="ui-list-item" href="list-detail.html">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="googlesheets"></span></span>
+              <span><span>Sheets token expired</span><span class="ui-list-meta">Ad spend digest · 3 failures</span></span>
+              <span class="ui-status" data-status="bad">Failed</span>
+            </a></li>
+            <li><a class="ui-list-item" href="list-detail.html">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="intercom"></span></span>
+              <span><span>Reply to Brightline renewal</span><span class="ui-list-meta">Inbox triage · 1h ago</span></span>
+              <span class="ui-status" data-status="warn">Review</span>
+            </a></li>
+            <li><a class="ui-list-item" href="list-detail.html">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="stripe"></span></span>
+              <span><span>Fieldstone churn risk 0.78</span><span class="ui-list-meta">Churn signals · 2h ago</span></span>
+              <span class="ui-status" data-status="warn">Review</span>
+            </a></li>
+          </ul>
+        </section>
+      </div>
+
+      <section class="ui-section" aria-labelledby="agents-title">
+        <div class="ui-section-head">
+          <h2 id="agents-title">Agents</h2>
+          <a class="ui-button" data-variant="ghost" data-size="sm" href="#">Manage agents</a>
+        </div>
+        <div class="ui-table-wrap">
+          <table class="ui-table" data-ui-table id="agents">
+            <thead><tr>
+              <th scope="col" data-sort>Agent</th>
+              <th scope="col">Integrations</th>
+              <th scope="col" data-sort>Status</th>
+              <th scope="col" data-sort class="num">Runs</th>
+              <th scope="col" data-sort class="num">Success</th>
+              <th scope="col" data-sort class="num">p50 time</th>
+              <th scope="col" data-sort class="num">Spend</th>
+              <th scope="col">Last run</th>
+            </tr></thead>
+            <tbody>
+              <tr><td>Lead enrichment</td><td><span class="ui-cell"><span class="ui-logo" data-brand="hubspot"></span><span class="ui-logo" data-brand="salesforce"></span></span></td><td data-sort="2"><span class="ui-status" data-status="warn">Needs review</span></td><td class="num" data-sort="6412">6,412</td><td class="num" data-sort="98.9">98.9%</td><td class="num" data-sort="3.1">3.1s</td><td class="num" data-sort="412.80">$412.80</td><td>2m ago</td></tr>
+              <tr><td>Inbox triage</td><td><span class="ui-cell"><span class="ui-logo" data-brand="intercom"></span><span class="ui-logo" data-brand="gmail"></span></span></td><td data-sort="1"><span class="ui-status" data-status="ok">Healthy</span></td><td class="num" data-sort="5208">5,208</td><td class="num" data-sort="99.4">99.4%</td><td class="num" data-sort="1.8">1.8s</td><td class="num" data-sort="186.20">$186.20</td><td>Just now</td></tr>
+              <tr><td>Meeting follow-ups</td><td><span class="ui-cell"><span class="ui-logo" data-brand="gmail"></span><span class="ui-logo" data-brand="salesforce"></span></span></td><td data-sort="1"><span class="ui-status" data-status="ok">Healthy</span></td><td class="num" data-sort="3106">3,106</td><td class="num" data-sort="97.2">97.2%</td><td class="num" data-sort="4.0">4.0s</td><td class="num" data-sort="221.70">$221.70</td><td>18m ago</td></tr>
+              <tr><td>Churn signals</td><td><span class="ui-cell"><span class="ui-logo" data-brand="snowflake"></span><span class="ui-logo" data-brand="stripe"></span></span></td><td data-sort="2"><span class="ui-status" data-status="warn">Slow</span></td><td class="num" data-sort="1944">1,944</td><td class="num" data-sort="96.1">96.1%</td><td class="num" data-sort="7.4">7.4s</td><td class="num" data-sort="268.10">$268.10</td><td>41m ago</td></tr>
+              <tr><td>Ad spend digest</td><td><span class="ui-cell"><span class="ui-logo" data-brand="googlesheets"></span><span class="ui-logo" data-brand="slack"></span></span></td><td data-sort="3"><span class="ui-status" data-status="bad">Failing</span></td><td class="num" data-sort="1122">1,122</td><td class="num" data-sort="88.4">88.4%</td><td class="num" data-sort="9.8">9.8s</td><td class="num" data-sort="137.40">$137.40</td><td>26m ago</td></tr>
+              <tr><td>Release notes</td><td><span class="ui-cell"><span class="ui-logo" data-brand="linear"></span><span class="ui-logo" data-brand="notion"></span></span></td><td data-sort="0"><span class="ui-status" data-status="idle">Scheduled</span></td><td class="num" data-sort="412">412</td><td class="num" data-sort="100">100%</td><td class="num" data-sort="12.6">12.6s</td><td class="num" data-sort="58.40">$58.40</td><td>Yesterday</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="../../../components/ui/seenry-ui.js"></script>
+<script>
+lucide.createIcons();
+
+(function nav(){
+  const shell = document.querySelector('.ui-shell');
+  const toggle = document.querySelector('[data-nav-toggle]');
+  const set = open => { shell.toggleAttribute('data-nav-open', open); toggle.setAttribute('aria-expanded', String(open)); };
+  toggle.addEventListener('click', () => set(!shell.hasAttribute('data-nav-open')));
+  shell.addEventListener('click', e => { if (e.target === shell) set(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+})();
+
+(function chart(){
+  const days = [
+    ['Oct 15',1498,24],['Oct 16',1453,20],['Oct 17',759,15],['Oct 18',826,14],['Oct 19',1426,33],['Oct 20',1433,19],['Oct 21',1629,38],
+    ['Oct 22',1554,48],['Oct 23',1439,35],['Oct 24',751,18],['Oct 25',808,11],['Oct 26',1428,88],['Oct 27',1652,21],['Oct 28',1548,25]
+  ];
+  const el = document.getElementById('runs-chart');
+  const ns = 'http://www.w3.org/2000/svg';
+  const css = getComputedStyle(document.documentElement);
+  const px = name => parseFloat(css.getPropertyValue(name));
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(n % 1000 ? 1 : 0) + 'k' : String(n);
+  const node = (tag, attrs, text) => { const n = document.createElementNS(ns, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text != null) n.textContent = text; return n; };
+
+  function draw(){
+    const w = el.clientWidth, h = px('--chart-h');
+    const left = px('--space-7'), bottom = px('--space-6'), top = px('--space-2');
+    const plotW = w - left, plotH = h - bottom - top;
+    const step = 500, max = Math.ceil(Math.max(...days.map(d => d[1])) / step) * step;
+    const y = v => top + plotH - (v / max) * plotH;
+    const slot = plotW / days.length;
+    const barW = Math.min(px('--bar-max'), slot * 0.62);
+    const labelEvery = w < 520 ? 4 : 2;
+
+    const svg = node('svg', { viewBox: `0 0 ${w} ${h}`, role: 'img', 'aria-label': 'Runs per day, Oct 15 to Oct 28. Weekdays run 1,400 to 1,650; weekends about 800. Failures peaked at 88 on Oct 26.' });
+    for (let v = 0; v <= max; v += step) {
+      svg.append(node('line', { class: 'grid', x1: left, x2: w, y1: Math.round(y(v)) + 0.5, y2: Math.round(y(v)) + 0.5 }));
+      svg.append(node('text', { class: 'tick', x: 0, y: y(v) + px('--space-1') }, fmt(v)));
+    }
+    days.forEach(([label, total, failed], i) => {
+      const x = left + slot * i + (slot - barW) / 2;
+      const g = node('g', {});
+      g.append(node('title', {}, `${label}: ${(total - failed).toLocaleString()} succeeded, ${failed} failed`));
+      g.append(node('rect', { class: 'bar-hit', x: left + slot * i, y: top, width: slot, height: plotH }));
+      g.append(node('rect', { class: 's1', x, y: y(total - failed), width: barW, height: y(0) - y(total - failed) }));
+      g.append(node('rect', { class: 's2', x, y: y(total), width: barW, height: Math.max(y(total - failed) - y(total), px('--space-half')) }));
+      svg.append(g);
+      if (i % labelEvery === 0) svg.append(node('text', { class: 'tick', x: x + barW / 2, y: h - px('--space-1'), 'text-anchor': 'middle' }, label));
+    });
+    el.replaceChildren(svg);
+  }
+  draw();
+  new ResizeObserver(draw).observe(el);
+})();
+</script>
+</body>
+</html>

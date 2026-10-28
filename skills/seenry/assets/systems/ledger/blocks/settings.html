@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Billing settings · Fenwick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../system.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <div class="ui-sidebar-head">
+      <button class="ui-workspace" type="button" aria-label="Switch workspace, current Harbor &amp; Pine Supply"><span class="ui-org-mark" aria-hidden="true">HP</span><span>Harbor &amp; Pine Supply</span><i class="ti ti-selector" aria-hidden="true"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Primary">
+      <div class="ui-nav-group">
+        <a class="ui-nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Overview</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Receivables</p>
+        <a class="ui-nav-item" href="list-detail.html"><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoices</span><span class="ui-nav-count">137</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-users" aria-hidden="true"></i><span>Customers</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-cash" aria-hidden="true"></i><span>Payments</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt-refund" aria-hidden="true"></i><span>Credit notes</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Payables</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span><span class="ui-nav-count">7</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-building-store" aria-hidden="true"></i><span>Vendors</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-checklist" aria-hidden="true"></i><span>Approvals</span><span class="ui-nav-count">3</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Reporting</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-chart-bar" aria-hidden="true"></i><span>Aging</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-arrows-exchange" aria-hidden="true"></i><span>Cash flow</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-file-export" aria-hidden="true"></i><span>Exports</span></a>
+      </div>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">DW</span>
+      <span class="ui-person"><strong>Dana Whitfield</strong><span>Controller</span></span>
+      <a class="ui-button" data-variant="ghost" data-icon href="settings.html" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i></a>
+    </div>
+  </aside>
+
+  <div class="ui-main">
+    <header class="ui-topbar">
+      <button class="ui-button ui-nav-toggle" data-variant="ghost" data-icon type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false" data-nav-toggle><i class="ti ti-menu-2" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Harbor &amp; Pine</a></li><li><a href="#">Settings</a></li><li aria-current="page">Billing</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-search" type="button" data-dialog-open="command" aria-label="Search"><i class="ti ti-search" aria-hidden="true"></i><span>Search invoices, customers</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon type="button" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-page">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Billing settings</h1>
+          <p class="ui-page-sub">Defaults for every invoice Harbor &amp; Pine sends. Changes apply to new invoices only.</p>
+        </div>
+      </div>
+
+      <div class="ui-tabs" role="tablist" aria-label="Settings sections">
+        <button role="tab" id="general-tab" aria-selected="false" aria-controls="general-panel">General</button>
+        <button role="tab" id="invoicing-tab" aria-selected="true" aria-controls="invoicing-panel">Invoicing</button>
+        <button role="tab" id="team-tab" aria-selected="false" aria-controls="team-panel">Team</button>
+        <button role="tab" id="integrations-tab" aria-selected="false" aria-controls="integrations-panel">Integrations</button>
+      </div>
+
+      <div class="ui-tab-panel" role="tabpanel" id="invoicing-panel" aria-labelledby="invoicing-tab">
+        <form class="ui-settings" onsubmit="event.preventDefault();SeenryUI.toast('Billing settings saved',{description:'New invoices use these defaults.'})">
+          <section class="ui-settings-group" aria-labelledby="defaults-title">
+            <header><h2 id="defaults-title">Invoice defaults</h2><p>Prefilled on every new invoice. Each invoice can override them.</p></header>
+            <div class="ui-settings-rows">
+              <div class="ui-settings-row"><div><label for="terms">Payment terms</label><p>Sets the due date from the issue date.</p></div><select class="ui-select" id="terms"><option>Due on receipt</option><option>Net 15</option><option selected>Net 30</option><option>Net 45</option><option>Net 60</option></select></div>
+              <div class="ui-settings-row"><div><label for="currency">Currency</label><p>Customers with their own currency keep it.</p></div><select class="ui-select" id="currency"><option selected>USD, US dollar</option><option>CAD, Canadian dollar</option><option>EUR, Euro</option><option>GBP, British pound</option></select></div>
+              <div class="ui-settings-row"><div><label for="numbering">Number format</label><p id="numbering-help">Next invoice: <span class="ui-id">INV-2026-0458</span></p></div><input class="ui-input ui-id" id="numbering" value="INV-{YYYY}-{####}" aria-describedby="numbering-help"></div>
+              <div class="ui-settings-row"><div><label for="memo">Footer memo</label><p>Printed under the totals.</p></div><textarea class="ui-textarea" id="memo">Remit by ACH to First Harbor Bank, routing 125000105. Questions: ar@harborpine.com</textarea></div>
+            </div>
+          </section>
+
+          <section class="ui-settings-group" aria-labelledby="reminders-title">
+            <header><h2 id="reminders-title">Payment reminders</h2><p>Sent from ar@harborpine.com with the invoice PDF attached.</p></header>
+            <div class="ui-settings-rows">
+              <div class="ui-settings-row" data-control="switch"><div><span class="ui-settings-name" id="r1">3 days before due</span><p>A courtesy note with the amount and due date.</p></div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="r1"><span>3 days before due</span></label></div>
+              <div class="ui-settings-row" data-control="switch"><div><span class="ui-settings-name" id="r2">On the due date</span><p>Includes a pay-now link.</p></div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="r2"><span>On the due date</span></label></div>
+              <div class="ui-settings-row" data-control="switch"><div><span class="ui-settings-name" id="r3">Every 7 days while overdue</span><p>Stops after 4 reminders or when a promise to pay is logged.</p></div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="r3"><span>Every 7 days while overdue</span></label></div>
+              <div class="ui-settings-row" data-control="switch"><div><span class="ui-settings-name" id="r4">Copy the account owner</span><p>Adds the customer’s account owner on overdue reminders.</p></div><label class="ui-switch"><input type="checkbox" role="switch" aria-labelledby="r4"><span>Copy the account owner</span></label></div>
+            </div>
+          </section>
+
+          <section class="ui-settings-group" aria-labelledby="methods-title">
+            <header><h2 id="methods-title">Payment methods</h2><p>What customers can use from the invoice page.</p></header>
+            <div class="ui-settings-rows">
+              <div class="ui-settings-row" data-control="switch"><div><span class="ui-settings-name" id="m1">ACH debit</span><p>0.8% per payment, capped at $5.00. Settles in 2 business days.</p></div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="m1"><span>ACH debit</span></label></div>
+              <div class="ui-settings-row" data-control="switch"><div><span class="ui-settings-name" id="m2">Card</span><p>2.9% + $0.30 per payment. Settles next business day.</p></div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="m2"><span>Card</span></label></div>
+              <div class="ui-settings-row" data-control="switch"><div><span class="ui-settings-name" id="m3">Pass card fees to the customer</span><p>Adds the fee as a separate line at checkout where allowed.</p></div><label class="ui-switch"><input type="checkbox" role="switch" aria-labelledby="m3"><span>Pass card fees to the customer</span></label></div>
+              <div class="ui-settings-row"><div><label for="threshold">Approval required above</label><p>Invoices over this amount need a second approver before sending.</p></div><span class="ui-control"><span class="ui-affix">$</span><input class="ui-input" id="threshold" inputmode="decimal" value="25,000.00"><span class="ui-affix">USD</span></span></div>
+            </div>
+          </section>
+
+          <section class="ui-settings-group" aria-labelledby="danger-title">
+            <header><h2 id="danger-title">Disconnect and close</h2><p>These actions affect the whole workspace and are logged.</p></header>
+            <div class="ui-danger">
+              <div class="ui-settings-row" data-control="action"><div><span class="ui-settings-name">Disconnect QuickBooks Online</span><p>Sync stops. Invoices and payments already synced stay in both places.</p></div><button class="ui-button" data-variant="danger" type="button">Disconnect</button></div>
+              <div class="ui-settings-row" data-control="action"><div><span class="ui-settings-name">Void all drafts</span><p>Voids 14 unsent drafts. Their numbers are not reused.</p></div><button class="ui-button" data-variant="danger" type="button">Void drafts</button></div>
+              <div class="ui-settings-row" data-control="action"><div><span class="ui-settings-name">Close workspace</span><p>Exports your ledger, then removes access for all 9 members after 30 days.</p></div><button class="ui-button" data-variant="danger" type="button" data-dialog-open="close-dialog">Close workspace</button></div>
+            </div>
+          </section>
+
+          <div class="ui-settings-foot"><button class="ui-button" type="reset">Discard</button><button class="ui-button" data-variant="primary" type="submit">Save changes</button></div>
+        </form>
+      </div>
+      <div class="ui-tab-panel" role="tabpanel" id="general-panel" aria-labelledby="general-tab" hidden><p class="ui-page-sub">Legal name, address and tax IDs.</p></div>
+      <div class="ui-tab-panel" role="tabpanel" id="team-panel" aria-labelledby="team-tab" hidden><p class="ui-page-sub">9 members, 3 approvers.</p></div>
+      <div class="ui-tab-panel" role="tabpanel" id="integrations-panel" aria-labelledby="integrations-tab" hidden><p class="ui-page-sub">QuickBooks Online, First Harbor Bank.</p></div>
+    </main>
+  </div>
+</div>
+
+<dialog class="ui-dialog" id="close-dialog" aria-labelledby="close-title">
+  <div class="ui-dialog__head"><h2 id="close-title">Close Harbor &amp; Pine Supply?</h2></div>
+  <div class="ui-dialog__body">137 open invoices stop collecting reminders today. Members lose access on Nov 27, 2026.</div>
+  <div class="ui-dialog__foot"><button class="ui-button" type="button" data-dialog-close>Cancel</button><button class="ui-button" data-variant="danger" data-fill type="button" data-dialog-close>Close workspace</button></div>
+</dialog>
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search invoices, customers, actions">
+  <div class="ui-command__list">
+    <button data-value="new-invoice"><i class="ti ti-plus" aria-hidden="true"></i>New invoice</button>
+    <button data-value="record-payment"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button>
+    <button data-value="customers"><i class="ti ti-users" aria-hidden="true"></i>Go to customers</button>
+    <button data-value="aging"><i class="ti ti-chart-bar" aria-hidden="true"></i>Open aging report</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to select · Esc to close</div>
+</dialog>
+<script>
+document.querySelector('[data-nav-toggle]').addEventListener('click',e=>{const shell=e.currentTarget.closest('.ui-shell');const open=shell.dataset.nav!=='open';shell.dataset.nav=open?'open':'';e.currentTarget.setAttribute('aria-expanded',String(open));});
+</script>
+</body>
+</html>

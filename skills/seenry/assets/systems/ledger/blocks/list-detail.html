@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoices · Fenwick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../system.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <div class="ui-sidebar-head">
+      <button class="ui-workspace" type="button" aria-label="Switch workspace, current Harbor &amp; Pine Supply"><span class="ui-org-mark" aria-hidden="true">HP</span><span>Harbor &amp; Pine Supply</span><i class="ti ti-selector" aria-hidden="true"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Primary">
+      <div class="ui-nav-group">
+        <a class="ui-nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Overview</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Receivables</p>
+        <a class="ui-nav-item" href="list-detail.html" aria-current="page"><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoices</span><span class="ui-nav-count">137</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-users" aria-hidden="true"></i><span>Customers</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-cash" aria-hidden="true"></i><span>Payments</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt-refund" aria-hidden="true"></i><span>Credit notes</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Payables</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span><span class="ui-nav-count">7</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-building-store" aria-hidden="true"></i><span>Vendors</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-checklist" aria-hidden="true"></i><span>Approvals</span><span class="ui-nav-count">3</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Reporting</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-chart-bar" aria-hidden="true"></i><span>Aging</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-arrows-exchange" aria-hidden="true"></i><span>Cash flow</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-file-export" aria-hidden="true"></i><span>Exports</span></a>
+      </div>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">DW</span>
+      <span class="ui-person"><strong>Dana Whitfield</strong><span>Controller</span></span>
+      <a class="ui-button" data-variant="ghost" data-icon href="settings.html" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i></a>
+    </div>
+  </aside>
+
+  <div class="ui-main">
+    <header class="ui-topbar">
+      <button class="ui-button ui-nav-toggle" data-variant="ghost" data-icon type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false" data-nav-toggle><i class="ti ti-menu-2" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Harbor &amp; Pine</a></li><li><a href="#">Receivables</a></li><li aria-current="page">Invoices</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-search" type="button" data-dialog-open="command" aria-label="Search"><i class="ti ti-search" aria-hidden="true"></i><span>Search invoices, customers</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon type="button" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i></button>
+      </div>
+    </header>
+
+    <div class="ui-split">
+      <main class="ui-split-list">
+        <div class="ui-page-header">
+          <div>
+            <h1 class="ui-page-title">Invoices</h1>
+            <p class="ui-page-sub">137 open, $1,284,310.42 outstanding</p>
+          </div>
+          <div class="ui-page-actions">
+            <button class="ui-button" type="button"><i class="ti ti-download" aria-hidden="true"></i>Export</button>
+            <button class="ui-button" type="button"><i class="ti ti-plus" aria-hidden="true"></i>New invoice</button>
+          </div>
+        </div>
+
+        <div class="ui-filter-bar">
+          <label class="ui-control"><i class="ti ti-search" aria-hidden="true"></i><input class="ui-input" type="search" placeholder="Search invoices" aria-label="Search invoices" data-table-search="invoices"></label>
+          <div class="ui-segmented" aria-label="Invoice status"><button type="button" aria-pressed="false" data-value="all">All</button><button type="button" aria-pressed="false" data-value="open">Open</button><button type="button" aria-pressed="true" data-value="overdue">Overdue</button><button type="button" aria-pressed="false" data-value="paid">Paid</button><button type="button" aria-pressed="false" data-value="draft">Draft</button></div>
+          <button class="ui-chip" type="button" aria-pressed="false"><i class="ti ti-filter" aria-hidden="true"></i>Filter</button>
+          <span class="ui-filter-count" aria-live="polite">41 invoices · $312,940.18</span>
+        </div>
+
+        <div class="ui-table-wrap">
+          <table class="ui-table" data-ui-table id="invoices">
+            <thead><tr><th scope="col" class="ui-hide-sm" data-sort>Invoice</th><th scope="col" data-sort>Customer</th><th scope="col" class="ui-hide-sm" data-sort>Due</th><th scope="col">Status</th><th scope="col" class="num" data-sort>Amount due</th></tr></thead>
+            <tbody>
+              <tr aria-selected="true"><td class="ui-hide-sm"><a class="ui-id" href="#" aria-current="true">INV-2026-0418</a></td><td>Meridian Health Group</td><td class="ui-hide-sm" data-sort="2026-09-28">Sep 28</td><td><span class="ui-status" data-status="bad">30 days late</span></td><td class="num" data-sort="48250">$48,250.00</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0440</a></td><td>Northgate Builders</td><td class="ui-hide-sm" data-sort="2026-10-10">Oct 10</td><td><span class="ui-status" data-status="info">Promise to pay</span></td><td class="num" data-sort="27300">$27,300.00</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0402</a></td><td>Brightwater Logistics</td><td class="ui-hide-sm" data-sort="2026-09-14">Sep 14</td><td><span class="ui-status" data-status="bad">Payment failed</span></td><td class="num" data-sort="18420">$18,420.00</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0447</a></td><td>Pinecrest Senior Living</td><td class="ui-hide-sm" data-sort="2026-10-13">Oct 13</td><td><span class="ui-status" data-status="bad">15 days late</span></td><td class="num" data-sort="15880.40">$15,880.40</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0433</a></td><td>Alder &amp; Finch Hospitality</td><td class="ui-hide-sm" data-sort="2026-10-06">Oct 6</td><td><span class="ui-status" data-status="bad">22 days late</span></td><td class="num" data-sort="12604.80">$12,604.80</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0377</a></td><td>Cobalt Freight Partners</td><td class="ui-hide-sm" data-sort="2026-08-30">Aug 30</td><td><span class="ui-status" data-status="bad">59 days late</span></td><td class="num" data-sort="9860">$9,860.00</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0449</a></td><td>Lakeview Dental Partners</td><td class="ui-hide-sm" data-sort="2026-10-14">Oct 14</td><td><span class="ui-status" data-status="bad">14 days late</span></td><td class="num" data-sort="7412.25">$7,412.25</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0456</a></td><td>Saltmarsh Outfitters</td><td class="ui-hide-sm" data-sort="2026-10-18">Oct 18</td><td><span class="ui-status" data-status="info">Promise to pay</span></td><td class="num" data-sort="6930">$6,930.00</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0391</a></td><td>Tidewater Marine Supply</td><td class="ui-hide-sm" data-sort="2026-09-05">Sep 5</td><td><span class="ui-status" data-status="warn">Disputed</span></td><td class="num" data-sort="4215.50">$4,215.50</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0451</a></td><td>Quarry Lane Bakery</td><td class="ui-hide-sm" data-sort="2026-10-15">Oct 15</td><td><span class="ui-status" data-status="bad">13 days late</span></td><td class="num" data-sort="2148.36">$2,148.36</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0453</a></td><td>Red Fern Veterinary</td><td class="ui-hide-sm" data-sort="2026-10-16">Oct 16</td><td><span class="ui-status" data-status="bad">12 days late</span></td><td class="num" data-sort="1966.00">$1,966.00</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0455</a></td><td>Orchard Street Clinic</td><td class="ui-hide-sm" data-sort="2026-10-17">Oct 17</td><td><span class="ui-status" data-status="bad">11 days late</span></td><td class="num" data-sort="1204.90">$1,204.90</td></tr>
+            </tbody>
+          </table>
+          <div class="ui-table-foot"><span>Showing 12 of 41</span><nav class="ui-pagination" aria-label="Invoice pages"><button type="button" disabled aria-label="Previous page"><i class="ti ti-chevron-left" aria-hidden="true"></i></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><button type="button" aria-label="Next page"><i class="ti ti-chevron-right" aria-hidden="true"></i></button></nav></div>
+        </div>
+      </main>
+
+      <aside class="ui-detail" aria-labelledby="detail-title">
+        <div class="ui-detail-head">
+          <div class="ui-detail-kicker"><span class="ui-id">INV-2026-0418</span><span class="ui-status" data-status="bad">Overdue</span></div>
+          <div>
+            <h2 id="detail-title">$48,250.00</h2>
+            <p class="ui-page-sub">Meridian Health Group · due Sep 28, 2026</p>
+          </div>
+          <div class="ui-detail-actions">
+            <button class="ui-button" data-variant="primary" type="button" data-toast-message="Reminder sent" data-toast-description="Priya Raman will get it at ap@meridianhealth.com."><i class="ti ti-send" aria-hidden="true"></i>Send reminder</button>
+            <button class="ui-button" type="button"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button>
+            <button class="ui-button" data-icon type="button" aria-label="More actions" data-menu-trigger="invoice-menu"><i class="ti ti-dots" aria-hidden="true"></i></button>
+            <div id="invoice-menu" class="ui-menu" role="menu" popover="auto">
+              <button role="menuitem" data-value="pdf"><i class="ti ti-file-download" aria-hidden="true"></i>Download PDF</button>
+              <button role="menuitem" data-value="duplicate"><i class="ti ti-copy" aria-hidden="true"></i>Duplicate</button>
+              <button role="menuitem" data-value="credit"><i class="ti ti-receipt-refund" aria-hidden="true"></i>Issue credit note</button>
+              <hr>
+              <button role="menuitem" data-value="void" data-tone="bad"><i class="ti ti-ban" aria-hidden="true"></i>Void invoice</button>
+            </div>
+          </div>
+        </div>
+        <div class="ui-detail-body">
+          <section class="ui-section" aria-labelledby="facts-title">
+            <h3 class="sr-only" id="facts-title">Details</h3>
+            <dl class="ui-detail-rows">
+              <div class="ui-detail-row"><dt>Bill to</dt><dd>Priya Raman, Accounts payable</dd></div>
+              <div class="ui-detail-row"><dt>Email</dt><dd>ap@meridianhealth.com</dd></div>
+              <div class="ui-detail-row"><dt>Issued</dt><dd>Aug 29, 2026</dd></div>
+              <div class="ui-detail-row"><dt>Terms</dt><dd>Net 30</dd></div>
+              <div class="ui-detail-row"><dt>PO number</dt><dd><span class="ui-id">PO-77120</span></dd></div>
+              <div class="ui-detail-row"><dt>Paid</dt><dd class="ui-amount">$0.00</dd></div>
+            </dl>
+          </section>
+          <section class="ui-section" aria-labelledby="lines-title">
+            <div class="ui-section-head"><h3 id="lines-title">Line items</h3></div>
+            <div class="ui-table-wrap">
+              <table class="ui-table">
+                <thead><tr><th scope="col">Item</th><th scope="col" class="num">Qty</th><th scope="col" class="num">Amount</th></tr></thead>
+                <tbody>
+                  <tr><td>Nitrile exam gloves, case</td><td class="num">120</td><td class="num">$22,320.00</td></tr>
+                  <tr><td>Sterile gauze 4×4, case</td><td class="num">85</td><td class="num">$12,112.50</td></tr>
+                  <tr><td>Isolation gowns, case</td><td class="num">60</td><td class="num">$9,900.00</td></tr>
+                  <tr><td>Freight, 2 pallets</td><td class="num">1</td><td class="num">$3,917.50</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="2">Total · tax exempt</td><td class="num">$48,250.00</td></tr></tfoot>
+              </table>
+            </div>
+          </section>
+          <section class="ui-section" aria-labelledby="activity-title">
+            <div class="ui-section-head"><h3 id="activity-title">Activity</h3></div>
+            <ol class="ui-timeline">
+              <li><i class="ti ti-arrows-left-right" aria-hidden="true"></i><span>Possible match: wire $22,000.00<small>MERIDIAN HLTH GRP, partial payment</small></span><time datetime="2026-10-27">Oct 27</time></li>
+              <li><i class="ti ti-mail" aria-hidden="true"></i><span>Second reminder sent<small>To ap@meridianhealth.com</small></span><time datetime="2026-10-21">Oct 21</time></li>
+              <li><i class="ti ti-eye" aria-hidden="true"></i><span>Viewed by Priya Raman</span><time datetime="2026-10-03">Oct 3</time></li>
+              <li><i class="ti ti-mail" aria-hidden="true"></i><span>First reminder sent</span><time datetime="2026-09-29">Sep 29</time></li>
+              <li><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoice sent by Dana Whitfield</span><time datetime="2026-08-29">Aug 29</time></li>
+            </ol>
+          </section>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search invoices, customers, actions">
+  <div class="ui-command__list">
+    <button data-value="new-invoice"><i class="ti ti-plus" aria-hidden="true"></i>New invoice</button>
+    <button data-value="record-payment"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button>
+    <button data-value="customers"><i class="ti ti-users" aria-hidden="true"></i>Go to customers</button>
+    <button data-value="aging"><i class="ti ti-chart-bar" aria-hidden="true"></i>Open aging report</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to select · Esc to close</div>
+</dialog>
+<script>
+document.querySelector('[data-nav-toggle]').addEventListener('click',e=>{const shell=e.currentTarget.closest('.ui-shell');const open=shell.dataset.nav!=='open';shell.dataset.nav=open?'open':'';e.currentTarget.setAttribute('aria-expanded',String(open));});
+</script>
+</body>
+</html>

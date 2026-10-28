@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deployments · payments-core</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Project navigation">
+    <div class="ui-sidebar-head">
+      <span class="logo" aria-hidden="true"><i class="ri-pulse-line"></i></span>
+      <strong>ledgerline</strong>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Switch workspace"><i class="ri-expand-up-down-line"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="payments-core">
+      <span class="ui-nav-label">payments-core</span>
+      <a class="ui-nav-item" href="dashboard.html"><i class="ri-dashboard-3-line"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html" aria-current="page"><i class="ri-upload-cloud-2-line"></i>Deployments<span class="ui-nav-count">1</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-stack-line"></i>Services<span class="ui-nav-count">7</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-file-list-3-line"></i>Logs</a>
+      <a class="ui-nav-item" href="#"><i class="ri-line-chart-line"></i>Metrics</a>
+      <a class="ui-nav-item" href="#"><i class="ri-alarm-warning-line"></i>Alerts<span class="ui-nav-count" data-tone="bad">2</span></a>
+    </nav>
+    <nav class="ui-nav" aria-label="Configuration">
+      <span class="ui-nav-label">Configuration</span>
+      <a class="ui-nav-item" href="#"><i class="ri-key-2-line"></i>Variables</a>
+      <a class="ui-nav-item" href="#"><i class="ri-global-line"></i>Domains</a>
+      <a class="ui-nav-item" href="settings.html"><i class="ri-settings-3-line"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MO</span>
+      <span>Mara Okafor</span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Account menu"><i class="ri-more-line"></i></button>
+    </div>
+  </aside>
+
+  <div class="ui-main">
+    <header class="ui-topbar">
+      <button class="ui-button ui-menu-button" data-variant="ghost" data-icon aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><i class="ri-menu-line"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb">
+        <li><a href="#">ledgerline</a></li>
+        <li><a href="#">payments-core</a></li>
+        <li><a href="#">production</a></li>
+        <li aria-current="page">Deployments</li>
+      </ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-topbar-search" data-dialog-open="command" aria-label="Search and run commands"><i class="ri-search-line"></i><span>Search</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ri-notification-3-line"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-content">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Deployments</h1>
+          <p class="ui-page-sub"><span>payments-core</span><span class="mono">production</span><span class="ui-status" data-status="info" data-live>1 building</span></p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" data-variant="primary"><i class="ri-upload-cloud-2-line"></i>Deploy</button>
+        </div>
+      </div>
+
+      <div class="ui-filter-bar">
+        <label class="ui-control"><i class="ri-search-line" aria-hidden="true"></i><input class="ui-input" type="search" placeholder="Commit, SHA or author" aria-label="Search deployments"></label>
+        <select class="ui-select" aria-label="Service">
+          <option>All services</option><option>api-gateway</option><option>payments-worker</option><option>ledger-writer</option><option>search-indexer</option><option>webhooks-dispatcher</option><option>auth-service</option>
+        </select>
+        <div class="ui-segmented" aria-label="Status"><button aria-pressed="true" data-value="all">All</button><button aria-pressed="false" data-value="active">Active</button><button aria-pressed="false" data-value="failed">Failed</button></div>
+        <span class="ui-filter-count">8 of 214</span>
+      </div>
+
+      <div class="signal-pane">
+        <section class="ui-panel" aria-label="Deployment list">
+          <div class="ui-list" role="listbox" aria-label="Deployments">
+            <button class="ui-list-item" role="option" aria-selected="false">
+              <i class="ri-git-commit-line" aria-hidden="true"></i>
+              <div><strong>feat(search): reindex merchants by MCC</strong><span class="ui-list-meta"><span class="ui-status" data-status="info" data-live>Building</span><span>search-indexer</span><span>7d33e2a</span></span></div>
+              <span>14:58</span>
+            </button>
+            <button class="ui-list-item" role="option" aria-selected="true">
+              <i class="ri-git-commit-line" aria-hidden="true"></i>
+              <div><strong>fix(gateway): cap idempotency cache at 50k keys</strong><span class="ui-list-meta"><span class="ui-status" data-status="ok">Active</span><span>api-gateway</span><span>9c2e71b</span></span></div>
+              <span>14:19</span>
+            </button>
+            <button class="ui-list-item" role="option" aria-selected="false">
+              <i class="ri-git-commit-line" aria-hidden="true"></i>
+              <div><strong>feat(gateway): idempotency keys on POST /v1/transfers</strong><span class="ui-list-meta"><span class="ui-status" data-status="warn">Rolled back</span><span>api-gateway</span><span>a3f9c1e</span></span></div>
+              <span>13:05</span>
+            </button>
+            <button class="ui-list-item" role="option" aria-selected="false">
+              <i class="ri-git-commit-line" aria-hidden="true"></i>
+              <div><strong>chore(deps): bump pgx to 5.7.1</strong><span class="ui-list-meta"><span class="ui-status" data-status="ok">Active</span><span>ledger-writer</span><span>51f0a9c</span></span></div>
+              <span>08:52</span>
+            </button>
+            <button class="ui-list-item" role="option" aria-selected="false">
+              <i class="ri-git-commit-line" aria-hidden="true"></i>
+              <div><strong>fix(webhooks): retry 429 responses with jitter</strong><span class="ui-list-meta"><span class="ui-status" data-status="ok">Active</span><span>webhooks-dispatcher</span><span>b6a1f30</span></span></div>
+              <span>Oct 27</span>
+            </button>
+            <button class="ui-list-item" role="option" aria-selected="false">
+              <i class="ri-git-commit-line" aria-hidden="true"></i>
+              <div><strong>perf(worker): batch settlement writes</strong><span class="ui-list-meta"><span class="ui-status" data-status="ok">Active</span><span>payments-worker</span><span>e18b04d</span></span></div>
+              <span>Oct 26</span>
+            </button>
+            <button class="ui-list-item" role="option" aria-selected="false">
+              <i class="ri-git-commit-line" aria-hidden="true"></i>
+              <div><strong>feat(worker): parallel payout batches</strong><span class="ui-list-meta"><span class="ui-status" data-status="bad">Failed</span><span>payments-worker</span><span>3b9e7aa</span></span></div>
+              <span>Oct 25</span>
+            </button>
+            <button class="ui-list-item" role="option" aria-selected="false">
+              <i class="ri-git-commit-line" aria-hidden="true"></i>
+              <div><strong>feat(auth): rotate signing keys every 24h</strong><span class="ui-list-meta"><span class="ui-status" data-status="idle">Superseded</span><span>auth-service</span><span>0fe9c55</span></span></div>
+              <span>Oct 24</span>
+            </button>
+          </div>
+        </section>
+
+        <aside class="ui-detail" aria-labelledby="detail-title">
+          <div class="ui-detail-head">
+            <div>
+              <h2 id="detail-title">fix(gateway): cap idempotency cache at 50k keys</h2>
+              <p class="ui-page-sub"><span class="ui-status" data-status="ok">Active</span><span class="mono">dpl_4k9xq2m7</span><span>1m 48s</span></p>
+            </div>
+            <div class="ui-page-actions">
+              <button class="ui-button" data-size="sm"><i class="ri-restart-line"></i>Redeploy</button>
+              <button class="ui-button" data-size="sm"><i class="ri-arrow-go-back-line"></i>Roll back</button>
+              <button class="ui-button" data-size="sm" data-variant="ghost"><i class="ri-file-list-3-line"></i>Logs</button>
+            </div>
+          </div>
+          <div class="ui-tabs" role="tablist" aria-label="Deployment">
+            <button role="tab" id="facts-tab" aria-selected="true" aria-controls="facts-panel">Details</button>
+            <button role="tab" id="steps-tab" aria-selected="false" aria-controls="steps-panel">Build steps</button>
+          </div>
+          <div class="ui-tab-panel" role="tabpanel" id="facts-panel" aria-labelledby="facts-tab">
+            <dl class="ui-detail-rows">
+              <div class="ui-detail-row"><dt>Service</dt><dd class="mono">api-gateway</dd></div>
+              <div class="ui-detail-row"><dt>Commit</dt><dd class="mono"><a href="#">9c2e71b</a><span>main</span></dd></div>
+              <div class="ui-detail-row"><dt>Author</dt><dd><span class="ui-avatar" aria-hidden="true">DR</span>Dani Reyes</dd></div>
+              <div class="ui-detail-row"><dt>Trigger</dt><dd>Push to main</dd></div>
+              <div class="ui-detail-row"><dt>Image</dt><dd class="mono">sha256:3f1c08e…a9e2</dd></div>
+              <div class="ui-detail-row"><dt>Regions</dt><dd class="mono">iad1 ×3 · fra1 ×3</dd></div>
+              <div class="ui-detail-row"><dt>Started</dt><dd class="mono">2026-10-28 14:19:06 UTC</dd></div>
+              <div class="ui-detail-row"><dt>Replaced</dt><dd class="mono"><a href="#">a3f9c1e</a><span>rolled back 13:35</span></dd></div>
+            </dl>
+          </div>
+          <div class="ui-tab-panel" role="tabpanel" id="steps-panel" aria-labelledby="steps-tab" hidden>
+            <ul class="ui-list">
+              <li class="ui-list-item"><i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i><div><strong>Clone repository</strong></div><span>1.2s</span></li>
+              <li class="ui-list-item"><i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i><div><strong>Install dependencies</strong><span class="ui-list-meta"><span>cache hit</span></span></div><span>18.4s</span></li>
+              <li class="ui-list-item"><i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i><div><strong>Build image</strong></div><span>41.0s</span></li>
+              <li class="ui-list-item"><i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i><div><strong>Health check /healthz</strong></div><span>12.0s</span></li>
+              <li class="ui-list-item"><i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i><div><strong>Shift traffic to 100%</strong></div><span>35.4s</span></li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+document.querySelector('.ui-menu-button').addEventListener('click',e=>{const b=e.currentTarget;b.setAttribute('aria-expanded',String(b.getAttribute('aria-expanded')!=='true'));});
+document.querySelectorAll('[role=option]').forEach(o=>o.addEventListener('click',()=>{document.querySelectorAll('[role=option]').forEach(x=>x.setAttribute('aria-selected',String(x===o)));}));
+</script>
+</body>
+</html>

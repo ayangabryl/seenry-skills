@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>api-gateway settings · payments-core</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Project navigation">
+    <div class="ui-sidebar-head">
+      <span class="logo" aria-hidden="true"><i class="ri-pulse-line"></i></span>
+      <strong>ledgerline</strong>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Switch workspace"><i class="ri-expand-up-down-line"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="payments-core">
+      <span class="ui-nav-label">payments-core</span>
+      <a class="ui-nav-item" href="dashboard.html"><i class="ri-dashboard-3-line"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i class="ri-upload-cloud-2-line"></i>Deployments<span class="ui-nav-count">1</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-stack-line"></i>Services<span class="ui-nav-count">7</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-file-list-3-line"></i>Logs</a>
+      <a class="ui-nav-item" href="#"><i class="ri-line-chart-line"></i>Metrics</a>
+      <a class="ui-nav-item" href="#"><i class="ri-alarm-warning-line"></i>Alerts<span class="ui-nav-count" data-tone="bad">2</span></a>
+    </nav>
+    <nav class="ui-nav" aria-label="Configuration">
+      <span class="ui-nav-label">Configuration</span>
+      <a class="ui-nav-item" href="#"><i class="ri-key-2-line"></i>Variables</a>
+      <a class="ui-nav-item" href="#"><i class="ri-global-line"></i>Domains</a>
+      <a class="ui-nav-item" href="settings.html" aria-current="page"><i class="ri-settings-3-line"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MO</span>
+      <span>Mara Okafor</span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Account menu"><i class="ri-more-line"></i></button>
+    </div>
+  </aside>
+
+  <div class="ui-main">
+    <header class="ui-topbar">
+      <button class="ui-button ui-menu-button" data-variant="ghost" data-icon aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><i class="ri-menu-line"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb">
+        <li><a href="#">ledgerline</a></li>
+        <li><a href="#">payments-core</a></li>
+        <li><a href="#">api-gateway</a></li>
+        <li aria-current="page">Settings</li>
+      </ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-topbar-search" data-dialog-open="command" aria-label="Search and run commands"><i class="ri-search-line"></i><span>Search</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ri-notification-3-line"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-content">
+      <div class="signal-narrow">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Service settings</h1>
+          <p class="ui-page-sub"><span class="mono">api-gateway</span><span>payments-core</span><span>Changes apply on the next deploy</span></p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" data-variant="ghost">Discard</button>
+          <button class="ui-button" data-variant="primary" data-toast-message="Settings saved" data-toast-description="api-gateway picks them up on the next deploy.">Save changes</button>
+        </div>
+      </div>
+
+      <section class="ui-settings-group" aria-labelledby="general-title">
+        <header><h2 id="general-title">Source</h2><p>Where the service is built from and how it starts.</p></header>
+        <div class="ui-settings-row">
+          <div><label for="svc-name">Service name</label><p>Used in URLs, logs and the CLI.</p></div>
+          <div><input class="ui-input mono" id="svc-name" value="api-gateway"></div>
+        </div>
+        <div class="ui-settings-row">
+          <div><label for="svc-repo">Repository</label><p>Pushes to the production branch deploy automatically.</p></div>
+          <div><span class="ui-control"><i class="ri-github-line" aria-hidden="true"></i><input class="ui-input mono" id="svc-repo" value="ledgerline/payments-core"></span><select class="ui-select" aria-label="Production branch"><option>main</option><option>release</option></select></div>
+        </div>
+        <div class="ui-settings-row">
+          <div><label for="svc-root">Root directory</label><p>Relative to the repository root.</p></div>
+          <div><input class="ui-input mono" id="svc-root" value="services/gateway"></div>
+        </div>
+        <div class="ui-settings-row">
+          <div><label for="svc-start">Start command</label></div>
+          <div><input class="ui-input mono" id="svc-start" value="node dist/server.js"></div>
+        </div>
+      </section>
+
+      <section class="ui-settings-group" aria-labelledby="scale-title">
+        <header><h2 id="scale-title">Regions and scaling</h2><p>Instances run in every selected region.</p></header>
+        <div class="ui-settings-row">
+          <div><label for="svc-region">Primary region</label><p>Volumes and the cron runner live here.</p></div>
+          <div><select class="ui-select" id="svc-region"><option>iad1 · Ashburn, US East</option><option>fra1 · Frankfurt</option><option>sin1 · Singapore</option></select></div>
+        </div>
+        <div class="ui-settings-row">
+          <div><span>Instances per region</span><p>Currently 3 in iad1 and 3 in fra1.</p></div>
+          <div>
+            <span class="ui-control"><span class="ui-affix" aria-hidden="true">min</span><input class="ui-input mono" type="number" value="2" min="0" aria-label="Minimum instances"></span>
+            <span class="ui-control"><span class="ui-affix" aria-hidden="true">max</span><input class="ui-input mono" type="number" value="8" min="1" aria-label="Maximum instances"></span>
+          </div>
+        </div>
+        <div class="ui-settings-row">
+          <div><span>Autoscale</span><p>Add an instance when CPU stays above 70% for 2 minutes.</p></div>
+          <div><label class="ui-switch"><input type="checkbox" role="switch" checked><span>On</span></label></div>
+        </div>
+        <div class="ui-settings-row">
+          <div><span>Sleep when idle</span><p>Stop instances after 10 minutes without requests. Not for public APIs.</p></div>
+          <div><label class="ui-switch"><input type="checkbox" role="switch"><span>Off</span></label></div>
+        </div>
+      </section>
+
+      <section class="ui-settings-group" aria-labelledby="health-title">
+        <header><h2 id="health-title">Health checks</h2><p>New instances take traffic only after they pass.</p></header>
+        <div class="ui-settings-row">
+          <div><label for="hc-path">Path</label></div>
+          <div><input class="ui-input mono" id="hc-path" value="/healthz"><select class="ui-select" aria-label="Timeout"><option>Timeout 10 s</option><option>Timeout 30 s</option><option>Timeout 60 s</option></select></div>
+        </div>
+        <div class="ui-settings-row">
+          <div><span>Restart policy</span><p>What happens when the process exits.</p></div>
+          <div><fieldset class="ui-radio-group"><legend class="sr-only">Restart policy</legend>
+            <label class="ui-choice"><input type="radio" name="restart" checked><span>On failure, up to 10 times</span></label>
+            <label class="ui-choice"><input type="radio" name="restart"><span>Always</span></label>
+            <label class="ui-choice"><input type="radio" name="restart"><span>Never</span></label>
+          </fieldset></div>
+        </div>
+      </section>
+
+      <section class="ui-settings-group" aria-labelledby="notify-title">
+        <header><h2 id="notify-title">Notifications</h2><p>Sent to <span class="mono">#payments-oncall</span> in Slack and to PagerDuty for firing alerts.</p></header>
+        <div class="ui-settings-row">
+          <div><span>Deploys</span></div>
+          <div><label class="ui-choice"><input type="checkbox" checked><span>Failed</span></label><label class="ui-choice"><input type="checkbox"><span>Succeeded</span></label><label class="ui-choice"><input type="checkbox" checked><span>Rolled back</span></label></div>
+        </div>
+        <div class="ui-settings-row">
+          <div><span>Page on-call</span><p>For alerts marked critical.</p></div>
+          <div><label class="ui-switch"><input type="checkbox" role="switch" checked><span>On</span></label></div>
+        </div>
+      </section>
+
+      <section class="ui-danger" aria-labelledby="danger-title">
+        <header><h2 id="danger-title">Danger zone</h2><p>These act on production immediately.</p></header>
+        <div class="ui-settings-row">
+          <div><span>Pause service</span><p>Stops all 6 instances. Requests to api.ledgerline.com return 503 until resumed.</p></div>
+          <div><button class="ui-button"><i class="ri-pause-line"></i>Pause</button></div>
+        </div>
+        <div class="ui-settings-row">
+          <div><span>Delete service</span><p>Removes api-gateway, its 214 deployments and its variables. Volumes are kept for 7 days.</p></div>
+          <div><button class="ui-button" data-variant="danger" data-dialog-open="confirm-delete"><i class="ri-delete-bin-line"></i>Delete service</button></div>
+        </div>
+      </section>
+      </div>
+    </main>
+  </div>
+</div>
+<dialog class="ui-dialog" id="confirm-delete" aria-labelledby="confirm-title">
+  <div class="ui-dialog__head"><h2 id="confirm-title">Delete api-gateway?</h2></div>
+  <div class="ui-dialog__body"><label class="ui-field"><span class="ui-help">Type <span class="mono">api-gateway</span> to confirm.</span><input class="ui-input mono" aria-label="Service name to confirm"></label></div>
+  <div class="ui-dialog__foot"><button class="ui-button" data-dialog-close>Cancel</button><button class="ui-button" data-variant="danger">Delete service</button></div>
+</dialog>
+<script>
+document.querySelector('.ui-menu-button').addEventListener('click',e=>{const b=e.currentTarget;b.setAttribute('aria-expanded',String(b.getAttribute('aria-expanded')!=='true'));});
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+/* ledger — light, dense, precise UI for finance and operations software. */
+:root{
+  color-scheme:light;
+  --font:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+
+  --type-title:600 22px/28px var(--font);
+  --type-heading:600 14px/20px var(--font);
+  --type-body:400 14px/20px var(--font);
+  --type-label:500 13px/18px var(--font);
+  --type-small:400 12px/16px var(--font);
+  --type-stat:500 24px/32px var(--font);
+  --type-mono:400 13px/18px var(--font-mono);
+  --tracking-title:-0.01em;
+
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-7:32px;--space-8:48px;
+  --space-half:2px;--space-1h:6px;--space-2h:10px;
+
+  --sidebar-w:232px;--topbar-h:52px;--row-h:36px;--head-h:32px;--control-h:32px;--control-h-sm:28px;--touch:44px;
+  --content-max:1280px;--gutter:24px;--gutter-sm:16px;--detail-w:420px;--settings-label-w:280px;--field-max:320px;
+  --icon:18px;--icon-sm:16px;--mark:6px;--hairline:1px;--rule:2px;--avatar:28px;--avatar-sm:24px;--switch-w:32px;--switch-h:18px;--knob:14px;
+  --chart-h:168px;--badge-h:20px;--input-size-touch:16px;--menu-min:200px;--dialog-w:440px;--command-w:560px;--sheet-w:420px;--chart-stack-h:20px;--chart-swatch:8px;--axis-w:44px;--search-w:280px;
+
+  --bg:#f5f6f8;--surface:#ffffff;--surface-2:#f9fafb;--hover:#f1f3f6;--selected:#eef2fa;
+  --line:#e3e6eb;--line-strong:#cfd4dc;
+  --text:#0f1726;--text-2:#465264;--text-3:#5b6779;
+  --accent:#1b3a75;--accent-hover:#142e5f;--accent-subtle:#eaf0fa;--accent-text:#1b3a75;--on-accent:#ffffff;
+  --focus:0 0 0 3px #1b3a7533;--focus-ring:#1b3a75;
+  --ok:#11703f;--ok-bg:#e7f4ec;--warn:#8a5300;--warn-bg:#fcf1de;--bad:#b3261e;--bad-bg:#fcebe9;--info:#3a4a66;--info-bg:#edf0f5;--idle:#5b6779;--idle-bg:#f0f2f5;
+  --scrim:#0f172666;--knob-bg:#ffffff;
+
+  --r-sm:4px;--r-md:6px;--r-lg:8px;--r-round:999px;
+  --t-fast:100ms;--t-base:150ms;--t-layer:180ms;
+  --ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1);
+  --shadow-float:0 1px 2px #0f172614,0 8px 24px #0f17261f;
+  --shadow-knob:0 1px 2px #0f172633;
+
+  --chart-1:#25457f;--chart-2:#6b88bd;--chart-3:#a9bcdc;--chart-4:#c98a1c;--chart-5:#c0392f;
+  --chart-grid:#e9ecf0;--chart-axis:#5b6779;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  color-scheme:dark;
+  --bg:#0d1117;--surface:#141a22;--surface-2:#18202a;--hover:#1e2732;--selected:#1a2a48;
+  --line:#26303c;--line-strong:#36414f;
+  --text:#e9edf3;--text-2:#b3bdcb;--text-3:#97a3b4;
+  --accent:#3b62b7;--accent-hover:#4a70c4;--accent-subtle:#1a2a48;--accent-text:#a9c1f5;--on-accent:#ffffff;
+  --focus:0 0 0 3px #7fa2ec55;--focus-ring:#8eaef0;
+  --ok:#5fc98e;--ok-bg:#12301f;--warn:#e3b05c;--warn-bg:#352711;--bad:#f2867c;--bad-bg:#3a1a18;--info:#aebcd4;--info-bg:#1d2633;--idle:#97a3b4;--idle-bg:#1c232d;
+  --scrim:#00000099;--knob-bg:#e9edf3;
+  --shadow-float:0 1px 2px #00000066,0 12px 32px #00000080;--shadow-knob:0 1px 2px #00000080;
+  --chart-1:#8fb0f0;--chart-2:#5f80c0;--chart-3:#46628f;--chart-4:#d9a043;--chart-5:#e2685e;
+  --chart-grid:#222b36;--chart-axis:#97a3b4;
+}}
+[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#0d1117;--surface:#141a22;--surface-2:#18202a;--hover:#1e2732;--selected:#1a2a48;
+  --line:#26303c;--line-strong:#36414f;
+  --text:#e9edf3;--text-2:#b3bdcb;--text-3:#97a3b4;
+  --accent:#3b62b7;--accent-hover:#4a70c4;--accent-subtle:#1a2a48;--accent-text:#a9c1f5;--on-accent:#ffffff;
+  --focus:0 0 0 3px #7fa2ec55;--focus-ring:#8eaef0;
+  --ok:#5fc98e;--ok-bg:#12301f;--warn:#e3b05c;--warn-bg:#352711;--bad:#f2867c;--bad-bg:#3a1a18;--info:#aebcd4;--info-bg:#1d2633;--idle:#97a3b4;--idle-bg:#1c232d;
+  --scrim:#00000099;--knob-bg:#e9edf3;
+  --shadow-float:0 1px 2px #00000066,0 12px 32px #00000080;--shadow-knob:0 1px 2px #00000080;
+  --chart-1:#8fb0f0;--chart-2:#5f80c0;--chart-3:#46628f;--chart-4:#d9a043;--chart-5:#e2685e;
+  --chart-grid:#222b36;--chart-axis:#97a3b4;
+}
+[data-theme=light]{color-scheme:light}

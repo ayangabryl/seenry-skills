@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings · Hearth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .settings{display:grid;gap:var(--space-7)}
+  .member{display:flex;align-items:center;gap:var(--space-3);min-width:0}
+  .member strong{display:block;font:var(--type-label);color:var(--text)}
+  .member small{display:block;font:var(--type-small);color:var(--text-3)}
+  @media (max-width:47.9375em){.settings{gap:var(--space-6)}.ui-settings-row:has(.ui-segmented){grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="ui-shell" id="shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="ui-sidebar-head">
+      <span class="ui-avatar" aria-hidden="true">A</span>
+      <div><strong>Alvarez household</strong><small>Hearth family plan</small></div>
+    </div>
+    <nav class="ui-nav" aria-label="Sections">
+      <a class="ui-nav-item" href="dashboard.html"><i class="ph ph-house" aria-hidden="true"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i class="ph ph-receipt" aria-hidden="true"></i>Transactions<span class="ui-nav-count">5</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-chart-pie-slice" aria-hidden="true"></i>Budget</a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-calendar-blank" aria-hidden="true"></i>Bills<span class="ui-nav-count">3</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-bank" aria-hidden="true"></i>Accounts</a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-piggy-bank" aria-hidden="true"></i>Goals</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Household">
+      <span class="ui-nav-label">Household</span>
+      <a class="ui-nav-item" href="#"><i class="ph ph-users" aria-hidden="true"></i>Members</a>
+      <a class="ui-nav-item" href="#" aria-current="page"><i class="ph ph-gear" aria-hidden="true"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MA</span>
+      <div><strong>Maya Alvarez</strong><small>Owner</small></div>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Sign out"><i class="ph ph-sign-out" aria-hidden="true"></i></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><i class="ph ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Alvarez household</a></li><li aria-current="page">Settings</li></ol></nav>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ph ph-bell" aria-hidden="true"></i></button>
+    </header>
+
+    <div class="ui-page-header">
+      <div>
+        <h1 class="ui-page-title">Settings</h1>
+        <p class="ui-page-sub">Your profile, how the household budget works, and what Hearth tells you about.</p>
+      </div>
+      <div class="ui-page-actions">
+        <button class="ui-button" data-variant="primary" data-toast-message="Settings saved" data-toast-description="Daniel will see the new budget rules next time he opens Hearth.">Save changes</button>
+      </div>
+    </div>
+
+    <div class="settings">
+      <section class="ui-settings-group" aria-labelledby="profile-title">
+        <header><h2 id="profile-title">Profile</h2><p>How you appear to other members of the household.</p></header>
+        <div>
+          <div class="ui-settings-row">
+            <label class="ui-field"><span class="ui-label">Full name</span><input class="ui-input" value="Maya Alvarez" autocomplete="name"></label>
+            <label class="ui-field"><span class="ui-label">Email</span><input class="ui-input" type="email" value="maya.alvarez@fastmail.com" autocomplete="email"></label>
+          </div>
+          <div class="ui-settings-row">
+            <div><strong id="appearance-label">Appearance</strong><p>Follow your device or pick one.</p></div>
+            <div class="ui-segmented" aria-labelledby="appearance-label" id="appearance"><button aria-pressed="false" data-value="light">Light</button><button aria-pressed="false" data-value="dark">Dark</button><button aria-pressed="true" data-value="system">System</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ui-settings-group" aria-labelledby="household-title">
+        <header><h2 id="household-title">Household</h2><p>Everyone here shares accounts, budgets and bills.</p></header>
+        <div>
+          <div class="ui-settings-row">
+            <div class="member"><span class="ui-avatar" aria-hidden="true">MA</span><div><strong>Maya Alvarez</strong><small>maya.alvarez@fastmail.com</small></div></div>
+            <span class="ui-badge">Owner</span>
+          </div>
+          <div class="ui-settings-row">
+            <div class="member"><span class="ui-avatar" aria-hidden="true">DA</span><div><strong>Daniel Alvarez</strong><small>dan.alvarez@gmail.com</small></div></div>
+            <span class="ui-badge">Member</span>
+          </div>
+          <div class="ui-settings-row">
+            <div><strong>Invite someone</strong><p>A partner, parent or anyone who shares the bills.</p></div>
+            <button class="ui-button"><i class="ph ph-user-plus" aria-hidden="true"></i>Invite</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="ui-settings-group" aria-labelledby="budget-title">
+        <header><h2 id="budget-title">Budget</h2><p>Rules Hearth uses when it plans each month.</p></header>
+        <div>
+          <div class="ui-settings-row">
+            <div><strong id="start-label">Month starts on</strong><p>Match it to payday so each budget lines up with income.</p></div>
+            <select class="ui-select" aria-labelledby="start-label"><option selected>The 1st</option><option>The 15th</option><option>Last business day</option></select>
+          </div>
+          <label class="ui-settings-row">
+            <div><strong>Roll over unspent money</strong><p>Money left in a category carries into next month.</p></div>
+            <span class="ui-switch"><input type="checkbox" role="switch" checked aria-label="Roll over unspent money"></span>
+          </label>
+          <label class="ui-settings-row">
+            <div><strong>Round to whole dollars</strong><p>Shows $142 instead of $142.38 on summaries.</p></div>
+            <span class="ui-switch"><input type="checkbox" role="switch" aria-label="Round to whole dollars"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="ui-settings-group" aria-labelledby="notify-title">
+        <header><h2 id="notify-title">Notifications</h2><p>Sent to maya.alvarez@fastmail.com and the Hearth app.</p></header>
+        <div>
+          <label class="ui-settings-row">
+            <div><strong>Weekly summary</strong><p>Sunday evening: what you spent, what's coming up.</p></div>
+            <span class="ui-switch"><input type="checkbox" role="switch" checked aria-label="Weekly summary"></span>
+          </label>
+          <label class="ui-settings-row">
+            <div><strong>Bill reminders</strong><p>Three days before a bill that isn't on autopay.</p></div>
+            <span class="ui-switch"><input type="checkbox" role="switch" checked aria-label="Bill reminders"></span>
+          </label>
+          <div class="ui-settings-row">
+            <div><strong id="large-label">Large transactions</strong><p>Tell me about any single charge above this amount.</p></div>
+            <select class="ui-select" aria-labelledby="large-label"><option>$100</option><option selected>$250</option><option>$500</option><option>Never</option></select>
+          </div>
+        </div>
+      </section>
+
+      <section class="ui-settings-group ui-danger" aria-labelledby="danger-title">
+        <header><h2 id="danger-title">Leave or delete</h2><p>These can't be undone from Hearth.</p></header>
+        <div>
+          <div class="ui-settings-row">
+            <div><strong>Disconnect all accounts</strong><p>Stops syncing 5 accounts. Past transactions stay.</p></div>
+            <button class="ui-button" data-variant="danger">Disconnect</button>
+          </div>
+          <div class="ui-settings-row">
+            <div><strong>Delete household</strong><p>Removes budgets, notes and history for Maya and Daniel.</p></div>
+            <button class="ui-button" data-variant="danger">Delete household</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<script>
+  (() => {
+    const shell = document.getElementById('shell');
+    const toggle = shell.querySelector('[data-nav-toggle]');
+    const set = open => { shell.dataset.nav = open ? 'open' : ''; toggle.setAttribute('aria-expanded', String(open)); };
+    toggle.addEventListener('click', () => set(shell.dataset.nav !== 'open'));
+    shell.addEventListener('click', e => { if (shell.dataset.nav === 'open' && !e.target.closest('.ui-sidebar, [data-nav-toggle]')) set(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && shell.dataset.nav === 'open') { set(false); toggle.focus(); } });
+    document.getElementById('appearance').addEventListener('seenry:change', e => {
+      const v = e.detail.value;
+      if (v === 'system') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.dataset.theme = v;
+    });
+  })();
+</script>
+</body>
+</html>
