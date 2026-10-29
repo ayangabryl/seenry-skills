@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings · Halyard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Primary">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, current Northbeam">
+      <span class="ui-workspace-mark" aria-hidden="true">N</span>
+      <span>Northbeam</span>
+      <i data-lucide="chevrons-up-down"></i>
+    </button>
+    <div class="ui-quick">
+      <button class="ui-button" type="button"><i data-lucide="search"></i>Search<span class="ui-kbd">⌘K</span></button>
+      <button class="ui-button" type="button" data-icon aria-label="New run"><i data-lucide="square-pen"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html"><i data-lucide="house"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="inbox"></i>Review queue<span class="ui-nav-count">4</span></a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="activity"></i>Runs</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-agents">
+      <span class="ui-nav-label" id="nav-agents">Agents</span>
+      <a class="ui-nav-item" href="detail.html"><i data-lucide="user-search"></i>Lead enrichment</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="mail"></i>Inbox triage</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="calendar-check"></i>Meeting follow-ups</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="trending-down"></i>Churn signals</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="megaphone"></i>Ad spend digest<span class="ui-nav-count">3</span></a>
+      <a class="ui-nav-item" href="#"><i data-lucide="file-text"></i>Release notes</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-workspace">
+      <span class="ui-nav-label" id="nav-workspace">Workspace</span>
+      <a class="ui-nav-item" href="#"><i data-lucide="plug"></i>Integrations</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="book-open"></i>Knowledge</a>
+      <a class="ui-nav-item" href="billing.html"><i data-lucide="credit-card"></i>Billing</a>
+      <a class="ui-nav-item" href="settings.html" aria-current="page"><i data-lucide="settings"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MR</span>
+      <span>Maya Ruiz<small>Admin</small></span>
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Help"><i data-lucide="circle-help"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Northbeam</a></li><li aria-current="page">Settings</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Notifications"><i data-lucide="bell"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-main" data-narrow>
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Settings</h1>
+          <p class="ui-page-sub">Workspace preferences for Northbeam. Changes apply to every agent.</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" type="button" data-variant="ghost">Discard</button>
+          <button class="ui-button" type="button" data-variant="primary" data-toast-message="Settings saved" data-toast-description="New runs use these defaults.">Save changes</button>
+        </div>
+      </div>
+
+      <div class="ui-tabs" role="tablist" aria-label="Settings sections">
+        <button role="tab" id="general-tab" aria-selected="true" aria-controls="general-panel">General</button>
+        <button role="tab" id="members-tab" aria-selected="false" aria-controls="members-panel">Members</button>
+        <button role="tab" id="billing-tab" aria-selected="false" aria-controls="billing-panel">Billing</button>
+        <button role="tab" id="keys-tab" aria-selected="false" aria-controls="keys-panel">API keys</button>
+      </div>
+
+      <div class="ui-tab-panel ui-stack" role="tabpanel" id="general-panel" aria-labelledby="general-tab">
+        <section class="ui-settings-group" aria-labelledby="ws-title">
+          <header><h2 id="ws-title">Workspace</h2><p>How Northbeam appears to members and in links.</p></header>
+          <div class="ui-settings-row">
+            <label for="ws-name"><span>Name</span><span>Shown in the sidebar and in Slack messages.</span></label>
+            <div><input class="ui-input" id="ws-name" value="Northbeam"></div>
+          </div>
+          <div class="ui-settings-row">
+            <label for="ws-url"><span>URL</span><span>Changing it breaks existing run links.</span></label>
+            <div><span class="ui-control"><span class="ui-addon" aria-hidden="true">halyard.app/</span><input class="ui-input" id="ws-url" value="northbeam"></span></div>
+          </div>
+          <div class="ui-settings-row">
+            <label for="ws-tz"><span>Timezone</span><span>Used for schedules and daily digests.</span></label>
+            <div><select class="ui-select" id="ws-tz"><option>America/Los_Angeles (PT)</option><option>America/New_York (ET)</option><option>Europe/London (GMT)</option><option>Asia/Singapore (SGT)</option></select></div>
+          </div>
+        </section>
+
+        <section class="ui-settings-group" aria-labelledby="agent-title">
+          <header><h2 id="agent-title">Agent defaults</h2><p>New agents start with these. Each agent can override them.</p></header>
+          <div class="ui-settings-row">
+            <label for="model"><span>Default model</span><span>Used when an agent has no model set.</span></label>
+            <div><select class="ui-select" id="model"><option>claude-sonnet-4-5</option><option>claude-haiku-4-5</option><option>gpt-5</option><option>gpt-5-mini</option></select></div>
+          </div>
+          <div class="ui-settings-row">
+            <label for="limit"><span>Spend limit per run</span><span>Runs stop and ask for review above this amount.</span></label>
+            <div><span class="ui-control"><span class="ui-affix" aria-hidden="true">$</span><input class="ui-input" id="limit" inputmode="decimal" value="2.50" aria-describedby="limit-unit"><span class="ui-affix" id="limit-unit">USD</span></span></div>
+          </div>
+          <div class="ui-settings-row">
+            <div><span id="approve-label">Approve CRM writes</span><span>Pause before an agent creates or updates HubSpot and Salesforce records.</span></div>
+            <div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="approve-label"></label></div>
+          </div>
+          <div class="ui-settings-row">
+            <div><span id="retry-label">Retry failed runs</span><span>Up to 2 retries with backoff for timeouts and rate limits.</span></div>
+            <div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="retry-label"></label></div>
+          </div>
+        </section>
+
+        <section class="ui-settings-group" aria-labelledby="notify-title">
+          <header><h2 id="notify-title">Notifications</h2><p>Where Halyard tells you about runs.</p></header>
+          <div class="ui-settings-row">
+            <label for="channel"><span>Failure alerts</span><span>Post when the same agent fails twice in an hour.</span></label>
+            <div><select class="ui-select" id="channel"><option>#revops-alerts</option><option>#marketing-ops</option><option>#eng-oncall</option></select></div>
+          </div>
+          <div class="ui-settings-row">
+            <div><span id="digest-label">Weekly digest</span><span>Runs, spend and failures every Monday at 8:00.</span></div>
+            <div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="digest-label"></label></div>
+          </div>
+          <div class="ui-settings-row">
+            <div><span id="review-label">Review requests by email</span><span>In addition to the review queue and Slack.</span></div>
+            <div><label class="ui-switch"><input type="checkbox" role="switch" aria-labelledby="review-label"></label></div>
+          </div>
+        </section>
+
+        <section class="ui-settings-group" aria-labelledby="int-title">
+          <header><h2 id="int-title">Integrations</h2><p>4 of 9 connected apps shown. Tokens are stored encrypted.</p></header>
+          <ul class="ui-list">
+            <li><div class="ui-list-item">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span>
+              <span><span>HubSpot</span><span class="ui-list-meta">Connected by Maya Ruiz · Sep 2</span></span>
+              <span class="ui-status" data-status="ok">Connected</span>
+              <button class="ui-button" type="button" data-size="sm">Manage</button>
+            </div></li>
+            <li><div class="ui-list-item">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="salesforce"></span></span>
+              <span><span>Salesforce</span><span class="ui-list-meta">Connected by Dana Okafor · Aug 19</span></span>
+              <span class="ui-status" data-status="ok">Connected</span>
+              <button class="ui-button" type="button" data-size="sm">Manage</button>
+            </div></li>
+            <li><div class="ui-list-item">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="slack"></span></span>
+              <span><span>Slack</span><span class="ui-list-meta">3 channels · Connected by Maya Ruiz · Jul 30</span></span>
+              <span class="ui-status" data-status="ok">Connected</span>
+              <button class="ui-button" type="button" data-size="sm">Manage</button>
+            </div></li>
+            <li><div class="ui-list-item">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="googlesheets"></span></span>
+              <span><span>Google Sheets</span><span class="ui-list-meta">Token expired Oct 26 · 3 runs failed</span></span>
+              <span class="ui-status" data-status="bad">Expired</span>
+              <button class="ui-button" type="button" data-size="sm">Reconnect</button>
+            </div></li>
+          </ul>
+        </section>
+
+        <section class="ui-danger" aria-labelledby="danger-title">
+          <header><h2 id="danger-title">Danger zone</h2><p>These actions affect every member of Northbeam.</p></header>
+          <div class="ui-settings-row">
+            <div><span>Transfer ownership</span><span>Billing and admin rights move to another admin.</span></div>
+            <div><button class="ui-button" type="button">Transfer</button></div>
+          </div>
+          <div class="ui-settings-row">
+            <div><span>Delete workspace</span><span>Removes 6 agents, 18,204 runs and all connections. This cannot be undone.</span></div>
+            <div><button class="ui-button" type="button" data-variant="danger" data-dialog-open="delete-ws">Delete workspace</button></div>
+          </div>
+        </section>
+      </div>
+      <div class="ui-tab-panel" role="tabpanel" id="members-panel" aria-labelledby="members-tab" hidden><div class="ui-card ui-empty"><h3>Members live in Halyard admin</h3><p>12 members, 3 admins. Invite and remove people from the admin console.</p></div></div>
+      <div class="ui-tab-panel" role="tabpanel" id="billing-panel" aria-labelledby="billing-tab" hidden><div class="ui-card ui-empty"><h3>Team plan, billed monthly</h3><p>Next invoice Nov 1 for $480 plus $1,284.60 model usage.</p></div></div>
+      <div class="ui-tab-panel" role="tabpanel" id="keys-panel" aria-labelledby="keys-tab" hidden><div class="ui-card ui-empty"><h3>No API keys yet</h3><p>Create a key to trigger agents from your own services.</p><button class="ui-button" type="button">Create key</button></div></div>
+
+      <dialog class="ui-dialog" id="delete-ws" aria-labelledby="delete-title">
+        <div class="ui-dialog__head"><h2 id="delete-title">Delete Northbeam?</h2></div>
+        <div class="ui-dialog__body">All 6 agents stop immediately and 18,204 runs are erased. Connected apps keep their own data.</div>
+        <div class="ui-dialog__foot"><button class="ui-button" type="button" data-dialog-close>Cancel</button><button class="ui-button" type="button" data-variant="danger" data-dialog-close>Delete workspace</button></div>
+      </dialog>
+    </main>
+  </div>
+</div>
+
+
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="../../../components/ui/seenry-ui.js"></script>
+<script>
+lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transactions · Hearth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .split{display:grid;grid-template-columns:minmax(0,1fr) var(--detail-w);gap:var(--space-6);align-items:start}
+  .ui-filter-bar+.split{margin-top:var(--space-5)}
+  .amount-in{color:var(--ok)}
+  .detail-actions{display:flex;gap:var(--space-2);flex-wrap:wrap}
+  .detail-note{margin:0;color:var(--text-3);font:var(--type-small)}
+  .ui-detail .ui-list{border-radius:var(--r-md)}
+  .ui-detail .ui-list-item{min-height:var(--row-h);padding:var(--space-2) var(--space-4)}
+  .ui-detail h3{font:var(--type-label);color:var(--text);margin-bottom:var(--space-2)}
+  .ui-detail h3 span{color:var(--text-3);font:var(--type-small)}
+  @media (max-width:63.9375em){.split{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="ui-shell" id="shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="ui-sidebar-head">
+      <span class="ui-avatar" aria-hidden="true">A</span>
+      <div><strong>Alvarez household</strong><small>Hearth family plan</small></div>
+    </div>
+    <nav class="ui-nav" aria-label="Sections">
+      <a class="ui-nav-item" href="dashboard.html"><i class="ph ph-house" aria-hidden="true"></i>Overview</a>
+      <a class="ui-nav-item" href="#" aria-current="page"><i class="ph ph-receipt" aria-hidden="true"></i>Transactions<span class="ui-nav-count">5</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-chart-pie-slice" aria-hidden="true"></i>Budget</a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-calendar-blank" aria-hidden="true"></i>Bills<span class="ui-nav-count">3</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-bank" aria-hidden="true"></i>Accounts</a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-piggy-bank" aria-hidden="true"></i>Goals</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Household">
+      <span class="ui-nav-label">Household</span>
+      <a class="ui-nav-item" href="#"><i class="ph ph-users" aria-hidden="true"></i>Members</a>
+      <a class="ui-nav-item" href="settings.html"><i class="ph ph-gear" aria-hidden="true"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MA</span>
+      <div><strong>Maya Alvarez</strong><small>Owner</small></div>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Sign out"><i class="ph ph-sign-out" aria-hidden="true"></i></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><i class="ph ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Alvarez household</a></li><li aria-current="page">Transactions</li></ol></nav>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ph ph-bell" aria-hidden="true"></i></button>
+    </header>
+
+    <div class="ui-page-header">
+      <div>
+        <h1 class="ui-page-title">Transactions</h1>
+        <p class="ui-page-sub">October 2026 · 64 transactions across 5 accounts</p>
+      </div>
+      <div class="ui-page-actions">
+        <button class="ui-button"><i class="ph ph-download-simple" aria-hidden="true"></i>Export CSV</button>
+        <button class="ui-button" data-variant="primary"><i class="ph ph-plus" aria-hidden="true"></i>Add transaction</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="ui-filter-bar">
+        <div class="ui-control"><span class="ui-affix"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></span><input class="ui-input" type="search" placeholder="Search merchants or notes" aria-label="Search transactions"></div>
+        <div class="ui-segmented" aria-label="Show"><button aria-pressed="true" data-value="all">All</button><button aria-pressed="false" data-value="review">To review</button><button aria-pressed="false" data-value="recurring">Recurring</button></div>
+        <select class="ui-select" aria-label="Account"><option>All accounts</option><option>Chase Sapphire ··4417</option><option>Chase Freedom ··8203</option><option>Apple Card</option><option>SchoolsFirst checking</option></select>
+        <output data-count>11 of 64 shown</output>
+      </div>
+
+      <div class="split">
+        <ul class="ui-list" aria-label="Transactions">
+          <li class="ui-list-meta">Today, Wednesday Oct 28</li>
+          <li><button class="ui-list-item" aria-current="true"><i class="ph ph-shopping-cart" aria-hidden="true"></i><span><strong>Whole Foods Market</strong><span class="ui-list-meta">Groceries · Chase Sapphire ··4417</span></span><span class="num">−$142.38</span></button></li>
+          <li><button class="ui-list-item"><i class="ph ph-coffee" aria-hidden="true"></i><span><strong>Blue Bottle Coffee</strong><span class="ui-list-meta">Dining out · Apple Card</span></span><span class="num">−$11.50</span></button></li>
+          <li class="ui-list-meta">Tuesday, Oct 27</li>
+          <li><button class="ui-list-item"><i class="ph ph-briefcase" aria-hidden="true"></i><span><strong>Lumen Health payroll</strong><span class="ui-list-meta">Income · SchoolsFirst checking</span></span><span class="num amount-in">+$3,412.50</span></button></li>
+          <li><button class="ui-list-item"><i class="ph ph-shopping-cart" aria-hidden="true"></i><span><strong>Trader Joe's</strong><span class="ui-list-meta"><span class="ui-status" data-status="warn">Needs a category</span></span></span><span class="num">−$64.18</span></button></li>
+          <li><button class="ui-list-item"><i class="ph ph-gas-pump" aria-hidden="true"></i><span><strong>Chevron</strong><span class="ui-list-meta">Transport · Chase Freedom ··8203</span></span><span class="num">−$48.20</span></button></li>
+          <li class="ui-list-meta">Monday, Oct 26</li>
+          <li><button class="ui-list-item"><i class="ph ph-baby" aria-hidden="true"></i><span><strong>Kumon Learning Center</strong><span class="ui-list-meta">Kids and childcare · SchoolsFirst checking</span></span><span class="num">−$180.00</span></button></li>
+          <li><button class="ui-list-item"><i class="ph ph-television" aria-hidden="true"></i><span><strong>Netflix</strong><span class="ui-list-meta">Subscriptions · Apple Card · Monthly</span></span><span class="num">−$22.99</span></button></li>
+          <li><button class="ui-list-item"><i class="ph ph-pill" aria-hidden="true"></i><span><strong>Walgreens</strong><span class="ui-list-meta">Health · Apple Card</span></span><span class="num">−$23.47</span></button></li>
+          <li class="ui-list-meta">Sunday, Oct 25</li>
+          <li><button class="ui-list-item"><i class="ph ph-arrows-left-right" aria-hidden="true"></i><span><strong>Venmo to Priya Shah</strong><span class="ui-list-meta"><span class="ui-status" data-status="warn">Needs a category</span></span></span><span class="num">−$40.00</span></button></li>
+          <li><button class="ui-list-item"><i class="ph ph-storefront" aria-hidden="true"></i><span><strong>Tartine Bakery</strong><span class="ui-list-meta">Dining out · Chase Sapphire ··4417</span></span><span class="num">−$36.75</span></button></li>
+        </ul>
+
+        <aside class="ui-detail" aria-labelledby="detail-title">
+          <div class="ui-detail-head">
+            <h2 id="detail-title">Whole Foods Market</h2>
+            <data value="-142.38">$142.38</data>
+            <p>Wednesday, October 28, 2026 at 6:42 pm</p>
+          </div>
+          <dl>
+            <div class="ui-detail-row"><dt>Status</dt><dd><span class="ui-status" data-status="info">Pending</span></dd></div>
+            <div class="ui-detail-row"><dt>Account</dt><dd>Chase Sapphire ··4417</dd></div>
+            <div class="ui-detail-row"><dt>Category</dt><dd><select class="ui-select" aria-label="Category"><option selected>Groceries</option><option>Dining out</option><option>Household</option><option>Kids and childcare</option></select></dd></div>
+            <div class="ui-detail-row"><dt>Paid by</dt><dd><span class="ui-avatar" aria-hidden="true">MA</span>Maya</dd></div>
+            <div class="ui-detail-row"><dt>Budget</dt><dd>$88 left in Groceries</dd></div>
+          </dl>
+          <label class="ui-field"><span class="ui-label">Note</span><textarea class="ui-textarea">Weekly shop plus snacks for Leo's Halloween party.</textarea></label>
+          <label class="ui-switch"><input type="checkbox" role="switch"><span>Exclude from budget</span></label>
+          <div>
+            <h3>Earlier at Whole Foods <span>· about $116 a week</span></h3>
+            <ul class="ui-list">
+              <li class="ui-list-item"><span class="ui-list-meta">Oct 21</span><span></span><span class="num">$118.90</span></li>
+              <li class="ui-list-item"><span class="ui-list-meta">Oct 14</span><span></span><span class="num">$131.06</span></li>
+              <li class="ui-list-item"><span class="ui-list-meta">Oct 7</span><span></span><span class="num">$97.44</span></li>
+            </ul>
+          </div>
+          <div class="detail-actions">
+            <button class="ui-button"><i class="ph ph-arrows-split" aria-hidden="true"></i>Split</button>
+            <button class="ui-button" data-variant="ghost"><i class="ph ph-trash" aria-hidden="true"></i>Delete</button>
+          </div>
+          <p class="detail-note">Changes save as you make them.</p>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+  (() => {
+    document.querySelectorAll('button.ui-list-item').forEach(item => item.addEventListener('click', () => {
+      document.querySelectorAll('button.ui-list-item[aria-current]').forEach(x => x.removeAttribute('aria-current'));
+      item.setAttribute('aria-current', 'true');
+    }));
+  })();
+</script>
+</body>
+</html>

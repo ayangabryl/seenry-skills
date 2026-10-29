@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Billing · Commons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .billing{display:grid;gap:var(--space-5);max-width:var(--settings-max)}
+  .billing>.ui-page-header{margin-bottom:0}
+  .plan{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-5);align-items:start}
+  .plan h2{display:flex;align-items:center;gap:var(--space-2);font:var(--type-subtitle);letter-spacing:var(--track-snug)}
+  .plan p{margin-top:var(--space-1);font:var(--type-body);color:var(--text-2)}
+  .price{text-align:right}
+  .price b{display:block;font:var(--type-stat);letter-spacing:var(--track-tight);font-variant-numeric:tabular-nums}
+  .price small{font:var(--type-small);color:var(--text-3)}
+  .plan-foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);margin-top:var(--space-5);padding-top:var(--space-4);border-top:var(--hairline) solid var(--line)}
+  .plan-foot p{flex:1;min-width:0;margin:0;font:var(--type-small);color:var(--text-3)}
+  .usage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-5) var(--space-7)}
+  .usage>div{display:grid;gap:var(--space-2);min-width:0}
+  .usage-label{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);font:var(--type-label);color:var(--text)}
+  .usage-label span{display:inline-flex;align-items:center;gap:var(--space-2)}
+  .usage-label i{color:var(--text-3)}
+  .usage small{font:var(--type-small);color:var(--text-3)}
+  .card-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-4)}
+  .ui-settings-row .card-row>span.card-face{display:grid;place-items:center;flex:none;width:var(--swatch);height:var(--avatar-lg);border:var(--hairline) solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);color:var(--text-2)}
+  .card-face i{font-size:var(--icon-lg)}
+  .card-row>div{flex:1;min-width:0}
+  .card-row strong{display:block;font:var(--type-label);font-weight:600}
+  .card-row small{font:var(--type-small);color:var(--text-3)}
+  @media (max-width:48em){.plan-foot p{flex-basis:100%}.plan{grid-template-columns:minmax(0,1fr)}.price{text-align:left}.usage{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School">
+      <span class="ui-avatar" data-shape="square" aria-hidden="true">H</span>
+      <span>Halftone School<small>Commons workspace</small></span>
+      <i class="ph-bold ph-caret-up-down" aria-hidden="true"></i>
+    </button>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html"><i class="ph-duotone ph-squares-four" aria-hidden="true"></i><span>Overview</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i><span>Calendar</span></a>
+      <a class="ui-nav-item" href="list-detail.html"><i class="ph-duotone ph-video-camera" aria-hidden="true"></i><span>Sessions</span><span class="ui-nav-count">14</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-users-three" aria-hidden="true"></i><span>Learners</span><span class="ui-nav-count">184</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i><span>Discussions</span><span class="ui-nav-count">9</span></a>
+      <a class="ui-nav-item" href="settings.html" aria-current="page"><i class="ph-duotone ph-gear-six" aria-hidden="true"></i><span>Settings</span></a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-courses">
+      <span class="ui-nav-label" id="nav-courses">Courses</span>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="4"></span><span>Product Design Foundations</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="1"></span><span>Interaction &amp; Motion</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="3"></span><span>Research Methods</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="2"></span><span>Portfolio Studio</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="5"></span><span>Community</span></a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" data-cat="5" aria-hidden="true">PR</span>
+      <span>Priya Raman<small>Program lead</small></span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Sign out"><i class="ph-bold ph-sign-out" aria-hidden="true"></i></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="settings.html">Settings</a></li><li aria-current="page">Billing</li></ol></nav>
+      <button class="ui-button" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
+    </header>
+
+    <div>
+      <div class="billing">
+        <div class="ui-page-header">
+          <div>
+            <h1 class="ui-page-title">Billing</h1>
+            <p class="ui-page-sub">Studio plan for Halftone School, billed yearly</p>
+          </div>
+        </div>
+
+        <div class="ui-alert" data-status="warn" role="status">
+          <i class="ph-duotone ph-users-three" aria-hidden="true"></i>
+          <p><strong>184 of 200 learner seats are taken.</strong> The summer cohort opens May 4 with 40 applicants waiting.</p>
+          <button class="ui-button" data-size="sm">Add seats</button>
+        </div>
+
+        <section class="ui-section" aria-labelledby="plan-title">
+          <div class="plan">
+            <div>
+              <h2 id="plan-title">Studio <span class="ui-badge" data-tone="ok">Current plan</span></h2>
+              <p>175 learner seats, 10 course spaces, 50 GB of recordings and 120 live hours a month.</p>
+            </div>
+            <div class="price"><b>$2,160</b><small>per year · $180 a month</small></div>
+          </div>
+          <div class="plan-foot">
+            <p>Renews on March 3, 2027. You will be charged $2,160 plus any seat add-ons.</p>
+            <button class="ui-button" data-variant="ghost">Compare plans</button>
+            <button class="ui-button" data-variant="primary">Change plan</button>
+          </div>
+        </section>
+
+        <section class="ui-section" aria-labelledby="usage-title">
+          <div class="ui-section-head"><div><h2 id="usage-title">Usage this period</h2><p>March 3, 2026 to March 2, 2027 · live hours reset on the 3rd of each month</p></div></div>
+          <div class="usage">
+            <div>
+              <div class="usage-label"><span><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Learner seats</span></div>
+              <span class="ui-meter"><meter min="0" max="200" low="160" high="190" optimum="80" value="184" aria-label="Learner seats, 184 of 200">184 of 200</meter><b>184 <small>/ 200</small></b></span>
+              <small>175 in the plan plus 25 added in June. 16 left.</small>
+            </div>
+            <div>
+              <div class="usage-label"><span><i class="ph-duotone ph-video" aria-hidden="true"></i>Recording storage</span></div>
+              <span class="ui-meter"><meter min="0" max="50" low="40" high="47" optimum="20" value="38.2" aria-label="Recording storage, 38.2 of 50 GB">38.2 of 50 GB</meter><b>38.2 <small>/ 50 GB</small></b></span>
+              <small>About 4 more weeks of sessions at the current pace.</small>
+            </div>
+            <div>
+              <div class="usage-label"><span><i class="ph-duotone ph-broadcast" aria-hidden="true"></i>Live hours in October</span></div>
+              <span class="ui-meter"><meter min="0" max="120" low="96" high="114" optimum="40" value="61" aria-label="Live hours, 61 of 120">61 of 120</meter><b>61 <small>/ 120 h</small></b></span>
+              <small>14 sessions scheduled for the rest of the month, about 19 hours.</small>
+            </div>
+            <div>
+              <div class="usage-label"><span><i class="ph-duotone ph-books" aria-hidden="true"></i>Course spaces</span></div>
+              <span class="ui-meter"><meter min="0" max="10" low="8" high="9" optimum="3" value="5" aria-label="Course spaces, 5 of 10">5 of 10</meter><b>5 <small>/ 10</small></b></span>
+              <small>Community counts as a course space.</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="ui-settings-group" aria-labelledby="pay-title">
+          <header><h2 id="pay-title">Payment</h2><p>Invoices go to the billing contact and the program lead</p></header>
+          <div class="ui-settings-row">
+            <div class="card-row">
+              <span class="card-face"><i class="ph-duotone ph-credit-card" aria-hidden="true"></i></span>
+              <div><strong>Visa ending 1884</strong><small>Expires 08/2028 · Halftone School Lda.</small></div>
+            </div>
+            <div><button class="ui-button" data-size="sm">Update card</button></div>
+          </div>
+          <div class="ui-settings-row">
+            <div><span>Billing contact</span><p>finance@halftone.school</p></div>
+            <div><button class="ui-button" data-size="sm" data-variant="ghost">Change</button></div>
+          </div>
+          <div class="ui-settings-row">
+            <div><span>Tax ID</span><p>PT 515 482 907, shown on every invoice</p></div>
+            <div><button class="ui-button" data-size="sm" data-variant="ghost">Edit</button></div>
+          </div>
+        </section>
+
+        <section class="ui-section" aria-labelledby="inv-title">
+          <div class="ui-section-head"><div><h2 id="inv-title">Invoices</h2><p>Paid automatically with the card above</p></div><a href="#">Download all</a></div>
+          <div class="ui-table-wrap">
+            <table class="ui-table">
+              <thead><tr><th scope="col">Date</th><th scope="col">Description</th><th scope="col" class="num">Amount</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Download</span></th></tr></thead>
+              <tbody>
+                <tr><td>Sep 14, 2026</td><td>Recording storage, +10 GB for the rest of the term</td><td class="num">$60.00</td><td><span class="ui-status" data-status="ok">Paid</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice HS-2026-031"><i class="ph-bold ph-download-simple" aria-hidden="true"></i></button></td></tr>
+                <tr><td>Jun 2, 2026</td><td>25 learner seats at $2 a month, June to March</td><td class="num">$450.00</td><td><span class="ui-status" data-status="ok">Paid</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice HS-2026-018"><i class="ph-bold ph-download-simple" aria-hidden="true"></i></button></td></tr>
+                <tr><td>Mar 3, 2026</td><td>Studio plan, yearly</td><td class="num">$2,160.00</td><td><span class="ui-status" data-status="ok">Paid</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice HS-2026-004"><i class="ph-bold ph-download-simple" aria-hidden="true"></i></button></td></tr>
+                <tr><td>Feb 27, 2026</td><td>Starter plan, final month</td><td class="num">$49.00</td><td><span class="ui-status" data-status="idle">Refunded</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice HS-2026-002"><i class="ph-bold ph-download-simple" aria-hidden="true"></i></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="ui-danger" aria-labelledby="cancel-title">
+          <header><h2 id="cancel-title">Cancel subscription</h2><p>Courses stay readable until March 2, 2027, then recordings are deleted after 30 days</p></header>
+          <div class="ui-settings-row"><div><span>Cancel Studio plan</span><p>No refund for the remaining months. You can export recordings first.</p></div><div><button class="ui-button" data-variant="danger">Cancel plan</button></div></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<dialog class="ui-command" id="cmd" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search learners, sessions and actions">
+  <div class="ui-command__list">
+    <button data-value="schedule"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i>Schedule a session</button>
+    <button data-value="invite"><i class="ph-duotone ph-user-plus" aria-hidden="true"></i>Invite learners</button>
+    <button data-value="learners"><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Open learners</button>
+    <button data-value="discussions"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i>Open discussions</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
+</dialog>
+</body>
+</html>

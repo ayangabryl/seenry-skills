@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Overview · Fenwick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../system.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <div class="ui-sidebar-head">
+      <button class="ui-workspace" type="button" aria-label="Switch workspace, current Harbor &amp; Pine Supply"><span class="ui-org-mark" aria-hidden="true">HP</span><span>Harbor &amp; Pine Supply</span><i class="ti ti-selector" aria-hidden="true"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Primary">
+      <div class="ui-nav-group">
+        <a class="ui-nav-item" href="dashboard.html" aria-current="page"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Overview</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Receivables</p>
+        <a class="ui-nav-item" href="list-detail.html"><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoices</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-users" aria-hidden="true"></i><span>Customers</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-cash" aria-hidden="true"></i><span>Payments</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt-refund" aria-hidden="true"></i><span>Credit notes</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Payables</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span><span class="ui-nav-count">7</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-building-store" aria-hidden="true"></i><span>Vendors</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-checklist" aria-hidden="true"></i><span>Approvals</span><span class="ui-nav-count">3</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Reporting</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-chart-bar" aria-hidden="true"></i><span>Aging</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-arrows-exchange" aria-hidden="true"></i><span>Cash flow</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-file-export" aria-hidden="true"></i><span>Exports</span></a>
+      </div>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">DW</span>
+      <span class="ui-person"><strong>Dana Whitfield</strong><span>Controller</span></span>
+      <a class="ui-button" data-variant="ghost" data-icon href="settings.html" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i></a>
+    </div>
+  </aside>
+
+  <div class="ui-main">
+    <header class="ui-topbar">
+      <button class="ui-button ui-nav-toggle" data-variant="ghost" data-icon type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false" data-nav-toggle><i class="ti ti-menu-2" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Harbor &amp; Pine</a></li><li aria-current="page">Overview</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-search" type="button" data-dialog-open="command" aria-label="Search"><i class="ti ti-search" aria-hidden="true"></i><span>Search invoices, customers</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon type="button" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-page">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Overview</h1>
+          <p class="ui-page-sub">Receivables in USD as of Oct 28, 2026, 9:40 AM</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" type="button"><i class="ti ti-download" aria-hidden="true"></i>Export</button>
+          <button class="ui-button" data-variant="primary" type="button"><i class="ti ti-plus" aria-hidden="true"></i>New invoice</button>
+        </div>
+      </div>
+
+      <div class="ui-stat-strip">
+        <dl class="ui-stat"><dt>Outstanding</dt><dd>$1,284,310<span class="ui-cents">.42</span></dd><small>137 open invoices</small></dl>
+        <dl class="ui-stat"><dt>Overdue</dt><dd>$312,940<span class="ui-cents">.18</span></dd><small class="ui-bad-text">41 invoices past due</small></dl>
+        <dl class="ui-stat"><dt>Collected in October</dt><dd>$486,205<span class="ui-cents">.00</span></dd><small>DSO 38 days, down 3 from September</small></dl>
+      </div>
+
+      <section class="ui-card ui-aging" aria-labelledby="aging-title">
+        <div class="ui-section-head"><div><h2 id="aging-title">Receivables aging</h2><p>By days past due</p></div><a class="ui-list-action" href="#">Aging report</a></div>
+        <div class="ui-aging-body">
+          <figure class="ui-chart">
+            <svg class="ui-chart-stack" viewBox="0 0 1000 20" preserveAspectRatio="none" role="img" aria-label="Aging of $1,284,310.42 outstanding: current 75.6%, 1 to 30 days 13.1%, 31 to 60 days 6.5%, 61 to 90 days 2.9%, over 90 days 1.9%">
+              <rect data-series="1" x="0" y="0" width="750.2" height="20"/>
+              <rect data-series="2" x="752.2" y="0" width="130.1" height="20"/>
+              <rect data-series="3" x="884.3" y="0" width="64.1" height="20"/>
+              <rect data-series="4" x="950.4" y="0" width="28.4" height="20"/>
+              <rect data-series="5" x="980.8" y="0" width="19.2" height="20"/>
+            </svg>
+            <ul class="ui-chart-legend">
+              <li><i data-series="1"></i><span>Current <span class="ui-muted">· 96 invoices</span></span><b>$971,370.24</b><small>75.6%</small></li>
+              <li><i data-series="2"></i><span>1–30 days <span class="ui-muted">· 23</span></span><b>$168,402.10</b><small>13.1%</small></li>
+              <li><i data-series="3"></i><span>31–60 days <span class="ui-muted">· 11</span></span><b>$82,915.30</b><small>6.5%</small></li>
+              <li><i data-series="4"></i><span>61–90 days <span class="ui-muted">· 4</span></span><b>$36,790.00</b><small>2.9%</small></li>
+              <li><i data-series="5"></i><span>Over 90 days <span class="ui-muted">· 3</span></span><b>$24,832.78</b><small>1.9%</small></li>
+            </ul>
+          </figure>
+          <div class="ui-aging-side" aria-labelledby="ninety-title">
+            <h3 id="ninety-title">3 invoices over 90 days</h3>
+            <ul class="ui-mini-ledger">
+              <li><input type="checkbox" aria-label="Select INV-2026-0298"><a href="#">Ferris Hardware Co.</a><span class="ui-mini-meta"><span class="ui-id">INV-2026-0298</span> · <span class="ui-mini-days">131 days</span></span><b class="ui-amount">$6,512.78</b></li>
+              <li><input type="checkbox" aria-label="Select INV-2026-0312"><a href="#">Harlow Family Clinics</a><span class="ui-mini-meta"><span class="ui-id">INV-2026-0312</span> · <span class="ui-mini-days">118 days</span></span><b class="ui-amount">$14,300.00</b></li>
+              <li><input type="checkbox" aria-label="Select INV-2026-0331"><a href="#">Ostrander Labs</a><span class="ui-mini-meta"><span class="ui-id">INV-2026-0331</span> · <span class="ui-mini-days">97 days</span></span><b class="ui-amount">$4,020.00</b></li>
+            </ul>
+            <button class="ui-button" data-size="sm" type="button" disabled>Send final notices</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="ui-columns" data-split="2-1">
+        <section class="ui-section" aria-labelledby="overdue-title">
+          <div class="ui-section-head"><div><h2 id="overdue-title">Overdue invoices</h2></div><a class="ui-list-action" href="list-detail.html">View all 41</a></div>
+          <div class="ui-table-wrap">
+            <table class="ui-table" data-ui-table id="overdue">
+              <thead><tr><th scope="col" class="ui-hide-sm" data-sort>Invoice</th><th scope="col" data-sort>Customer</th><th scope="col" class="ui-hide-sm">Note</th><th scope="col" class="num" data-sort>Amount due</th></tr></thead>
+              <tbody>
+                <tr><td class="ui-hide-sm"><a class="ui-id" href="detail.html">INV-2026-0418</a></td><td>Meridian Health Group<span class="ui-cell-sub ui-show-sm">30 days late · due Sep 28</span></td><td class="ui-hide-sm ui-muted">30 days late</td><td class="num" data-sort="48250">$48,250.00</td></tr>
+                <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0440</a></td><td>Northgate Builders<span class="ui-cell-sub ui-show-sm">18 days late · promised Oct 30</span></td><td class="ui-hide-sm">Promised Oct 30 <span class="ui-muted">· $9,100.00 paid</span></td><td class="num" data-sort="18200">$18,200.00</td></tr>
+                <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0402</a></td><td>Brightwater Logistics<span class="ui-cell-sub ui-show-sm">44 days late · due Sep 14</span></td><td class="ui-hide-sm ui-muted">44 days late</td><td class="num" data-sort="18420">$18,420.00</td></tr>
+                <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0433</a></td><td>Alder &amp; Finch Hospitality<span class="ui-cell-sub ui-show-sm">22 days late · due Oct 6</span></td><td class="ui-hide-sm ui-muted">22 days late · $1,200.00 credit</td><td class="num" data-sort="11404.80">$11,404.80</td></tr>
+                <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0377</a></td><td>Cobalt Freight Partners<span class="ui-cell-sub ui-show-sm">59 days late · due Aug 30</span></td><td class="ui-hide-sm ui-muted">59 days late</td><td class="num" data-sort="9860">$9,860.00</td></tr>
+                <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0456</a></td><td>Saltmarsh Outfitters<span class="ui-cell-sub ui-show-sm">10 days late · promised Nov 3</span></td><td class="ui-hide-sm">Promised Nov 3</td><td class="num" data-sort="6930">$6,930.00</td></tr>
+                <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0391</a></td><td>Tidewater Marine Supply<span class="ui-cell-sub ui-show-sm">53 days late · disputed</span></td><td class="ui-hide-sm"><span class="ui-status" data-status="warn">Disputed</span></td><td class="num" data-sort="4215.50">$4,215.50</td></tr>
+                <tr><td class="ui-hide-sm"><a class="ui-id" href="#">INV-2026-0372</a></td><td class="ui-truncate">J.T. Hollins &amp; Sons Plumbing Supply (Dayton)<span class="ui-cell-sub ui-show-sm">57 days late · short-paid</span></td><td class="ui-hide-sm ui-muted">Short-paid by $38.00</td><td class="num" data-sort="38">$38.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="ui-section" aria-labelledby="queue-title">
+          <div class="ui-section-head"><div><h2 id="queue-title">Needs attention</h2><p>5</p></div></div>
+          <ul class="ui-list">
+            <li class="ui-list-item"><span class="ui-list-icon" data-tone="bad"><i class="ti ti-credit-card-off" aria-hidden="true"></i></span><span class="ui-list-body"><strong>ACH payment returned</strong><span class="ui-list-meta">Brightwater Logistics · R01 insufficient funds</span></span><span class="ui-list-value">$18,420.00</span><a class="ui-button" data-size="sm" href="#">Retry</a></li>
+            <li class="ui-list-item"><span class="ui-list-icon"><i class="ti ti-arrows-left-right" aria-hidden="true"></i></span><span class="ui-list-body"><strong>Unmatched deposit</strong><span class="ui-list-meta">Wire “MERIDIAN HLTH GRP” · Oct 27</span></span><span class="ui-list-value">$22,000.00</span><a class="ui-button" data-size="sm" href="detail.html">Match</a></li>
+            <li class="ui-list-item"><span class="ui-list-icon" data-tone="warn"><i class="ti ti-message-exclamation" aria-hidden="true"></i></span><span class="ui-list-body"><strong>Dispute opened</strong><span class="ui-list-meta">Tidewater Marine · short shipment on line 3</span></span><span class="ui-list-value">$4,215.50</span><a class="ui-button" data-size="sm" href="#">Review</a></li>
+            <li class="ui-list-item"><span class="ui-list-icon"><i class="ti ti-calendar-due" aria-hidden="true"></i></span><span class="ui-list-body"><strong>Promise to pay due Oct 30</strong><span class="ui-list-meta">Northgate Builders · second installment</span></span><span class="ui-list-value">$18,200.00</span><a class="ui-button" data-size="sm" href="#">Remind</a></li>
+            <li class="ui-list-item"><span class="ui-list-icon"><i class="ti ti-receipt-refund" aria-hidden="true"></i></span><span class="ui-list-body"><strong>Credit note to approve</strong><span class="ui-list-meta">Alder &amp; Finch · CN-0058 · from M. Ortiz</span></span><span class="ui-list-value">$1,200.00</span><a class="ui-button" data-size="sm" href="#">Approve</a></li>
+          </ul>
+        </section>
+      </div>
+
+      <section class="ui-card" aria-labelledby="cash-title">
+        <div class="ui-section-head"><div><h2 id="cash-title">Invoiced and collected</h2><p>Nov 2025 – Oct 2026</p></div><ul class="ui-chart-legend" data-inline><li><i data-series="invoiced"></i>Invoiced $5,841,400</li><li><i data-series="collected"></i>Collected $5,392,205</li></ul></div>
+        <figure class="ui-chart">
+          <div class="ui-chart-plot" data-size="lg">
+            <div class="ui-chart-axis" data-axis="y" aria-hidden="true"><span>$750k</span><span>$500k</span><span>$250k</span><span>$0</span></div>
+            <svg viewBox="0 0 240 100" preserveAspectRatio="none" role="img" aria-label="Invoiced and collected per month, November 2025 to October 2026. Collections dipped to $168,400 in January during a lockbox outage and caught up to $571,600 in February. October: $529,400 invoiced, $486,205 collected to date.">
+              <line class="ui-chart-gridline" x1="0" x2="240" y1="0.5" y2="0.5" vector-effect="non-scaling-stroke"/>
+              <line class="ui-chart-gridline" x1="0" x2="240" y1="33.33" y2="33.33" vector-effect="non-scaling-stroke"/>
+              <line class="ui-chart-gridline" x1="0" x2="240" y1="66.67" y2="66.67" vector-effect="non-scaling-stroke"/>
+              <rect data-series="invoiced" x="3" y="33.6" width="7" height="66.4"><title>Nov 2025 invoiced: $498,000</title></rect>
+              <rect data-series="collected" x="10" y="45.07" width="7" height="54.93"><title>Nov 2025 collected: $412,000</title></rect>
+              <rect data-series="invoiced" x="23" y="39.33" width="7" height="60.67"><title>Dec 2025 invoiced: $455,000</title></rect>
+              <rect data-series="collected" x="30" y="37.6" width="7" height="62.4"><title>Dec 2025 collected: $468,000</title></rect>
+              <rect data-series="invoiced" x="43" y="31.73" width="7" height="68.27"><title>Jan 2026 invoiced: $512,000</title></rect>
+              <rect data-series="collected" x="50" y="77.55" width="7" height="22.45"><title>Jan 2026 collected: $168,400</title></rect>
+              <rect data-series="invoiced" x="63" y="42.53" width="7" height="57.47"><title>Feb 2026 invoiced: $431,000</title></rect>
+              <rect data-series="collected" x="70" y="23.79" width="7" height="76.21"><title>Feb 2026 collected: $571,600</title></rect>
+              <rect data-series="invoiced" x="83" y="36.53" width="7" height="63.47"><title>Mar 2026 invoiced: $476,000</title></rect>
+              <rect data-series="collected" x="90" y="40.53" width="7" height="59.47"><title>Mar 2026 collected: $446,000</title></rect>
+              <rect data-series="invoiced" x="103" y="34.8" width="7" height="65.2"><title>Apr 2026 invoiced: $489,000</title></rect>
+              <rect data-series="collected" x="110" y="42.4" width="7" height="57.6"><title>Apr 2026 collected: $432,000</title></rect>
+              <rect data-series="invoiced" x="123" y="38.4" width="7" height="61.6"><title>May 2026 invoiced: $462,000</title></rect>
+              <rect data-series="collected" x="130" y="37.2" width="7" height="62.8"><title>May 2026 collected: $471,000</title></rect>
+              <rect data-series="invoiced" x="143" y="30.93" width="7" height="69.07"><title>Jun 2026 invoiced: $518,000</title></rect>
+              <rect data-series="collected" x="150" y="39.33" width="7" height="60.67"><title>Jun 2026 collected: $455,000</title></rect>
+              <rect data-series="invoiced" x="163" y="37.33" width="7" height="62.67"><title>Jul 2026 invoiced: $470,000</title></rect>
+              <rect data-series="collected" x="170" y="33.6" width="7" height="66.4"><title>Jul 2026 collected: $498,000</title></rect>
+              <rect data-series="invoiced" x="183" y="32.4" width="7" height="67.6"><title>Aug 2026 invoiced: $507,000</title></rect>
+              <rect data-series="collected" x="190" y="38.27" width="7" height="61.73"><title>Aug 2026 collected: $463,000</title></rect>
+              <rect data-series="invoiced" x="203" y="34.13" width="7" height="65.87"><title>Sep 2026 invoiced: $494,000</title></rect>
+              <rect data-series="collected" x="210" y="30.53" width="7" height="69.47"><title>Sep 2026 collected: $521,000</title></rect>
+              <rect data-series="invoiced" x="223" y="29.41" width="7" height="70.59"><title>Oct 2026 invoiced: $529,400</title></rect>
+              <rect data-series="collected" data-partial x="230" y="35.17" width="7" height="64.83"><title>Oct 2026 collected: $486,205 to date</title></rect>
+              <line class="ui-chart-baseline" x1="0" x2="240" y1="99.5" y2="99.5" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <div class="ui-chart-axis" data-axis="x" aria-hidden="true"><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span data-current>Oct to date</span></div>
+          </div>
+          <figcaption class="ui-chart-caption">Jan: lockbox outage, $182,600 posted in Feb. Oct is month to date.</figcaption>
+        </figure>
+      </section>
+    </main>
+  </div>
+</div>
+
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search invoices, customers, actions">
+  <div class="ui-command__list">
+    <button data-value="new-invoice"><i class="ti ti-plus" aria-hidden="true"></i>New invoice</button>
+    <button data-value="record-payment"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button>
+    <button data-value="customers"><i class="ti ti-users" aria-hidden="true"></i>Go to customers</button>
+    <button data-value="aging"><i class="ti ti-chart-bar" aria-hidden="true"></i>Open aging report</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to select · Esc to close</div>
+</dialog>
+</body>
+</html>

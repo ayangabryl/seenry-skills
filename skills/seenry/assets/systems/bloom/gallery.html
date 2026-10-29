@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bloom · Components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="system.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .g{max-width:calc(var(--content-max) + var(--gutter) * 2);margin:0 auto;padding:var(--space-8) var(--gutter)}
+  .g-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--space-4);padding-bottom:var(--space-6)}
+  .g-head h1{font:var(--type-title);letter-spacing:var(--track-tight)}
+  .g-head p{max-width:var(--measure);margin-top:var(--space-2);font:var(--type-body);color:var(--text-2)}
+  .g-head p a{color:var(--accent-ink)}
+  .g-index{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;gap:var(--space-2);margin:0 calc(var(--gutter) * -1) var(--space-7);padding:var(--space-3) var(--gutter);border-block:var(--hairline) solid var(--line);background:var(--bg)}
+  .g-index a{text-decoration:none}
+  .g-section{display:grid;gap:var(--space-5);padding-top:var(--space-7);scroll-margin-top:calc(var(--topbar-h) + var(--space-5))}
+  .g-section+.g-section{margin-top:var(--space-7);border-top:var(--hairline) solid var(--line)}
+  .g-section>header h2{font:var(--type-subtitle);letter-spacing:var(--track-snug)}
+  .g-section>header p{max-width:var(--measure);margin-top:var(--space-1);font:var(--type-body);color:var(--text-2)}
+  .g-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-5)}
+  .g-grid>.g-wide{grid-column:1 / -1}
+  .g-spec{display:grid;align-content:start;gap:var(--space-4);min-width:0;padding:var(--space-5);border:var(--hairline) solid var(--line);border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow-card)}
+  .g-spec>h3{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--space-1) var(--space-3);font:var(--type-heading)}
+  .g-spec>h3 code{overflow-wrap:anywhere}
+  .g-spec>h3 code{font-weight:400}
+  .g-spec>p{font:var(--type-small);color:var(--text-3)}
+  .g-row{display:flex;flex-wrap:wrap;align-items:flex-start;gap:var(--space-4) var(--space-5)}
+  .g-state{display:grid;justify-items:start;gap:var(--space-2);min-width:0}
+  .g-state>small{font:var(--type-small);color:var(--text-3)}
+  .g-fill{flex:1 1 calc(var(--menu-min) + var(--space-6))}
+  .g-fill>*{width:100%}
+  .g-static{position:static;inset:auto;display:block;margin:0;opacity:1;transform:none;max-height:none}
+  .g-static.ui-tooltip{display:inline-block}
+  .g-static:is(.ui-dialog,.ui-command){width:auto}
+  .g-row>*{max-width:100%}
+  .g-frame{overflow:hidden;border:var(--hairline) solid var(--line);border-radius:var(--r-lg);background:var(--bg)}
+  .g-frame .ui-shell{min-height:0}
+  .g-frame .ui-sidebar{position:static;height:auto}
+  .g-frame .ui-topbar{position:static}
+  .g-frame .ui-shell>main>:not(.ui-topbar){padding:var(--space-5)}
+  .g-frame .ui-auth{min-height:0;padding:var(--space-6) var(--space-4)}
+  .g-swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--space-8) * 2.5),1fr));gap:var(--space-3)}
+  .g-swatch{display:grid;gap:var(--space-1);font:var(--type-small);color:var(--text-2)}
+  .g-swatch>span{height:var(--swatch);border:var(--hairline) solid var(--line);border-radius:var(--r-md)}
+  .g-swatch code{color:var(--text-3)}
+  .g-cats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-3)}
+  .g-cat{display:grid;justify-items:start;gap:var(--space-2);padding:var(--space-3);border:var(--hairline) solid var(--line);border-radius:var(--r-md)}
+  .g-cat b{display:flex;align-items:center;gap:var(--space-2);font:var(--type-label);font-weight:600}
+  .g-type{display:grid;gap:var(--space-3)}
+  .g-type>div{display:grid;grid-template-columns:calc(var(--space-8) * 2.5) minmax(0,1fr);align-items:baseline;gap:var(--space-4);padding-bottom:var(--space-3);border-bottom:var(--hairline) solid var(--line)}
+  .g-type>div:last-child{border-bottom:0}
+  .g-type code{font:var(--type-small);font-family:var(--font-mono);color:var(--text-3)}
+  .g-radii{display:flex;flex-wrap:wrap;gap:var(--space-4)}
+  .g-radii span{display:grid;place-items:center;width:var(--swatch);height:var(--swatch);border:var(--hairline) solid var(--line-strong);background:var(--surface-2);font:var(--type-small);color:var(--text-2)}
+  .g-chart{display:grid;gap:var(--space-3)}
+  .g-share{display:flex;height:var(--progress-h);overflow:hidden;border-radius:var(--r-pill);gap:var(--hairline)}
+  .ui-button.is-hover{background:var(--hover)}
+  .ui-button[data-variant=primary].is-hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+  .ui-button[data-variant=ghost].is-hover{background:var(--hover);color:var(--text)}
+  .ui-button[data-variant=danger].is-hover{background:var(--bad-bg)}
+  .is-focus{outline:var(--ring) solid var(--accent);outline-offset:var(--ring)}
+  :is(.ui-input,.ui-select,.ui-textarea).is-focus{outline:0;border-color:var(--accent);box-shadow:var(--focus)}
+  .ui-input.is-hover{border-color:var(--text-3)}
+  .ui-chip.is-hover{border-color:var(--line-strong);color:var(--text)}
+  .ui-nav-item.is-hover,a.ui-list-item.is-hover{background:var(--hover);color:var(--text)}
+  @media (max-width:64em){.g-grid{grid-template-columns:minmax(0,1fr)}.g-cats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:48em){.g{padding-top:var(--space-6)}.g-index{position:static}.g-type>div{grid-template-columns:minmax(0,1fr);gap:var(--space-1)}}
+</style>
+</head>
+<body>
+<main class="g">
+  <header class="g-head">
+    <div>
+      <h1>Bloom components</h1>
+      <p>Every class in the system and its states, in both themes. Rules, markup and install notes are in <a href="SYSTEM.md">SYSTEM.md</a>; full screens are in the blocks.</p>
+    </div>
+    <div class="ui-segmented" id="theme" aria-label="Theme"><button aria-pressed="true" data-value="light"><i class="ph-bold ph-sun" aria-hidden="true"></i>Light</button><button aria-pressed="false" data-value="dark"><i class="ph-bold ph-moon" aria-hidden="true"></i>Dark</button></div>
+  </header>
+
+  <nav class="g-index" aria-label="Sections">
+    <a class="ui-chip" href="#foundations">Foundations</a>
+    <a class="ui-chip" href="#actions">Actions</a>
+    <a class="ui-chip" href="#inputs">Inputs</a>
+    <a class="ui-chip" href="#selection">Selection</a>
+    <a class="ui-chip" href="#navigation">Navigation</a>
+    <a class="ui-chip" href="#feedback">Feedback</a>
+    <a class="ui-chip" href="#data">Data display</a>
+    <a class="ui-chip" href="#layers">Layers</a>
+    <a class="ui-chip" href="#layout">App layout</a>
+  </nav>
+
+  <!-- Foundations -->
+  <section class="g-section" id="foundations" aria-labelledby="h-foundations">
+    <header><h2 id="h-foundations">Foundations</h2><p>A warm neutral page, white cards, one violet-blue for action and five category hues kept to dots, chips and avatars.</p></header>
+    <div class="g-grid">
+      <div class="g-spec g-wide">
+        <h3>Surfaces, text and accent</h3>
+        <div class="g-swatches">
+          <div class="g-swatch"><span style="background:var(--bg)"></span>Page<code>--bg</code></div>
+          <div class="g-swatch"><span style="background:var(--surface)"></span>Card<code>--surface</code></div>
+          <div class="g-swatch"><span style="background:var(--surface-2)"></span>Inset<code>--surface-2</code></div>
+          <div class="g-swatch"><span style="background:var(--line-strong)"></span>Strong line<code>--line-strong</code></div>
+          <div class="g-swatch"><span style="background:var(--text)"></span>Text<code>--text</code></div>
+          <div class="g-swatch"><span style="background:var(--text-3)"></span>Quiet text<code>--text-3</code></div>
+          <div class="g-swatch"><span style="background:var(--accent)"></span>Accent<code>--accent</code></div>
+          <div class="g-swatch"><span style="background:var(--accent-subtle)"></span>Selected<code>--accent-subtle</code></div>
+          <div class="g-swatch"><span style="background:var(--ok)"></span>OK<code>--ok</code></div>
+          <div class="g-swatch"><span style="background:var(--warn)"></span>Warning<code>--warn</code></div>
+          <div class="g-swatch"><span style="background:var(--bad)"></span>Error<code>--bad</code></div>
+          <div class="g-swatch"><span style="background:var(--info)"></span>Info<code>--info</code></div>
+        </div>
+      </div>
+      <div class="g-spec g-wide">
+        <h3>Category hues <code class="ui-code">data-cat="1..5"</code></h3>
+        <p>Ink for text on its tint, tint for chips and avatars, mark for dots and bars. One meaning per product.</p>
+        <div class="g-cats">
+          <div class="g-cat"><b><span class="ui-mark" data-cat="1"></span>Tomato</b><span class="ui-badge" data-cat="1">Interaction</span><span class="ui-avatar" data-cat="1" aria-label="Lena Fischer">LF</span></div>
+          <div class="g-cat"><b><span class="ui-mark" data-cat="2"></span>Amber</b><span class="ui-badge" data-cat="2">Portfolio</span><span class="ui-avatar" data-cat="2" aria-label="Sam Whitfield">SW</span></div>
+          <div class="g-cat"><b><span class="ui-mark" data-cat="3"></span>Green</b><span class="ui-badge" data-cat="3">Research</span><span class="ui-avatar" data-cat="3" aria-label="Daniel Reyes">DR</span></div>
+          <div class="g-cat"><b><span class="ui-mark" data-cat="4"></span>Sky</b><span class="ui-badge" data-cat="4">Foundations</span><span class="ui-avatar" data-cat="4" aria-label="Maya Okafor">MO</span></div>
+          <div class="g-cat"><b><span class="ui-mark" data-cat="5"></span>Pink</b><span class="ui-badge" data-cat="5">Community</span><span class="ui-avatar" data-cat="5" aria-label="Priya Raman">PR</span></div>
+        </div>
+      </div>
+      <div class="g-spec">
+        <h3>Type</h3>
+        <div class="g-type">
+          <div><code>title 600 26/32</code><span style="font:var(--type-title);letter-spacing:var(--track-tight)">Overview</span></div>
+          <div><code>subtitle 600 20/28</code><span style="font:var(--type-subtitle)">Motion workshop</span></div>
+          <div><code>heading 600 16/24</code><span style="font:var(--type-heading)">Weekly activity</span></div>
+          <div><code>body 400 15/22</code><span style="font:var(--type-body)">Bring the prototype from week 6.</span></div>
+          <div><code>label 500 14/20</code><span style="font:var(--type-label)">Learner seats</span></div>
+          <div><code>small 400 13/18</code><span style="font:var(--type-small);color:var(--text-2)">5 sessions, 112 RSVPs</span></div>
+          <div><code>stat 600 30/36</code><span style="font:var(--type-stat);letter-spacing:var(--track-tight)">184</span></div>
+        </div>
+      </div>
+      <div class="g-spec">
+        <h3>Radius and marks</h3>
+        <div class="g-radii">
+          <span style="border-radius:var(--r-sm)">10</span>
+          <span style="border-radius:var(--r-md)">12</span>
+          <span style="border-radius:var(--r-lg)">16</span>
+          <span style="border-radius:var(--r-pill)">pill</span>
+        </div>
+        <p>10 for nav items and small buttons, 12 for buttons, inputs and menus, 16 for cards and dialogs, pill only for chips, badges, segmented controls, switches and pagination.</p>
+        <div class="g-row"><div class="g-state"><span class="ui-mark" data-cat="4"></span><small>ui-mark dot</small></div><div class="g-state"><span class="ui-mark" data-shape="square" data-cat="accent"></span><small>square, legends</small></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Actions -->
+  <section class="g-section" id="actions" aria-labelledby="h-actions">
+    <header><h2 id="h-actions">Actions</h2><p>One filled violet button per view. Secondary is white with a hairline, ghost is text, danger is a red outline.</p></header>
+    <div class="g-grid">
+      <div class="g-spec g-wide">
+        <h3>Button <code class="ui-code">ui-button</code></h3>
+        <div class="g-row">
+          <div class="g-state"><button class="ui-button" data-variant="primary"><i class="ph-bold ph-plus" aria-hidden="true"></i>Schedule session</button><small>Primary</small></div>
+          <div class="g-state"><button class="ui-button"><i class="ph-bold ph-user-plus" aria-hidden="true"></i>Invite learners</button><small>Secondary</small></div>
+          <div class="g-state"><button class="ui-button" data-variant="ghost">Discard</button><small>Ghost</small></div>
+          <div class="g-state"><button class="ui-button" data-variant="danger"><i class="ph-bold ph-archive" aria-hidden="true"></i>Archive cohort</button><small>Danger</small></div>
+        </div>
+        <div class="g-row">
+          <div class="g-state"><button class="ui-button is-hover">Hover</button><small>Hover</small></div>
+          <div class="g-state"><button class="ui-button is-focus">Focus</button><small>Focus ring</small></div>
+          <div class="g-state"><button class="ui-button is-hover" data-variant="primary">Primary hover</button><small>Primary hover</small></div>
+          <div class="g-state"><button class="ui-button" disabled>Disabled</button><small>Disabled</small></div>
+          <div class="g-state"><button class="ui-button" data-variant="primary" data-loading aria-busy="true" disabled>Saving</button><small>Loading</small></div>
+        </div>
+        <div class="g-row">
+          <div class="g-state"><button class="ui-button" data-size="sm">Small 32</button><small>sm</small></div>
+          <div class="g-state"><button class="ui-button">Default 36</button><small>default</small></div>
+          <div class="g-state"><button class="ui-button" data-size="lg">Large 44</button><small>lg</small></div>
+          <div class="g-state"><button class="ui-button" data-icon aria-label="More actions"><i class="ph-bold ph-dots-three" aria-hidden="true"></i></button><small>Icon</small></div>
+          <div class="g-state"><button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button><small>Ghost icon</small></div>
+          <div class="g-state"><button class="ui-button"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i>Search<span class="ui-kbd" aria-hidden="true">⌘ K</span></button><small>With ui-kbd</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inputs -->
+  <section class="g-section" id="inputs" aria-labelledby="h-inputs">
+    <header><h2 id="h-inputs">Inputs</h2><p>Labels sit above, help and errors below on their own line. Focus is a violet border with a soft ring.</p></header>
+    <div class="g-grid">
+      <div class="g-spec">
+        <h3>Field <code class="ui-code">ui-field ui-input</code></h3>
+        <label class="ui-field"><span class="ui-label">Course name</span><input class="ui-input" value="Product Design Foundations"><span class="ui-help">Shown on every session.</span></label>
+        <label class="ui-field"><span class="ui-label">Focused</span><input class="ui-input is-focus" value="Research Methods"></label>
+        <label class="ui-field"><span class="ui-label">Hover</span><input class="ui-input is-hover" placeholder="Search sessions or hosts"></label>
+        <label class="ui-field" data-invalid><span class="ui-label">Work email</span><input class="ui-input" type="email" value="priya@" aria-invalid="true" aria-describedby="g-email-err"><span class="ui-error" id="g-email-err">Enter a full email address, like priya@halftone.school.</span></label>
+        <label class="ui-field"><span class="ui-label">Workspace address</span><input class="ui-input" value="halftone" disabled><span class="ui-help">Only owners can change this.</span></label>
+      </div>
+      <div class="g-spec">
+        <h3>More fields</h3>
+        <label class="ui-field"><span class="ui-label">Search</span><span class="ui-control"><span class="ui-affix" aria-hidden="true"><i class="ph-bold ph-magnifying-glass"></i></span><input class="ui-input" type="search" placeholder="Learners, sessions or courses"></span></label>
+        <label class="ui-field"><span class="ui-label">Default length <small class="ui-help">ui-select</small></span><select class="ui-select"><option>45 minutes</option><option selected>60 minutes</option><option>90 minutes</option></select></label>
+        <label class="ui-field"><span class="ui-label">Time zone <small class="ui-help">ui-combobox</small></span><span class="ui-combobox"><input list="g-zones" value="Europe/Lisbon"></span></label>
+        <datalist id="g-zones"><option value="Europe/Lisbon"><option value="Europe/Berlin"><option value="America/New_York"><option value="Asia/Singapore"></datalist>
+        <label class="ui-field"><span class="ui-label">Cohort length <small class="ui-help">ui-slider</small></span><span class="ui-slider"><input type="range" min="4" max="16" value="12" style="--fill:66.67%" aria-valuetext="12 weeks"><output>12 weeks</output></span></label>
+        <label class="ui-field"><span class="ui-label">Disabled slider</span><span class="ui-slider"><input type="range" min="0" max="10" value="3" style="--fill:30%" disabled><output>3</output></span></label>
+        <label class="ui-field"><span class="ui-label">Session description</span><textarea class="ui-textarea">Hands-on session on choosing curves and durations.</textarea></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- Selection -->
+  <section class="g-section" id="selection" aria-labelledby="h-selection">
+    <header><h2 id="h-selection">Selection</h2><p>Checkboxes, radios and switches use the accent when on. Chips filter, segmented controls switch a view.</p></header>
+    <div class="g-grid">
+      <div class="g-spec">
+        <h3>Checkbox and radio <code class="ui-code">ui-choice</code></h3>
+        <div class="g-row">
+          <label class="ui-choice"><input type="checkbox" checked><span>Send reminders</span></label>
+          <label class="ui-choice"><input type="checkbox"><span>Include archived</span></label>
+          <label class="ui-choice"><input type="checkbox" disabled><span>Locked by owner</span></label>
+        </div>
+        <fieldset class="ui-radio-group"><legend>Who can book office hours</legend>
+          <label class="ui-choice"><input type="radio" name="g-book" checked><span>Learners in the course <small>Open slots show on the course page.</small></span></label>
+          <label class="ui-choice"><input type="radio" name="g-book"><span>Anyone in the school <small>Includes alumni and guests.</small></span></label>
+          <label class="ui-choice"><input type="radio" name="g-book" disabled><span>Public link <small>Available on the Campus plan.</small></span></label>
+        </fieldset>
+      </div>
+      <div class="g-spec">
+        <h3>Switch <code class="ui-code">ui-switch</code></h3>
+        <label class="ui-switch"><input type="checkbox" role="switch" checked><span>Waitlist for full sessions</span></label>
+        <label class="ui-switch"><input type="checkbox" role="switch"><span>Tell hosts about each RSVP</span></label>
+        <label class="ui-switch"><input type="checkbox" role="switch" checked disabled><span>Recording (required on this plan)</span></label>
+        <h3>Segmented <code class="ui-code">ui-segmented</code></h3>
+        <div class="ui-segmented" aria-label="When"><button aria-pressed="true" data-value="upcoming">Upcoming</button><button aria-pressed="false" data-value="past">Past</button><button aria-pressed="false" data-value="drafts">Drafts</button></div>
+      </div>
+      <div class="g-spec g-wide">
+        <h3>Chip <code class="ui-code">ui-chip aria-pressed</code></h3>
+        <div class="g-row">
+          <div class="g-state"><button class="ui-chip" aria-pressed="true">All courses <small>14</small></button><small>Selected</small></div>
+          <div class="g-state"><button class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="4"></span>Foundations</button><small>Default</small></div>
+          <div class="g-state"><button class="ui-chip is-hover" aria-pressed="false"><span class="ui-mark" data-cat="1"></span>Interaction</button><small>Hover</small></div>
+          <div class="g-state"><button class="ui-chip is-focus" aria-pressed="false"><span class="ui-mark" data-cat="3"></span>Research</button><small>Focus</small></div>
+          <div class="g-state"><button class="ui-chip" aria-pressed="false" disabled><span class="ui-mark" data-cat="2"></span>Portfolio</button><small>Disabled</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navigation -->
+  <section class="g-section" id="navigation" aria-labelledby="h-navigation">
+    <header><h2 id="h-navigation">Navigation</h2><p>The active place lifts onto a white thumb or takes the violet line; everything else stays quiet.</p></header>
+    <div class="g-grid">
+      <div class="g-spec">
+        <h3>Nav <code class="ui-code">ui-nav ui-nav-item</code></h3>
+        <nav class="ui-nav" aria-label="Example navigation">
+          <a class="ui-nav-item" href="#" aria-current="page"><i class="ph-duotone ph-squares-four" aria-hidden="true"></i><span>Overview</span></a>
+          <a class="ui-nav-item is-hover" href="#"><i class="ph-duotone ph-video-camera" aria-hidden="true"></i><span>Sessions (hover)</span><span class="ui-nav-count">14</span></a>
+          <a class="ui-nav-item" href="#"><i class="ph-duotone ph-users-three" aria-hidden="true"></i><span>Learners</span><span class="ui-nav-count">184</span></a>
+        </nav>
+        <nav class="ui-nav" aria-labelledby="g-nav-c"><span class="ui-nav-label" id="g-nav-c">Courses</span><a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="4"></span><span>Product Design Foundations</span></a><a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="1"></span><span>Interaction &amp; Motion</span></a></nav>
+      </div>
+      <div class="g-spec">
+        <h3>Tabs <code class="ui-code">ui-tabs</code></h3>
+        <div class="ui-tabs" role="tablist" aria-label="Session sections"><button role="tab" id="g-t1" aria-selected="true" aria-controls="g-p1">Overview</button><button role="tab" id="g-t2" aria-selected="false" aria-controls="g-p2">RSVPs</button><button role="tab" id="g-t3" aria-selected="false" aria-controls="g-p3">Materials</button></div>
+        <div class="ui-tab-panel" role="tabpanel" id="g-p1" aria-labelledby="g-t1"><p class="ui-help">21 going, 3 on the waitlist.</p></div>
+        <div class="ui-tab-panel" role="tabpanel" id="g-p2" aria-labelledby="g-t2" hidden><p class="ui-help">RSVP list.</p></div>
+        <div class="ui-tab-panel" role="tabpanel" id="g-p3" aria-labelledby="g-t3" hidden><p class="ui-help">3 files.</p></div>
+        <h3>Breadcrumb <code class="ui-code">ui-breadcrumb</code></h3>
+        <nav aria-label="Breadcrumb example"><ol class="ui-breadcrumb"><li><a href="#">Halftone School</a></li><li><a href="#">Sessions</a></li><li aria-current="page">Motion workshop</li></ol></nav>
+        <h3>Pagination <code class="ui-code">ui-pagination</code></h3>
+        <nav class="ui-pagination" aria-label="Pages"><button disabled aria-label="Previous page">‹</button><button aria-current="page">1</button><button>2</button><button>3</button><button aria-label="Next page">›</button></nav>
+      </div>
+      <div class="g-spec g-wide">
+        <h3>Steps <code class="ui-code">ui-steps ui-step aria-current="step"</code></h3>
+        <ol class="ui-steps" aria-label="Setup progress"><li class="ui-step"><span>School</span></li><li class="ui-step"><span>First course</span></li><li class="ui-step" aria-current="step"><span>Invite learners</span></li><li class="ui-step"><span>First session</span></li></ol>
+        <p>Steps before the current one show a check; on phones only the current label stays visible.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feedback -->
+  <section class="g-section" id="feedback" aria-labelledby="h-feedback">
+    <header><h2 id="h-feedback">Feedback</h2><p>Status is always a word with a mark. Alerts sit near the problem; toasts confirm what just happened.</p></header>
+    <div class="g-grid">
+      <div class="g-spec g-wide">
+        <h3>Alert <code class="ui-code">ui-alert data-status</code></h3>
+        <div class="ui-alert" role="status"><i class="ph-duotone ph-info" aria-hidden="true"></i><p>Recording turns on automatically for workshops. Learners get the replay at 15:15.</p></div>
+        <div class="ui-alert" data-status="ok" role="status"><i class="ph-duotone ph-check-circle" aria-hidden="true"></i><p><strong>Spring cohort imported.</strong> 184 learners and 4 courses are ready.</p><a href="#">View learners</a></div>
+        <div class="ui-alert" data-status="warn" role="status"><i class="ph-duotone ph-hourglass-medium" aria-hidden="true"></i><p><strong>3 learners are on the waitlist.</strong> The main hall seats 60 and is free from 13:00.</p><button class="ui-button" data-size="sm">Move to main hall</button></div>
+        <div class="ui-alert" data-status="bad" role="alert"><i class="ph-duotone ph-warning-circle" aria-hidden="true"></i><p>The Zoom connection expired, so new sessions have no link.</p><button class="ui-button" data-size="sm">Reconnect</button></div>
+        <div class="ui-alert" data-status="idle"><i class="ph-duotone ph-moon" aria-hidden="true"></i><p>Reminders are paused during the winter break, December 20 to January 5.</p></div>
+      </div>
+      <div class="g-spec">
+        <h3>Status and badge</h3>
+        <div class="g-row"><span class="ui-status" data-status="ok">On track</span><span class="ui-status" data-status="warn">Needs attention</span><span class="ui-status" data-status="bad">Behind by 2 weeks</span><span class="ui-status" data-status="info">Waitlist, 1st</span><span class="ui-status" data-status="idle">Draft</span></div>
+        <div class="g-row"><span class="ui-badge">Workshop</span><span class="ui-badge" data-cat="4">Foundations</span><span class="ui-badge" data-tone="ok">Current plan</span><span class="ui-badge" data-tone="warn">Trial</span></div>
+        <h3>Toast <code class="ui-code">ui-toast</code></h3>
+        <div class="ui-toast" role="status"><div><strong>Settings saved</strong><p>Learners will see the new schedule defaults.</p></div><button type="button" aria-label="Dismiss notification">×</button></div>
+        <div><button class="ui-button" data-toast-message="Link copied" data-toast-description="Paste it into the course channel.">Show a toast</button></div>
+      </div>
+      <div class="g-spec">
+        <h3>Progress and meter</h3>
+        <span class="ui-progress"><progress max="100" value="74" aria-label="Course completion">74%</progress><b>74%</b></span>
+        <span class="ui-progress"><progress aria-label="Uploading recording"></progress><b>Uploading</b></span>
+        <span class="ui-meter"><meter min="0" max="120" low="96" high="114" optimum="40" value="61" aria-label="Live hours, 61 of 120">61</meter><b>61 <small>/ 120 h</small></b></span>
+        <span class="ui-meter"><meter min="0" max="200" low="160" high="190" optimum="80" value="184" aria-label="Seats, 184 of 200">184</meter><b>184 <small>/ 200</small></b></span>
+        <span class="ui-meter"><meter min="0" max="50" low="40" high="47" optimum="20" value="49" aria-label="Storage, 49 of 50 GB">49</meter><b>49 <small>/ 50 GB</small></b></span>
+        <p>Progress is work done; meter is usage against a limit and turns amber, then red, near the limit.</p>
+        <h3>Skeleton <code class="ui-code">ui-skeleton</code></h3>
+        <div aria-busy="true" aria-label="Loading sessions" style="display:grid;gap:var(--space-2)"><span class="ui-skeleton" style="width:60%"></span><span class="ui-skeleton" style="width:90%"></span><span class="ui-skeleton" style="width:40%"></span></div>
+      </div>
+      <div class="g-spec g-wide">
+        <h3>Empty state <code class="ui-code">ui-empty</code></h3>
+        <div class="ui-empty"><h3>No sessions this week</h3><p>Sessions you schedule for the spring cohort show up here with who is coming.</p><button class="ui-button"><i class="ph-bold ph-plus" aria-hidden="true"></i>Schedule session</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data -->
+  <section class="g-section" id="data" aria-labelledby="h-data">
+    <header><h2 id="h-data">Data display</h2><p>Tables, lists and facts read in tabular figures, with category marks keyed to the course.</p></header>
+    <div class="g-grid">
+      <div class="g-spec g-wide">
+        <h3>Stat strip <code class="ui-code">ui-stat-strip</code></h3>
+        <div class="ui-stat-strip">
+          <dl class="ui-stat"><dt><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Active learners</dt><dd>184</dd><small><b>+12</b> since last week</small></dl>
+          <dl class="ui-stat"><dt><i class="ph-duotone ph-check-circle" aria-hidden="true"></i>Average completion</dt><dd>62%</dd><small><b>+7 pts</b> since week 5</small></dl>
+          <dl class="ui-stat"><dt><i class="ph-duotone ph-calendar-check" aria-hidden="true"></i>Sessions this week</dt><dd>14</dd><small>3 still need a host</small></dl>
+        </div>
+      </div>
+      <div class="g-spec g-wide">
+        <h3>Table <code class="ui-code">ui-table-wrap ui-table</code></h3>
+        <div class="ui-table-wrap">
+          <table class="ui-table" data-ui-table id="g-table">
+            <thead><tr><th scope="col" data-sort>Course</th><th scope="col" class="num" data-sort>Learners</th><th scope="col" data-sort>Completion</th><th scope="col">Status</th></tr></thead>
+            <tbody>
+              <tr><td data-sort="Foundations"><span style="display:flex;align-items:center;gap:var(--space-3)"><span class="ui-mark" data-cat="4"></span>Product Design Foundations</span></td><td class="num">62</td><td data-sort="74"><span class="ui-progress"><progress max="100" value="74" aria-label="Completion">74%</progress><b>74%</b></span></td><td><span class="ui-status" data-status="ok">On track</span></td></tr>
+              <tr><td data-sort="Research"><span style="display:flex;align-items:center;gap:var(--space-3)"><span class="ui-mark" data-cat="3"></span>Research Methods</span></td><td class="num">41</td><td data-sort="58"><span class="ui-progress"><progress max="100" value="58" aria-label="Completion">58%</progress><b>58%</b></span></td><td><span class="ui-status" data-status="warn">Needs attention</span></td></tr>
+              <tr><td data-sort="Portfolio"><span style="display:flex;align-items:center;gap:var(--space-3)"><span class="ui-mark" data-cat="2"></span>Portfolio Studio</span></td><td class="num">33</td><td data-sort="41"><span class="ui-progress"><progress max="100" value="41" aria-label="Completion">41%</progress><b>41%</b></span></td><td><span class="ui-status" data-status="bad">Behind by 2 weeks</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="g-spec">
+        <h3>List <code class="ui-code">ui-list ui-list-item</code></h3>
+        <ul class="ui-list">
+          <li><a class="ui-list-item" href="#" aria-current="true"><span class="ui-avatar" data-cat="1" aria-hidden="true">LF</span><div><span>Motion workshop (selected)</span><span class="ui-list-meta"><span class="ui-mark" data-cat="1"></span>Interaction &amp; Motion · 13:30</span></div><span class="ui-list-meta">21 of 24</span></a></li>
+          <li><a class="ui-list-item is-hover" href="#"><span class="ui-avatar" data-cat="3" aria-hidden="true">DR</span><div><span>Office hours (hover)</span><span class="ui-list-meta"><span class="ui-mark" data-cat="3"></span>Research Methods · 11:00</span></div><span class="ui-list-meta">4 booked</span></a></li>
+          <li><a class="ui-list-item" href="#"><span class="ui-avatar" data-cat="5" aria-hidden="true">PR</span><div><span>Friday show and tell</span><span class="ui-list-meta"><span class="ui-mark" data-cat="5"></span>Community · 17:00</span></div><span class="ui-status" data-status="idle">Draft</span></a></li>
+        </ul>
+      </div>
+      <div class="g-spec">
+        <h3>Data list <code class="ui-code">ui-data-list</code></h3>
+        <dl class="ui-data-list">
+          <dt><i class="ph-duotone ph-chalkboard-teacher" aria-hidden="true"></i>Host</dt><dd><span class="ui-avatar" data-size="sm" data-cat="1" aria-hidden="true">LF</span>Lena Fischer</dd>
+          <dt><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i>When</dt><dd>Wed, Oct 28, 13:30</dd>
+          <dt><i class="ph-duotone ph-link-simple" aria-hidden="true"></i>Zoom</dt><dd><a href="#">zoom.us/j/81432209</a></dd>
+          <dt><i class="ph-duotone ph-record" aria-hidden="true"></i>Recording</dt><dd><span class="ui-status" data-status="ok">On</span></dd>
+        </dl>
+      </div>
+      <div class="g-spec">
+        <h3>Timeline <code class="ui-code">ui-timeline</code></h3>
+        <ol class="ui-timeline">
+          <li class="ui-timeline-item"><span class="ui-avatar" data-cat="1" aria-hidden="true">LF</span><div><p><b>Lena Fischer</b> added Easing curves cheat sheet</p><time>Today, 10:12</time></div></li>
+          <li class="ui-timeline-item" data-status="warn"><i class="ph-bold ph-hourglass-medium" aria-hidden="true"></i><div><p><b>Kenji Sato</b> joined the waitlist</p><time>Today, 9:48</time></div></li>
+          <li class="ui-timeline-item"><span class="ui-avatar" data-cat="4" aria-hidden="true">MO</span><div><p><b>Maya Okafor</b> commented</p><blockquote>Can we record the pair-tuning part too?</blockquote><time>Yesterday, 18:20</time></div></li>
+          <li class="ui-timeline-item" data-status="info"><i class="ph-bold ph-calendar-plus" aria-hidden="true"></i><div><p><b>Lena Fischer</b> scheduled the session</p><time>Oct 21, 11:30</time></div></li>
+        </ol>
+      </div>
+      <div class="g-spec">
+        <h3>Avatar, card, kbd, code</h3>
+        <div class="g-row"><span class="ui-avatar" data-size="sm" data-cat="4" aria-label="Maya Okafor">MO</span><span class="ui-avatar" data-cat="3" aria-label="Daniel Reyes">DR</span><span class="ui-avatar" data-size="lg" data-cat="5" aria-label="Priya Raman">PR</span><span class="ui-avatar" data-shape="square" aria-label="Halftone School">H</span><span class="ui-avatar-group" aria-label="Ana Lima, Zoe Martin and 19 others"><span class="ui-avatar" data-cat="4" aria-hidden="true">AL</span><span class="ui-avatar" data-cat="2" aria-hidden="true">ZM</span><span class="ui-avatar" aria-hidden="true">+19</span></span></div>
+        <a class="ui-card" data-link href="#"><h3>Portfolio Studio</h3><p>33 learners · next review today at 16:00</p></a>
+        <p>Press <span class="ui-kbd">⌘ K</span> to search, or paste <code class="ui-code">commons.app/join/halftone-7q2k</code> into the course channel.</p>
+        <div class="ui-code">
+          <header><span>Embed the schedule</span><button class="ui-button" data-variant="ghost" data-size="sm" data-copy data-toast-message="Snippet copied"><i class="ph-bold ph-copy" aria-hidden="true"></i>Copy</button></header>
+          <pre><code>&lt;iframe src="https://commons.app/embed/halftone/schedule"
+  title="Halftone School schedule"&gt;&lt;/iframe&gt;</code></pre>
+        </div>
+      </div>
+      <div class="g-spec g-wide">
+        <h3>Charts <code class="ui-code">ui-chart</code></h3>
+        <div class="g-chart">
+          <ul class="ui-chart-legend"><li><span class="ui-mark" data-shape="square" data-cat="muted"></span>Past weeks</li><li><span class="ui-mark" data-shape="square" data-cat="accent"></span>This week, so far</li></ul>
+          <figure class="ui-chart" role="img" aria-label="Weekly activity over 6 weeks, rising from 377 to 498, with 214 so far this week.">
+            <div class="ui-chart-axis" data-axis="y" aria-hidden="true"><span style="--p:0">600</span><span style="--p:50">300</span><span style="--p:100">0</span></div>
+            <svg viewBox="0 0 60 100" preserveAspectRatio="none" aria-hidden="true">
+              <line data-role="grid" x1="0" x2="60" y1="0" y2="0" vector-effect="non-scaling-stroke"/>
+              <line data-role="grid" x1="0" x2="60" y1="50" y2="50" vector-effect="non-scaling-stroke"/>
+              <rect data-series="past" x="2" y="37.17" width="6" height="62.83"><title>Sep 28: 377</title></rect>
+              <rect data-series="past" x="12" y="27.33" width="6" height="72.67"><title>Oct 5: 436</title></rect>
+              <rect data-series="past" x="22" y="23.17" width="6" height="76.83"><title>Oct 12: 461</title></rect>
+              <rect data-series="past" x="32" y="17" width="6" height="83"><title>Oct 19: 498</title></rect>
+              <rect data-series="1" x="42" y="64.33" width="6" height="35.67"><title>Oct 26, so far: 214</title></rect>
+              <line data-role="baseline" x1="0" x2="60" y1="100" y2="100" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <div class="ui-chart-axis" data-axis="x" aria-hidden="true"><span>Sep 28</span><span>Oct 5</span><span>12</span><span>19</span><span>26</span><span></span></div>
+          </figure>
+          <p class="ui-help">Share across courses, 184 learners</p>
+          <div class="g-share" role="img" aria-label="Learners by course: Foundations 62, Interaction 48, Research 41, Portfolio 33">
+            <span class="ui-mark" data-cat="4" style="flex:62;height:auto;border-radius:0"></span><span class="ui-mark" data-cat="1" style="flex:48;height:auto;border-radius:0"></span><span class="ui-mark" data-cat="3" style="flex:41;height:auto;border-radius:0"></span><span class="ui-mark" data-cat="2" style="flex:33;height:auto;border-radius:0"></span>
+          </div>
+          <ul class="ui-chart-legend"><li><span class="ui-mark" data-cat="4"></span>Foundations 62</li><li><span class="ui-mark" data-cat="1"></span>Interaction 48</li><li><span class="ui-mark" data-cat="3"></span>Research 41</li><li><span class="ui-mark" data-cat="2"></span>Portfolio 33</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Layers -->
+  <section class="g-section" id="layers" aria-labelledby="h-layers">
+    <header><h2 id="h-layers">Layers</h2><p>Menus, tooltips, dialogs and the command menu float on the card surface with the one floating shadow. Shown open here; the buttons open the live ones.</p></header>
+    <div class="g-grid">
+      <div class="g-spec">
+        <h3>Menu <code class="ui-code">ui-menu</code></h3>
+        <div class="ui-menu g-static" role="menu" aria-label="Session actions example"><button role="menuitem"><span>Copy invite link</span><i class="ph-bold ph-copy" aria-hidden="true"></i></button><button role="menuitem"><span>Duplicate</span><kbd>⌘ D</kbd></button><button role="menuitemcheckbox" aria-checked="true"><span>Show on calendar</span><i class="ph-bold ph-check" aria-hidden="true"></i></button><hr><button role="menuitem" disabled><span>Cancel session</span></button></div>
+        <div class="g-row">
+          <button class="ui-button" data-menu-trigger="g-menu">Open menu<i class="ph-bold ph-caret-down" aria-hidden="true"></i></button>
+          <div id="g-menu" class="ui-menu" role="menu" popover="auto"><button role="menuitem">Duplicate</button><button role="menuitem">Move to drafts</button><hr><button role="menuitem">Cancel session</button></div>
+          <button class="ui-button" data-variant="ghost" data-tooltip="g-tip">Hover for tooltip</button>
+          <div id="g-tip" class="ui-tooltip" role="tooltip" popover="manual">Seats free up when someone cancels.</div>
+        </div>
+        <h3>Tooltip <code class="ui-code">ui-tooltip</code></h3>
+        <div><span class="ui-tooltip g-static">Recording saves to the course library.</span></div>
+      </div>
+      <div class="g-spec">
+        <h3>Dialog <code class="ui-code">ui-dialog</code></h3>
+        <div class="ui-dialog g-static" role="group" aria-labelledby="g-dlg-t"><div class="ui-dialog__head"><h2 id="g-dlg-t">Archive the spring cohort?</h2></div><div class="ui-dialog__body">184 learners keep read-only access. You can restore it within 30 days.</div><div class="ui-dialog__foot"><button class="ui-button">Cancel</button><button class="ui-button" data-variant="danger">Archive cohort</button></div></div>
+        <div class="g-row">
+          <button class="ui-button" data-dialog-open="g-dialog">Open dialog</button>
+          <button class="ui-button" data-dialog-open="g-sheet">Open sheet</button>
+          <button class="ui-button" data-dialog-open="g-cmd"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i>Command menu</button>
+        </div>
+      </div>
+      <div class="g-spec g-wide">
+        <h3>Command menu <code class="ui-code">ui-command</code></h3>
+        <div class="ui-command g-static" aria-label="Command menu example">
+          <input type="search" aria-label="Search commands example" value="sch">
+          <div class="ui-command__list"><button data-active="true"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i>Schedule a session</button><button data-active="false"><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Open Halftone School learners</button></div>
+          <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
+        </div>
+        <h3>Accordion <code class="ui-code">ui-accordion</code></h3>
+        <div>
+          <details class="ui-accordion" open><summary>Who can see recordings?</summary><div class="ui-accordion__body">Learners in the course and its hosts. Guests see only sessions they joined.</div></details>
+          <details class="ui-accordion"><summary>How long are recordings kept?</summary><div class="ui-accordion__body">Until the cohort is archived, then 30 more days.</div></details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Layout -->
+  <section class="g-section" id="layout" aria-labelledby="h-layout">
+    <header><h2 id="h-layout">App layout</h2><p>The shell, page header, sections, filters, settings and the sign-in frame. Full screens are in the blocks folder.</p></header>
+    <div class="g-grid">
+      <div class="g-spec g-wide">
+        <h3>Shell <code class="ui-code">ui-shell ui-sidebar ui-topbar ui-page-header ui-section</code></h3>
+        <div class="g-frame">
+          <div class="ui-shell">
+            <aside class="ui-sidebar" id="g-sidebar" aria-label="Example workspace">
+              <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School"><span class="ui-avatar" data-shape="square" aria-hidden="true">H</span><span>Halftone School<small>Spring cohort</small></span><i class="ph-bold ph-caret-up-down" aria-hidden="true"></i></button>
+              <nav class="ui-nav" aria-label="Example main"><a class="ui-nav-item" href="#" aria-current="page"><i class="ph-duotone ph-squares-four" aria-hidden="true"></i><span>Overview</span></a><a class="ui-nav-item" href="#"><i class="ph-duotone ph-video-camera" aria-hidden="true"></i><span>Sessions</span><span class="ui-nav-count">14</span></a></nav>
+              <div class="ui-sidebar-foot"><span class="ui-avatar" data-cat="5" aria-hidden="true">PR</span><span>Priya Raman<small>Program lead</small></span></div>
+            </aside>
+            <main>
+              <header class="ui-topbar">
+                <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="g-sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+                <nav aria-label="Example breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Halftone School</a></li><li aria-current="page">Sessions</li></ol></nav>
+                <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
+              </header>
+              <div>
+                <div class="ui-page-header"><div><h1 class="ui-page-title">Sessions</h1><p class="ui-page-sub">Spring cohort, week 7 of 12</p></div><div class="ui-page-actions"><button class="ui-button">Export</button></div></div>
+                <div class="ui-filter-bar" role="search"><label class="ui-control"><span class="ui-affix" aria-hidden="true"><i class="ph-bold ph-magnifying-glass"></i></span><input class="ui-input" type="search" placeholder="Search sessions" aria-label="Search sessions"></label><button class="ui-chip" aria-pressed="true">All</button><button class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="1"></span>Interaction</button><output>9 sessions</output></div>
+                <section class="ui-section" aria-labelledby="g-sec"><div class="ui-section-head"><div><h2 id="g-sec">Today</h2><p>5 sessions, 112 RSVPs</p></div><a href="#">Open calendar</a></div><p class="ui-help">Section content: a list, chart or table.</p></section>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+      <div class="g-spec">
+        <h3>Detail panel <code class="ui-code">ui-detail</code></h3>
+        <div class="ui-detail">
+          <div class="ui-detail-head"><span class="ui-badge" data-cat="1">Interaction &amp; Motion</span><h2>Motion workshop</h2><p>Tune two transitions live and compare.</p></div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-clock" aria-hidden="true"></i>When</span><span>Today, 13:30</span></div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-map-pin" aria-hidden="true"></i>Where</span><span>Studio 2 and Zoom</span></div>
+        </div>
+      </div>
+      <div class="g-spec">
+        <h3>Settings <code class="ui-code">ui-settings-group ui-danger</code></h3>
+        <section class="ui-settings-group" aria-labelledby="g-set">
+          <header><h2 id="g-set">Scheduling</h2><p>Defaults for new sessions</p></header>
+          <div class="ui-settings-row"><div><span id="g-wl">Waitlist for full sessions</span><p>The next learner gets the seat</p></div><div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="g-wl"></label></div></div>
+        </section>
+        <section class="ui-danger" aria-labelledby="g-dz">
+          <header><h2 id="g-dz">Danger zone</h2><p>Affects every learner</p></header>
+          <div class="ui-settings-row"><div><span>Delete workspace</span><p>This cannot be undone.</p></div><div><button class="ui-button" data-variant="danger">Delete</button></div></div>
+        </section>
+      </div>
+      <div class="g-spec g-wide">
+        <h3>Sign-in frame <code class="ui-code">ui-auth</code></h3>
+        <div class="g-frame">
+          <div class="ui-auth">
+            <section aria-labelledby="g-auth">
+              <header><span class="ui-avatar" data-size="lg" data-shape="square" aria-hidden="true">C</span><h1 id="g-auth">Welcome back to Commons</h1><p>Halftone School · spring cohort</p></header>
+              <button class="ui-button" data-size="lg"><i class="ph-bold ph-google-logo" aria-hidden="true"></i>Continue with Google</button>
+              <div role="separator">or with email</div>
+              <form><label class="ui-field"><span class="ui-label">Email</span><input class="ui-input" type="email" placeholder="you@school.org"></label><button class="ui-button" type="button">Continue with email</button></form>
+              <p><small>By continuing you agree to the <a href="#">Terms</a>.</small></p>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog class="ui-dialog" id="g-dialog" aria-labelledby="g-dialog-t"><div class="ui-dialog__head"><h2 id="g-dialog-t">Cancel this session?</h2></div><div class="ui-dialog__body">21 learners get an email and the session moves to drafts.</div><div class="ui-dialog__foot"><button class="ui-button" data-dialog-close>Keep session</button><button class="ui-button" data-variant="danger" data-dialog-close>Cancel session</button></div></dialog>
+<dialog class="ui-sheet" id="g-sheet" aria-labelledby="g-sheet-t"><div class="ui-sheet__content"><h2 id="g-sheet-t">Session details</h2><dl class="ui-data-list"><dt>Host</dt><dd>Lena Fischer</dd><dt>When</dt><dd>Today, 13:30</dd></dl><p></p><button class="ui-button" data-dialog-close>Close</button></div></dialog>
+<dialog class="ui-command" id="g-cmd" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search learners, sessions and actions">
+  <div class="ui-command__list"><button data-value="schedule"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i>Schedule a session</button><button data-value="invite"><i class="ph-duotone ph-user-plus" aria-hidden="true"></i>Invite learners</button><p class="ui-command__empty" hidden>No matching commands.</p></div>
+  <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
+</dialog>
+<script>
+  document.getElementById('theme').addEventListener('seenry:change', e => document.documentElement.setAttribute('data-theme', e.detail.value));
+</script>
+</body>
+</html>

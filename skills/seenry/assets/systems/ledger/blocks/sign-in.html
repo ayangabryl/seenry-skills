@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Fenwick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../system.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<main class="ui-auth-page">
+  <div class="ui-auth">
+    <div class="ui-auth-head">
+      <span class="ui-org-mark" aria-hidden="true">F</span>
+      <h1>Sign in to Fenwick</h1>
+      <p>Receivables and payables for Harbor &amp; Pine and your other workspaces.</p>
+    </div>
+
+    <div class="ui-tabs" role="tablist" aria-label="Account">
+      <button role="tab" id="signin-tab" aria-selected="true" aria-controls="signin-panel">Sign in</button>
+      <button role="tab" id="create-tab" aria-selected="false" aria-controls="create-panel">Create account</button>
+    </div>
+
+    <div class="ui-tab-panel ui-auth-panel" role="tabpanel" id="signin-panel" aria-labelledby="signin-tab">
+      <div class="ui-auth-providers">
+        <button class="ui-button" type="button"><i class="ti ti-brand-google" aria-hidden="true"></i>Continue with Google</button>
+        <button class="ui-button" type="button"><i class="ti ti-brand-windows" aria-hidden="true"></i>Continue with Microsoft</button>
+        <button class="ui-button" type="button"><i class="ti ti-key" aria-hidden="true"></i>Single sign-on (SAML)</button>
+      </div>
+      <p class="ui-auth-divider">or with email</p>
+      <div class="ui-alert" data-status="bad" role="alert" id="signin-error">
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+        <p>That email and password don’t match.<small>3 more tries before sign-in pauses for 15 minutes.</small></p>
+      </div>
+      <form novalidate onsubmit="event.preventDefault()">
+        <label class="ui-field"><span class="ui-label">Work email</span><input class="ui-input" type="email" name="email" autocomplete="username" value="dana@harborpine.com"></label>
+        <div class="ui-field" data-invalid>
+          <div class="ui-auth-row"><label class="ui-label" for="password">Password</label><a href="#">Forgot password?</a></div>
+          <span class="ui-control ui-reveal"><input class="ui-input" id="password" type="password" name="password" autocomplete="current-password" value="harborpine-2025" aria-invalid="true" aria-describedby="signin-error"><button class="ui-button" data-variant="ghost" data-icon data-size="sm" type="button" aria-label="Show password" aria-pressed="false"><i class="ti ti-eye" aria-hidden="true"></i></button></span>
+        </div>
+        <label class="ui-choice"><input type="checkbox" name="remember" checked><span>Keep me signed in on this device for 30 days</span></label>
+        <button class="ui-button" data-variant="primary" type="submit">Sign in</button>
+      </form>
+    </div>
+
+    <div class="ui-tab-panel ui-auth-panel" role="tabpanel" id="create-panel" aria-labelledby="create-tab" hidden>
+      <div class="ui-auth-providers">
+        <button class="ui-button" type="button"><i class="ti ti-brand-google" aria-hidden="true"></i>Sign up with Google</button>
+        <button class="ui-button" type="button"><i class="ti ti-brand-windows" aria-hidden="true"></i>Sign up with Microsoft</button>
+      </div>
+      <p class="ui-auth-divider">or with email</p>
+      <form novalidate onsubmit="event.preventDefault()">
+        <label class="ui-field"><span class="ui-label">Full name</span><input class="ui-input" name="name" autocomplete="name"></label>
+        <label class="ui-field"><span class="ui-label">Work email</span><input class="ui-input" type="email" name="new-email" autocomplete="email"><span class="ui-help">We send a 6-digit code to confirm it.</span></label>
+        <label class="ui-field"><span class="ui-label">Company</span><input class="ui-input" name="company" autocomplete="organization"></label>
+        <label class="ui-field"><span class="ui-label">Password</span><input class="ui-input" type="password" name="new-password" autocomplete="new-password" aria-describedby="pw-help"><span class="ui-help" id="pw-help">12 characters or more. Pasting from a password manager works.</span></label>
+        <button class="ui-button" data-variant="primary" type="submit">Create account</button>
+      </form>
+    </div>
+
+    <p class="ui-auth-legal">By continuing you agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. Fenwick is SOC 2 Type II audited.</p>
+  </div>
+  <p class="ui-auth-foot">Locked out? Your workspace admin can reset access, or write to <a href="#">help@fenwick.com</a>.</p>
+</main>
+</body>
+</html>

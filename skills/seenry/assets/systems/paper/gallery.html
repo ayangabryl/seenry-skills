@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper · Components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="stylesheet" href="../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="system.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .g-main{padding-bottom:var(--space-8)}
+  .g-intro{display:grid;gap:var(--space-3);padding-top:var(--space-6)}
+  .g-intro p{color:var(--text-2);max-width:var(--measure)}
+  .g-intro .ui-data-list{max-width:calc(var(--measure) * 1.2)}
+  .g-section{display:grid;gap:var(--space-5);padding-top:var(--space-8);scroll-margin-top:var(--topbar-h)}
+  .g-section>header{display:grid;gap:var(--space-1);padding-bottom:var(--space-4);border-bottom:var(--hairline) solid var(--line)}
+  .g-section>header h2{font:var(--type-stat);letter-spacing:var(--tracking-display);color:var(--text)}
+  .g-section>header p{color:var(--text-2);max-width:var(--measure)}
+  .g-block{display:grid;align-content:start;gap:var(--space-4)}
+  .g-block>h3{font:var(--type-heading);color:var(--text)}
+  .g-block>h3 code{margin-left:var(--space-2)}
+  .g-block>p{color:var(--text-3);font:var(--type-small);max-width:var(--measure);margin-top:calc(var(--space-3) * -1)}
+  .g-stage{display:flex;flex-wrap:wrap;align-items:flex-start;gap:var(--space-6) var(--space-5);padding:var(--space-6);border:var(--hairline) solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+  .g-stage[data-bg=page]{background:var(--bg)}
+  .g-stage[data-cols]{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(var(--detail-w) * .6)),1fr))}
+  .g-stage[data-cols=wide]{grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--detail-w)),1fr))}
+  .g-stage[data-stack]{display:grid}
+  .g-spec{display:grid;justify-items:start;align-content:start;gap:var(--space-2);min-width:0}
+  .g-stage[data-cols] .g-spec,.g-stage[data-stack] .g-spec{justify-items:stretch}
+  .g-stage>*{min-width:0;max-width:100%}
+  .g-stage>div[style*="display:grid"]{grid-template-columns:minmax(0,1fr)}
+  .g-spec>:is(.ui-menu,.ui-tooltip,.ui-toast){width:min(100%,calc(var(--detail-w) * .8))}
+  .g-cap{color:var(--text-3);font:var(--type-small)}
+  .is-hover.ui-button{background:var(--hover)}
+  .is-hover.ui-button[data-variant=primary]{background:var(--accent-hover);border-color:var(--accent-hover)}
+  .is-hover.ui-chip,.is-hover.ui-nav-item{background:var(--hover);color:var(--text)}
+  .is-hover.ui-input{border-color:var(--text-3)}
+  .is-focus{outline:var(--rule) solid var(--accent);outline-offset:var(--rule)}
+  .is-focus.ui-input,.ui-combobox .is-focus{outline:0;border-color:var(--accent);box-shadow:var(--focus)}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--detail-w) * .4),1fr));gap:var(--space-4)}
+  .swatch{display:grid;gap:var(--space-2)}
+  .swatch i{display:block;height:calc(var(--space-8) + var(--space-4));border:var(--hairline) solid var(--line);border-radius:var(--r-md);background:var(--c)}
+  .swatch strong{font:var(--type-label);color:var(--text)}
+  .swatch code{justify-self:start}
+  .g-stage[data-stack]:has(>.type-row){row-gap:0;padding-block:var(--space-3)}
+  .type-row{display:grid;grid-template-columns:calc(var(--detail-w) * .4) minmax(0,1fr);align-items:baseline;gap:var(--space-4);padding-block:var(--space-3);border-top:var(--hairline) solid var(--line)}
+  .type-row:first-child{border-top:0}
+  .type-row small{color:var(--text-3);font:var(--type-small)}
+  .space-row{display:flex;align-items:center;gap:var(--space-4);font:var(--type-small);color:var(--text-3)}
+  .space-row i{display:block;height:var(--space-4);width:var(--w);border-radius:var(--knob-inset);background:var(--accent-subtle);box-shadow:inset 0 0 0 var(--hairline) var(--accent)}
+  .space-row span{min-width:calc(var(--space-8) + var(--space-6))}
+  .radius{display:grid;place-items:center;width:calc(var(--space-8) + var(--space-6));height:calc(var(--space-8) + var(--space-4));border:var(--hairline) solid var(--line-strong);border-radius:var(--r);background:var(--surface-2);color:var(--text-2);font:var(--type-small)}
+  .g-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3)}
+  .g-mini-shell{display:grid;grid-template-columns:calc(var(--sidebar-w) * .9);gap:var(--space-1);padding:var(--space-3);border-radius:var(--r-md);background:var(--bg)}
+  .g-chart{width:100%}
+  .g-auth{display:grid;place-items:center;padding:var(--space-7) var(--space-4);border-radius:var(--r-lg);background:var(--bg)}
+  .g-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--space-5);width:100%}
+  .g-topbar-actions{margin-left:auto}
+  .ui-topbar>.ui-segmented{margin-left:auto}
+  @media (max-width:63.9375em){.g-split{grid-template-columns:minmax(0,1fr)}}
+  @media (max-width:47.9375em){.g-stage{padding:var(--space-4)}.type-row{grid-template-columns:minmax(0,1fr);gap:var(--space-1)}.g-section{padding-top:var(--space-7)}}
+</style>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Gallery navigation">
+    <div class="ui-sidebar-head">
+      <span class="ui-avatar" aria-hidden="true">P</span>
+      <div><strong>Paper</strong><small>Seenry design system</small></div>
+    </div>
+    <nav class="ui-nav" aria-label="Components">
+      <span class="ui-nav-label">Components</span>
+      <a class="ui-nav-item" href="#foundations"><i class="ph ph-palette" aria-hidden="true"></i>Foundations</a>
+      <a class="ui-nav-item" href="#buttons"><i class="ph ph-cursor-click" aria-hidden="true"></i>Buttons</a>
+      <a class="ui-nav-item" href="#fields"><i class="ph ph-textbox" aria-hidden="true"></i>Fields</a>
+      <a class="ui-nav-item" href="#choices"><i class="ph ph-check-square" aria-hidden="true"></i>Choices</a>
+      <a class="ui-nav-item" href="#selection"><i class="ph ph-sliders-horizontal" aria-hidden="true"></i>Selection</a>
+      <a class="ui-nav-item" href="#navigation"><i class="ph ph-signpost" aria-hidden="true"></i>Navigation</a>
+      <a class="ui-nav-item" href="#layers"><i class="ph ph-stack" aria-hidden="true"></i>Layers</a>
+      <a class="ui-nav-item" href="#feedback"><i class="ph ph-bell-simple" aria-hidden="true"></i>Feedback</a>
+      <a class="ui-nav-item" href="#data"><i class="ph ph-table" aria-hidden="true"></i>Data</a>
+      <a class="ui-nav-item" href="#charts"><i class="ph ph-chart-line" aria-hidden="true"></i>Charts</a>
+      <a class="ui-nav-item" href="#content"><i class="ph ph-article" aria-hidden="true"></i>Content</a>
+      <a class="ui-nav-item" href="#patterns"><i class="ph ph-squares-four" aria-hidden="true"></i>Patterns</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Blocks">
+      <span class="ui-nav-label">Blocks</span>
+      <a class="ui-nav-item" href="blocks/dashboard.html"><i class="ph ph-browser" aria-hidden="true"></i>Dashboard</a>
+      <a class="ui-nav-item" href="blocks/list-detail.html"><i class="ph ph-browser" aria-hidden="true"></i>List and detail</a>
+      <a class="ui-nav-item" href="blocks/detail.html"><i class="ph ph-browser" aria-hidden="true"></i>Bill detail</a>
+      <a class="ui-nav-item" href="blocks/settings.html"><i class="ph ph-browser" aria-hidden="true"></i>Settings</a>
+      <a class="ui-nav-item" href="blocks/billing.html"><i class="ph ph-browser" aria-hidden="true"></i>Billing</a>
+      <a class="ui-nav-item" href="blocks/onboarding.html"><i class="ph ph-browser" aria-hidden="true"></i>Onboarding</a>
+      <a class="ui-nav-item" href="blocks/sign-in.html"><i class="ph ph-browser" aria-hidden="true"></i>Sign in</a>
+    </nav>
+  </aside>
+  <main class="g-main">
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><i class="ph ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="SYSTEM.md">Paper</a></li><li aria-current="page">Components</li></ol></nav>
+      <div class="ui-segmented" aria-label="Theme" id="theme-switch"><button aria-pressed="true" data-value="light">Light</button><button aria-pressed="false" data-value="dark">Dark</button></div>
+    </header>
+    <div class="g-intro">
+      <h1 class="ui-page-title">Components</h1>
+      <p>Every seenry-ui component and every contract class, in Paper’s character, in each state it can be in. Hover, focus and pressed states are drawn so you can compare them side by side; the live controls work too. Copy the markup from the source; the rules and the reasons are in SYSTEM.md.</p>
+      <dl class="ui-data-list">
+        <div><dt>Fonts</dt><dd>Newsreader 400 for titles and figures, Inter 400 to 600 for UI</dd></div>
+        <div><dt>Accent</dt><dd><span class="ui-status" data-status="ok">Deep green</span> one primary per view</dd></div>
+        <div><dt>Icons</dt><dd>Phosphor regular, 18px</dd></div>
+      </dl>
+    </div>
+
+    <section class="g-section" id="foundations" aria-labelledby="foundations-title">
+      <header><h2 id="foundations-title">Foundations</h2><p>Warm page, white cards, one deep green. Every value on this page is a token in tokens.css; switch the theme to see the warm charcoal dark set.</p></header>
+      <div class="g-block">
+        <h3>Color</h3>
+        <p>Surfaces separate by tone, never by shadow. Green means “do this” or “you are here”.</p>
+        <div class="g-stage swatches">
+          <div class="swatch"><i style="--c:var(--bg)"></i><strong>Page</strong><code class="ui-code">--bg</code></div>
+          <div class="swatch"><i style="--c:var(--surface)"></i><strong>Card</strong><code class="ui-code">--surface</code></div>
+          <div class="swatch"><i style="--c:var(--surface-2)"></i><strong>Quiet fill</strong><code class="ui-code">--surface-2</code></div>
+          <div class="swatch"><i style="--c:var(--hover)"></i><strong>Hover</strong><code class="ui-code">--hover</code></div>
+          <div class="swatch"><i style="--c:var(--line)"></i><strong>Line</strong><code class="ui-code">--line</code></div>
+          <div class="swatch"><i style="--c:var(--line-strong)"></i><strong>Strong line</strong><code class="ui-code">--line-strong</code></div>
+          <div class="swatch"><i style="--c:var(--text)"></i><strong>Text</strong><code class="ui-code">--text</code></div>
+          <div class="swatch"><i style="--c:var(--text-2)"></i><strong>Text 2</strong><code class="ui-code">--text-2</code></div>
+          <div class="swatch"><i style="--c:var(--text-3)"></i><strong>Text 3</strong><code class="ui-code">--text-3</code></div>
+          <div class="swatch"><i style="--c:var(--accent)"></i><strong>Accent</strong><code class="ui-code">--accent</code></div>
+          <div class="swatch"><i style="--c:var(--accent-subtle)"></i><strong>Accent subtle</strong><code class="ui-code">--accent-subtle</code></div>
+          <div class="swatch"><i style="--c:var(--ok)"></i><strong>Ok</strong><code class="ui-code">--ok</code></div>
+          <div class="swatch"><i style="--c:var(--warn)"></i><strong>Warn</strong><code class="ui-code">--warn</code></div>
+          <div class="swatch"><i style="--c:var(--bad)"></i><strong>Bad</strong><code class="ui-code">--bad</code></div>
+          <div class="swatch"><i style="--c:var(--info)"></i><strong>Info</strong><code class="ui-code">--info</code></div>
+          <div class="swatch"><i style="--c:var(--chart-2)"></i><strong>Chart 2</strong><code class="ui-code">--chart-2</code></div>
+          <div class="swatch"><i style="--c:var(--chart-3)"></i><strong>Chart 3</strong><code class="ui-code">--chart-3</code></div>
+          <div class="swatch"><i style="--c:var(--chart-4)"></i><strong>Chart 4</strong><code class="ui-code">--chart-4</code></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Type</h3>
+        <p>Serif for the page title, figures and dialog titles only. Inter for everything you read or click.</p>
+        <div class="g-stage" data-stack>
+          <div class="type-row"><small>Figure · serif 44/48<br><code class="ui-code">--type-figure</code></small><span style="font:var(--type-figure);letter-spacing:var(--tracking-ui)">$128.40</span></div>
+          <div class="type-row"><small>Title · serif 34/42<br><code class="ui-code">--type-title</code></small><span style="font:var(--type-title);letter-spacing:var(--tracking-ui)">October</span></div>
+          <div class="type-row"><small>Stat · serif 30/36<br><code class="ui-code">--type-stat</code></small><span style="font:var(--type-stat);letter-spacing:var(--tracking-ui)">$4,716</span></div>
+          <div class="type-row"><small>Heading · Inter 600 16/24<br><code class="ui-code">--type-heading</code></small><span style="font:var(--type-heading);letter-spacing:var(--tracking-ui)">Spending by category</span></div>
+          <div class="type-row"><small>Body · Inter 400 15/22<br><code class="ui-code">--type-body</code></small><span style="font:var(--type-body);letter-spacing:var(--tracking-ui)">$1,284 left to spend with 4 days to go.</span></div>
+          <div class="type-row"><small>Label · Inter 500 14/20<br><code class="ui-code">--type-label</code></small><span style="font:var(--type-label);letter-spacing:var(--tracking-ui)">Add transaction</span></div>
+          <div class="type-row"><small>Small · Inter 400 13/18<br><code class="ui-code">--type-small</code></small><span style="font:var(--type-small);letter-spacing:var(--tracking-ui)">Oct 27 · Suggested: Groceries</span></div>
+        </div>
+      </div>
+<div class="g-split">      <div class="g-block">
+        <h3>Space</h3>
+        <div class="g-stage" data-stack>
+          <div class="space-row"><span>--space-1 · 4</span><i style="--w:var(--space-1)"></i></div>
+          <div class="space-row"><span>--space-2 · 8</span><i style="--w:var(--space-2)"></i></div>
+          <div class="space-row"><span>--space-3 · 12</span><i style="--w:var(--space-3)"></i></div>
+          <div class="space-row"><span>--space-4 · 16</span><i style="--w:var(--space-4)"></i></div>
+          <div class="space-row"><span>--space-5 · 20</span><i style="--w:var(--space-5)"></i></div>
+          <div class="space-row"><span>--space-6 · 24</span><i style="--w:var(--space-6)"></i></div>
+          <div class="space-row"><span>--space-7 · 32</span><i style="--w:var(--space-7)"></i></div>
+          <div class="space-row"><span>--space-8 · 48</span><i style="--w:var(--space-8)"></i></div>
+        </div>
+      </div>      <div class="g-block">
+        <h3>Radius</h3>
+        <div class="g-stage">
+          <span class="radius" style="--r:var(--r-sm)">8 control</span>
+          <span class="radius" style="--r:var(--r-md)">10 menu</span>
+          <span class="radius" style="--r:var(--r-lg)">14 card</span>
+          <span class="radius" style="--r:var(--r-pill)">pill</span>
+        </div>
+      </div></div>
+    </section>
+    <section class="g-section" id="buttons" aria-labelledby="buttons-title">
+      <header><h2 id="buttons-title">Buttons</h2><p>One filled green button per view. Secondary is a white button with a warm line; ghost is for toolbars; danger is outlined until it is the only choice.</p></header>
+      <div class="g-block">
+        <h3>Variants <code class="ui-code">ui-button</code></h3>
+        <div class="g-stage">
+          <div class="g-spec"><button class="ui-button" data-variant="primary"><i class="ph ph-plus" aria-hidden="true"></i>Add transaction</button><span class="g-cap">Primary</span></div>
+          <div class="g-spec"><button class="ui-button"><i class="ph ph-download-simple" aria-hidden="true"></i>Export</button><span class="g-cap">Secondary</span></div>
+          <div class="g-spec"><button class="ui-button" data-variant="ghost">Cancel</button><span class="g-cap">Ghost</span></div>
+          <div class="g-spec"><button class="ui-button" data-variant="danger">Delete household</button><span class="g-cap">Danger</span></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>States</h3>
+        <div class="g-stage">
+          <div class="g-spec"><button class="ui-button">Mark as paid</button><span class="g-cap">Default</span></div>
+          <div class="g-spec"><button class="ui-button is-hover">Mark as paid</button><span class="g-cap">Hover</span></div>
+          <div class="g-spec"><button class="ui-button is-focus">Mark as paid</button><span class="g-cap">Focus</span></div>
+          <div class="g-spec"><button class="ui-button" disabled>Mark as paid</button><span class="g-cap">Disabled</span></div>
+          <div class="g-spec"><button class="ui-button" data-variant="primary" data-loading aria-busy="true" disabled>Saving</button><span class="g-cap">Loading</span></div>
+          <div class="g-spec"><button class="ui-button is-hover" data-variant="primary">Continue</button><span class="g-cap">Primary hover</span></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Sizes and icon buttons <code class="ui-code">data-size · data-icon</code></h3>
+        <p>Icon-only buttons always carry an aria-label.</p>
+        <div class="g-stage">
+          <div class="g-spec"><button class="ui-button" data-size="sm">Edit</button><span class="g-cap">Small · 32</span></div>
+          <div class="g-spec"><button class="ui-button">Edit</button><span class="g-cap">Default · 40</span></div>
+          <div class="g-spec"><button class="ui-button" data-size="lg">Edit</button><span class="g-cap">Large · 44</span></div>
+          <div class="g-spec"><button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ph ph-bell" aria-hidden="true"></i></button><span class="g-cap">Icon, ghost</span></div>
+          <div class="g-spec"><button class="ui-button" data-icon aria-label="More actions"><i class="ph ph-dots-three" aria-hidden="true"></i></button><span class="g-cap">Icon, secondary</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="fields" aria-labelledby="fields-title">
+      <header><h2 id="fields-title">Fields</h2><p>A visible label above every field, help or error text below it. Fields are 40px tall, 44px on phones.</p></header>
+      <div class="g-block">
+        <h3>Text input <code class="ui-code">ui-field · ui-input</code></h3>
+        <div class="g-stage" data-cols>
+          <div class="g-spec"><label class="ui-field"><span class="ui-label">Household name</span><input class="ui-input" placeholder="The Alvarez household"></label><span class="g-cap">Default</span></div>
+          <div class="g-spec"><label class="ui-field"><span class="ui-label">Household name</span><input class="ui-input is-hover" value="Alvarez household"></label><span class="g-cap">Hover</span></div>
+          <div class="g-spec"><label class="ui-field"><span class="ui-label">Household name</span><input class="ui-input is-focus" value="Alvarez household"></label><span class="g-cap">Focus</span></div>
+          <div class="g-spec"><label class="ui-field"><span class="ui-label">Monthly budget</span><span class="ui-control"><span class="ui-affix">$</span><input class="ui-input" inputmode="decimal" value="6,000" aria-describedby="h-budget"></span><span class="ui-help" id="h-budget">Take-home pay minus savings.</span></label><span class="g-cap">With help</span></div>
+          <div class="g-spec"><label class="ui-field" data-invalid><span class="ui-label">Email</span><input class="ui-input" type="email" value="maya@fastmail" aria-invalid="true" aria-describedby="e-email"><span class="ui-error" id="e-email">Add the part after the dot, like .com</span></label><span class="g-cap">Error</span></div>
+          <div class="g-spec"><label class="ui-field"><span class="ui-label">Plan</span><input class="ui-input" value="Family, yearly" disabled><span class="ui-help">Change it in Billing.</span></label><span class="g-cap">Disabled</span></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Select, textarea, combobox <code class="ui-code">ui-select · ui-textarea · ui-combobox</code></h3>
+        <div class="g-stage" data-cols>
+          <div class="g-spec"><label class="ui-field"><span class="ui-label">Month starts on</span><select class="ui-select"><option>The 1st</option><option>The 15th</option><option>Last business day</option></select></label><span class="g-cap">Select</span></div>
+          <div class="g-spec"><label class="ui-field ui-combobox"><span class="ui-label">Bank or credit union</span><span class="ui-control"><span class="ui-affix"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></span><input list="g-banks" placeholder="Search 11,000 banks"></span></label><datalist id="g-banks"><option value="SchoolsFirst FCU"><option value="Chase"><option value="Wells Fargo"><option value="Golden 1 Credit Union"></datalist><span class="g-cap">Combobox, native datalist</span></div>
+          <div class="g-spec"><label class="ui-field ui-combobox"><span class="ui-label">Category</span><input class="is-focus" list="g-cats" value="Groceries"></label><datalist id="g-cats"><option value="Groceries"><option value="Dining out"><option value="Household"></datalist><span class="g-cap">Combobox, focus</span></div>
+          <div class="g-spec"><label class="ui-field"><span class="ui-label">Note</span><textarea class="ui-textarea">Weekly shop plus snacks for Leo’s Halloween party.</textarea></label><span class="g-cap">Textarea</span></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Slider <code class="ui-code">ui-slider</code></h3>
+        <p>A range input with its value beside it. The filled part of the track follows --fill.</p>
+        <div class="g-stage" data-cols>
+          <div class="g-spec"><label class="ui-slider"><span>Tell me about charges over</span><output>$250</output><input type="range" min="50" max="1000" step="50" value="250" style="--fill:21%" data-format="$"></label><span class="g-cap">Default</span></div>
+          <div class="g-spec"><label class="ui-slider"><span>Savings goal</span><output>18%</output><input type="range" min="0" max="50" value="18" style="--fill:36%" data-format="%"><small>Of take-home pay, moved on payday.</small></label><span class="g-cap">With help</span></div>
+          <div class="g-spec"><label class="ui-slider"><span>Rollover cap</span><output>$100</output><input type="range" min="0" max="500" value="100" style="--fill:20%" disabled></label><span class="g-cap">Disabled</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="choices" aria-labelledby="choices-title">
+      <header><h2 id="choices-title">Choices</h2><p>Checkboxes for independent choices, radios for one of several, switches for settings that apply immediately.</p></header>
+      <div class="g-block">
+        <h3>Checkbox <code class="ui-code">ui-choice</code></h3>
+        <div class="g-stage">
+          <div class="g-spec"><label class="ui-choice"><input type="checkbox" checked><span>Include pending</span></label><span class="g-cap">Checked</span></div>
+          <div class="g-spec"><label class="ui-choice"><input type="checkbox"><span>Include transfers</span></label><span class="g-cap">Unchecked</span></div>
+          <div class="g-spec"><label class="ui-choice"><input type="checkbox" class="is-focus"><span>Include refunds</span></label><span class="g-cap">Focus</span></div>
+          <div class="g-spec"><label class="ui-choice"><input type="checkbox" disabled checked><span>Owner always notified</span></label><span class="g-cap">Disabled</span></div>
+          <div class="g-spec"><label class="ui-choice"><input type="checkbox" checked><span>Weekly summary <small>Sunday evening, by email.</small></span></label><span class="g-cap">With help</span></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Radio group <code class="ui-code">ui-radio-group</code></h3>
+        <div class="g-stage">
+<fieldset class="ui-radio-group"><legend>Who can see this account?</legend><label class="ui-choice"><input type="radio" name="g-vis" checked><span>Everyone in the household <small>Maya and Daniel</small></span></label><label class="ui-choice"><input type="radio" name="g-vis"><span>Only me <small>Totals still count toward shared budgets.</small></span></label><label class="ui-choice"><input type="radio" name="g-vis" disabled><span>Advisor access <small>Available on the Family plan.</small></span></label></fieldset>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Switch <code class="ui-code">ui-switch</code></h3>
+        <div class="g-stage">
+          <div class="g-spec"><label class="ui-switch"><input type="checkbox" role="switch" checked><span>Bill reminders</span></label><span class="g-cap">On</span></div>
+          <div class="g-spec"><label class="ui-switch"><input type="checkbox" role="switch"><span>Round to whole dollars</span></label><span class="g-cap">Off</span></div>
+          <div class="g-spec"><label class="ui-switch"><input type="checkbox" role="switch" class="is-focus" checked><span>Roll over unspent money</span></label><span class="g-cap">Focus</span></div>
+          <div class="g-spec"><label class="ui-switch"><input type="checkbox" role="switch" disabled><span>Shared with advisor</span></label><span class="g-cap">Disabled</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="selection" aria-labelledby="selection-title">
+      <header><h2 id="selection-title">Selection</h2><p>Segmented controls switch a view, tabs switch panels at the same level, chips filter a list.</p></header>
+      <div class="g-block">
+        <h3>Segmented control <code class="ui-code">ui-segmented</code></h3>
+        <div class="g-stage">
+<div class="ui-segmented" aria-label="Range"><button aria-pressed="false" data-value="6m">6M</button><button aria-pressed="true" data-value="1y">1Y</button><button aria-pressed="false" data-value="all">All</button></div>
+          <div class="ui-segmented" aria-label="Show"><button aria-pressed="true">All</button><button aria-pressed="false">To review</button><button aria-pressed="false">Recurring</button></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Tabs <code class="ui-code">ui-tabs</code></h3>
+        <div class="g-stage">
+<div style="width:100%"><div class="ui-tabs" role="tablist" aria-label="Bill sections"><button role="tab" id="g-t1" aria-selected="true" aria-controls="g-p1">Overview</button><button role="tab" id="g-t2" aria-selected="false" aria-controls="g-p2">History</button><button role="tab" id="g-t3" aria-selected="false" aria-controls="g-p3">Reminders</button></div><div class="ui-tab-panel" role="tabpanel" id="g-p1" aria-labelledby="g-t1">Due Monday, November 3. Estimated at $128.40.</div><div class="ui-tab-panel" role="tabpanel" id="g-p2" aria-labelledby="g-t2" hidden>Twelve bills, from $92.80 to $164.22.</div><div class="ui-tab-panel" role="tabpanel" id="g-p3" aria-labelledby="g-t3" hidden>Three days before, to Maya.</div></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Chips <code class="ui-code">ui-chip</code></h3>
+        <p>aria-pressed carries the state; a count can sit in small.</p>
+        <div class="g-stage">
+          <div class="g-spec"><button class="ui-chip" type="button" aria-pressed="false">Groceries</button><span class="g-cap">Default</span></div>
+          <div class="g-spec"><button class="ui-chip is-hover" type="button" aria-pressed="false">Dining out</button><span class="g-cap">Hover</span></div>
+          <div class="g-spec"><button class="ui-chip" type="button" aria-pressed="true">Kids and childcare <small>12</small></button><span class="g-cap">Selected</span></div>
+          <div class="g-spec"><button class="ui-chip is-focus" type="button" aria-pressed="false">Transport</button><span class="g-cap">Focus</span></div>
+          <div class="g-spec"><button class="ui-chip" type="button" aria-pressed="false" disabled>Business</button><span class="g-cap">Disabled</span></div>
+          <div class="g-spec"><button class="ui-chip" type="button" aria-pressed="false"><i class="ph ph-arrows-clockwise" aria-hidden="true"></i>Recurring</button><span class="g-cap">With icon</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="navigation" aria-labelledby="navigation-title">
+      <header><h2 id="navigation-title">Navigation</h2><p>The sidebar, breadcrumb, pagination and stepper. The current place is marked with aria-current, never color alone.</p></header>
+      <div class="g-block">
+        <h3>Sidebar items <code class="ui-code">ui-nav · ui-nav-item · ui-nav-count</code></h3>
+        <p>Current, hover, rest and focus, top to bottom.</p>
+        <div class="g-stage" data-bg="page">
+<nav class="ui-nav g-mini-shell" aria-label="Example navigation"><span class="ui-nav-label">Household</span><a class="ui-nav-item" href="#navigation" aria-current="page"><i class="ph ph-house" aria-hidden="true"></i>Overview</a><a class="ui-nav-item is-hover" href="#navigation"><i class="ph ph-receipt" aria-hidden="true"></i>Transactions<span class="ui-nav-count">5</span></a><a class="ui-nav-item" href="#navigation"><i class="ph ph-calendar-blank" aria-hidden="true"></i>Bills<span class="ui-nav-count">3</span></a><a class="ui-nav-item is-focus" href="#navigation"><i class="ph ph-gear" aria-hidden="true"></i>Settings</a></nav>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Breadcrumb and pagination <code class="ui-code">ui-breadcrumb · ui-pagination</code></h3>
+        <div class="g-stage">
+<nav aria-label="Breadcrumb example"><ol class="ui-breadcrumb"><li><a href="#navigation">Alvarez household</a></li><li><a href="#navigation">Bills</a></li><li aria-current="page">PG&amp;E</li></ol></nav>
+          <nav class="ui-pagination" aria-label="Example pages"><button disabled aria-label="Previous page"><i class="ph ph-caret-left" aria-hidden="true"></i></button><button aria-current="page">1</button><button>2</button><button>3</button><button aria-label="Next page"><i class="ph ph-caret-right" aria-hidden="true"></i></button></nav>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Steps <code class="ui-code">ui-steps · ui-step</code></h3>
+        <p>Steps before aria-current="step" show as done; on phones only the current label shows.</p>
+        <div class="g-stage">
+<ol class="ui-steps" aria-label="Setup progress" style="width:100%"><li class="ui-step"><span>Household</span></li><li class="ui-step"><span>Bank</span></li><li class="ui-step" aria-current="step"><span>Budget</span></li><li class="ui-step"><span>Bills</span></li></ol>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="layers" aria-labelledby="layers-title">
+      <header><h2 id="layers-title">Layers</h2><p>Menus, tooltips, dialogs, sheets, toasts and the command menu are the only things that float, so they are the only things with a shadow. Open them live, or read the open states drawn in place below.</p></header>
+      <div class="g-block">
+        <h3>Open live</h3>
+        <div class="g-stage">
+<button class="ui-button" data-menu-trigger="g-menu"><i class="ph ph-dots-three" aria-hidden="true"></i>Bill actions</button>
+<button class="ui-button" data-tooltip="g-tip">What is rollover?</button>
+<button class="ui-button" data-dialog-open="g-dialog">Remove member</button>
+<button class="ui-button" data-dialog-open="g-sheet">Edit bill</button>
+<button class="ui-button" data-toast-message="Marked as paid" data-toast-description="$128.40 to PG&amp;E from SchoolsFirst checking.">Show toast</button>
+<button class="ui-button" data-dialog-open="g-command">Search <span class="ui-kbd">⌘ K</span></button>
+<div id="g-menu" class="ui-menu" role="menu" popover="auto"><button role="menuitem">Edit bill</button><button role="menuitem">Change pay-from account</button><button role="menuitemcheckbox" aria-checked="true">Remind me</button><hr><button role="menuitem">Stop tracking</button></div>
+<div id="g-tip" class="ui-tooltip" role="tooltip" popover="manual">Money left in a category carries into next month.</div>
+<dialog class="ui-dialog" id="g-dialog" aria-labelledby="g-dialog-title"><div class="ui-dialog__head"><h2 id="g-dialog-title">Remove Daniel?</h2></div><div class="ui-dialog__body">He loses access to shared accounts and budgets. His notes stay on past transactions.</div><div class="ui-dialog__foot"><button class="ui-button" data-dialog-close>Keep Daniel</button><button class="ui-button" data-variant="danger" data-dialog-close>Remove</button></div></dialog>
+<dialog class="ui-sheet" id="g-sheet" aria-labelledby="g-sheet-title"><div class="ui-sheet__content"><h2 id="g-sheet-title">Edit bill</h2><label class="ui-field"><span class="ui-label">Name</span><input class="ui-input" value="PG&amp;E"></label><p>&nbsp;</p><button class="ui-button" data-dialog-close>Done</button></div></dialog>
+<dialog class="ui-command" id="g-command" aria-label="Command menu"><input type="search" aria-label="Search commands" placeholder="Search transactions, bills, settings"><div class="ui-command__list"><button data-value="add"><i class="ph ph-plus" aria-hidden="true"></i>Add transaction</button><button data-value="bills"><i class="ph ph-calendar-blank" aria-hidden="true"></i>Open bills</button><button data-value="invite"><i class="ph ph-user-plus" aria-hidden="true"></i>Invite to household</button><p class="ui-command__empty" hidden>Nothing matches. Try a merchant name.</p></div><div class="ui-command__footer">↑ ↓ to move · Enter to open · Esc to close</div></dialog>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Open states, drawn in place</h3>
+        <div class="g-stage" data-cols="wide" data-bg="page">
+          <div class="g-spec"><div class="ui-menu" role="menu" aria-label="Menu example"><button role="menuitem">Edit bill</button><button role="menuitem" class="is-hover" style="background:var(--hover)">Change pay-from account</button><button role="menuitemcheckbox" aria-checked="true">Remind me <kbd>R</kbd></button><hr><button role="menuitem">Stop tracking</button></div><span class="g-cap">Menu</span></div>
+          <div class="g-spec"><div class="ui-tooltip" role="tooltip">Money left in a category carries into next month.</div><span class="g-cap">Tooltip</span></div>
+          <div class="g-spec"><div class="ui-toast" role="status"><div><strong>Marked as paid</strong><p>$128.40 to PG&amp;E from SchoolsFirst checking.</p></div><button aria-label="Dismiss">×</button></div><span class="g-cap">Toast</span></div>
+          <div class="g-spec"><dialog open class="ui-dialog" aria-labelledby="g-sd-title"><div class="ui-dialog__head"><h2 id="g-sd-title">Remove Daniel?</h2></div><div class="ui-dialog__body">He loses access to shared accounts and budgets.</div><div class="ui-dialog__foot"><button class="ui-button">Keep Daniel</button><button class="ui-button" data-variant="danger">Remove</button></div></dialog><span class="g-cap">Dialog</span></div>
+          <div class="g-spec"><dialog open class="ui-sheet" aria-labelledby="g-ss-title"><div class="ui-sheet__content"><h2 id="g-ss-title">Edit bill</h2><label class="ui-field"><span class="ui-label">Due on</span><select class="ui-select"><option>The 3rd of each month</option></select></label></div></dialog><span class="g-cap">Sheet</span></div>
+          <div class="g-spec"><dialog open class="ui-command" aria-label="Command menu example"><input type="search" aria-label="Search commands" value="bill"><div class="ui-command__list"><button><i class="ph ph-calendar-blank" aria-hidden="true"></i>Open bills</button><button><i class="ph ph-plus" aria-hidden="true"></i>Add a bill</button></div><div class="ui-command__footer">↑ ↓ to move · Enter to open</div></dialog><span class="g-cap">Command menu</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="feedback" aria-labelledby="feedback-title">
+      <header><h2 id="feedback-title">Feedback</h2><p>Status always has a word. Alerts say one sentence and offer at most one action. Progress is for work; a meter is usage against a limit.</p></header>
+      <div class="g-block">
+        <h3>Alerts <code class="ui-code">ui-alert</code></h3>
+        <div class="g-stage" data-stack>
+<div class="ui-alert" role="status"><i class="ph ph-info" aria-hidden="true"></i><p>Statements from PG&amp;E usually arrive on the 30th.</p></div>
+<div class="ui-alert" data-status="ok" role="status"><i class="ph ph-check-circle" aria-hidden="true"></i><p><strong>All caught up.</strong> Every October transaction has a category.</p></div>
+<div class="ui-alert" data-status="warn" role="status"><i class="ph ph-warning" aria-hidden="true"></i><p>Your Visa ending 2291 expires before the January renewal.</p><button class="ui-button" data-size="sm">Update card</button></div>
+<div class="ui-alert" data-status="bad" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>SchoolsFirst stopped syncing on Oct 26. Sign in again to reconnect.</p><button class="ui-button" data-size="sm">Reconnect</button></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Status and badge <code class="ui-code">ui-status · ui-badge</code></h3>
+        <div class="g-stage">
+          <div class="g-spec"><span class="ui-status" data-status="ok">Autopay</span><span class="g-cap">Ok</span></div>
+          <div class="g-spec"><span class="ui-status" data-status="warn">Pay manually</span><span class="g-cap">Warn</span></div>
+          <div class="g-spec"><span class="ui-status" data-status="bad">Payment failed</span><span class="g-cap">Bad</span></div>
+          <div class="g-spec"><span class="ui-status" data-status="info">Pending</span><span class="g-cap">Info</span></div>
+          <div class="g-spec"><span class="ui-status" data-status="idle">Not connected</span><span class="g-cap">Idle</span></div>
+          <div class="g-spec"><span class="ui-badge">Owner</span><span class="g-cap">Badge</span></div>
+          <div class="g-spec"><span class="g-row"><span class="ui-badge" data-tone="ok">Paid</span><span class="ui-badge" data-tone="warn">Due soon</span><span class="ui-badge" data-tone="info">New</span></span><span class="g-cap">Badge, tones</span></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Progress and meter <code class="ui-code">ui-progress · ui-meter</code></h3>
+        <div class="g-stage" data-cols>
+          <div class="g-spec"><div class="ui-progress"><span id="g-pr1">Importing 90 days</span><span>62%</span><progress max="100" value="62" aria-labelledby="g-pr1"></progress></div><span class="g-cap">Progress</span></div>
+          <div class="g-spec"><div class="ui-progress"><span id="g-pr2">Connecting to SchoolsFirst</span><span>Working</span><progress aria-labelledby="g-pr2"></progress></div><span class="g-cap">Progress, unknown length</span></div>
+          <div class="g-spec"><div class="ui-meter"><span id="g-m1">Transport</span><span>$344 <small>of $400</small></span><meter min="0" max="400" value="344" aria-labelledby="g-m1"></meter></div><span class="g-cap">Meter, under</span></div>
+          <div class="g-spec"><div class="ui-meter" data-status="warn"><span id="g-m2">Groceries</span><span>$812 <small>$88 left of $900</small></span><meter min="0" max="900" value="812" aria-labelledby="g-m2"></meter></div><span class="g-cap">Meter, close</span></div>
+          <div class="g-spec"><div class="ui-meter" data-status="bad"><span id="g-m3">Dining out</span><span>$386 <small>$36 over $350</small></span><meter min="0" max="350" value="350" aria-labelledby="g-m3"></meter></div><span class="g-cap">Meter, over</span></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Loading and empty <code class="ui-code">ui-skeleton · ui-empty</code></h3>
+        <div class="g-stage" data-cols="wide">
+          <div class="g-spec"><div style="display:grid;gap:var(--space-3);width:100%" aria-busy="true" aria-label="Loading transactions"><span class="ui-skeleton" style="width:40%"></span><span class="ui-skeleton" style="width:85%"></span><span class="ui-skeleton" style="width:65%"></span></div><span class="g-cap">Loading</span></div>
+          <div class="g-spec"><div class="ui-empty"><h3>No bills yet</h3><p>Hearth finds them in your transactions after the first month, or add one now.</p><button class="ui-button"><i class="ph ph-plus" aria-hidden="true"></i>Add a bill</button></div><span class="g-cap">Empty</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="data" aria-labelledby="data-title">
+      <header><h2 id="data-title">Data</h2><p>Big numbers in the serif, everything else in Inter with tabular figures. Money is signed: −$142.38 out, +$3,412.50 in.</p></header>
+      <div class="g-block">
+        <h3>Stat strip <code class="ui-code">ui-stat-strip</code></h3>
+        
+        <div class="g-stage" data-bg="page">
+<div class="ui-stat-strip" style="width:100%"><dl class="ui-stat"><dt>Net worth</dt><dd>$186,420</dd><small>+$2,140 since September</small></dl><dl class="ui-stat"><dt>Spent this month</dt><dd>$4,716</dd><small>of $6,000 budgeted</small></dl><dl class="ui-stat"><dt>Saved this month</dt><dd>$1,350</dd><small>18% of take-home pay</small></dl></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Table <code class="ui-code">ui-table-wrap · ui-table</code></h3>
+        <p>Sort by a header, search, filter and page; the table hook in seenry-ui.js does the work.</p>
+        <div class="g-stage" data-bg="page">
+<div style="display:grid;gap:var(--space-3);width:100%"><div class="ui-filter-bar"><div class="ui-control"><span class="ui-affix"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></span><input class="ui-input" type="search" placeholder="Search merchants" aria-label="Search merchants" data-table-search="g-table"></div><select class="ui-select" aria-label="Category" data-table-filter="g-table"><option value="">All categories</option><option value="groceries">Groceries</option><option value="dining">Dining out</option><option value="income">Income</option></select></div><div class="ui-table-wrap"><table class="ui-table" id="g-table" data-ui-table data-page-size="4"><thead><tr><th scope="col" data-sort>Date</th><th scope="col" data-sort>Merchant</th><th scope="col">Category</th><th scope="col" class="num" data-sort>Amount</th></tr></thead><tbody><tr data-filter="groceries"><td data-sort="20261028">Oct 28</td><td><strong>Whole Foods Market</strong></td><td>Groceries</td><td class="num" data-sort="-142.38">−$142.38</td></tr><tr data-filter="dining"><td data-sort="20261028">Oct 28</td><td><strong>Blue Bottle Coffee</strong></td><td>Dining out</td><td class="num" data-sort="-11.5">−$11.50</td></tr><tr data-filter="income"><td data-sort="20261027">Oct 27</td><td><strong>Lumen Health payroll</strong></td><td>Income</td><td class="num" data-sort="3412.5" style="color:var(--ok)">+$3,412.50</td></tr><tr data-filter="groceries"><td data-sort="20261027">Oct 27</td><td><strong>Trader Joe’s</strong></td><td>Groceries</td><td class="num" data-sort="-64.18">−$64.18</td></tr><tr data-filter="dining"><td data-sort="20261025">Oct 25</td><td><strong>Tartine Bakery</strong></td><td>Dining out</td><td class="num" data-sort="-36.75">−$36.75</td></tr><tr data-filter="groceries"><td data-sort="20261021">Oct 21</td><td><strong>Whole Foods Market</strong></td><td>Groceries</td><td class="num" data-sort="-118.9">−$118.90</td></tr></tbody></table></div><nav class="ui-pagination" aria-label="Transaction pages" data-table-pages="g-table"></nav></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>List <code class="ui-code">ui-list · ui-list-item · ui-list-meta</code></h3>
+        <p>A ui-list-meta placed directly in the list is a day heading.</p>
+        <div class="g-stage" data-bg="page">
+<ul class="ui-list" aria-label="Transactions" style="width:100%"><li class="ui-list-meta">Today, Wednesday Oct 28</li><li><button class="ui-list-item" aria-current="true"><i class="ph ph-shopping-cart" aria-hidden="true"></i><span><strong>Whole Foods Market</strong><span class="ui-list-meta">Groceries · selected</span></span><span class="num">−$142.38</span></button></li><li><button class="ui-list-item"><i class="ph ph-coffee" aria-hidden="true"></i><span><strong>Blue Bottle Coffee</strong><span class="ui-list-meta">Dining out · Apple Card</span></span><span class="num">−$11.50</span></button></li><li class="ui-list-meta">Tuesday, Oct 27</li><li><button class="ui-list-item"><i class="ph ph-shopping-cart" aria-hidden="true"></i><span><strong>Trader Joe’s</strong><span class="ui-list-meta"><span class="ui-status" data-status="warn">Needs a category</span></span></span><span class="num">−$64.18</span></button></li></ul>
+        </div>
+      </div>
+<div class="g-split">      <div class="g-block">
+        <h3>Data list <code class="ui-code">ui-data-list</code></h3>
+        <div class="g-stage">
+<dl class="ui-data-list" style="width:100%"><div><dt>Biller</dt><dd>Pacific Gas and Electric</dd></div><div><dt>Pays from</dt><dd>SchoolsFirst checking</dd></div><div><dt>Due</dt><dd>The 3rd of each month</dd></div><div><dt>Status</dt><dd><span class="ui-status" data-status="warn">Pay manually</span></dd></div></dl>
+        </div>
+      </div>      <div class="g-block">
+        <h3>Detail panel <code class="ui-code">ui-detail · ui-detail-head · ui-detail-row</code></h3>
+        
+        <div class="g-stage" data-bg="page">
+<aside class="ui-detail" style="position:static;width:100%" aria-labelledby="g-det"><div class="ui-detail-head"><h2 id="g-det">Whole Foods Market</h2><data value="-142.38">$142.38</data><p>Wednesday, October 28 at 6:42 pm</p></div><dl><div class="ui-detail-row"><dt>Account</dt><dd>Chase Sapphire ··4417</dd></div><div class="ui-detail-row"><dt>Category</dt><dd><select class="ui-select" aria-label="Category"><option>Groceries</option><option>Household</option></select></dd></div></dl></aside>
+        </div>
+      </div></div>
+      <div class="g-block">
+        <h3>Timeline <code class="ui-code">ui-timeline · ui-timeline-item</code></h3>
+        <p>Who, what, when. The mark carries the status; the sentence says it.</p>
+        <div class="g-stage">
+<ol class="ui-timeline" style="width:100%"><li class="ui-timeline-item" data-status="info"><p><strong>Hearth</strong> estimated November at $128.40</p><small>From last November’s bill and the June rate change</small><time datetime="2026-10-28">Oct 28</time></li><li class="ui-timeline-item" data-status="ok"><p><strong>Maya</strong> paid $117.16 from SchoolsFirst checking</p><time datetime="2026-10-03">Oct 3</time></li><li class="ui-timeline-item" data-status="warn"><p><strong>Daniel</strong> paid $115.02, one day late</p><small>No late fee was charged</small><time datetime="2026-09-04">Sep 4</time></li><li class="ui-timeline-item"><p><strong>Maya</strong> turned off autopay</p><time datetime="2026-08-12">Aug 12</time></li></ol>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="charts" aria-labelledby="charts-title">
+      <header><h2 id="charts-title">Charts</h2><p>Always the conventional form: a line for a trend, bars for amounts per period, meters for spending against a budget, one stacked bar for parts of a whole. No donuts, no gauges.</p></header>
+<div class="g-split">      <div class="g-block">
+        <h3>Line, trend over time <code class="ui-code">ui-chart · ui-chart-axis</code></h3>
+        <div class="g-stage">
+<div class="ui-chart g-chart" role="img" aria-label="Net worth rose from $168,200 to $186,420 over twelve months."><svg viewBox="0 0 1100 200" preserveAspectRatio="none" aria-hidden="true"><line class="grid" x1="0" x2="1100" y1="0" y2="0"/><line class="grid" x1="0" x2="1100" y1="40" y2="40"/><line class="grid" x1="0" x2="1100" y1="80" y2="80"/><line class="grid" x1="0" x2="1100" y1="120" y2="120"/><line class="grid" x1="0" x2="1100" y1="160" y2="160"/><line class="grid" x1="0" x2="1100" y1="200" y2="200"/><path class="series" d="M0 174.4 L100 160.8 L200 152 L300 159.2 L400 137.6 L500 124 L600 112 L700 96.8 L800 84.8 L900 67.2 L1000 45.6 L1100 28.8"/></svg><div class="ui-chart-axis" data-axis="y" aria-hidden="true"><span>$190k</span><span>$185k</span><span>$180k</span><span>$175k</span><span>$170k</span><span>$165k</span></div><div class="ui-chart-axis" data-axis="x" aria-hidden="true"><span style="--x:0.0000">Nov</span><span style="--x:0.0909" data-minor>Dec</span><span style="--x:0.1818">Jan</span><span style="--x:0.2727" data-minor>Feb</span><span style="--x:0.3636">Mar</span><span style="--x:0.4545" data-minor>Apr</span><span style="--x:0.5455">May</span><span style="--x:0.6364" data-minor>Jun</span><span style="--x:0.7273">Jul</span><span style="--x:0.8182" data-minor>Aug</span><span style="--x:0.9091">Sep</span><span style="--x:1.0000" data-minor>Oct</span></div></div>
+        </div>
+      </div>      <div class="g-block">
+        <h3>Bars, amount per period <code class="ui-code">ui-chart · ui-chart-legend</code></h3>
+        <div class="g-stage">
+<div class="ui-chart g-chart" role="img" aria-label="PG&amp;E bills over the last year, highest $164.22 in January; November estimated at $128.40."><svg viewBox="0 0 1300 200" preserveAspectRatio="none" aria-hidden="true"><line class="grid" x1="0" x2="1300" y1="0" y2="0"/><line class="grid" x1="0" x2="1300" y1="50" y2="50"/><line class="grid" x1="0" x2="1300" y1="100" y2="100"/><line class="grid" x1="0" x2="1300" y1="150" y2="150"/><line class="grid" x1="0" x2="1300" y1="200" y2="200"/><rect class="bar" x="22" y="81.80" width="56" height="118.20"/><rect class="bar" x="122" y="47.25" width="56" height="152.75"/><rect class="bar" x="222" y="35.78" width="56" height="164.22"/><rect class="bar" x="322" y="50.90" width="56" height="149.10"/><rect class="bar" x="422" y="73.52" width="56" height="126.48"/><rect class="bar" x="522" y="95.67" width="56" height="104.33"/><rect class="bar" x="622" y="107.20" width="56" height="92.80"/><rect class="bar" x="722" y="101.85" width="56" height="98.15"/><rect class="bar" x="822" y="78.33" width="56" height="121.67"/><rect class="bar" x="922" y="66.10" width="56" height="133.90"/><rect class="bar" x="1022" y="84.98" width="56" height="115.02"/><rect class="bar" x="1122" y="82.84" width="56" height="117.16"/><rect class="bar" data-estimate x="1222" y="71.60" width="56" height="128.40"/></svg><div class="ui-chart-axis" data-axis="y" aria-hidden="true"><span>$200</span><span>$150</span><span>$100</span><span>$50</span><span>$0</span></div><div class="ui-chart-axis" data-axis="x" data-align="center" aria-hidden="true"><span style="--x:0.0385">Nov</span><span style="--x:0.1154" data-minor>Dec</span><span style="--x:0.1923">Jan</span><span style="--x:0.2692" data-minor>Feb</span><span style="--x:0.3462">Mar</span><span style="--x:0.4231" data-minor>Apr</span><span style="--x:0.5000">May</span><span style="--x:0.5769" data-minor>Jun</span><span style="--x:0.6538">Jul</span><span style="--x:0.7308" data-minor>Aug</span><span style="--x:0.8077">Sep</span><span style="--x:0.8846" data-minor>Oct</span><span style="--x:0.9615">Nov</span></div><div class="ui-chart-legend" data-form="bar" aria-hidden="true"><span>Paid</span><span data-estimate>Estimate</span></div></div>
+        </div>
+      </div></div>
+      <div class="g-block">
+        <h3>Stacked bar, parts of a whole <code class="ui-code">ui-chart-legend</code></h3>
+        <p>Five slices at most; fold the rest into “everything else”.</p>
+        <div class="g-stage">
+<div style="display:grid;gap:var(--space-3);width:100%" role="img" aria-label="October spending: housing 46%, groceries 17%, dining 8%, transport 7%, everything else 22%."><svg viewBox="0 0 100 8" preserveAspectRatio="none" style="width:100%;height:var(--space-3);border-radius:var(--r-pill)" aria-hidden="true"><rect x="0" width="46" height="8" fill="var(--chart-1)"/><rect x="46.3" width="16.7" height="8" fill="var(--chart-2)"/><rect x="63.3" width="7.7" height="8" fill="var(--chart-3)"/><rect x="71.3" width="6.7" height="8" fill="var(--chart-4)"/><rect x="78.3" width="21.7" height="8" fill="var(--chart-5)"/></svg><div class="ui-chart-legend" data-form="bar"><span>Housing 46%</span><span style="--swatch:var(--chart-2)">Groceries 17%</span><span style="--swatch:var(--chart-3)">Dining out 8%</span><span style="--swatch:var(--chart-4)">Transport 7%</span><span style="--swatch:var(--chart-5)">Everything else 22%</span></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="content" aria-labelledby="content-title">
+      <header><h2 id="content-title">Content</h2><p>Cards, people, disclosure and code. Cards are white with a faint line and no shadow.</p></header>
+      <div class="g-block">
+        <h3>Cards <code class="ui-code">ui-card</code></h3>
+        <p>The second card is a link: the whole surface is one target.</p>
+        <div class="g-stage" data-cols="wide" data-bg="page">
+<article class="ui-card"><h3>Emergency fund</h3><p>$9,400 of $12,000. At $350 a month you reach it in July.</p></article>
+          <a class="ui-card" data-link href="#content"><h3>Review 5 transactions</h3><p>Four need a category, one needs splitting.</p></a>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Avatars <code class="ui-code">ui-avatar · ui-avatar-group</code></h3>
+        <div class="g-stage">
+          <div class="g-spec"><span class="ui-avatar" aria-label="Maya Alvarez">MA</span><span class="g-cap">Default</span></div>
+          <div class="g-spec"><span class="ui-avatar" data-size="lg" aria-label="Daniel Alvarez">DA</span><span class="g-cap">Large</span></div>
+          <div class="g-spec"><span class="ui-avatar-group" aria-label="Maya, Daniel and Leo"><span class="ui-avatar" aria-hidden="true">MA</span><span class="ui-avatar" aria-hidden="true">DA</span><span class="ui-avatar" aria-hidden="true">LA</span></span><span class="g-cap">Group</span></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Accordion <code class="ui-code">ui-accordion</code></h3>
+        <div class="g-stage">
+<div style="width:100%"><details class="ui-accordion"><summary>Who can see my accounts?</summary><div class="ui-accordion__body">Everyone in the household sees shared accounts. Private accounts count toward budgets, but only you see the transactions.</div></details><details class="ui-accordion" open><summary>What happens when I go over a budget?</summary><div class="ui-accordion__body">Nothing is blocked. The category turns red with the amount over, and the weekly summary mentions it once.</div></details></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Code and keys <code class="ui-code">ui-code · ui-kbd</code></h3>
+        <p>A code block carries a copy button marked data-copy.</p>
+        <div class="g-stage">
+<div style="display:grid;gap:var(--space-4);width:100%"><p>Set <code class="ui-code">data-status="warn"</code> on a meter to mark a budget that is close. Press <span class="ui-kbd">⌘ K</span> to search, <span class="ui-kbd">Esc</span> to close.</p><figure class="ui-code"><figcaption>Install with plain CSS</figcaption><pre><code>&lt;link rel="stylesheet" href="seenry-ui.css"&gt;
+&lt;link rel="stylesheet" href="systems/paper/tokens.css"&gt;
+&lt;link rel="stylesheet" href="systems/paper/system.css"&gt;</code></pre><button class="ui-button" data-size="sm" data-copy>Copy</button></figure></div>
+        </div>
+      </div>
+    </section>
+    <section class="g-section" id="patterns" aria-labelledby="patterns-title">
+      <header><h2 id="patterns-title">Patterns</h2><p>Larger pieces the blocks are built from: the page header, a filter bar, settings rows, the danger zone and the sign-in frame.</p></header>
+      <div class="g-block">
+        <h3>Page header <code class="ui-code">ui-page-header · ui-page-title · ui-page-sub · ui-page-actions</code></h3>
+        <div class="g-stage" data-bg="page">
+<div class="ui-page-header" style="width:100%;padding-top:0"><div><h1 class="ui-page-title">October</h1><p class="ui-page-sub">$1,284 left to spend with 4 days to go.</p></div><div class="ui-page-actions"><button class="ui-button"><i class="ph ph-download-simple" aria-hidden="true"></i>Export</button><button class="ui-button" data-variant="primary"><i class="ph ph-plus" aria-hidden="true"></i>Add transaction</button></div></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Filter bar and section head <code class="ui-code">ui-filter-bar · ui-section · ui-section-head</code></h3>
+        <div class="g-stage" data-bg="page">
+<section class="ui-section" style="width:100%" aria-labelledby="g-fb"><div class="ui-section-head"><h2 id="g-fb">Transactions</h2><a href="#patterns">Export CSV</a></div><div class="ui-filter-bar"><div class="ui-control"><span class="ui-affix"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></span><input class="ui-input" type="search" placeholder="Search merchants or notes" aria-label="Search merchants or notes"></div><button class="ui-chip" aria-pressed="true">To review <small>5</small></button><button class="ui-chip" aria-pressed="false">Recurring</button><output data-count>11 of 64 shown</output></div></section>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Settings rows and danger zone <code class="ui-code">ui-settings-group · ui-settings-row · ui-danger</code></h3>
+        <div class="g-stage" data-bg="page">
+<div style="display:grid;gap:var(--space-7);width:100%"><section class="ui-settings-group" aria-labelledby="g-sg"><header><h2 id="g-sg">Budget</h2><p>Rules Hearth uses each month.</p></header><div><label class="ui-settings-row"><div><strong>Roll over unspent money</strong><p>Money left in a category carries into next month.</p></div><span class="ui-switch"><input type="checkbox" role="switch" checked aria-label="Roll over unspent money"></span></label><div class="ui-settings-row"><div><strong id="g-ms">Month starts on</strong><p>Match it to payday.</p></div><select class="ui-select" aria-labelledby="g-ms"><option>The 1st</option><option>The 15th</option></select></div></div></section><section class="ui-settings-group ui-danger" aria-labelledby="g-dz"><header><h2 id="g-dz">Leave or delete</h2><p>These can’t be undone.</p></header><div><div class="ui-settings-row"><div><strong>Delete household</strong><p>Removes budgets, notes and history.</p></div><button class="ui-button" data-variant="danger">Delete household</button></div></div></section></div>
+        </div>
+      </div>
+      <div class="g-block">
+        <h3>Sign-in frame <code class="ui-code">ui-auth</code></h3>
+        <p>The full flow, with create account and the error state, is in blocks/sign-in.html.</p>
+        <div class="g-stage" data-bg="page">
+<div class="g-auth" style="width:100%;background:none;padding:0"><section class="ui-auth" aria-labelledby="g-auth-t"><header><span class="ui-avatar" data-size="lg" aria-hidden="true">H</span><h1 id="g-auth-t">Welcome back</h1><p>Sign in to see where the household stands.</p></header><button class="ui-button"><i class="ph ph-apple-logo" aria-hidden="true"></i>Continue with Apple</button><p role="separator">or with email</p><form><label class="ui-field"><span class="ui-label">Email</span><input class="ui-input" type="email" value="maya.alvarez@fastmail.com"></label><button class="ui-button" data-variant="primary" type="button">Continue</button></form><footer><p>By continuing you agree to the <a href="#patterns">Terms</a>.</p></footer></section></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+  (() => {
+    document.getElementById('theme-switch').addEventListener('seenry:change', e => { document.documentElement.dataset.theme = e.detail.value; });
+    document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => {
+      const code = button.closest('.ui-code').querySelector('pre').innerText;
+      try { await navigator.clipboard.writeText(code); button.textContent = 'Copied'; } catch { button.textContent = 'Select to copy'; }
+      setTimeout(() => { button.textContent = 'Copy'; }, 1600);
+    }));
+    document.querySelectorAll('.ui-slider input[type=range]').forEach(input => {
+      const out = input.parentElement.querySelector('output');
+      const sync = () => {
+        input.style.setProperty('--fill', ((input.value - input.min) / (input.max - input.min) * 100) + '%');
+        if (out) out.textContent = input.dataset.format === '%' ? input.value + '%' : '$' + Number(input.value).toLocaleString();
+      };
+      input.addEventListener('input', sync); sync();
+    });
+  })();
+</script>
+</body>
+</html>

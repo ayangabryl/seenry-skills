@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion workshop · Sessions · Commons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .page-title-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2) var(--space-3)}
+  .page-meta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-1) var(--space-3);margin-top:var(--space-2);font:var(--type-body);color:var(--text-2)}
+  .page-meta>span{display:inline-flex;align-items:center;gap:var(--space-2)}
+  .page-meta i{color:var(--text-3)}
+  .detail-grid{display:grid;grid-template-columns:minmax(0,1fr) var(--side-w);gap:var(--space-5);align-items:start;margin-top:var(--space-5)}
+  .stack{display:grid;gap:var(--space-5);min-width:0}
+  .prose{max-width:var(--measure);font:var(--type-body);color:var(--text-2)}
+  .prose+.ui-list{margin-top:var(--space-4)}
+  .file{display:grid;place-items:center;flex:none;width:var(--avatar);height:var(--avatar);border-radius:var(--r-sm);background:var(--surface-2);color:var(--text-2)}
+  .who{display:flex;align-items:center;gap:var(--space-2);font-weight:500;color:var(--text)}
+  .seats{display:grid;gap:var(--space-3)}
+  .seats p{font:var(--type-small);color:var(--text-3)}
+  .agenda{grid-template-columns:calc(var(--space-8) + var(--space-3)) minmax(0,1fr)}
+  .agenda dt{font-variant-numeric:tabular-nums}
+  .agenda dd{padding-left:0}
+  .rsvp-head{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);margin-bottom:var(--space-4)}
+  @media (max-width:64em){.detail-grid{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School">
+      <span class="ui-avatar" data-shape="square" aria-hidden="true">H</span>
+      <span>Halftone School<small>Commons workspace</small></span>
+      <i class="ph-bold ph-caret-up-down" aria-hidden="true"></i>
+    </button>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html"><i class="ph-duotone ph-squares-four" aria-hidden="true"></i><span>Overview</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i><span>Calendar</span></a>
+      <a class="ui-nav-item" href="list-detail.html" aria-current="page"><i class="ph-duotone ph-video-camera" aria-hidden="true"></i><span>Sessions</span><span class="ui-nav-count">14</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-users-three" aria-hidden="true"></i><span>Learners</span><span class="ui-nav-count">184</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i><span>Discussions</span><span class="ui-nav-count">9</span></a>
+      <a class="ui-nav-item" href="settings.html"><i class="ph-duotone ph-gear-six" aria-hidden="true"></i><span>Settings</span></a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-courses">
+      <span class="ui-nav-label" id="nav-courses">Courses</span>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="4"></span><span>Product Design Foundations</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="1"></span><span>Interaction &amp; Motion</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="3"></span><span>Research Methods</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="2"></span><span>Portfolio Studio</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="5"></span><span>Community</span></a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" data-cat="5" aria-hidden="true">PR</span>
+      <span>Priya Raman<small>Program lead</small></span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Sign out"><i class="ph-bold ph-sign-out" aria-hidden="true"></i></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="dashboard.html">Halftone School</a></li><li><a href="list-detail.html">Sessions</a></li><li aria-current="page">Motion workshop</li></ol></nav>
+      <button class="ui-button" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
+    </header>
+
+    <div>
+      <div class="ui-page-header">
+        <div>
+          <div class="page-title-row">
+            <h1 class="ui-page-title">Motion workshop: easing and timing</h1>
+            <span class="ui-status" data-status="ok">Confirmed</span>
+          </div>
+          <p class="page-meta">
+            <span><span class="ui-mark" data-cat="1"></span>Interaction &amp; Motion</span>
+            <span><i class="ph-duotone ph-clock" aria-hidden="true"></i>Today, 13:30 to 15:00</span>
+            <span><i class="ph-duotone ph-map-pin" aria-hidden="true"></i>Studio 2 and Zoom</span>
+          </p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button"><i class="ph-bold ph-pencil-simple" aria-hidden="true"></i>Edit</button>
+          <button class="ui-button" data-icon data-menu-trigger="session-menu" aria-label="More actions"><i class="ph-bold ph-dots-three" aria-hidden="true"></i></button>
+          <div id="session-menu" class="ui-menu" role="menu" popover="auto">
+            <button role="menuitem" data-toast-message="Link copied" data-toast-description="Paste it into the course channel."><span>Copy invite link</span><i class="ph-bold ph-copy" aria-hidden="true"></i></button>
+            <button role="menuitem"><span>Duplicate</span><i class="ph-bold ph-copy-simple" aria-hidden="true"></i></button>
+            <button role="menuitem"><span>Move to drafts</span><i class="ph-bold ph-tray-arrow-down" aria-hidden="true"></i></button>
+            <hr>
+            <button role="menuitem"><span>Cancel session</span><i class="ph-bold ph-x-circle" aria-hidden="true"></i></button>
+          </div>
+          <button class="ui-button" data-variant="primary"><i class="ph-bold ph-video-camera" aria-hidden="true"></i>Start session</button>
+        </div>
+      </div>
+
+      <div class="ui-alert" data-status="warn" role="status">
+        <i class="ph-duotone ph-hourglass-medium" aria-hidden="true"></i>
+        <p><strong>3 learners are on the waitlist.</strong> Studio 2 seats 24; the main hall is free from 13:00 and seats 60.</p>
+        <button class="ui-button" data-size="sm">Move to main hall</button>
+      </div>
+
+      <div class="detail-grid">
+        <div class="stack">
+          <section class="ui-section" aria-labelledby="about-title">
+            <div class="ui-section-head"><h2 id="about-title">About this session</h2></div>
+            <p class="prose">Hands-on session on choosing curves and durations. Bring the prototype from week 6; we will tune two of its transitions live, in pairs, and compare the before and after on the big screen.</p>
+            <ul class="ui-list" aria-label="Materials">
+              <li><a class="ui-list-item" href="#"><span class="file"><i class="ph-duotone ph-file-pdf" aria-hidden="true"></i></span><div><span>Easing curves cheat sheet</span><span class="ui-list-meta">PDF · 1.2 MB · added by Lena today</span></div><i class="ph-bold ph-download-simple" aria-hidden="true"></i></a></li>
+              <li><a class="ui-list-item" href="#"><span class="file"><i class="ph-duotone ph-figma-logo" aria-hidden="true"></i></span><div><span>Week 6 prototype starter</span><span class="ui-list-meta">Figma file · 14 frames</span></div><i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i></a></li>
+              <li><a class="ui-list-item" href="#"><span class="file"><i class="ph-duotone ph-book-open-text" aria-hidden="true"></i></span><div><span>Reading: timing in interface animation</span><span class="ui-list-meta">Article · 12 min read</span></div><i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i></a></li>
+            </ul>
+          </section>
+
+          <section class="ui-section" aria-labelledby="rsvp-title">
+            <div class="ui-section-head">
+              <div><h2 id="rsvp-title">RSVPs</h2><p>Course progress counts lessons finished in Interaction &amp; Motion</p></div>
+              <button class="ui-button" data-size="sm"><i class="ph-bold ph-envelope-simple" aria-hidden="true"></i>Message all</button>
+            </div>
+            <div class="rsvp-head" role="group" aria-label="Filter RSVPs">
+              <button class="ui-chip" aria-pressed="true">Going <small>21</small></button>
+              <button class="ui-chip" aria-pressed="false">Waitlist <small>3</small></button>
+              <button class="ui-chip" aria-pressed="false">Declined <small>2</small></button>
+            </div>
+            <div class="ui-table-wrap">
+              <table class="ui-table">
+                <thead><tr><th scope="col">Learner</th><th scope="col">Course progress</th><th scope="col">Last attended</th><th scope="col">RSVP</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="4" aria-hidden="true">AL</span>Ana Lima</span></td><td><span class="ui-progress"><progress max="100" value="82" aria-label="Ana Lima progress">82%</progress><b>82%</b></span></td><td>Oct 21, critique</td><td><span class="ui-status" data-status="ok">Going</span></td></tr>
+                  <tr><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="2" aria-hidden="true">ZM</span>Zoe Martin</span></td><td><span class="ui-progress"><progress max="100" value="71" aria-label="Zoe Martin progress">71%</progress><b>71%</b></span></td><td>Oct 23, office hours</td><td><span class="ui-status" data-status="ok">Going</span></td></tr>
+                  <tr><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="3" aria-hidden="true">LF</span>Lucía Fernández</span></td><td><span class="ui-progress"><progress max="100" value="90" aria-label="Lucía Fernández progress">90%</progress><b>90%</b></span></td><td>Oct 21, critique</td><td><span class="ui-status" data-status="ok">Going</span></td></tr>
+                  <tr><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="5" aria-hidden="true">OH</span>Omar Haddad</span></td><td><span class="ui-progress"><progress max="100" value="38" aria-label="Omar Haddad progress">38%</progress><b>38%</b></span></td><td>Oct 7, workshop</td><td><span class="ui-status" data-status="ok">Going</span></td></tr>
+                  <tr><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="1" aria-hidden="true">KS</span>Kenji Sato</span></td><td><span class="ui-progress"><progress max="100" value="64" aria-label="Kenji Sato progress">64%</progress><b>64%</b></span></td><td>Oct 21, critique</td><td><span class="ui-status" data-status="info">Waitlist, 1st</span></td></tr>
+                  <tr><td><span class="who"><span class="ui-avatar" data-size="sm" data-cat="4" aria-hidden="true">TB</span>Tom Becker</span></td><td><span class="ui-progress"><progress max="100" value="55" aria-label="Tom Becker progress">55%</progress><b>55%</b></span></td><td>Oct 14, lecture</td><td><span class="ui-status" data-status="idle">Declined</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="ui-section" aria-labelledby="activity-title">
+            <div class="ui-section-head"><h2 id="activity-title">Activity</h2></div>
+            <ol class="ui-timeline">
+              <li class="ui-timeline-item"><span class="ui-avatar" data-cat="1" aria-hidden="true">LF</span><div><p><b>Lena Fischer</b> added Easing curves cheat sheet</p><time datetime="2026-10-28T10:12">Today, 10:12</time></div></li>
+              <li class="ui-timeline-item" data-status="warn"><i class="ph-bold ph-hourglass-medium" aria-hidden="true"></i><div><p><b>Kenji Sato</b> joined the waitlist</p><time datetime="2026-10-28T09:48">Today, 9:48</time></div></li>
+              <li class="ui-timeline-item"><span class="ui-avatar" data-cat="4" aria-hidden="true">MO</span><div><p><b>Maya Okafor</b> commented</p><blockquote>Can we record the pair-tuning part too? Two of my learners are traveling this week.</blockquote><time datetime="2026-10-27T18:20">Yesterday, 18:20</time></div></li>
+              <li class="ui-timeline-item"><i class="ph-bold ph-map-pin" aria-hidden="true"></i><div><p><b>Priya Raman</b> moved the session from Room 4 to Studio 2</p><time datetime="2026-10-27T16:05">Yesterday, 16:05</time></div></li>
+              <li class="ui-timeline-item" data-status="info"><i class="ph-bold ph-calendar-plus" aria-hidden="true"></i><div><p><b>Lena Fischer</b> scheduled the session</p><time datetime="2026-10-21T11:30">Oct 21, 11:30</time></div></li>
+            </ol>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="ui-section" aria-labelledby="facts-title">
+            <div class="ui-section-head"><h2 id="facts-title">Details</h2></div>
+            <dl class="ui-data-list">
+              <dt><i class="ph-duotone ph-chalkboard-teacher" aria-hidden="true"></i>Host</dt><dd><span class="who"><span class="ui-avatar" data-size="sm" data-cat="1" aria-hidden="true">LF</span>Lena Fischer</span></dd>
+              <dt><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i>When</dt><dd>Wed, Oct 28, 13:30</dd>
+              <dt><i class="ph-duotone ph-timer" aria-hidden="true"></i>Length</dt><dd>90 minutes</dd>
+              <dt><i class="ph-duotone ph-link-simple" aria-hidden="true"></i>Zoom</dt><dd><a href="#">zoom.us/j/81432209</a></dd>
+              <dt><i class="ph-duotone ph-record" aria-hidden="true"></i>Recording</dt><dd><span class="ui-status" data-status="ok">On</span></dd>
+              <dt><i class="ph-duotone ph-bell" aria-hidden="true"></i>Reminder</dt><dd>1 hour before</dd>
+            </dl>
+          </section>
+
+          <section class="ui-section" aria-labelledby="seats-title">
+            <div class="ui-section-head"><h2 id="seats-title">Seats</h2></div>
+            <div class="seats">
+              <span class="ui-meter"><meter min="0" max="24" low="18" high="22" optimum="10" value="21" aria-label="21 of 24 seats taken">21 of 24</meter><b>21 of 24</b></span>
+              <span class="ui-avatar-group" aria-label="Ana Lima, Zoe Martin, Lucía Fernández, Omar Haddad and 17 others going"><span class="ui-avatar" data-cat="4" aria-hidden="true">AL</span><span class="ui-avatar" data-cat="2" aria-hidden="true">ZM</span><span class="ui-avatar" data-cat="3" aria-hidden="true">LF</span><span class="ui-avatar" data-cat="5" aria-hidden="true">OH</span><span class="ui-avatar" aria-hidden="true">+17</span></span>
+              <p>3 on the waitlist get a seat in order when someone cancels.</p>
+            </div>
+          </section>
+
+          <section class="ui-section" aria-labelledby="agenda-title">
+            <div class="ui-section-head"><h2 id="agenda-title">Agenda</h2></div>
+            <dl class="ui-data-list agenda">
+              <dt>13:30</dt><dd>Warm-up: name that curve</dd>
+              <dt>13:45</dt><dd>Demo: tuning a sheet transition</dd>
+              <dt>14:15</dt><dd>Pair tuning on your prototype</dd>
+              <dt>14:45</dt><dd>Show the before and after</dd>
+            </dl>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<dialog class="ui-command" id="cmd" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search learners, sessions and actions">
+  <div class="ui-command__list">
+    <button data-value="schedule"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i>Schedule a session</button>
+    <button data-value="invite"><i class="ph-duotone ph-user-plus" aria-hidden="true"></i>Invite learners</button>
+    <button data-value="learners"><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Open learners</button>
+    <button data-value="discussions"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i>Open discussions</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
+</dialog>
+</body>
+</html>

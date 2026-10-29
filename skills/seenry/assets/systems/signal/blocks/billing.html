@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Billing · ledgerline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Project navigation">
+    <div class="ui-sidebar-head">
+      <span class="logo" aria-hidden="true"><i class="ri-pulse-line"></i></span>
+      <strong>ledgerline</strong>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Switch workspace"><i class="ri-expand-up-down-line"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="payments-core">
+      <span class="ui-nav-label">payments-core</span>
+      <a class="ui-nav-item" href="dashboard.html"><i class="ri-dashboard-3-line"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i class="ri-upload-cloud-2-line"></i>Deployments<span class="ui-nav-count">1</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-stack-line"></i>Services<span class="ui-nav-count">7</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-file-list-3-line"></i>Logs</a>
+      <a class="ui-nav-item" href="#"><i class="ri-line-chart-line"></i>Metrics</a>
+      <a class="ui-nav-item" href="detail.html"><i class="ri-alarm-warning-line"></i>Incidents<span class="ui-nav-count">1</span></a>
+    </nav>
+    <nav class="ui-nav" aria-label="Configuration">
+      <span class="ui-nav-label">Configuration</span>
+      <a class="ui-nav-item" href="#"><i class="ri-key-2-line"></i>Variables</a>
+      <a class="ui-nav-item" href="#"><i class="ri-global-line"></i>Domains</a>
+      <a class="ui-nav-item" href="settings.html"><i class="ri-settings-3-line"></i>Settings</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Workspace">
+      <span class="ui-nav-label">Workspace</span>
+      <a class="ui-nav-item" href="#"><i class="ri-team-line"></i>Members</a>
+      <a class="ui-nav-item" href="billing.html" aria-current="page"><i class="ri-bank-card-line"></i>Billing</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MO</span>
+      <span>Mara Okafor</span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Account menu"><i class="ri-more-line"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ri-menu-line"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb">
+        <li><a href="#">ledgerline</a></li>
+        <li aria-current="page">Billing</li>
+      </ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-topbar-search" data-dialog-open="command" aria-label="Search and run commands"><i class="ri-search-line"></i><span>Search</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ri-notification-3-line"></i></button>
+      </div>
+    </header>
+
+    <main>
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Billing</h1>
+          <p class="ui-page-sub"><span>ledgerline workspace</span><span class="mono">Oct 1 – Oct 31, 2026</span><span>Renews in 2 days</span></p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button"><i class="ri-mail-line"></i>Billing contacts</button>
+        </div>
+      </div>
+
+      <div class="ui-alert" data-status="warn">
+        <i class="ri-error-warning-line" aria-hidden="true"></i>
+        <p><strong>Build minutes are at 90% of the plan.</strong> At this rate you use about 6,280 by Oct 31; overage is $0.008 a minute.</p>
+        <button class="ui-button" data-size="sm">Set a spend limit</button>
+      </div>
+
+      <div class="ui-stat-strip">
+        <dl class="ui-stat"><dt>Current plan</dt><dd>Pro</dd><small>$250 a month · 20 seats</small></dl>
+        <dl class="ui-stat"><dt>Usage so far</dt><dd>$1,041.18</dd><small>Plan $250.00 · usage $791.18</small></dl>
+        <dl class="ui-stat"><dt>Projected for October</dt><dd>$1,118.90</dd><small>2.4% above September</small></dl>
+      </div>
+
+      <div class="signal-split">
+        <section class="ui-card" aria-labelledby="usage-title">
+          <div class="ui-section-head">
+            <h2 id="usage-title">Usage this period</h2>
+            <span class="ui-filter-count">Updated 14:52 UTC</span>
+          </div>
+          <div class="signal-stack">
+            <div class="ui-meter"><span>Instance hours</span><span><b>31,904</b> / 50,000 h</span><meter min="0" max="50000" low="37500" high="45000" optimum="0" value="31904">64%</meter><small>Included. Then $0.012 per hour.</small></div>
+            <div class="ui-meter"><span>Build minutes</span><span><b>5,412</b> / 6,000 min</span><meter min="0" max="6000" low="4500" high="5400" optimum="0" value="5412">90%</meter><small>Over the warning line. Then $0.008 per minute.</small></div>
+            <div class="ui-meter"><span>Bandwidth</span><span><b>3.12</b> / 5 TB</span><meter min="0" max="5" low="3.75" high="4.5" optimum="0" value="3.12">62%</meter><small>Included. Then $40 per TB.</small></div>
+            <div class="ui-meter"><span>Log retention</span><span><b>412</b> / 500 GB</span><meter min="0" max="500" low="375" high="450" optimum="0" value="412">82%</meter><small>14-day retention. Then $0.30 per GB.</small></div>
+            <div class="ui-meter"><span>Seats</span><span><b>14</b> / 20</span><meter min="0" max="20" low="15" high="18" optimum="0" value="14">70%</meter><small>6 seats free. Viewers are not billed.</small></div>
+          </div>
+        </section>
+
+        <div class="signal-stack">
+          <section class="ui-card" aria-labelledby="plan-title">
+            <div class="ui-section-head"><h2 id="plan-title">Plan</h2><span class="ui-badge">Monthly</span></div>
+            <dl class="ui-data-list">
+              <dt>Plan</dt><dd>Pro</dd>
+              <dt>Base price</dt><dd class="mono">$250.00 / month</dd>
+              <dt>Regions</dt><dd class="mono">iad1 fra1 <span class="dim">· 2 of 2</span></dd>
+              <dt>Support</dt><dd>Business hours, 4h response</dd>
+              <dt>Next invoice</dt><dd class="mono">Nov 1, 2026</dd>
+            </dl>
+            <footer><span>Scale adds sin1, SSO and 1h support.</span><button class="ui-button" data-variant="primary" data-size="sm">Upgrade to Scale</button></footer>
+          </section>
+
+          <section class="ui-card" aria-labelledby="payment-title">
+            <div class="ui-section-head"><h2 id="payment-title">Payment method</h2><button class="ui-button" data-variant="ghost" data-size="sm">Change</button></div>
+            <dl class="ui-data-list">
+              <dt>Card</dt><dd><i class="ri-bank-card-line" aria-hidden="true"></i><span class="mono">Visa ···· 8817</span><span class="dim">exp 04/28</span></dd>
+              <dt>Billed to</dt><dd>Ledgerline Inc.</dd>
+              <dt>Tax ID</dt><dd class="mono">US EIN 84-3920117</dd>
+              <dt>Receipts</dt><dd class="mono">finance@ledgerline.com</dd>
+            </dl>
+          </section>
+        </div>
+      </div>
+
+      <section class="ui-section" aria-labelledby="invoices-title">
+        <div class="ui-section-head">
+          <h2 id="invoices-title">Invoices</h2>
+          <a href="#">Export CSV</a>
+        </div>
+        <div class="ui-table-wrap">
+          <table class="ui-table" data-ui-table id="invoices">
+            <thead><tr>
+              <th scope="col">Invoice</th>
+              <th scope="col" data-sort>Issued</th>
+              <th scope="col">Period</th>
+              <th scope="col">Status</th>
+              <th scope="col" data-sort class="num">Amount</th>
+              <th scope="col" class="num"><span class="sr-only">Download</span></th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="mono">INV-2026-0010</td><td>Oct 1, 2026</td><td>Sep 1 – Sep 30</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="109240">$1,092.40</td><td class="num"><a class="ui-button" data-variant="ghost" data-size="sm" href="#" aria-label="Download INV-2026-0010 as PDF"><i class="ri-download-2-line"></i>PDF</a></td></tr>
+              <tr><td class="mono">INV-2026-0009</td><td>Sep 1, 2026</td><td>Aug 1 – Aug 31</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="103875">$1,038.75</td><td class="num"><a class="ui-button" data-variant="ghost" data-size="sm" href="#" aria-label="Download INV-2026-0009 as PDF"><i class="ri-download-2-line"></i>PDF</a></td></tr>
+              <tr><td class="mono">INV-2026-0008</td><td>Aug 1, 2026</td><td>Jul 1 – Jul 31</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="96410">$964.10</td><td class="num"><a class="ui-button" data-variant="ghost" data-size="sm" href="#" aria-label="Download INV-2026-0008 as PDF"><i class="ri-download-2-line"></i>PDF</a></td></tr>
+              <tr><td class="mono">INV-2026-0007</td><td>Jul 1, 2026</td><td>Jun 1 – Jun 30</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="90132">$901.32</td><td class="num"><a class="ui-button" data-variant="ghost" data-size="sm" href="#" aria-label="Download INV-2026-0007 as PDF"><i class="ri-download-2-line"></i>PDF</a></td></tr>
+              <tr><td class="mono">INV-2026-0006</td><td>Jun 1, 2026</td><td>May 1 – May 31</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="88706">$887.06</td><td class="num"><a class="ui-button" data-variant="ghost" data-size="sm" href="#" aria-label="Download INV-2026-0006 as PDF"><i class="ri-download-2-line"></i>PDF</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search services, deploys, commands">
+  <div class="ui-command__list">
+    <button data-value="deploy"><i class="ri-upload-cloud-2-line"></i>Deploy payments-core</button>
+    <button data-value="logs"><i class="ri-file-list-3-line"></i>Open logs for api-gateway</button>
+    <button data-value="rollback"><i class="ri-arrow-go-back-line"></i>Roll back search-indexer</button>
+    <button data-value="vars"><i class="ri-key-2-line"></i>Edit variables</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to run · Esc to close</div>
+</dialog>
+</body>
+</html>

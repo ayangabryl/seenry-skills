@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · Hearth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .auth-page{min-height:100dvh;display:grid;grid-template-rows:1fr auto;padding:var(--space-8) var(--gutter) var(--space-6)}
+  .auth-page>div{display:grid;align-content:center}
+  .auth-page>footer{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:var(--space-2) var(--space-5);padding-top:var(--space-7);color:var(--text-3);font:var(--type-small)}
+  .auth-page>footer a{display:inline-flex;align-items:center;min-height:var(--space-6);color:var(--text-2);text-decoration:none}
+  .auth-page>footer a:hover{text-decoration:underline}
+  .ui-auth .ui-tabs{gap:var(--space-5)}
+  .ui-auth .ui-tab-panel{padding-top:0}
+  .ui-auth .ui-tab-panel>*+*{margin-top:var(--space-4)}
+  .providers{display:grid;gap:var(--space-2)}
+  .label-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3)}
+  .label-row a{display:inline-flex;align-items:center;min-height:var(--space-6)}
+  @media (max-width:47.9375em){.auth-page{padding-top:var(--space-6)}}
+</style>
+</head>
+<body>
+<div class="auth-page">
+  <div>
+    <section class="ui-auth" aria-labelledby="auth-title">
+      <header>
+        <span class="ui-avatar" data-size="lg" aria-hidden="true">H</span>
+        <h1 id="auth-title">Welcome back</h1>
+        <p>Sign in to see where the household stands this month.</p>
+      </header>
+
+      <div class="ui-tabs" role="tablist" aria-label="Account">
+        <button role="tab" id="signin-tab" aria-selected="true" aria-controls="signin-panel">Sign in</button>
+        <button role="tab" id="create-tab" aria-selected="false" aria-controls="create-panel">Create account</button>
+      </div>
+
+      <div class="ui-tab-panel" role="tabpanel" id="signin-panel" aria-labelledby="signin-tab">
+        <div class="providers">
+          <button class="ui-button" type="button"><i class="ph ph-apple-logo" aria-hidden="true"></i>Continue with Apple</button>
+          <button class="ui-button" type="button"><i class="ph ph-google-logo" aria-hidden="true"></i>Continue with Google</button>
+        </div>
+        <p role="separator">or with email</p>
+        <div class="ui-alert" data-status="bad" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>That password doesn’t match this email. Two tries left before we send a reset link.</p></div>
+        <form>
+          <label class="ui-field"><span class="ui-label">Email</span><input class="ui-input" type="email" value="maya.alvarez@fastmail.com" autocomplete="email"></label>
+          <div class="ui-field" data-invalid>
+            <span class="label-row"><label class="ui-label" for="pw">Password</label><a class="ui-label" href="#">Forgot password?</a></span>
+            <input class="ui-input" id="pw" type="password" autocomplete="current-password" aria-invalid="true" aria-describedby="pw-error">
+            <span class="ui-error" id="pw-error">Check the password and try again.</span>
+          </div>
+          <label class="ui-choice"><input type="checkbox" checked><span>Keep me signed in on this device</span></label>
+          <button class="ui-button" data-variant="primary" type="submit">Sign in</button>
+        </form>
+      </div>
+
+      <div class="ui-tab-panel" role="tabpanel" id="create-panel" aria-labelledby="create-tab" hidden>
+        <div class="providers">
+          <button class="ui-button" type="button"><i class="ph ph-apple-logo" aria-hidden="true"></i>Sign up with Apple</button>
+          <button class="ui-button" type="button"><i class="ph ph-google-logo" aria-hidden="true"></i>Sign up with Google</button>
+        </div>
+        <p role="separator">or with email</p>
+        <form>
+          <label class="ui-field"><span class="ui-label">Your name</span><input class="ui-input" autocomplete="name"></label>
+          <label class="ui-field"><span class="ui-label">Email</span><input class="ui-input" type="email" autocomplete="email"></label>
+          <label class="ui-field"><span class="ui-label">Password</span><input class="ui-input" type="password" autocomplete="new-password" aria-describedby="pw-help"><span class="ui-help" id="pw-help">At least 12 characters.</span></label>
+          <button class="ui-button" data-variant="primary" type="submit">Create account</button>
+        </form>
+      </div>
+
+      <footer><p>By continuing you agree to the <a href="#">Terms</a> and <a href="#">Privacy notice</a>. Hearth never sells your data.</p></footer>
+    </section>
+  </div>
+  <footer><span>Hearth, made in Oakland</span><a href="#">Help</a><a href="#">Status</a><a href="#">Security</a></footer>
+</div>
+</body>
+</html>

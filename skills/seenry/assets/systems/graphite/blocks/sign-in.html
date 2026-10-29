@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · Halyard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+</head>
+<body>
+<main class="ui-auth">
+  <section aria-labelledby="auth-title">
+    <header>
+      <span class="ui-workspace-mark" aria-hidden="true">H</span>
+      <div>
+        <h1 id="auth-title">Sign in to Halyard</h1>
+        <p>Agents for revenue and marketing ops</p>
+      </div>
+    </header>
+
+    <div class="ui-tabs" role="tablist" aria-label="Account">
+      <button role="tab" id="signin-tab" aria-selected="true" aria-controls="signin-panel">Sign in</button>
+      <button role="tab" id="signup-tab" aria-selected="false" aria-controls="signup-panel">Create account</button>
+    </div>
+
+    <div class="ui-tab-panel ui-stack" role="tabpanel" id="signin-panel" aria-labelledby="signin-tab">
+      <div class="ui-auth-providers">
+        <button class="ui-button" type="button"><span class="ui-logo" data-brand="google"></span>Continue with Google</button>
+        <button class="ui-button" type="button"><i data-lucide="key-round"></i>Continue with SAML SSO</button>
+      </div>
+      <p class="ui-auth-divider">or with email</p>
+      <div class="ui-alert" data-status="bad" role="alert">
+        <i data-lucide="circle-alert" aria-hidden="true"></i>
+        <div><strong>That password is not right</strong><p>2 tries left before sign-in locks for 15 minutes.</p></div>
+      </div>
+      <form novalidate>
+        <label class="ui-field">
+          <span class="ui-label">Work email</span>
+          <input class="ui-input" type="email" autocomplete="username" value="maya@northbeam.io">
+        </label>
+        <label class="ui-field" data-invalid>
+          <span class="ui-label">Password <a href="#">Forgot password?</a></span>
+          <input class="ui-input" type="password" autocomplete="current-password" value="graphite-2026" aria-invalid="true" aria-describedby="pw-error">
+          <span class="ui-error" id="pw-error">Passwords are case sensitive. Check caps lock.</span>
+        </label>
+        <button class="ui-button" type="submit" data-variant="primary">Sign in</button>
+      </form>
+    </div>
+
+    <div class="ui-tab-panel ui-stack" role="tabpanel" id="signup-panel" aria-labelledby="signup-tab" hidden>
+      <div class="ui-auth-providers">
+        <button class="ui-button" type="button"><span class="ui-logo" data-brand="google"></span>Sign up with Google</button>
+      </div>
+      <p class="ui-auth-divider">or with email</p>
+      <form novalidate>
+        <label class="ui-field"><span class="ui-label">Full name</span><input class="ui-input" autocomplete="name" placeholder="Maya Ruiz"></label>
+        <label class="ui-field"><span class="ui-label">Work email</span><input class="ui-input" type="email" autocomplete="email" placeholder="maya@company.com"></label>
+        <label class="ui-field"><span class="ui-label">Password</span><input class="ui-input" type="password" autocomplete="new-password" aria-describedby="pw-help"><span class="ui-help" id="pw-help">At least 12 characters.</span></label>
+        <button class="ui-button" type="submit" data-variant="primary">Create account</button>
+      </form>
+    </div>
+
+    <p class="ui-auth-legal">By continuing you agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+  </section>
+  <footer class="ui-auth-foot"><span>© 2026 Halyard Labs</span><a href="#">Status</a><a href="#">Security</a><a href="#">Help</a></footer>
+</main>
+
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="../../../components/ui/seenry-ui.js"></script>
+<script>
+lucide.createIcons();
+</script>
+</body>
+</html>

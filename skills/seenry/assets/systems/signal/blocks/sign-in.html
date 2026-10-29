@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · Outpost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-auth">
+  <header>
+    <strong><span class="logo" aria-hidden="true"><i class="ri-pulse-line"></i></span>Outpost</strong>
+    <a href="#">Docs</a>
+  </header>
+  <main>
+    <section aria-labelledby="auth-title">
+      <div>
+        <h1 id="auth-title">Sign in to Outpost</h1>
+        <p>Deploy, watch and roll back your services.</p>
+      </div>
+      <div class="ui-tabs" role="tablist" aria-label="Account">
+        <button role="tab" id="signin-tab" aria-selected="true" aria-controls="signin-panel">Sign in</button>
+        <button role="tab" id="signup-tab" aria-selected="false" aria-controls="signup-panel">Create account</button>
+      </div>
+      <div class="ui-tab-panel" role="tabpanel" id="signin-panel" aria-labelledby="signin-tab">
+        <div class="signal-providers">
+          <button class="ui-button" type="button"><i class="ri-github-line"></i>Continue with GitHub</button>
+          <button class="ui-button" type="button"><i class="ri-google-line"></i>Continue with Google</button>
+          <button class="ui-button" type="button"><i class="ri-shield-keyhole-line"></i>Continue with SAML SSO</button>
+        </div>
+        <div role="separator">or with email</div>
+        <div class="ui-alert" data-status="bad" role="alert" id="signin-error">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <p>That email and password do not match. Two more tries before a 15-minute lock.</p>
+        </div>
+        <form onsubmit="return false" aria-describedby="signin-error">
+          <label class="ui-field">
+            <span class="ui-label">Work email</span>
+            <input class="ui-input" type="email" autocomplete="username" value="mara@ledgerline.com">
+          </label>
+          <label class="ui-field" data-invalid>
+            <span class="ui-label">Password <a href="#">Forgot it?</a></span>
+            <input class="ui-input" type="password" autocomplete="current-password" value="incorrect-pass" aria-invalid="true" aria-describedby="pw-error">
+            <span class="ui-error" id="pw-error">Check the password, or use a sign-in link.</span>
+          </label>
+          <button class="ui-button" data-variant="primary" type="submit">Sign in</button>
+          <button class="ui-button" data-variant="ghost" type="button"><i class="ri-mail-send-line"></i>Email me a sign-in link</button>
+        </form>
+      </div>
+      <div class="ui-tab-panel" role="tabpanel" id="signup-panel" aria-labelledby="signup-tab" hidden>
+        <div class="signal-providers">
+          <button class="ui-button" type="button"><i class="ri-github-line"></i>Sign up with GitHub</button>
+          <button class="ui-button" type="button"><i class="ri-google-line"></i>Sign up with Google</button>
+        </div>
+        <div role="separator">or with email</div>
+        <form onsubmit="return false">
+          <label class="ui-field"><span class="ui-label">Name</span><input class="ui-input" autocomplete="name"></label>
+          <label class="ui-field"><span class="ui-label">Work email</span><input class="ui-input" type="email" autocomplete="email" aria-describedby="email-help"><span class="ui-help" id="email-help">Teammates on the same domain can join your workspace.</span></label>
+          <label class="ui-field"><span class="ui-label">Password</span><input class="ui-input" type="password" autocomplete="new-password" aria-describedby="new-pw-help"><span class="ui-help" id="new-pw-help">12 characters or more.</span></label>
+          <button class="ui-button" data-variant="primary" type="submit">Create account</button>
+        </form>
+      </div>
+      <p><small>By continuing you agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</small></p>
+    </section>
+  </main>
+  <footer>
+    <span class="ui-status" data-status="ok">All systems normal</span>
+    <span class="mono">iad1 · fra1 · sin1</span>
+  </footer>
+</div>
+</body>
+</html>

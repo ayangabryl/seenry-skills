@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>INC-2291 · p95 latency above 300 ms · payments-core</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Project navigation">
+    <div class="ui-sidebar-head">
+      <span class="logo" aria-hidden="true"><i class="ri-pulse-line"></i></span>
+      <strong>ledgerline</strong>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Switch workspace"><i class="ri-expand-up-down-line"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="payments-core">
+      <span class="ui-nav-label">payments-core</span>
+      <a class="ui-nav-item" href="dashboard.html"><i class="ri-dashboard-3-line"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i class="ri-upload-cloud-2-line"></i>Deployments<span class="ui-nav-count">1</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-stack-line"></i>Services<span class="ui-nav-count">7</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-file-list-3-line"></i>Logs</a>
+      <a class="ui-nav-item" href="#"><i class="ri-line-chart-line"></i>Metrics</a>
+      <a class="ui-nav-item" href="detail.html" aria-current="page"><i class="ri-alarm-warning-line"></i>Incidents<span class="ui-nav-count">1</span></a>
+    </nav>
+    <nav class="ui-nav" aria-label="Configuration">
+      <span class="ui-nav-label">Configuration</span>
+      <a class="ui-nav-item" href="#"><i class="ri-key-2-line"></i>Variables</a>
+      <a class="ui-nav-item" href="#"><i class="ri-global-line"></i>Domains</a>
+      <a class="ui-nav-item" href="settings.html"><i class="ri-settings-3-line"></i>Settings</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Workspace">
+      <span class="ui-nav-label">Workspace</span>
+      <a class="ui-nav-item" href="#"><i class="ri-team-line"></i>Members</a>
+      <a class="ui-nav-item" href="billing.html"><i class="ri-bank-card-line"></i>Billing</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MO</span>
+      <span>Mara Okafor</span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Account menu"><i class="ri-more-line"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ri-menu-line"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb">
+        <li><a href="#">ledgerline</a></li>
+        <li><a href="#">payments-core</a></li>
+        <li><a href="#">Incidents</a></li>
+        <li aria-current="page">INC-2291</li>
+      </ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-topbar-search" data-dialog-open="command" aria-label="Search and run commands"><i class="ri-search-line"></i><span>Search</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ri-notification-3-line"></i></button>
+      </div>
+    </header>
+
+    <main>
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">p95 latency above 300 ms on api-gateway</h1>
+          <p class="ui-page-sub">
+            <span class="ui-status" data-status="warn">Monitoring</span>
+            <span class="ui-badge" data-tone="warn">SEV-2</span>
+            <span class="mono">INC-2291</span>
+            <span>Opened 13:07 UTC by alert</span>
+            <span>Mitigated in 28m</span>
+          </p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" data-menu-trigger="incident-more" data-icon aria-label="More incident actions"><i class="ri-more-line"></i></button>
+          <button class="ui-button"><i class="ri-book-open-line"></i>Runbook</button>
+          <button class="ui-button" data-variant="primary" data-toast-message="INC-2291 resolved" data-toast-description="Postmortem due Oct 31. #payments-oncall was notified."><i class="ri-check-line"></i>Resolve</button>
+        </div>
+      </div>
+      <div id="incident-more" class="ui-menu" role="menu" popover="auto">
+        <button role="menuitem" data-value="sev">Change severity</button>
+        <button role="menuitem" data-value="commander">Hand off commander</button>
+        <button role="menuitem" data-value="slack">Open #inc-2291 in Slack</button>
+        <hr>
+        <button role="menuitem" data-value="postmortem">Start postmortem</button>
+      </div>
+
+      <div class="ui-alert" data-status="warn" role="status">
+        <i class="ri-error-warning-line" aria-hidden="true"></i>
+        <p><strong>Rolled back to 9c2e71b at 13:35.</strong> p95 has held under 200 ms for 1h 24m. Resolve once it stays under the SLO for 2 hours, or reopen if it climbs.</p>
+        <button class="ui-button" data-size="sm">Snooze 1h</button>
+      </div>
+
+      <div class="signal-detail">
+        <div>
+          <section class="ui-card" aria-labelledby="impact-title">
+            <div class="ui-section-head">
+              <h2 id="impact-title">api-gateway latency</h2>
+              <div class="ui-segmented" aria-label="Window"><button aria-pressed="true" data-value="incident">Incident</button><button aria-pressed="false" data-value="6h">6h</button><button aria-pressed="false" data-value="24h">24h</button></div>
+            </div>
+            <div class="ui-chart">
+              <ul class="ui-chart-legend">
+                <li data-series="1"><b>p95</b></li>
+                <li data-series="2"><b>p50</b></li>
+                <li data-mark="marker">Deploy and rollback</li>
+                <li class="ui-chart-tz">UTC</li>
+              </ul>
+              <div>
+                <div class="ui-chart-plot">
+                  <div class="ui-chart-y" aria-hidden="true"><span style="top:0%">400 ms</span><span style="top:25%">300</span><span style="top:50%">200</span><span style="top:75%">100</span><span style="top:100%">0</span></div>
+                  <div>
+                    <svg viewBox="0 0 720 100" preserveAspectRatio="none" role="img" aria-label="api-gateway latency, 12:30 to 14:30 UTC. p95 rose from 165 ms to 371 ms after the 13:05 deploy of a3f9c1e, stayed above 300 ms until the 13:35 rollback, then settled near 160 ms. p50 peaked at 64 ms.">
+                      <line class="grid" x1="0" x2="720" y1="0" y2="0"/><line class="grid" x1="0" x2="720" y1="25" y2="25"/><line class="grid" x1="0" x2="720" y1="50" y2="50"/><line class="grid" x1="0" x2="720" y1="75" y2="75"/>
+                      <line class="threshold" x1="0" x2="720" y1="25" y2="25"/>
+                      <line class="marker" x1="210" x2="210" y1="0" y2="100"/>
+                      <line class="marker" x1="390" x2="390" y1="0" y2="100"/>
+                      <path class="line s2" d="M0,88.6 L30,88.9 L60,88.2 L90,88.5 L120,87.9 L150,88.4 L180,88.1 L210,87.6 L240,85.1 L270,84.0 L300,84.4 L330,85.2 L360,84.7 L390,85.6 L420,87.2 L450,88.0 L480,88.4 L510,88.1 L540,88.6 L570,88.3 L600,88.7 L630,88.2 L660,88.5 L690,88.4 L720,88.6"/>
+                      <path class="line s1" d="M0,58.8 L30,59.6 L60,57.9 L90,59.1 L120,58.4 L150,60.2 L180,58.7 L210,57.5 L225,41.0 L240,22.4 L255,12.1 L270,9.4 L285,7.3 L300,10.6 L315,8.8 L330,13.9 L345,11.2 L360,15.8 L375,18.1 L390,21.5 L405,38.6 L420,49.7 L450,56.4 L480,58.9 L510,60.4 L540,59.7 L570,61.2 L600,60.6 L630,59.9 L660,61.4 L690,60.8 L720,60.1"/>
+                      <line class="base" x1="0" x2="720" y1="100" y2="100"/>
+                    </svg>
+                    <span class="ui-chart-note" style="left:29.17%">a3f9c1e</span>
+                    <span class="ui-chart-note" style="left:54.17%">rollback</span>
+                  </div>
+                  <div class="ui-chart-tags" aria-hidden="true"><span data-tone="bad" style="top:25%">alert <b>300</b></span><span data-series="1" style="top:60.1%">p95 <b>159</b></span><span data-series="2" style="top:88.6%">p50 <b>46</b></span></div>
+                </div>
+                <div class="ui-chart-axis" aria-hidden="true"><span style="left:0%">12:30</span><span style="left:25%">13:00</span><span style="left:50%">13:30</span><span style="left:75%">14:00</span><span style="left:100%">14:30</span></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="ui-card" aria-labelledby="timeline-title">
+            <div class="ui-section-head">
+              <h2 id="timeline-title">Timeline</h2>
+              <button class="ui-button" data-size="sm" data-variant="ghost"><i class="ri-chat-new-line"></i>Add note</button>
+            </div>
+            <ol class="ui-timeline">
+              <li class="ui-timeline-item"><i class="ri-eye-line" aria-hidden="true"></i><div><p><strong>Mara Okafor</strong> moved the incident to monitoring</p></div><time class="mono" datetime="2026-10-28T13:41Z">13:41</time></li>
+              <li class="ui-timeline-item"><i class="ri-arrow-go-back-line" data-tone="ok" aria-hidden="true"></i><div><p><strong>Dani Reyes</strong> rolled api-gateway back to <a class="mono" href="list-detail.html">9c2e71b</a></p><span class="ui-list-meta"><span>6 of 6 instances healthy in 1m 52s</span></span></div><time class="mono" datetime="2026-10-28T13:35Z">13:35</time></li>
+              <li class="ui-timeline-item"><i class="ri-chat-3-line" aria-hidden="true"></i><div><p><strong>Dani Reyes</strong> The idempotency cache grows without a cap; GC pauses line up with the spikes.</p>
+                <div class="ui-code"><header><span>api-gateway · iad1-3 · stderr</span><button class="ui-button" data-variant="ghost" data-size="sm" data-icon data-copy aria-label="Copy log lines"><i class="ri-file-copy-line"></i></button></header><pre><span class="dim">13:21:07.412</span> <span data-tone="warn">WARN</span> gc pause 412ms heap=1.84GiB idem_keys=418204
+<span class="dim">13:21:09.006</span> <span data-tone="bad">ERROR</span> POST /v1/transfers 504 upstream timeout after 3000ms
+<span class="dim">13:21:09.113</span> <span data-tone="warn">WARN</span> gc pause 389ms heap=1.86GiB idem_keys=419977</pre></div></div><time class="mono" datetime="2026-10-28T13:24Z">13:24</time></li>
+              <li class="ui-timeline-item"><i class="ri-user-star-line" aria-hidden="true"></i><div><p><strong>Mara Okafor</strong> took incident command and paged <strong>Dani Reyes</strong></p></div><time class="mono" datetime="2026-10-28T13:10Z">13:10</time></li>
+              <li class="ui-timeline-item"><i class="ri-alarm-warning-line" data-tone="bad" aria-hidden="true"></i><div><p>Alert <strong>p95 latency above 300 ms</strong> fired on api-gateway</p><span class="ui-list-meta"><span>PagerDuty · #payments-oncall</span></span></div><time class="mono" datetime="2026-10-28T13:07Z">13:07</time></li>
+              <li class="ui-timeline-item"><i class="ri-upload-cloud-2-line" aria-hidden="true"></i><div><p><strong>Dani Reyes</strong> deployed <a class="mono" href="list-detail.html">a3f9c1e</a> feat(gateway): idempotency keys on POST /v1/transfers</p></div><time class="mono" datetime="2026-10-28T13:05Z">13:05</time></li>
+            </ol>
+          </section>
+        </div>
+
+        <div>
+          <section class="ui-card" aria-labelledby="facts-title">
+            <div class="ui-section-head"><h2 id="facts-title">Details</h2></div>
+            <dl class="ui-data-list">
+              <dt>Service</dt><dd class="mono">api-gateway</dd>
+              <dt>Environment</dt><dd class="mono">production · iad1 fra1</dd>
+              <dt>Commander</dt><dd><span class="ui-avatar" aria-hidden="true">MO</span>Mara Okafor</dd>
+              <dt>Cause</dt><dd><a class="mono" href="list-detail.html">a3f9c1e</a><span class="dim">deploy</span></dd>
+              <dt>Peak p95</dt><dd class="mono">371 ms at 13:14</dd>
+              <dt>Errors</dt><dd class="mono">129 × 504</dd>
+              <dt>Requests hit</dt><dd class="mono">3.1% of POST /v1/transfers</dd>
+              <dt>SLO budget used</dt><dd class="mono">6.4% of 30d</dd>
+            </dl>
+          </section>
+
+          <section class="ui-card" aria-labelledby="followups-title">
+            <div class="ui-section-head"><h2 id="followups-title">Follow-ups</h2><span class="ui-filter-count">1 of 3 done</span></div>
+            <ul class="ui-list">
+              <li class="ui-list-item"><i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i><div><strong>Cap idempotency cache at 50k keys</strong><span class="ui-list-meta"><span>9c2e71b</span><span>Dani Reyes</span></span></div><span>Done</span></li>
+              <li class="ui-list-item"><i class="ri-checkbox-blank-circle-line" aria-hidden="true"></i><div><strong>Alert on heap above 1.5 GiB</strong><span class="ui-list-meta"><span>Mara Okafor</span></span></div><span>Oct 30</span></li>
+              <li class="ui-list-item"><i class="ri-checkbox-blank-circle-line" aria-hidden="true"></i><div><strong>Write the postmortem</strong><span class="ui-list-meta"><span>Mara Okafor</span></span></div><span>Oct 31</span></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search services, deploys, commands">
+  <div class="ui-command__list">
+    <button data-value="deploy"><i class="ri-upload-cloud-2-line"></i>Deploy payments-core</button>
+    <button data-value="logs"><i class="ri-file-list-3-line"></i>Open logs for api-gateway</button>
+    <button data-value="rollback"><i class="ri-arrow-go-back-line"></i>Roll back search-indexer</button>
+    <button data-value="vars"><i class="ri-key-2-line"></i>Edit variables</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to run · Esc to close</div>
+</dialog>
+</body>
+</html>

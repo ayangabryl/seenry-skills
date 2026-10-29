@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graphite components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="system.css">
+<style>
+/* Gallery layout only. Forced [data-state] rules mirror the :hover and :focus-visible rules in system.css so every state is visible at once. */
+.gx{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);min-height:100dvh;background:var(--bg)}
+.gx-toc{position:sticky;top:0;display:flex;flex-direction:column;gap:var(--space-4);height:100dvh;padding:var(--space-3);overflow-y:auto;border-right:var(--bw) solid var(--line)}
+.gx-main{display:grid;gap:var(--space-8);align-content:start;width:100%;max-width:var(--content-max);margin:0 auto;padding:var(--space-6) var(--gutter) var(--space-8)}
+.gx-top{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:var(--space-4)}
+.gx-top .ui-segmented button{display:inline-flex;align-items:center;gap:var(--space-tight)}
+.gx-top h1{font:var(--type-title);letter-spacing:var(--tracking-title)}
+.gx-top p{max-width:var(--content-narrow);margin-top:var(--space-1);color:var(--text-3);font:var(--type-small)}
+.gx-group{display:grid;gap:var(--space-7)}
+.gx-group-head{display:grid;gap:var(--space-1);padding-bottom:var(--space-3);border-bottom:var(--bw) solid var(--line)}
+.gx-group-head h2{font:var(--type-title);letter-spacing:var(--tracking-title)}
+.gx-group-head p,.gx-head p{color:var(--text-3);font:var(--type-small)}
+.gx-section{display:grid;gap:var(--space-4);scroll-margin-top:var(--space-6)}
+.gx-head{display:grid;gap:var(--space-1)}
+.gx-head h3{font:var(--type-heading)}
+.gx-head p{max-width:var(--content-narrow)}
+.gx-api{display:flex;flex-wrap:wrap;gap:var(--space-1);margin-top:var(--space-1)}
+.gx-states{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--menu-w)),1fr));gap:var(--space-3)}
+.gx-cell{display:grid;grid-template-rows:1fr auto;gap:var(--space-2);min-width:0;margin:0}
+.gx-cell[data-wide]{grid-column:span 2}
+.gx-demo{display:flex;align-items:center;flex-wrap:wrap;gap:var(--space-2);min-width:0;min-height:calc(var(--space-8) + var(--space-5));padding:var(--space-4);border:var(--bw) solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.gx-demo>.ui-field,.gx-demo>.ui-usage,.gx-demo>.ui-control,.gx-demo>.ui-option,.gx-demo>.gx-skel,.gx-demo>.ui-steps,.gx-demo>.gx-static,.gx-demo>.ui-card{flex:1;min-width:0}
+.gx-cell figcaption{color:var(--text-3);font:var(--type-small)}
+.gx-matrix{display:grid;gap:var(--space-3)}
+.gx-row{display:grid;grid-template-columns:var(--space-8) repeat(5,minmax(0,1fr));align-items:center;gap:var(--space-3)}
+.gx-row-label{color:var(--text-2);font:var(--type-small)}
+.gx-row .gx-cell{grid-template-rows:auto auto}
+.gx-row .gx-demo{min-height:0;justify-content:center}
+.gx-swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--field-w)),1fr));gap:var(--space-3)}
+.gx-swatch-group{display:grid;margin:0;padding:var(--space-1) var(--card-pad);list-style:none;border:var(--bw) solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.gx-swatch{display:flex;align-items:center;gap:var(--space-3);min-height:var(--row-h);border-top:var(--bw) solid var(--line);font:var(--type-label)}
+.gx-swatch:first-child{border-top:0}
+.gx-swatch>span:last-child{display:grid}
+.gx-chip-color{flex:none;width:var(--logo-tile);height:var(--logo-tile);border:var(--bw) solid var(--line-strong);border-radius:var(--r-sm)}
+.gx-type-list{display:grid;margin:0;padding:0 var(--card-pad);list-style:none;border:var(--bw) solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.gx-type{display:grid;grid-template-columns:var(--detail-w) minmax(0,1fr);align-items:baseline;gap:var(--space-4);padding:var(--space-3) 0;border-top:var(--bw) solid var(--line);color:var(--text)}
+.gx-type:first-child{border-top:0}
+.gx-type-meta{display:flex;gap:var(--space-3);font:var(--type-label)}
+.gx-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--card-gap);align-items:start}
+.gx-radii{display:flex;flex-wrap:wrap;gap:var(--space-5);margin:0;padding:var(--card-pad);list-style:none;border:var(--bw) solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.gx-radii li{display:grid;justify-items:start;gap:var(--space-2)}
+.gx-radius{width:var(--space-8);height:var(--space-8);border:var(--bw) solid var(--line-strong);background:var(--surface-2)}
+.gx-icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(var(--space-8) * 2 + var(--space-6))),1fr));margin:0;padding:0;list-style:none;border:var(--bw) solid var(--line);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
+.gx-icons li{display:flex;align-items:center;gap:var(--space-2);min-height:var(--row-h);padding:0 var(--space-3);border-right:var(--bw) solid var(--line);border-bottom:var(--bw) solid var(--line);color:var(--text-2);font:var(--type-small)}
+.gx-icons .lucide{color:var(--text-3)}
+.gx-inline{display:inline-flex;align-items:center;gap:var(--space-3)}
+.gx-note{color:var(--text-2);font:var(--type-body)}
+.gx-tight{gap:var(--space-3)}
+.gx-skel{display:grid;gap:var(--space-2)}
+.gx-frame{border:var(--bw) solid var(--line);border-radius:var(--r-lg);background:var(--bg);overflow:hidden}
+.gx-nav-frame{max-width:var(--sidebar-w);padding:var(--space-3)}
+.gx :is(.gx-frame .ui-sidebar){position:static;height:auto;width:100%;transform:none;visibility:visible;box-shadow:none;border-right:0}
+.gx :is(.gx-frame .ui-topbar){position:static}
+.gx-auth-inner.ui-auth{min-height:0;padding:var(--space-7) var(--gutter)}
+.gx-blocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--field-w)),1fr));gap:var(--space-3)}
+.gx-blocks h3{display:flex;align-items:center;gap:var(--space-2)}
+.gx-blocks .lucide{color:var(--text-3)}
+.gx .gx-static{position:static;inset:auto;width:100%;max-width:100%;max-height:none;margin:0;opacity:1;transform:none;pointer-events:auto}
+.gx .ui-command.gx-static{max-width:var(--command-w)}
+
+.ui-button[data-state=hover]{background:var(--raised)}
+.ui-button[data-variant=primary][data-state=hover]{background:var(--accent-hover);border-color:var(--accent-hover)}
+.ui-button[data-variant=ghost][data-state=hover]{background:var(--hover);color:var(--text)}
+.ui-button[data-variant=danger][data-state=hover]{border-color:var(--bad)}
+.gx [data-state=focus]{outline:var(--ring) solid var(--focus-line);outline-offset:var(--ring)}
+.gx :is(.ui-input,.ui-textarea,.ui-select)[data-state=hover]{border-color:var(--text-3)}
+.gx :is(.ui-input,.ui-textarea,.ui-select)[data-state=focus]{outline:0;border-color:var(--focus-line);box-shadow:var(--focus)}
+.gx .ui-chip[data-state=hover],.gx .ui-nav-item[data-state=hover]{background:var(--hover);color:var(--text)}
+.gx .ui-nav-item[data-state=hover] .lucide{color:var(--text)}
+.gx .ui-list-item[data-state=hover],.gx .ui-option[data-state=hover],.gx .ui-table tr[data-state=hover] td{background:var(--hover)}
+.gx .ui-menu [data-state=hover]{background:var(--surface-2)}
+.gx .ui-segmented button[data-state=hover]{color:var(--text)}
+.gx .ui-pagination button[data-state=hover]{background:var(--hover);color:var(--text)}
+.gx .ui-card[data-state=hover]{border-color:var(--line-strong);background:var(--hover)}
+
+@media (max-width:1100px){.gx-row{grid-template-columns:repeat(5,minmax(0,1fr))}.gx-row-label{grid-column:1/-1}}
+@media (max-width:900px){
+  .gx{grid-template-columns:minmax(0,1fr)}
+  .gx-toc{display:none}
+  .gx-split{grid-template-columns:minmax(0,1fr)}
+  .gx-type{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:600px){
+  .gx-main{gap:var(--space-7)}
+  .gx-states{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gx-cell[data-wide]{grid-column:1/-1}
+  .gx-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="gx">
+  <aside class="gx-toc" aria-label="Components">
+    <div class="ui-sidebar-head"><span class="ui-workspace-mark" aria-hidden="true">G</span><span>Graphite</span></div>
+<nav class="ui-nav" aria-labelledby="toc-foundations"><span class="ui-nav-label" id="toc-foundations">Foundations</span><a class="ui-nav-item" href="#color">Color</a><a class="ui-nav-item" href="#type">Type</a><a class="ui-nav-item" href="#shape">Radius and space</a><a class="ui-nav-item" href="#icons">Icons</a></nav>
+<nav class="ui-nav" aria-labelledby="toc-actions"><span class="ui-nav-label" id="toc-actions">Actions</span><a class="ui-nav-item" href="#button">Button</a><a class="ui-nav-item" href="#chip">Chip</a><a class="ui-nav-item" href="#kbd">Kbd</a></nav>
+<nav class="ui-nav" aria-labelledby="toc-inputs"><span class="ui-nav-label" id="toc-inputs">Inputs</span><a class="ui-nav-item" href="#input">Input</a><a class="ui-nav-item" href="#textarea">Textarea</a><a class="ui-nav-item" href="#select">Select and combobox</a><a class="ui-nav-item" href="#choice">Checkbox and switch</a><a class="ui-nav-item" href="#slider">Slider</a><a class="ui-nav-item" href="#segmented">Segmented</a><a class="ui-nav-item" href="#option">Option card</a></nav>
+<nav class="ui-nav" aria-labelledby="toc-navigation"><span class="ui-nav-label" id="toc-navigation">Navigation</span><a class="ui-nav-item" href="#nav">Sidebar</a><a class="ui-nav-item" href="#tabs">Tabs</a><a class="ui-nav-item" href="#breadcrumb">Breadcrumb</a><a class="ui-nav-item" href="#steps">Steps</a></nav>
+<nav class="ui-nav" aria-labelledby="toc-feedback"><span class="ui-nav-label" id="toc-feedback">Feedback</span><a class="ui-nav-item" href="#status">Status</a><a class="ui-nav-item" href="#alert">Alert</a><a class="ui-nav-item" href="#progress">Progress and meter</a><a class="ui-nav-item" href="#skeleton">Skeleton and toast</a><a class="ui-nav-item" href="#empty">Empty state</a></nav>
+<nav class="ui-nav" aria-labelledby="toc-data"><span class="ui-nav-label" id="toc-data">Data display</span><a class="ui-nav-item" href="#avatar">Avatar and logo</a><a class="ui-nav-item" href="#card">Card and stat</a><a class="ui-nav-item" href="#list">List</a><a class="ui-nav-item" href="#table">Table</a><a class="ui-nav-item" href="#data-list">Data list</a><a class="ui-nav-item" href="#timeline">Timeline</a><a class="ui-nav-item" href="#code">Code</a><a class="ui-nav-item" href="#chart">Chart</a></nav>
+<nav class="ui-nav" aria-labelledby="toc-overlays"><span class="ui-nav-label" id="toc-overlays">Overlays</span><a class="ui-nav-item" href="#menu">Menu and tooltip</a><a class="ui-nav-item" href="#dialog">Dialog and sheet</a><a class="ui-nav-item" href="#accordion">Accordion</a></nav>
+<nav class="ui-nav" aria-labelledby="toc-app"><span class="ui-nav-label" id="toc-app">Patterns</span><a class="ui-nav-item" href="#shell">Shell</a><a class="ui-nav-item" href="#settings">Settings</a><a class="ui-nav-item" href="#auth">Auth</a><a class="ui-nav-item" href="#blocks">Blocks</a></nav>
+  </aside>
+  <main class="gx-main">
+    <header class="gx-top">
+      <div>
+        <h1>Graphite components</h1>
+        <p>Every seenry-ui and contract class in Graphite, in each of its states. Hover and focus are pinned with <code class="ui-code">data-state</code> so they read side by side; everything is live too. Copy markup from the source, without the <code class="ui-code">gx-</code> gallery wrappers.</p>
+      </div>
+      <div class="ui-segmented" aria-label="Theme" data-theme-switch><button type="button" aria-pressed="true" data-value="dark"><i data-lucide="moon"></i>Dark</button><button type="button" aria-pressed="false" data-value="light"><i data-lucide="sun"></i>Light</button></div>
+    </header>
+
+<div class="gx-group" id="foundations">
+  <div class="gx-group-head"><h2>Foundations</h2><p>The values every component reads from tokens.css.</p></div>
+  
+<section class="gx-section" id="color" aria-labelledby="color-title">
+  <div class="gx-head"><h3 id="color-title">Color</h3><p>Three surface greys and a hairline do all the structure. Hue is reserved for status marks, the failure series and app logos.</p><p class="gx-api"><code class="ui-code">--bg --surface --surface-2 --hover --line --text --text-2 --text-3 --ok --warn --bad --info --idle</code></p></div>
+  <div class="gx-swatches"><ul class="gx-swatch-group" aria-label="Surfaces"><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--bg)"></span><span><span>Page</span><span class="ui-list-meta">--bg</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--surface)"></span><span><span>Card</span><span class="ui-list-meta">--surface</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--surface-2)"></span><span><span>Selected</span><span class="ui-list-meta">--surface-2</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--hover)"></span><span><span>Hover</span><span class="ui-list-meta">--hover</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--line-strong)"></span><span><span>Line, strong</span><span class="ui-list-meta">--line-strong</span></span></li></ul><ul class="gx-swatch-group" aria-label="Text"><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--text)"></span><span><span>Names and values</span><span class="ui-list-meta">--text</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--text-2)"></span><span><span>Secondary</span><span class="ui-list-meta">--text-2</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--text-3)"></span><span><span>Meta and icons</span><span class="ui-list-meta">--text-3</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--accent)"></span><span><span>Primary fill</span><span class="ui-list-meta">--accent, the text color</span></span></li></ul><ul class="gx-swatch-group" aria-label="Status"><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--ok)"></span><span><span>Healthy</span><span class="ui-list-meta">--ok</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--warn)"></span><span><span>Needs review</span><span class="ui-list-meta">--warn</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--bad)"></span><span><span>Failing</span><span class="ui-list-meta">--bad</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--info)"></span><span><span>Informational</span><span class="ui-list-meta">--info</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--idle)"></span><span><span>Idle or scheduled</span><span class="ui-list-meta">--idle</span></span></li></ul><ul class="gx-swatch-group" aria-label="Charts"><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--chart-1)"></span><span><span>Series 1</span><span class="ui-list-meta">--chart-1, neutral</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--chart-2)"></span><span><span>Failure</span><span class="ui-list-meta">--chart-2</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--chart-3)"></span><span><span>Series 3</span><span class="ui-list-meta">--chart-3</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--chart-4)"></span><span><span>Series 4</span><span class="ui-list-meta">--chart-4</span></span></li><li class="gx-swatch"><span class="gx-chip-color" style="background:var(--chart-grid)"></span><span><span>Gridline</span><span class="ui-list-meta">--chart-grid</span></span></li></ul></div>
+</section>
+
+<section class="gx-section" id="type" aria-labelledby="type-title">
+  <div class="gx-head"><h3 id="type-title">Type</h3><p>Inter at 400 and 500 only. Hierarchy comes from size and grey, never weight above 500, capitals or tracking.</p><p class="gx-api"><code class="ui-code">--type-title --type-heading --type-label --type-body --type-small --type-micro --type-stat --type-code</code></p></div>
+  <ul class="gx-type-list"><li class="gx-type"><span class="gx-type-meta"><span>Stat</span><span class="ui-list-meta">24/32 · 500</span></span><span style="font:var(--type-stat)">$1,284.60</span></li><li class="gx-type"><span class="gx-type-meta"><span>Title</span><span class="ui-list-meta">20/28 · 500</span></span><span style="font:var(--type-title)">Lead enrichment</span></li><li class="gx-type"><span class="gx-type-meta"><span>Heading</span><span class="ui-list-meta">16/24 · 500</span></span><span style="font:var(--type-heading)">Budget this month</span></li><li class="gx-type"><span class="gx-type-meta"><span>Label</span><span class="ui-list-meta">14/20 · 500</span></span><span style="font:var(--type-label)">Approve 38 enriched leads</span></li><li class="gx-type"><span class="gx-type-meta"><span>Body</span><span class="ui-list-meta">14/20 · 400</span></span><span style="font:var(--type-body)">Runs pause before any CRM write until a person approves.</span></li><li class="gx-type"><span class="gx-type-meta"><span>Small</span><span class="ui-list-meta">13/18 · 400</span></span><span style="font:var(--type-small)">Lead enrichment · 12m ago</span></li><li class="gx-type"><span class="gx-type-meta"><span>Micro</span><span class="ui-list-meta">12/16 · 500</span></span><span style="font:var(--type-micro)">Agents</span></li><li class="gx-type"><span class="gx-type-meta"><span>Code</span><span class="ui-list-meta">12/16 · system mono</span></span><span style="font:var(--type-code)">run_8F2KQ4 · claude-sonnet-4-5</span></li></ul>
+</section>
+
+<section class="gx-section" id="shape" aria-labelledby="shape-title">
+  <div class="gx-head"><h3 id="shape-title">Radius, space and size</h3><p>Radius 6 for controls, 10 for cards, 12 for dialogs. Space runs on 4px; cards pad 14 and sit 20 apart.</p><p class="gx-api"><code class="ui-code">--r-sm --r-lg --r-xl · --space-1 … --space-8 · --control-h --row-h --nav-h --topbar-h</code></p></div>
+  <div class="gx-split"><ul class="gx-radii"><li><span class="gx-radius" style="border-radius:var(--r-xs)"></span><span class="ui-list-meta">4 · kbd, badge</span></li><li><span class="gx-radius" style="border-radius:var(--r-sm)"></span><span class="ui-list-meta">6 · controls</span></li><li><span class="gx-radius" style="border-radius:var(--r-lg)"></span><span class="ui-list-meta">10 · cards</span></li><li><span class="gx-radius" style="border-radius:var(--r-xl)"></span><span class="ui-list-meta">12 · dialogs</span></li></ul><dl class="ui-data-list"><div><dt>Control</dt><dd>32 · 28 small · 36 large · 44 on phones</dd></div><div><dt>Row</dt><dd>40 list and table rows · 52 on phones</dd></div><div><dt>Nav item</dt><dd>30 · sidebar 240 · topbar 48</dd></div><div><dt>Card</dt><dd>14 padding · 20 gap · 1px hairline · no shadow</dd></div></dl></div>
+</section>
+
+<section class="gx-section" id="icons" aria-labelledby="icons-title">
+  <div class="gx-head"><h3 id="icons-title">Icons</h3><p>Lucide 0.469.0, outline, 16px, stroke 1.5 in the meta grey; they rise to the text color on hover and selection.</p><p class="gx-api"><code class="ui-code">&lt;i data-lucide="name"&gt;&lt;/i&gt;</code></p></div>
+  <ul class="gx-icons"><li><i data-lucide="house"></i><span>house</span></li><li><i data-lucide="inbox"></i><span>inbox</span></li><li><i data-lucide="activity"></i><span>activity</span></li><li><i data-lucide="search"></i><span>search</span></li><li><i data-lucide="plus"></i><span>plus</span></li><li><i data-lucide="settings"></i><span>settings</span></li><li><i data-lucide="bell"></i><span>bell</span></li><li><i data-lucide="calendar"></i><span>calendar</span></li><li><i data-lucide="download"></i><span>download</span></li><li><i data-lucide="copy"></i><span>copy</span></li><li><i data-lucide="ellipsis"></i><span>ellipsis</span></li><li><i data-lucide="check"></i><span>check</span></li><li><i data-lucide="circle-alert"></i><span>circle-alert</span></li><li><i data-lucide="triangle-alert"></i><span>triangle-alert</span></li><li><i data-lucide="pause"></i><span>pause</span></li><li><i data-lucide="play"></i><span>play</span></li><li><i data-lucide="plug"></i><span>plug</span></li><li><i data-lucide="credit-card"></i><span>credit-card</span></li></ul>
+</section>
+
+</div>
+
+<div class="gx-group" id="actions">
+  <div class="gx-group-head"><h2>Actions</h2><p>Buttons, chips and shortcuts.</p></div>
+  
+<section class="gx-section" id="button" aria-labelledby="button-title">
+  <div class="gx-head"><h3 id="button-title">Button</h3><p>One filled primary per view, for the one action of the screen. Everything else is the default grey or ghost.</p><p class="gx-api"><code class="ui-code">.ui-button</code> <code class="ui-code">data-variant="primary | ghost | danger"</code> <code class="ui-code">data-size="sm | lg"</code> <code class="ui-code">data-icon</code> <code class="ui-code">data-loading</code></p></div>
+  <div class="gx-matrix"><div class="gx-row"><span class="gx-row-label">Default</span><figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button">Last 14 days</button></div><figcaption>Rest</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-state="hover">Last 14 days</button></div><figcaption>Hover</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-state="focus">Last 14 days</button></div><figcaption>Focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" disabled>Last 14 days</button></div><figcaption>Disabled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-loading aria-busy="true" disabled>Saving</button></div><figcaption>Loading</figcaption></figure>
+</div>
+<div class="gx-row"><span class="gx-row-label">Primary</span><figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="primary">New agent</button></div><figcaption>Rest</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="primary" data-state="hover">New agent</button></div><figcaption>Hover</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="primary" data-state="focus">New agent</button></div><figcaption>Focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="primary" disabled>New agent</button></div><figcaption>Disabled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="primary" data-loading aria-busy="true" disabled>Saving</button></div><figcaption>Loading</figcaption></figure>
+</div>
+<div class="gx-row"><span class="gx-row-label">Ghost</span><figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="ghost">Discard</button></div><figcaption>Rest</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="ghost" data-state="hover">Discard</button></div><figcaption>Hover</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="ghost" data-state="focus">Discard</button></div><figcaption>Focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="ghost" disabled>Discard</button></div><figcaption>Disabled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="ghost" data-loading aria-busy="true" disabled>Saving</button></div><figcaption>Loading</figcaption></figure>
+</div>
+<div class="gx-row"><span class="gx-row-label">Danger</span><figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="danger">Delete workspace</button></div><figcaption>Rest</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="danger" data-state="hover">Delete workspace</button></div><figcaption>Hover</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="danger" data-state="focus">Delete workspace</button></div><figcaption>Focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="danger" disabled>Delete workspace</button></div><figcaption>Disabled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-variant="danger" data-loading aria-busy="true" disabled>Saving</button></div><figcaption>Loading</figcaption></figure>
+</div>
+</div><div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-size="sm">Manage</button></div><figcaption>Small, 28</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button"><i data-lucide="download"></i>Export CSV</button></div><figcaption>Default, 32</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-size="lg">Continue</button></div><figcaption>Large, 36</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-icon aria-label="More actions"><i data-lucide="ellipsis"></i></button> <button class="ui-button" type="button" data-variant="ghost" data-icon aria-label="Notifications"><i data-lucide="bell"></i></button></div><figcaption>Icon only</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button"><i data-lucide="search"></i>Search<span class="ui-kbd">⌘K</span></button></div><figcaption>With shortcut</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="chip" aria-labelledby="chip-title">
+  <div class="gx-head"><h3 id="chip-title">Chip</h3><p>Filters above a list or activity feed. Pressed fills one grey step; the count stays quiet.</p><p class="gx-api"><code class="ui-code">.ui-chip</code> <code class="ui-code">aria-pressed</code> <code class="ui-code">.ui-chips</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-chip" type="button" aria-pressed="false">Runs</button></div><figcaption>Rest</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-chip" type="button" aria-pressed="false" data-state="hover">Runs</button></div><figcaption>Hover</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-chip" type="button" aria-pressed="false" data-state="focus">Runs</button></div><figcaption>Focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-chip" type="button" aria-pressed="true">Approvals <small>4</small></button></div><figcaption>Selected</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-chip" type="button" aria-pressed="false"><i data-lucide="user"></i>Mine</button></div><figcaption>With icon</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-chip" type="button" aria-pressed="false" disabled>Archived</button></div><figcaption>Disabled</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="kbd" aria-labelledby="kbd-title">
+  <div class="gx-head"><h3 id="kbd-title">Kbd</h3><p>Only for a real shortcut, written beside the action it triggers.</p><p class="gx-api"><code class="ui-code">.ui-kbd</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-kbd">⌘K</span></div><figcaption>Single</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-kbd">G</span> <span class="ui-kbd">R</span></div><figcaption>Sequence</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-list-meta">Open trace</span> <span class="ui-kbd">T</span></div><figcaption>In a menu</figcaption></figure>
+</div>
+
+</section>
+
+</div>
+
+<div class="gx-group" id="inputs">
+  <div class="gx-group-head"><h2>Inputs</h2><p>Fields, choices and controls that take a value.</p></div>
+  
+<section class="gx-section" id="input" aria-labelledby="input-title">
+  <div class="gx-head"><h3 id="input-title">Input</h3><p>A visible label above, help or error below in the small size. Errors turn the border and message red; nothing else changes.</p><p class="gx-api"><code class="ui-code">.ui-field</code> <code class="ui-code">.ui-label</code> <code class="ui-code">.ui-input</code> <code class="ui-code">.ui-help</code> <code class="ui-code">.ui-error</code> <code class="ui-code">data-invalid</code> <code class="ui-code">.ui-control .ui-affix</code> <code class="ui-code">.ui-addon</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Agent name</span><input class="ui-input" placeholder="Lead enrichment"></label></div><figcaption>Empty</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Agent name</span><input class="ui-input" data-state="hover" placeholder="Lead enrichment"></label></div><figcaption>Hover</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Agent name</span><input class="ui-input" data-state="focus" value="Lead enrich"></label></div><figcaption>Focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Agent name</span><input class="ui-input" value="Lead enrichment"><span class="ui-help">Shown in Slack messages.</span></label></div><figcaption>Filled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Agent ID</span><input class="ui-input" value="agt_3KD92P" disabled></label></div><figcaption>Disabled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field" data-invalid><span class="ui-label">Spend limit per run</span><input class="ui-input" value="0" aria-invalid="true" aria-describedby="g-limit-err"><span class="ui-error" id="g-limit-err">Set at least $0.10.</span></label></div><figcaption>Error</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Spend limit per run</span><span class="ui-control"><span class="ui-affix" aria-hidden="true">$</span><input class="ui-input" inputmode="decimal" value="2.50"><span class="ui-affix">USD</span></span></label></div><figcaption>Prefix and suffix</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-control"><span class="ui-affix" aria-hidden="true"><i data-lucide="search"></i></span><input class="ui-input" type="search" placeholder="Search runs" aria-label="Search runs"></label></div><figcaption>Search</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Workspace URL</span><span class="ui-control"><span class="ui-addon" aria-hidden="true">halyard.app/</span><input class="ui-input" value="northbeam"></span></label></div><figcaption>Addon</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="textarea" aria-labelledby="textarea-title">
+  <div class="gx-head"><h3 id="textarea-title">Textarea</h3><p>Multi-line input with the same border, focus and error rules as the field.</p><p class="gx-api"><code class="ui-code">.ui-textarea</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Review note</span><textarea class="ui-textarea">Skip the 4 contacts without a company site.</textarea></label></div><figcaption>Filled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Review note</span><textarea class="ui-textarea" data-state="focus"></textarea></label></div><figcaption>Focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Review note</span><textarea class="ui-textarea" disabled>Locked after approval.</textarea></label></div><figcaption>Disabled</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="select" aria-labelledby="select-title">
+  <div class="gx-head"><h3 id="select-title">Select and combobox</h3><p>Native select for short fixed lists; the combobox suggests from a datalist and still accepts anything typed.</p><p class="gx-api"><code class="ui-code">.ui-select</code> <code class="ui-code">.ui-combobox</code> <code class="ui-code">&lt;input list&gt; + &lt;datalist&gt;</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Default model</span><select class="ui-select"><option>claude-sonnet-4-5</option><option>claude-haiku-4-5</option><option>gpt-5</option></select></label></div><figcaption>Select</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Timezone</span><select class="ui-select" data-state="focus"><option>America/Los_Angeles (PT)</option></select></label></div><figcaption>Select, focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Region</span><select class="ui-select" disabled><option>United States</option></select></label></div><figcaption>Select, disabled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Failure alerts channel</span><span class="ui-combobox"><input class="ui-input" list="g-channels" value="#revops-alerts"></span><datalist id="g-channels"><option value="#revops-alerts"></option><option value="#marketing-ops"></option><option value="#eng-oncall"></option></datalist></label></div><figcaption>Combobox</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field" data-invalid><span class="ui-label">Owner</span><span class="ui-combobox"><input class="ui-input" list="g-people" value="dana@" aria-invalid="true" aria-describedby="g-owner-err"></span><datalist id="g-people"><option value="Dana Okafor"></option><option value="Maya Ruiz"></option></datalist><span class="ui-error" id="g-owner-err">No member matches “dana@”.</span></label></div><figcaption>Combobox, error</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="choice" aria-labelledby="choice-title">
+  <div class="gx-head"><h3 id="choice-title">Checkbox, radio and switch</h3><p>Checkbox for independent choices, radio for one of several, switch for a setting that applies at once.</p><p class="gx-api"><code class="ui-code">.ui-choice</code> <code class="ui-code">.ui-radio-group</code> <code class="ui-code">.ui-switch</code> <code class="ui-code">role="switch"</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-choice"><input type="checkbox"><span>Retry failed runs</span></label></div><figcaption>Checkbox</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-choice"><input type="checkbox" checked><span>Approve CRM writes <small>Pause before HubSpot and Salesforce writes.</small></span></label></div><figcaption>Checked</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-choice"><input type="checkbox" checked disabled><span>Audit log</span></label></div><figcaption>Disabled</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><fieldset class="ui-radio-group"><legend>Run on</legend><label class="ui-choice"><input type="radio" name="g-run" checked><span>Weekdays</span></label><label class="ui-choice"><input type="radio" name="g-run"><span>Every day</span></label></fieldset></div><figcaption>Radio group</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-switch"><input type="checkbox" role="switch"><span>Review requests by email</span></label></div><figcaption>Switch, off</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-switch"><input type="checkbox" role="switch" checked><span>Weekly digest</span></label></div><figcaption>Switch, on</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-switch"><input type="checkbox" role="switch" checked data-state="focus"><span>Weekly digest</span></label></div><figcaption>Switch, focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-switch"><input type="checkbox" role="switch" disabled><span>SCIM provisioning</span></label></div><figcaption>Switch, disabled</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="slider" aria-labelledby="slider-title">
+  <div class="gx-head"><h3 id="slider-title">Slider</h3><p>A 4px track filled to the value with the number beside it. Use for a bounded amount where the position means something.</p><p class="gx-api"><code class="ui-code">.ui-slider</code> <code class="ui-code">&lt;input type="range"&gt; + &lt;output&gt;</code> <code class="ui-code">--pct</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Max retries</span><span class="ui-slider"><input type="range" min="0" max="5" value="2" style="--pct:40%" aria-label="Max retries"><output>2</output></span></label></div><figcaption>Default</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Confidence threshold</span><span class="ui-slider"><input type="range" min="0" max="100" value="78" style="--pct:78%" aria-label="Confidence threshold"><output>0.78</output></span></label></div><figcaption>Focus</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><label class="ui-field"><span class="ui-label">Batch size</span><span class="ui-slider"><input type="range" min="0" max="100" value="25" style="--pct:25%" disabled aria-label="Batch size"><output>25</output></span></label></div><figcaption>Disabled</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="segmented" aria-labelledby="segmented-title">
+  <div class="gx-head"><h3 id="segmented-title">Segmented control</h3><p>Two to four mutually exclusive views of the same content.</p><p class="gx-api"><code class="ui-code">.ui-segmented</code> <code class="ui-code">aria-pressed</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><div class="ui-segmented" aria-label="Filter runs"><button type="button" aria-pressed="false" data-value="all">All</button><button type="button" aria-pressed="true" data-value="review">Review</button><button type="button" aria-pressed="false" data-value="failed">Failed</button></div></div><figcaption>Default</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><div class="ui-segmented" aria-label="Range"><button type="button" aria-pressed="true">7d</button><button type="button" aria-pressed="false">14d</button><button type="button" aria-pressed="false" data-state="hover">30d</button></div></div><figcaption>Hover on Failed</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="option" aria-labelledby="option-title">
+  <div class="gx-head"><h3 id="option-title">Option card</h3><p>A larger selectable row for one-question steps, with the logo or icon that makes it recognisable.</p><p class="gx-api"><code class="ui-code">.ui-option</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell" data-wide><div class="gx-demo"><label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="gmail"></span></span><span><span>Gmail</span><small>Drafts and follow-ups</small></span><input type="checkbox"></label></div><figcaption>Rest</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><label class="ui-option" data-state="hover"><span class="ui-logo-tile"><span class="ui-logo" data-brand="intercom"></span></span><span><span>Intercom</span><small>Conversations</small></span><input type="checkbox"></label></div><figcaption>Hover</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span><span><span>HubSpot</span><small>Contacts and lists</small></span><input type="checkbox" checked></label></div><figcaption>Selected</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><label class="ui-option"><span class="ui-logo-tile"><span class="ui-logo" data-brand="snowflake"></span></span><span><span>Snowflake</span><small>Business plan</small></span><input type="checkbox" disabled></label></div><figcaption>Disabled</figcaption></figure>
+</div>
+
+</section>
+
+</div>
+
+<div class="gx-group" id="navigation">
+  <div class="gx-group-head"><h2>Navigation</h2><p>Where you are and how to move.</p></div>
+  
+<section class="gx-section" id="nav" aria-labelledby="nav-title">
+  <div class="gx-head"><h3 id="nav-title">Sidebar navigation</h3><p>Items sit on the page color; the current one is the selected grey. Group labels are small and in sentence case.</p><p class="gx-api"><code class="ui-code">.ui-nav</code> <code class="ui-code">.ui-nav-label</code> <code class="ui-code">.ui-nav-item</code> <code class="ui-code">aria-current="page"</code> <code class="ui-code">.ui-nav-count</code></p></div>
+  <div class="gx-frame gx-nav-frame"><nav class="ui-nav" aria-label="Example navigation"><span class="ui-nav-label">Agents</span><a class="ui-nav-item" href="#nav"><i data-lucide="house"></i>Rest</a><a class="ui-nav-item" href="#nav" data-state="hover"><i data-lucide="inbox"></i>Hover<span class="ui-nav-count">4</span></a><a class="ui-nav-item" href="#nav" aria-current="page"><i data-lucide="activity"></i>Current page</a><a class="ui-nav-item" href="#nav" data-state="focus"><i data-lucide="settings"></i>Focus</a><a class="ui-nav-item" href="#nav"><span class="ui-logo" data-brand="hubspot"></span>With app logo</a></nav></div>
+</section>
+
+<section class="gx-section" id="tabs" aria-labelledby="tabs-title">
+  <div class="gx-head"><h3 id="tabs-title">Tabs</h3><p>Panels at the same level. The indicator is a 2px line in the text color.</p><p class="gx-api"><code class="ui-code">.ui-tabs</code> <code class="ui-code">role="tab"</code> <code class="ui-code">.ui-tab-panel</code></p></div>
+  <div class="ui-tabs" role="tablist" aria-label="Agent sections"><button role="tab" id="g-t1" aria-selected="true" aria-controls="g-p1">Activity</button><button role="tab" id="g-t2" aria-selected="false" aria-controls="g-p2">Instructions</button><button role="tab" id="g-t3" aria-selected="false" aria-controls="g-p3">Settings</button></div><div class="ui-tab-panel" role="tabpanel" id="g-p1" aria-labelledby="g-t1"><p class="gx-note">6 events in the last 24 hours.</p></div><div class="ui-tab-panel" role="tabpanel" id="g-p2" aria-labelledby="g-t2" hidden><p class="gx-note">Version 7, edited Oct 21.</p></div><div class="ui-tab-panel" role="tabpanel" id="g-p3" aria-labelledby="g-t3" hidden><p class="gx-note">Schedule, model and approvals.</p></div>
+</section>
+
+<section class="gx-section" id="breadcrumb" aria-labelledby="breadcrumb-title">
+  <div class="gx-head"><h3 id="breadcrumb-title">Breadcrumb and pagination</h3><p>The breadcrumb lives in the top bar; pagination sits under a table, right aligned.</p><p class="gx-api"><code class="ui-code">.ui-breadcrumb</code> <code class="ui-code">.ui-pagination</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell" data-wide><div class="gx-demo"><nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#breadcrumb">Northbeam</a></li><li><a href="#breadcrumb">Agents</a></li><li aria-current="page">Lead enrichment</li></ol></nav></div><figcaption>Breadcrumb</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><nav class="ui-pagination" aria-label="Pages"><button type="button" disabled aria-label="Previous page"><i data-lucide="chevron-left"></i></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button" data-state="hover">3</button><button type="button" aria-label="Next page"><i data-lucide="chevron-right"></i></button></nav></div><figcaption>Pagination</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="steps" aria-labelledby="steps-title">
+  <div class="gx-head"><h3 id="steps-title">Steps</h3><p>A short stepper for first run and multi-step forms. Done steps show a check; on phones only the current label stays.</p><p class="gx-api"><code class="ui-code">.ui-steps</code> <code class="ui-code">.ui-step</code> <code class="ui-code">aria-current="step"</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell" data-wide><div class="gx-demo"><ol class="ui-steps" aria-label="Setup"><li class="ui-step" aria-current="step"><span>Workspace</span></li><li class="ui-step"><span>Connect apps</span></li><li class="ui-step"><span>First agent</span></li></ol></div><figcaption>First step</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><ol class="ui-steps" aria-label="Setup"><li class="ui-step"><span>Workspace</span></li><li class="ui-step"><span>Connect apps</span></li><li class="ui-step" aria-current="step"><span>First agent</span></li></ol></div><figcaption>Third step</figcaption></figure>
+</div>
+
+</section>
+
+</div>
+
+<div class="gx-group" id="feedback">
+  <div class="gx-group-head"><h2>Feedback</h2><p>State, progress and messages.</p></div>
+  
+<section class="gx-section" id="status" aria-labelledby="status-title">
+  <div class="gx-head"><h3 id="status-title">Status and badge</h3><p>State is a word with a 6px mark, never a filled pill or color alone. Badges are outlined categories.</p><p class="gx-api"><code class="ui-code">.ui-status</code> <code class="ui-code">data-status="ok | warn | bad | info | idle"</code> <code class="ui-code">.ui-badge</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-status" data-status="ok">Healthy</span></div><figcaption>ok</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-status" data-status="warn">Needs review</span></div><figcaption>warn</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-status" data-status="bad">Failing</span></div><figcaption>bad</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-status" data-status="info">Running</span></div><figcaption>info</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-status" data-status="idle">Scheduled</span></div><figcaption>idle</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-badge">Monthly</span> <span class="ui-badge">Beta</span></div><figcaption>Badge</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="alert" aria-labelledby="alert-title">
+  <div class="gx-head"><h3 id="alert-title">Alert</h3><p>One sentence about the page, with the icon carrying the hue and at most one action.</p><p class="gx-api"><code class="ui-code">.ui-alert</code> <code class="ui-code">data-status</code></p></div>
+  <div class="ui-stack gx-tight"><div class="ui-alert" data-status="info"><i data-lucide="info" aria-hidden="true"></i><div><strong>Salesforce sync runs every 15 minutes</strong><p>Changes approved now reach Salesforce by 10:15.</p></div></div><div class="ui-alert" data-status="ok"><i data-lucide="circle-check" aria-hidden="true"></i><div><strong>HubSpot reconnected</strong><p>3 queued runs resumed.</p></div></div><div class="ui-alert" data-status="warn"><i data-lucide="circle-pause" aria-hidden="true"></i><div><strong>38 enriched leads are waiting for approval</strong><p>Runs pause before CRM writes, as the approval policy requires.</p></div><button class="ui-button" type="button">Review</button></div><div class="ui-alert" data-status="bad"><i data-lucide="circle-alert" aria-hidden="true"></i><div><strong>Google Sheets token expired</strong><p>Ad spend digest failed 3 times since Oct 26.</p></div><button class="ui-button" type="button">Reconnect</button></div></div>
+</section>
+
+<section class="gx-section" id="progress" aria-labelledby="progress-title">
+  <div class="gx-head"><h3 id="progress-title">Progress and meter</h3><p>Progress is work under way; meter is usage against a limit and only takes a status color past its thresholds.</p><p class="gx-api"><code class="ui-code">&lt;progress class="ui-progress"&gt;</code> <code class="ui-code">&lt;meter class="ui-meter" low high optimum&gt;</code> <code class="ui-code">.ui-usage</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell" data-wide><div class="gx-demo"><div class="ui-usage"><span>Importing contacts</span><span>1,240 of 2,000</span><progress class="ui-progress" max="2000" value="1240" aria-label="Importing contacts"></progress></div></div><figcaption>Progress</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><div class="ui-usage"><span>Reading company sites</span><span>Starting</span><progress class="ui-progress" aria-label="Reading company sites"></progress></div></div><figcaption>Progress, loading</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><div class="ui-usage"><span>Model spend</span><span>$1,284 of $2,500</span><meter class="ui-meter" min="0" max="2500" low="2125" high="2375" optimum="0" value="1284" aria-label="Model spend"></meter></div></div><figcaption>Meter, within limit</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><div class="ui-usage"><span>Knowledge</span><span>8.6 of 10 GB</span><meter class="ui-meter" min="0" max="10" low="8" high="9.5" optimum="0" value="8.6" aria-label="Knowledge storage"></meter></div></div><figcaption>Meter, near limit</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><div class="ui-usage"><span>Seats</span><span>15 of 15</span><meter class="ui-meter" min="0" max="15" low="13" high="14.5" optimum="0" value="15" aria-label="Seats"></meter></div></div><figcaption>Meter, over limit</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="skeleton" aria-labelledby="skeleton-title">
+  <div class="gx-head"><h3 id="skeleton-title">Skeleton and toast</h3><p>Skeletons match the shape that is loading. Toasts confirm a result and leave on their own.</p><p class="gx-api"><code class="ui-code">.ui-skeleton</code> <code class="ui-code">SeenryUI.toast(message, {description})</code> <code class="ui-code">data-toast-message</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><div class="gx-skel" aria-busy="true" aria-label="Loading runs"><span class="ui-skeleton" style="width:60%"></span><span class="ui-skeleton" style="width:90%"></span><span class="ui-skeleton" style="width:75%"></span></div></div><figcaption>Skeleton list</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><div class="ui-toast gx-static" role="status"><div><strong>Settings saved</strong><p>New runs use these defaults.</p></div><button type="button" aria-label="Dismiss">×</button></div></div><figcaption>Toast</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-toast-message="Run started" data-toast-description="run_8F3AQ1 · Lead enrichment">Run now</button></div><figcaption>Trigger a toast</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="empty" aria-labelledby="empty-title">
+  <div class="gx-head"><h3 id="empty-title">Empty state</h3><p>Say what is missing, why it matters, and one next step.</p><p class="gx-api"><code class="ui-code">.ui-empty</code></p></div>
+  <div class="ui-card ui-empty"><span class="ui-logo-tile" aria-hidden="true"><i data-lucide="key-round"></i></span><h3>No API keys yet</h3><p>Create a key to trigger agents from your own services.</p><button class="ui-button" type="button">Create key</button></div>
+</section>
+
+</div>
+
+<div class="gx-group" id="data">
+  <div class="gx-group-head"><h2>Data display</h2><p>Records, rows, facts and history.</p></div>
+  
+<section class="gx-section" id="avatar" aria-labelledby="avatar-title">
+  <div class="gx-head"><h3 id="avatar-title">Avatar and logo</h3><p>Initials on the raised grey; app logos are the only brand color in the room, bare at 16 or in a 24 tile.</p><p class="gx-api"><code class="ui-code">.ui-avatar</code> <code class="ui-code">.ui-avatar-group</code> <code class="ui-code">.ui-logo[data-brand]</code> <code class="ui-code">.ui-logo-tile</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-avatar" aria-label="Maya Ruiz">MR</span> <span class="ui-avatar" data-size="lg" aria-label="Dana Okafor">DO</span></div><figcaption>Avatar</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="ui-avatar-group" aria-label="Maya Ruiz, Dana Okafor and Lee Park"><span class="ui-avatar" aria-hidden="true">MR</span><span class="ui-avatar" aria-hidden="true">DO</span><span class="ui-avatar" aria-hidden="true">LP</span></span></div><figcaption>Group</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="gx-inline"><span class="ui-logo" data-brand="hubspot"></span><span class="ui-logo" data-brand="salesforce"></span><span class="ui-logo" data-brand="slack"></span><span class="ui-logo" data-brand="notion"></span><span class="ui-logo" data-brand="github"></span></span></div><figcaption>Logos</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><span class="gx-inline"><span class="ui-logo-tile"><span class="ui-logo" data-brand="stripe"></span></span><span class="ui-logo-tile"><span class="ui-logo" data-brand="gmail"></span></span><span class="ui-logo-tile"><i data-lucide="globe"></i></span></span></div><figcaption>Logo tiles</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="card" aria-labelledby="card-title">
+  <div class="gx-head"><h3 id="card-title">Card and stat</h3><p>Cards are the surface grey with a hairline, never a shadow. Three stats at most, each with what it is compared to.</p><p class="gx-api"><code class="ui-code">.ui-card</code> <code class="ui-code">.ui-card-head</code> <code class="ui-code">data-flush</code> <code class="ui-code">data-link</code> <code class="ui-code">.ui-stat-strip</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><article class="ui-card"><h3>Weekly digest</h3><p>Runs, spend and failures every Monday at 8:00.</p></article></div><figcaption>Static</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><a class="ui-card" data-link data-state="hover" href="#card"><h3>Inbox triage</h3><p>5,208 runs · 99.4% success</p></a></div><figcaption>Link, hover</figcaption></figure>
+</div>
+<div class="ui-stat-strip"><dl class="ui-stat"><dt>Runs</dt><dd>18,204</dd><small><i data-lucide="arrow-up-right"></i>12.4% vs previous 14 days</small></dl><dl class="ui-stat"><dt>Success rate</dt><dd>97.8%</dd><small>409 failed runs</small></dl><dl class="ui-stat"><dt>Model spend</dt><dd>$1,284.60</dd><small>budget $2,500</small></dl></div>
+</section>
+
+<section class="gx-section" id="list" aria-labelledby="list-title">
+  <div class="gx-head"><h3 id="list-title">List</h3><p>Rows of a name and one line of meta, with a logo or avatar before and a status or value after.</p><p class="gx-api"><code class="ui-code">.ui-list</code> <code class="ui-code">.ui-list-item</code> <code class="ui-code">.ui-list-meta</code> <code class="ui-code">aria-current="true"</code></p></div>
+  <section class="ui-card" data-flush aria-label="List states"><ul class="ui-list"><li><a class="ui-list-item" href="#list"><span class="ui-logo-tile"><span class="ui-logo" data-brand="intercom"></span></span><span><span>Rest · Reply to Brightline renewal</span><span class="ui-list-meta">Inbox triage · 1h ago</span></span><span class="ui-status" data-status="warn">Review</span></a></li><li><a class="ui-list-item" href="#list" data-state="hover"><span class="ui-logo-tile"><span class="ui-logo" data-brand="googlesheets"></span></span><span><span>Hover · Sheets token expired</span><span class="ui-list-meta">Ad spend digest · 3 failures</span></span><span class="ui-status" data-status="bad">Failed</span></a></li><li><a class="ui-list-item" href="#list" aria-current="true"><span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span><span><span>Selected · Approve 38 enriched leads</span><span class="ui-list-meta">Lead enrichment · run_8F2KQ4</span></span><span class="ui-list-meta">12m</span></a></li></ul></section>
+</section>
+
+<section class="gx-section" id="table" aria-labelledby="table-title">
+  <div class="gx-head"><h3 id="table-title">Table and filter bar</h3><p>Sortable headers in the meta grey, numbers right aligned in tabular figures, the first column as the name.</p><p class="gx-api"><code class="ui-code">.ui-filter-bar</code> <code class="ui-code">.ui-table-wrap</code> <code class="ui-code">.ui-table</code> <code class="ui-code">data-ui-table</code> <code class="ui-code">th[data-sort]</code> <code class="ui-code">.num</code></p></div>
+  <div class="ui-stack gx-tight"><div class="ui-filter-bar"><label class="ui-control"><span class="ui-affix" aria-hidden="true"><i data-lucide="search"></i></span><input class="ui-input" type="search" placeholder="Search agents" aria-label="Search agents" data-table-search="g-agents"></label><button class="ui-chip" type="button" aria-pressed="true">Active</button><button class="ui-chip" type="button" aria-pressed="false">Paused</button><span class="ui-list-meta">4 agents</span></div><div class="ui-table-wrap"><table class="ui-table" data-ui-table id="g-agents"><thead><tr><th scope="col" data-sort>Agent</th><th scope="col" data-sort>Status</th><th scope="col" data-sort class="num">Runs</th><th scope="col" data-sort class="num">Spend</th></tr></thead><tbody><tr><td>Lead enrichment</td><td data-sort="2"><span class="ui-status" data-status="warn">Needs review</span></td><td class="num" data-sort="6412">6,412</td><td class="num" data-sort="412.8">$412.80</td></tr><tr data-state="hover"><td>Inbox triage (hover)</td><td data-sort="1"><span class="ui-status" data-status="ok">Healthy</span></td><td class="num" data-sort="5208">5,208</td><td class="num" data-sort="186.2">$186.20</td></tr><tr><td>Ad spend digest</td><td data-sort="3"><span class="ui-status" data-status="bad">Failing</span></td><td class="num" data-sort="1122">1,122</td><td class="num" data-sort="137.4">$137.40</td></tr><tr><td>Release notes</td><td data-sort="0"><span class="ui-status" data-status="idle">Scheduled</span></td><td class="num" data-sort="412">412</td><td class="num" data-sort="58.4">$58.40</td></tr></tbody></table></div></div>
+</section>
+
+<section class="gx-section" id="data-list" aria-labelledby="data-list-title">
+  <div class="gx-head"><h3 id="data-list-title">Data list and detail</h3><p>Label and value pairs on hairlines: the facts of one record.</p><p class="gx-api"><code class="ui-code">.ui-data-list</code> <code class="ui-code">.ui-detail</code> <code class="ui-code">.ui-detail-head</code> <code class="ui-code">.ui-detail-row</code></p></div>
+  <div class="gx-split"><section class="ui-card" aria-label="Data list"><dl class="ui-data-list"><div><dt>Owner</dt><dd><span class="ui-avatar" aria-hidden="true">DO</span>Dana Okafor</dd></div><div><dt>Model</dt><dd><span class="ui-mono">claude-sonnet-4-5</span></dd></div><div><dt>Trigger</dt><dd><span class="ui-logo" data-brand="hubspot"></span>New list members</dd></div><div><dt>Created</dt><dd>Sep 2, 2026</dd></div></dl></section><article class="ui-detail" aria-labelledby="g-detail-title"><div class="ui-detail-head"><span class="ui-status" data-status="warn">Waiting for approval</span><div><h2 id="g-detail-title">Approve 38 enriched leads</h2><p>Writes 38 contacts to HubSpot.</p></div></div><div><div class="ui-detail-row"><span>Run</span><span class="ui-mono">run_8F2KQ4</span></div><div class="ui-detail-row"><span>Usage</span><span>184,220 tokens · $1.92</span></div></div></article></div>
+</section>
+
+<section class="gx-section" id="timeline" aria-labelledby="timeline-title">
+  <div class="gx-head"><h3 id="timeline-title">Timeline</h3><p>Activity history: a mark, who did what, one line of detail, and when. Marks are a status dot, an avatar or an app tile.</p><p class="gx-api"><code class="ui-code">.ui-timeline</code> <code class="ui-code">.ui-timeline-item</code> <code class="ui-code">data-status</code></p></div>
+  <section class="ui-card" aria-label="Timeline"><ol class="ui-timeline"><li class="ui-timeline-item" data-status="warn"><span aria-hidden="true"></span><div><span>Run <span class="ui-mono">run_8F2KQ4</span> paused for approval</span><small>38 contacts, 31 account matches</small></div><time>12m ago</time></li><li class="ui-timeline-item"><span class="ui-avatar" aria-hidden="true">DO</span><div><span><b>Dana Okafor</b> raised the spend limit to $2.50</span><small>Was $1.50</small></div><time>2h ago</time></li><li class="ui-timeline-item" data-status="bad"><span aria-hidden="true"></span><div><span>Run <span class="ui-mono">run_8E2LQ0</span> failed</span><small>Salesforce returned <code class="ui-code">REQUEST_LIMIT_EXCEEDED</code></small></div><time>Yesterday</time></li><li class="ui-timeline-item"><span class="ui-logo-tile"><span class="ui-logo" data-brand="hubspot"></span></span><div><span>HubSpot connected</span><small>by Maya Ruiz</small></div><time>Sep 2</time></li></ol></section>
+</section>
+
+<section class="gx-section" id="code" aria-labelledby="code-title">
+  <div class="gx-head"><h3 id="code-title">Code</h3><p>Mono at 12px for IDs, model names and payloads. Blocks sit on the field surface with a caption and a copy button.</p><p class="gx-api"><code class="ui-code">code.ui-code</code> <code class="ui-code">figure.ui-code</code> <code class="ui-code">data-copy</code> <code class="ui-code">.ui-mono</code></p></div>
+  <p class="gx-note">Trigger the agent with <code class="ui-code">POST /v1/agents/agt_3KD92P/runs</code> and an API key.</p><figure class="ui-code"><figcaption>curl<button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" data-copy aria-label="Copy command"><i data-lucide="copy"></i></button></figcaption><pre><code><b>curl</b> https://api.halyard.app/v1/agents/agt_3KD92P/runs \
+  -H "Authorization: Bearer $HALYARD_KEY" \
+  -d '{"list_id": "q4-webinar", "dry_run": true}'  <i># returns run_id</i></code></pre></figure>
+</section>
+
+<section class="gx-section" id="chart" aria-labelledby="chart-title">
+  <div class="gx-head"><h3 id="chart-title">Chart</h3><p>Counts over time are square-topped bars on a zero baseline; failures stack on top in the only red series.</p><p class="gx-api"><code class="ui-code">.ui-chart</code> <code class="ui-code">.ui-chart-legend</code> <code class="ui-code">.ui-chart-axis</code> <code class="ui-code">--chart-1 … --chart-5</code></p></div>
+  <section class="ui-card" aria-labelledby="g-chart-title"><div class="ui-card-head"><div><h2 id="g-chart-title">Runs per day</h2><p>Succeeded and failed</p></div><ul class="ui-chart-legend"><li>Succeeded</li><li style="--swatch:var(--chart-2)">Failed</li></ul></div><div class="ui-chart gx-chart"><svg viewBox="0 0 900 180" role="img" aria-label="Runs per day for 14 days; weekdays about 1,500, weekends about 800, failures peak at 88."><line class="grid" x1="32" x2="900" y1="172.0" y2="172.0"/><text class="tick" x="0" y="176.0">0</text><line class="grid" x1="32" x2="900" y1="130.5" y2="130.5"/><text class="tick" x="0" y="134.5">0.5k</text><line class="grid" x1="32" x2="900" y1="89.0" y2="89.0"/><text class="tick" x="0" y="93.0">1k</text><line class="grid" x1="32" x2="900" y1="47.5" y2="47.5"/><text class="tick" x="0" y="51.5">1.5k</text><line class="grid" x1="32" x2="900" y1="6.0" y2="6.0"/><text class="tick" x="0" y="10.0">2k</text><rect class="s1" x="49.0" y="49.7" width="28.0" height="122.3"/><rect class="s2" x="49.0" y="47.7" width="28.0" height="2.0"/><rect class="s1" x="111.0" y="53.1" width="28.0" height="118.9"/><rect class="s2" x="111.0" y="51.4" width="28.0" height="2.0"/><rect class="s1" x="173.0" y="110.2" width="28.0" height="61.8"/><rect class="s2" x="173.0" y="109.0" width="28.0" height="2.0"/><rect class="s1" x="235.0" y="104.6" width="28.0" height="67.4"/><rect class="s2" x="235.0" y="103.4" width="28.0" height="2.0"/><rect class="s1" x="297.0" y="56.4" width="28.0" height="115.6"/><rect class="s2" x="297.0" y="53.6" width="28.0" height="2.7"/><rect class="s1" x="359.0" y="54.6" width="28.0" height="117.4"/><rect class="s2" x="359.0" y="53.1" width="28.0" height="2.0"/><rect class="s1" x="421.0" y="39.9" width="28.0" height="132.1"/><rect class="s2" x="421.0" y="36.8" width="28.0" height="3.2"/><rect class="s1" x="483.0" y="47.0" width="28.0" height="125.0"/><rect class="s2" x="483.0" y="43.0" width="28.0" height="4.0"/><rect class="s1" x="545.0" y="55.5" width="28.0" height="116.5"/><rect class="s2" x="545.0" y="52.6" width="28.0" height="2.9"/><rect class="s1" x="607.0" y="111.2" width="28.0" height="60.8"/><rect class="s2" x="607.0" y="109.7" width="28.0" height="2.0"/><rect class="s1" x="669.0" y="105.8" width="28.0" height="66.2"/><rect class="s2" x="669.0" y="104.9" width="28.0" height="2.0"/><rect class="s1" x="731.0" y="60.8" width="28.0" height="111.2"/><rect class="s2" x="731.0" y="53.5" width="28.0" height="7.3"/><rect class="s1" x="793.0" y="36.6" width="28.0" height="135.4"/><rect class="s2" x="793.0" y="34.9" width="28.0" height="2.0"/><rect class="s1" x="855.0" y="45.6" width="28.0" height="126.4"/><rect class="s2" x="855.0" y="43.5" width="28.0" height="2.1"/></svg><div class="ui-chart-axis" aria-hidden="true"><span>Oct 15</span><span>Oct 21</span><span>Oct 28</span></div></div></section>
+</section>
+
+</div>
+
+<div class="gx-group" id="overlays">
+  <div class="gx-group-head"><h2>Overlays</h2><p>Layers above the page. They are the only surfaces with a shadow.</p></div>
+  
+<section class="gx-section" id="menu" aria-labelledby="menu-title">
+  <div class="gx-head"><h3 id="menu-title">Menu and tooltip</h3><p>Menus float on the card surface with the only shadow in the system. Tooltips add, never replace, a label.</p><p class="gx-api"><code class="ui-code">.ui-menu</code> <code class="ui-code">data-menu-trigger</code> <code class="ui-code">.ui-tooltip</code> <code class="ui-code">data-tooltip</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell"><div class="gx-demo"><div class="ui-menu gx-static" role="menu" aria-label="Run actions"><button role="menuitem" type="button">Open trace <kbd>T</kbd></button><button role="menuitem" type="button" data-state="hover">Copy run ID</button><button role="menuitemcheckbox" type="button" aria-checked="true">Pin to sidebar</button><hr><button role="menuitem" type="button">Cancel run</button></div></div><figcaption>Menu, open</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><div class="ui-tooltip gx-static" role="tooltip">Runs above $2.50 stop and ask for review.</div></div><figcaption>Tooltip, open</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-menu-trigger="g-menu">Actions<i data-lucide="chevron-down"></i></button><div id="g-menu" class="ui-menu" role="menu" popover="auto"><button role="menuitem" data-value="rename">Rename</button><button role="menuitem" data-value="duplicate">Duplicate</button><hr><button role="menuitem" data-value="archive">Archive</button></div> <button class="ui-button" type="button" data-variant="ghost" data-tooltip="g-tip">Spend limit</button><div id="g-tip" class="ui-tooltip" role="tooltip" popover="manual">Per run, in USD.</div></div><figcaption>Live</figcaption></figure>
+</div>
+
+</section>
+
+<section class="gx-section" id="dialog" aria-labelledby="dialog-title">
+  <div class="gx-head"><h3 id="dialog-title">Dialog, sheet and command menu</h3><p>Dialogs confirm one decision; sheets hold a related task; the command menu opens with ⌘K.</p><p class="gx-api"><code class="ui-code">.ui-dialog</code> <code class="ui-code">.ui-sheet</code> <code class="ui-code">.ui-command</code> <code class="ui-code">data-dialog-open</code></p></div>
+  <div class="gx-states">
+<figure class="gx-cell" data-wide><div class="gx-demo"><div class="ui-dialog gx-static" role="group" aria-labelledby="g-dlg-title"><div class="ui-dialog__head"><h2 id="g-dlg-title">Delete Northbeam?</h2></div><div class="ui-dialog__body">All 6 agents stop and 18,204 runs are erased.</div><div class="ui-dialog__foot"><button class="ui-button" type="button">Cancel</button><button class="ui-button" type="button" data-variant="danger">Delete workspace</button></div></div></div><figcaption>Dialog</figcaption></figure>
+<figure class="gx-cell" data-wide><div class="gx-demo"><div class="ui-command gx-static" role="group" aria-label="Command menu preview"><input type="search" aria-label="Search commands" value="run"><div class="ui-command__list"><button type="button" data-active><i data-lucide="play"></i>Run Lead enrichment</button><button type="button"><i data-lucide="activity"></i>Open runs</button><button type="button"><i data-lucide="file-text"></i>Run Release notes</button></div><div class="ui-command__footer">↑ ↓ to move · Enter to select</div></div></div><figcaption>Command menu</figcaption></figure>
+<figure class="gx-cell"><div class="gx-demo"><button class="ui-button" type="button" data-dialog-open="g-dialog">Open dialog</button> <button class="ui-button" type="button" data-dialog-open="g-sheet">Open sheet</button> <button class="ui-button" type="button" data-dialog-open="g-command">Command menu <span class="ui-kbd">⌘K</span></button></div><figcaption>Live</figcaption></figure>
+</div>
+<dialog class="ui-dialog" id="g-dialog" aria-labelledby="g-dialog-title"><div class="ui-dialog__head"><h2 id="g-dialog-title">Pause Lead enrichment?</h2></div><div class="ui-dialog__body">Scheduled runs stop until you resume. The run waiting for approval stays in the queue.</div><div class="ui-dialog__foot"><button class="ui-button" type="button" data-dialog-close>Cancel</button><button class="ui-button" type="button" data-dialog-close>Pause agent</button></div></dialog><dialog class="ui-sheet" id="g-sheet" aria-labelledby="g-sheet-title"><div class="ui-sheet__content ui-stack"><h2 id="g-sheet-title">Run run_8F2KQ4</h2><dl class="ui-data-list"><div><dt>Started</dt><dd>Oct 28, 09:41</dd></div><div><dt>Duration</dt><dd>3m 12s</dd></div><div><dt>Usage</dt><dd>184,220 tokens · $1.92</dd></div></dl><button class="ui-button" type="button" data-dialog-close>Close</button></div></dialog><dialog class="ui-command" id="g-command" aria-label="Command menu"><input type="search" aria-label="Search commands" placeholder="Search agents, runs and settings"><div class="ui-command__list"><button data-value="new-agent">New agent</button><button data-value="runs">Open runs</button><button data-value="queue">Open review queue</button><button data-value="settings">Workspace settings</button><p class="ui-command__empty" hidden>No matching commands.</p></div><div class="ui-command__footer">↑ ↓ to move · Enter to select</div></dialog>
+</section>
+
+<section class="gx-section" id="accordion" aria-labelledby="accordion-title">
+  <div class="gx-head"><h3 id="accordion-title">Accordion</h3><p>Optional detail on a page, separated by hairlines.</p><p class="gx-api"><code class="ui-code">details.ui-accordion</code></p></div>
+  <details class="ui-accordion" open><summary>What counts as a run?</summary><div class="ui-accordion__body">One trigger, start to finish, including retries.</div></details><details class="ui-accordion"><summary>Who can approve CRM writes?</summary><div class="ui-accordion__body">Admins and the agent owner.</div></details>
+</section>
+
+</div>
+
+<div class="gx-group" id="app">
+  <div class="gx-group-head"><h2>App shell and patterns</h2><p>How components compose into screens.</p></div>
+  
+<section class="gx-section" id="shell" aria-labelledby="shell-title">
+  <div class="gx-head"><h3 id="shell-title">Shell pieces</h3><p>The sidebar, top bar and page header every block is framed with. Under 768px the sidebar becomes a drawer opened by the menu button.</p><p class="gx-api"><code class="ui-code">.ui-shell</code> <code class="ui-code">.ui-sidebar</code> <code class="ui-code">.ui-topbar</code> <code class="ui-code">[data-nav-toggle]</code> <code class="ui-code">.ui-page-header</code> <code class="ui-code">.ui-section-head</code></p></div>
+  <div class="gx-split"><div class="gx-frame"><aside class="ui-sidebar" aria-label="Example sidebar"><button class="ui-sidebar-head" type="button"><span class="ui-workspace-mark" aria-hidden="true">N</span><span>Northbeam</span><i data-lucide="chevrons-up-down"></i></button><div class="ui-quick"><button class="ui-button" type="button"><i data-lucide="search"></i>Search<span class="ui-kbd">⌘K</span></button><button class="ui-button" type="button" data-icon aria-label="New run"><i data-lucide="square-pen"></i></button></div><nav class="ui-nav" aria-label="Example"><a class="ui-nav-item" href="#shell" aria-current="page"><i data-lucide="house"></i>Overview</a><a class="ui-nav-item" href="#shell"><i data-lucide="inbox"></i>Review queue<span class="ui-nav-count">4</span></a></nav><div class="ui-sidebar-foot"><span class="ui-avatar" aria-hidden="true">MR</span><span>Maya Ruiz<small>Admin</small></span></div></aside></div><div class="ui-stack"><div class="gx-frame"><header class="ui-topbar"><nav aria-label="Example breadcrumb"><ol class="ui-breadcrumb"><li><a href="#shell">Northbeam</a></li><li aria-current="page">Overview</li></ol></nav><div class="ui-topbar-actions"><button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Notifications"><i data-lucide="bell"></i></button></div></header></div><div class="ui-page-header"><div><h1 class="ui-page-title">Overview</h1><p class="ui-page-sub">6 agents across 9 integrations · Oct 15 – Oct 28</p></div><div class="ui-page-actions"><button class="ui-button" type="button"><i data-lucide="calendar"></i>Last 14 days</button></div></div><div class="ui-section-head"><h2>Agents</h2><a class="ui-button" data-variant="ghost" data-size="sm" href="#shell">Manage agents</a></div></div></div>
+</section>
+
+<section class="gx-section" id="settings" aria-labelledby="settings-title">
+  <div class="gx-head"><h3 id="settings-title">Settings group and danger zone</h3><p>A label and one line of help on the left, the control on the right; destructive actions live in their own outlined group.</p><p class="gx-api"><code class="ui-code">.ui-settings-group</code> <code class="ui-code">.ui-settings-row</code> <code class="ui-code">.ui-danger</code></p></div>
+  <div class="ui-stack gx-tight"><section class="ui-settings-group" aria-labelledby="g-set-title"><header><h2 id="g-set-title">Agent defaults</h2><p>Each agent can override these.</p></header><div class="ui-settings-row"><label for="g-model"><span>Default model</span><span>Used when an agent has no model set.</span></label><div><select class="ui-select" id="g-model"><option>claude-sonnet-4-5</option><option>gpt-5</option></select></div></div><div class="ui-settings-row"><div><span id="g-approve">Approve CRM writes</span><span>Pause before HubSpot and Salesforce writes.</span></div><div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="g-approve"></label></div></div></section><section class="ui-danger" aria-labelledby="g-danger-title"><header><h2 id="g-danger-title">Danger zone</h2><p>These actions affect every member of Northbeam.</p></header><div class="ui-settings-row"><div><span>Delete workspace</span><span>Removes 6 agents and 18,204 runs. This cannot be undone.</span></div><div><button class="ui-button" type="button" data-variant="danger">Delete workspace</button></div></div></section></div>
+</section>
+
+<section class="gx-section" id="auth" aria-labelledby="auth-title">
+  <div class="gx-head"><h3 id="auth-title">Auth</h3><p>One centered column on the page color: mark, title, providers, a divider, fields and the legal line. See the sign-in block for the full page.</p><p class="gx-api"><code class="ui-code">.ui-auth</code> <code class="ui-code">.ui-auth-providers</code> <code class="ui-code">.ui-auth-divider</code> <code class="ui-code">.ui-auth-legal</code></p></div>
+  <div class="gx-frame gx-auth"><div class="ui-auth gx-auth-inner"><section aria-label="Sign in preview"><header><span class="ui-workspace-mark" aria-hidden="true">H</span><div><h1>Sign in to Halyard</h1><p>Agents for revenue and marketing ops</p></div></header><div class="ui-auth-providers"><button class="ui-button" type="button"><span class="ui-logo" data-brand="google"></span>Continue with Google</button></div><p class="ui-auth-divider">or with email</p><form novalidate><label class="ui-field"><span class="ui-label">Work email</span><input class="ui-input" type="email" value="maya@northbeam.io"></label><button class="ui-button" type="submit" data-variant="primary">Continue</button></form><p class="ui-auth-legal">By continuing you agree to the <a href="#auth">Terms</a> and <a href="#auth">Privacy Policy</a>.</p></section></div></div>
+</section>
+
+<section class="gx-section" id="blocks" aria-labelledby="blocks-title">
+  <div class="gx-head"><h3 id="blocks-title">Blocks</h3><p>Whole screens for one product, Halyard, an agent console for revenue and marketing ops. Start a new screen from the nearest one.</p><p class="gx-api"><code class="ui-code">blocks/*.html</code></p></div>
+  <div class="gx-blocks"><a class="ui-card" data-link href="blocks/dashboard.html"><h3><i data-lucide="house"></i>Dashboard</h3><p>Stats, runs per day, review queue, agents table</p></a><a class="ui-card" data-link href="blocks/list-detail.html"><h3><i data-lucide="inbox"></i>List and detail</h3><p>Filterable runs with the selection open beside it</p></a><a class="ui-card" data-link href="blocks/detail.html"><h3><i data-lucide="user-search"></i>Detail</h3><p>One agent: alert, facts, budget, activity timeline</p></a><a class="ui-card" data-link href="blocks/settings.html"><h3><i data-lucide="settings"></i>Settings</h3><p>Grouped fields, switches, integrations, danger zone</p></a><a class="ui-card" data-link href="blocks/billing.html"><h3><i data-lucide="credit-card"></i>Billing</h3><p>Plan, usage meters, payment method, invoices</p></a><a class="ui-card" data-link href="blocks/onboarding.html"><h3><i data-lucide="list-checks"></i>Onboarding</h3><p>Stepper, one question, the empty state after setup</p></a><a class="ui-card" data-link href="blocks/sign-in.html"><h3><i data-lucide="log-in"></i>Sign in</h3><p>SSO, email, create account and the error state</p></a></div>
+</section>
+
+</div>
+
+  </main>
+</div>
+
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="../../components/ui/seenry-ui.js"></script>
+<script>
+lucide.createIcons();
+(function(){
+  const root = document.documentElement;
+  const seg = document.querySelector('[data-theme-switch]');
+  const current = () => root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  const sync = () => seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.value === current())));
+  seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; root.setAttribute('data-theme', b.dataset.value); sync(); });
+  sync();
+  new MutationObserver(sync).observe(root, {attributes: true, attributeFilter: ['data-theme']});
+
+  document.querySelectorAll('.ui-slider input[type=range]').forEach(input => {
+    const out = input.parentElement.querySelector('output');
+    const scale = out && out.textContent.includes('.') ? 100 : 1;
+    const set = () => { const pct = (input.value - input.min) / (input.max - input.min) * 100; input.style.setProperty('--pct', pct + '%'); if (out) out.textContent = scale > 1 ? (input.value / scale).toFixed(2) : input.value; };
+    input.addEventListener('input', set);
+  });
+
+  document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
+    const text = btn.closest('.ui-code')?.querySelector('pre')?.innerText || '';
+    try { await navigator.clipboard.writeText(text); } catch {}
+    btn.setAttribute('data-copied', '');
+    setTimeout(() => btn.removeAttribute('data-copied'), 1200);
+  }));
+})();
+</script>
+</body>
+</html>

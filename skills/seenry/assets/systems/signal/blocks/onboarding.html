@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Set up risk-engine · ledgerline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Project navigation">
+    <div class="ui-sidebar-head">
+      <span class="logo" aria-hidden="true"><i class="ri-pulse-line"></i></span>
+      <strong>ledgerline</strong>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Switch workspace"><i class="ri-expand-up-down-line"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="risk-engine">
+      <span class="ui-nav-label">risk-engine</span>
+      <a class="ui-nav-item" href="#" aria-current="page"><i class="ri-dashboard-3-line"></i>Overview</a>
+      <a class="ui-nav-item" href="#"><i class="ri-upload-cloud-2-line"></i>Deployments</a>
+      <a class="ui-nav-item" href="#"><i class="ri-stack-line"></i>Services</a>
+      <a class="ui-nav-item" href="#"><i class="ri-file-list-3-line"></i>Logs</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Configuration">
+      <span class="ui-nav-label">Configuration</span>
+      <a class="ui-nav-item" href="#"><i class="ri-key-2-line"></i>Variables</a>
+      <a class="ui-nav-item" href="#"><i class="ri-settings-3-line"></i>Settings</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Workspace">
+      <span class="ui-nav-label">Workspace</span>
+      <a class="ui-nav-item" href="#"><i class="ri-team-line"></i>Members</a>
+      <a class="ui-nav-item" href="billing.html"><i class="ri-bank-card-line"></i>Billing</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MO</span>
+      <span>Mara Okafor</span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Account menu"><i class="ri-more-line"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ri-menu-line"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb">
+        <li><a href="#">ledgerline</a></li>
+        <li><a href="#">risk-engine</a></li>
+        <li aria-current="page">Setup</li>
+      </ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-topbar-search" data-dialog-open="command" aria-label="Search and run commands"><i class="ri-search-line"></i><span>Search</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ri-notification-3-line"></i></button>
+      </div>
+    </header>
+
+    <main>
+      <div class="signal-narrow">
+        <div class="ui-page-header">
+          <div>
+            <h1 class="ui-page-title">Set up risk-engine</h1>
+            <p class="ui-page-sub"><span>New project</span><span class="mono">ledgerline/risk-engine</span><span>About 3 minutes to a first deploy</span></p>
+          </div>
+        </div>
+
+        <ol class="ui-steps" aria-label="Setup progress">
+          <li class="ui-step" data-done>Connect repository</li>
+          <li class="ui-step" aria-current="step">Choose what to deploy</li>
+          <li class="ui-step">Add variables</li>
+          <li class="ui-step">Deploy</li>
+        </ol>
+
+        <form class="ui-card" aria-labelledby="q-title" onsubmit="return false">
+          <div class="ui-section-head"><h2 id="q-title">Which directory holds the service?</h2><span class="ui-filter-count">Step 2 of 4</span></div>
+          <fieldset class="ui-radio-group signal-options">
+            <legend class="sr-only">Service directory</legend>
+            <label class="ui-choice"><input type="radio" name="root" value="services/risk" checked><span><span class="mono">services/risk</span> <small>Go 1.23 · Dockerfile · listens on :8080</small></span></label>
+            <label class="ui-choice"><input type="radio" name="root" value="services/risk-worker"><span><span class="mono">services/risk-worker</span> <small>Go 1.23 · no exposed port, runs as a worker</small></span></label>
+            <label class="ui-choice"><input type="radio" name="root" value="tools/backfill"><span><span class="mono">tools/backfill</span> <small>Go 1.23 · one-off job, better as a cron</small></span></label>
+          </fieldset>
+          <label class="ui-field ui-combobox">
+            <span class="ui-label">Or type a path</span>
+            <input class="ui-input mono" list="dirs" placeholder="services/…" aria-describedby="dirs-help">
+            <datalist id="dirs"><option value="services/risk"></option><option value="services/risk-worker"></option><option value="services/scoring"></option><option value="tools/backfill"></option></datalist>
+            <span class="ui-help" id="dirs-help">Relative to the repository root. You can add the worker as a second service later.</span>
+          </label>
+          <footer><button class="ui-button" data-variant="ghost" type="button"><i class="ri-arrow-left-line"></i>Back</button><button class="ui-button" data-variant="primary" type="submit">Continue<i class="ri-arrow-right-line"></i></button></footer>
+        </form>
+
+        <section class="ui-card" aria-labelledby="services-title">
+          <div class="ui-section-head"><h2 id="services-title">Services</h2><span class="ui-filter-count">0</span></div>
+          <div class="ui-empty">
+            <i class="ri-stack-line" aria-hidden="true"></i>
+            <h3>No services yet</h3>
+            <p>Your first service shows up here when its first deploy goes out. Logs, metrics and alerts start with it.</p>
+            <a class="ui-button" href="#"><i class="ri-terminal-box-line"></i>Deploy from the CLI instead</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search services, deploys, commands">
+  <div class="ui-command__list">
+    <button data-value="deploy"><i class="ri-upload-cloud-2-line"></i>Deploy payments-core</button>
+    <button data-value="logs"><i class="ri-file-list-3-line"></i>Open logs for api-gateway</button>
+    <button data-value="rollback"><i class="ri-arrow-go-back-line"></i>Roll back search-indexer</button>
+    <button data-value="vars"><i class="ri-key-2-line"></i>Edit variables</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to run · Esc to close</div>
+</dialog>
+</body>
+</html>

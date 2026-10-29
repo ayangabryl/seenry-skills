@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>payments-core · production · Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Project navigation">
+    <div class="ui-sidebar-head">
+      <span class="logo" aria-hidden="true"><i class="ri-pulse-line"></i></span>
+      <strong>ledgerline</strong>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Switch workspace"><i class="ri-expand-up-down-line"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="payments-core">
+      <span class="ui-nav-label">payments-core</span>
+      <a class="ui-nav-item" href="dashboard.html" aria-current="page"><i class="ri-dashboard-3-line"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i class="ri-upload-cloud-2-line"></i>Deployments<span class="ui-nav-count">1</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-stack-line"></i>Services<span class="ui-nav-count">7</span></a>
+      <a class="ui-nav-item" href="#"><i class="ri-file-list-3-line"></i>Logs</a>
+      <a class="ui-nav-item" href="#"><i class="ri-line-chart-line"></i>Metrics</a>
+      <a class="ui-nav-item" href="detail.html"><i class="ri-alarm-warning-line"></i>Incidents<span class="ui-nav-count">1</span></a>
+    </nav>
+    <nav class="ui-nav" aria-label="Configuration">
+      <span class="ui-nav-label">Configuration</span>
+      <a class="ui-nav-item" href="#"><i class="ri-key-2-line"></i>Variables</a>
+      <a class="ui-nav-item" href="#"><i class="ri-global-line"></i>Domains</a>
+      <a class="ui-nav-item" href="settings.html"><i class="ri-settings-3-line"></i>Settings</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Workspace">
+      <span class="ui-nav-label">Workspace</span>
+      <a class="ui-nav-item" href="#"><i class="ri-team-line"></i>Members</a>
+      <a class="ui-nav-item" href="billing.html"><i class="ri-bank-card-line"></i>Billing</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MO</span>
+      <span>Mara Okafor</span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Account menu"><i class="ri-more-line"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ri-menu-line"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb">
+        <li><a href="#">ledgerline</a></li>
+        <li><a href="#">payments-core</a></li>
+        <li aria-current="page">production</li>
+      </ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-topbar-search" data-dialog-open="command" aria-label="Search and run commands"><i class="ri-search-line"></i><span>Search</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ri-notification-3-line"></i></button>
+      </div>
+    </header>
+
+    <main>
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Overview</h1>
+          <p class="ui-page-sub">
+            <a class="ui-status" data-status="warn" href="#services-card">1 service degraded</a>
+            <span>7 services</span>
+            <span class="mono">iad1 fra1</span>
+            <span>Last deploy 41m ago</span>
+          </p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button"><i class="ri-file-list-3-line"></i>Logs</button>
+          <button class="ui-button" data-variant="primary"><i class="ri-upload-cloud-2-line"></i>Deploy</button>
+        </div>
+      </div>
+
+      <div class="ui-stat-strip">
+        <dl class="ui-stat"><dt>Requests</dt><dd>2,481<span>req/s</span></dd><meter min="0" max="100" low="75" high="90" optimum="0" value="62" aria-label="Capacity used">62%</meter><small>62% of 4,000 req/s capacity</small></dl>
+        <dl class="ui-stat"><dt>p95 latency</dt><dd>168<span>ms</span></dd><meter min="0" max="250" low="187" high="225" optimum="0" value="168" aria-label="p95 against the 250 ms SLO">67%</meter><small>67% of 250 ms SLO · 81% of 30d budget left</small></dl>
+        <dl class="ui-stat"><dt>5xx error rate</dt><dd>0.21<span>%</span></dd><meter min="0" max="0.5" low="0.375" high="0.45" optimum="0" value="0.21" aria-label="5xx rate against the 0.5% SLO">42%</meter><small>42% of 0.5% SLO · 62% of 30d budget left</small></dl>
+      </div>
+
+      <div class="signal-split">
+        <section class="ui-card" aria-labelledby="latency-title">
+          <div class="ui-section-head">
+            <h2 id="latency-title">Latency and errors</h2>
+            <div class="ui-segmented" aria-label="Time range"><button aria-pressed="false" data-value="1h">1h</button><button aria-pressed="true" data-value="6h">6h</button><button aria-pressed="false" data-value="24h">24h</button><button aria-pressed="false" data-value="7d">7d</button></div>
+          </div>
+          <div class="ui-chart">
+            <ul class="ui-chart-legend">
+              <li data-series="1"><b>p95</b></li>
+              <li data-series="2"><b>p50</b></li>
+              <li data-mark="marker">Deploy</li>
+              <li class="ui-chart-tz">UTC</li>
+            </ul>
+            <div>
+              <div class="ui-chart-plot">
+                <div class="ui-chart-y" aria-hidden="true"><span style="top:0%">400 ms</span><span style="top:25%">300</span><span style="top:50%">200</span><span style="top:75%">100</span><span style="top:100%">0</span></div>
+                <div>
+                  <svg viewBox="0 0 720 100" preserveAspectRatio="none" role="img" aria-label="Request latency, 09:00 to 15:00 UTC. p95 rose from about 170 ms to 365 ms after the 13:05 deploy and recovered by 13:35; p50 stayed between 35 and 62 ms.">
+                    <line class="grid" x1="0" x2="720" y1="0" y2="0"/><line class="grid" x1="0" x2="720" y1="25" y2="25"/><line class="grid" x1="0" x2="720" y1="50" y2="50"/><line class="grid" x1="0" x2="720" y1="75" y2="75"/><line class="base" x1="0" x2="720" y1="100" y2="100"/>
+                    <line class="marker" x1="490" x2="490" y1="0" y2="100"/>
+                    <path class="line s2" d="M0,89.3 L10,88.6 L20,88.6 L30,89.2 L40,89.0 L50,88.9 L60,88.2 L70,88.5 L80,87.6 L90,87.6 L100,86.9 L110,87.1 L120,88.1 L130,87.8 L140,88.0 L150,87.3 L160,87.5 L170,88.2 L180,87.4 L190,88.0 L200,87.9 L210,87.5 L220,88.4 L230,88.1 L240,88.0 L250,87.7 L260,88.7 L270,89.3 L280,89.6 L290,88.7 L300,88.7 L310,89.2 L320,89.5 L330,89.2 L340,89.9 L350,90.7 L360,89.9 L370,89.8 L380,90.5 L390,91.1 L400,90.9 L410,91.1 L420,91.1 L430,90.7 L440,91.1 L450,90.4 L460,89.9 L470,90.6 L480,90.4 L490,87.8 L500,86.2 L510,84.4 L520,84.4 L530,86.9 L540,88.1 L550,88.3 L560,89.1 L570,88.7 L580,88.2 L590,88.0 L600,88.6 L610,88.9 L620,88.8 L630,88.5 L640,88.1 L650,88.5 L660,88.3 L670,88.3 L680,87.4 L690,87.9 L700,87.7 L710,87.0 L720,88.2"/>
+                    <path class="line s1" d="M0,60.5 L10,60.5 L20,58.9 L30,58.0 L40,58.3 L50,60.1 L60,56.5 L70,59.8 L80,56.5 L90,59.6 L100,61.8 L110,61.1 L120,62.5 L130,59.7 L140,61.5 L150,63.1 L160,65.3 L170,65.2 L180,64.7 L190,64.5 L200,66.5 L210,64.9 L220,65.9 L230,64.7 L240,67.9 L250,68.9 L260,65.7 L270,67.0 L280,66.0 L290,66.2 L300,67.2 L310,65.4 L320,65.7 L330,62.7 L340,63.5 L350,62.7 L360,60.7 L370,63.6 L380,61.0 L390,61.4 L400,62.5 L410,58.7 L420,60.8 L430,57.2 L440,59.0 L450,56.5 L460,56.4 L470,58.5 L480,56.1 L490,47.7 L500,23.1 L510,8.7 L520,19.8 L530,31.2 L540,47.0 L550,57.1 L560,60.1 L570,63.5 L580,60.5 L590,61.0 L600,63.7 L610,63.1 L620,66.5 L630,66.6 L640,67.7 L650,67.7 L660,67.0 L670,64.7 L680,68.6 L690,67.7 L700,68.9 L710,64.5 L720,58.0"/>
+                  </svg>
+                  <span class="ui-chart-note" style="left:68.06%">deploy a3f9c1e · 13:05</span>
+                </div>
+                <div class="ui-chart-tags" aria-hidden="true"><span data-series="1" style="top:58%">p95 <b>168</b></span><span data-series="2" style="top:88.2%">p50 <b>47</b></span></div>
+              </div>
+              <p class="ui-chart-title"><span>5xx per 15 min</span><span>334 total</span></p>
+              <div class="ui-chart-plot" data-size="sub">
+                <div class="ui-chart-y" aria-hidden="true"><span style="top:0%">80</span><span style="top:50%">40</span><span style="top:100%">0</span></div>
+                <div>
+                  <svg viewBox="0 0 720 100" preserveAspectRatio="none" role="img" aria-label="5xx responses per 15 minutes, 09:00 to 15:00 UTC. Between 4 and 12 per interval, except 58 at 13:00 and 71 at 13:15, above the alert threshold of 40.">
+                    <line class="grid" x1="0" x2="720" y1="0" y2="0"/>
+                    <rect class="bar" x="4" y="93.8" width="22" height="6.2"/><rect class="bar" x="34" y="92.5" width="22" height="7.5"/><rect class="bar" x="64" y="93.8" width="22" height="6.2"/><rect class="bar" x="94" y="88.8" width="22" height="11.2"/><rect class="bar" x="124" y="90" width="22" height="10"/><rect class="bar" x="154" y="86.2" width="22" height="13.8"/><rect class="bar" x="184" y="92.5" width="22" height="7.5"/><rect class="bar" x="214" y="85" width="22" height="15"/><rect class="bar" x="244" y="95" width="22" height="5"/><rect class="bar" x="274" y="91.2" width="22" height="8.8"/><rect class="bar" x="304" y="85" width="22" height="15"/><rect class="bar" x="334" y="88.8" width="22" height="11.2"/><rect class="bar" x="364" y="92.5" width="22" height="7.5"/><rect class="bar" x="394" y="85" width="22" height="15"/><rect class="bar" x="424" y="95" width="22" height="5"/><rect class="bar" x="454" y="85" width="22" height="15"/><rect class="bar hot" x="484" y="27.5" width="22" height="72.5"/><rect class="bar hot" x="514" y="11.2" width="22" height="88.8"/><rect class="bar" x="544" y="58.8" width="22" height="41.2"/><rect class="bar" x="574" y="90" width="22" height="10"/><rect class="bar" x="604" y="85" width="22" height="15"/><rect class="bar" x="634" y="88.8" width="22" height="11.2"/><rect class="bar" x="664" y="92.5" width="22" height="7.5"/><rect class="bar" x="694" y="88.8" width="22" height="11.2"/>
+                    <line class="threshold" x1="0" x2="720" y1="50" y2="50"/>
+                    <line class="base" x1="0" x2="720" y1="100" y2="100"/>
+                  </svg>
+                </div>
+                <div class="ui-chart-tags" aria-hidden="true"><span data-tone="bad" style="top:50%">alert <b>≥ 40</b></span></div>
+              </div>
+              <div class="ui-chart-axis" aria-hidden="true"><span style="left:0%">09:00</span><span style="left:16.67%">10:00</span><span style="left:33.33%">11:00</span><span style="left:50%">12:00</span><span style="left:66.67%">13:00</span><span style="left:83.33%">14:00</span><span style="left:100%">15:00</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="ui-card" aria-labelledby="alerts-title">
+          <div class="ui-section-head">
+            <h2 id="alerts-title">Alerts</h2>
+            <span class="ui-badge" data-tone="warn">2 firing</span>
+          </div>
+          <ul class="ui-list">
+            <li class="ui-list-item">
+              <i class="ri-error-warning-line" data-tone="warn" aria-hidden="true"></i>
+              <div><strong>Queue depth above 5,000</strong><span class="ui-list-meta"><span>payments-worker</span><span>firing 12m</span></span></div>
+              <span>6,214</span>
+            </li>
+            <li class="ui-list-item">
+              <i class="ri-error-warning-line" data-tone="warn" aria-hidden="true"></i>
+              <div><strong>Volume usage above 75%</strong><span class="ui-list-meta"><span>ledger-writer</span><span>vol_pg_7f2a</span></span></div>
+              <span>78%</span>
+            </li>
+            <li class="ui-list-item">
+              <i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i>
+              <div><strong>p95 latency above 300 ms</strong><span class="ui-list-meta"><span>api-gateway</span><span>resolved by rollback</span></span></div>
+              <span>13:35</span>
+            </li>
+            <li class="ui-list-item">
+              <i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i>
+              <div><strong>5xx above 40 per 15 min</strong><span class="ui-list-meta"><span>api-gateway</span><span>resolved</span></span></div>
+              <span>13:45</span>
+            </li>
+            <li class="ui-list-item">
+              <i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i>
+              <div><strong>Replica lag above 5 s</strong><span class="ui-list-meta"><span>ledger-writer</span><span>resolved</span></span></div>
+              <span>08:12</span>
+            </li>
+            <li class="ui-list-item">
+              <i class="ri-checkbox-circle-line" data-tone="ok" aria-hidden="true"></i>
+              <div><strong>Health check failing</strong><span class="ui-list-meta"><span>webhooks-dispatcher</span><span>resolved</span></span></div>
+              <span>06:47</span>
+            </li>
+          </ul>
+          <footer><span>Scheduled: TLS for <span class="mono">api.ledgerline.com</span> renews in 9d</span></footer>
+        </section>
+      </div>
+
+      <section class="ui-card" aria-labelledby="services-title" id="services-card">
+        <div class="ui-section-head">
+          <h2 id="services-title">Services</h2>
+          <a class="ui-button" data-size="sm" href="#">All services</a>
+        </div>
+        <div class="ui-table-wrap">
+          <table class="ui-table" data-ui-table id="services">
+            <thead><tr><th scope="col" data-sort>Service</th><th scope="col" data-sort>Status</th><th data-optional scope="col">Region</th><th data-optional scope="col" class="num">Instances</th><th data-optional scope="col" data-sort class="num">CPU</th><th data-optional scope="col" data-sort class="num">Memory</th><th scope="col" data-sort class="num">p95</th><th scope="col" data-sort class="num">Req/s</th><th data-optional scope="col">Last deploy</th></tr></thead>
+            <tbody>
+              <tr><td class="mono"><a href="#">api-gateway</a></td><td><span class="ui-status" data-status="ok">Healthy</span></td><td data-optional class="mono">iad1 fra1</td><td data-optional class="num">6/6</td><td data-optional class="num" data-sort="41">41%</td><td data-optional class="num" data-sort="1229">1.2 GB</td><td class="num" data-sort="142">142 ms</td><td class="num" data-sort="1284">1,284</td><td data-optional class="mono"><span class="dim">9c2e71b</span> 41m ago</td></tr>
+              <tr><td class="mono"><a href="#">payments-worker</a></td><td><span class="ui-status" data-status="warn">Degraded</span></td><td data-optional class="mono">iad1</td><td data-optional class="num">4/4</td><td data-optional class="num" data-sort="87">87%</td><td data-optional class="num" data-sort="1946">1.9 GB</td><td class="num" data-sort="1410">1.41 s</td><td class="num" data-sort="236">236</td><td data-optional class="mono"><span class="dim">e18b04d</span> 2d ago</td></tr>
+              <tr><td class="mono"><a href="#">ledger-writer</a></td><td><span class="ui-status" data-status="ok">Healthy</span></td><td data-optional class="mono">iad1</td><td data-optional class="num">3/3</td><td data-optional class="num" data-sort="58">58%</td><td data-optional class="num" data-sort="2867">2.8 GB</td><td class="num" data-sort="88">88 ms</td><td class="num" data-sort="412">412</td><td data-optional class="mono"><span class="dim">51f0a9c</span> 6h ago</td></tr>
+              <tr><td class="mono"><a href="#">search-indexer</a></td><td><span class="ui-status" data-status="info" data-live>Deploying</span></td><td data-optional class="mono">fra1</td><td data-optional class="num">1/2</td><td data-optional class="num" data-sort="12">12%</td><td data-optional class="num" data-sort="921">900 MB</td><td class="num" data-sort="0">—</td><td class="num" data-sort="31">31</td><td data-optional class="mono"><span class="dim">7d33e2a</span> now</td></tr>
+              <tr><td class="mono"><a href="#">webhooks-dispatcher</a></td><td><span class="ui-status" data-status="ok">Healthy</span></td><td data-optional class="mono">iad1 fra1</td><td data-optional class="num">2/2</td><td data-optional class="num" data-sort="22">22%</td><td data-optional class="num" data-sort="640">640 MB</td><td class="num" data-sort="210">210 ms</td><td class="num" data-sort="318">318</td><td data-optional class="mono"><span class="dim">b6a1f30</span> 1d ago</td></tr>
+              <tr><td class="mono"><a href="#">auth-service</a></td><td><span class="ui-status" data-status="ok">Healthy</span></td><td data-optional class="mono">iad1 fra1</td><td data-optional class="num">2/2</td><td data-optional class="num" data-sort="17">17%</td><td data-optional class="num" data-sort="512">512 MB</td><td class="num" data-sort="34">34 ms</td><td class="num" data-sort="196">196</td><td data-optional class="mono"><span class="dim">0fe9c55</span> 4d ago</td></tr>
+              <tr><td class="mono"><a href="#">fx-rates-sync</a></td><td><span class="ui-status" data-status="idle">Sleeping</span></td><td data-optional class="mono">iad1</td><td data-optional class="num">0/1</td><td data-optional class="num" data-sort="0">0%</td><td data-optional class="num" data-sort="0">0 MB</td><td class="num" data-sort="0">—</td><td class="num" data-sort="0">0</td><td data-optional class="mono"><span class="dim">a40c7d8</span> 12d ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search services, deploys, commands">
+  <div class="ui-command__list">
+    <button data-value="deploy"><i class="ri-upload-cloud-2-line"></i>Deploy payments-core</button>
+    <button data-value="logs"><i class="ri-file-list-3-line"></i>Open logs for api-gateway</button>
+    <button data-value="rollback"><i class="ri-arrow-go-back-line"></i>Roll back search-indexer</button>
+    <button data-value="vars"><i class="ri-key-2-line"></i>Edit variables</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to run · Esc to close</div>
+</dialog>
+</body>
+</html>

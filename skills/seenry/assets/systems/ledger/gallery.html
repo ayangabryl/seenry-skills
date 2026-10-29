@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledger · Components</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../../components/ui/seenry-ui.css">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="system.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <script src="../../components/ui/seenry-ui.js" defer></script>
+  <style>
+    html{scroll-padding-top:calc(var(--topbar-h) + var(--space-4))}
+    .lg-head{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:var(--space-3);height:var(--topbar-h);padding:0 var(--gutter);border-bottom:var(--hairline) solid var(--line);background:var(--surface)}
+    .lg-head .ui-person{flex:1;min-width:0}
+    .lg-layout{display:grid;grid-template-columns:var(--doc-index-w) minmax(0,1fr);max-width:calc(var(--content-max) + var(--doc-index-w));margin:0 auto}
+    .lg-index{position:sticky;top:var(--topbar-h);align-self:start;display:grid;gap:var(--space-4);max-height:calc(100dvh - var(--topbar-h));overflow:auto;padding:var(--space-6) var(--space-3) var(--space-7)}
+    .lg-index .ui-nav-item{min-height:var(--control-h-sm)}
+    .lg-main{display:grid;gap:var(--space-8);min-width:0;padding:var(--space-7) var(--gutter) var(--space-8);border-left:var(--hairline) solid var(--line);background:var(--bg)}
+    .lg-intro{display:grid;gap:var(--space-2);max-width:calc(var(--content-max) / 2)}
+    .lg-intro h1{font:var(--type-title);letter-spacing:var(--tracking-title)}
+    .lg-intro p{color:var(--text-2)}
+    .lg-jump{display:none}
+    .lg-group{display:grid;gap:var(--space-7)}
+    .lg-group>h2{padding-bottom:var(--space-3);border-bottom:var(--hairline) solid var(--line-strong);font:var(--type-title);letter-spacing:var(--tracking-title)}
+    .lg-section{display:grid;gap:var(--space-3);min-width:0}
+    .lg-section>header{display:grid;gap:var(--space-1)}
+    .lg-section>header h3{display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;font:var(--type-heading)}
+    .lg-section>header p{max-width:calc(var(--content-max) / 1.8);color:var(--text-2)}
+    .lg-spec{min-width:0;border:var(--hairline) solid var(--line);border-radius:var(--r-md);background:var(--surface);overflow:hidden}
+    .lg-scroll{overflow-x:auto}
+    .lg-matrix{display:grid;grid-template-columns:calc(var(--space-8) * 2) repeat(5,minmax(calc(var(--space-8) * 2.5),1fr));min-width:max-content}
+    .lg-matrix[data-cols="4"]{grid-template-columns:calc(var(--space-8) * 2) repeat(4,minmax(calc(var(--space-8) * 3),1fr))}
+    .lg-matrix[data-cols="3"]{grid-template-columns:calc(var(--space-8) * 2) repeat(3,minmax(calc(var(--space-8) * 3.5),1fr))}
+    .lg-matrix>*{display:flex;align-items:center;min-height:calc(var(--row-h) + var(--space-6));padding:var(--space-3) var(--space-4);border-bottom:var(--hairline) solid var(--line)}
+    .lg-matrix>.lg-colhead{min-height:var(--head-h);padding-block:0;background:var(--surface-2);color:var(--text-3);font:var(--type-small);font-weight:500}
+    .lg-matrix>.lg-rowhead{color:var(--text-2);font:var(--type-label)}
+    .lg-matrix>:nth-last-child(-n+6){border-bottom:0}
+    .lg-matrix[data-cols="4"]>:nth-last-child(-n+6){border-bottom:var(--hairline) solid var(--line)}
+    .lg-matrix[data-cols="4"]>:nth-last-child(-n+5){border-bottom:0}
+    .lg-matrix[data-cols="3"]>:nth-last-child(-n+6){border-bottom:var(--hairline) solid var(--line)}
+    .lg-matrix[data-cols="3"]>:nth-last-child(-n+4){border-bottom:0}
+    h4{margin:0}
+    .lg-states{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--space-8) * 4.5),1fr))}
+    .lg-states[data-wide]{grid-template-columns:repeat(auto-fill,minmax(calc(var(--space-8) * 7),1fr))}
+    .lg-state{display:grid;grid-template-rows:1fr auto;gap:var(--space-3);min-width:0;margin:0 calc(var(--hairline) * -1) calc(var(--hairline) * -1) 0;padding:var(--space-4) var(--space-5);border-right:var(--hairline) solid var(--line);border-bottom:var(--hairline) solid var(--line);background:var(--surface)}
+    .lg-state>div{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);min-width:0}
+    .lg-state>div.lg-stack{display:grid;align-items:start;align-content:start}
+    .lg-state figcaption{font:var(--type-small);color:var(--text-3)}
+    .lg-pad{padding:var(--space-4) var(--space-5)}
+    .lg-pad-0{padding:0}
+    .lg-note{font:var(--type-small);color:var(--text-2)}
+    .lg-note b{font-weight:500;color:var(--text)}
+    .lg-swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--space-8) * 5),1fr));gap:var(--space-3) var(--space-5);padding:var(--space-4) var(--space-5)}
+    .lg-swatch{display:flex;align-items:center;gap:var(--space-3);min-width:0}
+    .lg-swatch i{flex:none;width:var(--swatch);height:var(--swatch);border:var(--hairline) solid var(--line);border-radius:var(--r-sm)}
+    .lg-swatch span{display:grid;min-width:0}
+    .lg-swatch b{font:var(--type-label)}
+    .lg-swatch small{font:var(--type-mono);color:var(--text-3)}
+    .lg-type{display:grid;grid-template-columns:calc(var(--space-8) * 4.5) minmax(0,1fr) auto;align-items:baseline;gap:var(--space-4);padding:var(--space-3) var(--space-5);border-bottom:var(--hairline) solid var(--line)}
+    .lg-type:last-child{border-bottom:0}
+    .lg-type small{font:var(--type-mono);color:var(--text-3)}
+    .lg-scale{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--space-5);padding:var(--space-4) var(--space-5)}
+    .lg-scale div{display:grid;justify-items:start;gap:var(--space-1);font:var(--type-mono);color:var(--text-3)}
+    .lg-scale i{display:block;height:var(--space-6);background:var(--chart-3);border-radius:var(--space-half)}
+    .lg-radius i{width:var(--space-8);height:var(--space-7);border:var(--hairline) solid var(--line-strong);background:var(--surface-2)}
+    .lg-icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--space-8) * 4),1fr))}
+    .lg-icons span{display:flex;align-items:center;gap:var(--space-2);margin:0 calc(var(--hairline) * -1) calc(var(--hairline) * -1) 0;padding:var(--space-2h) var(--space-4);border-right:var(--hairline) solid var(--line);border-bottom:var(--hairline) solid var(--line);background:var(--surface);font:var(--type-mono);color:var(--text-2)}
+    .lg-icons .ti{color:var(--text-3)}
+    .lg-static{position:static;inset:auto;display:block;margin:0;opacity:1;transform:none;visibility:visible}
+    .lg-static.ui-dialog,.lg-static.ui-command{width:100%;max-width:var(--dialog-w);max-height:none}
+    .lg-static.ui-sheet{width:100%;max-width:var(--sheet-w);height:auto;border-width:var(--hairline);border-radius:var(--r-lg)}
+    .lg-static.ui-command{max-width:var(--command-w)}
+    .lg-shell-demo{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);min-height:calc(var(--space-8) * 6)}
+    .lg-shell-demo .ui-sidebar{position:static;height:auto}
+    .lg-shell-demo .ui-main{background:var(--bg)}
+    .lg-shell-demo .ui-page{gap:var(--space-4)}
+    .lg-blocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--space-8) * 5),1fr));gap:var(--space-3)}
+    .lg-blocks .ui-card{display:grid;align-content:start;gap:var(--space-1);text-decoration:none;color:var(--text)}
+    .lg-blocks .ui-card .ti{color:var(--text-3)}
+    @media (max-width:64em){.lg-layout{grid-template-columns:minmax(0,1fr)}.lg-index{display:none}.lg-main{border-left:0}.lg-jump{display:grid}.lg-shell-demo{grid-template-columns:minmax(0,1fr)}.lg-shell-demo .ui-sidebar{display:none}}
+    @media (max-width:37.5em){.lg-head{padding:0 var(--gutter-sm)}.lg-head .ui-person span{display:none}.lg-main{padding:var(--space-5) var(--gutter-sm) var(--space-7);gap:var(--space-7)}.lg-state{padding:var(--space-3) var(--space-4)}.lg-type{grid-template-columns:minmax(0,1fr) auto}.lg-type>span:first-child{grid-column:1/-1}.lg-states,.lg-states[data-wide]{grid-template-columns:minmax(0,1fr)}.lg-swatches{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  </style>
+</head>
+<body>
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search invoices, customers, actions">
+  <div class="ui-command__list">
+    <button data-value="new-invoice"><i class="ti ti-plus" aria-hidden="true"></i>New invoice</button>
+    <button data-value="record-payment"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button>
+    <button data-value="customers"><i class="ti ti-users" aria-hidden="true"></i>Go to customers</button>
+    <button data-value="aging"><i class="ti ti-chart-bar" aria-hidden="true"></i>Open aging report</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to select · Esc to close</div>
+</dialog>
+
+<header class="lg-head">
+  <span class="ui-org-mark" aria-hidden="true">L</span>
+  <span class="ui-person"><strong>Ledger</strong><span>Seenry app design system · components and states</span></span>
+  <div class="ui-segmented" aria-label="Theme" data-theme-switch><button type="button" aria-pressed="true" data-value="light">Light</button><button type="button" aria-pressed="false" data-value="dark">Dark</button></div>
+</header>
+
+<div class="lg-layout">
+  <nav class="lg-index" aria-label="Components">
+    <div class="ui-nav-group"><p class="ui-nav-label">Foundations</p><a class="ui-nav-item" href="#color">Color</a><a class="ui-nav-item" href="#type">Type</a><a class="ui-nav-item" href="#space">Space and radius</a><a class="ui-nav-item" href="#icons">Icons</a></div>
+    <div class="ui-nav-group"><p class="ui-nav-label">Actions and inputs</p><a class="ui-nav-item" href="#button">Button</a><a class="ui-nav-item" href="#field">Text field</a><a class="ui-nav-item" href="#select">Select and combobox</a><a class="ui-nav-item" href="#choice">Checkbox and radio</a><a class="ui-nav-item" href="#switch">Switch</a><a class="ui-nav-item" href="#slider">Slider</a></div>
+    <div class="ui-nav-group"><p class="ui-nav-label">Selection and navigation</p><a class="ui-nav-item" href="#segmented">Segmented control</a><a class="ui-nav-item" href="#tabs">Tabs</a><a class="ui-nav-item" href="#chip">Chip and filter bar</a><a class="ui-nav-item" href="#shell">App shell</a><a class="ui-nav-item" href="#breadcrumb">Breadcrumb and pagination</a><a class="ui-nav-item" href="#steps">Steps</a><a class="ui-nav-item" href="#command-section">Command menu and kbd</a></div>
+    <div class="ui-nav-group"><p class="ui-nav-label">Feedback and layers</p><a class="ui-nav-item" href="#alert">Alert</a><a class="ui-nav-item" href="#status">Status and badge</a><a class="ui-nav-item" href="#progress">Progress and meter</a><a class="ui-nav-item" href="#toast">Toast</a><a class="ui-nav-item" href="#skeleton">Skeleton</a><a class="ui-nav-item" href="#menu">Menu and tooltip</a><a class="ui-nav-item" href="#dialog">Dialog and sheet</a></div>
+    <div class="ui-nav-group"><p class="ui-nav-label">Data</p><a class="ui-nav-item" href="#table">Table</a><a class="ui-nav-item" href="#stats">Stat strip</a><a class="ui-nav-item" href="#chart">Charts</a><a class="ui-nav-item" href="#list">List</a><a class="ui-nav-item" href="#data-list">Data list and detail</a><a class="ui-nav-item" href="#timeline">Timeline</a><a class="ui-nav-item" href="#code">Code</a><a class="ui-nav-item" href="#empty">Empty state</a></div>
+    <div class="ui-nav-group"><p class="ui-nav-label">Content and patterns</p><a class="ui-nav-item" href="#card">Card, avatar, accordion</a><a class="ui-nav-item" href="#settings">Settings and danger zone</a><a class="ui-nav-item" href="#auth">Sign-in frame</a><a class="ui-nav-item" href="#blocks">Blocks</a></div>
+  </nav>
+
+  <main class="lg-main">
+    <div class="lg-intro">
+      <h1>Ledger components</h1>
+      <p>Every seenry-ui component and every app class, in each state it can be in. Values come only from <code class="ui-code">tokens.css</code>; switch the theme above to check dark. Rules and reasons are in SYSTEM.md.</p>
+      <label class="ui-field lg-jump"><span class="ui-label">Jump to</span><select class="ui-select" data-jump><option value="color">Color</option><option value="type">Type</option><option value="space">Space and radius</option><option value="icons">Icons</option><option value="button">Button</option><option value="field">Text field</option><option value="select">Select and combobox</option><option value="choice">Checkbox and radio</option><option value="switch">Switch</option><option value="slider">Slider</option><option value="segmented">Segmented control</option><option value="tabs">Tabs</option><option value="chip">Chip and filter bar</option><option value="shell">App shell</option><option value="breadcrumb">Breadcrumb and pagination</option><option value="steps">Steps</option><option value="command-section">Command menu and kbd</option><option value="alert">Alert</option><option value="status">Status and badge</option><option value="progress">Progress and meter</option><option value="toast">Toast</option><option value="skeleton">Skeleton</option><option value="menu">Menu and tooltip</option><option value="dialog">Dialog and sheet</option><option value="table">Table</option><option value="stats">Stat strip</option><option value="chart">Charts</option><option value="list">List</option><option value="data-list">Data list and detail</option><option value="timeline">Timeline</option><option value="code">Code</option><option value="empty">Empty state</option><option value="card">Card, avatar, accordion</option><option value="settings">Settings and danger zone</option><option value="auth">Sign-in frame</option><option value="blocks">Blocks</option></select></label>
+    </div>
+
+    <!-- Foundations -->
+    <div class="lg-group">
+      <h2>Foundations</h2>
+
+      <section class="lg-section" id="color" aria-labelledby="color-h">
+        <header><h3 id="color-h">Color</h3><p>Cool greys split by hairlines. Ink blue is the one color that means act or selected. Status colors carry money meaning: red is overdue, failed or destructive; green is paid or settled; amber is disputed or at risk; slate is informational.</p></header>
+        <div class="lg-spec">
+          <div class="lg-swatches">
+            <div class="lg-swatch"><i style="background:var(--bg)"></i><span><b>Page</b><small>--bg</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--surface)"></i><span><b>Surface</b><small>--surface</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--surface-2)"></i><span><b>Sidebar, table head</b><small>--surface-2</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--hover)"></i><span><b>Hover</b><small>--hover</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--selected)"></i><span><b>Selected row</b><small>--selected</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--line)"></i><span><b>Hairline</b><small>--line</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--line-strong)"></i><span><b>Control border</b><small>--line-strong</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--text)"></i><span><b>Text</b><small>--text</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--text-2)"></i><span><b>Secondary text</b><small>--text-2</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--text-3)"></i><span><b>Meta, icons</b><small>--text-3</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--accent)"></i><span><b>Ink blue, act</b><small>--accent</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--accent-subtle)"></i><span><b>Selected nav</b><small>--accent-subtle</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--ok)"></i><span><b>Paid, settled</b><small>--ok</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--warn)"></i><span><b>Disputed, at risk</b><small>--warn</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--bad)"></i><span><b>Overdue, failed</b><small>--bad</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--info)"></i><span><b>Informational</b><small>--info</small></span></div>
+          </div>
+          <div class="lg-swatches" style="border-top:var(--hairline) solid var(--line)">
+            <div class="lg-swatch"><i style="background:var(--chart-1)"></i><span><b>Current</b><small>--chart-1</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--chart-2)"></i><span><b>1–30 days</b><small>--chart-2</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--chart-3)"></i><span><b>31–60 days</b><small>--chart-3</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--chart-4)"></i><span><b>61–90 days</b><small>--chart-4</small></span></div>
+            <div class="lg-swatch"><i style="background:var(--chart-5)"></i><span><b>Over 90 days</b><small>--chart-5</small></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="type" aria-labelledby="type-h">
+        <header><h3 id="type-h">Type</h3><p>IBM Plex Sans for everything, Plex Mono for IDs only. Seven steps; money is always tabular and never mono.</p></header>
+        <div class="lg-spec">
+          <div class="lg-type"><span style="font:var(--type-title)">Overview</span><span style="font:var(--type-body)">Page title, one per screen</span><small>--type-title 22/28</small></div>
+          <div class="lg-type"><span style="font:var(--type-stat)">$1,284,310<span class="ui-cents" style="color:var(--text-3)">.42</span></span><span style="font:var(--type-body)">Stat figure, cents dimmed</span><small>--type-stat 24/32</small></div>
+          <div class="lg-type"><span style="font:var(--type-heading)">Receivables aging</span><span style="font:var(--type-body)">Section and card titles</span><small>--type-heading 14/20</small></div>
+          <div class="lg-type"><span style="font:var(--type-body)">Meridian Health Group</span><span style="font:var(--type-body)">Body, table cells</span><small>--type-body 14/20</small></div>
+          <div class="lg-type"><span style="font:var(--type-label)">Payment terms</span><span style="font:var(--type-body)">Labels, buttons, table heads</span><small>--type-label 13/18</small></div>
+          <div class="lg-type"><span style="font:var(--type-small)">41 invoices past due</span><span style="font:var(--type-body)">Meta and help text</span><small>--type-small 12/16</small></div>
+          <div class="lg-type"><span class="ui-id">INV-2026-0418</span><span style="font:var(--type-body)">Invoice, PO and payment IDs</span><small>--type-mono 13/18</small></div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="space" aria-labelledby="space-h">
+        <header><h3 id="space-h">Space and radius</h3><p>A 4px scale. Rows are 36px, controls 32px, both 44px on phones. Radius stays small: 4px for tags, 6px for controls and cards, 8px for floating layers.</p></header>
+        <div class="lg-spec">
+          <div class="lg-scale">
+            <div><i style="width:var(--space-1)"></i>4</div><div><i style="width:var(--space-2)"></i>8</div><div><i style="width:var(--space-3)"></i>12</div><div><i style="width:var(--space-4)"></i>16</div><div><i style="width:var(--space-5)"></i>20</div><div><i style="width:var(--space-6)"></i>24</div><div><i style="width:var(--space-7)"></i>32</div><div><i style="width:var(--space-8)"></i>48</div>
+          </div>
+          <div class="lg-scale lg-radius" style="border-top:var(--hairline) solid var(--line)">
+            <div><i style="border-radius:var(--r-sm)"></i>--r-sm 4</div><div><i style="border-radius:var(--r-md)"></i>--r-md 6</div><div><i style="border-radius:var(--r-lg)"></i>--r-lg 8</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="icons" aria-labelledby="icons-h">
+        <header><h3 id="icons-h">Icons</h3><p>Tabler outline, 18px in navigation and icon buttons, 16px beside text. Icons take meta grey so the label stays stronger; selected rows tint them ink blue.</p></header>
+        <div class="lg-spec lg-icons">
+          <span><i class="ti ti-file-invoice" aria-hidden="true"></i>file-invoice</span><span><i class="ti ti-receipt" aria-hidden="true"></i>receipt</span><span><i class="ti ti-receipt-refund" aria-hidden="true"></i>receipt-refund</span><span><i class="ti ti-cash" aria-hidden="true"></i>cash</span><span><i class="ti ti-credit-card-off" aria-hidden="true"></i>credit-card-off</span><span><i class="ti ti-arrows-left-right" aria-hidden="true"></i>arrows-left-right</span><span><i class="ti ti-calendar-due" aria-hidden="true"></i>calendar-due</span><span><i class="ti ti-building-store" aria-hidden="true"></i>building-store</span><span><i class="ti ti-checklist" aria-hidden="true"></i>checklist</span><span><i class="ti ti-chart-bar" aria-hidden="true"></i>chart-bar</span><span><i class="ti ti-file-export" aria-hidden="true"></i>file-export</span><span><i class="ti ti-send" aria-hidden="true"></i>send</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- Actions and inputs -->
+    <div class="lg-group">
+      <h2>Actions and inputs</h2>
+
+      <section class="lg-section" id="button" aria-labelledby="button-h">
+        <header><h3 id="button-h">Button <code class="ui-code">.ui-button</code></h3><p>One filled primary per view. Secondary is the default; ghost for toolbars; danger is outlined red text and fills only inside the confirming dialog.</p></header>
+        <div class="lg-spec lg-scroll">
+          <div class="lg-matrix">
+            <span class="lg-colhead"></span><span class="lg-colhead">Default</span><span class="lg-colhead">Hover</span><span class="lg-colhead">Focus</span><span class="lg-colhead">Disabled</span><span class="lg-colhead">Loading</span>
+            <span class="lg-rowhead">Primary</span>
+            <div><button class="ui-button" data-variant="primary" type="button"><i class="ti ti-send" aria-hidden="true"></i>Send reminder</button></div>
+            <div><button class="ui-button" data-variant="primary" data-state="hover" type="button"><i class="ti ti-send" aria-hidden="true"></i>Send reminder</button></div>
+            <div><button class="ui-button" data-variant="primary" data-state="focus" type="button"><i class="ti ti-send" aria-hidden="true"></i>Send reminder</button></div>
+            <div><button class="ui-button" data-variant="primary" type="button" disabled><i class="ti ti-send" aria-hidden="true"></i>Send reminder</button></div>
+            <div><button class="ui-button" data-variant="primary" type="button" data-loading aria-busy="true" disabled>Sending</button></div>
+            <span class="lg-rowhead">Secondary</span>
+            <div><button class="ui-button" type="button"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button></div>
+            <div><button class="ui-button" data-state="hover" type="button"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button></div>
+            <div><button class="ui-button" data-state="focus" type="button"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button></div>
+            <div><button class="ui-button" type="button" disabled><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button></div>
+            <div><button class="ui-button" type="button" data-loading aria-busy="true" disabled>Recording</button></div>
+            <span class="lg-rowhead">Ghost</span>
+            <div><button class="ui-button" data-variant="ghost" type="button">Skip for now</button></div>
+            <div><button class="ui-button" data-variant="ghost" data-state="hover" type="button">Skip for now</button></div>
+            <div><button class="ui-button" data-variant="ghost" data-state="focus" type="button">Skip for now</button></div>
+            <div><button class="ui-button" data-variant="ghost" type="button" disabled>Skip for now</button></div>
+            <div><button class="ui-button" data-variant="ghost" type="button" data-loading aria-busy="true" disabled>Skipping</button></div>
+            <span class="lg-rowhead">Danger</span>
+            <div><button class="ui-button" data-variant="danger" type="button">Void drafts</button></div>
+            <div><button class="ui-button" data-variant="danger" data-state="hover" type="button">Void drafts</button></div>
+            <div><button class="ui-button" data-variant="danger" data-state="focus" type="button">Void drafts</button></div>
+            <div><button class="ui-button" data-variant="danger" type="button" disabled>Void drafts</button></div>
+            <div><button class="ui-button" data-variant="danger" data-fill type="button">Close workspace</button></div>
+          </div>
+        </div>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div><button class="ui-button" data-size="sm" type="button">Aging report</button><button class="ui-button" type="button">Export</button><button class="ui-button" data-size="lg" type="button">Continue</button></div><figcaption>Sizes: sm 28, default 32, lg 44</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-button" data-icon type="button" aria-label="More actions"><i class="ti ti-dots" aria-hidden="true"></i></button><button class="ui-button" data-variant="ghost" data-icon type="button" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i></button><button class="ui-button" data-icon data-size="sm" type="button" aria-label="Download PDF"><i class="ti ti-file-download" aria-hidden="true"></i></button></div><figcaption>Icon buttons carry aria-label</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-button" data-variant="danger" data-fill type="button">Close workspace</button></div><figcaption>Filled danger: inside the confirming dialog only</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="field" aria-labelledby="field-h">
+        <header><h3 id="field-h">Text field <code class="ui-code">.ui-field .ui-input</code></h3><p>Always a visible label. Errors say what to do and sit under the field; affixes carry units.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">PO number</span><input class="ui-input" placeholder="PO-00000"></label></div><figcaption>Default, placeholder</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">PO number</span><input class="ui-input" data-state="hover" value="PO-77120"></label></div><figcaption>Hover</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">PO number</span><input class="ui-input" data-state="focus" value="PO-77120"></label></div><figcaption>Focus</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field" data-invalid><span class="ui-label">Remittance email</span><input class="ui-input" type="email" value="ap@meridianhealth" aria-invalid="true" aria-describedby="g-email-err"><span class="ui-error" id="g-email-err">Add the domain ending, like .com.</span></label></div><figcaption>Error</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Invoice number</span><input class="ui-input ui-id" value="INV-2026-0418" disabled></label></div><figcaption>Disabled</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Approval required above</span><span class="ui-control"><span class="ui-affix">$</span><input class="ui-input" inputmode="decimal" value="25,000.00"><span class="ui-affix">USD</span></span><span class="ui-help">Needs a second approver.</span></label></div><figcaption>Affix and help</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Search</span><span class="ui-control"><i class="ti ti-search" aria-hidden="true"></i><input class="ui-input" type="search" placeholder="Search invoices"></span></label></div><figcaption>Leading icon</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Footer memo</span><textarea class="ui-textarea">Remit by ACH to First Harbor Bank, routing 125000105.</textarea></label></div><figcaption>Textarea</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="select" aria-labelledby="select-h">
+        <header><h3 id="select-h">Select and combobox <code class="ui-code">.ui-select</code> <code class="ui-code">.ui-combobox</code></h3><p>Native select for short fixed lists. Combobox wraps an input with a datalist when people type to find a customer or vendor among many.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Payment terms</span><select class="ui-select"><option>Due on receipt</option><option>Net 15</option><option selected>Net 30</option><option>Net 60</option></select></label></div><figcaption>Select</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Payment terms</span><select class="ui-select" data-state="focus"><option>Net 30</option></select></label></div><figcaption>Select, focus</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Currency</span><select class="ui-select" disabled><option>USD, US dollar</option></select></label></div><figcaption>Select, disabled</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Customer</span><span class="ui-combobox"><input class="ui-input" list="g-customers" placeholder="Type a customer name"></span><datalist id="g-customers"><option value="Meridian Health Group"></option><option value="Northgate Builders"></option><option value="Brightwater Logistics"></option><option value="Pinecrest Senior Living"></option><option value="Tidewater Marine Supply"></option></datalist></label></div><figcaption>Combobox</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field"><span class="ui-label">Customer</span><span class="ui-combobox"><input class="ui-input" data-state="focus" list="g-customers" value="Meridian Health Group"></span></label></div><figcaption>Combobox, chosen and focused</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-field" data-invalid><span class="ui-label">Vendor</span><span class="ui-combobox"><input class="ui-input" list="g-customers" value="Harbour Pine" aria-invalid="true" aria-describedby="g-vendor-err"></span><span class="ui-error" id="g-vendor-err">No vendor matches. Pick one from the list or add a vendor.</span></label></div><figcaption>Combobox, error</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="choice" aria-labelledby="choice-h">
+        <header><h3 id="choice-h">Checkbox and radio <code class="ui-code">.ui-choice</code></h3><p>Checked controls fill ink blue, the same color as selection everywhere else.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-choice"><input type="checkbox"><span>Copy the account owner</span></label><label class="ui-choice"><input type="checkbox" checked><span>Attach the invoice PDF <small>Sent with every reminder.</small></span></label></div><figcaption>Unchecked, checked with help</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-choice"><input type="checkbox" data-state="focus"><span>Pass card fees to customer</span></label><label class="ui-choice"><input type="checkbox" checked disabled><span>Keep audit log</span></label></div><figcaption>Focus, disabled</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><fieldset class="ui-radio-group"><legend>Send reminders from</legend><label class="ui-choice"><input type="radio" name="g-from" checked><span>ar@harborpine.com</span></label><label class="ui-choice"><input type="radio" name="g-from"><span>The account owner</span></label><label class="ui-choice"><input type="radio" name="g-from" disabled><span>A shared inbox <small>Connect Google Workspace first.</small></span></label></fieldset></div><figcaption>Radio group with disabled option</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="switch" aria-labelledby="switch-h">
+        <header><h3 id="switch-h">Switch <code class="ui-code">.ui-switch</code></h3><p>For settings that apply immediately. In settings rows the label lives in the row and the switch keeps an accessible name.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div><label class="ui-switch"><input type="checkbox" role="switch"><span>Copy account owner</span></label></div><figcaption>Off</figcaption></figure>
+          <figure class="lg-state"><div><label class="ui-switch"><input type="checkbox" role="switch" checked><span>Reminder on due date</span></label></div><figcaption>On</figcaption></figure>
+          <figure class="lg-state"><div><label class="ui-switch"><input type="checkbox" role="switch" checked data-state="focus"><span>ACH debit</span></label></div><figcaption>Focus</figcaption></figure>
+          <figure class="lg-state"><div><label class="ui-switch"><input type="checkbox" role="switch" disabled><span>Wire matching</span></label></div><figcaption>Disabled</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="slider" aria-labelledby="slider-h">
+        <header><h3 id="slider-h">Slider <code class="ui-code">.ui-slider</code></h3><p>A range input with its value written beside it. Use it for tolerances and thresholds where the exact number is shown; type the number when it must be exact to the cent.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-slider"><span class="ui-label">Auto-match tolerance</span><output>$2.50</output><input type="range" min="0" max="10" step="0.5" value="2.5" data-format="money"><small>Deposits within this amount of an invoice match without review.</small></label></div><figcaption>Default</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-slider"><span class="ui-label">Reminder cadence</span><output>7 days</output><input type="range" min="3" max="14" value="7" data-format="days"></label></div><figcaption>Integer steps</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><label class="ui-slider"><span class="ui-label">Late fee</span><output>1.5%</output><input type="range" min="0" max="5" step="0.5" value="1.5" disabled data-format="pct"><small>Turn on late fees in Invoicing first.</small></label></div><figcaption>Disabled</figcaption></figure>
+        </div>
+      </section>
+    </div>
+
+    <!-- Selection and navigation -->
+    <div class="lg-group">
+      <h2>Selection and navigation</h2>
+
+      <section class="lg-section" id="segmented" aria-labelledby="segmented-h">
+        <header><h3 id="segmented-h">Segmented control <code class="ui-code">.ui-segmented</code></h3><p>Switches a view, never submits. Selected is a raised white segment, not ink blue, so it never competes with the primary.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div><div class="ui-segmented" aria-label="Invoice status"><button type="button" aria-pressed="false" data-value="all">All</button><button type="button" aria-pressed="false" data-value="open">Open</button><button type="button" aria-pressed="true" data-value="overdue">Overdue</button><button type="button" aria-pressed="false" data-value="paid">Paid</button></div></div><figcaption>Selected</figcaption></figure>
+          <figure class="lg-state"><div><div class="ui-segmented" aria-label="Range"><button type="button" aria-pressed="false" data-state="hover">6M</button><button type="button" aria-pressed="true">12M</button><button type="button" aria-pressed="false" data-state="focus">YTD</button></div></div><figcaption>Hover on 6M, focus on YTD</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="tabs" aria-labelledby="tabs-h">
+        <header><h3 id="tabs-h">Tabs <code class="ui-code">.ui-tabs</code></h3><p>Sibling panels of one record or page. The 2px ink rule marks the selected tab.</p></header>
+        <div class="lg-spec lg-pad">
+          <div class="ui-tabs" role="tablist" aria-label="Customer sections"><button role="tab" id="g-t1" aria-selected="true" aria-controls="g-p1">Invoices</button><button role="tab" id="g-t2" aria-selected="false" aria-controls="g-p2" data-state="hover">Payments</button><button role="tab" id="g-t3" aria-selected="false" aria-controls="g-p3">Contacts</button><button role="tab" id="g-t4" aria-selected="false" aria-controls="g-p4" disabled>Statements</button></div>
+          <div class="ui-tab-panel" role="tabpanel" id="g-p1" aria-labelledby="g-t1"><p class="lg-note">3 open invoices, <b class="ui-amount">$61,880.40</b> outstanding.</p></div>
+          <div class="ui-tab-panel" role="tabpanel" id="g-p2" aria-labelledby="g-t2" hidden><p class="lg-note">Last payment Oct 2, $14,210.00 by ACH.</p></div>
+          <div class="ui-tab-panel" role="tabpanel" id="g-p3" aria-labelledby="g-t3" hidden><p class="lg-note">Priya Raman, Accounts payable.</p></div>
+          <div class="ui-tab-panel" role="tabpanel" id="g-p4" aria-labelledby="g-t4" hidden></div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="chip" aria-labelledby="chip-h">
+        <header><h3 id="chip-h">Chip and filter bar <code class="ui-code">.ui-chip</code> <code class="ui-code">.ui-filter-bar</code></h3><p>An unset filter is a dashed outline; a set one turns solid ink and names its value. The count on the right always states rows and money.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div><button class="ui-chip" type="button" aria-pressed="false"><i class="ti ti-plus" aria-hidden="true"></i>Customer</button></div><figcaption>Default</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-chip" type="button" aria-pressed="false" data-state="hover"><i class="ti ti-plus" aria-hidden="true"></i>Customer</button></div><figcaption>Hover</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-chip" type="button" aria-pressed="false" data-state="focus"><i class="ti ti-plus" aria-hidden="true"></i>Customer</button></div><figcaption>Focus</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-chip" type="button" aria-pressed="true">Due <b>Sep 1 – Oct 28</b><i class="ti ti-x" aria-hidden="true"></i></button></div><figcaption>Selected with value</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-chip" type="button" aria-pressed="false" disabled><i class="ti ti-plus" aria-hidden="true"></i>Vendor</button></div><figcaption>Disabled</figcaption></figure>
+        </div>
+        <div class="lg-spec lg-pad">
+          <div class="ui-filter-bar">
+            <label class="ui-control"><i class="ti ti-search" aria-hidden="true"></i><input class="ui-input" type="search" placeholder="Search invoices" aria-label="Search invoices"></label>
+            <button class="ui-chip" type="button" aria-pressed="true">Status <b>Overdue</b><i class="ti ti-x" aria-hidden="true"></i></button>
+            <button class="ui-chip" type="button" aria-pressed="false"><i class="ti ti-plus" aria-hidden="true"></i>Customer</button>
+            <button class="ui-chip" type="button" aria-pressed="false"><i class="ti ti-plus" aria-hidden="true"></i>Amount</button>
+            <span class="ui-filter-count">41 invoices · $312,940.18</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="shell" aria-labelledby="shell-h">
+        <header><h3 id="shell-h">App shell <code class="ui-code">.ui-shell</code></h3><p>Sidebar on the second surface, top bar on white, page on grey. Nav items show hover in grey and the current page in pale ink. Under 768px the sidebar becomes a drawer opened by the <code class="ui-code">[data-nav-toggle]</code> button.</p></header>
+        <div class="lg-spec lg-pad-0">
+          <div class="lg-shell-demo">
+            <aside class="ui-sidebar" aria-label="Workspace example">
+              <div class="ui-sidebar-head"><button class="ui-workspace" type="button" aria-label="Switch workspace"><span class="ui-org-mark" aria-hidden="true">HP</span><span>Harbor &amp; Pine Supply</span><i class="ti ti-selector" aria-hidden="true"></i></button></div>
+              <nav class="ui-nav" aria-label="Example">
+                <div class="ui-nav-group"><a class="ui-nav-item" href="#shell"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Overview</span></a></div>
+                <div class="ui-nav-group"><p class="ui-nav-label">Receivables</p>
+                  <a class="ui-nav-item" href="#shell" aria-current="page"><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoices</span></a>
+                  <a class="ui-nav-item" href="#shell" data-state="hover"><i class="ti ti-users" aria-hidden="true"></i><span>Customers</span></a>
+                  <a class="ui-nav-item" href="#shell" data-state="focus"><i class="ti ti-cash" aria-hidden="true"></i><span>Payments</span></a>
+                </div>
+              </nav>
+              <div class="ui-sidebar-foot"><span class="ui-avatar" aria-hidden="true">DW</span><span class="ui-person"><strong>Dana Whitfield</strong><span>Controller</span></span></div>
+            </aside>
+            <div class="ui-main">
+              <div class="ui-topbar"><nav aria-label="Example breadcrumb"><ol class="ui-breadcrumb"><li><a href="#shell">Harbor &amp; Pine</a></li><li aria-current="page">Invoices</li></ol></nav><div class="ui-topbar-actions"><button class="ui-search" type="button" data-dialog-open="command" aria-label="Search"><i class="ti ti-search" aria-hidden="true"></i><span>Search invoices, customers</span><span class="ui-kbd">⌘K</span></button></div></div>
+              <div class="ui-page">
+                <div class="ui-page-header"><div><p class="ui-page-title">Invoices</p><p class="ui-page-sub">137 open, $1,284,310.42 outstanding</p></div><div class="ui-page-actions"><button class="ui-button" type="button">Export</button></div></div>
+                <div class="ui-section"><div class="ui-section-head"><div><h4 class="ui-heading">Overdue</h4><p>41 invoices</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="lg-note">Rows above: <b>Invoices</b> current, <b>Customers</b> hover, <b>Payments</b> focus.</p>
+      </section>
+
+      <section class="lg-section" id="breadcrumb" aria-labelledby="breadcrumb-h">
+        <header><h3 id="breadcrumb-h">Breadcrumb and pagination <code class="ui-code">.ui-breadcrumb</code> <code class="ui-code">.ui-pagination</code></h3><p>Breadcrumbs collapse to the current page on phones. Pagination sits in the table foot with the row count.</p></header>
+        <div class="lg-spec lg-states" data-wide>
+          <figure class="lg-state"><div><nav aria-label="Breadcrumb example"><ol class="ui-breadcrumb"><li><a href="#breadcrumb">Harbor &amp; Pine</a></li><li><a href="#breadcrumb">Invoices</a></li><li aria-current="page">INV-2026-0418</li></ol></nav></div><figcaption>Breadcrumb</figcaption></figure>
+          <figure class="lg-state"><div><nav class="ui-pagination" aria-label="Pages example"><button type="button" disabled aria-label="Previous page"><i class="ti ti-chevron-left" aria-hidden="true"></i></button><button type="button" aria-current="page">1</button><button type="button" data-state="hover">2</button><button type="button">3</button><button type="button" data-state="focus">4</button><button type="button" aria-label="Next page"><i class="ti ti-chevron-right" aria-hidden="true"></i></button></nav></div><figcaption>Current 1, hover 2, focus 4, previous disabled</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="steps" aria-labelledby="steps-h">
+        <header><h3 id="steps-h">Steps <code class="ui-code">.ui-steps .ui-step</code></h3><p>A rule over each step: grey for done with a check, ink for the current step, hairline for what is ahead. Done steps link back.</p></header>
+        <div class="lg-spec lg-pad">
+          <ol class="ui-steps" aria-label="Setup progress example">
+            <li class="ui-step" data-state="done"><i class="ti ti-check" aria-hidden="true"></i><a href="#steps">Company<span class="sr-only">, done</span></a></li>
+            <li class="ui-step" aria-current="step">Getting paid</li>
+            <li class="ui-step">Invoice defaults</li>
+            <li class="ui-step">Invite your team</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="lg-section" id="command-section" aria-labelledby="command-h">
+        <header><h3 id="command-h">Command menu and kbd <code class="ui-code">.ui-command</code> <code class="ui-code">.ui-kbd</code></h3><p>Cmd K opens it anywhere. The first match is active; results never animate.</p></header>
+        <div class="lg-spec lg-states" data-wide>
+          <figure class="lg-state"><div><div class="ui-command lg-static" aria-label="Command menu example"><input type="search" aria-label="Search commands example" value="rec"><div class="ui-command__list"><button data-active="true" type="button"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button><button type="button"><i class="ti ti-receipt-refund" aria-hidden="true"></i>Record credit note</button><button type="button"><i class="ti ti-arrows-left-right" aria-hidden="true"></i>Reconcile deposits</button></div><div class="ui-command__footer">↑ ↓ to move · Enter to select · Esc to close</div></div></div><figcaption>Open, first match active</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-button" type="button" data-dialog-open="command"><i class="ti ti-search" aria-hidden="true"></i>Open command menu</button><span class="ui-kbd">⌘K</span><span class="ui-kbd">Esc</span></div><figcaption>Trigger and keys</figcaption></figure>
+        </div>
+      </section>
+    </div>
+
+    <!-- Feedback and layers -->
+    <div class="lg-group">
+      <h2>Feedback and layers</h2>
+
+      <section class="lg-section" id="alert" aria-labelledby="alert-h">
+        <header><h3 id="alert-h">Alert <code class="ui-code">.ui-alert</code></h3><p>One sentence about this page, an optional detail line and at most one action. Tone follows the money meaning of the status colors.</p></header>
+        <div class="lg-spec lg-pad" style="display:grid;gap:var(--space-3)">
+          <div class="ui-alert" data-status="info"><i class="ti ti-arrows-left-right" aria-hidden="true"></i><p>A $22,000.00 wire from MERIDIAN HLTH GRP may match this invoice.<small>Reference “INV0418 PART 1”, Oct 27</small></p><button class="ui-button" data-size="sm" type="button">Review match</button></div>
+          <div class="ui-alert" data-status="warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><p>Tidewater Marine disputed line 3: short shipment of 4 cases.</p><button class="ui-button" data-size="sm" type="button">Open dispute</button></div>
+          <div class="ui-alert" data-status="bad"><i class="ti ti-credit-card-off" aria-hidden="true"></i><p>ACH payment of $18,420.00 was returned: R01 insufficient funds.<small>Brightwater Logistics · retry allowed after Oct 30</small></p></div>
+          <div class="ui-alert" data-status="ok"><i class="ti ti-circle-check" aria-hidden="true"></i><p>September closed. 214 invoices settled, $1,402,118.06 collected.</p></div>
+          <div class="ui-alert"><i class="ti ti-info-circle" aria-hidden="true"></i><p>QuickBooks Online last synced 4 minutes ago.</p><button class="ui-button" data-variant="ghost" data-size="sm" type="button">Sync now</button></div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="status" aria-labelledby="status-h">
+        <header><h3 id="status-h">Status and badge <code class="ui-code">.ui-status</code> <code class="ui-code">.ui-badge</code></h3><p>Status always pairs a word with a mark. A badge is a category, not a state.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div><span class="ui-status" data-status="ok">Paid</span><span class="ui-status" data-status="ok">Settled</span></div><figcaption>ok: paid and settled only</figcaption></figure>
+          <figure class="lg-state"><div><span class="ui-status" data-status="bad">30 days late</span><span class="ui-status" data-status="bad">Payment failed</span></div><figcaption>bad: overdue, failed</figcaption></figure>
+          <figure class="lg-state"><div><span class="ui-status" data-status="warn">Disputed</span><span class="ui-status" data-status="warn">At risk</span></div><figcaption>warn</figcaption></figure>
+          <figure class="lg-state"><div><span class="ui-status" data-status="info">Promise to pay</span><span class="ui-status" data-status="info">Sent</span></div><figcaption>info</figcaption></figure>
+          <figure class="lg-state"><div><span class="ui-status" data-status="idle">Draft</span><span class="ui-status" data-status="idle">Void</span></div><figcaption>idle</figcaption></figure>
+          <figure class="lg-state"><div><span class="ui-badge">Annual</span><span class="ui-badge">Net 30</span><span class="ui-badge">Tax exempt</span></div><figcaption>Badges</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="progress" aria-labelledby="progress-h">
+        <header><h3 id="progress-h">Progress and meter <code class="ui-code">.ui-progress</code> <code class="ui-code">.ui-meter</code></h3><p>Progress is work moving; meter is usage against a limit and turns amber near it and red past it. The number is always written beside the bar.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div class="lg-stack"><div class="ui-measure"><span id="g-pr1">Importing from QuickBooks</span><span class="ui-measure-value">412 <span>of 1,036</span></span><progress class="ui-progress" max="1036" value="412" aria-labelledby="g-pr1"></progress><small>About 2 minutes left</small></div></div><figcaption>Progress</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><div class="ui-measure"><span id="g-m1">Bank connections</span><span class="ui-measure-value">3 <span>of 5</span></span><meter class="ui-meter" min="0" max="5" low="4" high="4.5" optimum="0" value="3" aria-labelledby="g-m1"></meter></div></div><figcaption>Meter, under limit</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><div class="ui-measure"><span id="g-m2">Invoices this period</span><span class="ui-measure-value">1,284 <span>of 1,500</span></span><meter class="ui-meter" min="0" max="1500" low="1050" high="1350" optimum="0" value="1284" aria-labelledby="g-m2"></meter></div></div><figcaption>Meter, near limit</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><div class="ui-measure"><span id="g-m3">Credit used</span><span class="ui-measure-value">$104,210.00 <span>of $100,000.00</span></span><meter class="ui-meter" min="0" max="100000" low="75000" high="90000" optimum="0" value="100000" aria-labelledby="g-m3"></meter><small>Over limit: new orders need approval</small></div></div><figcaption>Meter, over limit</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="toast" aria-labelledby="toast-h">
+        <header><h3 id="toast-h">Toast <code class="ui-code">.ui-toast</code></h3><p>A short result after an action, bottom right, never for errors that need fixing.</p></header>
+        <div class="lg-spec lg-states" data-wide>
+          <figure class="lg-state"><div><div class="ui-toast" role="status"><div><strong>Reminder sent</strong><p>Priya Raman will get it at ap@meridianhealth.com.</p></div><button type="button" aria-label="Dismiss notification">×</button></div></div><figcaption>Static rendering</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-button" type="button" data-toast-message="Payment recorded" data-toast-description="$22,000.00 applied to INV-2026-0418. $26,250.00 still due.">Show a toast</button></div><figcaption>Live: SeenryUI.toast</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="skeleton" aria-labelledby="skeleton-h">
+        <header><h3 id="skeleton-h">Skeleton <code class="ui-code">.ui-skeleton</code></h3><p>Matches the rows that will load; the shimmer stops for reduced motion.</p></header>
+        <div class="lg-spec lg-pad" aria-busy="true" aria-label="Loading invoices" style="display:grid;gap:var(--space-3)">
+          <span class="ui-skeleton" style="width:30%"></span><span class="ui-skeleton" style="width:90%"></span><span class="ui-skeleton" style="width:84%"></span><span class="ui-skeleton" style="width:88%"></span>
+        </div>
+      </section>
+
+      <section class="lg-section" id="menu" aria-labelledby="menu-h">
+        <header><h3 id="menu-h">Menu and tooltip <code class="ui-code">.ui-menu</code> <code class="ui-code">.ui-tooltip</code></h3><p>Floating layers are the only things with a shadow. Destructive items sit last, after a rule, in red.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div><div class="ui-menu lg-static" role="menu" aria-label="Invoice actions example"><button role="menuitem" type="button"><i class="ti ti-file-download" aria-hidden="true"></i>Download PDF</button><button role="menuitem" type="button" data-state="hover"><i class="ti ti-copy" aria-hidden="true"></i>Duplicate</button><button role="menuitemcheckbox" aria-checked="true" type="button"><i class="ti ti-check" aria-hidden="true"></i>Show paid lines</button><hr><button role="menuitem" type="button" data-tone="bad"><i class="ti ti-ban" aria-hidden="true"></i>Void invoice</button></div></div><figcaption>Menu, hover on Duplicate</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-button" type="button" data-menu-trigger="g-menu"><i class="ti ti-dots" aria-hidden="true"></i>More</button><div id="g-menu" class="ui-menu" role="menu" popover="auto"><button role="menuitem" data-value="pdf"><i class="ti ti-file-download" aria-hidden="true"></i>Download PDF</button><button role="menuitem" data-value="dup"><i class="ti ti-copy" aria-hidden="true"></i>Duplicate</button><hr><button role="menuitem" data-value="void" data-tone="bad"><i class="ti ti-ban" aria-hidden="true"></i>Void invoice</button></div></div><figcaption>Live menu</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><div class="ui-tooltip lg-static" role="tooltip">DSO: average days to collect</div><button class="ui-button" data-size="sm" type="button" data-tooltip="g-tip">Hover for tooltip</button><div id="g-tip" class="ui-tooltip" role="tooltip" popover="manual">Kept for 7 years for audit.</div></div><figcaption>Tooltip, static and live</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="lg-section" id="dialog" aria-labelledby="dialog-h">
+        <header><h3 id="dialog-h">Dialog and sheet <code class="ui-code">.ui-dialog</code> <code class="ui-code">.ui-sheet</code></h3><p>A dialog confirms one consequential act and names what will happen. A sheet holds a related task with more room.</p></header>
+        <div class="lg-spec lg-states" data-wide>
+          <figure class="lg-state"><div><div class="ui-dialog lg-static" role="group" aria-labelledby="g-dlg-title"><div class="ui-dialog__head"><h2 id="g-dlg-title">Void INV-2026-0418?</h2></div><div class="ui-dialog__body">Meridian Health Group is no longer asked to pay $48,250.00. The number is not reused.</div><div class="ui-dialog__foot"><button class="ui-button" type="button">Cancel</button><button class="ui-button" data-variant="danger" data-fill type="button">Void invoice</button></div></div></div><figcaption>Dialog, static</figcaption></figure>
+          <figure class="lg-state"><div><button class="ui-button" type="button" data-dialog-open="g-dialog">Open dialog</button><button class="ui-button" type="button" data-dialog-open="g-sheet">Open sheet</button></div><figcaption>Live dialog and sheet</figcaption></figure>
+        </div>
+      </section>
+    </div>
+
+    <!-- Data -->
+    <div class="lg-group">
+      <h2>Data</h2>
+
+      <section class="lg-section" id="table" aria-labelledby="table-h">
+        <header><h3 id="table-h">Table <code class="ui-code">.ui-table</code></h3><p>36px rows, hairlines, money right-aligned in tabular figures. Click a header to sort. The selected row gets pale ink and a 2px ink edge.</p></header>
+        <div class="ui-table-wrap">
+          <table class="ui-table" data-ui-table id="g-table">
+            <thead><tr><th scope="col" data-sort class="ui-hide-sm">Invoice</th><th scope="col" data-sort>Customer</th><th scope="col">Status</th><th scope="col" class="num" data-sort>Amount due</th></tr></thead>
+            <tbody>
+              <tr aria-selected="true"><td class="ui-hide-sm"><a class="ui-id" href="#table">INV-2026-0418</a></td><td>Meridian Health Group</td><td><span class="ui-status" data-status="bad">30 days late</span></td><td class="num" data-sort="48250">$48,250.00</td></tr>
+              <tr data-state="hover"><td class="ui-hide-sm"><a class="ui-id" href="#table">INV-2026-0440</a></td><td>Northgate Builders</td><td><span class="ui-status" data-status="info">Promise to pay</span></td><td class="num" data-sort="27300">$27,300.00</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#table">INV-2026-0391</a></td><td>Tidewater Marine Supply</td><td><span class="ui-status" data-status="warn">Disputed</span></td><td class="num" data-sort="4215.50">$4,215.50</td></tr>
+              <tr><td class="ui-hide-sm"><a class="ui-id" href="#table">INV-2026-0409</a></td><td>Saltmarsh Outfitters</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="0">$0.00</td></tr>
+            </tbody>
+            <tfoot><tr><td class="ui-hide-sm">4 invoices</td><td colspan="2">Total due</td><td class="num">$79,765.50</td></tr></tfoot>
+          </table>
+          <div class="ui-table-foot"><span>Selected row, hover row, total row</span><nav class="ui-pagination" aria-label="Table pages example"><button type="button" disabled aria-label="Previous page"><i class="ti ti-chevron-left" aria-hidden="true"></i></button><button type="button" aria-current="page">1</button><button type="button" aria-label="Next page"><i class="ti ti-chevron-right" aria-hidden="true"></i></button></nav></div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="stats" aria-labelledby="stats-h">
+        <header><h3 id="stats-h">Stat strip <code class="ui-code">.ui-stat-strip</code></h3><p>Up to three figures, exact to the cent with cents dimmed, each with one line of context.</p></header>
+        <div class="ui-stat-strip">
+          <dl class="ui-stat"><dt>Outstanding</dt><dd>$1,284,310<span class="ui-cents">.42</span></dd><small>137 open invoices</small></dl>
+          <dl class="ui-stat"><dt>Overdue</dt><dd>$312,940<span class="ui-cents">.18</span></dd><small class="ui-bad-text">41 invoices past due</small></dl>
+          <dl class="ui-stat"><dt>Collected in October</dt><dd>$486,205<span class="ui-cents">.00</span></dd><small>DSO 38 days, down 3</small></dl>
+        </div>
+      </section>
+
+      <section class="lg-section" id="chart" aria-labelledby="chart-h">
+        <header><h3 id="chart-h">Charts <code class="ui-code">.ui-chart</code></h3><p>Conventional finance forms only: a stacked bar for aging with its legend as a table, vertical bars for money over months in grey with the month in progress in ink. Aging steps through four greys to one red, so only the oldest money is colored.</p></header>
+        <div class="ui-columns">
+          <section class="ui-card" aria-labelledby="g-aging">
+            <div class="ui-section-head"><div><h4 id="g-aging" class="ui-heading">Receivables aging</h4><p>By days past due</p></div></div>
+            <figure class="ui-chart">
+              <svg class="ui-chart-stack" viewBox="0 0 1000 20" preserveAspectRatio="none" role="img" aria-label="Aging: current 75.6%, 1 to 30 days 13.1%, 31 to 60 days 6.5%, 61 to 90 days 2.9%, over 90 days 1.9%"><rect data-series="1" x="0" y="0" width="750.2" height="20"/><rect data-series="2" x="752.2" y="0" width="130.1" height="20"/><rect data-series="3" x="884.3" y="0" width="64.1" height="20"/><rect data-series="4" x="950.4" y="0" width="28.4" height="20"/><rect data-series="5" x="980.8" y="0" width="19.2" height="20"/></svg>
+              <ul class="ui-chart-legend">
+                <li><i data-series="1"></i><span>Current</span><b>$971,370.24</b><small>75.6%</small></li>
+                <li><i data-series="2"></i><span>1–30 days</span><b>$168,402.10</b><small>13.1%</small></li>
+                <li><i data-series="3"></i><span>31–60 days</span><b>$82,915.30</b><small>6.5%</small></li>
+                <li><i data-series="4"></i><span>61–90 days</span><b>$36,790.00</b><small>2.9%</small></li>
+                <li><i data-series="5"></i><span>Over 90 days</span><b>$24,832.78</b><small>1.9%</small></li>
+              </ul>
+            </figure>
+          </section>
+          <section class="ui-card" aria-labelledby="g-cash">
+            <div class="ui-section-head"><div><h4 id="g-cash" class="ui-heading">Cash collected</h4><p>Last 6 months</p></div></div>
+            <figure class="ui-chart">
+              <div class="ui-chart-plot">
+                <div class="ui-chart-axis" data-axis="y" aria-hidden="true"><span>$600k</span><span>$450k</span><span>$300k</span><span>$150k</span><span>$0</span></div>
+                <svg viewBox="0 0 60 100" preserveAspectRatio="none" role="img" aria-label="Cash collected May to October 2026: $471k, $455k, $498k, $463k, $521k, $486k">
+                  <line class="ui-chart-gridline" x1="0" x2="60" y1="0.5" y2="0.5" vector-effect="non-scaling-stroke"/><line class="ui-chart-gridline" x1="0" x2="60" y1="25" y2="25" vector-effect="non-scaling-stroke"/><line class="ui-chart-gridline" x1="0" x2="60" y1="50" y2="50" vector-effect="non-scaling-stroke"/><line class="ui-chart-gridline" x1="0" x2="60" y1="75" y2="75" vector-effect="non-scaling-stroke"/>
+                  <rect data-series="past" x="2" y="21.5" width="6" height="78.5"/><rect data-series="past" x="12" y="24.17" width="6" height="75.83"/><rect data-series="past" x="22" y="17" width="6" height="83"/><rect data-series="past" x="32" y="22.83" width="6" height="77.17"/><rect data-series="past" x="42" y="13.17" width="6" height="86.83"/><rect data-series="current" x="52" y="18.97" width="6" height="81.03"/>
+                  <line class="ui-chart-baseline" x1="0" x2="60" y1="99.5" y2="99.5" vector-effect="non-scaling-stroke"/>
+                </svg>
+                <div class="ui-chart-axis" data-axis="x" aria-hidden="true"><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span data-current>Oct</span></div>
+              </div>
+            </figure>
+          </section>
+        </div>
+      </section>
+
+      <section class="lg-section" id="list" aria-labelledby="list-h">
+        <header><h3 id="list-h">List <code class="ui-code">.ui-list</code></h3><p>A queue of rows: icon, what happened, who and why, and the amount at the right.</p></header>
+        <ul class="ui-list">
+          <li><a class="ui-list-item" href="#list"><span class="ui-list-icon" data-tone="bad"><i class="ti ti-credit-card-off" aria-hidden="true"></i></span><span class="ui-list-body"><strong>ACH payment returned</strong><span class="ui-list-meta">Brightwater Logistics · R01 insufficient funds</span></span><span class="ui-list-value">$18,420.00</span></a></li>
+          <li><a class="ui-list-item" href="#list" data-state="hover"><span class="ui-list-icon"><i class="ti ti-arrows-left-right" aria-hidden="true"></i></span><span class="ui-list-body"><strong>Unmatched deposit</strong><span class="ui-list-meta">Wire “MERIDIAN HLTH GRP” · Oct 27 · hover</span></span><span class="ui-list-value">$22,000.00</span></a></li>
+          <li><a class="ui-list-item" href="#list" aria-current="true"><span class="ui-list-icon" data-tone="warn"><i class="ti ti-message-exclamation" aria-hidden="true"></i></span><span class="ui-list-body"><strong>Dispute opened</strong><span class="ui-list-meta">Tidewater Marine · selected</span></span><span class="ui-list-value">$4,215.50</span></a></li>
+        </ul>
+      </section>
+
+      <section class="lg-section" id="data-list" aria-labelledby="data-list-h">
+        <header><h3 id="data-list-h">Data list and detail <code class="ui-code">.ui-data-list</code> <code class="ui-code">.ui-detail</code></h3><p>Label and value pairs as rows, or as columns for a record header. The detail panel is the selection beside a list.</p></header>
+        <div class="ui-columns">
+          <div class="ui-card"><dl class="ui-data-list"><div><dt>Bill to</dt><dd>Priya Raman, Accounts payable</dd></div><div><dt>Terms</dt><dd>Net 30</dd></div><div><dt>PO number</dt><dd><span class="ui-id">PO-77120</span></dd></div><div><dt>Paid</dt><dd class="ui-amount">$0.00</dd></div></dl></div>
+          <div class="ui-card"><dl class="ui-data-list" data-layout="columns"><div><dt>Issued</dt><dd>Aug 29, 2026</dd></div><div><dt>Due</dt><dd>Sep 28, 2026</dd></div><div><dt>Amount due</dt><dd class="ui-amount">$48,250.00</dd></div></dl></div>
+        </div>
+        <aside class="ui-detail" aria-labelledby="g-detail-title" style="border:var(--hairline) solid var(--line);border-radius:var(--r-md)">
+          <div class="ui-detail-head"><div class="ui-detail-kicker"><span class="ui-id">INV-2026-0440</span><span class="ui-status" data-status="info">Promise to pay</span></div><div><h4 id="g-detail-title" class="ui-detail-title">$27,300.00</h4><p class="ui-page-sub">Northgate Builders · promised Oct 28</p></div></div>
+          <div class="ui-detail-body"><dl class="ui-detail-rows"><div class="ui-detail-row"><dt>Contact</dt><dd>Luis Okafor, Controller</dd></div><div class="ui-detail-row"><dt>Promised by</dt><dd>Phone call, Oct 21</dd></div></dl></div>
+        </aside>
+      </section>
+
+      <section class="lg-section" id="timeline" aria-labelledby="timeline-h">
+        <header><h3 id="timeline-h">Timeline <code class="ui-code">.ui-timeline .ui-timeline-item</code></h3><p>Who, what, when. Newest first; a hairline joins the events.</p></header>
+        <div class="ui-card">
+          <ol class="ui-timeline">
+            <li class="ui-timeline-item" data-tone="bad"><i class="ti ti-credit-card-off" aria-hidden="true"></i><span>ACH payment returned<small>R01 insufficient funds · $18,420.00</small></span><time datetime="2026-10-26">Oct 26</time></li>
+            <li class="ui-timeline-item"><i class="ti ti-message" aria-hidden="true"></i><span><span><b>Marcus Ortiz</b> added a note</span><small>“Called AP, retry after payroll clears.”</small></span><time datetime="2026-10-26">Oct 26</time></li>
+            <li class="ui-timeline-item" data-tone="ok"><i class="ti ti-circle-check" aria-hidden="true"></i><span>Payment settled<small>INV-2026-0371 · $9,140.00</small></span><time datetime="2026-10-02">Oct 2</time></li>
+            <li class="ui-timeline-item"><i class="ti ti-send" aria-hidden="true"></i><span><span><b>Dana Whitfield</b> sent the invoice</span></span><time datetime="2026-09-14">Sep 14</time></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="lg-section" id="code" aria-labelledby="code-h">
+        <header><h3 id="code-h">Code <code class="ui-code">.ui-code</code></h3><p>Inline for field names and IDs in help text; a block with a copy button for API keys, webhooks and import formats.</p></header>
+        <div class="lg-spec lg-pad" style="display:grid;gap:var(--space-3)">
+          <p class="lg-note">Map your QuickBooks field <code class="ui-code">DocNumber</code> to <code class="ui-code">invoice_number</code>.</p>
+          <div class="ui-code"><pre><code>curl https://api.fenwick.com/v1/invoices/INV-2026-0418/remind \
+  -H "Authorization: Bearer $FENWICK_KEY" \
+  -d channel=email</code></pre><button class="ui-button" data-size="sm" type="button" data-copy>Copy</button></div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="empty" aria-labelledby="empty-h">
+        <header><h3 id="empty-h">Empty state <code class="ui-code">.ui-empty</code></h3><p>Name what is missing, give one reason, offer one way forward.</p></header>
+        <div class="ui-card" data-flush><div class="ui-empty" data-size="sm"><i class="ti ti-receipt" aria-hidden="true"></i><h3>No bills waiting for approval</h3><p>Bills over $5,000.00 land here when a vendor sends them to bills@harborpine.com.</p><button class="ui-button" type="button">Upload a bill</button></div></div>
+      </section>
+    </div>
+
+    <!-- Content and patterns -->
+    <div class="lg-group">
+      <h2>Content and patterns</h2>
+
+      <section class="lg-section" id="card" aria-labelledby="card-h">
+        <header><h3 id="card-h">Card, avatar, accordion <code class="ui-code">.ui-card</code> <code class="ui-code">.ui-avatar</code> <code class="ui-code">.ui-accordion</code></h3><p>Cards are hairline frames, never shadows. Link cards darken their border on hover.</p></header>
+        <div class="lg-spec lg-states">
+          <figure class="lg-state"><div class="lg-stack"><article class="ui-card"><h3>Northgate Builders</h3><p>3 open invoices · $41,880.00</p></article></div><figcaption>Static card</figcaption></figure>
+          <figure class="lg-state"><div class="lg-stack"><a class="ui-card" data-link href="#card" style="border-color:var(--line-strong)"><h3>Aging report</h3><p>Every customer by bucket, exportable.</p></a></div><figcaption>Link card, hover</figcaption></figure>
+          <figure class="lg-state"><div><span class="ui-avatar" aria-label="Dana Whitfield">DW</span><span class="ui-avatar" data-size="lg" aria-label="Marcus Ortiz">MO</span><span class="ui-avatar-group" aria-label="Dana Whitfield, Marcus Ortiz and Priya Raman"><span class="ui-avatar" aria-hidden="true">DW</span><span class="ui-avatar" aria-hidden="true">MO</span><span class="ui-avatar" aria-hidden="true">PR</span></span></div><figcaption>Avatars and group</figcaption></figure>
+        </div>
+        <div class="lg-spec lg-pad">
+          <details class="ui-accordion" open><summary>When does a reminder stop?</summary><div class="ui-accordion__body">After four overdue reminders, when a promise to pay is logged, or when the balance reaches $0.00.</div></details>
+          <details class="ui-accordion"><summary>Who can void an invoice?</summary><div class="ui-accordion__body">Controllers and admins. Every void is logged with its reason.</div></details>
+        </div>
+      </section>
+
+      <section class="lg-section" id="settings" aria-labelledby="settings-h">
+        <header><h3 id="settings-h">Settings and danger zone <code class="ui-code">.ui-settings-group</code> <code class="ui-code">.ui-danger</code></h3><p>A description column beside bordered rows. Destructive actions live last, outlined red, and confirm in a dialog.</p></header>
+        <section class="ui-settings-group" aria-labelledby="g-set">
+          <header><h4 id="g-set" class="ui-heading">Payment reminders</h4><p>Sent from ar@harborpine.com.</p></header>
+          <div class="ui-settings-rows">
+            <div class="ui-settings-row"><div><label for="g-terms">Payment terms</label><p>Sets the due date from the issue date.</p></div><select class="ui-select" id="g-terms"><option>Net 30</option><option>Net 45</option></select></div>
+            <div class="ui-settings-row" data-control="switch"><div><span class="ui-settings-name" id="g-r1">Every 7 days while overdue</span><p>Stops after 4 reminders.</p></div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="g-r1"><span>Every 7 days while overdue</span></label></div>
+          </div>
+        </section>
+        <section class="ui-settings-group" aria-labelledby="g-danger">
+          <header><h4 id="g-danger" class="ui-heading">Disconnect and close</h4><p>Logged for the whole workspace.</p></header>
+          <div class="ui-danger"><div class="ui-settings-row" data-control="action"><div><span class="ui-settings-name">Void all drafts</span><p>Voids 14 unsent drafts.</p></div><button class="ui-button" data-variant="danger" type="button">Void drafts</button></div></div>
+        </section>
+      </section>
+
+      <section class="lg-section" id="auth" aria-labelledby="auth-h">
+        <header><h3 id="auth-h">Sign-in frame <code class="ui-code">.ui-auth</code></h3><p>Mark, title, providers, a divider, fields and the legal line. The error names the problem without saying which field was wrong.</p></header>
+        <div class="lg-spec" style="background:var(--bg)">
+          <div class="ui-auth-page" style="min-height:0">
+            <div class="ui-auth">
+              <div class="ui-auth-head"><span class="ui-org-mark" aria-hidden="true">F</span><h4 class="ui-auth-title">Sign in to Fenwick</h4></div>
+              <div class="ui-auth-providers"><button class="ui-button" type="button"><i class="ti ti-brand-google" aria-hidden="true"></i>Continue with Google</button><button class="ui-button" type="button"><i class="ti ti-key" aria-hidden="true"></i>Single sign-on (SAML)</button></div>
+              <p class="ui-auth-divider">or with email</p>
+              <div class="ui-alert" data-status="bad"><i class="ti ti-alert-circle" aria-hidden="true"></i><p>That email and password don’t match.</p></div>
+              <form onsubmit="event.preventDefault()"><label class="ui-field"><span class="ui-label">Work email</span><input class="ui-input" type="email" value="dana@harborpine.com" autocomplete="off"></label><button class="ui-button" data-variant="primary" type="submit">Sign in</button></form>
+              <p class="ui-auth-legal">By continuing you agree to the <a href="#auth">Terms</a> and <a href="#auth">Privacy Policy</a>.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lg-section" id="blocks" aria-labelledby="blocks-h">
+        <header><h3 id="blocks-h">Blocks</h3><p>Whole screens for one product, Fenwick, built only from the classes above. Start a new screen from the closest one.</p></header>
+        <div class="lg-blocks">
+          <a class="ui-card" data-link href="blocks/dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><h3>Dashboard</h3><p>Stats, aging, cash, overdue table, queue</p></a>
+          <a class="ui-card" data-link href="blocks/list-detail.html"><i class="ti ti-layout-sidebar-right" aria-hidden="true"></i><h3>List and detail</h3><p>Filtered invoices with the selection open</p></a>
+          <a class="ui-card" data-link href="blocks/detail.html"><i class="ti ti-file-invoice" aria-hidden="true"></i><h3>Record</h3><p>One invoice: facts, lines, activity</p></a>
+          <a class="ui-card" data-link href="blocks/settings.html"><i class="ti ti-settings" aria-hidden="true"></i><h3>Settings</h3><p>Defaults, reminders, methods, danger zone</p></a>
+          <a class="ui-card" data-link href="blocks/billing.html"><i class="ti ti-credit-card" aria-hidden="true"></i><h3>Billing</h3><p>Plan, usage meters, payment method, receipts</p></a>
+          <a class="ui-card" data-link href="blocks/onboarding.html"><i class="ti ti-list-check" aria-hidden="true"></i><h3>Onboarding</h3><p>Stepper, one question, the empty product</p></a>
+          <a class="ui-card" data-link href="blocks/sign-in.html"><i class="ti ti-login-2" aria-hidden="true"></i><h3>Sign in</h3><p>SSO, email and the error state</p></a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<dialog class="ui-dialog" id="g-dialog" aria-labelledby="g-dialog-title">
+  <div class="ui-dialog__head"><h2 id="g-dialog-title">Void INV-2026-0418?</h2></div>
+  <div class="ui-dialog__body">Meridian Health Group is no longer asked to pay $48,250.00. The number is not reused.</div>
+  <div class="ui-dialog__foot"><button class="ui-button" type="button" data-dialog-close>Cancel</button><button class="ui-button" data-variant="danger" data-fill type="button" data-dialog-close>Void invoice</button></div>
+</dialog>
+<dialog class="ui-sheet" id="g-sheet" aria-labelledby="g-sheet-title">
+  <div class="ui-sheet__content">
+    <h2 id="g-sheet-title">Record payment</h2>
+    <form style="display:grid;gap:var(--space-4)" onsubmit="event.preventDefault()">
+      <label class="ui-field"><span class="ui-label">Amount</span><span class="ui-control"><span class="ui-affix">$</span><input class="ui-input" inputmode="decimal" value="22,000.00"></span></label>
+      <label class="ui-field"><span class="ui-label">Method</span><select class="ui-select"><option>Wire</option><option>ACH</option><option>Check</option></select></label>
+      <div class="ui-page-actions"><button class="ui-button" type="button" data-dialog-close>Cancel</button><button class="ui-button" type="button" data-dialog-close>Apply payment</button></div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const root=document.documentElement;
+  document.querySelector('[data-theme-switch]').addEventListener('seenry:change',e=>root.setAttribute('data-theme',e.detail.value));
+  document.querySelector('[data-jump]').addEventListener('change',e=>document.getElementById(e.target.value)?.scrollIntoView({block:'start'}));
+  const fmt={money:v=>'$'+Number(v).toFixed(2),days:v=>v+' days',pct:v=>Number(v).toFixed(1)+'%'};
+  document.querySelectorAll('.ui-slider input[type=range]').forEach(input=>{const out=input.closest('.ui-slider').querySelector('output');const paint=()=>{input.style.setProperty('--fill',((input.value-input.min)/(input.max-input.min)*100)+'%');if(out)out.textContent=(fmt[input.dataset.format]||String)(input.value);};input.addEventListener('input',paint);paint();});
+  document.querySelectorAll('[data-copy]').forEach(button=>button.addEventListener('click',async()=>{const text=button.closest('.ui-code').querySelector('code').textContent;try{await navigator.clipboard.writeText(text);button.textContent='Copied';button.dataset.copied='';setTimeout(()=>{button.textContent='Copy';delete button.dataset.copied;},1600);}catch{button.textContent='Select and copy';}}));
+});
+</script>
+</body>
+</html>

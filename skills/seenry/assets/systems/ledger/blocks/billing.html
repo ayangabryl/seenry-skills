@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plan and billing · Fenwick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../system.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <div class="ui-sidebar-head">
+      <button class="ui-workspace" type="button" aria-label="Switch workspace, current Harbor &amp; Pine Supply"><span class="ui-org-mark" aria-hidden="true">HP</span><span>Harbor &amp; Pine Supply</span><i class="ti ti-selector" aria-hidden="true"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Primary">
+      <div class="ui-nav-group">
+        <a class="ui-nav-item" href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Overview</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Receivables</p>
+        <a class="ui-nav-item" href="list-detail.html"><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoices</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-users" aria-hidden="true"></i><span>Customers</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-cash" aria-hidden="true"></i><span>Payments</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt-refund" aria-hidden="true"></i><span>Credit notes</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Payables</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span><span class="ui-nav-count">7</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-building-store" aria-hidden="true"></i><span>Vendors</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-checklist" aria-hidden="true"></i><span>Approvals</span><span class="ui-nav-count">3</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Reporting</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-chart-bar" aria-hidden="true"></i><span>Aging</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-arrows-exchange" aria-hidden="true"></i><span>Cash flow</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-file-export" aria-hidden="true"></i><span>Exports</span></a>
+      </div>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">DW</span>
+      <span class="ui-person"><strong>Dana Whitfield</strong><span>Controller</span></span>
+      <a class="ui-button" data-variant="ghost" data-icon href="settings.html" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i></a>
+    </div>
+  </aside>
+
+  <div class="ui-main">
+    <header class="ui-topbar">
+      <button class="ui-button ui-nav-toggle" data-variant="ghost" data-icon type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false" data-nav-toggle><i class="ti ti-menu-2" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Harbor &amp; Pine</a></li><li><a href="settings.html">Settings</a></li><li aria-current="page">Plan and billing</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-search" type="button" data-dialog-open="command" aria-label="Search"><i class="ti ti-search" aria-hidden="true"></i><span>Search invoices, customers</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon type="button" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i></button>
+      </div>
+    </header>
+    <main class="ui-page">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Plan and billing</h1>
+          <p class="ui-page-sub">Your Fenwick subscription for Harbor &amp; Pine Supply. Receipts go to ap@harborpine.com.</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" type="button"><i class="ti ti-file-download" aria-hidden="true"></i>Download receipts</button>
+        </div>
+      </div>
+
+      <div class="ui-alert" data-status="warn" role="status">
+        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+        <p>You have sent 1,284 of 1,500 invoices this period.<small>Past 1,500, each invoice costs $0.40 until the period resets on Nov 1. At the current pace you will reach the limit on Oct 30.</small></p>
+        <div class="ui-alert-actions"><button class="ui-button" data-size="sm" type="button">Compare plans</button></div>
+      </div>
+
+      <div class="ui-columns" data-split="2-1" data-stretch>
+        <section class="ui-card" aria-labelledby="plan-title">
+          <div class="ui-plan">
+            <div>
+              <div class="ui-section-head"><div><h2 id="plan-title">Growth plan</h2><span class="ui-badge">Annual</span></div></div>
+              <p class="ui-plan-price">$4,800<span class="ui-cents">.00</span> <span>per year, 10 seats</span></p>
+              <p class="ui-page-sub">Includes 1,500 invoices a month, 5 bank connections, approval workflows and the QuickBooks Online sync.</p>
+            </div>
+            <div class="ui-page-actions">
+              <button class="ui-button" data-variant="ghost" type="button">Cancel plan</button>
+              <button class="ui-button" data-variant="primary" type="button">Change plan</button>
+            </div>
+          </div>
+          <p class="ui-plan-foot"><span>Renews <b>Mar 14, 2027</b></span><span>Next charge <b class="ui-amount">$4,800.00</b></span><span>Member since <b>Mar 2024</b></span></p>
+        </section>
+
+        <section class="ui-card" aria-labelledby="method-title">
+          <div class="ui-section-head"><h2 id="method-title">Payment method</h2><button class="ui-button" data-size="sm" type="button">Update</button></div>
+          <div class="ui-pay-method">
+            <span class="ui-card-brand"><i class="ti ti-credit-card" aria-hidden="true"></i></span>
+            <span class="ui-person"><strong>Visa ending 6411</strong><span>Expires 08/2028 · Dana Whitfield</span></span>
+          </div>
+          <dl class="ui-data-list">
+            <div><dt>Billing email</dt><dd>ap@harborpine.com</dd></div>
+            <div><dt>Tax ID</dt><dd><span class="ui-id">EIN 54-2190873</span></dd></div>
+          </dl>
+        </section>
+      </div>
+
+      <section class="ui-card" aria-labelledby="usage-title">
+        <div class="ui-section-head"><div><h2 id="usage-title">Usage this period</h2><p>Oct 1 – Oct 31, 2026</p></div></div>
+        <div class="ui-usage">
+          <div class="ui-measure">
+            <span id="u1">Invoices sent</span><span class="ui-measure-value">1,284 <span>of 1,500</span></span>
+            <meter class="ui-meter" min="0" max="1500" low="1050" high="1350" optimum="0" value="1284" aria-labelledby="u1"></meter>
+            <small>86% · resets Nov 1</small>
+          </div>
+          <div class="ui-measure">
+            <span id="u2">Team seats</span><span class="ui-measure-value">9 <span>of 10</span></span>
+            <meter class="ui-meter" min="0" max="10" low="9.5" high="10" optimum="0" value="9" aria-labelledby="u2"></meter>
+            <small>3 approvers, 6 members</small>
+          </div>
+          <div class="ui-measure">
+            <span id="u3">Bank connections</span><span class="ui-measure-value">3 <span>of 5</span></span>
+            <meter class="ui-meter" min="0" max="5" low="4" high="4.5" optimum="0" value="3" aria-labelledby="u3"></meter>
+            <small>First Harbor operating, payroll and lockbox</small>
+          </div>
+          <div class="ui-measure">
+            <span id="u4">Automated reminders</span><span class="ui-measure-value">2,140 <span>of 5,000</span></span>
+            <meter class="ui-meter" min="0" max="5000" low="3500" high="4500" optimum="0" value="2140" aria-labelledby="u4"></meter>
+            <small>Email and SMS combined</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="ui-section" aria-labelledby="receipts-title">
+        <div class="ui-section-head"><div><h2 id="receipts-title">Fenwick invoices</h2><p>6 this year · $4,951.04</p></div></div>
+        <div class="ui-table-wrap">
+          <table class="ui-table" data-ui-table id="receipts">
+            <thead><tr><th scope="col" data-sort>Date</th><th scope="col" class="ui-hide-sm">Invoice</th><th scope="col" class="ui-hide-sm">Description</th><th scope="col">Status</th><th scope="col" class="num" data-sort>Amount</th><th scope="col"><span class="sr-only">Download</span></th></tr></thead>
+            <tbody>
+              <tr><td data-sort="2026-10-01">Oct 1, 2026</td><td class="ui-hide-sm"><span class="ui-id">FWK-26-031147</span></td><td class="ui-hide-sm">Invoice overage, September · 312 × $0.40</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="124.80">$124.80</td><td class="num"><a class="ui-button" data-variant="ghost" data-icon data-size="sm" href="#" aria-label="Download FWK-26-031147"><i class="ti ti-download" aria-hidden="true"></i></a></td></tr>
+              <tr><td data-sort="2026-09-01">Sep 1, 2026</td><td class="ui-hide-sm"><span class="ui-id">FWK-26-027503</span></td><td class="ui-hide-sm">Invoice overage, August · 88 × $0.40</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="35.20">$35.20</td><td class="num"><a class="ui-button" data-variant="ghost" data-icon data-size="sm" href="#" aria-label="Download FWK-26-027503"><i class="ti ti-download" aria-hidden="true"></i></a></td></tr>
+              <tr><td data-sort="2026-07-22">Jul 22, 2026</td><td class="ui-hide-sm"><span class="ui-id">FWK-26-021968</span></td><td class="ui-hide-sm">Seat added, prorated to Mar 14 · M. Ortiz</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="309.04">$309.04</td><td class="num"><a class="ui-button" data-variant="ghost" data-icon data-size="sm" href="#" aria-label="Download FWK-26-021968"><i class="ti ti-download" aria-hidden="true"></i></a></td></tr>
+              <tr><td data-sort="2026-07-01">Jul 1, 2026</td><td class="ui-hide-sm"><span class="ui-id">FWK-26-019230</span></td><td class="ui-hide-sm">Invoice overage, June · 265 × $0.40</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="106.00">$106.00</td><td class="num"><a class="ui-button" data-variant="ghost" data-icon data-size="sm" href="#" aria-label="Download FWK-26-019230"><i class="ti ti-download" aria-hidden="true"></i></a></td></tr>
+              <tr><td data-sort="2026-06-01">Jun 1, 2026</td><td class="ui-hide-sm"><span class="ui-id">FWK-26-015477</span></td><td class="ui-hide-sm">Invoice overage, May · 140 × $0.40</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="56.00">$56.00</td><td class="num"><a class="ui-button" data-variant="ghost" data-icon data-size="sm" href="#" aria-label="Download FWK-26-015477"><i class="ti ti-download" aria-hidden="true"></i></a></td></tr>
+              <tr><td data-sort="2026-03-14">Mar 14, 2026</td><td class="ui-hide-sm"><span class="ui-id">FWK-26-006102</span></td><td class="ui-hide-sm">Growth plan, annual, 9 seats</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num" data-sort="4320">$4,320.00</td><td class="num"><a class="ui-button" data-variant="ghost" data-icon data-size="sm" href="#" aria-label="Download FWK-26-006102"><i class="ti ti-download" aria-hidden="true"></i></a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search invoices, customers, actions">
+  <div class="ui-command__list">
+    <button data-value="new-invoice"><i class="ti ti-plus" aria-hidden="true"></i>New invoice</button>
+    <button data-value="record-payment"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button>
+    <button data-value="customers"><i class="ti ti-users" aria-hidden="true"></i>Go to customers</button>
+    <button data-value="aging"><i class="ti ti-chart-bar" aria-hidden="true"></i>Open aging report</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to select · Esc to close</div>
+</dialog>
+</body>
+</html>

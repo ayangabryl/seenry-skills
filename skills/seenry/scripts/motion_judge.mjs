@@ -279,11 +279,13 @@ async function run(reduced) {
 const normal = await run(false);
 const calm = await run(true);
 
-const LAYOUT = /^(width|height|top|left|right|bottom|margin|padding|inset|min-|max-|border-width|font-size|line-height|gap|grid)/;
+// grid-template-rows/columns between fr tracks is the recommended height animation (0fr → 1fr), so it is not a layout violation.
+const LAYOUT = /^(width|height|top|left|right|bottom|margin|padding|inset|min-|max-|border-width|font-size|line-height|gap|grid(?!-template-(rows|columns)))/;
 const violations = [], notes = [];
 const scaleOf = v => { const m = /scale\(([\d.]+)/.exec(v || '') || /matrix\(([\d.]+)/.exec(v || ''); return m ? +m[1] : 1; };
 for (const r of normal) {
-  const ui = [...r.anims, ...r.reverseAnims].filter(a => a.iterations !== Infinity);
+  // A keyframe pair with identical start and end holds state through a wait (it changes nothing visible), so it is not UI motion.
+  const ui = [...r.anims, ...r.reverseAnims].filter(a => a.iterations !== Infinity && JSON.stringify(a.from) !== JSON.stringify(a.to));
   const layout = ui.filter(a => a.props.some(p => LAYOUT.test(p.replace(/[A-Z]/g, m => '-' + m.toLowerCase()))));
   if (layout.length) violations.push(`"${r.label}": animates layout (${[...new Set(layout.flatMap(a => a.props))].join(', ')}); use transform, opacity or clip-path, or FLIP`);
   const slow = ui.filter(a => a.duration + a.delay > 600 && a.area < 400000);

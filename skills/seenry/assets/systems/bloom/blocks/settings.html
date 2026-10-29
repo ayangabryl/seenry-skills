@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings · Commons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .settings{display:grid;gap:var(--space-5);max-width:var(--settings-max)}
+  .settings .ui-tab-panel{padding-top:0}
+  .logo-row{display:flex;align-items:center;gap:var(--space-3)}
+  .cats{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:var(--space-2)}
+  .ui-settings-row .ui-control,.ui-settings-row .ui-select,.ui-settings-row>.ui-input{width:100%}
+  @media (max-width:48em){.cats{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School">
+      <span class="ui-avatar" data-shape="square" aria-hidden="true">H</span>
+      <span>Halftone School<small>Commons workspace</small></span>
+      <i class="ph-bold ph-caret-up-down" aria-hidden="true"></i>
+    </button>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html"><i class="ph-duotone ph-squares-four" aria-hidden="true"></i><span>Overview</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i><span>Calendar</span></a>
+      <a class="ui-nav-item" href="list-detail.html"><i class="ph-duotone ph-video-camera" aria-hidden="true"></i><span>Sessions</span><span class="ui-nav-count">14</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-users-three" aria-hidden="true"></i><span>Learners</span><span class="ui-nav-count">184</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i><span>Discussions</span><span class="ui-nav-count">9</span></a>
+      <a class="ui-nav-item" href="settings.html" aria-current="page"><i class="ph-duotone ph-gear-six" aria-hidden="true"></i><span>Settings</span></a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-courses">
+      <span class="ui-nav-label" id="nav-courses">Courses</span>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="4"></span><span>Product Design Foundations</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="1"></span><span>Interaction &amp; Motion</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="3"></span><span>Research Methods</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="2"></span><span>Portfolio Studio</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="5"></span><span>Community</span></a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" data-cat="5" aria-hidden="true">PR</span>
+      <span>Priya Raman<small>Program lead</small></span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Sign out"><i class="ph-bold ph-sign-out" aria-hidden="true"></i></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Halftone School</a></li><li aria-current="page">Settings</li></ol></nav>
+      <button class="ui-button" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
+    </header>
+
+    <div>
+      <div class="settings">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Workspace settings</h1>
+          <p class="ui-page-sub">Changes apply to every course and learner in Halftone School</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" data-variant="ghost">Discard</button>
+          <button class="ui-button" data-variant="primary" data-toast-message="Settings saved" data-toast-description="Learners will see the new schedule defaults.">Save changes</button>
+        </div>
+      </div>
+
+      <div class="ui-tabs" role="tablist" aria-label="Settings sections">
+        <button role="tab" id="t-general" aria-selected="true" aria-controls="p-general">General</button>
+        <button role="tab" id="t-members" aria-selected="false" aria-controls="p-members">Members</button>
+        <button role="tab" id="t-billing" aria-selected="false" aria-controls="p-billing">Billing</button>
+        <button role="tab" id="t-integrations" aria-selected="false" aria-controls="p-integrations">Integrations</button>
+      </div>
+
+      <div class="ui-tab-panel settings" role="tabpanel" id="p-general" aria-labelledby="t-general">
+        <section class="ui-settings-group" aria-labelledby="g-workspace">
+          <header><h2 id="g-workspace">Workspace</h2><p>How your school appears to learners and guests</p></header>
+          <div class="ui-settings-row"><div><label for="ws-name">Name</label><p>Shown in invitations and the learner app</p></div><div><input class="ui-input" id="ws-name" value="Halftone School"></div></div>
+          <div class="ui-settings-row"><div><label for="ws-url">Address</label><p>commons.app/halftone</p></div><div><input class="ui-input" id="ws-url" value="halftone"></div></div>
+          <div class="ui-settings-row"><div><span>Logo</span><p>Square image, at least 256 pixels</p></div><div class="logo-row"><span class="ui-avatar" data-size="lg" data-shape="square" aria-label="Current logo">H</span><button class="ui-button" data-size="sm">Replace</button><button class="ui-button" data-size="sm" data-variant="ghost">Remove</button></div></div>
+          <div class="ui-settings-row"><div><label for="ws-tz">Time zone</label><p>Session times show in each learner's own zone</p></div><div><select class="ui-select" id="ws-tz"><option>Europe/Lisbon (GMT+0)</option><option>Europe/Berlin (GMT+1)</option><option>America/New_York (GMT−5)</option></select></div></div>
+          <div class="ui-settings-row"><div><span id="ws-week">Week starts on</span><p>Used by the calendar and weekly digest</p></div><div><div class="ui-segmented" aria-labelledby="ws-week"><button aria-pressed="true" data-value="mon">Monday</button><button aria-pressed="false" data-value="sun">Sunday</button></div></div></div>
+        </section>
+
+        <section class="ui-settings-group" aria-labelledby="g-sched">
+          <header><h2 id="g-sched">Scheduling</h2><p>Defaults for new sessions and office hours</p></header>
+          <div class="ui-settings-row"><div><label for="s-len">Default length</label><p>Hosts can change it per session</p></div><div><select class="ui-select" id="s-len"><option>45 minutes</option><option selected>60 minutes</option><option>90 minutes</option></select></div></div>
+          <div class="ui-settings-row"><div><label for="s-buf">Buffer between sessions</label><p>Keeps rooms and hosts from double booking</p></div><div><select class="ui-select" id="s-buf"><option>None</option><option selected>10 minutes</option><option>15 minutes</option></select></div></div>
+          <div class="ui-settings-row"><div><span id="s-oh">Learners can book office hours</span><p>Open slots appear on each course page</p></div><div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="s-oh"></label></div></div>
+          <div class="ui-settings-row"><div><span id="s-wl">Waitlist for full sessions</span><p>The next learner gets the seat when someone cancels</p></div><div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="s-wl"></label></div></div>
+          <div class="ui-settings-row"><div><span>Course colors</span><p>Marks sessions on the calendar and in lists</p></div><div class="cats"><span class="ui-badge" data-cat="4">Foundations</span><span class="ui-badge" data-cat="1">Interaction</span><span class="ui-badge" data-cat="3">Research</span><span class="ui-badge" data-cat="2">Portfolio</span><span class="ui-badge" data-cat="5">Community</span></div></div>
+        </section>
+
+        <section class="ui-settings-group" aria-labelledby="g-notif">
+          <header><h2 id="g-notif">Notifications</h2><p>What hosts and learners hear from Commons</p></header>
+          <div class="ui-settings-row"><div><label for="n-rem">Session reminder</label><p>Sent by email and in the learner app</p></div><div><select class="ui-select" id="n-rem"><option>15 minutes before</option><option selected>1 hour before</option><option>1 day before</option></select></div></div>
+          <div class="ui-settings-row"><div><span id="n-dig">Monday digest for course leads</span><p>Attendance, completion and unanswered posts</p></div><div><label class="ui-switch"><input type="checkbox" role="switch" checked aria-labelledby="n-dig"></label></div></div>
+          <div class="ui-settings-row"><div><span id="n-rsvp">Tell hosts about each new RSVP</span><p>Most hosts prefer the daily summary</p></div><div><label class="ui-switch"><input type="checkbox" role="switch" aria-labelledby="n-rsvp"></label></div></div>
+        </section>
+
+        <section class="ui-danger" aria-labelledby="g-danger">
+          <header><h2 id="g-danger">Danger zone</h2><p>These actions affect every learner in the workspace</p></header>
+          <div class="ui-settings-row"><div><span>Archive spring cohort</span><p>Ends enrollment and makes all courses read only</p></div><div><button class="ui-button" data-variant="danger" data-dialog-open="archive"><i class="ph-bold ph-archive" aria-hidden="true"></i>Archive cohort</button></div></div>
+          <div class="ui-settings-row"><div><span>Delete workspace</span><p>Removes 184 learners, 4 courses and all recordings. This cannot be undone.</p></div><div><button class="ui-button" data-variant="danger"><i class="ph-bold ph-trash" aria-hidden="true"></i>Delete workspace</button></div></div>
+        </section>
+      </div>
+      <div class="ui-tab-panel" role="tabpanel" id="p-members" aria-labelledby="t-members" hidden></div>
+      <div class="ui-tab-panel" role="tabpanel" id="p-billing" aria-labelledby="t-billing" hidden></div>
+      <div class="ui-tab-panel" role="tabpanel" id="p-integrations" aria-labelledby="t-integrations" hidden></div>
+      </div>
+
+      <dialog class="ui-dialog" id="archive" aria-labelledby="archive-title">
+        <div class="ui-dialog__head"><h2 id="archive-title">Archive the spring cohort?</h2></div>
+        <div class="ui-dialog__body">184 learners keep read-only access to lessons and recordings. You can restore the cohort within 30 days.</div>
+        <div class="ui-dialog__foot"><button class="ui-button" data-dialog-close>Cancel</button><button class="ui-button" data-variant="danger" data-dialog-close>Archive cohort</button></div>
+      </dialog>
+    </div>
+  </main>
+</div>
+
+<dialog class="ui-command" id="cmd" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search learners, sessions and actions">
+  <div class="ui-command__list">
+    <button data-value="schedule"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i>Schedule a session</button>
+    <button data-value="invite"><i class="ph-duotone ph-user-plus" aria-hidden="true"></i>Invite learners</button>
+    <button data-value="learners"><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Open learners</button>
+    <button data-value="discussions"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i>Open discussions</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
+</dialog>
+
+</body>
+</html>

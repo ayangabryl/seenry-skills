@@ -23,6 +23,7 @@ The route decides how much of this skill applies. A small fix with the full flow
 | --- | --- | --- |
 | A change inside an app that has its own screens and styles | Existing project: keep its system, fix presentation fully | [existing project](references/existing-project.md) |
 | "Unslop this", "make it not look AI-made", "redesign this screen" | Unslop: keep every feature, rebuild the look from deep research, full gate | [unslop](references/unslop.md) |
+| A new app screen (dashboard, console, list, settings, admin) | Start from one of the six [app systems](assets/systems/README.md), picked by fit and to differ from recent projects; the flow's identity step becomes the choice of system | [app systems](assets/systems/README.md), then the flow |
 | A new page, site or redesign | The flow below | this file, then the files each step names |
 | One line ("landing page for my habit tracker") | The flow below in quick mode | [new-site holds](references/new-site.md) |
 | "Like X", "based on X", "inspired by X", "replicate X" | The flow, with the named site as the identity | [named site](references/named-site.md) |
@@ -163,6 +164,7 @@ Grep the page for each pattern. Every hit is fixed or defended to a designer in 
 | Floors: type, color, radius, scale, imagery, motion | [the standard](references/standard.md) |
 | Components, transitions, signature, illustration | [building](references/building.md) |
 | Tokens and grid | [system](references/system.md), [starter tokens](assets/tokens.css) |
+| App design systems and icon sets | [app systems](assets/systems/README.md), [icons](assets/icons/README.md) |
 | Why leaders look premium | [premium](references/premium.md) |
 | Concept, type voice, palette origin | [art direction](references/art-direction.md), [design thinking](references/design-thinking.md) |
 | Type, color, alignment, optical, craft | [typography](references/typography.md), [color](references/color.md), [alignment](references/alignment.md), [optical](references/optical.md), [craft](references/craft.md) |
@@ -175,7 +177,7 @@ Grep the page for each pattern. Every hit is fixed or defended to a designer in 
 | The optional design sheet | [sheet](references/sheet.md) |
 | Where each rule comes from (Emil Kowalski, Jakub Krehel, measured leaders, testing) | [sources](references/sources.md) |
 
-Scripts are in `scripts/`. The ones the flow uses: `research.mjs`, `bar.mjs`, `pick.mjs`, `history.mjs`, `image.mjs`, `photo_check.mjs`, `check.mjs` (runs `review_board.mjs`, `token_lint.mjs`, `motion_scan.mjs`, `critic.mjs`, `detail_critic.mjs`, `motion_judge.mjs`), `existing_check.mjs`, `token_convert.mjs`, `palette.py`, `mockup_screen.mjs`.
+Scripts are in `scripts/`. The ones the flow uses: `research.mjs`, `bar.mjs`, `pick.mjs`, `history.mjs`, `image.mjs`, `photo_check.mjs`, `check.mjs` (runs `review_board.mjs`, `token_lint.mjs`, `motion_scan.mjs`, `critic.mjs`, `detail_critic.mjs`, `motion_judge.mjs`), `existing_check.mjs`, `system_check.mjs` and `system_theme.mjs` (app systems), `token_convert.mjs`, `palette.py`, `mockup_screen.mjs`.
 
 ## Report
 

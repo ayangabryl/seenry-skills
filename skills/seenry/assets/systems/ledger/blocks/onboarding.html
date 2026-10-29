@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Set up Fenwick · Fenwick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../system.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <script src="../../../components/ui/seenry-ui.js" defer></script>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <div class="ui-sidebar-head">
+      <button class="ui-workspace" type="button" aria-label="Switch workspace, current Harbor &amp; Pine Supply"><span class="ui-org-mark" aria-hidden="true">HP</span><span>Harbor &amp; Pine Supply</span><i class="ti ti-selector" aria-hidden="true"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Primary">
+      <div class="ui-nav-group">
+        <a class="ui-nav-item" href="dashboard.html" aria-current="page"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Overview</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Receivables</p>
+        <a class="ui-nav-item" href="list-detail.html"><i class="ti ti-file-invoice" aria-hidden="true"></i><span>Invoices</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-users" aria-hidden="true"></i><span>Customers</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-cash" aria-hidden="true"></i><span>Payments</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt-refund" aria-hidden="true"></i><span>Credit notes</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Payables</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-receipt" aria-hidden="true"></i><span>Bills</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-building-store" aria-hidden="true"></i><span>Vendors</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-checklist" aria-hidden="true"></i><span>Approvals</span></a>
+      </div>
+      <div class="ui-nav-group">
+        <p class="ui-nav-label">Reporting</p>
+        <a class="ui-nav-item" href="#"><i class="ti ti-chart-bar" aria-hidden="true"></i><span>Aging</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-arrows-exchange" aria-hidden="true"></i><span>Cash flow</span></a>
+        <a class="ui-nav-item" href="#"><i class="ti ti-file-export" aria-hidden="true"></i><span>Exports</span></a>
+      </div>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">DW</span>
+      <span class="ui-person"><strong>Dana Whitfield</strong><span>Controller</span></span>
+      <a class="ui-button" data-variant="ghost" data-icon href="settings.html" aria-label="Settings"><i class="ti ti-settings" aria-hidden="true"></i></a>
+    </div>
+  </aside>
+
+  <div class="ui-main">
+    <header class="ui-topbar">
+      <button class="ui-button ui-nav-toggle" data-variant="ghost" data-icon type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false" data-nav-toggle><i class="ti ti-menu-2" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Harbor &amp; Pine</a></li><li aria-current="page">Set up</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-search" type="button" data-dialog-open="command" aria-label="Search"><i class="ti ti-search" aria-hidden="true"></i><span>Search invoices, customers</span><span class="ui-kbd">⌘K</span></button>
+        <button class="ui-button" data-variant="ghost" data-icon type="button" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i></button>
+      </div>
+    </header>
+    <main class="ui-page">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Set up Fenwick</h1>
+          <p class="ui-page-sub">Four short questions. Every answer can be changed later in Settings.</p>
+        </div>
+      </div>
+
+      <form class="ui-setup" aria-labelledby="step-question" onsubmit="event.preventDefault();SeenryUI.toast('Payment options saved',{description:'ACH debit and card are on for new invoices.'})">
+        <ol class="ui-steps" aria-label="Setup progress">
+          <li class="ui-step" data-state="done"><i class="ti ti-check" aria-hidden="true"></i><a href="#">Company<span class="sr-only">, done</span></a></li>
+          <li class="ui-step" aria-current="step">Getting paid</li>
+          <li class="ui-step">Invoice defaults</li>
+          <li class="ui-step">Invite your team</li>
+        </ol>
+
+        <div class="ui-setup-body">
+        <div class="ui-setup-question">
+          <fieldset>
+            <legend id="step-question">How do customers pay Harbor &amp; Pine today?</legend>
+            <p class="ui-page-sub">Pick all that apply. Fenwick turns on the matching options on every invoice page and watches your bank feed for the rest.</p>
+            <label class="ui-option"><input type="checkbox" name="pay" value="ach" checked><span><strong>ACH bank transfer</strong><small>Customers pay from the invoice page. Settles in 2 business days.</small></span><span class="ui-muted">0.8%, max $5.00</span></label>
+            <label class="ui-option"><input type="checkbox" name="pay" value="card" checked><span><strong>Credit or debit card</strong><small>Visa, Mastercard, Amex and Discover. Settles next business day.</small></span><span class="ui-muted">2.9% + $0.30</span></label>
+            <label class="ui-option"><input type="checkbox" name="pay" value="wire"><span><strong>Wire transfer</strong><small>Fenwick matches incoming wires to invoices by amount and reference.</small></span><span class="ui-muted">No fee</span></label>
+            <label class="ui-option"><input type="checkbox" name="pay" value="check"><span><strong>Paper check</strong><small>Record checks by hand or forward your bank’s lockbox file.</small></span><span class="ui-muted">No fee</span></label>
+          </fieldset>
+        </div>
+        <aside class="ui-setup-aside" aria-labelledby="answers-title">
+          <h3 id="answers-title">Your company</h3>
+          <dl class="ui-data-list">
+            <div><dt>Legal name</dt><dd>Harbor &amp; Pine Supply LLC</dd></div>
+            <div><dt>EIN</dt><dd><span class="ui-id">54-2190873</span></dd></div>
+            <div><dt>Industry</dt><dd>Medical supply distribution</dd></div>
+            <div><dt>Invoices a month</dt><dd>About 1,300</dd></div>
+            <div><dt>Books</dt><dd>QuickBooks Online</dd></div>
+          </dl>
+          <p>Fenwick suggests Growth for about 1,300 invoices a month. Nothing is charged during the 14-day trial.</p>
+        </aside>
+        </div>
+
+        <div class="ui-setup-foot">
+          <span class="ui-muted">Step 2 of 4</span>
+          <a class="ui-button" data-variant="ghost" href="#">Skip for now</a>
+          <button class="ui-button" type="button"><i class="ti ti-arrow-left" aria-hidden="true"></i>Back</button>
+          <button class="ui-button" data-variant="primary" type="submit">Continue</button>
+        </div>
+      </form>
+
+      <section class="ui-section" aria-labelledby="invoices-title">
+        <div class="ui-section-head"><div><h2 id="invoices-title">Invoices</h2><p>Where your receivables will appear</p></div></div>
+        <div class="ui-card" data-flush>
+          <div class="ui-empty">
+            <i class="ti ti-file-invoice" aria-hidden="true"></i>
+            <h3>No invoices yet</h3>
+            <p>Bring in open invoices from QuickBooks Online, or create one to preview what customers receive.</p>
+            <div class="ui-page-actions">
+              <button class="ui-button" type="button"><i class="ti ti-file-import" aria-hidden="true"></i>Import from QuickBooks</button>
+              <button class="ui-button" type="button"><i class="ti ti-plus" aria-hidden="true"></i>Create an invoice</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<dialog class="ui-command" id="command" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search invoices, customers, actions">
+  <div class="ui-command__list">
+    <button data-value="new-invoice"><i class="ti ti-plus" aria-hidden="true"></i>New invoice</button>
+    <button data-value="record-payment"><i class="ti ti-cash" aria-hidden="true"></i>Record payment</button>
+    <button data-value="customers"><i class="ti ti-users" aria-hidden="true"></i>Go to customers</button>
+    <button data-value="aging"><i class="ti ti-chart-bar" aria-hidden="true"></i>Open aging report</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">↑ ↓ to move · Enter to select · Esc to close</div>
+</dialog>
+</body>
+</html>

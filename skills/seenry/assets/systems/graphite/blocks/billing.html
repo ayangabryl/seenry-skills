@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Billing · Halyard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Primary">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, current Northbeam">
+      <span class="ui-workspace-mark" aria-hidden="true">N</span>
+      <span>Northbeam</span>
+      <i data-lucide="chevrons-up-down"></i>
+    </button>
+    <div class="ui-quick">
+      <button class="ui-button" type="button"><i data-lucide="search"></i>Search<span class="ui-kbd">⌘K</span></button>
+      <button class="ui-button" type="button" data-icon aria-label="New run"><i data-lucide="square-pen"></i></button>
+    </div>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html"><i data-lucide="house"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="inbox"></i>Review queue<span class="ui-nav-count">4</span></a>
+      <a class="ui-nav-item" href="list-detail.html"><i data-lucide="activity"></i>Runs</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-agents">
+      <span class="ui-nav-label" id="nav-agents">Agents</span>
+      <a class="ui-nav-item" href="detail.html"><i data-lucide="user-search"></i>Lead enrichment</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="mail"></i>Inbox triage</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="calendar-check"></i>Meeting follow-ups</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="trending-down"></i>Churn signals</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="megaphone"></i>Ad spend digest<span class="ui-nav-count">3</span></a>
+      <a class="ui-nav-item" href="#"><i data-lucide="file-text"></i>Release notes</a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-workspace">
+      <span class="ui-nav-label" id="nav-workspace">Workspace</span>
+      <a class="ui-nav-item" href="#"><i data-lucide="plug"></i>Integrations</a>
+      <a class="ui-nav-item" href="#"><i data-lucide="book-open"></i>Knowledge</a>
+      <a class="ui-nav-item" href="billing.html" aria-current="page"><i data-lucide="credit-card"></i>Billing</a>
+      <a class="ui-nav-item" href="settings.html"><i data-lucide="settings"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MR</span>
+      <span>Maya Ruiz<small>Admin</small></span>
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Help"><i data-lucide="circle-help"></i></button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="ui-topbar">
+      <button class="ui-button" type="button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation"><i data-lucide="menu"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Northbeam</a></li><li><a href="#">Settings</a></li><li aria-current="page">Billing</li></ol></nav>
+      <div class="ui-topbar-actions">
+        <button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Notifications"><i data-lucide="bell"></i></button>
+      </div>
+    </header>
+
+    <main class="ui-main">
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Billing</h1>
+          <p class="ui-page-sub">Team plan · this period Oct 1 – Oct 31 · next invoice Nov 1</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" type="button"><i data-lucide="download"></i>Download all</button>
+        </div>
+      </div>
+
+      <div class="ui-alert" data-status="warn" role="status">
+        <i data-lucide="triangle-alert" aria-hidden="true"></i>
+        <div><strong>Knowledge storage is at 86% of the Team limit</strong><p>Uploads stop at 10 GB. Remove old sources or move to Business for 100 GB.</p></div>
+        <button class="ui-button" type="button">Compare plans</button>
+      </div>
+
+      <div class="ui-grid" data-cols="2-1">
+        <div class="ui-stack">
+          <section class="ui-card" aria-labelledby="plan-title">
+            <div class="ui-card-head">
+              <div><h2 id="plan-title">Team plan</h2><p>Billed monthly · since Mar 4, 2026</p></div>
+              <span class="ui-badge">Monthly</span>
+            </div>
+            <div class="ui-plan">
+              <p class="ui-plan-price"><span>$480</span> per month</p>
+              <p class="ui-list-meta">12 seats at $40 · model usage billed at cost, plus 0%</p>
+            </div>
+            <div class="ui-page-actions ui-plan-actions">
+              <button class="ui-button" type="button" data-variant="primary">Change plan</button>
+              <button class="ui-button" type="button" data-variant="ghost">Switch to annual, save 15%</button>
+            </div>
+          </section>
+
+          <section class="ui-card" aria-labelledby="usage-title">
+            <div class="ui-card-head"><div><h2 id="usage-title">Usage this period</h2><p>Updated 4 minutes ago</p></div></div>
+            <div class="ui-grid" data-cols="2">
+              <div class="ui-usage"><span>Runs</span><span>18,204 of 25,000</span><meter class="ui-meter" min="0" max="25000" low="21250" high="23750" optimum="0" value="18204" aria-label="Runs, 18,204 of 25,000"></meter><small>Then $0.004 per run</small></div>
+              <div class="ui-usage"><span>Model spend</span><span>$1,284.60 of $2,500</span><meter class="ui-meter" min="0" max="2500" low="2125" high="2375" optimum="0" value="1284.6" aria-label="Model spend, $1,284.60 of $2,500 budget"></meter><small>Budget set by Maya Ruiz</small></div>
+              <div class="ui-usage"><span>Seats</span><span>12 of 15</span><meter class="ui-meter" min="0" max="15" low="13" high="14.5" optimum="0" value="12" aria-label="Seats, 12 of 15"></meter><small>3 invites pending</small></div>
+              <div class="ui-usage"><span>Knowledge storage</span><span>8.6 of 10 GB</span><meter class="ui-meter" min="0" max="10" low="8" high="9.5" optimum="0" value="8.6" aria-label="Knowledge storage, 8.6 of 10 GB"></meter><small>412 sources · largest is the 2025 call archive</small></div>
+            </div>
+          </section>
+
+          <section class="ui-section" aria-labelledby="inv-title">
+            <div class="ui-section-head"><h2 id="inv-title">Invoices</h2><span class="ui-list-meta">Sent to billing@northbeam.io</span></div>
+            <div class="ui-table-wrap">
+              <table class="ui-table">
+                <thead><tr><th scope="col">Invoice</th><th scope="col">Date</th><th scope="col">Period</th><th scope="col" class="num">Amount</th><th scope="col">Status</th><th scope="col" class="num"><span class="ui-visually-hidden">Download</span></th></tr></thead>
+                <tbody>
+<tr><td><span class="ui-mono">INV-2026-0010</span></td><td>Oct 1, 2026</td><td>Sep 1 – Sep 30</td><td class="num">$1,612.40</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num"><button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Download INV-2026-0010"><i data-lucide="download"></i></button></td></tr>
+<tr><td><span class="ui-mono">INV-2026-0009</span></td><td>Sep 1, 2026</td><td>Aug 1 – Aug 31</td><td class="num">$1,488.15</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num"><button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Download INV-2026-0009"><i data-lucide="download"></i></button></td></tr>
+<tr><td><span class="ui-mono">INV-2026-0008</span></td><td>Aug 1, 2026</td><td>Jul 1 – Jul 31</td><td class="num">$1,302.90</td><td><span class="ui-status" data-status="warn">Paid after retry</span></td><td class="num"><button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Download INV-2026-0008"><i data-lucide="download"></i></button></td></tr>
+<tr><td><span class="ui-mono">INV-2026-0007</span></td><td>Jul 1, 2026</td><td>Jun 1 – Jun 30</td><td class="num">$1,176.35</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num"><button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Download INV-2026-0007"><i data-lucide="download"></i></button></td></tr>
+<tr><td><span class="ui-mono">CN-2026-0002</span></td><td>Jun 14, 2026</td><td>Seat credit</td><td class="num">−$40.00</td><td><span class="ui-status" data-status="idle">Credited</span></td><td class="num"><button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Download CN-2026-0002"><i data-lucide="download"></i></button></td></tr>
+<tr><td><span class="ui-mono">INV-2026-0006</span></td><td>Jun 1, 2026</td><td>May 1 – May 31</td><td class="num">$964.80</td><td><span class="ui-status" data-status="ok">Paid</span></td><td class="num"><button class="ui-button" type="button" data-variant="ghost" data-icon data-size="sm" aria-label="Download INV-2026-0006"><i data-lucide="download"></i></button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <div class="ui-stack">
+          <section class="ui-card" aria-labelledby="next-title">
+            <div class="ui-card-head"><div><h2 id="next-title">Next invoice</h2><p>Estimated for Nov 1</p></div></div>
+            <dl class="ui-data-list">
+              <div><dt>Team plan</dt><dd class="ui-dd-num">$480.00</dd></div>
+              <div><dt>Model usage</dt><dd class="ui-dd-num">$1,284.60</dd></div>
+              <div><dt>Extra runs</dt><dd class="ui-dd-num">$0.00</dd></div>
+              <div><dt>Total</dt><dd class="ui-dd-num ui-dd-total">$1,764.60</dd></div>
+            </dl>
+          </section>
+
+          <section class="ui-card" aria-labelledby="pay-title">
+            <div class="ui-card-head"><h2 id="pay-title">Payment method</h2><button class="ui-button" type="button" data-size="sm">Update</button></div>
+            <div class="ui-list-item ui-pay">
+              <span class="ui-logo-tile"><span class="ui-logo" data-brand="visa"></span></span>
+              <span><span>Visa ending 4417</span><span class="ui-list-meta">Expires 09/2028 · Maya Ruiz</span></span>
+              <span class="ui-status" data-status="ok">Default</span>
+            </div>
+          </section>
+
+          <section class="ui-card" aria-labelledby="details-title">
+            <div class="ui-card-head"><h2 id="details-title">Billing details</h2><button class="ui-button" type="button" data-variant="ghost" data-size="sm">Edit</button></div>
+            <dl class="ui-data-list">
+              <div><dt>Company</dt><dd>Northbeam, Inc.</dd></div>
+              <div><dt>Email</dt><dd>billing@northbeam.io</dd></div>
+              <div><dt>Address</dt><dd>2201 Broadway, Suite 604, Oakland, CA 94612</dd></div>
+              <div><dt>Tax ID</dt><dd><span class="ui-mono">US 84-3920157</span></dd></div>
+            </dl>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="../../../components/ui/seenry-ui.js"></script>
+<script>
+lucide.createIcons();
+</script>
+</body>
+</html>

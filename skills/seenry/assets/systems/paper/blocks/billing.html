@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Billing · Hearth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .usage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-6) var(--space-8);margin:0;padding:0;list-style:none}
+  .ui-card>h2,.ui-card>header h2{font:var(--type-heading);color:var(--text)}
+  .ui-card>header{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-5)}
+  .ui-card>header p{color:var(--text-3);font:var(--type-small)}
+  .ui-card>header a{display:inline-flex;align-items:center;min-height:var(--space-6);color:var(--accent);font:var(--type-label);text-decoration:none}
+  .ui-card>header a:hover{text-decoration:underline}
+  .pay{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--space-6);align-items:stretch}
+  .pay .ui-card{display:grid;align-content:start;gap:var(--space-4)}
+  .pay .ui-card>header{margin-bottom:0}
+  .method{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+  .method>.ph{display:grid;place-items:center;width:var(--icon-tile);height:var(--icon-tile);border-radius:var(--r-sm);background:var(--surface-2);color:var(--text-2)}
+  .method strong{display:block;font:var(--type-body);font-weight:500;color:var(--text)}
+  .method small{display:block;color:var(--text-3);font:var(--type-small)}
+  .method>div{margin-right:auto}
+  .ui-table td:last-child,.ui-table th:last-child{width:calc(var(--control-h) + var(--space-5) * 2);text-align:right}
+  @media (max-width:63.9375em){.pay{grid-template-columns:minmax(0,1fr)}}
+  @media (max-width:47.9375em){.usage{grid-template-columns:minmax(0,1fr);gap:var(--space-5)}.ui-table td:nth-child(2),.ui-table th:nth-child(2){display:none}.method .ui-button{width:100%}}
+</style>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="ui-sidebar-head">
+      <span class="ui-avatar" aria-hidden="true">A</span>
+      <div><strong>Alvarez household</strong><small>Hearth family plan</small></div>
+    </div>
+    <nav class="ui-nav" aria-label="Sections">
+      <a class="ui-nav-item" href="dashboard.html"><i class="ph ph-house" aria-hidden="true"></i>Overview</a>
+      <a class="ui-nav-item" href="list-detail.html"><i class="ph ph-receipt" aria-hidden="true"></i>Transactions<span class="ui-nav-count">5</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-chart-pie-slice" aria-hidden="true"></i>Budget</a>
+      <a class="ui-nav-item" href="detail.html"><i class="ph ph-calendar-blank" aria-hidden="true"></i>Bills<span class="ui-nav-count">3</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-bank" aria-hidden="true"></i>Accounts</a>
+      <a class="ui-nav-item" href="#"><i class="ph ph-piggy-bank" aria-hidden="true"></i>Goals</a>
+    </nav>
+    <nav class="ui-nav" aria-label="Household">
+      <span class="ui-nav-label">Household</span>
+      <a class="ui-nav-item" href="#"><i class="ph ph-users" aria-hidden="true"></i>Members</a>
+      <a class="ui-nav-item" href="settings.html" aria-current="page"><i class="ph ph-gear" aria-hidden="true"></i>Settings</a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" aria-hidden="true">MA</span>
+      <div><strong>Maya Alvarez</strong><small>Owner</small></div>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Sign out"><i class="ph ph-sign-out" aria-hidden="true"></i></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><i class="ph ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="dashboard.html">Alvarez household</a></li><li><a href="settings.html">Settings</a></li><li aria-current="page">Billing</li></ol></nav>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications"><i class="ph ph-bell" aria-hidden="true"></i></button>
+    </header>
+
+    <div class="ui-page-header">
+      <div>
+        <h1 class="ui-page-title">Billing</h1>
+        <p class="ui-page-sub">Hearth Family, billed once a year. Your next charge is $89.00 on January 9, 2027.</p>
+      </div>
+      <div class="ui-page-actions">
+        <button class="ui-button"><i class="ph ph-arrows-down-up" aria-hidden="true"></i>Change plan</button>
+      </div>
+    </div>
+
+    <div class="ui-stat-strip">
+      <dl class="ui-stat"><dt>Plan</dt><dd>Family</dd><small>Up to 6 members and 10 accounts</small></dl>
+      <dl class="ui-stat"><dt>Next charge</dt><dd>$89.00</dd><small>January 9, 2027</small></dl>
+      <dl class="ui-stat"><dt>Saved by paying yearly</dt><dd>$18.88</dd><small>Against $8.99 a month</small></dl>
+    </div>
+
+    <section class="ui-card" aria-labelledby="usage-title">
+      <header><h2 id="usage-title">Usage</h2><p>What the Family plan includes</p></header>
+      <ul class="usage">
+          <li><div class="ui-meter"><span id="u-accounts">Linked accounts</span><span>5 <small>of 10</small></span><meter min="0" max="10" value="5" aria-labelledby="u-accounts"></meter></div></li>
+          <li><div class="ui-meter"><span id="u-members">Household members</span><span>2 <small>of 6</small></span><meter min="0" max="6" value="2" aria-labelledby="u-members"></meter></div></li>
+          <li><div class="ui-meter"><span id="u-storage">Receipt storage</span><span>1.4 GB <small>of 5 GB</small></span><meter min="0" max="5" value="1.4" aria-labelledby="u-storage"></meter></div></li>
+          <li><div class="ui-meter" data-status="warn"><span id="u-rules">Category rules</span><span>46 <small>of 50</small></span><meter min="0" max="50" value="46" aria-labelledby="u-rules"></meter></div></li>
+      </ul>
+    </section>
+
+    <div class="pay">
+      <section class="ui-card" aria-labelledby="method-title">
+        <header><h2 id="method-title">Payment method</h2></header>
+        <div class="ui-alert" data-status="warn" role="status"><i class="ph ph-warning" aria-hidden="true"></i><p>This card expires in December, a month before your renewal.</p></div>
+        <div class="method">
+          <i class="ph ph-credit-card" aria-hidden="true"></i>
+          <div><strong>Visa ending 2291</strong><small>Expires 12/2026 · Maya Alvarez</small></div>
+          <button class="ui-button" data-variant="primary">Update card</button>
+        </div>
+      </section>
+
+      <section class="ui-card" aria-labelledby="contact-title">
+        <header><h2 id="contact-title">Invoices go to</h2><a href="settings.html">Edit</a></header>
+        <dl class="ui-data-list">
+          <div><dt>Email</dt><dd>maya.alvarez@fastmail.com</dd></div>
+          <div><dt>Name</dt><dd>Maya Alvarez</dd></div>
+          <div><dt>Address</dt><dd>2318 Alder Street, Oakland, CA 94606</dd></div>
+        </dl>
+      </section>
+    </div>
+
+    <section class="ui-section" aria-labelledby="invoices-title">
+      <div class="ui-section-head"><h2 id="invoices-title">Invoices</h2><a href="#">Download all</a></div>
+      <div class="ui-table-wrap">
+        <table class="ui-table">
+          <thead><tr><th scope="col">Date</th><th scope="col">Plan</th><th scope="col" class="num">Amount</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Download</span></th></tr></thead>
+          <tbody>
+            <tr><td>Jan 9, 2026</td><td>Family, yearly</td><td class="num">$89.00</td><td><span class="ui-status" data-status="ok">Paid</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice from Jan 9, 2026"><i class="ph ph-download-simple" aria-hidden="true"></i></button></td></tr>
+            <tr><td>Jan 9, 2025</td><td>Family, yearly</td><td class="num">$79.00</td><td><span class="ui-status" data-status="ok">Paid</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice from Jan 9, 2025"><i class="ph ph-download-simple" aria-hidden="true"></i></button></td></tr>
+            <tr><td>Dec 9, 2024</td><td>Personal, monthly</td><td class="num">$5.99</td><td><span class="ui-status" data-status="ok">Paid</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice from Dec 9, 2024"><i class="ph ph-download-simple" aria-hidden="true"></i></button></td></tr>
+            <tr><td>Nov 9, 2024</td><td>Personal, monthly</td><td class="num">$5.99</td><td><span class="ui-status" data-status="info">Refunded</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice from Nov 9, 2024"><i class="ph ph-download-simple" aria-hidden="true"></i></button></td></tr>
+            <tr><td>Oct 9, 2024</td><td>Personal, monthly</td><td class="num">$5.99</td><td><span class="ui-status" data-status="ok">Paid</span></td><td><button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Download invoice from Oct 9, 2024"><i class="ph ph-download-simple" aria-hidden="true"></i></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="ui-settings-group ui-danger" aria-labelledby="cancel-title">
+      <header><h2 id="cancel-title">Cancel plan</h2><p>You keep access until January 9, 2027.</p></header>
+      <div>
+        <div class="ui-settings-row">
+          <div><strong>Cancel Hearth Family</strong><p>Budgets and history stay read-only for a year, then are deleted.</p></div>
+          <button class="ui-button" data-variant="danger">Cancel plan</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

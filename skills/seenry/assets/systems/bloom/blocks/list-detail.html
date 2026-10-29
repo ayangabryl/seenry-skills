@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sessions · Commons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../../components/ui/seenry-ui.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../system.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="../../../components/ui/seenry-ui.js" defer></script>
+<style>
+  .ld-grid{display:grid;grid-template-columns:minmax(0,1fr) var(--detail-w);gap:var(--space-5);align-items:start}
+  .ld-grid>.ui-detail{position:sticky;top:calc(var(--topbar-h) + var(--space-5))}
+  .day+.day{margin-top:var(--space-5)}
+  .day h3{display:flex;justify-content:space-between;gap:var(--space-3);padding:0 var(--space-3) var(--space-2);font:var(--type-label);font-weight:600;color:var(--text)}
+  .day h3 span{font:var(--type-small);color:var(--text-3)}
+  .slot{min-width:calc(var(--space-8) + var(--space-1));font:var(--type-label);font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+  .slot small{display:block;font:var(--type-small);color:var(--text-3)}
+  .rsvp{display:grid;justify-items:end;gap:calc(var(--space-1) / 2)}
+  .detail-actions{display:flex;flex-wrap:wrap;gap:var(--space-2);padding-top:var(--space-5);border-top:var(--hairline) solid var(--line)}
+  .detail-actions .ui-button:last-child{margin-left:auto}
+  .detail-tags{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2)}
+  .fill{display:grid;gap:var(--space-2);width:100%}
+  .fill .ui-meter{width:100%}
+  .who{display:flex;align-items:center;gap:var(--space-2)}
+  @media (max-width:64em){.ld-grid{grid-template-columns:minmax(0,1fr)}.ld-grid>.ui-detail{position:static}}
+  @media (max-width:48em){.sessions .ui-list-item>div>span{white-space:normal}.sessions .ui-list-item{padding-block:var(--space-3)}}
+</style>
+</head>
+<body>
+<div class="ui-shell">
+  <aside class="ui-sidebar" id="sidebar" aria-label="Workspace">
+    <button class="ui-sidebar-head" type="button" aria-label="Switch workspace, Halftone School">
+      <span class="ui-avatar" data-shape="square" aria-hidden="true">H</span>
+      <span>Halftone School<small>Commons workspace</small></span>
+      <i class="ph-bold ph-caret-up-down" aria-hidden="true"></i>
+    </button>
+    <nav class="ui-nav" aria-label="Main">
+      <a class="ui-nav-item" href="dashboard.html"><i class="ph-duotone ph-squares-four" aria-hidden="true"></i><span>Overview</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i><span>Calendar</span></a>
+      <a class="ui-nav-item" href="list-detail.html" aria-current="page"><i class="ph-duotone ph-video-camera" aria-hidden="true"></i><span>Sessions</span><span class="ui-nav-count">14</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-users-three" aria-hidden="true"></i><span>Learners</span><span class="ui-nav-count">184</span></a>
+      <a class="ui-nav-item" href="#"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i><span>Discussions</span><span class="ui-nav-count">9</span></a>
+      <a class="ui-nav-item" href="settings.html"><i class="ph-duotone ph-gear-six" aria-hidden="true"></i><span>Settings</span></a>
+    </nav>
+    <nav class="ui-nav" aria-labelledby="nav-courses">
+      <span class="ui-nav-label" id="nav-courses">Courses</span>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="4"></span><span>Product Design Foundations</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="1"></span><span>Interaction &amp; Motion</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="3"></span><span>Research Methods</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="2"></span><span>Portfolio Studio</span></a>
+      <a class="ui-nav-item" href="#"><span class="ui-mark" data-cat="5"></span><span>Community</span></a>
+    </nav>
+    <div class="ui-sidebar-foot">
+      <span class="ui-avatar" data-cat="5" aria-hidden="true">PR</span>
+      <span>Priya Raman<small>Program lead</small></span>
+      <button class="ui-button" data-variant="ghost" data-icon data-size="sm" aria-label="Sign out"><i class="ph-bold ph-sign-out" aria-hidden="true"></i></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="ui-topbar">
+      <button class="ui-button" data-variant="ghost" data-icon data-nav-toggle aria-controls="sidebar" aria-label="Open navigation"><i class="ph-bold ph-list" aria-hidden="true"></i></button>
+      <nav aria-label="Breadcrumb"><ol class="ui-breadcrumb"><li><a href="#">Halftone School</a></li><li aria-current="page">Sessions</li></ol></nav>
+      <button class="ui-button" data-dialog-open="cmd" aria-label="Search"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Search</span><span class="ui-kbd" aria-hidden="true">⌘ K</span></button>
+      <button class="ui-button" data-variant="ghost" data-icon aria-label="Notifications, 3 unread"><i class="ph-duotone ph-bell" aria-hidden="true"></i></button>
+    </header>
+
+    <div>
+      <div class="ui-page-header">
+        <div>
+          <h1 class="ui-page-title">Sessions</h1>
+          <p class="ui-page-sub">Live sessions, office hours and community events for the spring cohort</p>
+        </div>
+        <div class="ui-page-actions">
+          <button class="ui-button" data-variant="primary"><i class="ph-bold ph-plus" aria-hidden="true"></i>Schedule session</button>
+        </div>
+      </div>
+
+      <div class="ui-filter-bar" role="search">
+        <label class="ui-control"><span class="ui-affix" aria-hidden="true"><i class="ph-bold ph-magnifying-glass"></i></span><input class="ui-input" type="search" placeholder="Search sessions or hosts" aria-label="Search sessions or hosts"></label>
+        <div class="ui-segmented" aria-label="When"><button aria-pressed="true" data-value="upcoming">Upcoming</button><button aria-pressed="false" data-value="past">Past</button><button aria-pressed="false" data-value="drafts">Drafts</button></div>
+        <output>9 sessions this week</output>
+      </div>
+      <div class="ui-filter-bar" aria-label="Filter by course">
+        <button class="ui-chip" aria-pressed="true">All courses</button>
+        <button class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="4"></span>Foundations</button>
+        <button class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="1"></span>Interaction &amp; Motion</button>
+        <button class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="3"></span>Research</button>
+        <button class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="2"></span>Portfolio</button>
+        <button class="ui-chip" aria-pressed="false"><span class="ui-mark" data-cat="5"></span>Community</button>
+      </div>
+
+      <div class="ld-grid">
+        <section class="ui-section sessions" aria-label="Upcoming sessions">
+          <div class="day">
+            <h3>Today<span>Wed, Oct 28</span></h3>
+            <ul class="ui-list">
+              <li><button class="ui-list-item" type="button"><span class="slot">9:30<small>45 min</small></span><div><span>Studio critique: onboarding flows</span><span class="ui-list-meta"><span class="ui-mark" data-cat="4"></span>Critique · Room 2 · Maya Okafor</span></div><span class="ui-list-meta rsvp"><span>22 of 24</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">11:00<small>60 min</small></span><div><span>Office hours with Daniel</span><span class="ui-list-meta"><span class="ui-mark" data-cat="3"></span>Office hours · Zoom · Daniel Reyes</span></div><span class="ui-list-meta rsvp"><span>4 booked</span></span></button></li>
+              <li><button class="ui-list-item" type="button" aria-current="true"><span class="slot">13:30<small>90 min</small></span><div><span>Motion workshop: easing and timing</span><span class="ui-list-meta"><span class="ui-mark" data-cat="1"></span>Workshop · Studio 2 · Lena Fischer</span></div><span class="ui-list-meta rsvp"><span>21 of 24</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">16:00<small>2 h</small></span><div><span>Portfolio reviews, 1:1 slots</span><span class="ui-list-meta"><span class="ui-mark" data-cat="2"></span>Review · Room 4 · Sam Whitfield</span></div><span class="ui-list-meta rsvp"><span>6 of 8</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">18:30<small>60 min</small></span><div><span>Type club: variable fonts</span><span class="ui-list-meta"><span class="ui-mark" data-cat="5"></span>Community · Library</span></div><span class="ui-list-meta rsvp"><span class="ui-status" data-status="warn">No host</span></span></button></li>
+            </ul>
+          </div>
+          <div class="day">
+            <h3>Tomorrow<span>Thu, Oct 29</span></h3>
+            <ul class="ui-list">
+              <li><button class="ui-list-item" type="button"><span class="slot">10:00<small>60 min</small></span><div><span>Synthesis lab: affinity mapping</span><span class="ui-list-meta"><span class="ui-mark" data-cat="3"></span>Workshop · Zoom · Daniel Reyes</span></div><span class="ui-list-meta rsvp"><span>30 of 41</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">14:00<small>45 min</small></span><div><span>Design systems 101</span><span class="ui-list-meta"><span class="ui-mark" data-cat="4"></span>Lecture · Main hall · Maya Okafor</span></div><span class="ui-list-meta rsvp"><span>48 of 62</span></span></button></li>
+            </ul>
+          </div>
+          <div class="day">
+            <h3>Friday<span>Oct 30</span></h3>
+            <ul class="ui-list">
+              <li><button class="ui-list-item" type="button"><span class="slot">12:00<small>30 min</small></span><div><span>Prototype check-ins</span><span class="ui-list-meta"><span class="ui-mark" data-cat="1"></span>Check-in · Zoom · Lena Fischer</span></div><span class="ui-list-meta rsvp"><span class="ui-status" data-status="idle">Draft</span></span></button></li>
+              <li><button class="ui-list-item" type="button"><span class="slot">17:00<small>90 min</small></span><div><span>Friday show and tell</span><span class="ui-list-meta"><span class="ui-mark" data-cat="5"></span>Community · Main hall · Priya Raman</span></div><span class="ui-list-meta rsvp"><span>57 going</span></span></button></li>
+            </ul>
+          </div>
+        </section>
+
+        <aside class="ui-detail" aria-labelledby="detail-title">
+          <div class="ui-detail-head">
+            <div class="detail-tags"><span class="ui-badge" data-cat="1">Interaction &amp; Motion</span><span class="ui-badge">Workshop</span></div>
+            <h2 id="detail-title">Motion workshop: easing and timing</h2>
+            <p>Hands-on session on choosing curves and durations. Bring the prototype from week 6; we will tune two transitions live and compare before and after.</p>
+          </div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-clock" aria-hidden="true"></i>When</span><span>Today, 13:30 to 15:00</span></div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-chalkboard-teacher" aria-hidden="true"></i>Host</span><span class="who"><span class="ui-avatar" data-size="sm" data-cat="1" aria-hidden="true">LF</span>Lena Fischer</span></div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-map-pin" aria-hidden="true"></i>Where</span><span>Studio 2 and Zoom</span></div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-link-simple" aria-hidden="true"></i>Link</span><span><a href="#">zoom.us/j/81432209</a></span></div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Going</span>
+            <span class="fill">
+              <span class="who"><span class="ui-avatar-group" aria-label="Ana Lima, Kenji Sato, Zoe Martin and 18 others"><span class="ui-avatar" data-cat="4" aria-hidden="true">AL</span><span class="ui-avatar" data-cat="3" aria-hidden="true">KS</span><span class="ui-avatar" data-cat="2" aria-hidden="true">ZM</span><span class="ui-avatar" data-cat="5" aria-hidden="true">+18</span></span></span>
+              <span class="ui-meter"><meter min="0" max="24" low="18" high="22" optimum="12" value="21" aria-label="21 of 24 seats taken">21 of 24</meter><b>21 of 24</b></span>
+            </span>
+          </div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-record" aria-hidden="true"></i>Recording</span><span><span class="ui-status" data-status="ok">Saves to course library</span></span></div>
+          <div class="ui-detail-row"><span><i class="ph-duotone ph-bell" aria-hidden="true"></i>Reminder</span><span>1 hour before, by email</span></div>
+          <div class="detail-actions">
+            <button class="ui-button"><i class="ph-bold ph-pencil-simple" aria-hidden="true"></i>Edit</button>
+            <button class="ui-button" data-variant="ghost" data-toast-message="Link copied" data-toast-description="Paste it into the course channel."><i class="ph-bold ph-copy" aria-hidden="true"></i>Copy link</button>
+            <button class="ui-button" data-variant="ghost" data-icon data-menu-trigger="session-menu" aria-label="More actions"><i class="ph-bold ph-dots-three" aria-hidden="true"></i></button>
+            <div id="session-menu" class="ui-menu" role="menu" popover="auto"><button role="menuitem">Duplicate</button><button role="menuitem">Move to drafts</button><hr><button role="menuitem">Cancel session</button></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+
+<dialog class="ui-command" id="cmd" aria-label="Command menu">
+  <input type="search" aria-label="Search commands" placeholder="Search learners, sessions and actions">
+  <div class="ui-command__list">
+    <button data-value="schedule"><i class="ph-duotone ph-calendar-dots" aria-hidden="true"></i>Schedule a session</button>
+    <button data-value="invite"><i class="ph-duotone ph-user-plus" aria-hidden="true"></i>Invite learners</button>
+    <button data-value="learners"><i class="ph-duotone ph-users-three" aria-hidden="true"></i>Open learners</button>
+    <button data-value="discussions"><i class="ph-duotone ph-chats-circle" aria-hidden="true"></i>Open discussions</button>
+    <p class="ui-command__empty" hidden>No matching commands.</p>
+  </div>
+  <div class="ui-command__footer">Use ↑ ↓ to move · Enter to select</div>
+</dialog>
+
+</body>
+</html>
