@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ('seenry', 'seenry-review', 'seenry-assets', 'seenry-motion', 'seenry-apps', 'seenry-branding', 'seenry-decks', 'seenry-video')
+NAMES = ('seenry', 'seenry-review', 'seenry-assets', 'seenry-motion', 'seenry-apps', 'seenry-video')
 # Merged into the skills above in 3.0; archived on --replace so stale copies stop triggering.
 RETIRED = (
     'seenry-typography', 'seenry-color', 'seenry-layout', 'seenry-accessibility',

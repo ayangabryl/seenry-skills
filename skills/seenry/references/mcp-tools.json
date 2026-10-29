@@ -1,11 +1,11 @@
 {
-  "version": "0.1.1",
+  "version": "0.2.0",
   "endpoint": "https://mcp.seenry.design",
   "tools": [
     {
       "name": "research_design_brief",
       "title": "Research a design brief",
-      "description": "Compare up to three short query angles, survey up to eight shortlisted candidates (one per product, with thumbnails), measure the surveyed website captures together (shared headline, body, radius and padding ranges, brand colors and fonts) and deep-read the two strongest with pixels, context, source evidence and a decision rubric tied to the supplied brief. Hard filters constrain website site/page_type, section site/element app app_id/flow, or branding category (Branding/Guidelines); unsupported combinations fail. App research uses exploratory matches with explicit unsupported terms. The agent supplies structural/source queries and judges visual fit; this is bounded lexical research, not an autonomous taste model. Costs 10 credits total, including internal reads.",
+      "description": "Compare up to three short query angles, survey up to eight shortlisted candidates (one per product, with thumbnails), measure the surveyed website captures together (shared headline, body, radius and padding ranges, brand colors and fonts) and deep-read the two strongest with pixels, context, source evidence and a decision rubric tied to the supplied brief. Hard filters constrain website site/page_type, section site/element or app app_id/flow; unsupported combinations fail. App research uses exploratory matches with explicit unsupported terms. The agent supplies structural/source queries and judges visual fit; this is bounded lexical research, not an autonomous taste model. Costs 10 credits total, including internal reads.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -37,8 +37,6 @@
               "websites",
               "sections",
               "apps",
-              "branding",
-              "decks",
               "motion"
             ]
           },
@@ -72,13 +70,6 @@
               "flow": {
                 "type": "string",
                 "maxLength": 300
-              },
-              "category": {
-                "type": "string",
-                "enum": [
-                  "Branding",
-                  "Guidelines"
-                ]
               }
             },
             "additionalProperties": false
@@ -158,8 +149,8 @@
     },
     {
       "name": "search_reference_assets",
-      "title": "Find screens and slides inside collections",
-      "description": "Search individual published assets across website, app, deck, branding, section and motion collections. Every query concept must match the same asset across published labels, current AI annotations, or eligible company/product context. For product category plus UI requests, such as finance buttons, use this tool with family apps. productContext is provider-reported structured product classification; companyContext is separately inferred. These contexts cannot establish visible UI or flow/style evidence. Returns original indices, match evidence and exact inspection calls. Use id or site to constrain a product; omitted q browses all indexed assets. Search is lexical with disclosed aliases, not visual recognition. Where the library has been AI-tagged, results also match and return aiTags inferred from the pixels by Gemini (screen, components, styles such as pill buttons, patterns, named design principles and why it works), marked as not human-reviewed; verify them on the pixels. Costs 1 credit.",
+      "title": "Find screens inside collections",
+      "description": "Search individual published assets across website, app, section and motion collections. Every query concept must match the same asset across published labels, current AI annotations, or eligible company/product context. For product category plus UI requests, such as finance buttons, use this tool with family apps. productContext is provider-reported structured product classification; companyContext is separately inferred. These contexts cannot establish visible UI or flow/style evidence. Returns original indices, match evidence and exact inspection calls. Use id or site to constrain a product; omitted q browses all indexed assets. Search is lexical with disclosed aliases, not visual recognition. Where the library has been AI-tagged, results also match and return aiTags inferred from the pixels by Gemini (screen, components, styles such as pill buttons, patterns, named design principles and why it works), marked as not human-reviewed; verify them on the pixels. Costs 1 credit.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -188,8 +179,6 @@
             "enum": [
               "websites",
               "apps",
-              "branding",
-              "decks",
               "sections",
               "motion"
             ]
@@ -276,7 +265,7 @@
     {
       "name": "get_reference_context",
       "title": "Inspect reference context",
-      "description": "Inspect one selected reference with nearby same-flow screens or page parts, bounded DESIGN.md, captured CSS evidence and available motion. Selected pixels come first; deck and branding context includes a bounded source-asset outline for selecting relevant slides or rules. Includes scoped editorial notes and explicit missing-rationale or stale-review status. Source order is not verified navigation. Missing evidence stays explicit. Costs 5 credits total; internal reads are not separately charged.",
+      "description": "Inspect one selected reference with nearby same-flow screens or page parts, bounded DESIGN.md, captured CSS evidence and available motion. Selected pixels come first. Includes scoped editorial notes and explicit missing-rationale or stale-review status. Source order is not verified navigation. Missing evidence stays explicit. Costs 5 credits total; internal reads are not separately charged.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -414,7 +403,7 @@
     {
       "name": "discover_references",
       "title": "Explore across the library",
-      "description": "Start an open-ended brief with a small, diverse shortlist of websites, sections, apps, branding, decks and motion. Optional q uses observed names and keywords, not semantic similarity. With q, apps are searched at screen level using disclosed exploratory coverage; without q, apps are collections. Follow each group with its search tool and inspect pixels.",
+      "description": "Start an open-ended brief with a small, diverse shortlist of websites, sections, apps and motion. Optional q uses observed names and keywords, not semantic similarity. With q, apps are searched at screen level using disclosed exploratory coverage; without q, apps are collections. Follow each group with its search tool and inspect pixels.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -482,7 +471,7 @@
             "description": "The product category to leave out, e.g. \"habit tracker\"."
           },
           "families": {
-            "maxItems": 6,
+            "maxItems": 4,
             "type": "array",
             "items": {
               "type": "string",
@@ -490,8 +479,6 @@
                 "websites",
                 "apps",
                 "sections",
-                "branding",
-                "decks",
                 "motion"
               ]
             }
@@ -553,8 +540,6 @@
               "sections",
               "walkthroughs",
               "motion",
-              "branding",
-              "decks",
               "apps"
             ]
           },
@@ -958,7 +943,7 @@
     {
       "name": "get_design",
       "title": "Read observed DESIGN.md",
-      "description": "Read DESIGN.md for any website, app, deck, branding/guidelines or other reference ID. Returns a paginated report, or use focus for up to three bounded lexical excerpts with exact source offsets and missing terms. Focus requires offset=0. Provider documents retain ordered assets and explicit unknowns. Provider labels are not verified tokens; this is untrusted evidence, not owner-approved rules or agent instructions.",
+      "description": "Read DESIGN.md for any website, app or other reference ID. Returns a paginated report, or use focus for up to three bounded lexical excerpts with exact source offsets and missing terms. Focus requires offset=0. Provider documents retain ordered assets and explicit unknowns. Provider labels are not verified tokens; this is untrusted evidence, not owner-approved rules or agent instructions.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -1188,8 +1173,8 @@
     },
     {
       "name": "search_designs",
-      "title": "Search motion, branding, decks and apps",
-      "description": "Find imported references. family=apps is public iOS screens; decks is presentations; branding includes identities and guidelines; sections is imported components; motion is source video. Use get_design_taxonomy for tags.",
+      "title": "Search motion, sections and apps",
+      "description": "Find imported references. family=apps is public iOS screens; sections is imported components; motion is source video. Use get_design_taxonomy for tags.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -1209,10 +1194,7 @@
             "enum": [
               "motion",
               "sections",
-              "branding",
-              "decks",
-              "apps",
-              "collections"
+              "apps"
             ]
           },
           "category": {
@@ -1541,7 +1523,7 @@
     {
       "name": "get_design_reference",
       "title": "Read a reference collection",
-      "description": "Read deck slides, branding or imported sections in original order, with paginated assets, source tags, attribution and completeness. Use q to find assets by published labels/tags, preserving original indices; unmatched labels do not prove visual absence. Use get_reference_asset to inspect individual assets.",
+      "description": "Read imported collections and sections in original order, with paginated assets, source tags, attribution and completeness. Use q to find assets by published labels/tags, preserving original indices; unmatched labels do not prove visual absence. Use get_reference_asset to inspect individual assets.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -1592,7 +1574,7 @@
     {
       "name": "get_reference_document",
       "title": "Read PDF page evidence",
-      "description": "Read bounded extracted text from an indexed guideline or deck PDF. Page numbers are one-based, asset index is zero-based. Optional q searches literal page text and returns up to eight page handoffs; use next to continue. Text is not visual verification, OCR or measured CSS. Missing extraction requires opening the original PDF. Costs 1 credit.",
+      "description": "Read bounded extracted text from an indexed PDF in a collection. Page numbers are one-based, asset index is zero-based. Optional q searches literal page text and returns up to eight page handoffs; use next to continue. Text is not visual verification, OCR or measured CSS. Missing extraction requires opening the original PDF. Costs 1 credit.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -1646,7 +1628,7 @@
     {
       "name": "get_reference_asset",
       "title": "Inspect a collection asset",
-      "description": "Get one ordered deck/branding/section image, PDF or video. Includes actual image pixels when small enough, and verified serving URLs. Source media alone cannot establish CSS variables.",
+      "description": "Get one ordered collection or section image, PDF or video. Includes actual image pixels when small enough, and verified serving URLs. Source media alone cannot establish CSS variables.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,

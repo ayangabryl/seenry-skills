@@ -10,7 +10,7 @@ const out=resolve(flag('out','.seenry/research'));
 markWorkDir(out);
 const type=flag('type','landing');
 const family=flag('family',type==='app'?'apps':'websites');
-const families=['websites','sections','apps','branding','decks','motion'];
+const families=['websites','sections','apps','motion'];
 const terms=(flag('terms','')||'').split(',').map(x=>x.trim()).filter(Boolean);
 const sites=(flag('sites','')||'').split(',').map(x=>x.trim()).filter(Boolean);
 const briefPath=flag('brief');

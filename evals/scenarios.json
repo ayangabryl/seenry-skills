@@ -68,54 +68,6 @@
     "check": "Follow each returned detailTool/detailArguments; do not label imported heroes as verified mobile/dark captures."
   },
   {
-    "request": "Compare identity guidelines. Do not give me pitch decks.",
-    "skills": [
-      "seenry-branding"
-    ],
-    "calls": [
-      {
-        "name": "search_designs",
-        "arguments": {
-          "family": "branding",
-          "category": "Guidelines",
-          "limit": 3
-        }
-      },
-      {
-        "name": "get_design_reference",
-        "arguments": {
-          "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "offset": 20,
-          "limit": 20
-        }
-      }
-    ],
-    "check": "Keep branding separate from decks despite shared tags; identify declared versus estimated typography/colors and partial imports."
-  },
-  {
-    "request": "Study this 38-slide pitch deck and explain its narrative.",
-    "skills": [
-      "seenry-decks"
-    ],
-    "calls": [
-      {
-        "name": "search_designs",
-        "arguments": {
-          "family": "decks",
-          "limit": 2
-        }
-      },
-      {
-        "name": "get_reference_asset",
-        "arguments": {
-          "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "index": 21
-        }
-      }
-    ],
-    "check": "Walk required next pages and preserve slide order. Inspect context around recommended slides. Do not invent metrics or missing slides."
-  },
-  {
     "request": "Show me button hover inspiration, ranked by curator rating.",
     "skills": [
       "seenry-motion"

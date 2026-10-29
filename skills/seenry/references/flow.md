@@ -28,7 +28,7 @@ Write queries from the product, the audience and the job, never from a look you 
 ### Run it
 
 - Prefer connected MCP tools: `get_library_guide`, then `research_design_brief` with the real brief, an explicit family and up to three focused queries. Inspect the returned pixels and read coverage, gaps and the decision rubric.
-- Scripted: `node scripts/research.mjs --brief BRIEF.md --type <landing|product|dashboard|studio|pricing|app> --family <websites|sections|apps|branding|decks|motion> --terms "<up to three queries>"`. It uses `SEENRY_PRO_KEY` from the environment; never ask for a secret in chat. Three tool calls, at most 11 credits, saved to `.seenry/research/`.
+- Scripted: `node scripts/research.mjs --brief BRIEF.md --type <landing|product|dashboard|studio|pricing|app> --family <websites|sections|apps|motion> --terms "<up to three queries>"`. It uses `SEENRY_PRO_KEY` from the environment; never ask for a secret in chat. Three tool calls, at most 11 credits, saved to `.seenry/research/`.
 - Authentication, quota or tool errors stop the run. Without a key the script writes a clearly unresearched handoff; use connected MCP or permitted web research, never an invented pack.
 
 ### Study the survey before choosing
@@ -139,7 +139,7 @@ Then:
 2. Copy the winner to `.seenry/identity.html` and write `identity.md` from it, folding in what the pick says to take from the others.
 3. Record it at once with `node scripts/history.mjs`, so builds running beside this one avoid it.
 
-The winning board's hero poster becomes the first screen. Pick the obvious premium answer before a clever one. For a new identity, also follow [seenry-branding](../../seenry-branding/SKILL.md).
+The winning board's hero poster becomes the first screen. Pick the obvious premium answer before a clever one.
 
 ## 6. Motion spec
 

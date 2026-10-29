@@ -13,7 +13,6 @@ So the main skill carries the system itself: allowed values, layered component c
 - `seenry-review` owns judgment: screen reviews, diff reviews, stress tests and explanations, all reported in one ranked table against the same system.
 - `seenry-motion` owns behavior over time and ships runnable, tested motion assets.
 - `seenry-apps` owns native mobile screens and flows with platform metrics.
-- `seenry-branding` and `seenry-decks` own identity and presentation research.
 - `seenry-video` directs and renders product films as code, from studied references to a mastered, claim-checked MP4.
 
 ## Consistency mechanism

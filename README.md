@@ -9,8 +9,6 @@ Agent skills that make an AI work like a design studio. Seenry fixes a strict fr
 | [seenry-review](skills/seenry-review/SKILL.md) | Auditing a screen, reviewing a UI diff, stress-testing one component, explaining how something is built |
 | [seenry-motion](skills/seenry-motion/SKILL.md) | Transitions, gestures, scroll and component animation, with runnable assets |
 | [seenry-apps](skills/seenry-apps/SKILL.md) | Native-feeling mobile screens and flows |
-| [seenry-branding](skills/seenry-branding/SKILL.md) | Identity research and project brand guidelines |
-| [seenry-decks](skills/seenry-decks/SKILL.md) | Presentation research and slide narratives |
 | [seenry-video](skills/seenry-video/SKILL.md) | Product films as code: launch videos and explainers studied from real references, rendered frame by frame, with designed sound and sourced claims |
 
 ## What makes it different
@@ -58,7 +56,7 @@ Replacing an older Seenry install: run with `--replace --apply`. Retired skill f
 
 ## Seenry MCP
 
-The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, iOS app screens and flows, branding systems and decks. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
+The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, and iOS app screens and flows. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
 
 All eight skills use the Seenry MCP 0.1.1 tool contract and prefer connected MCP tools. Scripted research uses the same endpoint and an existing `SEENRY_PRO_KEY`: run `node skills/seenry/scripts/research.mjs --brief BRIEF.md --family websites --terms "<focused query>"` from this repository, or the installed skill's absolute script path. The script makes at most three tool calls (planned maximum 11 credits), saves the source context and images it used, and stops on service, auth or quota errors. Without a key it writes an explicitly unresearched handoff for connected tools or permitted web research.
 

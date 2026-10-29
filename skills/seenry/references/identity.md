@@ -94,7 +94,7 @@ The board shows, on one screen:
 
 If a poster could belong to a competitor, the identity is not done.
 
-Study at least two identity presentations first (`search_designs {family: "branding"}`; pull frames from rebrand films with `python3 ../seenry-motion/scripts/video_frames.py`) and one studio site (`list_sites {q: "studio"}`). Build your own; never take another brand's mark, face or device.
+Study at least one studio site first (`list_sites {q: "studio"}`); pull frames from rebrand films with `python3 ../seenry-motion/scripts/video_frames.py`. Build your own; never take another brand's mark, face or device.
 
 ## Do not repeat yourself
 
