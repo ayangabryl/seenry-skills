@@ -47,9 +47,7 @@ const skills = [
   ["seenry-motion", "Decides whether something should move at all, then the curve, duration, interruption and reduced-motion behaviour, with tested recipes you can run."],
   ["seenry-review", "Ranked, fixable findings for a live screen, a branch or pull request, or one component pushed through every state and size."],
   ["seenry-assets", "Licence-clear photos, icons and fonts, or generated images, with a manifest of every file’s source, licence and prompt."],
-  ["seenry-branding", "Researches identity systems and writes a BRAND.md with the colour, type, imagery and naming rules later agents follow."],
   ["seenry-apps", "Native-feeling mobile screens and flows in SwiftUI, UIKit, React Native, Expo or Flutter, held to a strict platform grid."],
-  ["seenry-decks", "Plans a presentation as a sequence, from real decks in the Seenry library, before it designs a slide."],
   ["seenry-video", "Product films as code: story, shot list, voiceover and sound, rendered frame by frame from real captures."],
 ];
 

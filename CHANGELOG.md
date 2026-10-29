@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Breaking:** removed the seenry-branding and seenry-decks skills. Decks and brand materials are no longer part of the Seenry library, and the tool guide follows the Seenry MCP 0.2.0 contract, which drops the branding and decks families.
+
 ## 0.1.0
 
 First public preview. Eight agent skills that design and build at studio quality, backed by measured evidence from the Seenry MCP 0.1.1 tool contract.

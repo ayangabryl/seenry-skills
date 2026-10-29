@@ -37,4 +37,4 @@ For software, combine 1 and 4: the stage art is the crafted visual and the produ
 
 ## Seenry MCP for material research
 
-`search_designs` with `family: "branding"` for identity systems, `family: "sections"` for imported component and section designs, `family: "motion"` for creator motion references; `get_reference_asset` returns the image. Use them to decide the *kind* of material and its treatment, then produce original material for this brand. Never copy a reference's image, illustration or logo into the build.
+`search_designs` with `family: "sections"` for imported component and section designs, `family: "motion"` for creator motion references; `get_reference_asset` returns the image. Use them to decide the *kind* of material and its treatment, then produce original material for this brand. Never copy a reference's image, illustration or logo into the build.
