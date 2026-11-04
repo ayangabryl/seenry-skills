@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 PICK = Path(__file__).resolve().parents[1] / "skills/seenry/scripts/pick.mjs"
+SKETCH = PICK.with_name("sketch.mjs")
 
 
 class PickPersonTest(unittest.TestCase):
@@ -30,6 +31,19 @@ class PickPersonTest(unittest.TestCase):
             result = self.run_pick(tmp, "--person", "e")
             self.assertEqual(result.returncode, 2)
             self.assertFalse((tmp / "out/pick.json").exists())
+
+
+class SketchTest(unittest.TestCase):
+    def test_writes_a_labelled_board(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            for name in ("a", "b"):
+                (tmp / f"{name}.html").write_text(f"<p>{name}</p>")
+            result = subprocess.run(["node", str(SKETCH), str(tmp / "a.html"), str(tmp / "b.html"), "--captions", "Flat|Raised", "--recommend", "a", "--out", str(tmp / "s"), "--playwright", "/nonexistent.mjs"], capture_output=True, text=True)
+            board = (tmp / "s/board.html").read_text() if (tmp / "s/board.html").exists() else ""
+            self.assertIn("A · Flat (recommended)", board, result.stderr)
+            self.assertIn("B · Raised", board)
+            self.assertIn('src="../a.html"', board)
 
 
 if __name__ == "__main__":

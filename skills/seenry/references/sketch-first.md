@@ -18,13 +18,20 @@ When a person is in the conversation, show them the design before you build it. 
 
 ## How to show it
 
-Use the most direct visual the host offers, in this order:
+The sketch is a small HTML file per option (`.seenry/sketch/a.html`, `b.html`, `c.html`), so it works in every host. Show it the most direct way the host allows:
 
-1. The host's inline visual or widget tool (it renders HTML or SVG in the chat). Add one button per option that sends the choice back, so answering is a tap.
-2. An artifact or preview page the person can open.
-3. An HTML file rendered to a PNG and sent as an image.
+| Host | Show it |
+| --- | --- |
+| Has an inline visual or widget tool (Claude apps) | Render the options there, with one button per option that sends the choice back |
+| Terminal agents (Codex CLI, Claude Code CLI, Cursor, Copilot) | Run `scripts/sketch.mjs` with `--open` (below): it opens a side-by-side board in the person's browser and writes `board.png`; give both paths in the reply |
+| The person is away or on a phone | Send `board.png` with the host's file or image tool, or publish `board.html` where the host can share a page |
+| No browser and no Playwright | Describe each option in one or two lines and ask; never block on the visual |
 
-Keep the explanation in your reply, not inside the sketch: the question, the options in one line each, and your recommendation.
+```
+node scripts/sketch.mjs a.html b.html c.html --captions "Glazed key|Flat clay|Ink primary" --recommend B --open
+```
+
+Keep the explanation in your reply, not inside the sketch: the question, the options in one line each, and your recommendation. Ask the person to answer with the letter.
 
 ## Order of decisions
 

@@ -41,7 +41,7 @@ A page is done when `node scripts/check.mjs <file or url> --brief <brief> --mode
 
 ## Sketch first when someone is watching
 
-When a person is in the conversation, show the design before building it: two or three low-fidelity sketches of one decision at a time (structure, then identity, then the signature), labelled A, B, C with one recommended, in the host's inline visual tool when it has one. The person's pick replaces the blind pick, and the build runs once in the chosen direction. Skip it for small fixes and when nobody is there to answer. Read [sketch first](references/sketch-first.md).
+When a person is in the conversation, show the design before building it: two or three low-fidelity sketches of one decision at a time (structure, then identity, then the signature), labelled A, B, C with one recommended, in the host's inline visual tool when it has one, otherwise with `scripts/sketch.mjs --open` (Codex and other terminal agents). The person's pick replaces the blind pick, and the build runs once in the chosen direction. Skip it for small fixes and when nobody is there to answer. Read [sketch first](references/sketch-first.md).
 
 ## Modes
 
