@@ -115,6 +115,8 @@ The review board blocks most of these by name. Each row has its fix, because a b
 | Four-up icon grids, nine-plus logo walls, chip clouds | One clear example, three strong points, six known marks | Template furniture |
 | Text people read under 13px, or grey that fails contrast | The size floors in [the standard](references/standard.md) | Unreadable at review scale |
 | A shortcut hint, badge or label with nothing behind it (⌘K with no command menu) | Wire it up or remove it | It promises a feature that is not there |
+| Full-width rules between sections, under a header at rest, under every heading | Space or a tone change between sections; a full-bleed rule only at a structural edge (app chrome, a table's head and foot, a card's header); see [dividers and search](references/craft.md#when-a-line-runs-full-width) | Lines everywhere read as a wireframe |
+| ⌘K search by default (landing pages, portfolios, small sites, shops, any phone) | A command menu only where people move by name every day (apps, large docs); otherwise a plain search field where search is needed, or none | Linear's pattern without Linear's reason |
 | The familiar AI default: house palette, the standard skeleton for this screen, every block at equal weight | One element leads; identity from this product's idea | Reads as generated with zero tells |
 | A clever idea drawn roughly: several action styles, one color for several meanings, blocks on no shared edge, size-mixing in one line | The best reference's execution, with one signature element drawn at its finish | Reads as a junior designer's work |
 | Letters clipped by a mask (`overflow: hidden` on tight display lines) | `padding-block: 0.15em` with a matching negative margin | Slices the tail of g and y |
