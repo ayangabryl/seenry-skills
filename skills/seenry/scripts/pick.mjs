@@ -6,7 +6,8 @@
  *  Each file is a complete first screen (same content, different composition). The tool renders every file at 1440x900
  *  and 390x844, builds one labelled board, and asks a fresh Codex or Claude process to rank them against the brief and
  *  the reference screens: which is most premium, clearest and most distinctive, and what to take from the others.
- *  Writes board.png and pick.json to --out and prints the ranking. */
+ *  Writes board.png and pick.json to --out and prints the ranking.
+ *  --person <label> [--why <reason>] records the person's own choice in pick.json instead of asking a model. */
 import {mkdirSync, writeFileSync, readFileSync, existsSync} from 'node:fs';
 import {resolve, join, basename} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -20,6 +21,15 @@ const files = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1
 if (files.length < 2 || files.some(f => !existsSync(f))) { console.error('Usage: node pick.mjs a.html b.html [c.html] --brief BRIEF.md [--refs a.png,b.png]'); process.exit(2); }
 const out = resolve(flag('out', '.seenry/explore')); mkdirSync(out, {recursive: true});
 markWorkDir(out);
+const person = flag('person');
+if (person) {
+  const labels = 'ABCDE'.split('').slice(0, files.length);
+  const chosen = person.toUpperCase();
+  if (!labels.includes(chosen)) { console.error(`--person must be one of ${labels.join(', ')}`); process.exit(2); }
+  writeFileSync(join(out, 'pick.json'), JSON.stringify({files: files.map((f, i) => ({label: labels[i], file: basename(f)})), by: 'person', ranking: [chosen, ...labels.filter(l => l !== chosen)], winner_why: flag('why', 'Chosen by the person from the sketches.'), take_from_others: []}, null, 2));
+  console.log(`Recorded the person's pick: ${chosen}. Written to ${join(out, 'pick.json')}`);
+  process.exit(0);
+}
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
 
 async function loadPlaywright() {

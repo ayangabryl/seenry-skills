@@ -39,6 +39,10 @@ A page is done when `node scripts/check.mjs <file or url> --brief <brief> --mode
 - Never end the turn while images, a build or the check still run. In headless sessions, ending the turn ends the work. Run `check.mjs` in the foreground with a long timeout; if your shell moves it to the background, block on `node scripts/check.mjs <file or url> --await`, which waits for the running gate and prints its result.
 - Existing-project changes use `existing_check.mjs` instead; see their route.
 
+## Sketch first when someone is watching
+
+When a person is in the conversation, show the design before building it: two or three low-fidelity sketches of one decision at a time (structure, then identity, then the signature), labelled A, B, C with one recommended, in the host's inline visual tool when it has one, otherwise with `scripts/sketch.mjs --open` (Codex and other terminal agents). The person's pick replaces the blind pick, and the build runs once in the chosen direction. Skip it for small fixes and when nobody is there to answer. Read [sketch first](references/sketch-first.md).
+
 ## Modes
 
 | Mode | When | What runs | Time |
@@ -59,7 +63,7 @@ Each step leaves a file the gate checks for. Missing files are blockers, so the 
 | 2. Draft the idea | The claim, its proof and five candidate ideas, before any research. Ideas only, no palette or layout | `.seenry/idea.md` |
 | 3. Research | Survey the category wide, keep only references that pass on the pixels, then walk every page and section of the two or three you keep; borrow one from outside the category; measure them | `.seenry/research/pack.md`, `.seenry/refs/` images and notes per site, `.seenry/refs/kept.md` |
 | 4. Identity | Truth, visual idea, type voice, color world, one device, image treatment, voice line, motion score | `.seenry/identity.md` |
-| 5. Explore and pick blind | Three identity boards from the three strongest ideas, then `pick.mjs` | `.seenry/explore/a,b,c.html`, `pick.json`, `.seenry/identity.html` |
+| 5. Explore and pick | Three identity boards from the three strongest ideas; the person picks from sketches when present (`pick.mjs --person`), otherwise `pick.mjs` picks blind | `.seenry/explore/a,b,c.html`, `pick.json`, `.seenry/identity.html` |
 | 6. Motion spec | Each moving thing: trigger, property, duration, easing, interruption, reduced motion, source | `.seenry/motion.md` |
 | 7. Material | Start every image in one background batch right after the pick, then build while it runs. Use as many as the page uses well, including custom SVG or PNG artwork | images that passed `photo_check.mjs --page` in place |
 | 8. Build | The board's hero poster becomes the first screen; every section applies the identity | the page, with one `data-seenry-signature` element |
