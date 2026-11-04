@@ -36,6 +36,34 @@ Geometric alignment comes first and is covered in [alignment](alignment.md): key
 - Nested containers: each level either changes surface or has a border, not both, and not the same as its parent.
 - Hairline on translucent headers only after the page has scrolled.
 
+### When a line runs full width
+
+A divider separates only where space and tone cannot. Decide by what the line marks:
+
+| Line | Use it | Not |
+| --- | --- | --- |
+| Full bleed, edge to edge of the page | App chrome: the topbar's bottom edge and the sidebar's edge, which frame a work area that scrolls | Between sections of a page (use space, or a tone change on the next section); under a marketing header at rest (show it once content scrolls under) |
+| Full bleed, edge to edge of a container | A table's head and foot; a card's header split from its body; a sticky header or footer inside a panel with content scrolling under it | Around every card, under every heading, between paragraphs |
+| Inset, aligned with the text | Dense rows that share one leading edge (settings, inbox, transactions) | Airy lists of a few items where 16px or more of space already separates them |
+| None | Sections, cards on a tinted page, short lists, forms (group with space and a label) | |
+
+One container uses one pattern. A rule that meets neither the edge nor the text belongs to nothing. The review board flags full-width rules between sections and header rules at rest on pages (`fullRules`); apps skip it.
+
+## Search and command menus
+
+A ⌘K hint promises a command menu people use daily. Add one only when people move through the product by name: an app with many records, pages or commands (project tools, inboxes, developer and admin consoles) or a docs site with dozens of pages. Then the menu is real, opens from the shortcut and a visible search button, and lists actions as well as places.
+
+Everywhere else, decide whether search is needed at all:
+
+| Product | Search |
+| --- | --- |
+| Landing page, portfolio, small site (under about ten pages) | None; navigation is the menu |
+| Shop, recipe or content site | A plain search field with results for that content, or a search icon on phone |
+| App with a few screens | A search field in the list that needs it (filter the table, not the app) |
+| App people live in, large docs | A search button showing ⌘K on desktop, opening the command menu |
+
+Never show a keyboard shortcut on a phone, and never show ⌘K on Windows (show Ctrl K). The review board flags a ⌘K hint on a page that is not an app or a large docs site, and any shortcut hint on a phone (`commandHint`).
+
 ## Focus and states
 
 - Every interactive element has `:focus-visible` with a 2px ring in the focus color, offset 2px, following the element's radius. Never `outline: none` without a replacement.

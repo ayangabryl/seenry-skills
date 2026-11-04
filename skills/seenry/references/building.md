@@ -24,7 +24,7 @@ Apply the frequency, keyboard and reduced-motion decisions from `seenry-motion` 
 | Confirmation dialog | Keeps its safe Cancel and Escape; no X added only because it is a dialog |
 | Expanding card | Cover and title travel; the return control can stay at the source point |
 | Bottom sheet | Follows the finger; dismisses on distance or flick |
-| Search button | Opens into its command palette |
+| Search button (where the product has a command menu) | Opens into its command palette |
 | Tabs and segmented controls | One shared indicator relocates; keyboard selection is instant |
 | A value change worth animating | Only changed digits move, in the value's direction, with stable alignment |
 | Content swap (tab panels, filters, before and after) | Keep the accepted state and any outgoing paint needed to finish or reverse; inactive content is never focusable; guard stale completion; no blank frames or double paint |
