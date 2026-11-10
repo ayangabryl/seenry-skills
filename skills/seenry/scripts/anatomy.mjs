@@ -132,7 +132,7 @@ function annotate(sel) {
   return {x: b.left, y: b.top, width: b.width, height: b.height, items: items.length};
 }
 
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch({headless: true, ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
 try {
   const width = Number(flag('width', 1440));

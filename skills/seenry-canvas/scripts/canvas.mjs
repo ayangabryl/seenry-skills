@@ -146,7 +146,7 @@ ul, ol { padding: 0; list-style: none; }
   --gray-100: oklch(0.965 0.003 90);
   --gray-200: oklch(0.92 0.003 90);
   --gray-300: oklch(0.86 0.004 90);
-  --gray-500: oklch(0.58 0.005 90);
+  --gray-500: oklch(0.52 0.005 90);
   --gray-600: oklch(0.45 0.005 90);
   --gray-800: oklch(0.28 0.005 90);
   --gray-900: oklch(0.22 0.005 90);
@@ -508,6 +508,11 @@ function readState() {
     if (extra.name) section.name = String(extra.name);
     section.note = String(extra.note || (section.choose ? 'Options: pick one' : section.archived ? 'Options that lost, with the reason' : ''));
     section.status = STATUSES[extra.status] ? extra.status : '';
+  }
+  // A screen drawn for several devices shares one name; its non-desktop files get the device in their id.
+  for (const s of sections) {
+    const count = {}; for (const f of s.frames) count[f.id] = (count[f.id] || 0) + 1;
+    for (const f of s.frames) if (count[f.id] > 1 && f.device !== 'desktop') f.id += '.' + f.device;
   }
   const ids = new Set(sections.flatMap(s => s.frames.map(f => f.id)));
   for (const f of sections.flatMap(s => s.frames)) f.links = (f.links || []).filter(id => ids.has(id) && id !== f.id);
@@ -1417,6 +1422,12 @@ function archiveFrame(state, id, reason) {
   const folder = dirname(hit.frame.src).replace(/\.options$/i, ''), dest = join(dir, 'archive', folder === '.' ? 'screens' : folder);
   mkdirSync(dest, {recursive: true});
   renameSync(hit.path, join(dest, basename(hit.path)));
+  // The archived file sits one folder deeper; a <base> keeps its tokens, fonts and images resolving as before.
+  const moved = join(dest, basename(hit.path)), from = dirname(hit.frame.src), html = readFileSync(moved, 'utf8');
+  if (!/<base\b/i.test(html)) {
+    const tag = `<base href="../../${from === '.' ? '' : from + '/'}">`;
+    writeFileSync(moved, /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, m => m + tag) : /^\s*<!doctype[^>]*>/i.test(html) ? html.replace(/^\s*<!doctype[^>]*>/i, m => m + tag) : tag + html);
+  }
   const manifest = readManifest(), key = 'archive/' + idFor(folder === '.' ? 'screens' : folder, basename(hit.path));
   manifest.archive = {...manifest.archive, [key]: {reason: String(reason || 'Archived'), from: hit.frame.src, at: new Date().toISOString()}};
   writeManifest(manifest);
@@ -1590,7 +1601,8 @@ function analyzeFrame(opts) {
     if (interactive(n)) {
       const min = phone ? 44 : 24;
       if (Math.min(r.width, r.height) < min - 0.5) issue('warn', 'target', sel, `Tap target ${Math.round(r.width)}×${Math.round(r.height)}, under ${min}×${min}`);
-      if (!(n.innerText || n.getAttribute('aria-label') || n.getAttribute('title') || n.getAttribute('alt') || n.getAttribute('placeholder') || n.querySelector('img[alt], svg title'))) issue('error', 'name', sel, 'A control with no accessible name');
+      const labelled = (n.labels && [...n.labels].some(l => l.textContent.trim())) || (n.getAttribute('aria-labelledby') || '').split(/\s+/).some(id => id && document.getElementById(id)?.textContent.trim());
+      if (!(labelled || n.innerText || n.getAttribute('aria-label') || n.getAttribute('title') || n.getAttribute('alt') || n.getAttribute('placeholder') || n.querySelector('img[alt], svg title'))) issue('error', 'name', sel, 'A control with no accessible name');
     }
     if (n.tagName === 'IMG' && !n.hasAttribute('alt')) issue('warn', 'alt', sel, 'An image with no alt text');
     const paint = !quiet(c.backgroundColor) || (c.borderTopStyle !== 'none' && !quiet(c.borderTopWidth)) || !quiet(c.boxShadow);
@@ -1739,7 +1751,8 @@ async function verify(names) {
             }
             const key = n.classes[0]; if (!key) continue;
             const look = ['font-size', 'font-weight', 'color', 'background', 'padding', 'radius'].map(k => n.styles[k]?.value || '-').join(' | ');
-            ((byClass[key] = byClass[key] || {})[look] = byClass[key][look] || []).push(f.id);
+            const group = key + ' @' + device;
+            ((byClass[group] = byClass[group] || {})[look] = byClass[group][look] || new Set()).add(f.id);
           }
         }
         await context.close();
@@ -1748,10 +1761,13 @@ async function verify(names) {
   });
   const seen = new Set();
   for (const i of [...issues]) { const k = i.frame + i.selector + i.message; if (seen.has(k)) issues.splice(issues.indexOf(i), 1); else seen.add(k); }
-  for (const [cls, looks] of Object.entries(byClass)) {
-    const variants = Object.entries(looks).filter(([, fr]) => fr.length);
-    if (variants.length > 1 && new Set(variants.flatMap(([, fr]) => fr)).size > 1 && variants.length <= 4)
-      issues.push({frame: '*', mode: 'light', severity: 'warn', kind: 'drift', selector: '.' + cls, message: `.${cls} renders ${variants.length} ways across screens: ${variants.map(([look, fr]) => `${look} (${[...new Set(fr)].join(', ')})`).join('; ')}`});
+  // Drift is one screen drawing a component one way and another screen drawing it another way, at the same device size.
+  // A class used several ways inside one screen is context, and phone against desktop is responsive design: neither is drift.
+  for (const [group, looks] of Object.entries(byClass)) {
+    const [cls] = group.split(' @'), variants = Object.entries(looks);
+    const apart = variants.some(([, a], i) => variants.some(([, b], j) => j > i && [...a].every(x => !b.has(x))));
+    if (variants.length > 1 && apart && variants.length <= 4)
+      issues.push({frame: '*', mode: 'light', severity: 'warn', kind: 'drift', selector: '.' + cls, message: `.${cls} renders ${variants.length} ways on different screens: ${variants.map(([look, fr]) => `${look} (${[...fr].join(', ')})`).join('; ')}`});
   }
   const staticIssues = [];
   { const log = console.log; console.log = line => staticIssues.push(String(line)); try { check(); } finally { console.log = log; } }
@@ -1801,10 +1817,13 @@ async function compare(frameId, url) {
     const d = await blank.evaluate(diffImages, {a: design.png.toString('base64'), b: build.png.toString('base64')});
     const stem = join(out, `${safe(f.id)}.${device}.${mode}`);
     writeFileSync(stem + '.design.png', design.png); writeFileSync(stem + '.build.png', build.png); writeFileSync(stem + '.diff.png', Buffer.from(d.png, 'base64'));
-    const norm = t => t.toLowerCase().replace(/\s+/g, ' ').trim(), built = new Map(build.data.nodes.filter(n => n.text).map(n => [norm(n.text), n]));
+    // The same text can appear several times (a nav link and a button); pair the k-th design occurrence with the k-th built one.
+    const norm = t => t.toLowerCase().replace(/\s+/g, ' ').trim(), built = new Map(), seen = new Map();
+    for (const n of build.data.nodes.filter(n => n.text)) { const k = norm(n.text); if (!built.has(k)) built.set(k, []); built.get(k).push(n); }
     const missing = [], different = [];
     for (const n of design.data.nodes.filter(n => n.text)) {
-      const b = built.get(norm(n.text)); if (!b) { missing.push(n.text); continue; }
+      const k = norm(n.text), i = seen.get(k) || 0; seen.set(k, i + 1);
+      const b = built.get(k)?.[i]; if (!b) { missing.push(n.text); continue; }
       for (const k of ['font-size', 'font-weight', 'color', 'background', 'radius', 'padding']) {
         const x = n.styles[k]?.value || '', y = b.styles[k]?.value || '';
         if (x !== y) different.push(`“${n.text.slice(0, 30)}” ${k}: design ${x || 'none'}, build ${y || 'none'}`);

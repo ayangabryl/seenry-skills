@@ -31,7 +31,7 @@ async function loadPlaywright() {
   console.error('Playwright not found (npm i -D playwright, or pass --playwright).'); process.exit(2);
 }
 const uri = p => `data:image/${extname(p).toLowerCase() === '.png' ? 'png' : extname(p).toLowerCase() === '.webp' ? 'webp' : 'jpeg'};base64,${readFileSync(p).toString('base64')}`;
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch();
 const shot = async (html, file, width) => {
   const page = await browser.newPage({viewport: {width, height: 400}});

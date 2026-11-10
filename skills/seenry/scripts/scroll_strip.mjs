@@ -32,7 +32,7 @@ async function loadPlaywright() {
   try { return await import('playwright'); } catch {}
   console.error('Playwright not found (npm i -D playwright, or pass --playwright).'); process.exit(2);
 }
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch({args: ['--enable-gpu', '--ignore-gpu-blocklist']});
 
 // Wheel scrolling, not scrollTo, so smooth-scroll libraries, sticky headers and scroll-driven scenes behave as they do

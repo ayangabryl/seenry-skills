@@ -39,7 +39,7 @@ async function loadPlaywright() {
   console.error('Playwright not found (npm i -D playwright, or pass --playwright). Without it, save 3 first-screen screenshots of leaders in this category to ' + barDir + ' by hand.');
   process.exit(2);
 }
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch();
 const phone = type === 'app';
 const got = [];

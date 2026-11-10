@@ -153,6 +153,7 @@ test('status, log and resolve keep the file organized', () => {
   assert.equal(manifest.log[0].text, 'Shorter welcome headline');
   assert.match(manifest.archive['archive/02-home/a'].reason, /Not picked: B was chosen/);
   assert.ok(existsSync(join(dir, '02-home', 'b.html')) && existsSync(join(dir, 'archive', '02-home', 'a.phone.html')) && !existsSync(join(dir, '02-home.options')));
+  assert.match(readFileSync(join(dir, 'archive', '02-home', 'a.phone.html'), 'utf8'), /^<!doctype html><base href="\.\.\/\.\.\/02-home(\.options)?\/">/, 'an archived screen keeps resolving its tokens');
   assert.match(readFileSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), 'utf8'), /href="\.\.\/02-home\/b\.html"/);
   const list = run('list', dir).stdout;
   assert.match(list, /Home\n  02-home\/b /);
@@ -206,4 +207,14 @@ test('options carry their labels, and round resolves picks but keeps riffed sect
   assert.match(out.stdout, /01-onboarding: Ready for dev \(2 of 2 approved\)/);
   assert.match(out.stdout, /02-home: Ready for review \(options still open\)/);
   assert.ok(existsSync(join(dir, '02-home.options')), 'a riffed section is not resolved');
+});
+
+test('a screen drawn for phone and desktop keeps both, with distinct ids', () => {
+  const {dir} = project();
+  mkdirSync(join(dir, '03-home'));
+  writeFileSync(join(dir, '03-home', 'home.html'), page('Home'));
+  writeFileSync(join(dir, '03-home', 'home.phone.html'), page('Home · Phone'));
+  const out = run('list', dir).stdout;
+  assert.match(out, /03-home\/home  desktop 1440×900  "Home"/);
+  assert.match(out, /03-home\/home\.phone  phone 390×844  "Home · Phone"/);
 });

@@ -145,7 +145,7 @@ const snapAnimations = () => document.getAnimations().filter(a => a.playState ==
 const union = (a, b) => { const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y); return {x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y}; };
 const clampBox = r => { const x = Math.max(0, Math.floor(r.x)), y = Math.max(0, Math.floor(r.y)); return {x, y, w: Math.min(VW - x, Math.ceil(r.w + r.x - x)), h: Math.min(VH - y, Math.ceil(r.h + r.y - y))}; };
 
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch({headless: true});
 
 async function run(reduced) {

@@ -32,7 +32,7 @@ async function loadPlaywright() {
   process.exit(2);
 }
 
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch({headless: true, ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
 const shots = flag('shots');
 if (shots) mkdirSync(shots, {recursive: true});

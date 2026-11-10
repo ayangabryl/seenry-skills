@@ -24,7 +24,7 @@ async function loadPlaywright() {
   try { return await import('playwright'); } catch {}
   console.error('Playwright not found (npm i -D playwright, or pass --playwright).'); process.exit(2);
 }
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch();
 async function text(url) {
   const page = await browser.newPage({viewport: {width: 1440, height: 900}});

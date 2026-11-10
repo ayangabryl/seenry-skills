@@ -39,7 +39,7 @@ if (pageTarget) {
       for (const base of [process.cwd(), resolve(dirname(resolve(pageTarget)))]) { try { return await import(pathToFileURL(createRequire(join(base, 'noop.js')).resolve('playwright')).href); } catch {} }
       return import('playwright');
     };
-    ({chromium} = await load());
+    (chromium = ((m) => m.chromium || m.default?.chromium)(await load()));
   } catch { console.error('Playwright not found; judging the image files alone.'); }
   if (chromium) {
     const browser = await chromium.launch(), page = await browser.newPage({viewport: {width: 1440, height: 900}});

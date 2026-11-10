@@ -20,7 +20,7 @@ function project() {
   assert.equal(run('init', dir).status, 0);
   mkdirSync(join(dir, '01-flow'));
   const head = '<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="../tokens.css"><style>body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}main{padding:var(--space-8)}</style>';
-  writeFileSync(join(dir, '01-flow', '01-good.phone.html'), head + '<title>Good</title><main><h1 class="text-title" id="t">Count weeks</h1><a id="go" href="02-bad.phone.html" data-spec="Tap: next" style="display:inline-block;padding:var(--space-3) var(--space-5);background:var(--color-accent);color:var(--color-on-accent)">Start</a></main>');
+  writeFileSync(join(dir, '01-flow', '01-good.phone.html'), head + '<title>Good</title><main><label>Your name<input id="name"></label><h1 class="text-title" id="t">Count weeks</h1><a href="#" style="display:inline-flex;min-height:44px;min-width:44px;color:inherit">Start</a><a id="go" href="02-bad.phone.html" data-spec="Tap: next" style="display:inline-block;padding:var(--space-3) var(--space-5);background:var(--color-accent);color:var(--color-on-accent)">Start</a></main>');
   writeFileSync(join(dir, '01-flow', '02-bad.phone.html'), head + '<title>Bad</title><main><p id="faint" style="color:#ddd">Faint text</p><a id="dead" href="03-missing.phone.html">Next</a><div style="width:600px">wide</div></main>');
   return {root, dir};
 }

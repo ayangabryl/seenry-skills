@@ -8,8 +8,8 @@ const pwFlag = process.argv.indexOf('--playwright');
 const pwPath = pwFlag > 0 ? process.argv[pwFlag + 1] : process.env.SEENRY_PLAYWRIGHT;
 const urls = process.argv.slice(2).filter((a, i, all) => !a.startsWith('--') && all[i - 1] !== '--playwright');
 let chromium;
-try { ({chromium} = pwPath ? await import(pathToFileURL(resolve(pwPath)).href) : await import(pathToFileURL(createRequire(join(process.cwd(), 'noop.js')).resolve('playwright')).href)); }
-catch { try { ({chromium} = await import('playwright')); } catch { console.error('Playwright not found (npm i -D playwright, or pass --playwright).'); process.exit(2); } }
+try { (chromium = ((m) => m.chromium || m.default?.chromium)(pwPath ? await import(pathToFileURL(resolve(pwPath)).href) : await import(pathToFileURL(createRequire(join(process.cwd(), 'noop.js')).resolve('playwright')).href))); }
+catch { try { (chromium = ((m) => m.chromium || m.default?.chromium)(await import('playwright'))); } catch { console.error('Playwright not found (npm i -D playwright, or pass --playwright).'); process.exit(2); } }
 const b = await chromium.launch(); const out = [];
 await Promise.all(urls.map(async url => {
   const p = await b.newPage({viewport: {width: 1440, height: 900}});

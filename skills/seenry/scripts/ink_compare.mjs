@@ -25,7 +25,7 @@ for(const region of config.regions){
   if(region.threshold!==undefined&&(!Number.isFinite(region.threshold)||region.threshold<0||region.threshold>255))throw new Error('threshold must be 0–255');
   if(region.tolerancePx!==undefined&&(!Number.isFinite(region.tolerancePx)||region.tolerancePx<0))throw new Error('tolerancePx must be nonnegative');
 }
-const {chromium}=await import(flags.playwright?pathToFileURL(path.resolve(flags.playwright)).href:'playwright');
+const chromium=((m) => m.chromium || m.default?.chromium)(await import(flags.playwright?pathToFileURL(path.resolve(flags.playwright)).href:'playwright'));
 const browser=await chromium.launch({headless:true,...(flags['executable-path']?{executablePath:flags['executable-path']}:{})});
 try{
   const page=await browser.newPage();
