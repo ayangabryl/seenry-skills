@@ -60,7 +60,7 @@ Rules for specific screens (profile, collections, settings lists, empty states, 
 | A new surface (pricing, onboarding, an empty state) or "this whole screen looks bad" | One `research_design_brief` (family `websites` or `apps`, an `asset_query` naming the screen, two or three structural queries), then one `compare_measurements` on the references you keep |
 | A bug, one control, one state | None |
 
-Take the parts leaders put on that screen and their measured spacing and type, in the project's own components. No canvas, options or new identity unless the owner asks for a redesign; then take the [unslop](unslop.md) route.
+Take the parts leaders put on that screen and their measured spacing and type, in the project's own components. No options or new identity unless the owner asks for a redesign; then take the [unslop](unslop.md) route. When you propose a visible change before making it (a new surface, a different layout), show it on the `seenry-canvas` canvas: a screenshot of the current screen in `refs/` and the proposal beside it.
 
 ## 7. Motion by default, from tokens
 

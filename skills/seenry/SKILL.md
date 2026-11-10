@@ -13,7 +13,7 @@ This skill takes a design task from brief to built product. Every screen is desi
 
 ## What is firm and what is judgment
 
-Firm: the person approves the screens, proof is never invented, and you report only what you checked. Everything else is judgment in service of the brief. A brief, a brand or a reference the person shows outranks any default here.
+Firm: every design you propose is shown on the canvas, the person approves the screens, proof is never invented, and you report only what you checked. Everything else is judgment in service of the brief. A brief, a brand or a reference the person shows outranks any default here.
 
 Work in the project's stack. Read its tokens, components and `DESIGN.md` first, and extend them.
 
@@ -68,11 +68,11 @@ Take structure from a reference: what leads, the order, the density, how proof i
 
 ### 4. Map and wireframe every screen, and the person reviews
 
-Follow `seenry-canvas`. Write the screen map: every flow and every screen in it, including empty, error and settings. Wireframe each screen with the real copy, one section per flow, and put two or three options only on the open decisions from step 3. End the turn there. Build nothing until `canvas.mjs feedback` shows the flows approved and the options picked.
+Follow `seenry-canvas`. Write the screen map: every flow and every screen in it, including empty, error and settings. Wireframe each screen with the real copy, one section per flow, linked to the next screen, with two or three options only on the open decisions from step 3. Open the canvas, then `canvas.mjs wait`. Build nothing until the feedback shows the flows approved and the options picked.
 
 ### 5. The look, then every screen designed
 
-Skip the look options when the project already has a brand or tokens. Otherwise follow [look](references/look.md): set `tokens.css` on the canvas, then two or three key screens in two treatments, stage `look`. Once one is picked, bring every approved wireframe to the picked look, each linking the same `tokens.css`, stage `design`, for one more review.
+Skip the look options when the project already has a brand or tokens. Otherwise follow [look](references/look.md): set `tokens.css` on the canvas, then two or three key screens in two treatments, stage `look`. Once one is picked, bring every approved wireframe to the picked look, each linking the same `tokens.css`, stage `mockup`. Link the screens to each other so Present plays each flow, stage `prototype`, for one more review.
 
 ### 6. Build once
 
@@ -95,13 +95,14 @@ One pass. No scoring loop, no second model, no self-score. Fix what the person a
 
 ## Rules that hold on every route
 
-1. **Screens before code, structure before finish.** No product code before the screens are approved, and no color, type or image decision before the structure is.
-2. **One thing leads each view.** One dominant element per screen and per section. Equal weight everywhere reads as a template.
-3. **Neighboring sections differ in composition.** The same heading, paragraph and cards three times is a skeleton.
-4. **Material is real or absent.** Real product, real photographs, real data, or a type-led section. Never decoration standing in for content.
-5. **Every affordance works.** A shortcut hint, badge or button with nothing behind it is wired up or removed.
-6. **One token file.** Every size, space, radius, color and duration comes from it.
-7. **Say what you did not verify.** A width not checked or a state not seen goes in the report as not verified.
+1. **Show every proposal on the canvas.** A design, mockup, option or proposed change is put on the canvas and opened for the person, never only described or only coded.
+2. **Screens before code, structure before finish.** No product code before the screens are approved, and no color, type or image decision before the structure is.
+3. **One thing leads each view.** One dominant element per screen and per section. Equal weight everywhere reads as a template.
+4. **Neighboring sections differ in composition.** The same heading, paragraph and cards three times is a skeleton.
+5. **Material is real or absent.** Real product, real photographs, real data, or a type-led section. Never decoration standing in for content.
+6. **Every affordance works.** A shortcut hint, badge or button with nothing behind it is wired up or removed.
+7. **One token file.** Every size, space, radius, color and duration comes from it.
+8. **Say what you did not verify.** A width not checked or a state not seen goes in the report as not verified.
 
 ## Keep the cost down
 

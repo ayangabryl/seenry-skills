@@ -16,7 +16,7 @@ function project() {
   const dir = join(root, '.seenry', 'canvas');
   assert.equal(run('init', dir).status, 0);
   mkdirSync(join(dir, '01-onboarding')); mkdirSync(join(dir, '02-home.options'));
-  writeFileSync(join(dir, '01-onboarding', '01-welcome.phone.html'), page('Welcome', 'One promise'));
+  writeFileSync(join(dir, '01-onboarding', '01-welcome.phone.html'), page('Welcome', 'One promise') + '<a href="02-first-habit.phone.html">Start</a><a href="../02-home.options/b.html#top">Skip</a><a href="https://example.com/x.html">Out</a><a href="../../../outside.html">Up</a>');
   writeFileSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), page('First habit'));
   writeFileSync(join(dir, '02-home.options', 'a.phone.html'), page('A &amp; list'));
   writeFileSync(join(dir, '02-home.options', 'b.html'), page('B'));
@@ -94,4 +94,28 @@ test('static writes a canvas that opens from disk with the state inlined', () =>
   const html = readFileSync(join(dir, 'canvas.html'), 'utf8');
   assert.match(html, /const EMBEDDED = \{"title"/);
   assert.equal(html.match(/<\/script>/g).length, 1, 'inlined state never closes the script early');
+});
+
+test('links between screens become prototype connections', () => {
+  const {dir} = project();
+  const out = run('list', dir).stdout;
+  assert.match(out, /"Welcome"  → 01-onboarding\/02-first-habit, 02-home\/b\n/);
+});
+
+test('wait returns the feedback the moment the person sends it', async t => {
+  const {dir} = project();
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5300 + Math.floor(Math.random() * 300))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  const port = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const waiter = spawn(process.execPath, [script, 'wait', dir, '--timeout', '20'], {stdio: 'pipe'});
+  let out = ''; waiter.stdout.on('data', d => { out += d; });
+  await new Promise(done => { const tick = () => existsSync(join(dir, '.waiting.json')) ? done() : setTimeout(tick, 50); tick(); });
+  assert.equal(JSON.parse((await call(port, '/state')).body).agentWaiting, true);
+  await call(port, '/feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({picks: {'02-home': '02-home/a'}})});
+  const code = await new Promise(done => waiter.on('exit', done));
+  assert.equal(code, 0);
+  assert.match(out, /Picked in 02-home: 02-home\/a/);
+  assert.match(readFileSync(join(dir, 'FEEDBACK.md'), 'utf8'), /Picked in 02-home: 02-home\/a/);
+  assert.equal(existsSync(join(dir, '.waiting.json')), false);
 });
