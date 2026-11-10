@@ -1,10 +1,10 @@
 ---
 name: seenry-apps
-description: "Design and build native-feeling mobile app screens and flows (SwiftUI, UIKit, React Native, Expo, Flutter, mobile web prototypes) that match top App Store apps. Use for onboarding, tab and stack navigation, lists, forms, settings, paywalls, players, sheets and empty or error states. Researches whole journeys in real apps via Seenry MCP (the flow from the app it is based on, the look from the app it should look like), then enforces navigation doors, a mechanical slop pre-flight and a beat-the-reference gate."
+description: "Design and build native-feeling mobile app screens and flows (SwiftUI, UIKit, React Native, Expo, Flutter, mobile web prototypes) that match top App Store apps. Use for onboarding, tab and stack navigation, lists, forms, settings, paywalls, players, sheets and empty or error states. Researches whole journeys in real apps via Seenry MCP (the flow from the app it is based on, the look from the app it should look like), designs the whole flow on the Seenry canvas for the person to approve, then builds it with navigation doors and a pre-flight check."
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "0.1.0"
+  version: "2.0.0"
 ---
 
 # Seenry Apps
@@ -26,7 +26,7 @@ Each one must stay instantly legible: if a person has to learn what the metaphor
 
 **Scope is what was asked.** "A welcome screen" is one screen (with its entrance motion and states), not an onboarding flow; "the onboarding" is the flow. Build the asked scope to the highest standard rather than a larger scope to an average one.
 
-**Finished means the gate has seen it.** A new screen or flow is done only after steps 2, 3, 5 and 10 have all run: the research floor below, a look sourced from real screens, the three-direction blind pick (`pick.mjs`) and `check.mjs` on the simulator screenshots as the last call, with its score line quoted in the reply. A one-line request ("a simple onboarding screen") gets the same steps in quick mode, never a shortcut; a run that skips them is unfinished however clean the build looks. Plain models already build tidy, competent screens, so the steps that make the result specific are the whole point of this skill.
+**Finished means the person has seen it.** A new screen or flow is done after the research floor below, a look sourced from real screens, every screen of the flow approved on the `seenry-canvas` canvas, and the built screens compared side by side with the approved ones on the simulator. A one-line request ("a simple onboarding screen") gets the same steps at its own scope, never a shortcut. Plain models already build tidy, competent screens, so the steps that make the result specific are the whole point of this skill.
 
 ## Workflow
 
@@ -42,7 +42,7 @@ Each one must stay instantly legible: if a person has to learn what the metaphor
    **Sources are evidence; the system is designed.** References tell you what to keep (a grainy dusk, a condensed serif, a reply button); they are not a parts list. Collecting one color from each reference and one face from another gives a collage that clashes, however well sourced. Design the look as one system and note in `.seenry/look.md` which reference informed each decision:
    - **Color:** one color world for the whole flow. Choose a ground family (it may change in lightness or warmth between screens, never switch worlds, such as a dusk gradient on two screens and cream paper on the rest), ink, one accent and at most one object color, related on purpose (analogous, or one complementary pair). Grade every photo and object into that world: a red book on a purple-orange gradient with rainbow spines is three palettes. Check it with `python3 ../seenry/scripts/palette.py` or by eye on the strip below.
    - **Type:** one family, or a pair that contrasts in one way only (serif with sans of similar width and x-height). Never pair a condensed face with an expanded one; extreme widths fight. Set a specimen with the real headlines, buttons and body on the real ground at real size before building, and keep the display voice consistent across every screen (the welcome and the questions speak in the same voice).
-   - **The strip test:** before the gate, put every screen in one row at small size. If any screen looks like it belongs to a different app, or the palette reads as more than one world, fix the system, not the screen.
+   - **The strip test:** on the canvas, zoomed out, look at every screen in one row at small size. If any screen looks like it belongs to a different app, or the palette reads as more than one world, fix the system, not the screen.
 
    **Leave the category's default (only when no app is named).** From the five category leaders, write down the palette and type most of them share (sleep: dark navy with warm amber or lavender; finance: green on white or black; fitness: black with neon). Your identity must not be that combination; keep the category's conventions for layout and flow, change the color world or the type voice.
    **Take the signature, not the defaults.** The look app's platform defaults (system blue, white grouped sheets, SF Pro, grey rows) are not its look; every app has them. Its look is the signature components and the attitude behind them. The product gets its own identity on top: an accent from its own idea (never iOS blue or indigo unless the brand owns it), a display or numeral treatment people will remember, and a color world that fits the subject (a sleep product lives at night). If the screens could be any app's onboarding with the logo swapped, it is slop, however faithful the research.
@@ -61,13 +61,13 @@ Each one must stay instantly legible: if a person has to learn what the metaphor
    - **Every screen, not only the hero:** when the identity is objects, the question screens answer in objects too. Each option shows its object (a souvenir, a matchbook, a cover), choosing one physically changes it (it lifts, flips, gets stamped, slides into a pile), and a small collection of what you have chosen so far grows on screen as you go. Plain list rows on a dark ground between an object-rich welcome and payoff break the world.
    - **Motion with weight:** objects arrive the way they would physically (drop and settle on a spring with a little bounce and shadow catching up, slide and stop with friction), and a light device-motion parallax may shift near objects more than far ones. A uniform fade or drop-in is not physical.
 4. **Map the flow and its doors** with [flows](references/flows.md): what each screen is (push, modal, sheet, replace), what back does from it, and the one-way doors (finished onboarding, sign-in, purchase) where back must not re-enter. Onboarding asks one thing per screen, teaches with the answers, and ends on a payoff built from them before any permission or paywall.
-5. **Explore the signature screen, then pick blind.** When an app is named in replicate mode, all three directions stay inside its identity and differ in the idea, content and motion; in inspired mode, all three apply the principles from `research/core.md` and differ in material and idea. Otherwise build three directions of the screen the flow exists for (usually the payoff, with the welcome screen in the same direction) as separate files: one conventional control, two that each break a cliché, one built on the borrowed edge. They must differ in what the eye lands on first, not only in layout. Run `node ../seenry/scripts/pick.mjs a.html b.html c.html --brief <brief> --refs <look app screens>` and build the whole flow in the winner's direction.
-6. **Spec each component** with the [four-layer construction](../seenry/references/components.md): grid → safe space → structure → type and states.
+5. **Put the flow on the canvas, and the person picks.** Follow `seenry-canvas`: every screen of the flow as a `.phone.html` frame in its own section, in flow order, with real copy and links between screens so the person can click through. The screen the flow exists for (usually the payoff, with the welcome screen beside it) goes in a `.options` folder in three directions. In replicate mode they stay inside the named app's identity and differ in idea, content and motion; in inspired mode they apply `research/core.md` and differ in material and idea; otherwise one is the conventional answer and two each break a cliché, one built on the borrowed edge. They differ in what the eye lands on first. Put the look app's screens in `refs/`. End the turn, then build the whole flow in the picked direction with the person's comments applied.
+6. **Spec each component** with the [four-layer construction](../seenry-craft/references/components.md): grid → safe space → structure → type and states.
 7. **Build the connected states** with real data: loading, empty, error, permission denied, offline, success, and the keyboard-open layout. Web prototypes start with `<!doctype html>`, `<meta charset="utf-8">` and a viewport meta.
 8. **Pre-flight the counts, native source included:** `node scripts/app_preflight.mjs <source>` (SwiftUI, Compose and Flutter files too) warns on common default faces (Instrument Serif, Fraunces, Playfair, Space Grotesk, Clash Display; any of them is fine when it suits the identity and `.seenry/look.md` says why), counts tracked uppercase labels, numbered labels, italic accent words, monospace used as texture, dots before text, accent hue families, grey families, the radius scale, emoji in UI, gradients, type families, labels per intent, encoding and the document head. The screenshot gate cannot see these, so a failed count is a fix, not a judgment call; a deliberate exception from the look (Flighty's status colors) is written in `decisions.md`.
 9. **Walk it on the simulator and record it.** Run the flow end to end on the iOS Simulator (or an Android emulator), web prototypes included: serve the folder, boot an installed iPhone (`xcrun simctl list devices available`, then `xcrun simctl boot <udid>`; one run per simulator), `xcrun simctl openurl booted http://127.0.0.1:<port>/`, screenshot each step with `xcrun simctl io booted screenshot NN-step.png`. A desktop browser at 390px does not show Safari's toolbars, safe areas, keyboard or real font rendering. Exercise every step, every back path (chevron, edge swipe, Android back), back after each one-way door, sheets dragged and cancelled mid-drag, the keyboard both ways, skip everything once. Record it (`xcrun simctl io booted recordVideo rec.mov`; Android `adb shell screenrecord /sdcard/rec.mp4`) and watch it twice, once at speed and once frame by frame, for wrong-theme flashes, layout jumps and dropped frames.
-10. **Beat the reference, screen by screen.** Put each of your screens beside the best equivalent screen you studied. Any screen that reads worse goes back in the loop. Then run the gate: `node ../seenry/scripts/check.mjs --screens <screens in flow order> --video rec.mov --brief <brief>` and apply its fixes until PASS or STOP. In showcase mode, on STOP below the target, rebuild the signature screen and flow on a different direction from step 5 and run `check.mjs --new-direction` once before reporting. Use `--mode quick` by default (one critic round, fixes applied once), `--mode polish` when asked for production-ready work and `--mode showcase` only for a showcase. Report the score and level in the delivery: pass (9), leader level (8) or below leader level with the gaps. Without Seenry MCP, first run `node ../seenry/scripts/research.mjs --type app` so the critic has a bar. Write `.seenry/idea.md`, `.seenry/motion.md` and `DESIGN.md` as in `seenry`; the gate checks for them.
-11. **Deliver the Seenry sheet** as in `seenry` ([the sheet](../seenry/references/sheet.md)): screenshots per state, the apps and flows studied with ids, the decisions and their sources, anatomy of the signature screen and guidelines. Use `sheet.py`; annotate simulator screenshots by hand where `anatomy.mjs` (web only) does not apply.
+10. **Compare, screen by screen.** Put each built screen beside the approved canvas frame and the best equivalent screen you studied, as simulator screenshots in the canvas's `refs/` or the `build` stage. Any screen that reads worse than either goes back once. Report what was compared and what you could not verify. Write `DESIGN.md` as in `seenry`.
+11. **The Seenry sheet, only when asked** ([the sheet](../seenry/references/sheet.md)): screenshots per state, the apps and flows studied with ids, the decisions and their sources.
 
 ## Platform system
 
@@ -101,7 +101,7 @@ Use Dynamic Type text styles (iOS) and `sp` with font scale (Android) instead of
 
 ## Alignment
 
-The same keyline, ink-level and optical rules apply natively ([alignment](../seenry/references/alignment.md), [optical](../seenry/references/optical.md)): align SF Symbols by their glyph (use `.imageScale` and baseline alignment with text, `alignmentGuide` for cap-height alignment), use `firstTextBaseline` alignment for icon + label rows, and check play/chevron glyph centering in circular buttons at 3x screenshots.
+The same keyline, ink-level and optical rules apply natively ([alignment](../seenry-craft/references/alignment.md), [optical](../seenry-craft/references/optical.md)): align SF Symbols by their glyph (use `.imageScale` and baseline alignment with text, `alignmentGuide` for cap-height alignment), use `firstTextBaseline` alignment for icon + label rows, and check play/chevron glyph centering in circular buttons at 3x screenshots.
 
 ## Motion
 
@@ -151,10 +151,9 @@ Exits are faster than entrances, only transform and opacity move in lists, and e
 
 - [ ] `research/screens.md` lists every screen opened: three flows walked to the end, five category leaders, 8+ look-app screens, the borrowed references
 - [ ] Every line of `.seenry/look.md` names its source screen; the palette is not the category's shared default
-- [ ] `pick.mjs` run on three directions; `check.mjs` was the last call and its score is in the reply
 - [ ] Three or more complete flows and 8+ look-app screens studied; ids in `research/`; the pattern adopted for each screen named
 - [ ] `.seenry/look.md` exists, its signature components appear in the build carrying this product's content, and the accent and color world are the product's own, not platform defaults
-- [ ] Three directions of the signature screen built and picked blind with `pick.mjs`
+- [ ] Every screen of the flow on the canvas, three directions of the signature screen, and the person's pick and comments applied
 - [ ] Navigation map written; back verified on every screen; one-way doors cannot be re-entered
 - [ ] Onboarding ends on a payoff built from the answers; every permission has a pre-prompt and a soft way out; paywall terms in plain text under the CTA
 - [ ] Loading, empty, error, permission-denied and long-content states designed, not defaulted
@@ -164,7 +163,7 @@ Exits are faster than entrances, only transform and opacity move in lists, and e
 - [ ] When a reference app is named: `research/fidelity.md` measured with `measure_screen.py`, and the final compare against the reference frame shows no `<- off` element
 - [ ] `app_preflight.mjs` passes on the native source (no tracked caps, numbering, italic accent, mono texture, cream + terracotta)
 - [ ] Screens and recording captured on the iOS Simulator (or emulator), not a desktop browser
-- [ ] Every screen holds up beside the best reference screen studied; `check.mjs` run in the requested mode, score and level reported
+- [ ] Every built screen compared with its approved frame and the best reference screen studied
 
 ## Review
 

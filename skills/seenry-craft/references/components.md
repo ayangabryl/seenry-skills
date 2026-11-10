@@ -42,7 +42,7 @@ Ref:    <Seenry or site reference studied, and what was taken from it>
 
 ## Component anatomies
 
-Measured defaults below match what leading product sites ship (see [benchmarks](benchmarks.md)). Use the project's density mode to choose between rows.
+Measured defaults below match what leading product sites ship (see [benchmarks](../../seenry/references/benchmarks.md)). Use the project's density mode to choose between rows.
 
 ### Button
 
@@ -141,7 +141,7 @@ Measured defaults below match what leading product sites ship (see [benchmarks](
 
 ### Media player
 
-The finished reference is [assets/examples/player-card.html](../assets/examples/player-card.html); its keylines are explained in [alignment](alignment.md).
+The finished reference is [assets/examples/player-card.html](../../seenry/assets/examples/player-card.html); its keylines are explained in [alignment](alignment.md).
 
 - Card r28, optical inset 16 on all four sides, ring border, no shadow unless it floats. Cover 96 square (about 24% of a 400 card) at r12 (`28 − 16`), real artwork.
 - Right column on keyline V2 (cover right + 16): title 15/600 trimmed to cap height so its capitals start exactly at the cover's top; artist 13/400 text-2 8px below; transport row (previous · 40 pause/play circle · next, glyphs 20) pulled left so the previous glyph's ink sits on V2, and the play circle's bottom meets the cover's bottom.
@@ -173,4 +173,4 @@ Then the states that only appear in use. Each of these shipped once on a reviewe
 
 ## Research a component
 
-Before building anything non-trivial, look at how 3–4 strong products render the same component. With Seenry MCP: `search_sections` with `element` set to the section kind, `search_app_screens` for mobile patterns, or `get_design` / `get_tokens` on a named site to read real radii, type and shadows. Record in the spec card's `Ref` line what you measured and adopted. See [research](research.md).
+Before building anything non-trivial, look at how 3–4 strong products render the same component. With Seenry MCP: `search_sections` with `element` set to the section kind, `search_app_screens` for mobile patterns, or `get_design` / `get_tokens` on a named site to read real radii, type and shadows. Record in the spec card's `Ref` line what you measured and adopted. See [research](../../seenry/references/research.md).

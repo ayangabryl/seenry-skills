@@ -29,7 +29,7 @@ imagery.
 
 Rules that keep it at the reference level:
 - Tokens in `styles.css` only (type scale 13–56, 4px spacing, three radii, motion tokens). Headlines weight 500 at
-  -0.028em; body 15px; size floors as in [the standard](../../references/standard.md#size-floors). The hero is the only two-tone headline.
+  -0.028em; body 15px; size floors as in [seenry-craft](../../../seenry-craft/SKILL.md). The hero is the only two-tone headline.
 - Imagery: paintings or photographs as color, never flat brand-color fields. Without an image generator, art-direct
   one set: `assets.py art-set --style impressionist --subject "field garden water"` (Penny's set: Van Gogh, Sargent,
   Courbet, Corot), cropped tight, frames removed, one family per page.

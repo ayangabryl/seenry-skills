@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 2.0.0
+
+Seenry 2 designs before it builds, with the person at the decision points instead of a scoring loop.
+
+- **New: seenry-canvas.** A local design canvas served by one dependency-free Node script. Each flow is a section and each screen a live HTML frame at phone, tablet, laptop or desktop size; `.options` folders hold alternatives. The person pans, zooms, approves screens, picks options and pins comments on elements; `canvas.mjs feedback` returns them to the agent, and feedback goes stale once a screen changes. A screenshot and a single-file mode cover sessions with no local browser. Ships a wireframe kit and a shared token file.
+- **New: seenry-craft.** Exact values for type, spacing, radius, surfaces, color roles, icons, hit areas and states, with a grep-style finishing table. The type, color, system, alignment, optical, craft, components, accessibility, mobile web and writing references moved here from `seenry`.
+- **seenry, rewritten.** About 8 KB instead of 18 KB, and about a fifth of the reading for a new page. Brief from real material, name the default and leave it, anchor each option to a different real reference, design every screen on the canvas, pick the look, build once, check once. Proof is never invented.
+- **seenry-motion:** a fluid interaction guide (response on press, velocity handoff, interruptible springs, materials, reduced motion), adapted from Emil Kowalski's MIT-licensed Apple design skill.
+- **seenry-apps:** flows are designed on the canvas and the person picks the signature screen.
+- **Breaking:** the new-page flow no longer runs `check.mjs`, `pick.mjs` or the blind critic, and the identity, flow, anti-slop, standard, premium, art direction, design thinking, new-site, exploration, pages and recommendation references are removed. The scripts remain for existing projects that call them.
+- **Breaking:** removed the seenry-branding and seenry-decks skills. Decks and brand materials are no longer part of the Seenry library, and the tool guide follows the Seenry MCP 0.2.0 contract, which drops the branding and decks families.
 
 - **Breaking:** removed the seenry-branding and seenry-decks skills. Decks and brand materials are no longer part of the Seenry library, and the tool guide follows the Seenry MCP 0.2.0 contract, which drops the branding and decks families.
 

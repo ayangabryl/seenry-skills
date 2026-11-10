@@ -64,10 +64,10 @@ A row of icons (square app tile, round avatar, triangular warning) must be balan
 Run the audit on any rendered page (dev server URL, deployed page or local file):
 
 ```sh
-node scripts/audit_page.mjs http://localhost:3000 --widths 1440,390 --shots .seenry/audit
+node ../seenry/scripts/audit_page.mjs http://localhost:3000 --widths 1440,390 --shots .seenry/audit
 ```
 
-It needs Playwright (`npm i -D playwright && npx playwright install chromium`, or pass `--playwright /path/to/playwright/index.mjs`). The optical part ([optical_audit.mjs](../scripts/optical_audit.mjs)) rasterizes every icon to measure its ink and reports:
+It needs Playwright (`npm i -D playwright && npx playwright install chromium`, or pass `--playwright /path/to/playwright/index.mjs`). The optical part ([optical_audit.mjs](../../seenry/scripts/optical_audit.mjs)) rasterizes every icon to measure its ink and reports:
 
 - `iconOnly`: icon buttons whose ink is not optically centered, with the `translate` to apply.
 - `iconText`: icons whose ink center misses the adjacent label's cap-height center.

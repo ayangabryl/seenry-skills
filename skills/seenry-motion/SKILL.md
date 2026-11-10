@@ -1,10 +1,10 @@
 ---
 name: seenry-motion
-description: "Build, review or research interface motion: press feedback, menus, tooltips, dialogs, sheets, toasts, accordions, tabs, page and shared-element transitions, scroll effects, drag and gestures, number and icon changes. Decides whether something should animate at all, then picks the tool, properties, curve, duration or spring, interruption and reduced-motion behavior, with tested modern-CSS recipes and runnable assets. Also studies recorded motion from Seenry references."
+description: "Build, review or research interface motion: press feedback, drag and flick gestures with springs and velocity, menus, tooltips, dialogs, sheets, toasts, accordions, tabs, page and shared-element transitions, scroll effects, drag and gestures, number and icon changes. Decides whether something should animate at all, then picks the tool, properties, curve, duration or spring, interruption and reduced-motion behavior, with tested modern-CSS recipes and runnable assets. Also studies recorded motion from Seenry references."
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "0.1.0"
+  version: "2.0.0"
 ---
 # Seenry Motion
 
@@ -94,6 +94,7 @@ Start from [recipes](references/recipes.md) for press feedback, menus and popove
 | Live voice input or output | Original [voice presence](assets/voice-presence/README.md) accepts application-owned state and a normalized audio level. Keep controls and announcements in the DOM; a generated demo signal is not microphone activity. |
 | Loading or process presence | Original [signal field](assets/signal-field/README.md), [boundary trace](assets/boundary-trace/README.md) and [loading patterns](references/patterns/loading.md). Animation time is not progress. |
 | Decoded image or expressive material | Original [image reveal](assets/image-reveal/README.md), [reflective solid and rim surfaces](assets/reflective-surface/README.md), [pointer tilt](assets/pointer-tilt/README.md), [surface effects](references/surface-effects.md) and [expressive effects](references/expressive-effects.md). Keep useful content while a replacement loads; use reflection and tilt only where the material has a purpose. |
+| Drag, flick, swipe, sheets, carousels, springs with velocity, translucent chrome | [Fluid interaction](references/fluid.md) |
 | Designing any new interactive component (brief, state graph, motion score, input contract, checklist) | [Interaction craft](references/interaction-craft.md) |
 | Toast or banner stack | [Feedback patterns](references/patterns/feedback.md) and original [notification reducer](assets/notification-state.mjs). Remove overflow from active state before its exit; test the fourth event in a three-item stack. |
 | Occasional completed milestone | Original [confirmation burst](assets/confirmation-burst/README.md). Record success in application state first, then play the finite decoration; the settled result must remain visible after it clears. |

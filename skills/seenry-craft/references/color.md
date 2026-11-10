@@ -20,10 +20,10 @@ Tint all neutrals slightly with the accent or brand hue (chroma 0.002–0.01 in 
 A color system is a few 11-step ramps (50–950) plus semantic tokens that point at them. Generate it, don't eyeball it:
 
 ```sh
-python3 scripts/palette.py "#5b5bd6" --status --out tokens.css
+python3 ../seenry/scripts/palette.py "#5b5bd6" --status --out tokens.css
 ```
 
-[palette.py](../scripts/palette.py) builds the accent and a hue-tinted neutral ramp in OKLCH (and positive, warning and negative with `--status`), picks semantic roles for light and dark, and measures every text and control pair with both WCAG 2 and APCA. It exits non-zero if any pair fails. What it enforces, and what to keep if you build a ramp another way:
+[palette.py](../../seenry/scripts/palette.py) builds the accent and a hue-tinted neutral ramp in OKLCH (and positive, warning and negative with `--status`), picks semantic roles for light and dark, and measures every text and control pair with both WCAG 2 and APCA. It exits non-zero if any pair fails. What it enforces, and what to keep if you build a ramp another way:
 
 - **Even perceived lightness,** denser at the light end so 50 and 100 still read as two surfaces. HSL lightness is not perceptual; OKLCH `L` is.
 - **Constant hue** end to end, **chroma peaking mid-ramp** and falling toward both ends; neither end reaches pure white or black.
@@ -56,7 +56,7 @@ Measure the foreground against the surface it actually sits on (a card, an image
 | Large display text ≥ 36px | 3:1 | 45+ |
 | Control boundaries, focus rings, meaningful icons | 3:1 | 30+ |
 
-APCA is signed (light-on-dark is negative); compare the absolute value. `python3 scripts/palette.py --check FG BG` prints both. Fix a failing pair by changing lightness, not hue.
+APCA is signed (light-on-dark is negative); compare the absolute value. `python3 ../seenry/scripts/palette.py --check FG BG` prints both. Fix a failing pair by changing lightness, not hue.
 
 ## Modern CSS color
 

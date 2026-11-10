@@ -1,35 +1,32 @@
 # Seenry skills
 
-Agent skills that make an AI work like a design studio. Seenry fixes a strict frame (pixel grid, columns, padding, safe space, type set), explores several compositions inside it, critiques them side by side and refines one with real material, using measured evidence from real company screens through the optional Seenry MCP.
+Agent skills that make an AI work like a design studio. The agent designs every screen first on a local canvas, the person reviews and picks, and only then is the product built, with exact craft values and real references from the optional Seenry MCP.
 
 | Skill | Use it for |
 | --- | --- |
-| [seenry](skills/seenry/SKILL.md) | Building any web page or component: system, layout, type, color, craft, copy, accessibility, imagery, reference matching |
-| [seenry-assets](skills/seenry-assets/SKILL.md) | License-clear photos, icons and fonts from the web, generated images when an image model is available, provenance for every file |
-| [seenry-review](skills/seenry-review/SKILL.md) | Auditing a screen, reviewing a UI diff, stress-testing one component, explaining how something is built |
-| [seenry-motion](skills/seenry-motion/SKILL.md) | Transitions, gestures, scroll and component animation, with runnable assets |
+| [seenry](skills/seenry/SKILL.md) | Start here for any design task. The flow from brief to built product, and which skill to load when |
+| [seenry-canvas](skills/seenry-canvas/SKILL.md) | A local design canvas: every screen as a live frame at real device size, grouped into flows, with options side by side. The person approves, picks and pins comments |
+| [seenry-craft](skills/seenry-craft/SKILL.md) | Exact values for type, spacing, radius, shadows, color roles, icons, hit areas and component states |
+| [seenry-motion](skills/seenry-motion/SKILL.md) | Whether something should move, then how: curves, springs, gestures with velocity, scroll, with runnable assets |
+| [seenry-review](skills/seenry-review/SKILL.md) | Auditing a screen, reviewing a UI diff, stress-testing one component |
+| [seenry-assets](skills/seenry-assets/SKILL.md) | License-clear photos, icons and fonts, generated images when an image model is available, provenance for every file |
 | [seenry-apps](skills/seenry-apps/SKILL.md) | Native-feeling mobile screens and flows |
-| [seenry-video](skills/seenry-video/SKILL.md) | Product films as code: launch videos and explainers studied from real references, rendered frame by frame, with designed sound and sourced claims |
+| [seenry-video](skills/seenry-video/SKILL.md) | Product films as code, from studied references to a mastered MP4 |
 
-## What makes it different
+## How it works
 
-- **It looks before it designs.** With Seenry MCP the agent searches a library of more than 100,000 captured app screens and nearly 2,000 websites, matched by category ("analytics hero", "payments pricing") as well as by name. It surveys up to eight real references side by side, keeps the three or four that fit the brief with a reason for each, measures their type, radius and spacing, then designs its own page and credits what it kept in `DESIGN.md`.
-- **A system before styling.** 4px grid, one spacing scale, one radius family with concentric nesting (`inner = outer − inset`), one sans family (plus mono for data), one accent color, rings instead of heavy shadows. Starter [tokens.css](skills/seenry/assets/tokens.css) and a [DESIGN.md template](skills/seenry/assets/DESIGN.template.md) keep page 12 consistent with page 1.
-- **Studio process.** Brief → research → frame → material → explore 3 compositions → critique → refine → verify. [Structured exploration](skills/seenry/references/exploration.md) varies arrangement, scale, anchors and density inside the frame, never the frame itself.
-- **Real material.** `seenry-assets` sources CC0 and public-domain photos (Openverse), permissive icon sets (Lucide, Phosphor, Tabler via Iconify) and open fonts, or generates art-directed images through OpenAI or Gemini, and writes a license manifest.
-- **Components built in layers.** Grid → safe space and content areas → structure → type and states, recorded as a short spec card. Max three sizes and three weights per component. [Anatomies](skills/seenry/references/components.md) with measured defaults for buttons, inputs, cards, rows, menus, dialogs, tables, pricing tiers and more.
-- **Page shells and section archetypes** so every page shares gutters, widths, rhythm and heading patterns. [Pages](skills/seenry/references/pages.md).
-- **Measured, not imagined.** [Benchmarks](skills/seenry/references/benchmarks.md) from 18 leading sites (Linear, Stripe, Vercel, Notion, Figma, Raycast, Resend, GitHub and more): hero sizes, weights, tracking, radii, elevation. With Seenry MCP the agent reads available captured measurements and studies real sections, pages, app screens and recordings. [Research recipes](skills/seenry/references/research.md).
-- **A design sheet for every task.** The skill researches on its own (named category leaders plus an open search that surfaces companies you did not know), decides, builds, and ends with a Seenry sheet: why each decision was made, which companies informed it, the variants explored, measured color and type, component anatomy with keylines drawn on, guidelines for future work, and what was verified. See the [pricing example sheet](skills/seenry/assets/examples/sheet/pricing.sheet.html).
-- **Worked examples.** A [player card](skills/seenry/assets/examples/player-card.html), a [pricing section](skills/seenry/assets/examples/pricing.html) and a [settings panel](skills/seenry/assets/examples/settings.html), each built with the process, audited clean at 1440 and 390, and annotated with its frame and keylines.
-- **Tested motion recipes.** `seenry-motion` decides whether something should animate at all, then gives exact curves, durations and springs, and modern-CSS recipes (native dialog and popover exits, `interpolate-size` accordions, View Transitions, scroll-driven reveals, `linear()` springs) that the test suite runs in Chromium.
-- **A measured color system from one hex.** `palette.py` builds OKLCH ramps and two-tier tokens for light and dark and checks every pair against WCAG and APCA.
-- **Alignment you can measure on any project.** `node skills/seenry/scripts/audit_page.mjs <url> --widths 1440,390` checks ink-level alignment (cap heights, baselines, drawn glyphs, media edges) and optical alignment (asymmetric icons, label centering, side bearing) and prints the CSS nudge for each finding.
-- **An anti-slop pass** with fixes for every common AI tell, and a [system audit](skills/seenry/scripts/system_audit.mjs) that counts the sizes, weights, radii and colors a page actually renders and flags off-grid spacing and non-concentric corners.
+1. **Brief from real material.** Real copy, prices, screenshots and photographs. Proof is never invented; anything assumed is listed for the owner.
+2. **Name the default, then leave it.** The agent writes down what any model would build for this brief, and every option must differ from it in structure.
+3. **Anchor to real references.** Each open decision gets two or three real screens, one from outside the category. Structure is taken from them; colors, words and images never are.
+4. **Design every screen on the canvas.** `node skills/seenry-canvas/scripts/canvas.mjs open` serves a pan-and-zoom canvas on `127.0.0.1`. Each flow is a section, each screen a live HTML frame at phone, tablet or desktop size, and options sit side by side. The person approves screens, picks options and pins comments on elements; the agent reads them with `canvas.mjs feedback`.
+5. **Pick the look, then design every screen in it.** One `tokens.css` that every screen links, so a change updates them all, and the same file moves into the product.
+6. **Build once and check once.** Craft values from `seenry-craft`, motion from `seenry-motion`, then a rendered audit at 1440 and 390 and a side-by-side with the approved screens. No scoring loop and no second model.
+
+The canvas needs only Node: no packages, no account, no Figma. It works with Claude Code, Codex, Cursor or any agent that can run a command. In a cloud session it writes a screenshot of the canvas instead, or a single HTML file that opens from disk.
 
 ## Measured results
 
-A blind benchmark on October 7, 2026 compared Seenry with Seenry MCP against two public design skills ([Emil Kowalski](https://github.com/emilkowalski/skills), [Jakub Krehel](https://github.com/jakubkrehel/skills)) and no skill. Each condition ran Codex (Sol 6.1) on the same prompts a typical user writes: 10 edits inside two existing apps and 8 new sites from a one-line request. Seven of the 18 tasks were held out: the skill was never tuned on them. Claude Opus judged screenshots blind, with labels shuffled per packet, 80 judgments per condition on a 10-point scale.
+These results measured Seenry 0.1, before the canvas. A blind benchmark on October 7, 2026 compared Seenry with Seenry MCP against two public design skills ([Emil Kowalski](https://github.com/emilkowalski/skills), [Jakub Krehel](https://github.com/jakubkrehel/skills)) and no skill. Each condition ran Codex (Sol 6.1) on the same prompts a typical user writes: 10 edits inside two existing apps and 8 new sites from a one-line request. Seven of the 18 tasks were held out: the skill was never tuned on them. Claude Opus judged screenshots blind, with labels shuffled per packet, 80 judgments per condition on a 10-point scale.
 
 | | Seenry + MCP | Emil | Jakub | No skill |
 | --- | --- | --- | --- | --- |
@@ -58,13 +55,14 @@ Replacing an older Seenry install: run with `--replace --apply`. Retired skill f
 
 The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, and iOS app screens and flows. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
 
-All eight skills use the Seenry MCP 0.1.1 tool contract and prefer connected MCP tools. Scripted research uses the same endpoint and an existing `SEENRY_PRO_KEY`: run `node skills/seenry/scripts/research.mjs --brief BRIEF.md --family websites --terms "<focused query>"` from this repository, or the installed skill's absolute script path. The script makes at most three tool calls (planned maximum 11 credits), saves the source context and images it used, and stops on service, auth or quota errors. Without a key it writes an explicitly unresearched handoff for connected tools or permitted web research.
+Every skill uses the Seenry MCP tool contract and prefer connected MCP tools. Scripted research uses the same endpoint and an existing `SEENRY_PRO_KEY`: run `node skills/seenry/scripts/research.mjs --brief BRIEF.md --family websites --terms "<focused query>"` from this repository, or the installed skill's absolute script path. The script makes at most three tool calls (planned maximum 11 credits), saves the source context and images it used, and stops on service, auth or quota errors. Without a key it writes an explicitly unresearched handoff for connected tools or permitted web research.
 
 ## Verify and contribute
 
 ```sh
 python3 scripts/validate.py
 python3 -m unittest discover -s tests
+node --test tests/canvas.test.mjs
 node tests/system-audit.browser.mjs --playwright /path/to/node_modules/playwright/index.mjs
 ```
 

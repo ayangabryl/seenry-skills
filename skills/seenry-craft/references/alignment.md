@@ -27,17 +27,17 @@ Keylines   V1 = card left + 16 (cover left, scrubber start, time start)
 Proportion cover 96 of 400 (24%); card r28, inset 16, cover r12
 ```
 
-The first version aligned the title's line box to the cover, which left the capitals 12px low; the scrubber started 4px right of the cover; insets were 12/16/20/12 and the cover took 34% of the width. The audit reported all of it; the rebuilt card measures 0/0/0 on the anchors and 16/16/16/16 on the insets. See [assets/examples/player-card.html](../assets/examples/player-card.html).
+The first version aligned the title's line box to the cover, which left the capitals 12px low; the scrubber started 4px right of the cover; insets were 12/16/20/12 and the cover took 34% of the width. The audit reported all of it; the rebuilt card measures 0/0/0 on the anchors and 16/16/16/16 on the insets. See [assets/examples/player-card.html](../../seenry/assets/examples/player-card.html).
 
 ## Measure it
 
-Mark each component root with `data-component` and run the [system audit](../scripts/system_audit.mjs). For every component it reports:
+Mark each component root with `data-component` and run the [system audit](../../seenry/scripts/system_audit.mjs). For every component it reports:
 
 - `alignment.insets`: optical inset from the component edge to the nearest ink on each side.
 - `alignment.anchors`: for each image, the cap-top offset of the first item beside it, the bottom offset of the last item, and the left offset of what sits below it. Target 0.
 - `alignment.nearMisses`: pairs of edges 1–6px apart (text measured at cap top and baseline, SVG glyphs at their drawn shapes, media and filled shapes at their boxes). Target none.
 
-Then look: overlay the keylines (the [grid overlay](../assets/layout-guides/README.md), or 1px fixed-position lines at the measured positions) and screenshot at 2x or 3x. Numbers find the errors; the overlay proves the fix to a human.
+Then look: overlay the keylines (the [grid overlay](../../seenry/assets/layout-guides/README.md), or 1px fixed-position lines at the measured positions) and screenshot at 2x or 3x. Numbers find the errors; the overlay proves the fix to a human.
 
 ## Then correct optically
 
