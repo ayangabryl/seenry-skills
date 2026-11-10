@@ -189,3 +189,21 @@ test('a shared library is served under library/ and listed read-only', async t =
   assert.equal((await call(port, '/library/%2e%2e/app/canvas.json')).status, 404);
   assert.equal((await call(port, '/library/.gitignore')).status, 404);
 });
+
+test('options carry their labels, and round resolves picks but keeps riffed sections open', async t => {
+  const {dir} = project();
+  writeFileSync(join(dir, '02-home.options', 'a.phone.html'), page('Quiet') + '<meta name="seenry-risk" content="safe"><meta name="seenry-axis" content="A plain list"><meta name="seenry-wins" content="Daily use"><meta name="seenry-cost" content="Forgettable"><meta name="seenry-ask" content="Is it calm?|Would you open it daily?">');
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5900 + Math.floor(Math.random() * 90))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  const port = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const state = JSON.parse((await call(port, '/state')).body), quiet = state.sections.find(s => s.id === '02-home').frames.find(f => f.id === '02-home/a');
+  assert.deepEqual([quiet.risk, quiet.axis, quiet.wins, quiet.cost, quiet.ask], ['safe', 'A plain list', 'Daily use', 'Forgettable', ['Is it calm?', 'Would you open it daily?']]);
+  await call(port, '/feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({riff: [{section: '02-home', frame: '02-home/b'}], frames: [{id: '01-onboarding/01-welcome', status: 'approved'}, {id: '01-onboarding/02-first-habit', status: 'approved'}]})});
+  assert.match(run('feedback', dir).stdout, /More like this in 02-home: 02-home\/b/);
+  const out = run('round', 'Riffing on B', dir);
+  assert.equal(out.status, 0, out.stderr);
+  assert.match(out.stdout, /01-onboarding: Ready for dev \(2 of 2 approved\)/);
+  assert.match(out.stdout, /02-home: Ready for review \(options still open\)/);
+  assert.ok(existsSync(join(dir, '02-home.options')), 'a riffed section is not resolved');
+});

@@ -14,6 +14,7 @@
  *  node canvas.mjs archive <frame> --reason "…" [dir]    move a screen to the archive
  *  node canvas.mjs log "what changed and why" [dir]       add a line to the change log on the cover
  *  node canvas.mjs handoff [dir]           write HANDOFF.md: screens, flows, specs, tokens, open questions
+ *  node canvas.mjs round "what changed" [dir]   after applying feedback: resolve picks, log it, set every section's status
  *  node canvas.mjs init [dir] --library <path>   link a shared design system (another canvas folder) instead of local tokens
  *
  *  The agent's eyes (Playwright): screens are ids or section names; none means every screen. --dir picks the canvas.
@@ -51,7 +52,7 @@ const flag = (name, fallback) => { const i = argv.indexOf(`--${name}`); return i
 const SWITCHES = new Set(['--no-browser', '--json']);
 // Arguments after the command that are not a --flag or a flag's value.
 const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !SWITCHES.has(all[i - 1])));
-const ARGS = {status: 2, resolve: 1, archive: 1, log: 1}[command] || 0;
+const ARGS = {status: 2, resolve: 1, archive: 1, log: 1, round: 1}[command] || 0;
 // Commands that take screens as arguments find the canvas with --dir; the others also take it as the next argument.
 const FRAME_COMMANDS = new Set(['render', 'tree', 'verify', 'diff', 'compare']);
 const dir = resolve(flag('dir') || (FRAME_COMMANDS.has(command) ? '' : positional[ARGS]) || '.seenry/canvas');
@@ -399,9 +400,12 @@ function head(path) {
   let text = '';
   try { const fd = openSync(path, 'r'), buffer = Buffer.alloc(4096); text = buffer.toString('utf8', 0, readSync(fd, buffer, 0, 4096, 0)); closeSync(fd); } catch {}
   const title = text.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim();
-  const meta = text.match(/<meta[^>]+name=["']seenry-note["'][^>]*>/i)?.[0];
-  const note = meta?.match(/content=(?:"([^"]*)"|'([^']*)')/i);
-  return {title: title ? unescape(title) : '', note: note ? unescape(note[1] ?? note[2] ?? '') : ''};
+  const meta = {};
+  for (const m of text.matchAll(/<meta\b[^>]*>/gi)) {
+    const name = m[0].match(/name\s*=\s*["']seenry-([\w-]+)["']/i)?.[1], content = m[0].match(/content\s*=\s*(?:"([^"]*)"|'([^']*)')/i);
+    if (name && content) meta[name.toLowerCase()] = unescape(content[1] ?? content[2] ?? '');
+  }
+  return {title: title ? unescape(title) : '', note: meta.note || '', meta};
 }
 
 /** Screens this screen links to, as frame ids: its prototype connections. */
@@ -434,9 +438,10 @@ function frameFrom(folder, file, root = dir, prefix = '') {
   const stem = file.replace(/\.html$/i, '');
   const device = Object.keys(DEVICES).find(d => stem.toLowerCase().endsWith('.' + d)) || 'desktop';
   const clean = device === 'desktop' && !stem.toLowerCase().endsWith('.desktop') ? stem : stem.slice(0, stem.lastIndexOf('.'));
-  const {title, note} = head(join(root, rel));
+  const {title, note, meta} = head(join(root, rel));
   const [w, h] = DEVICES[device];
-  return {id: prefix + idFor(folder, file), kind: 'page', src: prefix + rel, name: title || pretty(clean), note, device, w, h, rev: mtime(join(root, rel)), links: linksOf(folder, file, root), specs: specsIn(join(root, rel)).length};
+  return {id: prefix + idFor(folder, file), kind: 'page', src: prefix + rel, name: title || pretty(clean), note, device, w, h, rev: mtime(join(root, rel)), links: linksOf(folder, file, root), specs: specsIn(join(root, rel)).length,
+    axis: meta.axis || '', wins: meta.wins || '', cost: meta.cost || '', risk: /^(safe|bold)$/i.test(meta.risk || '') ? meta.risk.toLowerCase() : '', ask: (meta.ask || '').split('|').map(s => s.trim()).filter(Boolean).slice(0, 4)};
 }
 
 /** Handoff annotations: elements a screen marks with data-spec="…". */
@@ -515,7 +520,7 @@ function readState() {
   const feedbackPath = join(dir, 'feedback.json');
   if (existsSync(feedbackPath)) { try { feedback = JSON.parse(readFileSync(feedbackPath, 'utf8')); } catch {} }
   const state = {title: String(manifest.title || basename(resolve(dir, '..', '..')) || 'Seenry canvas'), stage: String(manifest.stage || ''), question: String(manifest.question || ''),
-    description: String(manifest.description || ''), owner: String(manifest.owner || ''), library: library ? libraryName(library) : '',
+    description: String(manifest.description || ''), owner: String(manifest.owner || ''), speed: manifest.speed === 'studio' ? 'studio' : 'quick', library: library ? libraryName(library) : '',
     log: (Array.isArray(manifest.log) ? manifest.log : []).slice(-8).reverse(), statuses: STATUSES,
     error: manifest.error || (manifest.library && !library ? `The library "${manifest.library}" has no tokens.css.` : null), sections, flows, approvals, feedback, agentWaiting: waiting()};
   state.rev = [mtime(manifestPath), mtime(join(dir, 'review.json')), state.agentWaiting, ...sections.flatMap(s => [s.id, ...s.frames.map(f => f.id + f.rev)])].join('|');
@@ -616,6 +621,26 @@ textarea { width: 100%; min-height: 56px; max-height: 160px; resize: vertical; f
 .keys { color: var(--ink-2); font-size: 12px; margin: 0; }
 .keys kbd { font: 11px ui-monospace, Menlo, monospace; padding: 1px 4px; border-radius: 4px; background: var(--fill); }
 #p-flow { font: inherit; color: #f1efea; background: rgb(255 255 255 / .1); border: 0; border-radius: 8px; padding: 6px 8px; }
+#review { position: fixed; inset: 0; z-index: 11; background: #0f0f0e; color: #f1efea; display: grid; grid-template-columns: 1fr 360px; }
+#review[hidden] { display: none; }
+#review .stage { position: relative; overflow: hidden; display: grid; place-items: center; }
+#review .stage iframe { border: 0; background: #fff; transform-origin: 50% 50%; box-shadow: 0 0 0 1px rgb(255 255 255 / .1), 0 24px 60px rgb(0 0 0 / .5); }
+#review[data-device="phone"] .stage iframe { border-radius: 32px; }
+#review aside { background: #191918; padding: 20px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overscroll-behavior: contain; }
+#review h2 { margin: 0; font-size: 18px; font-weight: 600; }
+#review .muted { color: #a39e95; margin: 0; }
+#review .btn { background: rgb(255 255 255 / .1); color: #f1efea; }
+#review .btn[aria-pressed="true"], #review .btn.primary { background: #f1efea; color: #161513; }
+#review textarea { color: #f1efea; border-color: rgb(255 255 255 / .16); }
+#review .q { display: grid; gap: 6px; padding: 10px 0; border-top: 1px solid rgb(255 255 255 / .1); }
+#review .pill { position: absolute; bottom: 20px; left: 50%; translate: -50% 0; display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgb(10 10 10 / .82); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08), 0 8px 24px rgb(0 0 0 / .3); }
+#review .pill[hidden] { display: none; }
+#review .pill button { border: 0; background: none; color: rgb(255 255 255 / .55); font: inherit; font-size: 13px; height: 28px; padding: 0 12px; border-radius: 999px; cursor: pointer; }
+#review .pill button[data-active] { background: rgb(255 255 255 / .14); color: #fff; }
+#review .risk { font-size: 12px; font-weight: 600; padding: 3px 7px; border-radius: 6px; background: rgb(255 255 255 / .1); }
+#review .risk[data-risk="bold"] { background: color-mix(in oklab, var(--warn) 30%, transparent); }
+#review .grow { flex: 1; }
+@media (max-width: 760px) { #review { grid-template-columns: 1fr; grid-template-rows: 55vh 1fr; } }
 .specs { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12px; }
 .specs dt { color: var(--ink-2); } .specs dd { margin: 0; overflow-wrap: anywhere; }
 .specs code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; }
@@ -647,6 +672,11 @@ dialog .row { justify-content: end; margin-top: 10px; }
   <button type="button" id="specs-toggle" title="Show handoff specs (S)" aria-pressed="false">Specs</button>
   <button type="button" id="mode" title="Switch every screen between light and dark mode (D)">Light</button>
   <button type="button" id="play" title="Present the prototype (P)">▶ Present</button>
+  <button type="button" id="start-review" title="Review the screens one at a time (R)">Review</button>
+</div>
+<div id="review" hidden>
+  <div class="stage" id="r-stage"><iframe id="r-frame" title="Screen under review"></iframe><div class="pill" id="r-pill" hidden></div></div>
+  <aside id="r-panel"></aside>
 </div>
 <div id="present" hidden>
   <div class="bar"><strong id="p-name"></strong><span id="p-where"></span><span style="flex:1"></span>
@@ -665,7 +695,7 @@ dialog .row { justify-content: end; margin-top: 10px; }
   <footer>
     <textarea id="general" placeholder="Anything else the agent should know" aria-label="General notes"></textarea>
     <div class="row" style="align-items:center;justify-content:space-between"><span id="status" role="status"></span><button type="button" class="btn primary" id="send">Send to agent</button></div>
-    <p class="keys">Drag to pan · <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+scroll to zoom · <kbd>1</kbd> fit · <kbd>P</kbd> present · <kbd>I</kbd> inspect · <kbd>S</kbd> specs · <kbd>G</kbd> grid · <kbd>D</kbd> dark · <kbd>F</kbd> flows</p>
+    <p class="keys">Drag to pan · <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+scroll to zoom · <kbd>1</kbd> fit · <kbd>R</kbd> review · <kbd>P</kbd> present · <kbd>I</kbd> inspect · <kbd>S</kbd> specs · <kbd>G</kbd> grid · <kbd>D</kbd> dark · <kbd>F</kbd> flows</p>
   </footer>
 </aside>
 <dialog id="note-dialog"><form method="dialog">
@@ -679,7 +709,9 @@ const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...children) => { const node = Object.assign(document.createElement(tag), props); node.append(...children.filter(c => c !== '' && c != null)); return node; };
 const GAP = 120, ROW_GAP = 420, MAX_H = 7000;
 let state = null, view = {x: 0, y: 0, z: 1}, selected = null, live = null, commenting = false, pending = null, fitted = false, showLinks = true, playing = null, inspecting = false, inspected = null, showGrid = false, dark = false, showSpecs = false, flow = null;
-const touched = new Set();
+const touched = new Set(), riffs = [];
+let reviewing = null;
+const DEFAULT_ASK = ['Is anything missing on this screen?', 'Is it clear what to do first?', 'Does anything look wrong or out of place?'];
 const status = {}, picks = {}, notes = [], heights = {}, nodes = {};
 
 const frames = () => state.sections.flatMap(s => s.frames.map(f => ({...f, section: s})));
@@ -960,6 +992,76 @@ $('flows').addEventListener('click', () => { showLinks = !showLinks; $('flows').
 
 function select(id) { selected = id; if (live !== id) { live = null; commenting = false; inspecting = false; } if (inspected && inspected.frame !== id) inspected = null; render(); }
 
+// Guided review: one screen at a time, full size, plain questions; options flip with a picker like a prototype.
+function reviewItems() {
+  const items = [];
+  for (const s of state.sections.filter(s => !s.system && !s.reference)) {
+    if (s.choose) items.push({section: s, frames: s.frames});
+    else for (const f of s.frames) if (state.approvals[f.id] !== 'approved' || touched.has(f.id)) items.push({section: s, frames: [f]});
+  }
+  return items;
+}
+function startReview() { const items = reviewItems(); reviewing = {items, i: 0, option: 0, answers: {}}; $('review').hidden = false; showReview(true); }
+function closeReview() { $('review').hidden = true; $('r-frame').src = 'about:blank'; reviewing = null; render(); }
+function fitReview(f) {
+  const frame = $('r-frame'); frame.style.width = f.w + 'px'; frame.style.height = f.h + 'px';
+  const r = $('r-stage').getBoundingClientRect(); frame.style.transform = 'scale(' + Math.min(1, (r.width - 48) / f.w, (r.height - 96) / f.h) + ')';
+  $('review').dataset.device = f.device;
+}
+function showReview(load) {
+  const R = reviewing, panel = $('r-panel');
+  if (!R.items.length || R.i >= R.items.length) {
+    $('r-pill').hidden = true; $('r-frame').src = 'about:blank';
+    const done = frames().filter(f => touched.has(f.id)).length + Object.values(picks).filter(Boolean).length;
+    panel.replaceChildren(el('h2', {textContent: R.items.length ? 'That is every screen' : 'Nothing left to review'}),
+      el('p', {className: 'muted', textContent: done ? 'Send your answers to the agent, or go back to change any of them.' : 'Every screen is already approved.'}),
+      el('span', {className: 'grow'}),
+      el('div', {className: 'row'}, R.items.length ? Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'Back'}), {onclick: () => { R.i = R.items.length - 1; showReview(true); }}) : '',
+        Object.assign(el('button', {type: 'button', className: 'btn primary', textContent: 'Send to agent'}), {onclick: () => { closeReview(); $('send').click(); }})));
+    return;
+  }
+  const item = R.items[R.i], s = item.section, f = item.frames[s.choose ? R.option : 0];
+  fitReview(f); if (load) $('r-frame').src = f.src + '?v=' + f.rev;
+  const pill = $('r-pill'); pill.hidden = !s.choose;
+  if (s.choose) pill.replaceChildren(...item.frames.map((o, j) => { const b = el('button', {type: 'button', textContent: (j + 1) + '  ' + o.name}); b.toggleAttribute('data-active', j === R.option); b.onclick = () => { R.option = j; showReview(true); }; return b; }));
+  const nav = el('div', {className: 'row'},
+    Object.assign(el('button', {type: 'button', className: 'btn', textContent: '← Back', disabled: R.i === 0}), {onclick: () => { R.i--; R.option = 0; showReview(true); }}),
+    el('span', {className: 'grow'}),
+    Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'Close'}), {onclick: closeReview}));
+  const head = [el('p', {className: 'muted', textContent: s.name + ' · ' + (R.i + 1) + ' of ' + R.items.length}), el('h2', {textContent: s.choose ? 'Pick one' : f.name})];
+  if (s.choose) {
+    const isPick = picks[s.id] === f.id, isRiff = riffs.some(r => r.frame === f.id);
+    panel.replaceChildren(...head,
+      el('p', {className: 'muted', textContent: 'Flip with the numbers below or keys 1 to ' + item.frames.length + '. Each one is a different direction.'}),
+      el('div', {className: 'q'}, el('div', {className: 'row', style: 'align-items:center'}, el('strong', {textContent: f.name}), f.risk ? (() => { const b = el('span', {className: 'risk', textContent: f.risk === 'bold' ? 'Bold' : 'Safe'}); b.dataset.risk = f.risk; return b; })() : ''),
+        f.axis ? el('p', {className: 'muted', textContent: f.axis}) : '', f.wins ? el('p', {textContent: 'Right when: ' + f.wins}) : '', f.cost ? el('p', {className: 'muted', textContent: 'Costs: ' + f.cost}) : '', !f.axis && f.note ? el('p', {className: 'muted', textContent: f.note}) : ''),
+      el('div', {className: 'row'},
+        Object.assign(el('button', {type: 'button', className: 'btn' + (isPick ? ' primary' : ''), textContent: isPick ? 'Picked' : 'Pick this'}), {onclick: () => { picks[s.id] = f.id; for (let k = riffs.length - 1; k >= 0; k--) if (riffs[k].section === s.id) riffs.splice(k, 1); R.i++; R.option = 0; showReview(true); }}),
+        Object.assign(el('button', {type: 'button', className: 'btn', textContent: isRiff ? 'Asked for more like this' : 'More like this'}), {onclick: () => { if (!isRiff) riffs.push({section: s.id, frame: f.id}); picks[s.id] = null; R.i++; R.option = 0; showReview(true); }})),
+      el('span', {className: 'grow'}), nav);
+    return;
+  }
+  const asks = f.ask.length ? f.ask : DEFAULT_ASK, answers = R.answers[f.id] = R.answers[f.id] || {};
+  const questions = asks.map(q => {
+    const a = answers[q] = answers[q] || {choice: '', text: ''};
+    const choose = c => () => { a.choice = a.choice === c ? '' : c; showReview(false); };
+    const box = el('textarea', {placeholder: 'What should change? (optional)', value: a.text}); box.style.minHeight = '40px'; box.oninput = () => { a.text = box.value; };
+    return el('div', {className: 'q'}, el('span', {textContent: q}), el('div', {className: 'row'},
+      Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'Yes'}), {onclick: choose('Yes')}), Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'No'}), {onclick: choose('No')})), a.choice ? box : '');
+  });
+  questions.forEach((q, k) => { const a = answers[asks[k]]; q.querySelectorAll('.row .btn').forEach(b => b.setAttribute('aria-pressed', b.textContent === a.choice)); });
+  const commit = verdict => () => {
+    for (const q of asks) { const a = answers[q]; if (!a.choice && !a.text) continue; const k = notes.findIndex(n => n.frame === f.id && n.target === 'Q: ' + q); const note = {frame: f.id, selector: '', target: 'Q: ' + q, text: [a.choice, a.text].filter(Boolean).join(' · ')}; if (k >= 0) notes[k] = note; else notes.push(note); }
+    status[f.id] = verdict; touched.add(f.id); R.i++; showReview(true);
+  };
+  panel.replaceChildren(...head, f.note ? el('p', {className: 'muted', textContent: f.note}) : '', ...questions,
+    el('div', {className: 'row'}, Object.assign(el('button', {type: 'button', className: 'btn primary', textContent: 'Approve'}), {onclick: commit('approved')}), Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'Needs changes'}), {onclick: commit('change')}),
+      Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'Skip'}), {onclick: () => { R.i++; showReview(true); }})),
+    el('span', {className: 'grow'}), nav);
+}
+$('start-review').addEventListener('click', startReview);
+addEventListener('resize', () => { if (reviewing && reviewing.i < reviewing.items.length) { const it = reviewing.items[reviewing.i]; fitReview(it.frames[it.section.choose ? reviewing.option : 0]); } });
+
 function badge(s) { const b = el('span', {className: 'badge', textContent: state.statuses[s] || s}); b.dataset.status = s; return b; }
 function renderCover() {
   const box = document.querySelector('.frame[data-id="cover"] .cover'); if (!box) return;
@@ -1031,7 +1133,8 @@ function render() {
       const doc = nodes[f.id]?.querySelector('iframe')?.contentDocument, items = doc ? [...doc.querySelectorAll('[data-spec]')] : [];
       if (items.length) handoffSpecs = el('div', {className: 'notes'}, el('p', {style: 'font-weight:600', textContent: 'Specs for developers'}), ...items.map((n, i) => el('div', {className: 'note'}, el('b', {style: 'color:#7c3aed', textContent: String(i + 1)}), el('span', {textContent: ((n.innerText || n.getAttribute('aria-label') || n.tagName.toLowerCase()).trim().replace(/\s+/g, ' ').slice(0, 40)) + ': ' + n.getAttribute('data-spec')}))));
     } catch {}
-    inspector.replaceChildren(el('h3', {textContent: f.name}), f.note ? el('p', {textContent: f.note}) : '', actions, tools, specs, handoffSpecs, list);
+    const label = f.section.choose && (f.axis || f.wins || f.cost || f.risk) ? el('div', {className: 'notes'}, el('p', {}, el('strong', {textContent: f.risk === 'bold' ? 'Bold · ' : f.risk === 'safe' ? 'Safe · ' : ''}), document.createTextNode(f.axis || '')), f.wins ? el('p', {textContent: 'Right when: ' + f.wins}) : '', f.cost ? el('p', {textContent: 'Costs: ' + f.cost}) : '') : '';
+    inspector.replaceChildren(el('h3', {textContent: f.name}), f.note ? el('p', {textContent: f.note}) : '', label, actions, tools, specs, handoffSpecs, list);
   }
   renderCover();
   $('hint').hidden = !live; $('hint').textContent = inspecting ? 'Click any element to inspect its values and variables. Esc to stop.' : commenting ? 'Click the element to comment on. Esc to stop.' : 'Using this screen. Click outside it or press Esc to go back to the canvas.';
@@ -1040,7 +1143,7 @@ function render() {
 
 function summary() {
   const lines = [];
-  for (const s of state.sections) if (s.choose) lines.push(s.name + ': ' + (picks[s.id] ? 'picked ' + picks[s.id] : 'no pick'));
+  for (const s of state.sections) if (s.choose) lines.push(s.name + ': ' + (picks[s.id] ? 'picked ' + picks[s.id] : riffs.some(r => r.section === s.id) ? 'more like ' + riffs.filter(r => r.section === s.id).map(r => r.frame).join(', ') : 'no pick'));
   const of = v => frames().filter(f => status[f.id] === v).map(f => f.id);
   if (of('approved').length) lines.push('Approved: ' + of('approved').join(', '));
   if (of('change').length) lines.push('Needs changes: ' + of('change').join(', '));
@@ -1079,12 +1182,20 @@ $('zoom-level').addEventListener('click', () => zoomAt(...centre(), 1));
 $('zoom-fit').addEventListener('click', fitAll);
 addEventListener('keydown', e => {
   if (e.target.closest('textarea, input, dialog')) return;
+  if (reviewing) {
+    if (e.key === 'Escape') closeReview();
+    const it = reviewing.items[reviewing.i], n = parseInt(e.key, 10);
+    if (it && it.section.choose && n >= 1 && n <= it.frames.length) { reviewing.option = n - 1; showReview(true); }
+    else if (it && it.section.choose && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { reviewing.option = (reviewing.option + (e.key === 'ArrowRight' ? 1 : it.frames.length - 1)) % it.frames.length; showReview(true); }
+    return;
+  }
   if (playing) { if (e.key === 'Escape') closePresent(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); return; }
   if (e.key === 'Escape') { live = null; commenting = false; inspecting = false; render(); }
   else if (e.key === 'p' || e.key === 'P') present(selected);
   else if (e.key === 'f' || e.key === 'F') $('flows').click();
   else if (e.key === 'g' || e.key === 'G') $('grid').click();
   else if (e.key === 's' || e.key === 'S') $('specs-toggle').click();
+  else if (e.key === 'r' || e.key === 'R') startReview();
   else if (e.key === 'd' || e.key === 'D') $('mode').click();
   else if (e.key === 'i' || e.key === 'I') { if (selected && find(selected)?.kind === 'page') { inspecting = !(inspecting && live === selected); commenting = false; live = inspecting ? selected : null; render(); } }
   else if (e.key === '1') fitAll();
@@ -1098,8 +1209,8 @@ $('note-dialog').addEventListener('close', () => {
   pending = null; render();
 });
 $('send').addEventListener('click', async () => {
-  const feedback = {stage: state.stage, picks, frames: frames().filter(f => status[f.id] && touched.has(f.id)).map(f => ({id: f.id, status: status[f.id]})), notes: notes.map(({x, y, ...n}) => n), general: $('general').value.trim()};
-  if (!feedback.frames.length && !feedback.notes.length && !feedback.general && !Object.values(picks).some(Boolean)) { $('status').textContent = 'Approve, pick or comment first.'; return; }
+  const feedback = {stage: state.stage, picks, riff: riffs.slice(), frames: frames().filter(f => status[f.id] && touched.has(f.id)).map(f => ({id: f.id, status: status[f.id]})), notes: notes.map(({x, y, ...n}) => n), general: $('general').value.trim()};
+  if (!feedback.frames.length && !feedback.notes.length && !feedback.general && !feedback.riff.length && !Object.values(picks).some(Boolean)) { $('status').textContent = 'Approve, pick or comment first.'; return; }
   touched.clear();
   let saved = false;
   if (location.protocol !== 'file:') { try { saved = (await fetch('feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(feedback)})).ok; } catch {} }
@@ -1156,6 +1267,7 @@ function serve(port, attempts = 20) {
             picks: Object.fromEntries(Object.entries(d.picks || {}).filter(([, v]) => v).slice(0, 60).map(([k, v]) => [text(k, 120), text(v, 200)])),
             frames: (Array.isArray(d.frames) ? d.frames : []).slice(0, 400).map(f => ({id: text(f.id, 200), status: f.status === 'approved' ? 'approved' : 'change'})),
             notes: (Array.isArray(d.notes) ? d.notes : []).slice(0, 200).map(n => ({frame: text(n.frame, 200), target: text(n.target, 160), selector: text(n.selector, 240), text: text(n.text, 2000)})),
+            riff: (Array.isArray(d.riff) ? d.riff : []).slice(0, 20).map(r => ({section: text(r.section, 120), frame: text(r.frame, 200)})),
             general: text(d.general, 4000), at: new Date().toISOString()};
           writeFileSync(join(dir, 'feedback.json'), JSON.stringify(clean, null, 2) + '\n');
           writeFileSync(join(dir, 'FEEDBACK.md'), '# Canvas feedback\n\n' + feedbackLines(clean).join('\n') + '\n');
@@ -1211,6 +1323,7 @@ function printList(state) {
 function feedbackLines(feedback) {
   const lines = [];
   for (const [section, id] of Object.entries(feedback.picks || {})) lines.push(`Picked in ${section}: ${id}`);
+  for (const r of feedback.riff || []) lines.push(`More like this in ${r.section}: ${r.frame}. Make a new round of options around it; do not resolve the section yet.`);
   const of = v => (feedback.frames || []).filter(f => f.status === v).map(f => f.id);
   if (of('approved').length) lines.push(`Approved: ${of('approved').join(', ')}`);
   if (of('change').length) lines.push(`Needs changes: ${of('change').join(', ')}`);
@@ -1324,6 +1437,25 @@ function resolveOptions(state, sectionId) {
     }
   }
   console.log(`Kept ${pick} in ${to}/.`);
+}
+
+/** After applying the person's feedback: resolve picks, log the round and set each section's status, in one step. */
+function round(text) {
+  let state = readState();
+  const riffed = new Set((state.feedback?.riff || []).map(r => r.section));
+  for (const s of state.sections.filter(s => s.choose && !riffed.has(s.id) && state.feedback?.picks?.[s.id])) { resolveOptions(state, s.id); state = readState(); }
+  const manifest = readManifest();
+  if (text) manifest.log = [...(Array.isArray(manifest.log) ? manifest.log : []), {at: new Date().toISOString(), text}];
+  manifest.sections = {...manifest.sections};
+  const lines = [];
+  for (const s of state.sections.filter(s => !s.system && !s.reference)) {
+    const approved = s.frames.filter(f => state.approvals[f.id] === 'approved').length;
+    const status = !s.choose && approved === s.frames.length ? 'ready' : 'review';
+    manifest.sections[s.id] = {...manifest.sections[s.id], status};
+    lines.push(`${s.id}: ${STATUSES[status]}${s.choose ? ' (options still open)' : ` (${approved} of ${s.frames.length} approved)`}`);
+  }
+  writeManifest(manifest);
+  console.log(lines.join('\n') + (text ? '\nLogged.' : ''));
 }
 
 function handoff() {
@@ -1734,6 +1866,8 @@ if (command === 'init') {
   console.log('Logged.');
 } else if (command === 'handoff') {
   handoff();
+} else if (command === 'round') {
+  round(positional[0]);
 } else if (command === 'stop') {
   const info = running();
   if (info) { try { process.kill(info.pid); } catch {} }
@@ -1779,5 +1913,5 @@ if (command === 'init') {
   if (info.started) { try { process.kill(info.pid); } catch {} rmSync(pidFile, {force: true}); }
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|render|tree|verify|diff|compare|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|render|tree|verify|diff|compare|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
 }

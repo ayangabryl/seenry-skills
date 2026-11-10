@@ -66,6 +66,8 @@ For each open decision (usually the first screen and the main screen), find two 
 
 Take structure from a reference: what leads, the order, the density, how proof is shown. Never its colors, words, images or brand. Each option is anchored to a different reference, which is what keeps three options from being one option three times. Screens with an obvious answer need no reference and no options.
 
+Quick is the default speed (`seenry-canvas`): steps 4 and 5 become one round of two or three finished directions of the main screen, then every screen in the picked look. Take the full studio route only when the person asks for wireframes or a design process.
+
 ### 4. Map and wireframe every screen, and the person reviews
 
 Follow `seenry-canvas`. Write the screen map: every flow and every screen in it, including empty, error and settings. Wireframe each screen with the real copy, one section per flow, linked to the next screen, with two or three options only on the open decisions from step 3. Open the canvas, then `canvas.mjs wait`. Build nothing until the feedback shows the flows approved and the options picked.

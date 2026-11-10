@@ -26,6 +26,60 @@ A person can open the same canvas to review. When one is there, they decide; whe
 
 Every command takes `--json` for output you can parse.
 
+## Two speeds
+
+Set `"speed"` in `canvas.json`. Quick is the default.
+
+| Speed | When | Stages |
+| --- | --- | --- |
+| `quick` | Someone building their own product; any request that did not ask for process | `look` → `mockup` → `build`: real mockups on real tokens from the first round, never grey wireframes |
+| `studio` | The person asks for wireframes, a design team, or a large product | `map` → `wireframe` → `look` → `mockup` → `prototype` → `build` |
+
+In quick, the first round is two or three directions of the screen the product exists for, built as finished mockups. After the pick, every other screen comes in that look, linked, for one review. Then build. In studio, `map` is one titled frame per screen, `wireframe` uses the kit, `look` adds Foundations, `mockup` adds the component sheets, and `prototype` links every flow for Present. Move `stage` forward only when the person has approved the current one.
+
+## Keep the bookkeeping to yourself
+
+The person looks, clicks and comments; they never manage the file. After applying each round's feedback, run one command:
+
+```sh
+node <skill>/scripts/canvas.mjs round "Start is a filled button now; new home options around Ledger"
+```
+
+It resolves every picked option into the archive with its reason, logs the line, and sets each section's status from its approvals. Never ask the person to set a status, archive something or name a flow. Approvals last until a screen's file changes, and feedback older than your latest change is treated as stale, so each round only asks about what changed.
+
+## The person reviews one screen at a time
+
+The canvas has a guided review (`R`, or the Review button): every screen that is not yet approved, full size, one at a time, with two or three plain questions, Approve, Needs changes and Skip, then Send. Never ask anyone to judge a screen as a thumbnail.
+
+Write the questions for each screen in its head, in the person's words, about what that screen must get right:
+
+```html
+<meta name="seenry-ask" content="Would you know this is a habit tracker in five seconds?|Is Start the button you would tap?">
+```
+
+Without them the review asks whether anything is missing, whether it is clear what to do first, and whether anything looks wrong. Answers come back as notes on that screen.
+
+## Options are directions, labelled honestly
+
+Most screens get one version. Put two or three in a `.options` folder only where the structure is a real decision, usually the main screen.
+
+An options section is shown one option at a time at full size, flipped with a picker or the keys `1` to `n`, and the person can pick one or ask for **more like this**, which starts a new round around it instead of resolving the section. When feedback says "More like this", build two or three new options that diverge around that direction, and keep the section open.
+
+- Name each option by its direction, never "Option A": `Quiet`, `Ledger`, `Editorial`.
+- Each option explores one axis you can state in a phrase: layout, density, what leads, interaction model, motion. Two options that differ only in color or copy are one option; replace one.
+- One option is the safe one, closest to what people in this category expect; at least one is bold. People tend to pick the middle of a set, so say plainly what the bold one buys.
+- Every option fully works: real copy, real links, real states. A sloppy option loses on execution and teaches nothing about its direction.
+- Label each in its head:
+
+```html
+<meta name="seenry-risk" content="bold">
+<meta name="seenry-axis" content="The year's tally leads; today is one tap">
+<meta name="seenry-wins" content="Long streaks are what keeps people going">
+<meta name="seenry-cost" content="Today's habits sit lower on the screen">
+```
+
+Never pre-pick a favorite. If asked which you would choose, answer from the product's use (how often, by whom, for what), not from taste.
+
 ## Always show the design
 
 Whenever you design, propose or mock up a screen, it goes on the canvas first, and a person who is present gets the canvas opened for them. Never describe a proposed design only in words, and never show it only as code. A one-line fix inside an existing screen is the only exception.
@@ -97,19 +151,6 @@ node <skill>/scripts/canvas.mjs compare 03-home http://localhost:5173/ # the bui
 
 There is nothing to install and no account: the script is plain Node and serves only to `127.0.0.1`. The canvas reloads a frame when its file changes, so keep it open across rounds. Without the skill installed (for example when only the Seenry MCP is connected), download the script once from `https://seenry.design/skills/seenry-canvas/scripts/canvas.mjs` into `.seenry/` and run it from there.
 
-## The workflow, the way a design team runs it
-
-| Stage in `canvas.json` | What is on the canvas | The person decides |
-| --- | --- | --- |
-| `map` | One wireframe frame per screen, titles only, in flow order | Are these the right screens and flows? |
-| `wireframe` | Every screen in the wireframe kit with real copy; options only on open decisions | Structure and flow |
-| `look` | Foundations and two or three key screens in two visual treatments, built on `tokens.css` | The look and the system |
-| `mockup` | The component sheets, then every screen in the picked look, each linking `../tokens.css` | Each component and screen, at full fidelity |
-| `prototype` | The same screens linked to each other, so Present plays the flow | Does the flow work in use? |
-| `build` | The running product's screens beside the approved mockups | Sign-off before release |
-
-A small project can merge stages: a single screen goes straight from `wireframe` to `mockup`. Never skip the person's review between stages.
-
 ## Build it like a design team's Figma file
 
 Large product teams keep their files in the same shape: foundations first, then components, then flows, with every value bound to a variable. The canvas works the same way.
@@ -134,15 +175,9 @@ Large product teams keep their files in the same shape: foundations first, then 
 
 **Before showing mockups, run `check`.** It lists every detached value per screen. From the `mockup` stage, detached values and screens that do not link `tokens.css` are errors.
 
-## Keep the file in order, round after round
+## Keep the file in order
 
-**Status on every section.** Label each section the way design teams do: `in-progress` while you work, `review` when you show it, `ready` once every screen in it is approved. The labels show on the cover, the outline and the canvas.
-
-**Approvals last.** An approval stays until that screen's file changes, so each round only asks about what changed. The cover counts approved screens per section.
-
-**Decisions are archived, not deleted.** After the person picks an option, run `resolve <section>`. It keeps the picked screen, renames the folder from `.options`, repoints every link to it, and moves the others to `archive/` with the reason and the person's notes. Anything else you drop goes through `archive --reason`. The archive is the record of why the product looks the way it does.
-
-**Log every round.** After applying feedback, add one `log` line for what changed and why. The cover shows the latest lines, and the handoff lists them all.
+`round` keeps sections labelled (in progress, ready for review, ready for dev), archives the options that lost with the reason, and logs each round on the cover. You can also run `status`, `resolve`, `archive` and `log` on their own.
 
 **Named flows.** By default each section is a flow that starts at its first screen. For flows that cross sections, list them in `canvas.json`: `"flows": [{"name": "First run", "start": "01-onboarding/01-welcome"}]`. Present opens on the flow of the selected screen, and the person switches flows from its menu.
 
@@ -176,20 +211,14 @@ Each screen links `../wire.css` and uses plain HTML with its classes. No brand c
 - Links between screens are real: `<a href="02-first-habit.phone.html">`. The canvas draws each link as a flow arrow, and Present mode follows it, so the flow is a clickable prototype from the first wireframe.
 - Keep a screen under about 80 lines.
 
-## 3. Options only where the answer is open
-
-Most screens get one version. Put two or three versions in a `.options` folder only where the structure is a real decision, usually the main screen and the first screen of a landing page.
-
-Options differ in structure: what leads, the order, the density. A different color, radius or font is the same option. Say the difference in each option's note.
-
-## 4. Show it, then wait for the person
+## 3. Show it, then wait for the person
 
 1. Run `open`. It opens the canvas in the person's browser and prints the address.
 2. Tell the person in one or two lines what is on the canvas and the decisions you need.
 3. Run `wait`, in the background if your agent can run background commands, so you resume the moment the person presses "Send to agent". The canvas shows them that you are waiting. If your agent cannot wait, end the turn and run `feedback` when they say they are done.
 4. Write no product code while a review is open.
 
-On the canvas the person can drag to pan, pinch or ctrl-scroll to zoom, press `1` to fit everything, press `P` to present a flow at real size and click through it, select a screen, approve it or mark it for changes, pick an option, pin a comment on any element, and double-click a screen to use it in place. The keys are listed at the bottom of the panel, so nobody needs to have used Figma.
+The person can review guided (`R`), present a flow (`P`), approve, pick, pin a comment on any element, or use a screen in place; the keys are listed in the panel.
 
 The feedback lists each pick, the approved screens, the screens that need changes, each comment with the element it is pinned to, and the screens with no answer. It is also saved as `FEEDBACK.md` in the canvas folder. Apply every comment or say why not. Ask about screens with no answer rather than treating silence as approval.
 
@@ -198,10 +227,6 @@ The feedback lists each pick, the approved screens, the screens that need change
 | The person cannot open a local address (a cloud or remote session) | Use the host's own preview if it has one; otherwise `canvas.mjs shot` writes `canvas.png`; show it and take the feedback in chat |
 | No server can run | `canvas.mjs static` writes `canvas.html`, which opens from disk and copies feedback as text |
 | Nobody is there to review (an unattended run) | Pick the option furthest from the default, approve nothing, and say what you chose and why |
-
-## 5. Rounds
-
-After you change any screen, feedback from before the change is treated as stale and that screen's approval is cleared, so an old approval is never read as a new one. Each round: apply the feedback, `resolve` any picked options, `log` what changed, set each section's `status`, then show the canvas again. Move `stage` forward only when the person has approved the current one. The token file approved at `mockup` moves into the product unchanged.
 
 ## Before you finish
 
@@ -216,9 +241,9 @@ After you change any screen, feedback from before the change is treated as stale
 | `check` lists detached values at the `mockup` stage or later | Bind them to variables, or add the missing variable to `tokens.css` |
 | A font shown as not loaded on Foundations | Add the font files or the link |
 | A component drawn differently on two screens | One component sheet; both screens use it |
-| An options folder left after the person picked | `resolve` it |
-| A round with no `log` line | Log what changed and why |
-| A section shown for review without a status | `status <section> review` |
+| An option named "A", "B" or "Option 1", or without `seenry-axis`, `seenry-wins` and `seenry-cost` | Name it by its direction and label it |
+| A round of feedback applied without `round` | Run `round "what changed"` |
+| A screen with no `seenry-ask` questions | Write two or three about what it must get right |
 | Building without `HANDOFF.md` | Run `handoff` and build from it |
 | A screen shown or approved without a `render` you looked at | Render it and look |
 | `verify` reports errors | Fix them before showing the screen |
