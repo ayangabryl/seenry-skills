@@ -22,6 +22,8 @@ Agent skills that make an AI work like a design studio. The agent designs every 
 5. **Pick the look, then design every screen in it.** One `tokens.css` that every screen links, so a change updates them all, and the same file moves into the product.
 6. **Build once and check once.** Craft values from `seenry-craft`, motion from `seenry-motion`, then a rendered audit at 1440 and 390 and a side-by-side with the approved screens. No scoring loop and no second model.
 
+The canvas is organized the way design teams organize a Figma file: a generated cover with each section's status, Foundations read live from a tiered `tokens.css` (primitives, semantic variables with light and dark modes, text styles, effects, grids, fonts), component sheets with every variant and state, flows that play as a prototype, Dev Mode inspection that names each element's variables, handoff specs, an archive of decisions with their reasons, a change log, and `HANDOFF.md` for whoever builds it. A design system can be its own canvas that many products link to.
+
 The canvas needs only Node: no packages, no account, no Figma. It works with Claude Code, Codex, Cursor or any agent that can run a command. In a cloud session it writes a screenshot of the canvas instead, or a single HTML file that opens from disk.
 
 ## Measured results

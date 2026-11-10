@@ -9,6 +9,12 @@
  *  node canvas.mjs feedback [dir] [--wait seconds]   print what the person approved, picked and commented
  *  node canvas.mjs list   [dir]            print the sections and frames as the canvas sees them
  *  node canvas.mjs check  [dir]            list values typed into screens instead of taken from tokens.css
+ *  node canvas.mjs status <section> <in-progress|review|ready> [dir]   label a section, as Figma teams do
+ *  node canvas.mjs resolve <section> [--pick id] [dir]   keep the picked option, archive the rest with the reason
+ *  node canvas.mjs archive <frame> --reason "…" [dir]    move a screen to the archive
+ *  node canvas.mjs log "what changed and why" [dir]       add a line to the change log on the cover
+ *  node canvas.mjs handoff [dir]           write HANDOFF.md: screens, flows, specs, tokens, open questions
+ *  node canvas.mjs init [dir] --library <path>   link a shared design system (another canvas folder) instead of local tokens
  *  node canvas.mjs static [dir]            write canvas.html, which opens from disk with no server
  *  node canvas.mjs shot   [dir] [--playwright path]  write canvas.png, for sessions with no browser to show
  *  node canvas.mjs stop   [dir]
@@ -23,8 +29,8 @@
  *  and Present mode follows it, like a Figma prototype.
  *  Plain Node, no packages, bound to 127.0.0.1. */
 import {createServer} from 'node:http';
-import {existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, rmSync, openSync, readSync, closeSync} from 'node:fs';
-import {resolve, join, extname, basename, dirname, sep} from 'node:path';
+import {existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, rmSync, openSync, readSync, closeSync, renameSync} from 'node:fs';
+import {resolve, join, extname, basename, dirname, sep, relative} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
 import {createRequire} from 'node:module';
@@ -33,8 +39,11 @@ const here = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'open';
 const flag = (name, fallback) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? argv[i + 1] : fallback; };
-const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--')));
-const dir = resolve(positional[0] || '.seenry/canvas');
+const SWITCHES = new Set(['--no-browser']);
+// Arguments after the command that are not a --flag or a flag's value.
+const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !SWITCHES.has(all[i - 1])));
+const ARGS = {status: 2, resolve: 1, archive: 1, log: 1}[command] || 0;
+const dir = resolve(positional[ARGS] || '.seenry/canvas');
 const pidFile = join(dir, '.canvas.json');
 const waitFile = join(dir, '.waiting.json');
 const IMAGES = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg']);
@@ -324,15 +333,25 @@ document.fonts.ready.then(render); render();
 function init() {
   mkdirSync(join(dir, 'refs'), {recursive: true});
   markWorkDir(dir);
-  for (const [name, text] of Object.entries(KIT)) if (!existsSync(join(dir, name))) writeFileSync(join(dir, name), text);
+  const lib = flag('library');
+  if (lib) {
+    const target = resolve(lib);
+    if (!existsSync(join(target, 'tokens.css'))) { console.error(`No tokens.css in ${target}. Make the library with "canvas.mjs init <folder>" first.`); process.exit(2); }
+    const manifest = readManifest(); manifest.library = relative(dir, target) || '.'; writeManifest(manifest);
+  }
+  for (const [name, text] of Object.entries(KIT)) if (!existsSync(join(dir, name)) && !(lib && name === 'tokens.css')) writeFileSync(join(dir, name), text);
   writeFoundations();
 }
 
 /** The Foundations page is generated: it reads tokens.css live, so it is rewritten on every start, never edited. */
 function writeFoundations() {
   if (!existsSync(dir)) return;
-  const path = join(dir, '_foundations.html');
-  try { if (!existsSync(path) || readFileSync(path, 'utf8') !== FOUNDATIONS) writeFileSync(path, FOUNDATIONS); } catch {}
+  const library = libraryDir(readManifest());
+  for (const root of [dir, library].filter(Boolean)) {
+    if (!existsSync(join(root, 'tokens.css'))) continue;
+    const path = join(root, '_foundations.html');
+    try { if (!existsSync(path) || readFileSync(path, 'utf8') !== FOUNDATIONS) writeFileSync(path, FOUNDATIONS); } catch {}
+  }
 }
 
 function waiting() {
@@ -344,6 +363,27 @@ const pretty = name => name.replace(/^\d+[-_. ]*/, '').replace(/[-_]+/g, ' ').re
 const inside = path => { const full = resolve(dir, path); return full === dir || full.startsWith(dir + sep) ? full : null; };
 const unescape = text => text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 
+const STATUSES = {'in-progress': 'In progress', review: 'Ready for review', ready: 'Ready for dev'};
+
+/** The shared design system this canvas links to, if canvas.json names one: another canvas folder. */
+function libraryDir(manifest) {
+  if (!manifest.library) return null;
+  const lib = resolve(dir, String(manifest.library));
+  return existsSync(join(lib, 'tokens.css')) ? lib : null;
+}
+
+function libraryName(library) {
+  try { const title = JSON.parse(readFileSync(join(library, 'canvas.json'), 'utf8')).title; if (title) return String(title); } catch {}
+  return basename(resolve(library, '..', '..'));
+}
+
+function readManifest() {
+  const path = join(dir, 'canvas.json');
+  if (!existsSync(path)) return {};
+  try { return JSON.parse(readFileSync(path, 'utf8')); } catch (error) { return {error: `canvas.json is not valid JSON: ${error.message}`}; }
+}
+function writeManifest(manifest) { const {error, ...clean} = manifest; writeFileSync(join(dir, 'canvas.json'), JSON.stringify(clean, null, 2) + '\n'); }
+
 function head(path) {
   let text = '';
   try { const fd = openSync(path, 'r'), buffer = Buffer.alloc(4096); text = buffer.toString('utf8', 0, readSync(fd, buffer, 0, 4096, 0)); closeSync(fd); } catch {}
@@ -354,9 +394,10 @@ function head(path) {
 }
 
 /** Screens this screen links to, as frame ids: its prototype connections. */
-function linksOf(folder, file) {
+function linksOf(folder, file, root = dir) {
   let text = '';
-  try { text = readFileSync(join(dir, folder, file), 'utf8').slice(0, 400000); } catch { return []; }
+  try { text = readFileSync(join(root, folder, file), 'utf8').slice(0, 400000); } catch { return []; }
+  if (root !== dir) return [];
   const out = new Set();
   for (const m of text.matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"'#?]+\.html)(?:[#?][^"']*)?["']/gi)) {
     if (/^[a-z]+:/i.test(m[1]) || m[1].startsWith('/')) continue;
@@ -377,33 +418,53 @@ function idFor(folder, file) {
   return (folder ? folder.replace(/\.options$/i, '') + '/' : '') + clean;
 }
 
-function frameFrom(folder, file) {
+function frameFrom(folder, file, root = dir, prefix = '') {
   const rel = folder ? `${folder}/${file}` : file;
   const stem = file.replace(/\.html$/i, '');
   const device = Object.keys(DEVICES).find(d => stem.toLowerCase().endsWith('.' + d)) || 'desktop';
   const clean = device === 'desktop' && !stem.toLowerCase().endsWith('.desktop') ? stem : stem.slice(0, stem.lastIndexOf('.'));
-  const {title, note} = head(join(dir, rel));
+  const {title, note} = head(join(root, rel));
   const [w, h] = DEVICES[device];
-  return {id: idFor(folder, file), kind: 'page', src: rel, name: title || pretty(clean), note, device, w, h, rev: mtime(join(dir, rel)), links: linksOf(folder, file)};
+  return {id: prefix + idFor(folder, file), kind: 'page', src: prefix + rel, name: title || pretty(clean), note, device, w, h, rev: mtime(join(root, rel)), links: linksOf(folder, file, root), specs: specsIn(join(root, rel)).length};
 }
+
+/** Handoff annotations: elements a screen marks with data-spec="…". */
+function specsIn(path) {
+  let html = '';
+  try { html = readFileSync(path, 'utf8'); } catch { return []; }
+  const out = [];
+  for (const m of html.matchAll(/<([a-z][\w-]*)\b([^>]*?)\bdata-spec\s*=\s*(?:"([^"]*)"|'([^']*)')([^>]*)>([^<]{0,80})/gi)) {
+    const attrs = m[2] + m[5], id = attrs.match(/\bid\s*=\s*["']([^"']+)/i)?.[1], cls = attrs.match(/\bclass\s*=\s*["']([^"']+)/i)?.[1];
+    out.push({element: m[1].toLowerCase() + (id ? '#' + id : cls ? '.' + cls.trim().split(/\s+/)[0] : ''), text: unescape(m[6].trim()).slice(0, 60), spec: unescape(m[3] ?? m[4] ?? '')});
+  }
+  return out;
+}
+
+/** Approvals that last across rounds: an approval stays until its screen changes. */
+function readReview() { try { return JSON.parse(readFileSync(join(dir, 'review.json'), 'utf8')); } catch { return {frames: {}}; } }
 
 /** The canvas content, read from the folder every time: sections, frames, and the last feedback. */
 function readState() {
-  let manifest = {};
-  const manifestPath = join(dir, 'canvas.json');
-  if (existsSync(manifestPath)) {
-    try { manifest = JSON.parse(readFileSync(manifestPath, 'utf8')); } catch (error) { manifest = {error: `canvas.json is not valid JSON: ${error.message}`}; }
-  }
+  const manifest = readManifest(), manifestPath = join(dir, 'canvas.json'), library = libraryDir(manifest);
   const entries = existsSync(dir) ? readdirSync(dir, {withFileTypes: true}).filter(e => !e.name.startsWith('.')).sort((a, b) => a.name.localeCompare(b.name, 'en', {numeric: true})) : [];
   const htmlIn = folder => readdirSync(join(dir, folder)).filter(f => /\.html$/i.test(f)).sort((a, b) => a.localeCompare(b, 'en', {numeric: true}));
-  const sections = [];
+  const sections = [{id: 'cover', name: 'Cover', system: true, cover: true, frames: [{id: 'cover', kind: 'cover', src: '', name: 'Cover', note: 'What this file is, its sections and their status', device: 'desktop', w: 1440, h: 900, rev: 0, links: []}]}];
+  if (library) {
+    const libEntries = readdirSync(library, {withFileTypes: true}).filter(e => !e.name.startsWith('.')).sort((a, b) => a.name.localeCompare(b.name, 'en', {numeric: true}));
+    if (existsSync(join(library, '_foundations.html'))) sections.push({id: 'library/foundations', name: 'Library · Foundations', system: true, library: true, frames: [{id: 'library/foundations', kind: 'page', src: 'library/_foundations.html', name: 'Foundations', note: 'The shared design system, read live from the library tokens.css', device: 'desktop', w: 1440, h: 900, rev: mtime(join(library, 'tokens.css')), links: []}]});
+    for (const e of libEntries) {
+      if (!e.isDirectory() || !/components/i.test(e.name)) continue;
+      const frames = readdirSync(join(library, e.name)).filter(f => /\.html$/i.test(f)).sort((a, b) => a.localeCompare(b, 'en', {numeric: true})).map(f => frameFrom(e.name, f, library, 'library/'));
+      if (frames.length) sections.push({id: 'library/' + e.name, name: 'Library · ' + pretty(e.name), system: true, library: true, frames});
+    }
+  }
   const loose = entries.filter(e => e.isFile() && /\.html$/i.test(e.name) && e.name !== 'canvas.html' && !e.name.startsWith('_')).map(e => frameFrom('', e.name));
   if (existsSync(join(dir, '_foundations.html')) && existsSync(join(dir, 'tokens.css'))) {
     sections.push({id: 'foundations', name: 'Foundations', choose: false, system: true, frames: [{id: 'foundations', kind: 'page', src: '_foundations.html', name: 'Foundations', note: 'Variables, text styles, fonts, effects and grids, read live from tokens.css', device: 'desktop', w: 1440, h: 900, rev: mtime(join(dir, 'tokens.css')), links: []}]});
   }
   if (loose.length) sections.push({id: 'screens', name: 'Screens', choose: false, frames: loose});
   for (const entry of entries) {
-    if (!entry.isDirectory() || ['refs', 'assets', 'fonts', 'node_modules'].includes(entry.name)) continue;
+    if (!entry.isDirectory() || ['refs', 'assets', 'fonts', 'node_modules', 'archive', 'library'].includes(entry.name)) continue;
     const frames = htmlIn(entry.name).map(f => frameFrom(entry.name, f));
     if (!frames.length) continue;
     const choose = /\.options$/i.test(entry.name), id = entry.name.replace(/\.options$/i, '');
@@ -414,19 +475,39 @@ function readState() {
     const refs = readdirSync(refDir).filter(f => IMAGES.has(extname(f).toLowerCase())).sort().map(f => ({id: 'refs/' + f, kind: 'image', src: 'refs/' + f, name: pretty(f.replace(/\.[^.]+$/, '')), note: '', device: 'image', w: 720, h: 450, rev: mtime(join(refDir, f))}));
     if (refs.length) sections.push({id: 'refs', name: 'References', choose: false, reference: true, frames: refs});
   }
+  const archiveDir = join(dir, 'archive');
+  if (existsSync(archiveDir)) {
+    const frames = [];
+    for (const e of readdirSync(archiveDir, {withFileTypes: true}).filter(e => e.isDirectory()).sort((a, b) => a.name.localeCompare(b.name, 'en', {numeric: true})))
+      for (const f of readdirSync(join(archiveDir, e.name)).filter(f => /\.html$/i.test(f)).sort()) {
+        const frame = frameFrom('archive/' + e.name, f);
+        frame.id = 'archive/' + idFor(e.name, f); frame.links = [];
+        frame.note = String(manifest.archive?.[frame.id]?.reason || frame.note || '');
+        frames.push(frame);
+      }
+    if (frames.length) sections.push({id: 'archive', name: 'Archive', system: true, archived: true, frames});
+  }
   for (const section of sections) {
     const extra = manifest.sections?.[section.id] || {};
     if (extra.name) section.name = String(extra.name);
-    section.note = String(extra.note || (section.choose ? 'Options: pick one' : ''));
+    section.note = String(extra.note || (section.choose ? 'Options: pick one' : section.archived ? 'Options that lost, with the reason' : ''));
+    section.status = STATUSES[extra.status] ? extra.status : '';
   }
   const ids = new Set(sections.flatMap(s => s.frames.map(f => f.id)));
   for (const f of sections.flatMap(s => s.frames)) f.links = (f.links || []).filter(id => ids.has(id) && id !== f.id);
+  const design = sections.filter(s => !s.system && !s.reference);
+  const flows = (Array.isArray(manifest.flows) && manifest.flows.length ? manifest.flows : design.map(s => ({name: s.name, start: s.frames[0].id})))
+    .filter(f => f && ids.has(f.start)).map(f => ({name: String(f.name || f.start), start: String(f.start)}));
+  const review = readReview(), approvals = {};
+  for (const f of design.flatMap(s => s.frames)) { const r = review.frames?.[f.id]; if (r && r.at >= f.rev) approvals[f.id] = r.status; }
   let feedback = null;
   const feedbackPath = join(dir, 'feedback.json');
   if (existsSync(feedbackPath)) { try { feedback = JSON.parse(readFileSync(feedbackPath, 'utf8')); } catch {} }
   const state = {title: String(manifest.title || basename(resolve(dir, '..', '..')) || 'Seenry canvas'), stage: String(manifest.stage || ''), question: String(manifest.question || ''),
-    error: manifest.error || null, sections, feedback, agentWaiting: waiting()};
-  state.rev = [mtime(manifestPath), state.agentWaiting, ...sections.flatMap(s => [s.id, ...s.frames.map(f => f.id + f.rev)])].join('|');
+    description: String(manifest.description || ''), owner: String(manifest.owner || ''), library: library ? libraryName(library) : '',
+    log: (Array.isArray(manifest.log) ? manifest.log : []).slice(-8).reverse(), statuses: STATUSES,
+    error: manifest.error || (manifest.library && !library ? `The library "${manifest.library}" has no tokens.css.` : null), sections, flows, approvals, feedback, agentWaiting: waiting()};
+  state.rev = [mtime(manifestPath), mtime(join(dir, 'review.json')), state.agentWaiting, ...sections.flatMap(s => [s.id, ...s.frames.map(f => f.id + f.rev)])].join('|');
   return state;
 }
 
@@ -504,6 +585,26 @@ textarea { width: 100%; min-height: 56px; max-height: 160px; resize: vertical; f
 #present .stage { position: relative; overflow: hidden; display: grid; place-items: center; }
 #present iframe { border: 0; background: #fff; transform-origin: 50% 50%; box-shadow: 0 0 0 1px rgb(255 255 255 / .1), 0 24px 60px rgb(0 0 0 / .5); }
 #present[data-device="phone"] iframe { border-radius: 32px; }
+.cover { position: absolute; inset: 0; padding: 96px 112px; display: grid; align-content: start; gap: 28px; background: var(--panel); color: var(--ink); font-size: 22px; line-height: 1.4; }
+.cover h1 { margin: 0; font-size: 88px; line-height: 1; letter-spacing: -0.03em; font-weight: 600; }
+.cover p { margin: 0; color: var(--ink-2); max-width: 30em; }
+.cover .meta { font-size: 18px; }
+.cover-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 40px; margin-top: 12px; }
+.cover-row { display: flex; gap: 14px; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--line); }
+.cover-row b { font-weight: 600; flex: 1; } .cover-row span { font-size: 17px; color: var(--ink-2); }
+.cover h2 { margin: 20px 0 0; font-size: 20px; font-weight: 600; }
+.cover li { font-size: 18px; color: var(--ink-2); }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1; padding: 4px 7px; border-radius: 6px; background: var(--fill); color: var(--ink-2); vertical-align: middle; white-space: nowrap; }
+.badge[data-status="in-progress"] { background: color-mix(in oklab, var(--warn) 18%, transparent); color: var(--warn); }
+.badge[data-status="review"] { background: color-mix(in oklab, var(--sel) 16%, transparent); color: var(--sel); }
+.badge[data-status="ready"] { background: color-mix(in oklab, var(--ok) 18%, transparent); color: var(--ok); }
+.cover .badge { font-size: 15px; padding: 5px 9px; }
+.section-title .badge { font-size: calc(12px * var(--inv)); padding: calc(4px * var(--inv)) calc(7px * var(--inv)); border-radius: calc(6px * var(--inv)); margin-left: calc(10px * var(--inv)); }
+.frame[data-archived="true"] .frame-body { opacity: .55; }
+.outline h2[data-dim="true"] { opacity: .6; }
+.keys { color: var(--ink-2); font-size: 12px; margin: 0; }
+.keys kbd { font: 11px ui-monospace, Menlo, monospace; padding: 1px 4px; border-radius: 4px; background: var(--fill); }
+#p-flow { font: inherit; color: #f1efea; background: rgb(255 255 255 / .1); border: 0; border-radius: 8px; padding: 6px 8px; }
 .specs { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12px; }
 .specs dt { color: var(--ink-2); } .specs dd { margin: 0; overflow-wrap: anywhere; }
 .specs code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; }
@@ -532,11 +633,13 @@ dialog .row { justify-content: end; margin-top: 10px; }
   <button type="button" id="zoom-fit" title="Fit everything (1)">Fit</button>
   <button type="button" id="flows" title="Show prototype connections (F)" aria-pressed="true">Flows</button>
   <button type="button" id="grid" title="Show layout grids (G)" aria-pressed="false">Grid</button>
+  <button type="button" id="specs-toggle" title="Show handoff specs (S)" aria-pressed="false">Specs</button>
   <button type="button" id="mode" title="Switch every screen between light and dark mode (D)">Light</button>
   <button type="button" id="play" title="Present the prototype (P)">▶ Present</button>
 </div>
 <div id="present" hidden>
   <div class="bar"><strong id="p-name"></strong><span id="p-where"></span><span style="flex:1"></span>
+    <select id="p-flow" aria-label="Flow"></select>
     <button type="button" class="btn" id="p-prev" aria-label="Previous screen">←</button>
     <button type="button" class="btn" id="p-next" aria-label="Next screen">→</button>
     <button type="button" class="btn" id="p-restart">Restart</button>
@@ -551,6 +654,7 @@ dialog .row { justify-content: end; margin-top: 10px; }
   <footer>
     <textarea id="general" placeholder="Anything else the agent should know" aria-label="General notes"></textarea>
     <div class="row" style="align-items:center;justify-content:space-between"><span id="status" role="status"></span><button type="button" class="btn primary" id="send">Send to agent</button></div>
+    <p class="keys">Drag to pan · <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+scroll to zoom · <kbd>1</kbd> fit · <kbd>P</kbd> present · <kbd>I</kbd> inspect · <kbd>S</kbd> specs · <kbd>G</kbd> grid · <kbd>D</kbd> dark · <kbd>F</kbd> flows</p>
   </footer>
 </aside>
 <dialog id="note-dialog"><form method="dialog">
@@ -563,7 +667,8 @@ const EMBEDDED = /*STATE*/null;
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...children) => { const node = Object.assign(document.createElement(tag), props); node.append(...children.filter(c => c !== '' && c != null)); return node; };
 const GAP = 120, ROW_GAP = 420, MAX_H = 7000;
-let state = null, view = {x: 0, y: 0, z: 1}, selected = null, live = null, commenting = false, pending = null, fitted = false, showLinks = true, playing = null, inspecting = false, inspected = null, showGrid = false, dark = false;
+let state = null, view = {x: 0, y: 0, z: 1}, selected = null, live = null, commenting = false, pending = null, fitted = false, showLinks = true, playing = null, inspecting = false, inspected = null, showGrid = false, dark = false, showSpecs = false, flow = null;
+const touched = new Set();
 const status = {}, picks = {}, notes = [], heights = {}, nodes = {};
 
 const frames = () => state.sections.flatMap(s => s.frames.map(f => ({...f, section: s})));
@@ -617,6 +722,13 @@ function describe(node) {
 function applyView(doc) {
   if (!doc || !doc.documentElement) return;
   if (dark) doc.documentElement.dataset.theme = 'dark'; else if (doc.documentElement.dataset.theme === 'dark') delete doc.documentElement.dataset.theme;
+  doc.querySelectorAll('.seenry-spec-pin').forEach(n => n.remove());
+  if (showSpecs && doc.body) [...doc.querySelectorAll('[data-spec]')].forEach((node, i) => {
+    const r = node.getBoundingClientRect(), win = doc.defaultView, pin = doc.createElement('div');
+    pin.className = 'seenry-spec-pin'; pin.textContent = String(i + 1); pin.title = node.getAttribute('data-spec');
+    pin.style.cssText = 'position:absolute;z-index:2147483647;pointer-events:none;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#7c3aed;color:#fff;font:600 12px/20px ui-sans-serif,system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px #fff;left:' + (r.right + win.scrollX - 10) + 'px;top:' + (r.top + win.scrollY - 10) + 'px';
+    doc.body.append(pin);
+  });
   let grid = doc.getElementById('seenry-grid');
   if (!showGrid) { if (grid) grid.remove(); return; }
   if (!doc.body) return;
@@ -680,6 +792,8 @@ function inspect(node, f) {
   rows.push({label: 'Size', value: Math.round(r.width) + ' × ' + Math.round(r.height)});
   let style = null; for (let n = node; n && n.classList && !style; n = n.parentElement) style = [...n.classList].find(x => x.startsWith('text-'));
   if (style) rows.push({label: 'Text style', value: '.' + style, token: '.' + style});
+  const spec = node.closest('[data-spec]');
+  if (spec) rows.unshift({label: 'Spec', value: spec.getAttribute('data-spec')});
   const pad = ['top', 'right', 'bottom', 'left'].map(s => c.getPropertyValue('padding-' + s));
   if (!pad.every(v => v === '0px')) row('Padding', pad.join(' ').replace(/^(\S+) (\S+) \1 \2$/, '$1 $2').replace(/^(\S+) \1$/, '$1'), 'padding-top', 'padding');
   if (/flex|grid/.test(c.display) && !quiet(c.rowGap)) row('Gap', c.rowGap, 'row-gap', 'gap');
@@ -732,7 +846,8 @@ function build() {
     world.append(section.node);
     for (const f of section.frames) {
       const body = el('div', {className: 'frame-body'});
-      if (f.kind === 'image') {
+      if (f.kind === 'cover') body.append(el('div', {className: 'cover'}));
+      else if (f.kind === 'image') {
         const img = el('img', {src: f.src + '?v=' + f.rev, alt: f.name, draggable: false});
         img.addEventListener('load', () => { const h = Math.min(MAX_H, Math.round(f.w * img.naturalHeight / img.naturalWidth)); if (h && h !== heights[f.id]) { heights[f.id] = h; place(); } });
         body.append(img);
@@ -755,12 +870,16 @@ function build() {
 
 function place() {
   const boxes = layout();
-  for (const section of state.sections) { section.node.style.left = section.box.x + 'px'; section.node.style.top = section.box.y + 'px'; }
+  for (const section of state.sections) {
+    section.node.style.left = section.box.x + 'px'; section.node.style.top = section.box.y + 'px';
+    section.node.replaceChildren(document.createTextNode(section.name), section.status ? badge(section.status) : '', section.note ? el('small', {textContent: section.note}) : '');
+  }
   for (const f of frames()) {
     const node = nodes[f.id], box = boxes[f.id]; if (!node) continue;
     Object.assign(node.style, {left: box.x + 'px', top: box.y + 'px', width: box.w + 'px', height: box.h + 'px'});
     node.dataset.status = status[f.id] || ''; node.dataset.selected = selected === f.id; node.dataset.live = live === f.id;
     node.dataset.picked = f.section.choose && picks[f.section.id] === f.id;
+    node.dataset.archived = !!f.section.archived;
     const mark = status[f.id] === 'approved' ? ' ✓' : status[f.id] === 'change' ? ' •' : '';
     node.firstChild.replaceChildren(el('b', {textContent: f.name + mark}), document.createTextNode(f.kind === 'page' ? '  ' + f.w + ' × ' + f.h : ''));
     node.querySelectorAll('.pin').forEach(p => p.remove());
@@ -789,11 +908,19 @@ function drawLinks(boxes) {
 
 // Present: play the screens at real size, following their links like a Figma prototype.
 const order = () => frames().filter(f => f.kind === 'page' && !f.section.system);
+function flowFor(id) {
+  const f = find(id), same = f && state.flows.find(x => find(x.start)?.section === f.section);
+  return state.flows.find(x => x.start === id) || same || state.flows[0] || null;
+}
 function present(id) {
   const list = order(); if (!list.length) return;
-  playing = list.some(f => f.id === id) ? id : list[0].id;
+  flow = flowFor(id);
+  playing = list.some(f => f.id === id) ? id : flow ? flow.start : list[0].id;
+  $('p-flow').replaceChildren(...state.flows.map(x => el('option', {value: x.start, textContent: x.name, selected: !!flow && x.start === flow.start})));
+  $('p-flow').hidden = !state.flows.length;
   $('present').hidden = false; showPlaying(true);
 }
+$('p-flow').addEventListener('change', () => { flow = state.flows.find(x => x.start === $('p-flow').value); playing = flow.start; showPlaying(true); });
 function showPlaying(load) {
   const list = order(), i = list.findIndex(f => f.id === playing), f = list[i]; if (!f) return;
   $('present').dataset.device = f.device;
@@ -802,6 +929,7 @@ function showPlaying(load) {
   const r = $('p-stage').getBoundingClientRect(); frame.style.transform = 'scale(' + Math.min(1, (r.width - 48) / f.w, (r.height - 48) / f.h) + ')';
   if (load) frame.src = f.src + '?v=' + f.rev;
 }
+$('specs-toggle').addEventListener('click', () => { showSpecs = !showSpecs; $('specs-toggle').setAttribute('aria-pressed', showSpecs); eachDoc(applyView); render(); });
 $('grid').addEventListener('click', () => { showGrid = !showGrid; $('grid').setAttribute('aria-pressed', showGrid); eachDoc(applyView); });
 $('mode').addEventListener('click', () => { dark = !dark; $('mode').textContent = dark ? 'Dark' : 'Light'; eachDoc(applyView); });
 function step(n) { const list = order(), i = list.findIndex(f => f.id === playing); playing = list[(i + n + list.length) % list.length].id; showPlaying(true); }
@@ -814,12 +942,31 @@ $('p-frame').addEventListener('load', () => {
 function closePresent() { $('present').hidden = true; $('p-frame').src = 'about:blank'; if (playing) { select(playing); focusFrame(playing); } playing = null; }
 $('p-prev').addEventListener('click', () => step(-1)); $('p-next').addEventListener('click', () => step(1));
 $('p-close').addEventListener('click', closePresent);
-$('p-restart').addEventListener('click', () => { const f = find(playing); playing = f.section.frames[0].id; showPlaying(true); });
+$('p-restart').addEventListener('click', () => { playing = flow ? flow.start : find(playing).section.frames[0].id; showPlaying(true); });
 addEventListener('resize', () => { if (playing) showPlaying(false); });
 $('play').addEventListener('click', () => present(selected));
 $('flows').addEventListener('click', () => { showLinks = !showLinks; $('flows').setAttribute('aria-pressed', showLinks); place(); });
 
 function select(id) { selected = id; if (live !== id) { live = null; commenting = false; inspecting = false; } if (inspected && inspected.frame !== id) inspected = null; render(); }
+
+function badge(s) { const b = el('span', {className: 'badge', textContent: state.statuses[s] || s}); b.dataset.status = s; return b; }
+function renderCover() {
+  const box = document.querySelector('.frame[data-id="cover"] .cover'); if (!box) return;
+  const design = state.sections.filter(s => !s.system && !s.reference), all = design.flatMap(s => s.frames);
+  const approved = all.filter(f => status[f.id] === 'approved').length;
+  const updated = Math.max(0, ...frames().map(f => f.rev || 0));
+  box.replaceChildren(
+    el('p', {className: 'meta', textContent: [state.stage && state.stage[0].toUpperCase() + state.stage.slice(1), state.owner, updated ? 'Updated ' + new Date(updated).toLocaleDateString() : ''].filter(Boolean).join(' · ')}),
+    el('h1', {textContent: state.title}),
+    state.description ? el('p', {textContent: state.description}) : '',
+    el('p', {className: 'meta', textContent: all.length + ' screens in ' + design.length + ' sections · ' + approved + ' approved' + (state.library ? ' · Design system: ' + state.library : '')}),
+    el('div', {className: 'cover-grid'}, ...design.map(s => {
+      const n = s.frames.filter(f => status[f.id] === 'approved').length;
+      return el('div', {className: 'cover-row'}, el('b', {textContent: s.name}), s.status ? badge(s.status) : '', el('span', {textContent: s.choose ? 'Options' : n + ' of ' + s.frames.length + ' approved'}));
+    })),
+    state.log.length ? el('h2', {textContent: 'Recent changes'}) : '',
+    state.log.length ? el('ul', {}, ...state.log.slice(0, 5).map(l => el('li', {textContent: String(l.at).slice(0, 10) + ' · ' + l.text}))) : '');
+}
 
 function render() {
   $('title').textContent = state.title + (state.stage ? ' · ' + state.stage : ''); document.title = state.title + ' · Seenry canvas';
@@ -829,7 +976,8 @@ function render() {
   const outline = $('outline'); outline.replaceChildren();
   if (!state.sections.length) outline.append(el('p', {textContent: 'No screens yet. The agent adds .html files to this folder.', style: 'margin:12px 8px;color:var(--ink-2)'}));
   for (const section of state.sections) {
-    outline.append(el('h2', {textContent: section.name + (section.choose ? ' · pick one' : '')}));
+    const head = el('h2', {}, document.createTextNode(section.name + (section.choose ? ' · pick one' : '') + ' '), section.status ? badge(section.status) : '');
+    head.dataset.dim = !!(section.archived || section.library); outline.append(head);
     for (const f of section.frames) {
       const dot = el('span', {className: 'dot'}); dot.dataset.status = status[f.id] || '';
       const count = notes.filter(n => n.frame === f.id).length;
@@ -843,7 +991,7 @@ function render() {
   inspector.hidden = !f;
   if (f) {
     const toggle = (text, on, fn) => { const b = el('button', {type: 'button', className: 'btn', textContent: text}); b.setAttribute('aria-pressed', on); b.addEventListener('click', fn); return b; };
-    const set = value => () => { status[f.id] = status[f.id] === value ? '' : value; render(); };
+    const set = value => () => { status[f.id] = status[f.id] === value ? '' : value; touched.add(f.id); render(); };
     const actions = el('div', {className: 'row'});
     if (!f.section.reference && !f.section.system) {
       if (f.section.choose) actions.append(toggle(picks[f.section.id] === f.id ? 'Picked' : 'Pick this', picks[f.section.id] === f.id, () => { picks[f.section.id] = picks[f.section.id] === f.id ? null : f.id; render(); }));
@@ -867,8 +1015,14 @@ function render() {
         el('dl', {className: 'specs'}, ...inspected.rows.flatMap(r => [el('dt', {textContent: r.label}), el('dd', {}, el('code', {textContent: r.value}), r.token ? el('code', {className: 'tok', textContent: '  ' + r.token}) : r.raw ? el('code', {className: 'raw', textContent: '  not a variable'}) : '')])),
         el('p', {className: raw ? '' : '', style: 'color:' + (raw ? 'var(--warn)' : 'var(--ok)'), textContent: raw ? raw + ' value' + (raw === 1 ? '' : 's') + ' not from tokens.css' : 'Every value comes from tokens.css'}));
     }
-    inspector.replaceChildren(el('h3', {textContent: f.name}), f.note ? el('p', {textContent: f.note}) : '', actions, tools, specs, list);
+    let handoffSpecs = '';
+    try {
+      const doc = nodes[f.id]?.querySelector('iframe')?.contentDocument, items = doc ? [...doc.querySelectorAll('[data-spec]')] : [];
+      if (items.length) handoffSpecs = el('div', {className: 'notes'}, el('p', {style: 'font-weight:600', textContent: 'Specs for developers'}), ...items.map((n, i) => el('div', {className: 'note'}, el('b', {style: 'color:#7c3aed', textContent: String(i + 1)}), el('span', {textContent: ((n.innerText || n.getAttribute('aria-label') || n.tagName.toLowerCase()).trim().replace(/\s+/g, ' ').slice(0, 40)) + ': ' + n.getAttribute('data-spec')}))));
+    } catch {}
+    inspector.replaceChildren(el('h3', {textContent: f.name}), f.note ? el('p', {textContent: f.note}) : '', actions, tools, specs, handoffSpecs, list);
   }
+  renderCover();
   $('hint').hidden = !live; $('hint').textContent = inspecting ? 'Click any element to inspect its values and variables. Esc to stop.' : commenting ? 'Click the element to comment on. Esc to stop.' : 'Using this screen. Click outside it or press Esc to go back to the canvas.';
   place();
 }
@@ -919,6 +1073,7 @@ addEventListener('keydown', e => {
   else if (e.key === 'p' || e.key === 'P') present(selected);
   else if (e.key === 'f' || e.key === 'F') $('flows').click();
   else if (e.key === 'g' || e.key === 'G') $('grid').click();
+  else if (e.key === 's' || e.key === 'S') $('specs-toggle').click();
   else if (e.key === 'd' || e.key === 'D') $('mode').click();
   else if (e.key === 'i' || e.key === 'I') { if (selected && find(selected)?.kind === 'page') { inspecting = !(inspecting && live === selected); commenting = false; live = inspecting ? selected : null; render(); } }
   else if (e.key === '1') fitAll();
@@ -928,20 +1083,25 @@ addEventListener('keydown', e => {
 });
 $('note-dialog').addEventListener('close', () => {
   const text = $('note-text').value.trim();
-  if ($('note-dialog').returnValue === 'ok' && text && pending) { notes.push({...pending, text}); if (!status[pending.frame]) status[pending.frame] = 'change'; commenting = false; live = null; }
+  if ($('note-dialog').returnValue === 'ok' && text && pending) { notes.push({...pending, text}); if (!status[pending.frame] && !find(pending.frame)?.section.system) { status[pending.frame] = 'change'; touched.add(pending.frame); } commenting = false; live = null; }
   pending = null; render();
 });
 $('send').addEventListener('click', async () => {
-  const feedback = {stage: state.stage, picks, frames: frames().filter(f => status[f.id]).map(f => ({id: f.id, status: status[f.id]})), notes: notes.map(({x, y, ...n}) => n), general: $('general').value.trim()};
+  const feedback = {stage: state.stage, picks, frames: frames().filter(f => status[f.id] && touched.has(f.id)).map(f => ({id: f.id, status: status[f.id]})), notes: notes.map(({x, y, ...n}) => n), general: $('general').value.trim()};
   if (!feedback.frames.length && !feedback.notes.length && !feedback.general && !Object.values(picks).some(Boolean)) { $('status').textContent = 'Approve, pick or comment first.'; return; }
+  touched.clear();
   let saved = false;
   if (location.protocol !== 'file:') { try { saved = (await fetch('feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(feedback)})).ok; } catch {} }
   try { await navigator.clipboard.writeText(summary()); } catch {}
   $('status').textContent = !saved ? 'Copied. Paste it to your agent.' : state.agentWaiting ? 'Sent. Your agent has it.' : 'Saved. Tell your agent you are done.';
 });
 
+function syncApprovals() {
+  for (const f of frames()) { if (touched.has(f.id)) continue; if (state.approvals[f.id]) status[f.id] = state.approvals[f.id]; else delete status[f.id]; }
+}
+
 async function load() {
-  if (EMBEDDED) { state = EMBEDDED; build(); render(); return; }
+  if (EMBEDDED) { state = EMBEDDED; build(); syncApprovals(); render(); return; }
   try {
     const next = await (await fetch('state', {cache: 'no-store'})).json();
     if (!state || next.rev !== state.rev) {
@@ -950,7 +1110,7 @@ async function load() {
       state = next;
       if (same) { for (const f of frames()) { const old = before.sections.flatMap(s => s.frames).find(o => o.id === f.id); const media = nodes[f.id]?.querySelector('iframe, img'); if (old && old.rev !== f.rev && media) media.src = f.src + '?v=' + f.rev; } for (const s of state.sections) s.node = before.sections.find(o => o.id === s.id).node; }
       else { if (selected && !find(selected)) selected = null; build(); }
-      render();
+      syncApprovals(); render();
     }
   } catch {}
   setTimeout(load, 1500);
@@ -988,6 +1148,12 @@ function serve(port, attempts = 20) {
             general: text(d.general, 4000), at: new Date().toISOString()};
           writeFileSync(join(dir, 'feedback.json'), JSON.stringify(clean, null, 2) + '\n');
           writeFileSync(join(dir, 'FEEDBACK.md'), '# Canvas feedback\n\n' + feedbackLines(clean).join('\n') + '\n');
+          const review = readReview(), now = Date.now();
+          review.frames = review.frames || {};
+          for (const f of clean.frames) review.frames[f.id] = {status: f.status, at: now};
+          writeFileSync(join(dir, 'review.json'), JSON.stringify(review, null, 2) + '\n');
+          mkdirSync(join(dir, '.history'), {recursive: true});
+          writeFileSync(join(dir, '.history', clean.at.replace(/[:.]/g, '-') + '.json'), JSON.stringify(clean, null, 2) + '\n');
           send(200, '{"ok":true}', TYPES['.json']);
         } catch { send(400, 'Bad request'); }
       });
@@ -996,8 +1162,15 @@ function serve(port, attempts = 20) {
     if (req.method !== 'GET' && req.method !== 'HEAD') return send(405, 'Method not allowed');
     if (path === '/') return send(200, page(null), TYPES['.html']);
     if (path === '/state') return send(200, JSON.stringify(readState()), TYPES['.json']);
-    const file = inside('.' + path);
-    if (!file || file.slice(dir.length).split(sep).some(part => part.startsWith('.')) || !existsSync(file) || !statSync(file).isFile()) return send(404, 'Not found');
+    const manifest = readManifest(), library = libraryDir(manifest);
+    let file = inside('.' + path);
+    if (path.startsWith('/library/')) {
+      if (!library) return send(404, 'Not found');
+      const full = resolve(library, '.' + path.slice('/library'.length));
+      file = full.startsWith(library + sep) ? full : null;
+      if (file && file.slice(library.length).split(sep).some(part => part.startsWith('.'))) file = null;
+    } else if (file && file.slice(dir.length).split(sep).some(part => part.startsWith('.'))) file = null;
+    if (!file || !existsSync(file) || !statSync(file).isFile()) return send(404, 'Not found');
     send(200, readFileSync(file), TYPES[extname(file).toLowerCase()] || 'application/octet-stream');
   });
   server.on('error', error => {
@@ -1019,7 +1192,7 @@ function running() {
 function printList(state) {
   for (const s of state.sections) {
     console.log(`${s.name}${s.choose ? ' (options: pick one)' : ''}`);
-    for (const f of s.frames) console.log(`  ${f.id}  ${f.kind === 'page' ? `${f.device} ${f.w}×${f.h}` : 'image'}  "${f.name}"${f.links?.length ? `  → ${f.links.join(', ')}` : ''}`);
+    for (const f of s.frames) console.log(`  ${f.id}  ${f.kind === 'page' ? `${f.device} ${f.w}×${f.h}` : f.kind}  "${f.name}"${f.links?.length ? `  → ${f.links.join(', ')}` : ''}`);
   }
   if (!state.sections.length) console.log('No screens yet.');
 }
@@ -1095,6 +1268,93 @@ function check() {
   return problems ? 1 : 0;
 }
 
+/** The folder and file a frame id lives in. */
+function locate(state, id) {
+  for (const s of state.sections) for (const f of s.frames) if (f.id === id && !s.system && !s.reference) return {section: s, frame: f, path: join(dir, f.src)};
+  return null;
+}
+
+function archiveFrame(state, id, reason) {
+  const hit = locate(state, id);
+  if (!hit) { console.error(`No screen "${id}". Run "canvas.mjs list" for the ids.`); process.exit(2); }
+  const folder = dirname(hit.frame.src).replace(/\.options$/i, ''), dest = join(dir, 'archive', folder === '.' ? 'screens' : folder);
+  mkdirSync(dest, {recursive: true});
+  renameSync(hit.path, join(dest, basename(hit.path)));
+  const manifest = readManifest(), key = 'archive/' + idFor(folder === '.' ? 'screens' : folder, basename(hit.path));
+  manifest.archive = {...manifest.archive, [key]: {reason: String(reason || 'Archived'), from: hit.frame.src, at: new Date().toISOString()}};
+  writeManifest(manifest);
+  return key;
+}
+
+function resolveOptions(state, sectionId) {
+  const section = state.sections.find(s => s.id === sectionId && s.choose);
+  if (!section) { console.error(`"${sectionId}" is not an options section. Options live in a folder ending .options.`); process.exit(2); }
+  const pick = flag('pick') || state.feedback?.picks?.[sectionId];
+  if (!pick || !section.frames.some(f => f.id === pick)) { console.error(`No pick for "${sectionId}" yet. Wait for the person's feedback, or pass --pick <id>.`); process.exit(3); }
+  const notes = id => (state.feedback?.notes || []).filter(n => n.frame === id).map(n => n.text).join('; ');
+  const picked = section.frames.find(f => f.id === pick);
+  // Links to a losing option now lead to the picked one, so the prototype keeps working.
+  const swaps = section.frames.filter(f => f.id !== pick).map(f => [basename(f.src), basename(picked.src)]);
+  for (const s of state.sections) for (const f of s.frames) {
+    if (s.system || s.reference || section.frames.includes(f)) continue;
+    const file = join(dir, f.src), html = readFileSync(file, 'utf8');
+    let next = html; for (const [lose, win] of swaps) next = next.split(dirname(picked.src) + '/' + lose).join(dirname(picked.src) + '/' + win);
+    if (next !== html) writeFileSync(file, next);
+  }
+  for (const f of section.frames) if (f.id !== pick) console.log(`Archived ${archiveFrame(readState(), f.id, `Not picked: ${picked.name} was chosen${notes(f.id) ? `. Notes: ${notes(f.id)}` : ''}`)}`);
+  const from = dirname(picked.src), to = from.replace(/\.options$/i, '');
+  if (from !== to) {
+    if (existsSync(join(dir, to))) { for (const f of readdirSync(join(dir, from))) renameSync(join(dir, from, f), join(dir, to, f)); rmSync(join(dir, from), {recursive: true, force: true}); }
+    else renameSync(join(dir, from), join(dir, to));
+    for (const s of readState().sections) for (const f of s.frames) {
+      if (s.system && !s.archived) continue;
+      const file = join(dir, f.src), html = readFileSync(file, 'utf8'), next = html.split(from + '/').join(to + '/');
+      if (next !== html) writeFileSync(file, next);
+    }
+  }
+  console.log(`Kept ${pick} in ${to}/.`);
+}
+
+function handoff() {
+  const state = readState(), manifest = readManifest(), library = libraryDir(manifest), lines = [];
+  const design = state.sections.filter(s => !s.system && !s.reference);
+  lines.push(`# ${state.title}: handoff`, '', `Stage: ${state.stage || 'not set'} · generated ${new Date().toISOString().slice(0, 10)}`, '');
+  if (state.description) lines.push(state.description, '');
+  lines.push('## Design system', '', `- Tokens: ${library ? relative(process.cwd(), join(library, 'tokens.css')) + ' (shared library)' : relative(process.cwd(), join(dir, 'tokens.css'))}. Move it into the product unchanged; components use only its semantic variables.`);
+  const fonts = [library, dir].filter(Boolean).map(r => join(r, 'fonts')).filter(existsSync).flatMap(f => readdirSync(f).map(n => relative(process.cwd(), join(f, n))));
+  lines.push(`- Fonts: ${fonts.length ? fonts.join(', ') : 'none self-hosted; check the <link> in each screen'}`);
+  const components = state.sections.filter(s => /components/i.test(s.id)).flatMap(s => s.frames.map(f => `${f.name} (${f.src})`));
+  lines.push(`- Components: ${components.length ? components.join(', ') : 'none on the canvas'}`, '');
+  if (state.flows.length) lines.push('## Flows', '', ...state.flows.map(f => `- ${f.name}: starts at ${f.start}`), '');
+  lines.push('## Screens', '');
+  for (const s of design) {
+    lines.push(`### ${s.name}${s.status ? ` · ${STATUSES[s.status]}` : ''}`, '', '| Screen | File | Size | Goes to | Review |', '| --- | --- | --- | --- | --- |');
+    for (const f of s.frames) lines.push(`| ${f.name} | ${relative(process.cwd(), join(dir, f.src))} | ${f.device} ${f.w}×${f.h} | ${f.links.join(', ') || '—'} | ${state.approvals[f.id] === 'approved' ? 'Approved' : state.approvals[f.id] === 'change' ? 'Needs changes' : 'Not reviewed'} |`);
+    const specs = s.frames.flatMap(f => specsIn(join(dir, f.src)).map(x => `- ${f.name} · \`${x.element}\`${x.text ? ` “${x.text}”` : ''}: ${x.spec}`));
+    lines.push('', ...(specs.length ? ['Specs:', '', ...specs] : ['No specs annotated.']), '');
+  }
+  const open = design.flatMap(s => s.frames).filter(f => state.approvals[f.id] !== 'approved').map(f => f.id);
+  lines.push('## Open', '', open.length ? `Not approved yet: ${open.join(', ')}` : 'Every screen is approved.', '');
+  const archive = Object.entries(manifest.archive || {});
+  if (archive.length) lines.push('## Decided against', '', ...archive.map(([id, a]) => `- ${id}: ${a.reason}`), '');
+  if (state.log.length) lines.push('## Change log', '', ...[...state.log].reverse().map(l => `- ${String(l.at).slice(0, 10)}: ${l.text}`), '');
+  writeFileSync(join(dir, 'HANDOFF.md'), lines.join('\n'));
+  console.log(`Wrote ${join(dir, 'HANDOFF.md')}`);
+}
+
+/** The running canvas server, started in the background when there is none. */
+async function startServer() {
+  if (!existsSync(dir)) init();
+  let info = running();
+  if (!info) {
+    const log = openSync(join(dir, '.canvas.log'), 'a');
+    spawn(process.execPath, [fileURLToPath(import.meta.url), 'serve', dir, '--port', String(port)], {detached: true, stdio: ['ignore', log, log]}).unref();
+    for (let i = 0; i < 40 && !(info = running()); i++) await new Promise(r => setTimeout(r, 100));
+    if (info) info.started = true;
+  }
+  return info;
+}
+
 async function loadPlaywright() {
   const explicit = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
   if (explicit) return import(pathToFileURL(resolve(explicit)).href);
@@ -1111,13 +1371,7 @@ if (command === 'init') {
 } else if (command === 'serve') {
   serve(port);
 } else if (command === 'open') {
-  if (!existsSync(dir)) init();
-  let info = running();
-  if (!info) {
-    const log = openSync(join(dir, '.canvas.log'), 'a');
-    spawn(process.execPath, [fileURLToPath(import.meta.url), 'serve', dir, '--port', String(port)], {detached: true, stdio: ['ignore', log, log]}).unref();
-    for (let i = 0; i < 40 && !(info = running()); i++) await new Promise(r => setTimeout(r, 100));
-  }
+  const info = await startServer();
   if (!info) { console.error(`The canvas did not start. See ${join(dir, '.canvas.log')}, or run "node canvas.mjs static" for a file that opens from disk.`); process.exit(1); }
   const state = readState(), design = state.sections.filter(s => !s.reference && !s.system), count = design.reduce((n, s) => n + s.frames.length, 0);
   const url = `http://127.0.0.1:${info.port}/`, opened = launch(url);
@@ -1128,6 +1382,22 @@ if (command === 'init') {
   printList(readState());
 } else if (command === 'check') {
   process.exit(check());
+} else if (command === 'status') {
+  const [section, status] = positional;
+  const state = readState();
+  if (!STATUSES[status] || !state.sections.some(s => s.id === section && !s.system)) { console.error(`Usage: canvas.mjs status <section> <${Object.keys(STATUSES).join('|')}>. Sections: ${state.sections.filter(s => !s.system && !s.reference).map(s => s.id).join(', ')}`); process.exit(2); }
+  const manifest = readManifest(); manifest.sections = {...manifest.sections, [section]: {...manifest.sections?.[section], status}}; writeManifest(manifest);
+  console.log(`${section}: ${STATUSES[status]}`);
+} else if (command === 'archive') {
+  console.log(`Archived ${archiveFrame(readState(), positional[0], flag('reason'))}`);
+} else if (command === 'resolve') {
+  resolveOptions(readState(), positional[0]);
+} else if (command === 'log') {
+  if (!positional[0]) { console.error('Usage: canvas.mjs log "what changed and why"'); process.exit(2); }
+  const manifest = readManifest(); manifest.log = [...(Array.isArray(manifest.log) ? manifest.log : []), {at: new Date().toISOString(), text: positional[0]}]; writeManifest(manifest);
+  console.log('Logged.');
+} else if (command === 'handoff') {
+  handoff();
 } else if (command === 'stop') {
   const info = running();
   if (info) { try { process.kill(info.pid); } catch {} }
@@ -1158,18 +1428,19 @@ if (command === 'init') {
   const playwright = await loadPlaywright();
   if (!playwright) { console.error('Playwright not found. Install it in the project or pass --playwright <path to playwright/index.mjs>.'); process.exit(2); }
   const chromium = playwright.chromium || playwright.default?.chromium;
-  writeFoundations();
-  writeFileSync(join(dir, 'canvas.html'), page(readState()));
+  const info = await startServer();
+  if (!info) { console.error('The canvas did not start; see .canvas.log.'); process.exit(1); }
   const browser = await chromium.launch({headless: true, ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
   const tab = await browser.newPage({viewport: {width: Number(flag('width', 2000)), height: Number(flag('height', 1300))}, deviceScaleFactor: 1});
-  await tab.goto(pathToFileURL(join(dir, 'canvas.html')).href);
-  await tab.waitForTimeout(1500);
+  await tab.goto(`http://127.0.0.1:${info.port}/`);
+  await tab.waitForTimeout(2500);
   await tab.addStyleTag({content: '#panel,#zoom,#hint{display:none!important} #viewport{inset:0!important}'});
   await tab.evaluate(() => document.getElementById('zoom-fit').click());
   await tab.waitForTimeout(300);
   await tab.screenshot({path: join(dir, 'canvas.png')});
   await browser.close();
+  if (info.started) { try { process.kill(info.pid); } catch {} rmSync(pidFile, {force: true}); }
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|static|shot|serve|stop [dir]'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
 }

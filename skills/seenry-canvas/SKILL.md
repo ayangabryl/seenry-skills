@@ -23,7 +23,7 @@ The person decides. Never approve your own screens, and never ask a second model
 
 ```
 .seenry/canvas/
-  canvas.json                     title, stage, the question for the person
+  canvas.json                     title, description, owner, stage, section status, flows, change log, archive reasons
   tokens.css                      the design system: variables, modes, text styles, effects, grids
   fonts/                          the real font files, self-hosted WOFF2
   wire.css                        the wireframe kit
@@ -39,7 +39,11 @@ The person decides. Never approve your own screens, and never ask a second model
   03-settings/
     01-account.html               no device suffix: desktop, 1440 × 900
   refs/                           reference screenshots, shown as their own section
+  archive/                        options that lost, each with the reason; never deleted
+  HANDOFF.md, FEEDBACK.md         written by the canvas for developers and for you
 ```
+
+The canvas adds a generated **Cover** first: the title, description, owner, stage, every section with its status and how many screens are approved, the design system in use, and the recent changes. Fill `title`, `description` and `owner` in `canvas.json` so it reads like the front page of a team's file.
 
 | File ends in | Frame size |
 | --- | --- |
@@ -57,6 +61,11 @@ node <skill>/scripts/canvas.mjs wait       # blocks until the person presses "Se
 node <skill>/scripts/canvas.mjs list       # sections, frames and prototype links as the canvas sees them
 node <skill>/scripts/canvas.mjs check      # values typed into screens instead of taken from tokens.css
 node <skill>/scripts/canvas.mjs feedback   # the last feedback, without waiting
+node <skill>/scripts/canvas.mjs status 01-onboarding review   # in-progress, review or ready (for dev)
+node <skill>/scripts/canvas.mjs resolve 02-home                # keep the picked option, archive the rest with why
+node <skill>/scripts/canvas.mjs archive 03-home/old --reason "…"
+node <skill>/scripts/canvas.mjs log "Shorter welcome headline, per review"
+node <skill>/scripts/canvas.mjs handoff    # HANDOFF.md: screens, flows, specs, tokens, fonts, open questions
 node <skill>/scripts/canvas.mjs stop
 ```
 
@@ -99,6 +108,24 @@ Large product teams keep their files in the same shape: foundations first, then 
 
 **Before showing mockups, run `check`.** It lists every detached value per screen. From the `mockup` stage, detached values and screens that do not link `tokens.css` are errors.
 
+## Keep the file in order, round after round
+
+**Status on every section.** Label each section the way design teams do: `in-progress` while you work, `review` when you show it, `ready` once every screen in it is approved. The labels show on the cover, the outline and the canvas.
+
+**Approvals last.** An approval stays until that screen's file changes, so each round only asks about what changed. The cover counts approved screens per section.
+
+**Decisions are archived, not deleted.** After the person picks an option, run `resolve <section>`. It keeps the picked screen, renames the folder from `.options`, repoints every link to it, and moves the others to `archive/` with the reason and the person's notes. Anything else you drop goes through `archive --reason`. The archive is the record of why the product looks the way it does.
+
+**Log every round.** After applying feedback, add one `log` line for what changed and why. The cover shows the latest lines, and the handoff lists them all.
+
+**Named flows.** By default each section is a flow that starts at its first screen. For flows that cross sections, list them in `canvas.json`: `"flows": [{"name": "First run", "start": "01-onboarding/01-welcome"}]`. Present opens on the flow of the selected screen, and the person switches flows from its menu.
+
+**Specs for developers, apart from feedback.** Comments are the person's notes to you. Specs are your notes to whoever builds it: put `data-spec="…"` on an element to say what it does, its rules and its edge cases. `data-spec="Tap: saves and opens Home. Disabled until a name is entered."` The person toggles them with `S`, Inspect shows them, and `handoff` lists them per screen.
+
+**Hand off from the canvas.** When the sections you will build are `ready`, run `handoff` and build from `HANDOFF.md`: every screen with its file, size, links and review state, every spec, the token file, fonts and components, the open questions, and what was decided against.
+
+**One design system for many products.** A design system can be its own canvas: tokens, fonts, Foundations and component sheets, with no screens. Point a product at it with `init --library <path to its .seenry/canvas>`. The product then has no `tokens.css` of its own; its screens link `../library/tokens.css`, and the library's Foundations and components show at the top of the product canvas, read-only. Change the library once and every product that links it updates.
+
 ## 1. Map the product before drawing it
 
 Write the screen map in `canvas.json` or the brief first: every flow, and every screen in each flow, in the order a person meets them. A new product usually has onboarding, the main screen, one or two detail screens, settings, and the empty and error states. One line per screen: its job and what it shows.
@@ -136,7 +163,7 @@ Options differ in structure: what leads, the order, the density. A different col
 3. Run `wait`, in the background if your agent can run background commands, so you resume the moment the person presses "Send to agent". The canvas shows them that you are waiting. If your agent cannot wait, end the turn and run `feedback` when they say they are done.
 4. Write no product code while a review is open.
 
-On the canvas the person can drag to pan, pinch or ctrl-scroll to zoom, press `1` to fit everything, press `P` to present the prototype at real size and click through it, select a screen, approve it or mark it for changes, pick an option, pin a comment on any element, and double-click a screen to use it in place.
+On the canvas the person can drag to pan, pinch or ctrl-scroll to zoom, press `1` to fit everything, press `P` to present a flow at real size and click through it, select a screen, approve it or mark it for changes, pick an option, pin a comment on any element, and double-click a screen to use it in place. The keys are listed at the bottom of the panel, so nobody needs to have used Figma.
 
 The feedback lists each pick, the approved screens, the screens that need changes, each comment with the element it is pinned to, and the screens with no answer. It is also saved as `FEEDBACK.md` in the canvas folder. Apply every comment or say why not. Ask about screens with no answer rather than treating silence as approval.
 
@@ -148,7 +175,7 @@ The feedback lists each pick, the approved screens, the screens that need change
 
 ## 5. Rounds
 
-After you change any screen, feedback from before the change is treated as stale, so an old approval is never read as a new one. Move `stage` forward only when the person has approved the current one. The token file approved at `mockup` moves into the product unchanged.
+After you change any screen, feedback from before the change is treated as stale and that screen's approval is cleared, so an old approval is never read as a new one. Each round: apply the feedback, `resolve` any picked options, `log` what changed, set each section's `status`, then show the canvas again. Move `stage` forward only when the person has approved the current one. The token file approved at `mockup` moves into the product unchanged.
 
 ## Before you finish
 
@@ -163,5 +190,10 @@ After you change any screen, feedback from before the change is treated as stale
 | `check` lists detached values at the `mockup` stage or later | Bind them to variables, or add the missing variable to `tokens.css` |
 | A font shown as not loaded on Foundations | Add the font files or the link |
 | A component drawn differently on two screens | One component sheet; both screens use it |
+| An options folder left after the person picked | `resolve` it |
+| A round with no `log` line | Log what changed and why |
+| A section shown for review without a status | `status <section> review` |
+| Building without `HANDOFF.md` | Run `handoff` and build from it |
+| A screen with behavior but no `data-spec` | Add the spec |
 | A screen with no answer treated as approved | Ask about it |
 | The canvas still running at the end of the task | `canvas.mjs stop` |

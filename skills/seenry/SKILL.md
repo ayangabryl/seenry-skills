@@ -76,7 +76,7 @@ Skip the look options when the project already has a brand or tokens. Otherwise 
 
 ### 6. Build once
 
-Build the approved screens in the project's stack, moving the canvas's `tokens.css` in unchanged.
+Run `canvas.mjs handoff` and build the approved screens from `HANDOFF.md` in the project's stack, moving the canvas's `tokens.css` and fonts in unchanged and following every spec.
 
 - `seenry-craft` for every value.
 - [Screens](references/screens.md) for the states and parts the screen must hold.

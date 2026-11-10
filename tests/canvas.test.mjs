@@ -59,8 +59,8 @@ test('the server serves the canvas, guards the folder and saves feedback', async
 
   assert.equal((await call(actual, '/')).status, 200);
   const state = JSON.parse((await call(actual, '/state')).body);
-  assert.deepEqual(state.sections.map(s => [s.id, s.choose, s.frames.length]), [['foundations', false, 1], ['01-onboarding', false, 2], ['02-home', true, 2]]);
-  assert.equal(state.sections[1].frames[0].note, 'One promise');
+  assert.deepEqual(state.sections.map(s => [s.id, s.choose, s.frames.length]), [['cover', undefined, 1], ['foundations', false, 1], ['01-onboarding', false, 2], ['02-home', true, 2]]);
+  assert.equal(state.sections[2].frames[0].note, 'One promise');
   assert.equal((await call(actual, '/01-onboarding/01-welcome.phone.html')).status, 200);
   assert.equal((await call(actual, '/secret.txt')).status, 200);
 
@@ -124,7 +124,7 @@ test('Foundations is generated from tokens.css and listed first', () => {
   const {dir} = project();
   assert.ok(existsSync(join(dir, '_foundations.html')));
   assert.match(readFileSync(join(dir, 'tokens.css'), 'utf8'), /:root\[data-theme="dark"\]/);
-  assert.match(run('list', dir).stdout, /^Foundations\n  foundations  desktop/);
+  assert.match(run('list', dir).stdout, /^Cover\n  cover  cover  "Cover"\nFoundations\n  foundations  desktop/);
 });
 
 test('check flags values typed into screens instead of taken from tokens.css', () => {
@@ -137,4 +137,55 @@ test('check flags values typed into screens instead of taken from tokens.css', (
   assert.match(out.stdout, /01-onboarding\/01-welcome\n  2 detached values: padding: var\(--space-4\) 18px · background: #eef2ff/);
   assert.doesNotMatch(out.stdout, /02-first-habit/);
   assert.match(out.stdout, /02-home\/a\n  does not link tokens.css/);
+});
+
+test('status, log and resolve keep the file organized', () => {
+  const {dir} = project();
+  writeFileSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), page('First habit') + '<a href="../02-home.options/a.phone.html">Done</a>');
+  assert.equal(run('status', '01-onboarding', 'review', dir).status, 0);
+  assert.equal(run('status', '01-onboarding', 'shipped', dir).status, 2);
+  assert.equal(run('log', 'Shorter welcome headline', dir).status, 0);
+  assert.equal(run('resolve', '02-home', dir).status, 3, 'no pick yet');
+  const out = run('resolve', '02-home', '--pick', '02-home/b', dir);
+  assert.equal(out.status, 0, out.stderr);
+  const manifest = JSON.parse(readFileSync(join(dir, 'canvas.json'), 'utf8'));
+  assert.equal(manifest.sections['01-onboarding'].status, 'review');
+  assert.equal(manifest.log[0].text, 'Shorter welcome headline');
+  assert.match(manifest.archive['archive/02-home/a'].reason, /Not picked: B was chosen/);
+  assert.ok(existsSync(join(dir, '02-home', 'b.html')) && existsSync(join(dir, 'archive', '02-home', 'a.phone.html')) && !existsSync(join(dir, '02-home.options')));
+  assert.match(readFileSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), 'utf8'), /href="\.\.\/02-home\/b\.html"/);
+  const list = run('list', dir).stdout;
+  assert.match(list, /Home\n  02-home\/b /);
+  assert.match(list, /Archive\n  archive\/02-home\/a /);
+});
+
+test('handoff collects screens, flows, specs and decisions', () => {
+  const {dir} = project();
+  writeFileSync(join(dir, '01-onboarding', '01-welcome.phone.html'), page('Welcome') + '<button id="go" data-spec="Tap: opens the habit sheet">Start</button>');
+  run('archive', '02-home/a', '--reason', 'Too busy', dir);
+  assert.equal(run('handoff', dir).status, 0);
+  const doc = readFileSync(join(dir, 'HANDOFF.md'), 'utf8');
+  assert.match(doc, /## Flows\n\n- Onboarding: starts at 01-onboarding\/01-welcome/);
+  assert.match(doc, /- Welcome · `button#go` “Start”: Tap: opens the habit sheet/);
+  assert.match(doc, /- archive\/02-home\/a: Too busy/);
+});
+
+test('a shared library is served under library/ and listed read-only', async t => {
+  const {root, dir} = project();
+  const lib = join(root, 'system');
+  assert.equal(run('init', lib).status, 0);
+  mkdirSync(join(lib, '00-components')); writeFileSync(join(lib, '00-components', 'button.html'), page('Button'));
+  const app = join(root, 'app');
+  assert.equal(run('init', app, '--library', lib).status, 0);
+  assert.equal(existsSync(join(app, 'tokens.css')), false, 'the library holds the tokens');
+  const list = run('list', app).stdout;
+  assert.match(list, /Library · Foundations\n  library\/foundations/);
+  assert.match(list, /Library · Components\n  library\/00-components\/button/);
+  const server = spawn(process.execPath, [script, 'serve', app, '--port', String(5700 + Math.floor(Math.random() * 200))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  const port = JSON.parse(readFileSync(join(app, '.canvas.json'), 'utf8')).port;
+  assert.equal((await call(port, '/library/tokens.css')).status, 200);
+  assert.equal((await call(port, '/library/%2e%2e/app/canvas.json')).status, 404);
+  assert.equal((await call(port, '/library/.gitignore')).status, 404);
 });
