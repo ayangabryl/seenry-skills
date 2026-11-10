@@ -17,7 +17,7 @@ A small edit to a real app stays on the [existing project](existing-project.md) 
 
 1. **Inventory what exists.** List every feature, action, state and piece of data. All of it must still be there at the end.
 2. **Name what gives it away.** Look at the screen for one second as a designer would and write down what reads as generated. Those lines are the "Default" in the brief.
-3. **Continue the flow in `SKILL.md` from step 2.** Anchor to the category's own leaders as well as products you admire, wireframe three structures that hold the whole inventory, and let the person pick.
+3. **Continue with steps 3 to 7 of `SKILL.md`.** Anchor to the category's own leaders as well as products you admire, and put two or three options for the main screen on the canvas, each holding the whole inventory, for the person to pick.
 4. **Convention before invention.** Every chart, control and status takes the form people in this category already know. Novelty goes into what leads and how the screen is composed, never into how a status or a table reads.
 5. **Check the inventory again.** Every item from step 1 works. A shortcut hint, badge or label with nothing behind it is wired up or removed.
 

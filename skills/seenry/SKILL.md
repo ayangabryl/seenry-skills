@@ -1,6 +1,6 @@
 ---
 name: seenry
-description: "Design and build web pages and products the way a studio does: every screen designed first on a local canvas the person reviews, structure before look, then code. Use for a new landing page, site, dashboard, pricing page or app screen, a redesign, a page made like a named site, a screen that looks generic or AI-made, and changes to screens in an existing app. Start here for any design or UI task; it routes to seenry-canvas (the design canvas: screens, flows, options), seenry-craft (exact polish values), seenry-motion, seenry-review, seenry-assets, seenry-apps and seenry-video."
+description: "Designs and builds web products the way a studio does: a brief from real material, the default look named and avoided, structure taken from real references, every screen designed and approved on the Seenry canvas, then a build checked against the design. Use for any design or UI task: a new app, site, landing page, dashboard or pricing page, a redesign, a screen that looks generic or AI-made, a page made like a named site, or a change to screens in an existing app. Routes to seenry-canvas (design on the canvas), seenry-craft (exact values), seenry-motion, seenry-review, seenry-assets, seenry-apps and seenry-video."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -9,13 +9,22 @@ metadata:
 
 # Seenry
 
-This skill takes a design task from brief to built product. Every screen is designed on a canvas and approved by the person before product code, each open decision is anchored to a real reference, and the build happens once.
+This skill takes a design task from brief to built product. It decides what to design and what to avoid, hands the design to the canvas for the person to approve, then builds once and checks the build against the approved screens.
 
-## What is firm and what is judgment
+## Operating posture
 
-Firm: every design you propose is shown on the canvas, the person approves the screens, proof is never invented, and you report only what you checked. Everything else is judgment in service of the brief. A brief, a brand or a reference the person shows outranks any default here.
+You are a design studio's lead: you start from what is true about the product, you know what the generic answer looks like and you do not ship it, and you take structure from the best real work rather than from memory. The person's brief, brand and references outrank every default here. Firm everywhere: proof is never invented, every proposed design is shown on the canvas, and you report only what you checked.
 
 Work in the project's stack. Read its tokens, components and `DESIGN.md` first, and extend them.
+
+## Words this skill uses
+
+The canvas words (canvas, screen, section, flow, option, tokens, round) mean what [seenry-canvas](../seenry-canvas/SKILL.md) defines. Two more:
+
+| Word | Means |
+| --- | --- |
+| the default | What any model would build for this brief with no thought: the look to avoid |
+| reference | A real product's screen that does the same job well, used for structure only |
 
 ## Which skill does what
 
@@ -23,99 +32,113 @@ Load a skill when the task reaches its area, not before.
 
 | The task needs | Skill |
 | --- | --- |
-| Designing, seeing and verifying screens before code, and checking the build against them | `seenry-canvas` |
+| Designing screens, options, review and handoff | `seenry-canvas` |
 | Exact values: type, spacing, radius, shadow, color roles, states | `seenry-craft` |
-| Anything that moves: transitions, gestures, springs, scroll | `seenry-motion` |
+| Anything that moves | `seenry-motion` |
 | A review of a screen, a diff or one component | `seenry-review` |
 | Photos, icons, fonts, generated images | `seenry-assets` |
-| Native mobile screens and flows | `seenry-apps` |
+| Native mobile screens | `seenry-apps` |
 | A product film | `seenry-video` |
 
-## Pick the route first
+## Hard rules
+
+1. **Never invent proof.** No made-up testimonials, customers, logos, statistics, awards or press quotes. A missing fact nobody can supply gets a plain plausible value, listed under "Assumed".
+2. **Never ship the default.** Each part of it is fine where it is the best answer; the screen as a whole may not be it.
+3. **References give structure, never surface.** Take what leads, the order, the density and how proof is shown. Never their colors, words, images or brand.
+4. **One thing leads each screen.** Equal weight everywhere reads as a template, and neighboring sections of a page differ in composition.
+5. **Material is real or absent.** Real product, photographs and data, or a type-led section. Never a gradient or drawing standing in for an image.
+6. **Every affordance works.** A shortcut hint, badge or button with nothing behind it is wired up or removed.
+
+## Workflow
+
+```
+- [ ] 1. Route
+- [ ] 2. Brief from real material
+- [ ] 3. Name the default
+- [ ] 4. References for each open decision
+- [ ] 5. Design on the canvas (seenry-canvas)
+- [ ] 6. Build from the handoff
+- [ ] 7. Check the build against the design
+```
+
+### 1. Route
 
 | The request | Route |
 | --- | --- |
-| A fix or small change inside an existing app | [Existing project](references/existing-project.md): no canvas, keep its system |
-| A new product, site, page, screen or redesign | The flow below |
-| "This looks generic", "unslop this", "make it not look AI-made" | [Unslop](references/unslop.md), then the flow from step 2 |
-| "Like X", "inspired by X" | [Named site](references/named-site.md), then the flow from step 3 |
-| "Show me the screens first", "wireframe this", "give me options" | `seenry-canvas` alone |
+| A fix or small change inside an existing app | [Existing project](references/existing-project.md): no canvas unless you propose a visible change |
+| A new product, site, page, screen or redesign | Steps 2 to 7 |
+| "This looks generic", "make it not look AI-made" | [Unslop](references/unslop.md), then steps 3 to 7 |
+| "Like X", "inspired by X" | [Named site](references/named-site.md), then steps 4 to 7 |
+| "Show me options", "mock this up" | `seenry-canvas` alone |
 
-## The flow
+**Done when** you know which steps apply.
 
-### 1. Brief from real material
+### 2. Brief from real material
 
-Write `.seenry/brief.md`: who it is for, the one job of the screen, the content that exists, what is fixed. Then list what the screen must hold, from [screens](references/screens.md).
+Write `.seenry/brief.md`: who it is for, the one job of each screen, the content that exists, what is fixed. List what each screen must hold from [screens](references/screens.md). Ask once for what is missing: real copy, prices, screenshots, photographs, the logo.
 
-Ask once for what is missing: real copy, prices, product screenshots, photographs, the logo. Never invent proof. That means no made-up testimonials, customer names, logos, statistics, awards or press quotes. Where a fact is missing and nobody can be asked, write a plain plausible value and list it under "Assumed" in the report.
+**Done when** every screen's job and content are written, and every gap is either asked or listed as assumed.
 
-### 2. Name the default, then leave it
+### 3. Name the default
 
-Write five lines in the brief under "Default": the first screen, the headline pattern, the section order, the palette and the type that any model would produce for this brief with no thought.
+Write five lines in the brief under "Default": the first screen, the headline pattern, the section order, the palette and the type any model would produce for this brief. Today that is usually a headline left with boxed media right, a two-sentence headline, a filled and an outlined button, three feature cards, a quote band, pricing, FAQ and a closing band, on off-white with one accent, in one grotesk.
 
-Today that is usually a headline on the left with boxed media on the right, a headline of two short sentences, a filled and an outlined button, three feature cards, a quote band, pricing, FAQ and a closing band, on off-white with one accent, in one grotesk.
+**Done when** the default is written, so every option can say how it differs.
 
-Each part is fine where it is the best answer. The page as a whole may not be the default. Every option you make differs from it in structure, and you say how.
+### 4. References for each open decision
 
-### 3. Anchor each option to a real reference
+For the screen the product exists for, and any other real open decision, find two or three real screens that do that job well, at least one from outside the category. Save them to `.seenry/canvas/refs/`. With Seenry MCP follow [research](references/research.md), six calls or fewer; without it use the person's links or `node scripts/bar.mjs --sites <domain>,<domain>`. Each option will be anchored to a different reference. Screens with an obvious answer need no reference.
 
-For each open decision (usually the first screen and the main screen), find two or three real screens that do that job well. At least one comes from outside the category. Save their screenshots to `.seenry/canvas/refs/`.
+**Done when** each open decision has its references saved, with one line each on the structure you will take.
 
-- With Seenry MCP: follow [research](references/research.md). Six calls or fewer for a new page.
-- Without it: the person's links, or `node scripts/bar.mjs --sites <domain>,<domain>` to capture live first screens.
+### 5. Design on the canvas
 
-Take structure from a reference: what leads, the order, the density, how proof is shown. Never its colors, words, images or brand. Each option is anchored to a different reference, which is what keeps three options from being one option three times. Screens with an obvious answer need no reference and no options.
+Follow `seenry-canvas`, steps 1 to 8. Build the tokens from [look](references/look.md) when the project has none, and use `seenry-craft` for every value.
 
-Quick is the default speed (`seenry-canvas`): steps 4 and 5 become one round of two or three finished directions of the main screen, then every screen in the picked look. Take the full studio route only when the person asks for wireframes or a design process.
+**Done when** every screen in scope is approved on the canvas.
 
-### 4. Map and wireframe every screen, and the person reviews
+### 6. Build from the handoff
 
-Follow `seenry-canvas`. Write the screen map: every flow and every screen in it, including empty, error and settings. Wireframe each screen with the real copy, one section per flow, linked to the next screen, with two or three options only on the open decisions from step 3. Open the canvas, then `canvas.mjs wait`. Build nothing until the feedback shows the flows approved and the options picked.
+Run `canvas.mjs handoff` and build from `HANDOFF.md` in the project's stack, moving `tokens.css` and the fonts in unchanged and following every spec. Use `seenry-motion` before anything moves, `seenry-assets` for material, and [kits](references/building.md) when the project has no component library.
 
-### 5. The look, then every screen designed
-
-Skip the look options when the project already has a brand or tokens. Otherwise follow [look](references/look.md): set `tokens.css` on the canvas, then two or three key screens in two treatments, stage `look`. Once one is picked, bring every approved wireframe to the picked look, each linking the same `tokens.css`, stage `mockup`. Link the screens to each other so Present plays each flow, stage `prototype`, for one more review.
-
-### 6. Build once
-
-Run `canvas.mjs handoff` and build the approved screens from `HANDOFF.md` in the project's stack, moving the canvas's `tokens.css` and fonts in unchanged and following every spec.
-
-- `seenry-craft` for every value.
-- [Screens](references/screens.md) for the states and parts the screen must hold.
-- `seenry-motion` before anything moves. Most things should not.
-- `seenry-assets` for material. With no real image for a slot, compose without one. A drawn stand-in or a gradient in an image's place is worse than type alone.
-- [Kits](references/building.md) when the project has no component library.
+**Done when** every approved screen exists in the product.
 
 ### 7. Check the build against the design
 
-1. `canvas.mjs verify` passes on the approved screens.
-2. For each built screen, `canvas.mjs compare <screen> <url of the running app>` and look at its three images. Fix every difference you cannot explain.
-3. Use every control, and see every state from step 1.
-4. Show the person the built screens on the canvas at stage `build`, beside the approved designs.
+Run `canvas.mjs compare <screen> <url>` for each built screen and look at its images, then use every control and see every state from the brief. Show the person the built screens on the canvas beside the approved ones.
 
-One pass. No scoring loop, no second model, no self-score. Fix what the person asks for next.
+**Done when** `compare` reports no unexplained differences and every state works.
 
-## Rules that hold on every route
+## When the person says
 
-1. **Show every proposal on the canvas.** A design, mockup, option or proposed change is put on the canvas and opened for the person, never only described or only coded.
-2. **Screens before code, structure before finish.** No product code before the screens are approved, and no color, type or image decision before the structure is.
-3. **One thing leads each view.** One dominant element per screen and per section. Equal weight everywhere reads as a template.
-4. **Neighboring sections differ in composition.** The same heading, paragraph and cards three times is a skeleton.
-5. **Material is real or absent.** Real product, real photographs, real data, or a type-led section. Never decoration standing in for content.
-6. **Every affordance works.** A shortcut hint, badge or button with nothing behind it is wired up or removed.
-7. **One token file.** Every size, space, radius, color and duration comes from it.
-8. **Say what you did not verify.** A width not checked or a state not seen goes in the report as not verified.
+| They say | You do |
+| --- | --- |
+| "Build me an app / a site / a page" | Steps 1 to 7 |
+| "Make it look less generic" | Unslop, then steps 3 to 7 |
+| "Make it like Linear" | Named site, then steps 4 to 7 |
+| "Just fix this" | Existing project |
+| "Ship it" | Step 7 first; never ship an unchecked build |
 
-## Keep the cost down
+## Tone
 
-Read this file, then only the file a step names. A new product needs `seenry-canvas`, `seenry-craft` and at most two references per open decision. Wireframes are short HTML; spend effort on the decisions, not on polishing frames that may be rejected. Never read a file to be thorough, and never run a check twice on an unchanged page.
+Plain and short. Lead the report with what the person approved, then what you checked.
+
+```
+Approved:  the screens and options approved, and what changed after the person's comments
+Anchors:   each reference and the structure taken from it
+Not the default: how the product differs from the default in the brief
+Type and color: families and weights, the palette by role
+Checked:   verify, compare, the states and controls used
+Not checked: what you could not check
+Assumed:   every fact you supplied that the person should replace
+```
 
 ## Files
 
 | Need | Read |
 | --- | --- |
 | What each kind of screen must hold, and its states | [screens](references/screens.md) |
-| Type, color and imagery for the look step | [look](references/look.md) |
+| Type, color and imagery for the tokens | [look](references/look.md) |
 | A change inside an existing app | [existing project](references/existing-project.md), [surfaces](references/surfaces.md) |
 | A screen that looks generic | [unslop](references/unslop.md) |
 | "Like X" and replicas | [named site](references/named-site.md), [replication](references/replication.md) |
@@ -124,17 +147,5 @@ Read this file, then only the file a step names. A new product needs `seenry-can
 | Bundled component and transition kits | [kits](references/building.md) |
 | Imagery rules | [imagery](references/imagery.md) |
 | Libraries and stack choices | [libraries](references/libraries.md), [stack](references/stack.md) |
-| A design sheet, only when asked for one | [sheet](references/sheet.md) |
+| A design sheet, only when asked | [sheet](references/sheet.md) |
 | Where the rules come from | [sources](references/sources.md) |
-
-## Report
-
-```
-Approved:  the screens and flows approved, the options and look picked, and what changed after the person's comments
-Anchors:   each reference and the structural idea taken from it
-Not the default: how the page differs from the default named in the brief
-Type and color: families, weights, the palette by role
-Verified:  widths, states and controls checked; the audit result
-Not verified: what you could not check
-Assumed:   every fact you supplied that the person should replace
-```

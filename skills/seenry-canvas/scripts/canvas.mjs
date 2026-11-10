@@ -572,6 +572,7 @@ button, textarea { font: inherit; color: inherit; }
 .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--line); flex: none; }
 .dot[data-status="approved"] { background: var(--ok); } .dot[data-status="change"] { background: var(--warn); }
 .inspector { border-top: 1px solid var(--line); padding: 12px 16px; display: grid; gap: 10px; }
+.inspector[hidden] { display: none; }
 .inspector h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .inspector p { margin: 0; color: var(--ink-2); }
 .row { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -725,7 +726,8 @@ function layout() {
     section.box = {x: 0, y};
     for (const f of section.frames) { boxes[f.id] = {x, y, w: f.w, h: height(f)}; x += f.w + GAP; row = Math.max(row, height(f)); }
     section.box.w = x - GAP; section.box.h = row;
-    y += row + ROW_GAP;
+    // Titles keep a readable screen size, so the gap between rows grows as the canvas zooms out.
+    y += row + Math.max(ROW_GAP, 130 / view.z);
   }
   return boxes;
 }
@@ -738,18 +740,26 @@ function apply() {
 function zoomAt(cx, cy, z) {
   z = Math.min(2, Math.max(0.03, z));
   view.x = cx - (cx - view.x) * (z / view.z); view.y = cy - (cy - view.y) * (z / view.z); view.z = z; apply();
+  if (state) place();
 }
 function fitBox(box, pad = 80) {
   const vp = $('viewport').getBoundingClientRect();
   const z = Math.min(1, (vp.width - pad * 2) / box.w, (vp.height - pad * 2) / box.h);
   view.z = Math.max(0.03, z); view.x = (vp.width - box.w * view.z) / 2 - box.x * view.z; view.y = Math.max(pad, (vp.height - box.h * view.z) / 2) - box.y * view.z; apply();
 }
+// The layout depends on the zoom (row gaps), so fitting repeats until it settles, then places everything.
 function fitAll() {
-  const boxes = Object.values(layout()); if (!boxes.length) return;
-  const w = Math.max(...boxes.map(b => b.x + b.w)), h = Math.max(...boxes.map(b => b.y + b.h));
-  fitBox({x: 0, y: -60, w, h: h + 60});
+  for (let pass = 0; pass < 4; pass++) {
+    const boxes = Object.values(layout()); if (!boxes.length) return;
+    const w = Math.max(...boxes.map(b => b.x + b.w)), h = Math.max(...boxes.map(b => b.y + b.h));
+    fitBox({x: 0, y: -60, w, h: h + 60});
+  }
+  if (state) place();
 }
-function focusFrame(id) { const box = layout()[id]; if (box) fitBox({x: box.x, y: box.y - 40, w: box.w, h: Math.min(box.h, box.w * 1.1) + 40}, 60); }
+function focusFrame(id) {
+  for (let pass = 0; pass < 2; pass++) { const box = layout()[id]; if (box) fitBox({x: box.x, y: box.y - 40, w: box.w, h: Math.min(box.h, box.w * 1.1) + 40}, 60); }
+  if (state) place();
+}
 
 function describe(node) {
   const text = (node.innerText || node.getAttribute('alt') || node.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 70);
@@ -1002,7 +1012,8 @@ function reviewItems() {
   return items;
 }
 function startReview() { const items = reviewItems(); reviewing = {items, i: 0, option: 0, answers: {}}; $('review').hidden = false; showReview(true); }
-function closeReview() { $('review').hidden = true; $('r-frame').src = 'about:blank'; reviewing = null; render(); }
+// Leaving the review always lands on the whole project canvas, with what was just decided visible on it.
+function closeReview() { $('review').hidden = true; $('r-frame').src = 'about:blank'; reviewing = null; selected = null; live = null; render(); fitAll(); }
 function fitReview(f) {
   const frame = $('r-frame'); frame.style.width = f.w + 'px'; frame.style.height = f.h + 'px';
   const r = $('r-stage').getBoundingClientRect(); frame.style.transform = 'scale(' + Math.min(1, (r.width - 48) / f.w, (r.height - 96) / f.h) + ')';
@@ -1014,6 +1025,7 @@ function showReview(load) {
     $('r-pill').hidden = true; $('r-frame').src = 'about:blank';
     const done = frames().filter(f => touched.has(f.id)).length + Object.values(picks).filter(Boolean).length;
     panel.replaceChildren(el('h2', {textContent: R.items.length ? 'That is every screen' : 'Nothing left to review'}),
+      Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'See the whole canvas'}), {onclick: closeReview}),
       el('p', {className: 'muted', textContent: done ? 'Send your answers to the agent, or go back to change any of them.' : 'Every screen is already approved.'}),
       el('span', {className: 'grow'}),
       el('div', {className: 'row'}, R.items.length ? Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'Back'}), {onclick: () => { R.i = R.items.length - 1; showReview(true); }}) : '',
@@ -1216,6 +1228,7 @@ $('send').addEventListener('click', async () => {
   if (location.protocol !== 'file:') { try { saved = (await fetch('feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(feedback)})).ok; } catch {} }
   try { await navigator.clipboard.writeText(summary()); } catch {}
   $('status').textContent = !saved ? 'Copied. Paste it to your agent.' : state.agentWaiting ? 'Sent. Your agent has it.' : 'Saved. Tell your agent you are done.';
+  selected = null; render(); fitAll();
 });
 
 function syncApprovals() {

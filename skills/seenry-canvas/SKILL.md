@@ -1,6 +1,6 @@
 ---
 name: seenry-canvas
-description: "Figma for AI agents: a local design canvas the agent designs on, sees, measures and verifies before writing product code. Screens are live HTML frames at real device size, grouped into flows, on one tiered token system. The agent renders PNGs to look at, reads each screen's layout tree with the variable behind every style, verifies overflow, contrast in both modes, tap targets, links and token use, diffs rounds, and compares the built product against the approved design. A person can open the same canvas to present, approve, pick options and comment. Use whenever an agent designs, proposes or mocks up screens, starts a product or flow, redesigns a screen, or checks a build against its design. Needs only Node; the seeing commands use Playwright."
+description: "Designs a product's screens on a local canvas before any product code, the way a team designs in Figma: one token system, every screen as live HTML at real device size, flows linked as a clickable prototype, and two or three named options where the structure is an open decision. The agent renders, reads and verifies its own screens, the person reviews them one at a time and picks, and the approved screens are handed off and checked against the build. Use when designing, redesigning or mocking up any screen, page, flow or app, when asked for options, variants, mockups, wireframes or prototypes, or when checking a built screen against its design. Needs only Node; seeing and checking screens uses Playwright."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -9,245 +9,160 @@ metadata:
 
 # Seenry Canvas
 
-This skill is the agent's design tool, the way Figma is a designer's. You design every screen here as live HTML on one token system, then look at it, measure it and verify it before any product code exists. When the product is built, you check the build against the approved design here too.
+This skill designs a product's screens on a local canvas before any product code is written, then checks the built product against them. It is the agent's design tool, the way Figma is a designer's.
 
-A person can open the same canvas to review. When one is there, they decide; when nobody is, the canvas still holds you to the same checks.
+## Operating posture
 
-## The loop
+You are a senior product designer who also builds. You design on one token system, look at every screen you make, and fix what you see before anyone else sees it. When a person is there, the choice is theirs: you make the options honest and the review easy, and you never decide for them.
 
-1. **Design.** Write screens into the canvas folder on `tokens.css`, linked to each other.
-2. **Look.** `render` the screens and look at the PNGs, at every device they ship on and in both modes. Never judge a screen you have not seen.
-3. **Read.** `tree` gives each screen's layout as text: every element's box, text, link and spec, and the variable behind each style, with `!` on anything typed in. Use it to check alignment, spacing and hierarchy without guessing from pixels.
-4. **Verify.** `verify` fails on sideways overflow, clipped text, contrast under 4.5:1 (3:1 for large text) in light and dark, text under 12px, controls with no name, links to screens that do not exist, and detached values. It warns on small tap targets, missing alt text and a component drawn differently across screens. Fix every error before anyone sees the screen.
-5. **Review.** When a person is there, `open` the canvas and `wait` for their feedback. Otherwise pick the option furthest from the default, approve nothing, and say what you chose.
-6. **Change.** After each round, `diff` shows what visibly changed, so you confirm the change you meant is the only one.
-7. **Hand off and build.** `handoff` writes `HANDOFF.md`; build from it.
-8. **Compare.** `compare <screen> <url>` puts the built screen beside its design: the share of pixels that differ, text that is missing, and every difference in size, weight, color, fill, radius and padding, with the three images to look at. The build is done when compare reports no differences you cannot explain.
+Divergence only where it pays. Most screens get one strong version. The screen the product exists for, and any other real open decision, gets two or three options that answer it differently.
 
-Every command takes `--json` for output you can parse.
+## Words this skill uses
 
-## Two speeds
+Use these words exactly, in what you write and what you say to the person.
 
-Set `"speed"` in `canvas.json`. Quick is the default.
+| Word | Means |
+| --- | --- |
+| canvas | The folder `.seenry/canvas` and the page that shows it |
+| screen | One HTML file on the canvas, at one device size |
+| section | A folder of screens: usually one flow |
+| flow | Screens linked in the order a person moves through them |
+| option | One of two or three screens in a `.options` section that answer the same decision differently |
+| tokens | `tokens.css`, the one file every screen takes its values from |
+| round | One cycle: show the canvas, get feedback, apply it |
 
-| Speed | When | Stages |
-| --- | --- | --- |
-| `quick` | Someone building their own product; any request that did not ask for process | `look` → `mockup` → `build`: real mockups on real tokens from the first round, never grey wireframes |
-| `studio` | The person asks for wireframes, a design team, or a large product | `map` → `wireframe` → `look` → `mockup` → `prototype` → `build` |
+## Hard rules
 
-In quick, the first round is two or three directions of the screen the product exists for, built as finished mockups. After the pick, every other screen comes in that look, linked, for one review. Then build. In studio, `map` is one titled frame per screen, `wireframe` uses the kit, `look` adds Foundations, `mockup` adds the component sheets, and `prototype` links every flow for Present. Move `stage` forward only when the person has approved the current one.
+1. **No product code until the screens are approved.** Everything lives on the canvas. Building starts from `HANDOFF.md`.
+2. **Every proposed design goes on the canvas.** Never describe a design only in words or show it only as code. The one exception is a one-line fix inside an existing screen.
+3. **Every value comes from the tokens.** `check` and `verify` fail on a typed color, size, space or radius.
+4. **You look before anyone else does.** Render every screen you change, look at the images, and pass `verify` before you show it.
+5. **Options diverge on a named axis.** Before building, state each option's axis in a phrase. Two options that differ only in color or copy are one option.
+6. **Everything works.** Real copy, plausible names and numbers, links between screens, every state the screen needs. No lorem ipsum, no dead buttons.
+7. **The person never does the bookkeeping.** You run `round` after each round; you never ask them to label, archive or name anything.
 
-## Keep the bookkeeping to yourself
+## Workflow
 
-The person looks, clicks and comments; they never manage the file. After applying each round's feedback, run one command:
+`<skill>` is this folder. Every command is `node <skill>/scripts/canvas.mjs <command>`; flags and output are in [commands](references/commands.md).
+
+Copy this checklist and tick it as you go:
+
+```
+- [ ] 1. Scope: one product or flow, its screens, the speed
+- [ ] 2. Recon: stack, existing tokens and components, real content
+- [ ] 3. Tokens: tokens.css set, Foundations looks right in both modes
+- [ ] 4. Options: the main screen in 2–3 named directions
+- [ ] 5. Screens: every screen, linked, with specs and review questions
+- [ ] 6. Look and verify: render, look, verify passes
+- [ ] 7. Review: canvas open, feedback received
+- [ ] 8. Round: feedback applied, round run; back to 6 until approved
+- [ ] 9. Hand off, build, compare
+```
+
+### 1. Scope
+
+Name the product or flow and list its screens in the order a person meets them, including empty, error and settings. Restate the brief in one sentence. Choose the speed: `quick` (default) or `studio` when the person asks for wireframes or a design process. Studio adds a wireframe round first; see [wireframes](references/wireframes.md).
+
+**Done when** the screen list and the speed are written in `canvas.json`.
+
+### 2. Recon
+
+Read the project: its stack, its tokens or theme, its components, its real content and copy. A project's existing system always wins over a new one. With no project, start from the starter tokens `init` writes.
+
+**Done when** you know where every value and every piece of content will come from.
+
+### 3. Tokens
+
+`init` the canvas. Set `tokens.css` from the project or the brand: primitives, semantic colors for light and dark, text styles, spacing, radius, effects, grids and the real fonts. Structure and naming are in [the file](references/file.md#tokens). Open `_foundations.html` with `render foundations` and look at it in both modes.
+
+**Done when** Foundations shows every role, both modes read well, and every font is loaded.
+
+### 4. Options
+
+For the main screen, choose two or three directions. Write the set before building, one line each: a name for the direction (never "Option A"), its axis, when it is the right choice, and what it costs. One is the safe answer closest to what the category expects; at least one is bold. Build each as a complete screen in the `.options` section and label it in its head with `seenry-risk`, `seenry-axis`, `seenry-wins` and `seenry-cost`.
+
+**Done when** every option has a name and a distinct axis, and each one would be defensible to ship.
+
+### 5. Screens
+
+Build every other screen in the tokens, one file per screen and state, linked to the next screen in its flow. Put `data-spec` on anything with behavior, and two or three review questions in `seenry-ask` about what that screen must get right. Components used twice get a sheet in `00-components/`. Naming and conventions are in [the file](references/file.md).
+
+**Done when** every screen in the scope exists and every flow can be clicked through.
+
+### 6. Look and verify
 
 ```sh
-node <skill>/scripts/canvas.mjs round "Start is a filled button now; new home options around Ledger"
+node <skill>/scripts/canvas.mjs render --mode both
+node <skill>/scripts/canvas.mjs verify
 ```
 
-It resolves every picked option into the archive with its reason, logs the line, and sets each section's status from its approvals. Never ask the person to set a status, archive something or name a flow. Approvals last until a screen's file changes, and feedback older than your latest change is treated as stale, so each round only asks about what changed.
+Look at every image. Fix what looks wrong and every `verify` error, then run both again. Use `tree <screen>` when you need exact positions or the variable behind a style.
 
-## The person reviews one screen at a time
+**Done when** `verify` exits 0 and you have looked at every screen in both modes.
 
-The canvas has a guided review (`R`, or the Review button): every screen that is not yet approved, full size, one at a time, with two or three plain questions, Approve, Needs changes and Skip, then Send. Never ask anyone to judge a screen as a thumbnail.
+### 7. Review
 
-Write the questions for each screen in its head, in the person's words, about what that screen must get right:
+With a person present, run `open`, tell them in two lines what is on the canvas and what you need from them, then run `wait` in the background so you resume the moment they press Send. They review one screen at a time, flip options, pick or ask for more like one, and comment. If your agent cannot wait, end the turn and run `feedback` when they say they are done.
 
-```html
-<meta name="seenry-ask" content="Would you know this is a habit tracker in five seconds?|Is Start the button you would tap?">
-```
+With nobody present, pick the option furthest from the default, approve nothing, and say what you chose and why.
 
-Without them the review asks whether anything is missing, whether it is clear what to do first, and whether anything looks wrong. Answers come back as notes on that screen.
+**Done when** you have the feedback, or you have recorded your own choice.
 
-## Options are directions, labelled honestly
+### 8. Round
 
-Most screens get one version. Put two or three in a `.options` folder only where the structure is a real decision, usually the main screen.
-
-An options section is shown one option at a time at full size, flipped with a picker or the keys `1` to `n`, and the person can pick one or ask for **more like this**, which starts a new round around it instead of resolving the section. When feedback says "More like this", build two or three new options that diverge around that direction, and keep the section open.
-
-- Name each option by its direction, never "Option A": `Quiet`, `Ledger`, `Editorial`.
-- Each option explores one axis you can state in a phrase: layout, density, what leads, interaction model, motion. Two options that differ only in color or copy are one option; replace one.
-- One option is the safe one, closest to what people in this category expect; at least one is bold. People tend to pick the middle of a set, so say plainly what the bold one buys.
-- Every option fully works: real copy, real links, real states. A sloppy option loses on execution and teaches nothing about its direction.
-- Label each in its head:
-
-```html
-<meta name="seenry-risk" content="bold">
-<meta name="seenry-axis" content="The year's tally leads; today is one tap">
-<meta name="seenry-wins" content="Long streaks are what keeps people going">
-<meta name="seenry-cost" content="Today's habits sit lower on the screen">
-```
-
-Never pre-pick a favorite. If asked which you would choose, answer from the product's use (how often, by whom, for what), not from taste.
-
-## Always show the design
-
-Whenever you design, propose or mock up a screen, it goes on the canvas first, and a person who is present gets the canvas opened for them. Never describe a proposed design only in words, and never show it only as code. A one-line fix inside an existing screen is the only exception.
-
-When a person is there, they decide. Never approve your own screens, and never ask a second model to choose.
-
-## The canvas is a folder
-
-`<skill>` is this folder. The canvas lives in `.seenry/canvas`, which ignores itself in git.
-
-```
-.seenry/canvas/
-  canvas.json                     title, description, owner, stage, section status, flows, change log, archive reasons
-  tokens.css                      the design system: variables, modes, text styles, effects, grids
-  fonts/                          the real font files, self-hosted WOFF2
-  wire.css                        the wireframe kit
-  _foundations.html               generated from tokens.css on every start; never edit
-  00-components/                  one sheet per component: every variant and state
-    button.html
-  01-onboarding/                  a folder is a section: one flow
-    01-welcome.phone.html         a file is a screen; numbers set the order
-    02-first-habit.phone.html
-  02-home.options/                a folder ending .options holds alternatives
-    a-week-list.phone.html        the person picks one
-    b-tally-first.phone.html
-  03-settings/
-    01-account.html               no device suffix: desktop, 1440 × 900
-  refs/                           reference screenshots, shown as their own section
-  archive/                        options that lost, each with the reason; never deleted
-  HANDOFF.md, FEEDBACK.md         written by the canvas for developers and for you
-```
-
-The canvas adds a generated **Cover** first: the title, description, owner, stage, every section with its status and how many screens are approved, the design system in use, and the recent changes. Fill `title`, `description` and `owner` in `canvas.json` so it reads like the front page of a team's file.
-
-| File ends in | Frame size |
-| --- | --- |
-| `.phone.html` | 390 × 844 |
-| `.tablet.html` | 834 × 1112 |
-| `.laptop.html` | 1280 × 800 |
-| `.html` | 1440 × 900 |
-
-A frame grows to the full height of its page. Its name is the page's `<title>`, and `<meta name="seenry-note" content="…">` is the line the person reads when they select it.
+Apply every comment, or say why not. A "More like this" means two or three new options around that one, in the same section. Then:
 
 ```sh
-node <skill>/scripts/canvas.mjs init       # the folder, wire.css and tokens.css
-node <skill>/scripts/canvas.mjs open       # starts it, opens the browser, prints the address
-node <skill>/scripts/canvas.mjs wait       # blocks until the person presses "Send to agent", prints the feedback
-node <skill>/scripts/canvas.mjs list       # sections, frames and prototype links as the canvas sees them
-node <skill>/scripts/canvas.mjs check      # values typed into screens instead of taken from tokens.css
-node <skill>/scripts/canvas.mjs feedback   # the last feedback, without waiting
-node <skill>/scripts/canvas.mjs status 01-onboarding review   # in-progress, review or ready (for dev)
-node <skill>/scripts/canvas.mjs resolve 02-home                # keep the picked option, archive the rest with why
-node <skill>/scripts/canvas.mjs archive 03-home/old --reason "…"
-node <skill>/scripts/canvas.mjs log "Shorter welcome headline, per review"
-node <skill>/scripts/canvas.mjs handoff    # HANDOFF.md: screens, flows, specs, tokens, fonts, open questions
-node <skill>/scripts/canvas.mjs stop
+node <skill>/scripts/canvas.mjs round "what changed and why, in one line"
 ```
 
-The seeing commands need Playwright, found in the project or passed with `--playwright <path to playwright/index.mjs>`. Screens are ids or section names; none means every screen. `--dir` points at a canvas folder other than `.seenry/canvas`.
+It archives the options that lost with the reason, logs the round on the cover and sets each section's status. Go back to step 6. Ask about screens with no answer; silence is not approval.
+
+**Done when** every screen in scope is approved.
+
+### 9. Hand off, build, compare
+
+Run `handoff` and build from `HANDOFF.md` in the project's stack, moving `tokens.css` and the fonts in unchanged and following every spec. For each built screen:
 
 ```sh
-node <skill>/scripts/canvas.mjs render 01-onboarding --mode both       # PNGs in .seenry/canvas/.renders/
-node <skill>/scripts/canvas.mjs render 03-home --device all --scale 2  # phone, tablet and desktop
-node <skill>/scripts/canvas.mjs tree 01-onboarding/01-welcome          # boxes, text and the variable behind each style
-node <skill>/scripts/canvas.mjs verify                                 # exits 1 on any error
-node <skill>/scripts/canvas.mjs diff 01-onboarding                     # pixels changed since the last render, with a diff image
-node <skill>/scripts/canvas.mjs compare 03-home http://localhost:5173/ # the build against its design
+node <skill>/scripts/canvas.mjs compare <screen> <url of the running screen>
 ```
 
-There is nothing to install and no account: the script is plain Node and serves only to `127.0.0.1`. The canvas reloads a frame when its file changes, so keep it open across rounds. Without the skill installed (for example when only the Seenry MCP is connected), download the script once from `https://seenry.design/skills/seenry-canvas/scripts/canvas.mjs` into `.seenry/` and run it from there.
+Look at its three images and fix every difference you cannot explain.
 
-## Build it like a design team's Figma file
+**Done when** `compare` reports no unexplained differences for any screen.
 
-Large product teams keep their files in the same shape: foundations first, then components, then flows, with every value bound to a variable. The canvas works the same way.
+## Presenting options
 
-**Variables, in tiers.** `tokens.css` holds primitives (raw ramps and scales such as `--gray-600`, `--size-16`), then semantic variables by role (`--color-text-secondary`, `--space-4`, `--radius-md`), which are the only ones screens use. A screen that uses a primitive or types a raw value has a detached value. Name semantic variables by role, never by hue: `--color-accent`, not `--color-blue`.
+Show the set as a table and stop. Never mark a favorite.
 
-**Modes.** Light is the default; dark is a second set of semantic values under `:root[data-theme="dark"]`, designed as its own palette. The canvas's mode switch (`D`) flips every screen at once, which shows any screen with detached colors immediately.
+| Option | Axis | Right when | Cost |
+| --- | --- | --- | --- |
+| Quiet | A plain list of this week's habits | People open it many times a day | Least memorable |
+| Ledger | The year's tally leads; today is one tap | Long streaks keep people going | Today's habits sit lower |
 
-**Styles.** Text styles are `.text-*` classes that set family, size, line height, weight and tracking together, one per role. Effects are `--shadow-*` and `--ring-*` variables. Layout grids are `--grid-columns`, `--grid-gutter`, `--grid-margin` and `--grid-max` per breakpoint, shown on every screen with the grid toggle (`G`).
+If asked which you would choose, answer from how the product is used (how often, by whom, for what), not from taste. If two options converged while you built them, cut one and say so.
 
-**Fonts.** Use the real typeface from the first mockup, never a system stand-in. Put WOFF2 files in `fonts/` with `@font-face` at the top of `tokens.css`, or a Google Fonts `<link>` in each screen. Foundations marks any font that did not load. The same files move into the product.
+## When the person says
 
-**Foundations section.** The canvas generates it from `tokens.css`: every variable in both modes, each text style as a specimen, fonts, spacing, radius, effects, grids and motion. It updates live, so the person reviews the system before the screens.
-
-**Components.** Each component gets one sheet in `00-components/`, showing every variant across every state: default, hover, focus, pressed, disabled, loading, error. Screens reuse the same classes, so a component changes in one place. Name each cell the way Figma names variants: `Button / Primary / Hover`.
-
-**Auto layout.** Lay out with flex or grid and `gap`, sized from the spacing variables, never with absolute positions or spacer elements. A frame then reflows the way the built product will.
-
-**Frames and names.** One file per screen and state, numbered in flow order: `03-home.phone.html`, `03-home-empty.phone.html`, `03-home-error.phone.html`. A screen that ships on several devices gets a frame for each: `03-home.phone.html` and `03-home.html`. Titles read the same way: "Home · Empty".
-
-**Dev Mode.** Select a screen, press `I` or Inspect, and click any element. The canvas shows its size, padding, gap, font, text style, colors, radius and shadow, each with the variable it is bound to, and flags anything that is not a variable. Developers build from this, as they would from Figma's Dev Mode.
-
-**Before showing mockups, run `check`.** It lists every detached value per screen. From the `mockup` stage, detached values and screens that do not link `tokens.css` are errors.
-
-## Keep the file in order
-
-`round` keeps sections labelled (in progress, ready for review, ready for dev), archives the options that lost with the reason, and logs each round on the cover. You can also run `status`, `resolve`, `archive` and `log` on their own.
-
-**Named flows.** By default each section is a flow that starts at its first screen. For flows that cross sections, list them in `canvas.json`: `"flows": [{"name": "First run", "start": "01-onboarding/01-welcome"}]`. Present opens on the flow of the selected screen, and the person switches flows from its menu.
-
-**Specs for developers, apart from feedback.** Comments are the person's notes to you. Specs are your notes to whoever builds it: put `data-spec="…"` on an element to say what it does, its rules and its edge cases. `data-spec="Tap: saves and opens Home. Disabled until a name is entered."` The person toggles them with `S`, Inspect shows them, and `handoff` lists them per screen.
-
-**Hand off from the canvas.** When the sections you will build are `ready`, run `handoff` and build from `HANDOFF.md`: every screen with its file, size, links and review state, every spec, the token file, fonts and components, the open questions, and what was decided against.
-
-**One design system for many products.** A design system can be its own canvas: tokens, fonts, Foundations and component sheets, with no screens. Point a product at it with `init --library <path to its .seenry/canvas>`. The product then has no `tokens.css` of its own; its screens link `../library/tokens.css`, and the library's Foundations and components show at the top of the product canvas, read-only. Change the library once and every product that links it updates.
-
-## 1. Map the product before drawing it
-
-Write the screen map in `canvas.json` or the brief first: every flow, and every screen in each flow, in the order a person meets them. A new product usually has onboarding, the main screen, one or two detail screens, settings, and the empty and error states. One line per screen: its job and what it shows.
-
-Show the map to the person in chat if the product is large. A missing screen is cheaper to find here than after the wireframes.
-
-## 2. Wireframe every screen
-
-Each screen links `../wire.css` and uses plain HTML with its classes. No brand color, no chosen typeface and no images, so the person judges structure and flow alone.
-
-| Class | Use |
+| They say | You do |
 | --- | --- |
-| `wf-wrap`, `wf-section`, `wf-nav` | Page width, a section, the header |
-| `wf-stack`, `wf-row`, `wf-cols` (`--cols`), `wf-split` (`--a`, `--b`) | Layout |
-| `wf-img`, `wf-ui` (`--ratio`) | A photograph or a product view, with its subject written inside |
-| `wf-btn`, `wf-btn quiet` | The main action, a secondary one |
-| `wf-big`, `wf-muted`, `wf-small`, `wf-dark`, `wf-box`, `wf-rule` | Emphasis and grouping |
-| `wf-note` | A note to the reviewer, never part of the design |
+| "Show me", "design this", "mock it up" | Steps 1 to 7 |
+| "Options for X", "try a few directions" | Steps 4, 6 and 7 for that screen alone |
+| "More like Ledger", or More like this in the review | New options around it; the section stays open |
+| "Keep Ledger" | Pick it, run `round`, continue with the screens |
+| "Wireframes first", "do it properly" | Studio speed |
+| "Build it" | Only after approval: step 9 |
+| "Does the build match?" | `compare` each screen |
 
-- Real copy, real labels, real numbers. Lorem ipsum hides the problems a wireframe exists to show.
-- Inside each `wf-img` and `wf-ui`, say what it will be: "Photo: the oven at 4 am", not "Image".
-- Links between screens are real: `<a href="02-first-habit.phone.html">`. The canvas draws each link as a flow arrow, and Present mode follows it, so the flow is a clickable prototype from the first wireframe.
-- Keep a screen under about 80 lines.
+## Tone
 
-## 3. Show it, then wait for the person
+Plain and short. Tell the person what is on the canvas and what you need, in two lines. Sell each option honestly: one line on when it wins, one on what it costs. Report what you checked and what you could not.
 
-1. Run `open`. It opens the canvas in the person's browser and prints the address.
-2. Tell the person in one or two lines what is on the canvas and the decisions you need.
-3. Run `wait`, in the background if your agent can run background commands, so you resume the moment the person presses "Send to agent". The canvas shows them that you are waiting. If your agent cannot wait, end the turn and run `feedback` when they say they are done.
-4. Write no product code while a review is open.
+## Files
 
-The person can review guided (`R`), present a flow (`P`), approve, pick, pin a comment on any element, or use a screen in place; the keys are listed in the panel.
-
-The feedback lists each pick, the approved screens, the screens that need changes, each comment with the element it is pinned to, and the screens with no answer. It is also saved as `FEEDBACK.md` in the canvas folder. Apply every comment or say why not. Ask about screens with no answer rather than treating silence as approval.
-
-| Situation | Do |
+| Need | Read |
 | --- | --- |
-| The person cannot open a local address (a cloud or remote session) | Use the host's own preview if it has one; otherwise `canvas.mjs shot` writes `canvas.png`; show it and take the feedback in chat |
-| No server can run | `canvas.mjs static` writes `canvas.html`, which opens from disk and copies feedback as text |
-| Nobody is there to review (an unattended run) | Pick the option furthest from the default, approve nothing, and say what you chose and why |
-
-## Before you finish
-
-| Check | Fix |
-| --- | --- |
-| A screen in the map with no frame | Add it, or remove it from the map and say why |
-| Options that differ only in color, type or radius | Change the structure of one, or drop it |
-| "Lorem", "Heading", "Image" or "Feature 1" on a screen | The real words |
-| A design proposed in chat or code without the canvas | Put it on the canvas and open it |
-| Product code written before the screens were approved | Stop and wait for feedback |
-| Screens in a flow with no links between them | Link them, so Present plays the flow |
-| `check` lists detached values at the `mockup` stage or later | Bind them to variables, or add the missing variable to `tokens.css` |
-| A font shown as not loaded on Foundations | Add the font files or the link |
-| A component drawn differently on two screens | One component sheet; both screens use it |
-| An option named "A", "B" or "Option 1", or without `seenry-axis`, `seenry-wins` and `seenry-cost` | Name it by its direction and label it |
-| A round of feedback applied without `round` | Run `round "what changed"` |
-| A screen with no `seenry-ask` questions | Write two or three about what it must get right |
-| Building without `HANDOFF.md` | Run `handoff` and build from it |
-| A screen shown or approved without a `render` you looked at | Render it and look |
-| `verify` reports errors | Fix them before showing the screen |
-| A build called done without `compare` | Compare each built screen with its design |
-| A screen with behavior but no `data-spec` | Add the spec |
-| A screen with no answer treated as approved | Ask about it |
-| The canvas still running at the end of the task | `canvas.mjs stop` |
+| Every command, flag and output | [commands](references/commands.md) |
+| The folder, screen naming, meta tags, tokens, components, specs, flows, shared libraries | [the file](references/file.md) |
+| Studio speed: the map and wireframe rounds, and the wireframe kit | [wireframes](references/wireframes.md) |
