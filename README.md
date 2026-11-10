@@ -5,7 +5,7 @@ Agent skills that make an AI work like a design studio. The agent designs every 
 | Skill | Use it for |
 | --- | --- |
 | [seenry](skills/seenry/SKILL.md) | Start here for any design task. The flow from brief to built product, and which skill to load when |
-| [seenry-canvas](skills/seenry-canvas/SKILL.md) | A local design canvas: every screen as a live frame at real device size, grouped into flows, with options side by side. The person approves, picks and pins comments |
+| [seenry-canvas](skills/seenry-canvas/SKILL.md) | Figma for AI agents: the agent designs screens on a local canvas, renders and reads them, verifies contrast, overflow, targets, links and token use, and compares the build with the approved design. A person can review on the same canvas |
 | [seenry-craft](skills/seenry-craft/SKILL.md) | Exact values for type, spacing, radius, shadows, color roles, icons, hit areas and component states |
 | [seenry-motion](skills/seenry-motion/SKILL.md) | Whether something should move, then how: curves, springs, gestures with velocity, scroll, with runnable assets |
 | [seenry-review](skills/seenry-review/SKILL.md) | Auditing a screen, reviewing a UI diff, stress-testing one component |
@@ -24,7 +24,9 @@ Agent skills that make an AI work like a design studio. The agent designs every 
 
 The canvas is organized the way design teams organize a Figma file: a generated cover with each section's status, Foundations read live from a tiered `tokens.css` (primitives, semantic variables with light and dark modes, text styles, effects, grids, fonts), component sheets with every variant and state, flows that play as a prototype, Dev Mode inspection that names each element's variables, handoff specs, an archive of decisions with their reasons, a change log, and `HANDOFF.md` for whoever builds it. A design system can be its own canvas that many products link to.
 
-The canvas needs only Node: no packages, no account, no Figma. It works with Claude Code, Codex, Cursor or any agent that can run a command. In a cloud session it writes a screenshot of the canvas instead, or a single HTML file that opens from disk.
+The agent sees its own work with `render` (PNGs at each device and mode), `tree` (the layout with the variable behind each style), `verify` (rendered checks that fail on real problems), `diff` (what changed since the last round) and `compare` (the built product against its design, pixel and style differences). Every command can print JSON.
+
+The canvas needs only Node: no packages, no account, no Figma. The seeing commands use Playwright. It works with Claude Code, Codex, Cursor or any agent that can run a command. In a cloud session it writes a screenshot of the canvas instead, or a single HTML file that opens from disk.
 
 ## Measured results
 

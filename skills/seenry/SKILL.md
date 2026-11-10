@@ -23,7 +23,7 @@ Load a skill when the task reaches its area, not before.
 
 | The task needs | Skill |
 | --- | --- |
-| Designing screens before code: wireframes, mockups, flows, options | `seenry-canvas` |
+| Designing, seeing and verifying screens before code, and checking the build against them | `seenry-canvas` |
 | Exact values: type, spacing, radius, shadow, color roles, states | `seenry-craft` |
 | Anything that moves: transitions, gestures, springs, scroll | `seenry-motion` |
 | A review of a screen, a diff or one component | `seenry-review` |
@@ -84,11 +84,11 @@ Run `canvas.mjs handoff` and build the approved screens from `HANDOFF.md` in the
 - `seenry-assets` for material. With no real image for a slot, compose without one. A drawn stand-in or a gradient in an image's place is worse than type alone.
 - [Kits](references/building.md) when the project has no component library.
 
-### 7. Check once, then show
+### 7. Check the build against the design
 
-1. Look at your own screenshots at 1440 and 390 wide. Compare each with its approved canvas screen.
-2. Use every control, and see every state from step 1.
-3. `node scripts/audit_page.mjs <url or file> --widths 1440,390` and fix what it lists.
+1. `canvas.mjs verify` passes on the approved screens.
+2. For each built screen, `canvas.mjs compare <screen> <url of the running app>` and look at its three images. Fix every difference you cannot explain.
+3. Use every control, and see every state from step 1.
 4. Show the person the built screens on the canvas at stage `build`, beside the approved designs.
 
 One pass. No scoring loop, no second model, no self-score. Fix what the person asks for next.

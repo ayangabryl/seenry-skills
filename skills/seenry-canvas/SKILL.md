@@ -1,6 +1,6 @@
 ---
 name: seenry-canvas
-description: "The Seenry canvas: a local, Figma-style design canvas for wireframes, mockups and clickable prototypes before any product code. Every screen is a live HTML frame at real device size, grouped into flows, with options side by side and prototype links between screens. The person pans, zooms, presents the prototype, approves screens, picks options and pins comments; the agent receives the feedback directly. Use whenever an agent designs, proposes or mocks up screens, starts a new product or flow, or redesigns a screen. Works with any coding agent and needs only Node, with nothing to install or sign in to."
+description: "Figma for AI agents: a local design canvas the agent designs on, sees, measures and verifies before writing product code. Screens are live HTML frames at real device size, grouped into flows, on one tiered token system. The agent renders PNGs to look at, reads each screen's layout tree with the variable behind every style, verifies overflow, contrast in both modes, tap targets, links and token use, diffs rounds, and compares the built product against the approved design. A person can open the same canvas to present, approve, pick options and comment. Use whenever an agent designs, proposes or mocks up screens, starts a product or flow, redesigns a screen, or checks a build against its design. Needs only Node; the seeing commands use Playwright."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -9,13 +9,28 @@ metadata:
 
 # Seenry Canvas
 
-This skill gives the agent a design canvas on the person's machine, like a Figma file made of live HTML. The whole product is designed here, from wireframe to clickable prototype, and approved before any product code is written.
+This skill is the agent's design tool, the way Figma is a designer's. You design every screen here as live HTML on one token system, then look at it, measure it and verify it before any product code exists. When the product is built, you check the build against the approved design here too.
 
-## Always show the canvas
+A person can open the same canvas to review. When one is there, they decide; when nobody is, the canvas still holds you to the same checks.
 
-Whenever you design, propose or mock up a screen, it goes on the canvas and you open the canvas for the person. That covers a new product, a new flow, a redesign, a proposed visual change and a set of options. Never describe a proposed design only in words, and never show it only as code. A one-line fix inside an existing screen is the only exception.
+## The loop
 
-The person decides. Never approve your own screens, and never ask a second model to choose.
+1. **Design.** Write screens into the canvas folder on `tokens.css`, linked to each other.
+2. **Look.** `render` the screens and look at the PNGs, at every device they ship on and in both modes. Never judge a screen you have not seen.
+3. **Read.** `tree` gives each screen's layout as text: every element's box, text, link and spec, and the variable behind each style, with `!` on anything typed in. Use it to check alignment, spacing and hierarchy without guessing from pixels.
+4. **Verify.** `verify` fails on sideways overflow, clipped text, contrast under 4.5:1 (3:1 for large text) in light and dark, text under 12px, controls with no name, links to screens that do not exist, and detached values. It warns on small tap targets, missing alt text and a component drawn differently across screens. Fix every error before anyone sees the screen.
+5. **Review.** When a person is there, `open` the canvas and `wait` for their feedback. Otherwise pick the option furthest from the default, approve nothing, and say what you chose.
+6. **Change.** After each round, `diff` shows what visibly changed, so you confirm the change you meant is the only one.
+7. **Hand off and build.** `handoff` writes `HANDOFF.md`; build from it.
+8. **Compare.** `compare <screen> <url>` puts the built screen beside its design: the share of pixels that differ, text that is missing, and every difference in size, weight, color, fill, radius and padding, with the three images to look at. The build is done when compare reports no differences you cannot explain.
+
+Every command takes `--json` for output you can parse.
+
+## Always show the design
+
+Whenever you design, propose or mock up a screen, it goes on the canvas first, and a person who is present gets the canvas opened for them. Never describe a proposed design only in words, and never show it only as code. A one-line fix inside an existing screen is the only exception.
+
+When a person is there, they decide. Never approve your own screens, and never ask a second model to choose.
 
 ## The canvas is a folder
 
@@ -67,6 +82,17 @@ node <skill>/scripts/canvas.mjs archive 03-home/old --reason "…"
 node <skill>/scripts/canvas.mjs log "Shorter welcome headline, per review"
 node <skill>/scripts/canvas.mjs handoff    # HANDOFF.md: screens, flows, specs, tokens, fonts, open questions
 node <skill>/scripts/canvas.mjs stop
+```
+
+The seeing commands need Playwright, found in the project or passed with `--playwright <path to playwright/index.mjs>`. Screens are ids or section names; none means every screen. `--dir` points at a canvas folder other than `.seenry/canvas`.
+
+```sh
+node <skill>/scripts/canvas.mjs render 01-onboarding --mode both       # PNGs in .seenry/canvas/.renders/
+node <skill>/scripts/canvas.mjs render 03-home --device all --scale 2  # phone, tablet and desktop
+node <skill>/scripts/canvas.mjs tree 01-onboarding/01-welcome          # boxes, text and the variable behind each style
+node <skill>/scripts/canvas.mjs verify                                 # exits 1 on any error
+node <skill>/scripts/canvas.mjs diff 01-onboarding                     # pixels changed since the last render, with a diff image
+node <skill>/scripts/canvas.mjs compare 03-home http://localhost:5173/ # the build against its design
 ```
 
 There is nothing to install and no account: the script is plain Node and serves only to `127.0.0.1`. The canvas reloads a frame when its file changes, so keep it open across rounds. Without the skill installed (for example when only the Seenry MCP is connected), download the script once from `https://seenry.design/skills/seenry-canvas/scripts/canvas.mjs` into `.seenry/` and run it from there.
@@ -194,6 +220,9 @@ After you change any screen, feedback from before the change is treated as stale
 | A round with no `log` line | Log what changed and why |
 | A section shown for review without a status | `status <section> review` |
 | Building without `HANDOFF.md` | Run `handoff` and build from it |
+| A screen shown or approved without a `render` you looked at | Render it and look |
+| `verify` reports errors | Fix them before showing the screen |
+| A build called done without `compare` | Compare each built screen with its design |
 | A screen with behavior but no `data-spec` | Add the spec |
 | A screen with no answer treated as approved | Ask about it |
 | The canvas still running at the end of the task | `canvas.mjs stop` |

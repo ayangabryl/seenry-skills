@@ -15,6 +15,15 @@
  *  node canvas.mjs log "what changed and why" [dir]       add a line to the change log on the cover
  *  node canvas.mjs handoff [dir]           write HANDOFF.md: screens, flows, specs, tokens, open questions
  *  node canvas.mjs init [dir] --library <path>   link a shared design system (another canvas folder) instead of local tokens
+ *
+ *  The agent's eyes (Playwright): screens are ids or section names; none means every screen. --dir picks the canvas.
+ *  node canvas.mjs render  [screens] [--device phone|tablet|desktop|all] [--mode light|dark|both] [--scale 2]   PNGs to look at
+ *  node canvas.mjs tree    [screens]     the layout: boxes, text, the variable behind each style, specs, links
+ *  node canvas.mjs verify  [screens]     overflow, clipped text, contrast in both modes, small text and targets, names,
+ *                                        broken links, detached values, components drawn differently across screens
+ *  node canvas.mjs diff    [screens]     what visibly changed since the last render
+ *  node canvas.mjs compare <screen> <url>   the built screen against its design: pixels, missing text, style differences
+ *  --json on list, feedback, render, tree, verify, diff and compare prints machine-readable output.
  *  node canvas.mjs static [dir]            write canvas.html, which opens from disk with no server
  *  node canvas.mjs shot   [dir] [--playwright path]  write canvas.png, for sessions with no browser to show
  *  node canvas.mjs stop   [dir]
@@ -39,11 +48,13 @@ const here = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'open';
 const flag = (name, fallback) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? argv[i + 1] : fallback; };
-const SWITCHES = new Set(['--no-browser']);
+const SWITCHES = new Set(['--no-browser', '--json']);
 // Arguments after the command that are not a --flag or a flag's value.
 const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !SWITCHES.has(all[i - 1])));
 const ARGS = {status: 2, resolve: 1, archive: 1, log: 1}[command] || 0;
-const dir = resolve(positional[ARGS] || '.seenry/canvas');
+// Commands that take screens as arguments find the canvas with --dir; the others also take it as the next argument.
+const FRAME_COMMANDS = new Set(['render', 'tree', 'verify', 'diff', 'compare']);
+const dir = resolve(flag('dir') || (FRAME_COMMANDS.has(command) ? '' : positional[ARGS]) || '.seenry/canvas');
 const pidFile = join(dir, '.canvas.json');
 const waitFile = join(dir, '.waiting.json');
 const IMAGES = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg']);
@@ -200,7 +211,7 @@ ul, ol { padding: 0; list-style: none; }
   --color-border: oklch(1 0 0 / 0.1);
   --color-border-strong: oklch(1 0 0 / 0.18);
   --color-accent: var(--accent-400);
-  --color-accent-hover: var(--accent-500);
+  --color-accent-hover: oklch(0.74 0.12 255);
   --color-on-accent: var(--gray-950);
   --shadow-raised: 0 0 0 1px oklch(1 0 0 / 0.06);
   --shadow-overlay: 0 0 0 1px oklch(1 0 0 / 0.08), 0 16px 40px oklch(0 0 0 / 0.5);
@@ -1355,6 +1366,319 @@ async function startServer() {
   return info;
 }
 
+// ---------- The agent's eyes: render, tree, verify, diff and compare, in a real browser ----------
+
+/** Runs inside a screen. Returns its layout tree with bound variables, and the issues a reviewer would catch. Self-contained. */
+function analyzeFrame(opts) {
+  const phone = opts.width < 600, out = {title: document.title, width: innerWidth, height: document.documentElement.scrollHeight, nodes: [], issues: []};
+  const issue = (severity, kind, selector, message) => out.issues.push({severity, kind, selector, message});
+  const rules = [];
+  const walk = list => { for (const r of list) { if (r.selectorText && r.style) rules.push(r); else if (r.media && r.cssRules) { if (matchMedia(r.media.mediaText).matches) walk(r.cssRules); } else if (r.cssRules) walk(r.cssRules); } };
+  for (const sheet of document.styleSheets) { try { walk(sheet.cssRules); } catch {} }
+  const specificity = sel => (sel.match(/#[\w-]+/g) || []).length * 100 + (sel.match(/\.[\w-]+|\[[^\]]+\]|:(?!:)[\w-]+/g) || []).length * 10 + (sel.replace(/[#.][\w-]+|\[[^\]]+\]|::?[\w-]+(\([^)]*\))?/g, ' ').match(/(^|[\s>+~])[a-z][\w-]*/gi) || []).length;
+  const declared = (node, longhand, shorthand, inherit) => {
+    for (let n = node; n && n.nodeType === 1; n = inherit ? n.parentElement : null) {
+      const inline = n.style && (n.style.getPropertyValue(longhand) || (shorthand && n.style.getPropertyValue(shorthand)));
+      if (inline) return inline;
+      let best = null, score = -1;
+      for (const r of rules) {
+        const v = r.style.getPropertyValue(longhand) || (shorthand && r.style.getPropertyValue(shorthand)); if (!v) continue;
+        for (const part of r.selectorText.split(',')) { let hit = false; try { hit = n.matches(part.trim()); } catch {} if (hit) { const s = specificity(part); if (s >= score) { score = s; best = v; } } }
+      }
+      if (best) return best;
+      if (!inherit) return null;
+    }
+    return null;
+  };
+  const bound = (node, longhand, shorthand, inherit) => {
+    const d = declared(node, longhand, shorthand, inherit); if (!d) return null;
+    const vars = [...d.matchAll(/var\(\s*(--[\w-]+)/g)].map(m => m[1]);
+    if (vars.length) return [...new Set(vars)].join(' ');
+    return /^(inherit|initial|unset|currentcolor|transparent|none|auto|0|normal)$/i.test(d.trim()) ? null : '!' + d.trim();
+  };
+  const ctx = document.createElement('canvas').getContext('2d', {willReadFrequently: true});
+  const rgba = color => { ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = '#000'; ctx.fillStyle = color; ctx.fillRect(0, 0, 1, 1); const d = ctx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
+  const lum = ([r, g, b]) => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  const backdrop = node => {
+    for (let n = node; n && n.nodeType === 1; n = n.parentElement) {
+      const c = getComputedStyle(n);
+      if (c.backgroundImage && c.backgroundImage !== 'none') return null;
+      const bg = rgba(c.backgroundColor); if (bg[3] > 0.5) return bg;
+    }
+    return rgba(getComputedStyle(document.documentElement).backgroundColor)[3] > 0.5 ? rgba(getComputedStyle(document.documentElement).backgroundColor) : [255, 255, 255, 1];
+  };
+  const visible = n => { const c = getComputedStyle(n); if (c.display === 'none' || c.visibility === 'hidden' || Number(c.opacity) === 0) return false; const r = n.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+  const path = n => {
+    const parts = [];
+    for (let e = n; e && e.nodeType === 1 && e.tagName !== 'HTML' && parts.length < 4; e = e.parentElement) {
+      if (e.id) { parts.unshift('#' + e.id); break; }
+      const cls = typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).filter(c => !c.startsWith('seenry-'))[0] : '';
+      const same = e.parentElement ? [...e.parentElement.children].filter(c => c.tagName === e.tagName) : [];
+      parts.unshift(e.tagName.toLowerCase() + cls + (same.length > 1 && !cls ? ':nth-of-type(' + (same.indexOf(e) + 1) + ')' : ''));
+      if (e.tagName === 'BODY') break;
+    }
+    return parts.join(' > ');
+  };
+  const ownText = n => [...n.childNodes].filter(c => c.nodeType === 3).map(c => c.textContent).join(' ').trim().replace(/\s+/g, ' ');
+  const interactive = n => n.matches('a[href], button, input:not([type=hidden]), select, textarea, [role=button], [role=link], [role=tab], [onclick]');
+  const quiet = v => /^(0px|normal|none|auto|rgba\(0, 0, 0, 0\)|transparent)$/.test(v);
+  if (document.documentElement.scrollWidth > innerWidth + 1) {
+    const wide = [...document.body.querySelectorAll('*')].filter(visible).filter(n => n.getBoundingClientRect().right > innerWidth + 1).slice(-1)[0];
+    issue('error', 'overflow', wide ? path(wide) : 'body', `The page scrolls sideways by ${document.documentElement.scrollWidth - innerWidth}px`);
+  }
+  if (!document.title.trim()) issue('warn', 'title', 'head', 'No <title>, so the frame has no name');
+  const body = document.body.getBoundingClientRect(), all = [...document.body.querySelectorAll('*')];
+  for (const n of all) {
+    if (n.closest('#seenry-grid, .seenry-spec-pin') || ['SCRIPT', 'STYLE', 'LINK', 'META', 'BR'].includes(n.tagName) || !visible(n)) continue;
+    const c = getComputedStyle(n), r = n.getBoundingClientRect(), text = ownText(n), sel = path(n);
+    const size = parseFloat(c.fontSize), weight = Number(c.fontWeight) || 400;
+    if (text) {
+      if (size < 12) issue('error', 'text-size', sel, `Text at ${c.fontSize}, under the 12px floor`);
+      const bg = backdrop(n);
+      if (bg) {
+        const fg = rgba(c.color), mixed = [0, 1, 2].map(i => fg[i] * fg[3] + bg[i] * (1 - fg[3])), cr = ratio(mixed, bg), large = size >= 24 || (size >= 18.66 && weight >= 600);
+        if (cr < (large ? 3 : 4.5)) issue('error', 'contrast', sel, `Contrast ${cr.toFixed(2)}:1 for “${text.slice(0, 30)}”, needs ${large ? 3 : 4.5}:1`);
+      }
+      if (/hidden|clip/.test(c.overflowX + c.overflowY) && c.textOverflow !== 'ellipsis' && (n.scrollWidth > n.clientWidth + 1 || n.scrollHeight > n.clientHeight + 1)) issue('warn', 'clipped', sel, `Text is cut off: “${text.slice(0, 30)}”`);
+    }
+    if (interactive(n)) {
+      const min = phone ? 44 : 24;
+      if (Math.min(r.width, r.height) < min - 0.5) issue('warn', 'target', sel, `Tap target ${Math.round(r.width)}×${Math.round(r.height)}, under ${min}×${min}`);
+      if (!(n.innerText || n.getAttribute('aria-label') || n.getAttribute('title') || n.getAttribute('alt') || n.getAttribute('placeholder') || n.querySelector('img[alt], svg title'))) issue('error', 'name', sel, 'A control with no accessible name');
+    }
+    if (n.tagName === 'IMG' && !n.hasAttribute('alt')) issue('warn', 'alt', sel, 'An image with no alt text');
+    const paint = !quiet(c.backgroundColor) || (c.borderTopStyle !== 'none' && !quiet(c.borderTopWidth)) || !quiet(c.boxShadow);
+    if (!(text || interactive(n) || paint || n.tagName === 'IMG' || n.hasAttribute('data-spec')) || out.nodes.length >= 400) continue;
+    let depth = 0; for (let p = n.parentElement; p && p !== document.body; p = p.parentElement) depth++;
+    const styles = {};
+    const put = (key, value, longhand, shorthand, inherit) => { if (value == null || quiet(value)) return; styles[key] = {value, token: bound(n, longhand, shorthand, inherit)}; };
+    let textStyle = null; for (let p = n; p && p.classList && !textStyle; p = p.parentElement) textStyle = [...p.classList].find(x => x.startsWith('text-'));
+    if (text) {
+      if (textStyle) styles['text-style'] = {value: '.' + textStyle, token: '.' + textStyle};
+      put('font-size', c.fontSize, 'font-size', 'font', true); put('font-weight', c.fontWeight, 'font-weight', 'font', true);
+      put('font-family', c.fontFamily.split(',')[0].replace(/["']/g, '').trim(), 'font-family', 'font', true); put('color', c.color, 'color', null, true);
+    }
+    put('background', c.backgroundColor, 'background-color', 'background');
+    const pad = ['top', 'right', 'bottom', 'left'].map(s => c.getPropertyValue('padding-' + s));
+    if (!pad.every(v => v === '0px')) put('padding', pad.join(' ').replace(/^(\S+) (\S+) \1 \2$/, '$1 $2').replace(/^(\S+) \1$/, '$1'), 'padding-top', 'padding');
+    if (/flex|grid/.test(c.display)) put('gap', c.rowGap, 'row-gap', 'gap');
+    put('radius', c.borderTopLeftRadius, 'border-top-left-radius', 'border-radius');
+    if (c.borderTopStyle !== 'none' && !quiet(c.borderTopWidth)) put('border', c.borderTopWidth + ' ' + c.borderTopColor, 'border-top-color', 'border');
+    put('shadow', c.boxShadow, 'box-shadow');
+    const cls = typeof n.className === 'string' ? n.className.trim().split(/\s+/).filter(x => x && !x.startsWith('text-') && !x.startsWith('seenry-')) : [];
+    out.nodes.push({selector: sel, tag: n.tagName.toLowerCase(), id: n.id || '', classes: cls, depth, text: text.slice(0, 80),
+      box: [Math.round(r.left - body.left), Math.round(r.top + scrollY), Math.round(r.width), Math.round(r.height)], styles, spec: n.getAttribute('data-spec') || '', href: n.getAttribute('href') || ''});
+  }
+  return out;
+}
+
+/** Compares two PNGs (base64) in the page, returns the share of changed pixels and a diff image. */
+async function diffImages({a, b}) {
+  const load = src => new Promise((ok, fail) => { const i = new Image(); i.onload = () => ok(i); i.onerror = fail; i.src = 'data:image/png;base64,' + src; });
+  const [ia, ib] = await Promise.all([load(a), load(b)]);
+  const w = Math.max(ia.width, ib.width), h = Math.max(ia.height, ib.height);
+  const pixels = img => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0); return x.getImageData(0, 0, w, h); };
+  const pa = pixels(ia), pb = pixels(ib), out = document.createElement('canvas'); out.width = w; out.height = h;
+  const ox = out.getContext('2d'), od = ox.createImageData(w, h);
+  let changed = 0;
+  for (let i = 0; i < pa.data.length; i += 4) {
+    const d = Math.abs(pa.data[i] - pb.data[i]) + Math.abs(pa.data[i + 1] - pb.data[i + 1]) + Math.abs(pa.data[i + 2] - pb.data[i + 2]);
+    const g = (pa.data[i] + pa.data[i + 1] + pa.data[i + 2]) / 3;
+    if (d > 48) { changed++; od.data[i] = 235; od.data[i + 1] = 40; od.data[i + 2] = 40; } else { od.data[i] = od.data[i + 1] = od.data[i + 2] = 255 - (255 - g) * 0.25; }
+    od.data[i + 3] = 255;
+  }
+  ox.putImageData(od, 0, 0);
+  return {changed, total: w * h, sizes: [ia.width, ia.height, ib.width, ib.height], png: out.toDataURL('image/png').split(',')[1]};
+}
+
+const json = argv.includes('--json');
+const safe = id => id.replace(/[^\w.-]+/g, '__');
+
+/** The design frames a command works on: named ids or section prefixes, else every screen. */
+function pickFrames(state, names) {
+  const design = state.sections.filter(s => !s.system && !s.reference).flatMap(s => s.frames);
+  if (!names.length) return design;
+  const all = state.sections.flatMap(s => s.frames).filter(f => f.kind === 'page');
+  const hits = all.filter(f => names.some(n => f.id === n || f.id.startsWith(n.replace(/\/?$/, '/'))));
+  const missing = names.filter(n => !all.some(f => f.id === n || f.id.startsWith(n.replace(/\/?$/, '/'))));
+  if (missing.length) { console.error(`No screen or section "${missing.join('", "')}". Run "canvas.mjs list" for the ids.`); process.exit(2); }
+  return hits;
+}
+
+async function withBrowser(fn) {
+  const playwright = await loadPlaywright();
+  if (!playwright) { console.error('This command needs Playwright: npm i -D playwright && npx playwright install chromium, or pass --playwright <path to playwright/index.mjs>.'); process.exit(2); }
+  const chromium = playwright.chromium || playwright.default?.chromium;
+  const info = await startServer();
+  if (!info) { console.error('The canvas did not start; see .canvas.log.'); process.exit(1); }
+  const browser = await chromium.launch({headless: true, ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
+  try { return await fn(browser, `http://127.0.0.1:${info.port}/`); }
+  finally { await browser.close(); if (info.started) { try { process.kill(info.pid); } catch {} rmSync(pidFile, {force: true}); } }
+}
+
+async function openPage(browser, url, width, height, mode, scale = 1) {
+  const context = await browser.newContext({viewport: {width, height}, deviceScaleFactor: scale});
+  const page = await context.newPage();
+  await page.goto(url, {waitUntil: 'load'});
+  if (mode === 'dark') await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(150);
+  return {context, page};
+}
+
+const modesFor = () => { const m = flag('mode', 'light'); return m === 'both' ? ['light', 'dark'] : [m]; };
+const devicesFor = f => { const d = flag('device'); if (!d || f.device === 'image') return [[f.device, f.w, f.h]]; return (d === 'all' ? ['phone', 'tablet', 'desktop'] : d.split(',')).filter(x => DEVICES[x]).map(x => [x, ...DEVICES[x]]); };
+
+async function render(names) {
+  const state = readState(), frames = pickFrames(state, names), out = resolve(flag('out', join(dir, '.renders'))), scale = Number(flag('scale', 1)), shots = [];
+  mkdirSync(out, {recursive: true});
+  await withBrowser(async (browser, base) => {
+    for (const f of frames) for (const mode of modesFor()) for (const [device, w, h] of devicesFor(f)) {
+      const {context, page} = await openPage(browser, base + f.src.split('/').map(encodeURIComponent).join('/'), w, h, mode, scale);
+      const file = join(out, `${safe(f.id)}.${device}.${mode}.png`);
+      const snap = join(dir, '.history', 'snapshots', `${safe(f.id)}.${device}.${mode}.png`);
+      await page.screenshot({path: file, fullPage: true});
+      mkdirSync(dirname(snap), {recursive: true});
+      if (existsSync(snap)) renameSync(snap, snap.replace(/\.png$/, '.prev.png'));
+      writeFileSync(snap, readFileSync(file));
+      shots.push({frame: f.id, device, mode, file});
+      await context.close();
+    }
+  });
+  if (json) console.log(JSON.stringify(shots, null, 2)); else for (const s of shots) console.log(`${s.frame}  ${s.device} ${s.mode}  ${s.file}`);
+}
+
+function formatTree(f, data) {
+  const lines = [`${f.name}  ${data.width}×${data.height}  (${f.id})`];
+  for (const n of data.nodes) {
+    const style = Object.entries(n.styles).map(([k, s]) => s.token ? (s.token.startsWith('!') ? `${k} ${s.value}!` : `${k} ${s.token}`) : null).filter(Boolean).join(' · ');
+    const label = n.tag + (n.id ? '#' + n.id : n.classes[0] ? '.' + n.classes[0] : '');
+    lines.push(`${'  '.repeat(Math.min(n.depth, 8))}${label}${n.text ? ` “${n.text.slice(0, 40)}”` : ''}  ${n.box[0]},${n.box[1]} ${n.box[2]}×${n.box[3]}${style ? '  ' + style : ''}${n.href ? '  → ' + n.href : ''}${n.spec ? '  spec: ' + n.spec : ''}`);
+  }
+  lines.push('  (“!” marks a value typed in instead of taken from a variable)');
+  return lines.join('\n');
+}
+
+async function tree(names) {
+  const state = readState(), frames = pickFrames(state, names), results = [];
+  await withBrowser(async (browser, base) => {
+    for (const f of frames) {
+      const [[device, w, h]] = devicesFor(f), mode = modesFor()[0];
+      const {context, page} = await openPage(browser, base + f.src.split('/').map(encodeURIComponent).join('/'), w, h, mode);
+      const data = await page.evaluate(analyzeFrame, {width: w});
+      results.push({frame: f.id, name: f.name, device, mode, width: data.width, height: data.height, nodes: data.nodes});
+      if (!json) console.log(formatTree(f, data) + '\n');
+      await context.close();
+    }
+  });
+  if (json) console.log(JSON.stringify(results, null, 2));
+}
+
+async function verify(names) {
+  const state = readState(), frames = pickFrames(state, names), issues = [], byClass = {};
+  const known = new Set(state.sections.flatMap(s => s.frames.map(f => f.src)));
+  await withBrowser(async (browser, base) => {
+    for (const f of frames) {
+      const [[device, w, h]] = devicesFor(f);
+      for (const mode of ['light', 'dark']) {
+        const {context, page} = await openPage(browser, base + f.src.split('/').map(encodeURIComponent).join('/'), w, h, mode);
+        const data = await page.evaluate(analyzeFrame, {width: w});
+        for (const i of data.issues) if (mode === 'light' || i.kind === 'contrast') issues.push({frame: f.id, mode, ...i});
+        if (mode === 'light') {
+          for (const n of data.nodes) {
+            if (n.href && !/^([a-z]+:|#|\/)/i.test(n.href) && /\.html(?:[#?].*)?$/i.test(n.href)) {
+              const target = resolve(dir, dirname(f.src), n.href.replace(/[#?].*$/, ''));
+              if (!existsSync(target)) issues.push({frame: f.id, mode, severity: 'error', kind: 'link', selector: n.selector, message: `Links to ${n.href}, which does not exist`});
+              else if (!known.has(relative(dir, target).split(sep).join('/'))) issues.push({frame: f.id, mode, severity: 'warn', kind: 'link', selector: n.selector, message: `Links to ${n.href}, which is not on the canvas (archived?)`});
+            }
+            const key = n.classes[0]; if (!key) continue;
+            const look = ['font-size', 'font-weight', 'color', 'background', 'padding', 'radius'].map(k => n.styles[k]?.value || '-').join(' | ');
+            ((byClass[key] = byClass[key] || {})[look] = byClass[key][look] || []).push(f.id);
+          }
+        }
+        await context.close();
+      }
+    }
+  });
+  const seen = new Set();
+  for (const i of [...issues]) { const k = i.frame + i.selector + i.message; if (seen.has(k)) issues.splice(issues.indexOf(i), 1); else seen.add(k); }
+  for (const [cls, looks] of Object.entries(byClass)) {
+    const variants = Object.entries(looks).filter(([, fr]) => fr.length);
+    if (variants.length > 1 && new Set(variants.flatMap(([, fr]) => fr)).size > 1 && variants.length <= 4)
+      issues.push({frame: '*', mode: 'light', severity: 'warn', kind: 'drift', selector: '.' + cls, message: `.${cls} renders ${variants.length} ways across screens: ${variants.map(([look, fr]) => `${look} (${[...new Set(fr)].join(', ')})`).join('; ')}`});
+  }
+  const staticIssues = [];
+  { const log = console.log; console.log = line => staticIssues.push(String(line)); try { check(); } finally { console.log = log; } }
+  const wanted = new Set(frames.map(f => f.id)), blocks = [];
+  for (const line of staticIssues.join('\n').split('\n')) { if (!line.startsWith(' ')) blocks.push([line]); else if (blocks.length) blocks[blocks.length - 1].push(line); }
+  const detached = blocks.filter(b => wanted.has(b[0]) && b.slice(1).some(l => /detached|does not link/.test(l))).map(b => b.join('\n')).join('\n');
+  const errors = issues.filter(i => i.severity === 'error').length;
+  if (json) console.log(JSON.stringify({errors, warnings: issues.length - errors, issues, detached}, null, 2));
+  else {
+    for (const i of issues) console.log(`${i.severity === 'error' ? 'ERROR' : 'warn '}  ${i.frame}${i.mode === 'dark' ? ' (dark)' : ''}  ${i.selector}\n       ${i.message}`);
+    if (detached) console.log(detached);
+    console.log(issues.length ? `\n${errors} error${errors === 1 ? '' : 's'}, ${issues.length - errors} warning${issues.length - errors === 1 ? '' : 's'} in ${frames.length} screen${frames.length === 1 ? '' : 's'}.` : `All ${frames.length} screens pass.`);
+  }
+  return errors ? 1 : 0;
+}
+
+async function diffFrames(names) {
+  const state = readState(), frames = pickFrames(state, names), results = [], out = join(dir, '.renders');
+  mkdirSync(out, {recursive: true});
+  await withBrowser(async (browser, base) => {
+    const blank = await (await browser.newContext()).newPage();
+    for (const f of frames) for (const mode of modesFor()) for (const [device, w, h] of devicesFor(f)) {
+      const snap = join(dir, '.history', 'snapshots', `${safe(f.id)}.${device}.${mode}.png`);
+      const {context, page} = await openPage(browser, base + f.src.split('/').map(encodeURIComponent).join('/'), w, h, mode);
+      const now = await page.screenshot({fullPage: true}); await context.close();
+      mkdirSync(dirname(snap), {recursive: true});
+      if (!existsSync(snap)) { writeFileSync(snap, now); results.push({frame: f.id, device, mode, baseline: true}); continue; }
+      const d = await blank.evaluate(diffImages, {a: readFileSync(snap).toString('base64'), b: now.toString('base64')});
+      const file = join(out, `${safe(f.id)}.${device}.${mode}.diff.png`);
+      writeFileSync(file, Buffer.from(d.png, 'base64'));
+      renameSync(snap, snap.replace(/\.png$/, '.prev.png')); writeFileSync(snap, now);
+      results.push({frame: f.id, device, mode, changed: +(100 * d.changed / d.total).toFixed(2), size: d.sizes[0] === d.sizes[2] && d.sizes[1] === d.sizes[3] ? 'same' : `${d.sizes[0]}×${d.sizes[1]} → ${d.sizes[2]}×${d.sizes[3]}`, file});
+    }
+  });
+  if (json) console.log(JSON.stringify(results, null, 2));
+  else for (const r of results) console.log(r.baseline ? `${r.frame}  ${r.device} ${r.mode}  no earlier render; this one is the baseline` : `${r.frame}  ${r.device} ${r.mode}  ${r.changed}% of pixels changed${r.size === 'same' ? '' : `, size ${r.size}`}  ${r.file}`);
+}
+
+async function compare(frameId, url) {
+  if (!frameId || !/^https?:\/\//.test(url || '')) { console.error('Usage: canvas.mjs compare <frame> <http url of the built screen> [--device phone|desktop] [--mode light|dark]'); process.exit(2); }
+  const state = readState(), [f] = pickFrames(state, [frameId]), [[device, w, h]] = devicesFor(f), mode = modesFor()[0];
+  const out = join(dir, '.renders', 'compare'); mkdirSync(out, {recursive: true});
+  const result = await withBrowser(async (browser, base) => {
+    const shoot = async target => { const {context, page} = await openPage(browser, target, w, h, mode); const png = await page.screenshot({fullPage: true}); const data = await page.evaluate(analyzeFrame, {width: w}); await context.close(); return {png, data}; };
+    const design = await shoot(base + f.src.split('/').map(encodeURIComponent).join('/')), build = await shoot(url);
+    const blank = await (await browser.newContext()).newPage();
+    const d = await blank.evaluate(diffImages, {a: design.png.toString('base64'), b: build.png.toString('base64')});
+    const stem = join(out, `${safe(f.id)}.${device}.${mode}`);
+    writeFileSync(stem + '.design.png', design.png); writeFileSync(stem + '.build.png', build.png); writeFileSync(stem + '.diff.png', Buffer.from(d.png, 'base64'));
+    const norm = t => t.toLowerCase().replace(/\s+/g, ' ').trim(), built = new Map(build.data.nodes.filter(n => n.text).map(n => [norm(n.text), n]));
+    const missing = [], different = [];
+    for (const n of design.data.nodes.filter(n => n.text)) {
+      const b = built.get(norm(n.text)); if (!b) { missing.push(n.text); continue; }
+      for (const k of ['font-size', 'font-weight', 'color', 'background', 'radius', 'padding']) {
+        const x = n.styles[k]?.value || '', y = b.styles[k]?.value || '';
+        if (x !== y) different.push(`“${n.text.slice(0, 30)}” ${k}: design ${x || 'none'}, build ${y || 'none'}`);
+      }
+      if (Math.abs(n.box[2] - b.box[2]) > 4 || Math.abs(n.box[3] - b.box[3]) > 4) different.push(`“${n.text.slice(0, 30)}” size: design ${n.box[2]}×${n.box[3]}, build ${b.box[2]}×${b.box[3]}`);
+    }
+    return {frame: f.id, url, device, mode, changed: +(100 * d.changed / d.total).toFixed(2), designSize: `${d.sizes[0]}×${d.sizes[1]}`, buildSize: `${d.sizes[2]}×${d.sizes[3]}`, missing, different, files: {design: stem + '.design.png', build: stem + '.build.png', diff: stem + '.diff.png'}};
+  });
+  if (json) console.log(JSON.stringify(result, null, 2));
+  else {
+    console.log(`${result.frame} vs ${result.url}  (${device} ${mode})\n${result.changed}% of pixels differ · design ${result.designSize}, build ${result.buildSize}`);
+    if (result.missing.length) console.log(`Text in the design but not in the build:\n  ${result.missing.slice(0, 20).join('\n  ')}`);
+    if (result.different.length) console.log(`Differences:\n  ${result.different.slice(0, 30).join('\n  ')}`);
+    if (!result.missing.length && !result.different.length) console.log('Every text element matches the design in type, color, spacing and size.');
+    console.log(`Images: ${result.files.design}\n        ${result.files.build}\n        ${result.files.diff}`);
+  }
+  return result.missing.length || result.different.length ? 1 : 0;
+}
+
 async function loadPlaywright() {
   const explicit = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
   if (explicit) return import(pathToFileURL(resolve(explicit)).href);
@@ -1379,7 +1703,19 @@ if (command === 'init') {
   if (!opened) console.log('No browser here. Give the person the address, or run "canvas.mjs shot" and show canvas.png.');
   if (state.error) console.log(state.error);
 } else if (command === 'list') {
-  printList(readState());
+  const state = readState();
+  if (json) console.log(JSON.stringify({title: state.title, stage: state.stage, library: state.library, flows: state.flows, sections: state.sections.map(s => ({id: s.id, name: s.name, status: s.status, options: !!s.choose, system: !!s.system, frames: s.frames.map(f => ({id: f.id, name: f.name, file: f.src, device: f.device, size: [f.w, f.h], links: f.links, specs: f.specs || 0, review: state.approvals[f.id] || null}))}))}, null, 2));
+  else printList(state);
+} else if (command === 'render') {
+  await render(positional);
+} else if (command === 'tree') {
+  await tree(positional);
+} else if (command === 'verify') {
+  process.exitCode = await verify(positional);
+} else if (command === 'diff') {
+  await diffFrames(positional);
+} else if (command === 'compare') {
+  process.exitCode = await compare(positional[0], positional[1]);
 } else if (command === 'check') {
   process.exit(check());
 } else if (command === 'status') {
@@ -1418,7 +1754,8 @@ if (command === 'init') {
   }
   while (!fresh() && Date.now() < deadline) await new Promise(r => setTimeout(r, 1000));
   if (!fresh()) { console.log(command === 'wait' ? 'No feedback yet. Run "canvas.mjs wait" again, or "canvas.mjs feedback" once the person says they sent it.' : existsSync(path) ? 'No feedback yet on the current screens (feedback.json is older than the latest change).' : 'No feedback yet.'); process.exit(3); }
-  printFeedback(JSON.parse(readFileSync(path, 'utf8')));
+  const feedback = JSON.parse(readFileSync(path, 'utf8'));
+  if (json) console.log(JSON.stringify(feedback, null, 2)); else printFeedback(feedback);
 } else if (command === 'static') {
   if (!existsSync(dir)) init();
   writeFoundations();
@@ -1442,5 +1779,5 @@ if (command === 'init') {
   if (info.started) { try { process.kill(info.pid); } catch {} rmSync(pidFile, {force: true}); }
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|render|tree|verify|diff|compare|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
 }
