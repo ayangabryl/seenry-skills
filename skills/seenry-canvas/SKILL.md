@@ -24,8 +24,12 @@ The person decides. Never approve your own screens, and never ask a second model
 ```
 .seenry/canvas/
   canvas.json                     title, stage, the question for the person
-  tokens.css                      one token file every screen links
+  tokens.css                      the design system: variables, modes, text styles, effects, grids
+  fonts/                          the real font files, self-hosted WOFF2
   wire.css                        the wireframe kit
+  _foundations.html               generated from tokens.css on every start; never edit
+  00-components/                  one sheet per component: every variant and state
+    button.html
   01-onboarding/                  a folder is a section: one flow
     01-welcome.phone.html         a file is a screen; numbers set the order
     02-first-habit.phone.html
@@ -51,6 +55,7 @@ node <skill>/scripts/canvas.mjs init       # the folder, wire.css and tokens.css
 node <skill>/scripts/canvas.mjs open       # starts it, opens the browser, prints the address
 node <skill>/scripts/canvas.mjs wait       # blocks until the person presses "Send to agent", prints the feedback
 node <skill>/scripts/canvas.mjs list       # sections, frames and prototype links as the canvas sees them
+node <skill>/scripts/canvas.mjs check      # values typed into screens instead of taken from tokens.css
 node <skill>/scripts/canvas.mjs feedback   # the last feedback, without waiting
 node <skill>/scripts/canvas.mjs stop
 ```
@@ -63,12 +68,36 @@ There is nothing to install and no account: the script is plain Node and serves 
 | --- | --- | --- |
 | `map` | One wireframe frame per screen, titles only, in flow order | Are these the right screens and flows? |
 | `wireframe` | Every screen in the wireframe kit with real copy; options only on open decisions | Structure and flow |
-| `look` | Two or three key screens in two visual treatments, built on `tokens.css` | The look |
-| `mockup` | Every screen in the picked look, each linking `../tokens.css` | Each screen, at full fidelity |
+| `look` | Foundations and two or three key screens in two visual treatments, built on `tokens.css` | The look and the system |
+| `mockup` | The component sheets, then every screen in the picked look, each linking `../tokens.css` | Each component and screen, at full fidelity |
 | `prototype` | The same screens linked to each other, so Present plays the flow | Does the flow work in use? |
 | `build` | The running product's screens beside the approved mockups | Sign-off before release |
 
 A small project can merge stages: a single screen goes straight from `wireframe` to `mockup`. Never skip the person's review between stages.
+
+## Build it like a design team's Figma file
+
+Large product teams keep their files in the same shape: foundations first, then components, then flows, with every value bound to a variable. The canvas works the same way.
+
+**Variables, in tiers.** `tokens.css` holds primitives (raw ramps and scales such as `--gray-600`, `--size-16`), then semantic variables by role (`--color-text-secondary`, `--space-4`, `--radius-md`), which are the only ones screens use. A screen that uses a primitive or types a raw value has a detached value. Name semantic variables by role, never by hue: `--color-accent`, not `--color-blue`.
+
+**Modes.** Light is the default; dark is a second set of semantic values under `:root[data-theme="dark"]`, designed as its own palette. The canvas's mode switch (`D`) flips every screen at once, which shows any screen with detached colors immediately.
+
+**Styles.** Text styles are `.text-*` classes that set family, size, line height, weight and tracking together, one per role. Effects are `--shadow-*` and `--ring-*` variables. Layout grids are `--grid-columns`, `--grid-gutter`, `--grid-margin` and `--grid-max` per breakpoint, shown on every screen with the grid toggle (`G`).
+
+**Fonts.** Use the real typeface from the first mockup, never a system stand-in. Put WOFF2 files in `fonts/` with `@font-face` at the top of `tokens.css`, or a Google Fonts `<link>` in each screen. Foundations marks any font that did not load. The same files move into the product.
+
+**Foundations section.** The canvas generates it from `tokens.css`: every variable in both modes, each text style as a specimen, fonts, spacing, radius, effects, grids and motion. It updates live, so the person reviews the system before the screens.
+
+**Components.** Each component gets one sheet in `00-components/`, showing every variant across every state: default, hover, focus, pressed, disabled, loading, error. Screens reuse the same classes, so a component changes in one place. Name each cell the way Figma names variants: `Button / Primary / Hover`.
+
+**Auto layout.** Lay out with flex or grid and `gap`, sized from the spacing variables, never with absolute positions or spacer elements. A frame then reflows the way the built product will.
+
+**Frames and names.** One file per screen and state, numbered in flow order: `03-home.phone.html`, `03-home-empty.phone.html`, `03-home-error.phone.html`. A screen that ships on several devices gets a frame for each: `03-home.phone.html` and `03-home.html`. Titles read the same way: "Home · Empty".
+
+**Dev Mode.** Select a screen, press `I` or Inspect, and click any element. The canvas shows its size, padding, gap, font, text style, colors, radius and shadow, each with the variable it is bound to, and flags anything that is not a variable. Developers build from this, as they would from Figma's Dev Mode.
+
+**Before showing mockups, run `check`.** It lists every detached value per screen. From the `mockup` stage, detached values and screens that do not link `tokens.css` are errors.
 
 ## 1. Map the product before drawing it
 
@@ -131,5 +160,8 @@ After you change any screen, feedback from before the change is treated as stale
 | A design proposed in chat or code without the canvas | Put it on the canvas and open it |
 | Product code written before the screens were approved | Stop and wait for feedback |
 | Screens in a flow with no links between them | Link them, so Present plays the flow |
+| `check` lists detached values at the `mockup` stage or later | Bind them to variables, or add the missing variable to `tokens.css` |
+| A font shown as not loaded on Foundations | Add the font files or the link |
+| A component drawn differently on two screens | One component sheet; both screens use it |
 | A screen with no answer treated as approved | Ask about it |
 | The canvas still running at the end of the task | `canvas.mjs stop` |

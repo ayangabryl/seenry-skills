@@ -59,8 +59,8 @@ test('the server serves the canvas, guards the folder and saves feedback', async
 
   assert.equal((await call(actual, '/')).status, 200);
   const state = JSON.parse((await call(actual, '/state')).body);
-  assert.deepEqual(state.sections.map(s => [s.id, s.choose, s.frames.length]), [['01-onboarding', false, 2], ['02-home', true, 2]]);
-  assert.equal(state.sections[0].frames[0].note, 'One promise');
+  assert.deepEqual(state.sections.map(s => [s.id, s.choose, s.frames.length]), [['foundations', false, 1], ['01-onboarding', false, 2], ['02-home', true, 2]]);
+  assert.equal(state.sections[1].frames[0].note, 'One promise');
   assert.equal((await call(actual, '/01-onboarding/01-welcome.phone.html')).status, 200);
   assert.equal((await call(actual, '/secret.txt')).status, 200);
 
@@ -118,4 +118,23 @@ test('wait returns the feedback the moment the person sends it', async t => {
   assert.match(out, /Picked in 02-home: 02-home\/a/);
   assert.match(readFileSync(join(dir, 'FEEDBACK.md'), 'utf8'), /Picked in 02-home: 02-home\/a/);
   assert.equal(existsSync(join(dir, '.waiting.json')), false);
+});
+
+test('Foundations is generated from tokens.css and listed first', () => {
+  const {dir} = project();
+  assert.ok(existsSync(join(dir, '_foundations.html')));
+  assert.match(readFileSync(join(dir, 'tokens.css'), 'utf8'), /:root\[data-theme="dark"\]/);
+  assert.match(run('list', dir).stdout, /^Foundations\n  foundations  desktop/);
+});
+
+test('check flags values typed into screens instead of taken from tokens.css', () => {
+  const {dir} = project();
+  writeFileSync(join(dir, 'canvas.json'), JSON.stringify({stage: 'mockup'}));
+  writeFileSync(join(dir, '01-onboarding', '01-welcome.phone.html'), '<!doctype html><title>Welcome</title><link rel="stylesheet" href="../tokens.css"><style>p{color:var(--color-text);padding:var(--space-4) 18px;--local:3px}</style><p style="background:#eef2ff;border-radius:var(--radius-md)">x</p>');
+  writeFileSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), '<!doctype html><title>First habit</title><link rel="stylesheet" href="../tokens.css"><style>p{color:var(--color-text);gap:var(--space-2)}</style><p>x</p>');
+  const out = run('check', dir);
+  assert.equal(out.status, 1);
+  assert.match(out.stdout, /01-onboarding\/01-welcome\n  2 detached values: padding: var\(--space-4\) 18px · background: #eef2ff/);
+  assert.doesNotMatch(out.stdout, /02-first-habit/);
+  assert.match(out.stdout, /02-home\/a\n  does not link tokens.css/);
 });

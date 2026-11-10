@@ -8,6 +8,7 @@
  *  node canvas.mjs wait   [dir] [--timeout seconds]   block until the person presses "Send to agent", then print it
  *  node canvas.mjs feedback [dir] [--wait seconds]   print what the person approved, picked and commented
  *  node canvas.mjs list   [dir]            print the sections and frames as the canvas sees them
+ *  node canvas.mjs check  [dir]            list values typed into screens instead of taken from tokens.css
  *  node canvas.mjs static [dir]            write canvas.html, which opens from disk with no server
  *  node canvas.mjs shot   [dir] [--playwright path]  write canvas.png, for sessions with no browser to show
  *  node canvas.mjs stop   [dir]
@@ -100,33 +101,238 @@ ul, ol { padding: 0; list-style: none; }
 
 /* A note to the reviewer, never part of the design. */
 .wf-note { font-size: .75rem; color: #8a4b00; background: #fff3d6; border-radius: 6px; padding: 4px 8px; width: fit-content; }
-`, 'tokens.css': String.raw`/* One token file for every screen on the canvas. Each screen links it, so a change here changes them all,
-   and the same file moves into the product when the screens are built. Replace the values; keep the roles. */
-:root {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+`, 'tokens.css': String.raw`/* Seenry tokens: the design system every screen links, organized like a design team's Figma variables.
+   Change values, keep the names and tiers. This file moves into the product unchanged.
 
-  --text-display: 3.5rem; --text-title: 1.75rem; --text-heading: 1.25rem; --text-body: 1rem; --text-ui: .875rem; --text-caption: .8125rem;
+   1. Fonts         @font-face for the real files in fonts/ (self-hosted WOFF2), or a Google Fonts <link> in each screen
+   2. Primitives    raw values with no meaning: the gray and accent ramps, the size and space scales
+   3. Semantic      what components use, by role, with a light and a dark mode
+   4. Text styles   one class per role: family, size, line height, weight and tracking together
+   5. Effects       elevation shadows, focus ring
+   6. Layout grids  columns, gutter and margin per breakpoint
+   7. Motion        easing and durations
+   Components use only tiers 3 to 7. A primitive used directly in a screen is a detached value. */
+
+/* 1. Fonts. Example: @font-face { font-family: "Inter"; src: url("fonts/Inter-Variable.woff2") format("woff2"); font-weight: 100 900; font-display: swap; } */
+
+:root {
+  /* 2. Primitives */
+  --font-family-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --gray-0: oklch(1 0 0);
+  --gray-50: oklch(0.985 0.002 90);
+  --gray-100: oklch(0.965 0.003 90);
+  --gray-200: oklch(0.92 0.003 90);
+  --gray-300: oklch(0.86 0.004 90);
+  --gray-500: oklch(0.58 0.005 90);
+  --gray-600: oklch(0.45 0.005 90);
+  --gray-800: oklch(0.28 0.005 90);
+  --gray-900: oklch(0.22 0.005 90);
+  --gray-950: oklch(0.16 0.004 90);
+  --accent-500: oklch(0.55 0.16 255);
+  --accent-600: oklch(0.48 0.16 255);
+  --accent-400: oklch(0.66 0.14 255);
+  --green-600: oklch(0.55 0.13 150);
+  --amber-500: oklch(0.72 0.14 70);
+  --red-600: oklch(0.55 0.19 27);
+
+  --size-12: 0.75rem; --size-13: 0.8125rem; --size-14: 0.875rem; --size-16: 1rem; --size-18: 1.125rem;
+  --size-20: 1.25rem; --size-24: 1.5rem; --size-32: 2rem; --size-40: 2.5rem; --size-56: 3.5rem; --size-72: 4.5rem;
+
+  /* 3. Semantic: spacing, radius, type */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px;
+  --space-8: 32px; --space-12: 48px; --space-16: 64px; --space-24: 96px;
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px; --radius-full: 999px;
+  --font-body: var(--font-family-sans); --font-display: var(--font-family-sans); --font-code: var(--font-family-mono);
   --weight-regular: 400; --weight-medium: 500; --weight-strong: 600;
 
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px; --space-24: 96px;
-  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px; --radius-full: 999px;
+  /* 3. Semantic: color, light mode */
+  --color-bg: var(--gray-50);
+  --color-bg-surface: var(--gray-0);
+  --color-bg-sunken: var(--gray-100);
+  --color-text: var(--gray-900);
+  --color-text-secondary: var(--gray-600);
+  --color-text-tertiary: var(--gray-500);
+  --color-border: var(--gray-200);
+  --color-border-strong: var(--gray-300);
+  --color-accent: var(--accent-600);
+  --color-accent-hover: var(--accent-500);
+  --color-on-accent: var(--gray-0);
+  --color-focus: var(--accent-500);
+  --color-positive: var(--green-600);
+  --color-warning: var(--amber-500);
+  --color-negative: var(--red-600);
 
-  --color-bg: oklch(0.985 0.002 90); --color-bg-surface: oklch(1 0 0); --color-bg-sunken: oklch(0.965 0.003 90);
-  --color-text: oklch(0.22 0.005 90); --color-text-secondary: oklch(0.45 0.005 90); --color-text-tertiary: oklch(0.58 0.005 90);
-  --color-rule: oklch(0.92 0.003 90);
-  --color-accent: oklch(0.22 0.005 90); --color-on-accent: oklch(0.985 0.002 90);
-  --color-positive: oklch(0.55 0.13 150); --color-warning: oklch(0.68 0.14 70); --color-negative: oklch(0.55 0.19 27);
+  /* 5. Effects */
+  --shadow-raised: 0 1px 2px oklch(0 0 0 / 0.06), 0 1px 1px oklch(0 0 0 / 0.04);
+  --shadow-overlay: 0 12px 32px oklch(0 0 0 / 0.12), 0 2px 6px oklch(0 0 0 / 0.08);
+  --ring-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
 
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  /* 6. Layout grids: mobile first */
+  --grid-columns: 4; --grid-gutter: 16px; --grid-margin: 16px; --grid-max: 100%;
+
+  /* 7. Motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --duration-press: 120ms; --duration-short: 180ms; --duration-medium: 240ms;
 }
+@media (min-width: 768px) { :root { --grid-columns: 8; --grid-gutter: 24px; --grid-margin: 32px; } }
+@media (min-width: 1200px) { :root { --grid-columns: 12; --grid-gutter: 24px; --grid-margin: 48px; --grid-max: 1280px; } }
+
+/* 3. Semantic: color, dark mode. Its own palette, never the light one inverted. */
+:root[data-theme="dark"] {
+  --color-bg: var(--gray-950);
+  --color-bg-surface: oklch(0.2 0.004 90);
+  --color-bg-sunken: oklch(0.13 0.004 90);
+  --color-text: oklch(0.96 0.003 90);
+  --color-text-secondary: oklch(0.74 0.004 90);
+  --color-text-tertiary: oklch(0.6 0.004 90);
+  --color-border: oklch(1 0 0 / 0.1);
+  --color-border-strong: oklch(1 0 0 / 0.18);
+  --color-accent: var(--accent-400);
+  --color-accent-hover: var(--accent-500);
+  --color-on-accent: var(--gray-950);
+  --shadow-raised: 0 0 0 1px oklch(1 0 0 / 0.06);
+  --shadow-overlay: 0 0 0 1px oklch(1 0 0 / 0.08), 0 16px 40px oklch(0 0 0 / 0.5);
+}
+
+/* 4. Text styles */
+.text-display { font-family: var(--font-display); font-size: var(--size-56); line-height: 1.05; font-weight: var(--weight-strong); letter-spacing: -0.025em; }
+.text-title { font-family: var(--font-display); font-size: var(--size-32); line-height: 1.15; font-weight: var(--weight-strong); letter-spacing: -0.015em; }
+.text-heading { font-family: var(--font-body); font-size: var(--size-20); line-height: 1.3; font-weight: var(--weight-strong); letter-spacing: -0.01em; }
+.text-body { font-family: var(--font-body); font-size: var(--size-16); line-height: 1.55; font-weight: var(--weight-regular); }
+.text-ui { font-family: var(--font-body); font-size: var(--size-14); line-height: 1.45; font-weight: var(--weight-medium); }
+.text-caption { font-family: var(--font-body); font-size: var(--size-13); line-height: 1.4; font-weight: var(--weight-regular); }
+.text-code { font-family: var(--font-code); font-size: var(--size-13); line-height: 1.5; font-weight: var(--weight-regular); }
 `};
+const FOUNDATIONS = String.raw`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations</title>
+<meta name="seenry-note" content="Variables, text styles, fonts, effects and grids, read live from tokens.css">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { margin: 0; background: var(--color-bg, #fafafa); color: var(--color-text, #1c1c1c); font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { padding: 48px 56px 80px; display: grid; gap: 56px; }
+  header { display: flex; gap: 16px; align-items: end; justify-content: space-between; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.015em; }
+  h2 { margin: 0 0 16px; font-size: 18px; font-weight: 600; }
+  h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--color-text-secondary, #666); }
+  p { margin: 0; }
+  .muted { color: var(--color-text-secondary, #666); }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+  .modes { display: inline-flex; padding: 2px; border-radius: 9px; background: color-mix(in oklab, currentColor 10%, transparent); }
+  .modes button { border: 0; background: none; color: inherit; font: inherit; font-weight: 500; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+  .modes button[aria-pressed="true"] { background: var(--color-bg-surface, #fff); box-shadow: 0 1px 2px rgb(0 0 0 / .15); }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .swatch { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; }
+  .chip { width: 40px; height: 40px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgb(127 127 127 / .25); }
+  .row { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--color-border, #e5e5e5); }
+  .scale { display: grid; gap: 8px; }
+  .bar { height: 12px; background: var(--color-accent, #3060d0); border-radius: 3px; }
+  .radii, .shadows { display: flex; flex-wrap: wrap; gap: 24px; }
+  .radius { width: 88px; height: 88px; background: var(--color-bg-sunken, #eee); box-shadow: inset 0 0 0 1px var(--color-border-strong, #ccc); }
+  .shadow { width: 160px; height: 96px; border-radius: 12px; background: var(--color-bg-surface, #fff); }
+  .item { display: grid; gap: 6px; }
+  .grid-demo { position: relative; height: 120px; border-radius: 8px; background: var(--color-bg-sunken, #eee); overflow: hidden; }
+  .grid-demo > div { position: absolute; inset: 0; display: grid; }
+  .grid-demo span { background: color-mix(in oklab, var(--color-negative, #d33) 18%, transparent); }
+  .bad { color: var(--color-negative, #c22); font-weight: 600; }
+  .empty { color: var(--color-text-tertiary, #888); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div><h1>Foundations</h1><p class="muted">Read live from tokens.css. Change a value there and every screen and this page update.</p></div>
+    <div class="modes" role="group" aria-label="Mode"><button type="button" data-mode="light" aria-pressed="true">Light</button><button type="button" data-mode="dark" aria-pressed="false">Dark</button></div>
+  </header>
+  <section><h2>Color · semantic</h2><p class="muted" style="margin:-8px 0 16px">What components use. Value shown for the current mode.</p><div class="swatches" id="semantic"></div></section>
+  <section><h2>Color · primitives</h2><p class="muted" style="margin:-8px 0 16px">Raw ramps. Never used directly in a screen.</p><div class="swatches" id="primitives"></div></section>
+  <section><h2>Text styles</h2><div id="type"></div></section>
+  <section><h2>Fonts</h2><div id="fonts"></div></section>
+  <section><h2>Spacing</h2><div class="scale" id="space"></div></section>
+  <section><h2>Radius</h2><div class="radii" id="radius"></div></section>
+  <section><h2>Effects</h2><div class="shadows" id="effects"></div></section>
+  <section><h2>Layout grids</h2><div id="grids"></div></section>
+  <section><h2>Motion</h2><div id="motion"></div></section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const el = (tag, props, ...kids) => { const n = Object.assign(document.createElement(tag), props || {}); n.append(...kids.filter(k => k != null && k !== '')); return n; };
+function walk(rules, out) {
+  for (const rule of rules) {
+    if (rule.cssRules && !rule.selectorText) { walk(rule.cssRules, out); continue; }
+    if (!rule.style) continue;
+    for (const name of rule.style) if (name.startsWith('--')) out.vars.add(name);
+    if (rule.selectorText) for (const s of rule.selectorText.split(',')) { const m = s.trim().match(/^\.(text-[\w-]+)$/); if (m) out.text.add(m[1]); }
+  }
+}
+function collect() {
+  const out = {vars: new Set(), text: new Set()};
+  for (const sheet of document.styleSheets) { if (!sheet.href || !/tokens\.css/.test(sheet.href)) continue; try { walk(sheet.cssRules, out); } catch (e) {} }
+  return {vars: [...out.vars], text: [...out.text]};
+}
+const value = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const isColor = v => v && CSS.supports('color', v) && !/^\d/.test(v);
+const sw = name => el('div', {className: 'swatch'}, el('div', {className: 'chip', style: 'background:var(' + name + ')'}), el('div', {}, el('div', {className: 'mono', textContent: name}), el('div', {className: 'mono muted', textContent: value(name)})));
+function render() {
+  const {vars, text} = collect();
+  const by = re => vars.filter(n => re.test(n));
+  const colors = vars.filter(n => isColor(value(n)));
+  const semantic = colors.filter(n => n.startsWith('--color-')), primitives = colors.filter(n => !n.startsWith('--color-'));
+  $('semantic').replaceChildren(...(semantic.length ? semantic.map(sw) : [el('p', {className: 'empty', textContent: 'No --color-* roles defined.'})]));
+  $('primitives').replaceChildren(...primitives.map(sw));
+  $('type').replaceChildren(...(text.length ? text : []).map(cls => {
+    const probe = el('p', {className: cls, textContent: 'Count weeks, not days. 0123456789'});
+    const row = el('div', {className: 'row'}, el('div', {}, el('div', {className: 'mono', textContent: '.' + cls}), el('div', {className: 'mono muted'})), probe);
+    requestAnimationFrame(() => { const c = getComputedStyle(probe); row.querySelector('.muted').textContent = c.fontSize + ' / ' + c.lineHeight + ' · ' + c.fontWeight + ' · ' + c.letterSpacing + ' · ' + c.fontFamily.split(',')[0]; });
+    return row;
+  }));
+  if (!text.length) $('type').append(el('p', {className: 'empty', textContent: 'No .text-* styles defined.'}));
+  const families = by(/^--font-/).filter(n => !/weight|size/.test(n));
+  $('fonts').replaceChildren(...families.map(n => {
+    const first = value(n).split(',')[0].trim().replace(/^["']|["']$/g, '');
+    const generic = /^(ui-|system-ui|-apple-system|sans-serif|serif|monospace)/.test(first);
+    const loaded = generic || document.fonts.check('16px "' + first + '"');
+    return el('div', {className: 'row'}, el('div', {}, el('div', {className: 'mono', textContent: n}), el('div', {className: loaded ? 'mono muted' : 'mono bad', textContent: generic ? 'system font' : loaded ? first + ' · loaded' : first + ' · not loaded'})),
+      el('p', {style: 'font-family:var(' + n + ');font-size:28px', textContent: 'Aa Bb Cc 0123456789'}));
+  }));
+  const px = n => { const p = el('div', {style: 'width:var(' + n + ')'}); document.body.append(p); const w = p.getBoundingClientRect().width; p.remove(); return w; };
+  $('space').replaceChildren(...by(/^--space-/).map(n => el('div', {className: 'row', style: 'padding:6px 0'}, el('div', {className: 'mono', textContent: n + '  ' + value(n)}), el('div', {className: 'bar', style: 'width:var(' + n + ')'}))));
+  $('radius').replaceChildren(...by(/^--radius-/).map(n => el('div', {className: 'item'}, el('div', {className: 'radius', style: 'border-radius:min(var(' + n + '),44px)'}), el('div', {className: 'mono', textContent: n}), el('div', {className: 'mono muted', textContent: value(n)}))));
+  $('effects').replaceChildren(...by(/^--(shadow|ring|elevation)-/).map(n => el('div', {className: 'item'}, el('div', {className: 'shadow', style: 'box-shadow:var(' + n + ')'}), el('div', {className: 'mono', textContent: n}))));
+  const cols = Number(value('--grid-columns')) || 0;
+  $('grids').replaceChildren(cols ? el('div', {}, el('p', {className: 'mono muted', style: 'margin-bottom:8px', textContent: 'At this width (' + innerWidth + 'px): ' + cols + ' columns · gutter ' + value('--grid-gutter') + ' · margin ' + value('--grid-margin') + ' · max ' + (value('--grid-max') || 'none')}),
+    el('div', {className: 'grid-demo'}, el('div', {style: 'grid-template-columns:repeat(' + cols + ',1fr);gap:var(--grid-gutter);padding:0 var(--grid-margin)'}, ...Array.from({length: cols}, () => el('span'))))) : el('p', {className: 'empty', textContent: 'No --grid-columns defined.'}));
+  $('motion').replaceChildren(...by(/^--(ease|duration)-/).map(n => el('div', {className: 'row', style: 'padding:6px 0'}, el('div', {className: 'mono', textContent: n}), el('div', {className: 'mono muted', textContent: value(n)}))));
+}
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.mode === 'dark') document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+  document.querySelectorAll('[data-mode]').forEach(x => x.setAttribute('aria-pressed', x === b)); render();
+}));
+new MutationObserver(render).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
+document.fonts.ready.then(render); render();
+</script>
+</body>
+</html>
+`;
 
 function init() {
   mkdirSync(join(dir, 'refs'), {recursive: true});
   markWorkDir(dir);
   for (const [name, text] of Object.entries(KIT)) if (!existsSync(join(dir, name))) writeFileSync(join(dir, name), text);
+  writeFoundations();
+}
+
+/** The Foundations page is generated: it reads tokens.css live, so it is rewritten on every start, never edited. */
+function writeFoundations() {
+  if (!existsSync(dir)) return;
+  const path = join(dir, '_foundations.html');
+  try { if (!existsSync(path) || readFileSync(path, 'utf8') !== FOUNDATIONS) writeFileSync(path, FOUNDATIONS); } catch {}
 }
 
 function waiting() {
@@ -191,10 +397,13 @@ function readState() {
   const entries = existsSync(dir) ? readdirSync(dir, {withFileTypes: true}).filter(e => !e.name.startsWith('.')).sort((a, b) => a.name.localeCompare(b.name, 'en', {numeric: true})) : [];
   const htmlIn = folder => readdirSync(join(dir, folder)).filter(f => /\.html$/i.test(f)).sort((a, b) => a.localeCompare(b, 'en', {numeric: true}));
   const sections = [];
-  const loose = entries.filter(e => e.isFile() && /\.html$/i.test(e.name) && e.name !== 'canvas.html').map(e => frameFrom('', e.name));
+  const loose = entries.filter(e => e.isFile() && /\.html$/i.test(e.name) && e.name !== 'canvas.html' && !e.name.startsWith('_')).map(e => frameFrom('', e.name));
+  if (existsSync(join(dir, '_foundations.html')) && existsSync(join(dir, 'tokens.css'))) {
+    sections.push({id: 'foundations', name: 'Foundations', choose: false, system: true, frames: [{id: 'foundations', kind: 'page', src: '_foundations.html', name: 'Foundations', note: 'Variables, text styles, fonts, effects and grids, read live from tokens.css', device: 'desktop', w: 1440, h: 900, rev: mtime(join(dir, 'tokens.css')), links: []}]});
+  }
   if (loose.length) sections.push({id: 'screens', name: 'Screens', choose: false, frames: loose});
   for (const entry of entries) {
-    if (!entry.isDirectory() || entry.name === 'refs' || entry.name === 'assets' || entry.name === 'node_modules') continue;
+    if (!entry.isDirectory() || ['refs', 'assets', 'fonts', 'node_modules'].includes(entry.name)) continue;
     const frames = htmlIn(entry.name).map(f => frameFrom(entry.name, f));
     if (!frames.length) continue;
     const choose = /\.options$/i.test(entry.name), id = entry.name.replace(/\.options$/i, '');
@@ -295,6 +504,10 @@ textarea { width: 100%; min-height: 56px; max-height: 160px; resize: vertical; f
 #present .stage { position: relative; overflow: hidden; display: grid; place-items: center; }
 #present iframe { border: 0; background: #fff; transform-origin: 50% 50%; box-shadow: 0 0 0 1px rgb(255 255 255 / .1), 0 24px 60px rgb(0 0 0 / .5); }
 #present[data-device="phone"] iframe { border-radius: 32px; }
+.specs { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12px; }
+.specs dt { color: var(--ink-2); } .specs dd { margin: 0; overflow-wrap: anywhere; }
+.specs code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; }
+.specs .tok { color: var(--sel); } .specs .raw { color: var(--warn); }
 #zoom { position: fixed; left: 12px; bottom: 12px; display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--panel); box-shadow: 0 0 0 1px var(--line), 0 4px 14px rgb(0 0 0 / .1); }
 #zoom button { border: 0; background: none; border-radius: 7px; padding: 5px 9px; cursor: pointer; font-variant-numeric: tabular-nums; }
 #zoom button:hover { background: var(--fill); }
@@ -318,6 +531,8 @@ dialog .row { justify-content: end; margin-top: 10px; }
   <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
   <button type="button" id="zoom-fit" title="Fit everything (1)">Fit</button>
   <button type="button" id="flows" title="Show prototype connections (F)" aria-pressed="true">Flows</button>
+  <button type="button" id="grid" title="Show layout grids (G)" aria-pressed="false">Grid</button>
+  <button type="button" id="mode" title="Switch every screen between light and dark mode (D)">Light</button>
   <button type="button" id="play" title="Present the prototype (P)">▶ Present</button>
 </div>
 <div id="present" hidden>
@@ -348,7 +563,7 @@ const EMBEDDED = /*STATE*/null;
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...children) => { const node = Object.assign(document.createElement(tag), props); node.append(...children.filter(c => c !== '' && c != null)); return node; };
 const GAP = 120, ROW_GAP = 420, MAX_H = 7000;
-let state = null, view = {x: 0, y: 0, z: 1}, selected = null, live = null, commenting = false, pending = null, fitted = false, showLinks = true, playing = null;
+let state = null, view = {x: 0, y: 0, z: 1}, selected = null, live = null, commenting = false, pending = null, fitted = false, showLinks = true, playing = null, inspecting = false, inspected = null, showGrid = false, dark = false;
 const status = {}, picks = {}, notes = [], heights = {}, nodes = {};
 
 const frames = () => state.sections.flatMap(s => s.frames.map(f => ({...f, section: s})));
@@ -399,6 +614,90 @@ function describe(node) {
   return {selector: path.join(' > '), target: text ? '“' + text + '”' : node.tagName.toLowerCase()};
 }
 
+function applyView(doc) {
+  if (!doc || !doc.documentElement) return;
+  if (dark) doc.documentElement.dataset.theme = 'dark'; else if (doc.documentElement.dataset.theme === 'dark') delete doc.documentElement.dataset.theme;
+  let grid = doc.getElementById('seenry-grid');
+  if (!showGrid) { if (grid) grid.remove(); return; }
+  if (!doc.body) return;
+  if (!grid) {
+    grid = doc.createElement('div'); grid.id = 'seenry-grid'; grid.setAttribute('aria-hidden', 'true');
+    grid.style.cssText = 'position:absolute;left:0;top:0;width:100%;pointer-events:none;z-index:2147483647;box-sizing:border-box;display:grid;grid-template-columns:repeat(var(--grid-columns,12),minmax(0,1fr));column-gap:var(--grid-gutter,24px);padding-inline:max(var(--grid-margin,24px),calc((100% - var(--grid-max,100%)) / 2))';
+    doc.body.append(grid);
+  }
+  const cols = Number(doc.defaultView.getComputedStyle(doc.documentElement).getPropertyValue('--grid-columns')) || 12;
+  if (grid.childElementCount !== cols) grid.replaceChildren(...Array.from({length: cols}, () => { const s = doc.createElement('span'); s.style.background = 'rgb(255 60 60 / .09)'; return s; }));
+  grid.style.height = doc.documentElement.scrollHeight + 'px';
+}
+function eachDoc(fn) { document.querySelectorAll('#world iframe, #p-frame').forEach(i => { try { fn(i.contentDocument); } catch {} }); }
+
+/** The rules that apply in a screen, flattened through @media, @supports and @layer, in source order. */
+function rules(doc) {
+  if (doc.__seenryRules) return doc.__seenryRules;
+  const out = [], win = doc.defaultView;
+  const walk = list => { for (const r of list) {
+    if (r.selectorText && r.style) out.push(r);
+    else if (r.media && r.cssRules) { if (win.matchMedia(r.media.mediaText).matches) walk(r.cssRules); }
+    else if (r.cssRules) walk(r.cssRules);
+  } };
+  for (const sheet of doc.styleSheets) { try { walk(sheet.cssRules); } catch {} }
+  return (doc.__seenryRules = out);
+}
+const specificity = sel => (sel.match(/#[\w-]+/g) || []).length * 100 + (sel.match(/\.[\w-]+|\[[^\]]+\]|:(?!:)[\w-]+/g) || []).length * 10 + (sel.replace(/[#.][\w-]+|\[[^\]]+\]|::?[\w-]+(\([^)]*\))?/g, ' ').match(/(^|[\s>+~])[a-z][\w-]*/gi) || []).length;
+
+/** What the author wrote for a property on this element, as devtools shows it: inline style, then the most specific rule. */
+function declared(node, longhand, shorthand, inherit) {
+  for (let n = node; n && n.nodeType === 1; n = inherit ? n.parentElement : null) {
+    const inline = n.style && (n.style.getPropertyValue(longhand) || (shorthand && n.style.getPropertyValue(shorthand)));
+    if (inline) return inline;
+    let best = null, score = -1;
+    for (const r of rules(n.ownerDocument)) {
+      const v = r.style.getPropertyValue(longhand) || (shorthand && r.style.getPropertyValue(shorthand));
+      if (!v) continue;
+      for (const part of r.selectorText.split(',')) {
+        let hit = false; try { hit = n.matches(part.trim()); } catch {}
+        if (!hit) continue;
+        const s = specificity(part); if (s >= score) { score = s; best = v; }
+      }
+    }
+    if (best) return best;
+    if (!inherit) return null;
+  }
+  return null;
+}
+const varsIn = v => [...String(v).matchAll(/var\(\s*(--[\w-]+)/g)].map(m => m[1]);
+
+function inspect(node, f) {
+  const win = node.ownerDocument.defaultView, c = win.getComputedStyle(node), rows = [];
+  const quiet = v => /^(0px|0px 0px|0px 0px 0px 0px|normal|none|auto|rgba\(0, 0, 0, 0\)|transparent)$/.test(v);
+  const row = (label, value, longhand, shorthand, inherit) => {
+    if (value == null || value === '') return;
+    const d = declared(node, longhand, shorthand, inherit), names = d ? varsIn(d) : [];
+    const keyword = d && /^(inherit|initial|unset|currentcolor|transparent|none|auto|0|normal)$/i.test(d.trim());
+    rows.push({label, value, token: names.length ? [...new Set(names)].join(' ') : keyword ? d.trim() : null, raw: !!d && !names.length && !keyword && !quiet(value)});
+  };
+  const r = node.getBoundingClientRect();
+  rows.push({label: 'Size', value: Math.round(r.width) + ' × ' + Math.round(r.height)});
+  let style = null; for (let n = node; n && n.classList && !style; n = n.parentElement) style = [...n.classList].find(x => x.startsWith('text-'));
+  if (style) rows.push({label: 'Text style', value: '.' + style, token: '.' + style});
+  const pad = ['top', 'right', 'bottom', 'left'].map(s => c.getPropertyValue('padding-' + s));
+  if (!pad.every(v => v === '0px')) row('Padding', pad.join(' ').replace(/^(\S+) (\S+) \1 \2$/, '$1 $2').replace(/^(\S+) \1$/, '$1'), 'padding-top', 'padding');
+  if (/flex|grid/.test(c.display) && !quiet(c.rowGap)) row('Gap', c.rowGap, 'row-gap', 'gap');
+  row('Font', c.fontFamily.split(',')[0].trim().replace(/^["']|["']$/g, ''), 'font-family', 'font', true);
+  row('Font size', c.fontSize, 'font-size', 'font', true);
+  row('Line height', c.lineHeight, 'line-height', 'font', true);
+  row('Weight', c.fontWeight, 'font-weight', 'font', true);
+  if (!quiet(c.letterSpacing)) row('Tracking', c.letterSpacing, 'letter-spacing', null, true);
+  row('Color', c.color, 'color', null, true);
+  if (!quiet(c.backgroundColor)) row('Fill', c.backgroundColor, 'background-color', 'background');
+  if (c.borderTopStyle !== 'none' && !quiet(c.borderTopWidth)) row('Border', c.borderTopWidth + ' ' + c.borderTopStyle + ' ' + c.borderTopColor, 'border-top-color', 'border');
+  if (!quiet(c.borderTopLeftRadius)) row('Radius', c.borderTopLeftRadius, 'border-top-left-radius', 'border-radius');
+  if (!quiet(c.boxShadow)) row('Shadow', c.boxShadow.length > 60 ? c.boxShadow.slice(0, 57) + '…' : c.boxShadow, 'box-shadow');
+  const text = (node.innerText || node.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+  inspected = {frame: f.id, name: node.tagName.toLowerCase() + (typeof node.className === 'string' && node.className.trim() ? '.' + node.className.trim().split(/\s+/).join('.') : ''), text, rows};
+  render();
+}
+
 function arm(iframe, f) {
   let doc; try { doc = iframe.contentDocument; } catch { return; }
   if (!doc || !doc.documentElement) return;
@@ -407,17 +706,19 @@ function arm(iframe, f) {
     if (Math.abs((heights[f.id] || f.h) - h) > 2) { heights[f.id] = h; place(); }
   };
   measure(); setTimeout(measure, 400); setTimeout(measure, 1500);
+  applyView(doc); setTimeout(() => applyView(doc), 600);
   let last = null;
   const mark = node => { if (last) last.style.outline = last.dataset.seenryOutline || ''; last = node; if (node) { node.dataset.seenryOutline = node.style.outline; node.style.outline = '2px solid #e8590c'; } };
-  doc.addEventListener('mouseover', e => { if (commenting && live === f.id) mark(e.target); }, true);
+  doc.addEventListener('mouseover', e => { if ((commenting || inspecting) && live === f.id) mark(e.target); }, true);
   doc.addEventListener('mouseout', () => mark(null), true);
   doc.addEventListener('click', e => {
+    if (inspecting && live === f.id) { e.preventDefault(); e.stopPropagation(); mark(null); inspect(e.target, f); return; }
     if (!(commenting && live === f.id)) return;
     e.preventDefault(); e.stopPropagation(); mark(null);
     const r = e.target.getBoundingClientRect(), win = doc.defaultView;
     ask({frame: f.id, ...describe(e.target), x: (r.left + r.width / 2 + win.scrollX) / f.w, y: (r.top + Math.min(r.height / 2, 40) + win.scrollY) / height(f)});
   }, true);
-  doc.addEventListener('keydown', e => { if (e.key === 'Escape') { live = null; commenting = false; render(); } });
+  doc.addEventListener('keydown', e => { if (e.key === 'Escape') { live = null; commenting = false; inspecting = false; render(); } });
 }
 function ask(note) { pending = note; $('note-target').textContent = find(note.frame).name + ' · ' + note.target; $('note-text').value = ''; $('note-dialog').showModal(); }
 
@@ -487,7 +788,7 @@ function drawLinks(boxes) {
 }
 
 // Present: play the screens at real size, following their links like a Figma prototype.
-const order = () => frames().filter(f => f.kind === 'page');
+const order = () => frames().filter(f => f.kind === 'page' && !f.section.system);
 function present(id) {
   const list = order(); if (!list.length) return;
   playing = list.some(f => f.id === id) ? id : list[0].id;
@@ -501,10 +802,13 @@ function showPlaying(load) {
   const r = $('p-stage').getBoundingClientRect(); frame.style.transform = 'scale(' + Math.min(1, (r.width - 48) / f.w, (r.height - 48) / f.h) + ')';
   if (load) frame.src = f.src + '?v=' + f.rev;
 }
+$('grid').addEventListener('click', () => { showGrid = !showGrid; $('grid').setAttribute('aria-pressed', showGrid); eachDoc(applyView); });
+$('mode').addEventListener('click', () => { dark = !dark; $('mode').textContent = dark ? 'Dark' : 'Light'; eachDoc(applyView); });
 function step(n) { const list = order(), i = list.findIndex(f => f.id === playing); playing = list[(i + n + list.length) % list.length].id; showPlaying(true); }
 $('p-frame').addEventListener('load', () => {
   let path; try { path = decodeURIComponent($('p-frame').contentWindow.location.pathname).replace(/^\//, ''); } catch { return; }
   const hit = order().find(f => f.src === path); if (hit && hit.id !== playing) { playing = hit.id; showPlaying(false); }
+  try { applyView($('p-frame').contentDocument); } catch {}
   try { $('p-frame').contentDocument.addEventListener('keydown', e => { if (e.target.closest('input, textarea, select, [contenteditable]')) return; if (e.key === 'Escape') closePresent(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); }); } catch {}
 });
 function closePresent() { $('present').hidden = true; $('p-frame').src = 'about:blank'; if (playing) { select(playing); focusFrame(playing); } playing = null; }
@@ -515,7 +819,7 @@ addEventListener('resize', () => { if (playing) showPlaying(false); });
 $('play').addEventListener('click', () => present(selected));
 $('flows').addEventListener('click', () => { showLinks = !showLinks; $('flows').setAttribute('aria-pressed', showLinks); place(); });
 
-function select(id) { selected = id; if (live !== id) { live = null; commenting = false; } render(); }
+function select(id) { selected = id; if (live !== id) { live = null; commenting = false; inspecting = false; } if (inspected && inspected.frame !== id) inspected = null; render(); }
 
 function render() {
   $('title').textContent = state.title + (state.stage ? ' · ' + state.stage : ''); document.title = state.title + ' · Seenry canvas';
@@ -541,7 +845,7 @@ function render() {
     const toggle = (text, on, fn) => { const b = el('button', {type: 'button', className: 'btn', textContent: text}); b.setAttribute('aria-pressed', on); b.addEventListener('click', fn); return b; };
     const set = value => () => { status[f.id] = status[f.id] === value ? '' : value; render(); };
     const actions = el('div', {className: 'row'});
-    if (!f.section.reference) {
+    if (!f.section.reference && !f.section.system) {
       if (f.section.choose) actions.append(toggle(picks[f.section.id] === f.id ? 'Picked' : 'Pick this', picks[f.section.id] === f.id, () => { picks[f.section.id] = picks[f.section.id] === f.id ? null : f.id; render(); }));
       actions.append(toggle('Approve', status[f.id] === 'approved', set('approved')), toggle('Needs changes', status[f.id] === 'change', set('change')));
     }
@@ -549,15 +853,23 @@ function render() {
     const whole = el('button', {type: 'button', className: 'btn', textContent: 'Add note'});
     whole.addEventListener('click', () => ask({frame: f.id, selector: '', target: 'whole screen'}));
     tools.append(whole);
-    if (f.kind === 'page' && location.protocol !== 'file:') tools.append(toggle(commenting && live === f.id ? 'Click an element…' : 'Pin a comment', commenting && live === f.id, () => { const on = !(commenting && live === f.id); commenting = on; live = on ? f.id : null; render(); }));
+    if (f.kind === 'page' && location.protocol !== 'file:') tools.append(toggle(commenting && live === f.id ? 'Click an element…' : 'Pin a comment', commenting && live === f.id, () => { const on = !(commenting && live === f.id); commenting = on; inspecting = false; live = on ? f.id : null; render(); }));
+    if (f.kind === 'page' && location.protocol !== 'file:') tools.append(toggle(inspecting && live === f.id ? 'Click an element…' : 'Inspect', inspecting && live === f.id, () => { const on = !(inspecting && live === f.id); inspecting = on; commenting = false; live = on ? f.id : null; render(); }));
     if (f.kind === 'page') { const play = el('button', {type: 'button', className: 'btn', textContent: '▶ Present'}); play.addEventListener('click', () => present(f.id)); tools.append(play); }
     if (f.kind === 'page') tools.append(toggle('Use it', live === f.id && !commenting, () => { live = live === f.id && !commenting ? null : f.id; commenting = false; render(); }));
     tools.append(el('a', {className: 'btn', href: f.src, target: '_blank', rel: 'noopener', textContent: 'Open'}));
     const list = el('div', {className: 'notes'});
     notes.forEach((n, i) => { if (n.frame !== f.id) return; const x = el('button', {type: 'button', textContent: '✕'}); x.setAttribute('aria-label', 'Remove comment'); x.addEventListener('click', () => { notes.splice(i, 1); render(); }); list.append(el('div', {className: 'note'}, el('b', {textContent: String(i + 1)}), el('span', {textContent: n.target + ': ' + n.text}), x)); });
-    inspector.replaceChildren(el('h3', {textContent: f.name}), f.note ? el('p', {textContent: f.note}) : '', actions, tools, list);
+    let specs = '';
+    if (inspected && inspected.frame === f.id) {
+      const raw = inspected.rows.filter(r => r.raw).length;
+      specs = el('div', {className: 'notes'}, el('p', {textContent: inspected.name + (inspected.text ? ' · “' + inspected.text + '”' : '')}),
+        el('dl', {className: 'specs'}, ...inspected.rows.flatMap(r => [el('dt', {textContent: r.label}), el('dd', {}, el('code', {textContent: r.value}), r.token ? el('code', {className: 'tok', textContent: '  ' + r.token}) : r.raw ? el('code', {className: 'raw', textContent: '  not a variable'}) : '')])),
+        el('p', {className: raw ? '' : '', style: 'color:' + (raw ? 'var(--warn)' : 'var(--ok)'), textContent: raw ? raw + ' value' + (raw === 1 ? '' : 's') + ' not from tokens.css' : 'Every value comes from tokens.css'}));
+    }
+    inspector.replaceChildren(el('h3', {textContent: f.name}), f.note ? el('p', {textContent: f.note}) : '', actions, tools, specs, list);
   }
-  $('hint').hidden = !live; $('hint').textContent = commenting ? 'Click the element to comment on. Esc to stop.' : 'Using this screen. Click outside it or press Esc to go back to the canvas.';
+  $('hint').hidden = !live; $('hint').textContent = inspecting ? 'Click any element to inspect its values and variables. Esc to stop.' : commenting ? 'Click the element to comment on. Esc to stop.' : 'Using this screen. Click outside it or press Esc to go back to the canvas.';
   place();
 }
 
@@ -603,9 +915,12 @@ $('zoom-fit').addEventListener('click', fitAll);
 addEventListener('keydown', e => {
   if (e.target.closest('textarea, input, dialog')) return;
   if (playing) { if (e.key === 'Escape') closePresent(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); return; }
-  if (e.key === 'Escape') { live = null; commenting = false; render(); }
+  if (e.key === 'Escape') { live = null; commenting = false; inspecting = false; render(); }
   else if (e.key === 'p' || e.key === 'P') present(selected);
   else if (e.key === 'f' || e.key === 'F') $('flows').click();
+  else if (e.key === 'g' || e.key === 'G') $('grid').click();
+  else if (e.key === 'd' || e.key === 'D') $('mode').click();
+  else if (e.key === 'i' || e.key === 'I') { if (selected && find(selected)?.kind === 'page') { inspecting = !(inspecting && live === selected); commenting = false; live = inspecting ? selected : null; render(); } }
   else if (e.key === '1') fitAll();
   else if (e.key === '+' || e.key === '=') zoomAt(...centre(), view.z * 1.25);
   else if (e.key === '-') zoomAt(...centre(), view.z / 1.25);
@@ -650,6 +965,7 @@ const page = embedded => PAGE.replace('/*STATE*/null', embedded ? JSON.stringify
 
 function serve(port, attempts = 20) {
   if (!existsSync(dir)) init();
+  writeFoundations();
   const server = createServer((req, res) => {
     const send = (code, body, type = 'text/plain; charset=utf-8') => { res.writeHead(code, {'content-type': type, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff'}); res.end(body); };
     const host = String(req.headers.host || '');
@@ -717,7 +1033,7 @@ function feedbackLines(feedback) {
   (feedback.notes || []).forEach((n, i) => lines.push(`${i + 1}. ${n.frame} ${n.target}${n.selector ? ` [${n.selector}]` : ''}: ${n.text}`));
   if (feedback.general) lines.push(`General: ${feedback.general}`);
   const state = readState(), touched = new Set([...(feedback.frames || []).map(f => f.id), ...(feedback.notes || []).map(n => n.frame)]);
-  const silent = state.sections.filter(s => !s.reference && !s.choose).flatMap(s => s.frames).filter(f => !touched.has(f.id)).map(f => f.id);
+  const silent = state.sections.filter(s => !s.reference && !s.choose && !s.system).flatMap(s => s.frames).filter(f => !touched.has(f.id)).map(f => f.id);
   if (silent.length) lines.push(`No answer on: ${silent.join(', ')}`);
   return lines;
 }
@@ -731,6 +1047,52 @@ function launch(url) {
   if (process.env.SSH_CONNECTION && process.platform !== 'darwin') return false;
   const [cmd, args] = process.platform === 'darwin' ? ['open', [url]] : process.platform === 'win32' ? ['cmd', ['/c', 'start', '', url]] : ['xdg-open', [url]];
   try { const child = spawn(cmd, args, {detached: true, stdio: 'ignore'}); child.on('error', () => {}); child.unref(); return true; } catch { return false; }
+}
+
+/** Values a screen types in instead of taking from tokens.css: the canvas's detached styles. Static, no browser. */
+function check() {
+  const state = readState(), stage = state.stage || 'wireframe', strict = ['mockup', 'prototype', 'build'].includes(stage);
+  const kit = new Set(['tokens.css', 'wire.css']);
+  const PROPS = /^(color|background|background-color|border|border-[a-z-]*color|border-color|outline-color|fill|stroke|font-family|font|font-size|font-weight|line-height|letter-spacing|padding|padding-[a-z-]+|margin|margin-[a-z-]+|gap|row-gap|column-gap|border-radius|border-[a-z-]*radius|box-shadow)$/;
+  const literal = (prop, full) => {
+    const value = full.replace(/var\((?:[^()]|\([^()]*\))*\)/g, ' ').replace(/\b(calc|min|max|clamp)\(/g, '(').trim();
+    if (!value || /^[\s(),*/+-]*$/.test(value) || /^(inherit|initial|unset|currentcolor|transparent|none|auto|0|normal)$/i.test(value)) return false;
+    if (/color|background|fill|stroke|border|outline/.test(prop) && /#[0-9a-f]{3,8}\b|\b(rgba?|hsla?|oklch|oklab|lab|lch|color)\(/i.test(value)) return true;
+    if (/^(font-family|font)$/.test(prop)) return /[a-z]/i.test(value);
+    if (prop === 'font-weight') return /\d/.test(value);
+    if (prop === 'box-shadow') return /\d/.test(value);
+    if (/radius|padding|margin|gap|font-size|letter-spacing/.test(prop)) return /\d*\.?\d+(px|rem|em)\b/.test(value) && !/^-?0(px|rem|em)?$/.test(value);
+    return false;
+  };
+  const scan = css => {
+    const found = [];
+    for (const decl of css.replace(/\/\*[\s\S]*?\*\//g, '').split(/[;{}]/)) {
+      const m = decl.match(/^\s*([a-z-]+)\s*:\s*([^]*?)\s*(!important)?\s*$/i);
+      if (!m || m[1].startsWith('--') || !PROPS.test(m[1].toLowerCase())) continue;
+      if (literal(m[1].toLowerCase(), m[2])) found.push(m[1] + ': ' + m[2].replace(/\s+/g, ' ').slice(0, 60));
+    }
+    return found;
+  };
+  let problems = 0;
+  const report = [];
+  for (const section of state.sections.filter(s => !s.reference && !s.system)) for (const f of section.frames) {
+    const html = readFileSync(join(dir, f.src), 'utf8'), issues = [];
+    let css = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m => m[1]).join('\n') + ';' + [...html.matchAll(/\sstyle\s*=\s*"([^"]*)"/gi), ...html.matchAll(/\sstyle\s*=\s*'([^']*)'/gi)].map(m => m[1]).join(';');
+    for (const m of html.matchAll(/<link\b[^>]*rel=["']?stylesheet[^>]*>/gi)) {
+      const href = m[0].match(/href\s*=\s*["']([^"']+)["']/i)?.[1];
+      if (!href || /^[a-z]+:|^\//i.test(href) || kit.has(basename(href))) continue;
+      const file = resolve(dir, dirname(f.src), href);
+      if (file.startsWith(dir + sep) && existsSync(file)) css += ';' + readFileSync(file, 'utf8');
+    }
+    const detached = scan(css);
+    if (detached.length) issues.push(`${detached.length} detached value${detached.length === 1 ? '' : 's'}: ${[...new Set(detached)].slice(0, 6).join(' · ')}${detached.length > 6 ? ' …' : ''}`);
+    if (!/<title[^>]*>[^<]+</i.test(html)) issues.push('no <title>, so the frame has no name');
+    if (strict && !/href\s*=\s*["'][^"']*tokens\.css/i.test(html)) issues.push('does not link tokens.css');
+    if (issues.length) { problems += strict ? issues.length : issues.filter(i => !i.includes('detached')).length; report.push(`${f.id}\n  ${issues.join('\n  ')}`); }
+  }
+  console.log(report.length ? report.join('\n') : 'Every screen takes its values from tokens.css.');
+  if (report.length && !strict) console.log(`Stage "${stage}": detached values are allowed in wireframes and become errors from "mockup".`);
+  return problems ? 1 : 0;
 }
 
 async function loadPlaywright() {
@@ -757,13 +1119,15 @@ if (command === 'init') {
     for (let i = 0; i < 40 && !(info = running()); i++) await new Promise(r => setTimeout(r, 100));
   }
   if (!info) { console.error(`The canvas did not start. See ${join(dir, '.canvas.log')}, or run "node canvas.mjs static" for a file that opens from disk.`); process.exit(1); }
-  const state = readState(), count = state.sections.filter(s => !s.reference).reduce((n, s) => n + s.frames.length, 0);
+  const state = readState(), design = state.sections.filter(s => !s.reference && !s.system), count = design.reduce((n, s) => n + s.frames.length, 0);
   const url = `http://127.0.0.1:${info.port}/`, opened = launch(url);
-  console.log(`Seenry canvas: ${url}  (${count} screen${count === 1 ? '' : 's'} in ${state.sections.filter(s => !s.reference).length} section${state.sections.filter(s => !s.reference).length === 1 ? '' : 's'})${opened ? ', opened in the browser' : ''}`);
+  console.log(`Seenry canvas: ${url}  (${count} screen${count === 1 ? '' : 's'} in ${design.length} section${design.length === 1 ? '' : 's'})${opened ? ', opened in the browser' : ''}`);
   if (!opened) console.log('No browser here. Give the person the address, or run "canvas.mjs shot" and show canvas.png.');
   if (state.error) console.log(state.error);
 } else if (command === 'list') {
   printList(readState());
+} else if (command === 'check') {
+  process.exit(check());
 } else if (command === 'stop') {
   const info = running();
   if (info) { try { process.kill(info.pid); } catch {} }
@@ -787,12 +1151,14 @@ if (command === 'init') {
   printFeedback(JSON.parse(readFileSync(path, 'utf8')));
 } else if (command === 'static') {
   if (!existsSync(dir)) init();
+  writeFoundations();
   writeFileSync(join(dir, 'canvas.html'), page(readState()));
   console.log(`Wrote ${join(dir, 'canvas.html')}. It opens from disk; feedback is copied as text to paste to the agent.`);
 } else if (command === 'shot') {
   const playwright = await loadPlaywright();
   if (!playwright) { console.error('Playwright not found. Install it in the project or pass --playwright <path to playwright/index.mjs>.'); process.exit(2); }
   const chromium = playwright.chromium || playwright.default?.chromium;
+  writeFoundations();
   writeFileSync(join(dir, 'canvas.html'), page(readState()));
   const browser = await chromium.launch({headless: true, ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
   const tab = await browser.newPage({viewport: {width: Number(flag('width', 2000)), height: Number(flag('height', 1300))}, deviceScaleFactor: 1});
@@ -805,5 +1171,5 @@ if (command === 'init') {
   await browser.close();
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|static|shot|serve|stop [dir]'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|static|shot|serve|stop [dir]'); process.exit(2);
 }

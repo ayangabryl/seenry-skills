@@ -31,6 +31,7 @@ The pattern is one family for headline and body, a headline of 48 to 72px at wei
 - Default to one family. Add a second only for a distinct voice, such as an editorial serif headline or a mono for real data.
 - A face tuned well beats a more unusual face left at its defaults. Inter at weight 700 and default tracking reads as a template; Inter Display at 56px, weight 500 and -2.5% does not.
 - Use a free face and never claim a licensed one. Fonts and sources are in `seenry-assets`.
+- Load the real files on the canvas from the first mockup: WOFF2 in `.seenry/canvas/fonts/` with `@font-face` in `tokens.css`. Foundations shows whether each font loaded.
 
 | Voice | Free faces |
 | --- | --- |
