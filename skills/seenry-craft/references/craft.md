@@ -31,7 +31,7 @@ Geometric alignment comes first and is covered in [alignment](alignment.md): key
 
 ## Borders, dividers, surfaces
 
-- Prefer space to lines. When lines are needed, 1px at border-1, inset to the content edge in lists.
+- Prefer space to lines. When lines are needed, 1px at border-1, inset to the content edge in lists. The full rules (one job, one direction, never boxing, column rules) are in [lines](lines.md).
 - Do not draw both a border and a shadow and a background change on the same card; choose one separation method per level.
 - Nested containers: each level either changes surface or has a border, not both, and not the same as its parent.
 - Hairline on translucent headers only after the page has scrolled.

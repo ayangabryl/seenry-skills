@@ -90,3 +90,16 @@ test('pair puts a screen beside its reference at the same width', {skip}, () => 
   assert.ok(png.readUInt32BE(16) > 2 * 390, 'two screens side by side');
   assert.notEqual(run('pair', '01-flow/01-good', 'missing.png', '--dir', dir).status, 0);
 });
+
+test('verify warns about boxed columns, uneven steps and a rule that runs past its content', {skip}, () => {
+  const {dir} = project();
+  const head = '<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="../tokens.css"><title>Lines</title>';
+  writeFileSync(join(dir, '01-flow', '01-good.phone.html'), head + '<style>body{margin:0;background:var(--color-bg);color:var(--color-text)}.h{margin:0 var(--space-4);padding:0 var(--space-4);border-bottom:1px solid var(--color-border)}.f{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--color-border);margin:var(--space-4)}.f div{border-right:1px solid var(--color-border)}.f div+div{padding-left:var(--space-4)}.g{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);margin:var(--space-4)}.g div{border-top:1px solid var(--color-border)}</style><div class="h">Head</div><div class="f"><div>One</div><div>Two</div><div>Three</div></div><div class="g"><div>One</div><div>Two</div><div>Three</div></div>');
+  const out = run('verify', '01-flow/01-good', '--json', '--dir', dir);
+  const lines = JSON.parse(out.stdout).issues.filter(i => i.kind === 'line');
+  assert.equal(lines.length, 3, JSON.stringify(lines));
+  assert.ok(lines.some(i => /past its content/.test(i.message) && /div\.h/.test(i.selector)));
+  assert.ok(lines.some(i => /both directions/.test(i.message) && /div\.f/.test(i.selector)));
+  assert.ok(lines.some(i => /uneven steps/.test(i.message)));
+  assert.ok(!lines.some(i => /div\.g/.test(i.selector)), 'column rules with a gap are fine');
+});

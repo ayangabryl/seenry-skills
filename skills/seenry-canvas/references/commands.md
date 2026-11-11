@@ -31,7 +31,7 @@ These need Playwright in the project, or `--playwright <path to playwright/index
 | --- | --- |
 | `render [screens] [--mode light\|dark\|both] [--device phone\|tablet\|desktop\|all] [--scale 2]` | Full-page PNGs in `.seenry/canvas/.renders/` |
 | `tree [screens]` | Each element's box, text, link and spec, and the variable behind each style; `!` marks a typed value |
-| `verify [screens]` | Exits 1 on sideways overflow, clipped text, contrast under 4.5:1 (3:1 for large text) in either mode, text under 12px, unnamed controls, broken links or typed values; warns on small tap targets, missing alt text and a component drawn differently across screens |
+| `verify [screens]` | Exits 1 on sideways overflow, clipped text, contrast under 4.5:1 (3:1 for large text) in either mode, text under 12px, unnamed controls, broken links or typed values; warns on small tap targets, missing alt text, a component drawn differently across screens, and lines used badly (a rule running past its content, lines in both directions boxing a group, ruled columns starting at uneven steps) |
 | `diff [screens]` | The share of pixels changed since the last render, with a diff image |
 | `check` | Typed values per screen, without a browser. Errors from the `mockup` stage on |
 
@@ -66,5 +66,5 @@ Feedback lists picks, "More like this" requests, approved screens, screens that 
 
 | Situation | Command |
 | --- | --- |
-| The person cannot open a local address (a cloud session) | `shot` writes `canvas.png` of the whole canvas; show it and take feedback in chat |
+| The person cannot open a local address (a cloud session) | `127.0.0.1` is your machine, not theirs: say so. If your environment can publish a folder as a private page, run `static` and publish `canvas.html` with the canvas files beside it; otherwise `shot` writes `canvas.png`. Either way take feedback in chat |
 | No server can run | `static` writes `canvas.html`, which opens from disk and copies feedback as text |

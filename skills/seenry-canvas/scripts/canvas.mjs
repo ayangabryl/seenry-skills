@@ -1633,6 +1633,26 @@ function analyzeFrame(opts) {
     out.nodes.push({selector: sel, tag: n.tagName.toLowerCase(), id: n.id || '', classes: cls, depth, text: text.slice(0, 80),
       box: [Math.round(r.left - body.left), Math.round(r.top + scrollY), Math.round(r.width), Math.round(r.height)], styles, spec: n.getAttribute('data-spec') || '', href: n.getAttribute('href') || ''});
   }
+  // Lines: a rule is as wide as what it rules, runs in one direction per group, and never boxes text.
+  const px = v => parseFloat(v) || 0, clear = col => rgba(col)[3] < 0.05;
+  for (const n of all) {
+    if (!visible(n) || ['TABLE', 'THEAD', 'TBODY', 'TR', 'TD', 'TH', 'HR', 'INPUT', 'SELECT', 'TEXTAREA', 'BUTTON'].includes(n.tagName)) continue;
+    const c = getComputedStyle(n), r = n.getBoundingClientRect();
+    const t = px(c.borderTopWidth), b = px(c.borderBottomWidth), l = px(c.borderLeftWidth), rt = px(c.borderRightWidth);
+    if ((t || b) && !l && !rt && clear(c.backgroundColor) && r.width < innerWidth - 1 && Math.max(px(c.paddingLeft), px(c.paddingRight)) >= 8)
+      issue('warn', 'line', path(n), `The rule on this element runs ${Math.round(Math.max(px(c.paddingLeft), px(c.paddingRight)))}px past its content; put it on the inner element so it ends at the content edge, or make it full-bleed`);
+    const kids = [...n.children].filter(visible);
+    if (kids.length < 2) continue;
+    const ks = kids.map(k => ({k, c: getComputedStyle(k), r: k.getBoundingClientRect()}));
+    const sideBySide = ks.every((x, i) => !i || x.r.left >= ks[i - 1].r.right - 1);
+    const ruled = ks.filter(x => { const v = px(x.c.borderLeftWidth) || px(x.c.borderRightWidth), full = px(x.c.borderLeftWidth) && px(x.c.borderRightWidth) && px(x.c.borderTopWidth) && px(x.c.borderBottomWidth); return v && !full; });
+    if (!sideBySide || ruled.length < 2) continue;
+    if (t || b || ks.some(x => px(x.c.borderTopWidth) || px(x.c.borderBottomWidth)))
+      issue('warn', 'line', path(n), 'Lines run in both directions here and box the content; keep one direction (a short rule on top of each column, no dividers between)');
+    const starts = ks.map(x => x.r.left + px(x.c.borderLeftWidth) + px(x.c.paddingLeft)), steps = starts.slice(1).map((v, i) => v - starts[i]);
+    if (Math.max(...steps) - Math.min(...steps) > 4)
+      issue('warn', 'line', path(n), `Columns divided by lines start at uneven steps (${steps.map(v => Math.round(v)).join(', ')}px); drop the dividers and use a gap, or give every column the same inset`);
+  }
   return out;
 }
 

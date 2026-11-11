@@ -42,6 +42,7 @@ A screen uses five to nine type sizes and two or three weights. Each size is pai
 - Every space is a multiple of 4px, from one scale.
 - The gap between groups is at least twice the gap inside one: 8px inside means 16px or more between.
 - Separate with space first, a surface tone second, a line last. One separation method per level: never a border, a shadow and a tint on the same card.
+- When you do draw a line, it has one job (separate rows, start a section, or bound an object you can act on), runs in one direction per group, is exactly as wide as what it rules, and never meets another line to form a box. Side-by-side columns get a short rule on top of each, not dividers between them. See [lines](references/lines.md).
 - Everything sits on a small set of shared edges. Two edges 1–6px apart are a mistake, not a choice.
 - One primary action per view. More than three secondary actions go behind a menu.
 
@@ -125,6 +126,7 @@ Read one only when the task is in that area.
 | Tokens, spacing scale, grid, density | [system](references/system.md) |
 | Alignment and optical corrections | [alignment](references/alignment.md), [optical](references/optical.md) |
 | Icons, hit areas, borders, small details | [craft](references/craft.md) |
+| Rules, dividers and borders: when to draw one and how | [lines](references/lines.md) |
 | Component anatomies with measured defaults | [components](references/components.md) |
 | Accessibility checks | [accessibility](references/accessibility.md) |
 | Phone browser quirks | [mobile web](references/mobile-web.md) |

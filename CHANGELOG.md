@@ -16,6 +16,11 @@
 
 - **New: seenry-libraries.** Picks the maintained library for a UI job before anything is hand-built: platform first, then a catalog of about 115 packages by job, each with its maker and use, the mismatches to catch, and license and maintenance flags. `check.mjs` reads version, release date, license and weekly downloads from npm and flags stale, deprecated or unusually licensed packages. The Sonner guide moved here.
 
+### Lines
+
+- **seenry-craft:** a lines reference: a line has one of three jobs, one direction per group, never boxing text, exactly as wide as what it rules, column rules instead of dividers. `canvas.mjs verify` now warns on a rule running past its content, lines in both directions, and ruled columns starting at uneven steps.
+- **seenry-canvas:** the person who asked always sees the canvas, in cloud sessions too; `resolve` handles options drawn for several devices.
+
 ### Seenry 2.1 core
 
 A test run showed that references alone did not stop generated-looking pages: the agent turned each reference into a description and rebuilt it from memory, and the model's average came back. Tracing the reference's measured structure did stop it. This release builds the flow around that, and covers every part of Emil Kowalski's skills in Seenry's own words.
