@@ -3,6 +3,8 @@
 // No packages. Node 18+.
 //
 //   node identity.mjs fetch "Geist" "Instrument Serif" --weights 400,600 --italic [--source auto|fontsource|fontshare] [--out .seenry/canvas/fonts]
+//   node identity.mjs fetch "Karrik" --url https://<foundry>/karrik.zip [--license OFL-1.1]   (a font file or zip from the foundry or GitHub)
+//   node identity.mjs ramp --name green --color "#2f5a4c"   (a 12-step OKLCH scale with a job per step, light and dark)
 //   node identity.mjs info "Open Runde"
 //   node identity.mjs specimen --fonts "Geist,Satoshi,Newsreader" --lines "Headline|Second line|€38,000" [--dir .seenry/canvas] [--ground #f4f1ea --ink #141210]
 //   node identity.mjs study --name "Limestone" --source "where the colors come from" --ground #e9e4da --ink #10213a --dominant #2f5d50 --accent #e2452a
@@ -11,7 +13,8 @@
 // Fontsource covers Google Fonts and other open fonts (Inter, Geist, Open Runde, Nunito…), with SPDX licenses.
 // Fontshare covers the Indian Type Foundry free catalog (Satoshi, General Sans, Switzer…), under ITF's Free Font License.
 import {mkdirSync, writeFileSync, readFileSync, existsSync} from 'node:fs';
-import {join, resolve, relative} from 'node:path';
+import {join, resolve, relative, basename, extname} from 'node:path';
+import {inflateRawSync} from 'node:zlib';
 
 const args = process.argv.slice(2), command = args[0];
 const flags = {}, positional = [];
@@ -59,6 +62,47 @@ async function fromFontshare(name) {
   };
 }
 
+
+// A zip from a foundry or GitHub: read its central directory and inflate the entries we need. No packages.
+function unzip(buf) {
+  let eocd = -1;
+  for (let i = buf.length - 22; i >= Math.max(0, buf.length - 65557); i--) if (buf.readUInt32LE(i) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) return null;
+  const count = buf.readUInt16LE(eocd + 10), out = [];
+  let p = buf.readUInt32LE(eocd + 16);
+  for (let n = 0; n < count && buf.readUInt32LE(p) === 0x02014b50; n++) {
+    const method = buf.readUInt16LE(p + 10), size = buf.readUInt32LE(p + 20), nameLen = buf.readUInt16LE(p + 28), extra = buf.readUInt16LE(p + 30), comment = buf.readUInt16LE(p + 32), local = buf.readUInt32LE(p + 42);
+    const name = buf.subarray(p + 46, p + 46 + nameLen).toString('utf8');
+    p += 46 + nameLen + extra + comment;
+    out.push({name, read: () => { const start = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28), data = buf.subarray(start, start + size); return method === 8 ? inflateRawSync(data) : data; }});
+  }
+  return out;
+}
+const WEIGHT_WORDS = [['hairline', 100], ['thin', 100], ['extralight', 200], ['ultralight', 200], ['semilight', 350], ['light', 300], ['book', 400], ['regular', 400], ['normal', 400], ['medium', 500], ['semibold', 600], ['demibold', 600], ['demi', 600], ['extrabold', 800], ['ultrabold', 800], ['heavy', 800], ['bold', 700], ['black', 900], ['ultra', 900], ['fat', 900]];
+function styleOf(name) {
+  const n = basename(name).toLowerCase().replace(/[\s_-]/g, '');
+  const italic = /italic|oblique|ital\b/.test(n);
+  const num = n.match(/(?:^|[^0-9])([1-9]00)(?:[^0-9]|$)/);
+  const word = WEIGHT_WORDS.find(([w]) => n.includes(w));
+  return {weight: num ? Number(num[1]) : word ? word[1] : 400, style: italic ? 'italic' : 'normal', variable: /variable|\[wght|vf\b/.test(n)};
+}
+const FORMAT = {'.woff2': 'woff2', '.woff': 'woff', '.otf': 'opentype', '.ttf': 'truetype'};
+async function fromUrl(name, url) {
+  const data = await get(url, 'buffer');
+  if (!data) fail(`Could not download ${url}`);
+  const entries = extname(new URL(url).pathname).toLowerCase() === '.zip' || data.readUInt32LE(0) === 0x04034b50 ? unzip(data) : [{name: basename(new URL(url).pathname), read: () => data}];
+  if (!entries) fail(`${url} is neither a font file nor a readable zip.`);
+  const fonts = entries.filter(e => FORMAT[extname(e.name).toLowerCase()] && !/__MACOSX|\/\./.test(e.name));
+  const rank = e => ['.woff2', '.woff', '.otf', '.ttf'].indexOf(extname(e.name).toLowerCase());
+  const best = new Map();
+  for (const e of fonts.sort((a, b) => rank(a) - rank(b))) { const st = styleOf(e.name), key = st.weight + st.style; if (!best.has(key) && !st.variable) best.set(key, {e, ...st}); }
+  if (!best.size) for (const e of fonts) { const st = styleOf(e.name); const key = 'v' + st.style; if (!best.has(key)) best.set(key, {e, ...st, weight: '100 900'}); }
+  const licenseEntry = entries.find(e => /(^|\/)(ofl|license|licence)[^/]*\.(txt|md)$|(^|\/)(OFL|LICENSE)$/i.test(e.name));
+  const licenseText = licenseEntry ? licenseEntry.read().toString('utf8') : '';
+  const license = flags.license && flags.license !== true ? flags.license : /SIL Open Font License/i.test(licenseText) ? 'OFL-1.1' : /Apache License/i.test(licenseText) ? 'Apache-2.0' : licenseText ? 'see LICENSE' : 'unknown: check the foundry page';
+  return {family: name, source: 'url', license, origin: url, licenseText, items: [...best.values()]};
+}
+
 async function find(name) {
   const source = flags.source || 'auto';
   if (source !== 'fontshare') { const f = await fromFontsource(name); if (f) return f; }
@@ -74,8 +118,22 @@ async function fetchFonts() {
   const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : [];
   const wanted = flags.weights ? String(flags.weights).split(',').map(Number) : null;
   for (const name of positional) {
+    if (flags.url && flags.url !== true) {
+      const u = await fromUrl(name, flags.url), files = [];
+      for (const it of u.items) {
+        const ext = extname(it.e.name).toLowerCase(), file = `${fileName(name)}-${String(it.weight).replace(' ', '-')}${it.style === 'italic' ? 'i' : ''}${ext}`;
+        writeFileSync(join(out, file), it.e.read()); files.push({file, weight: it.weight, style: it.style, format: FORMAT[ext]});
+      }
+      if (u.licenseText) writeFileSync(join(out, `${fileName(name)}-LICENSE.txt`), u.licenseText);
+      const entry = {family: name, source: 'url', license: u.license, origin: u.origin, files, retrieved: new Date().toISOString()};
+      const i = manifest.findIndex(m => m.family === name);
+      if (i >= 0) manifest[i] = entry; else manifest.push(entry);
+      console.log(`${name}  ${u.license}  ${files.map(x => x.weight + (x.style === 'italic' ? 'i' : '')).join(' ') || 'no font files found'}  ← ${u.origin}`);
+      if (!files.length) process.exitCode = 1;
+      continue;
+    }
     const f = await find(name);
-    if (!f) { console.error(`Not found on Fontsource or Fontshare: "${name}". Premium faces come from their foundry; see references/type.md.`); process.exitCode = 1; continue; }
+    if (!f) { console.error(`Not found on Fontsource or Fontshare: "${name}". Download it from the foundry with --url <font file or zip>; premium faces need the foundry's license (references/type.md).`); process.exitCode = 1; continue; }
     const weights = (wanted || [400, 500, 600, 700]).map(w => f.weights.includes(w) ? w : f.weights.reduce((a, b) => Math.abs(b - w) < Math.abs(a - w) ? b : a)).filter((w, i, a) => a.indexOf(w) === i);
     const styles = flags.italic ? ['normal', 'italic'].filter(s => f.styles.includes(s)) : ['normal'];
     const files = [];
@@ -93,9 +151,11 @@ async function fetchFonts() {
     console.log(`${f.family}  ${f.license}  ${files.map(x => x.weight + (x.style === 'italic' ? 'i' : '')).join(' ')}  ← ${f.origin}`);
   }
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
-  const css = manifest.flatMap(m => m.files.map(x => `@font-face { font-family: "${m.family}"; src: url("${x.file}") format("woff2"); font-weight: ${x.weight}; font-style: ${x.style}; font-display: swap; }`)).join('\n');
+  const css = manifest.flatMap(m => m.files.map(x => `@font-face { font-family: "${m.family}"; src: url("${x.file}") format("${x.format || 'woff2'}"); font-weight: ${x.weight}; font-style: ${x.style}; font-display: swap; }`)).join('\n');
   writeFileSync(join(out, 'fonts.css'), `/* Generated by identity.mjs. Licenses and sources are in fonts.json. */\n${css}\n`);
-  console.log(`Wrote ${relative(process.cwd(), join(out, 'fonts.css'))} and fonts.json. ITF-FFL fonts are free for commercial use but not open source: never redistribute the files outside the product.`);
+  console.log(`Wrote ${relative(process.cwd(), join(out, 'fonts.css'))} and fonts.json.`);
+  if (manifest.some(m => m.license === 'ITF-FFL')) console.log('ITF-FFL fonts are free for commercial use but not open source: never redistribute the files outside the product.');
+  if (manifest.some(m => /unknown|see LICENSE/.test(m.license))) console.log('Some licenses are not recognized: read the LICENSE file or the foundry page before shipping.');
 }
 
 async function info() {
@@ -218,8 +278,53 @@ h1{font-family:"${flags.display}";font-weight:700;font-size:112px;line-height:.9
   console.log(`Wrote ${relative(process.cwd(), file)}. Swatch widths show the proportions: ground, ink, dominant, accent. Run canvas.mjs verify 00-identity for contrast in both modes.`);
 }
 
+// OKLCH ramps: one color in, twelve steps out, each with a job (backgrounds, borders, solid fills, text), light and dark.
+const toLin = c => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4, toGam = c => c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055;
+function hexToOklch(hex) {
+  const m = String(hex).replace('#', ''); if (!/^[0-9a-f]{6}$/i.test(m)) fail(`Not a #rrggbb color: ${hex}`, 2);
+  const [r, g, b] = [0, 2, 4].map(i => toLin(parseInt(m.slice(i, i + 2), 16) / 255));
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), mm = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s2 = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l + 0.793617785 * mm - 0.0040720468 * s2, A = 1.9779984951 * l - 2.428592205 * mm + 0.4505937099 * s2, B = 0.0259040371 * l + 0.7827717662 * mm - 0.808675766 * s2;
+  return {L, C: Math.hypot(A, B), H: (Math.atan2(B, A) * 180 / Math.PI + 360) % 360};
+}
+function oklchToRgb(L, C, H) {
+  const a = C * Math.cos(H * Math.PI / 180), b = C * Math.sin(H * Math.PI / 180);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s3 = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s3, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s3, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s3];
+}
+const inGamut = rgb => rgb.every(v => v >= -1e-4 && v <= 1 + 1e-4);
+const fitChroma = (L, C, H) => { let c = C; while (c > 0 && !inGamut(oklchToRgb(L, c, H))) c -= 0.002; return Math.max(0, c); };
+const hexOf = (L, C, H) => '#' + oklchToRgb(L, C, H).map(v => Math.round(Math.min(1, Math.max(0, toGam(Math.min(1, Math.max(0, v))))) * 255).toString(16).padStart(2, '0')).join('');
+const relLum = hex => { const m = hex.slice(1); const [r, g, b] = [0, 2, 4].map(i => toLin(parseInt(m.slice(i, i + 2), 16) / 255)); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+const contrast = (x, y) => { const a = relLum(x), b = relLum(y); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
+const JOBS = ['app background', 'subtle background', 'component background', 'component hover', 'component pressed or selected', 'subtle border, separator', 'component border', 'strong border, focus ring', 'solid fill: the brand color', 'solid fill hover', 'low-contrast text', 'high-contrast text'];
+function ramp() {
+  const name = flags.name && flags.name !== true ? slug(flags.name) : 'brand';
+  if (!flags.color || flags.color === true) fail('Usage: identity.mjs ramp --name green --color "#2f5a4c" [--neutral]', 2);
+  const base = hexToOklch(flags.color), chromaCap = flags.neutral ? Math.min(base.C, 0.02) : base.C;
+  const lightL = [0.993, 0.982, 0.958, 0.932, 0.903, 0.868, 0.818, 0.745, null, null, 0.47, 0.26];
+  const darkL = [0.165, 0.195, 0.235, 0.27, 0.305, 0.345, 0.405, 0.49, null, null, 0.8, 0.94];
+  const shape = [0.06, 0.12, 0.22, 0.32, 0.42, 0.52, 0.62, 0.8, 1, 1, 0.92, 0.5];
+  const solid = Math.min(Math.max(base.L, 0.35), 0.82);
+  const build = (Ls, dark) => Ls.map((L, i) => {
+    const l = L ?? (i === 8 ? solid : dark ? Math.min(solid + 0.05, 0.9) : Math.max(solid - 0.05, 0.3));
+    // Keep chroma at the ends low and nudge very light steps a little toward warmer hues, so tints stay clean, not grey.
+    const c = fitChroma(l, chromaCap * shape[i] * (i === 8 || i === 9 ? 1 : 1.05), base.H);
+    return {step: i + 1, L: +l.toFixed(3), C: +c.toFixed(3), H: +base.H.toFixed(1), hex: hexOf(l, c, base.H)};
+  });
+  const light = build(lightL, false), dark = build(darkL, true);
+  const css = s => s.map(x => `  --${name}-${x.step}: oklch(${x.L} ${x.C} ${x.H}); /* ${x.hex} ${JOBS[x.step - 1]} */`).join('\n');
+  const onSolid = h => contrast(h, '#ffffff') >= contrast(h, '#000000') ? 'white' : 'black';
+  console.log(`/* ${name} from ${flags.color}: oklch(${base.L.toFixed(3)} ${base.C.toFixed(3)} ${base.H.toFixed(1)}). Steps 1–2 backgrounds, 3–5 component fills, 6–8 borders, 9–10 solid fills, 11–12 text. */`);
+  console.log(`:root {\n${css(light)}\n}\n:root[data-theme="dark"] {\n${css(dark)}\n}`);
+  const t11 = contrast(light[10].hex, light[0].hex), t12 = contrast(light[11].hex, light[0].hex), d11 = contrast(dark[10].hex, dark[0].hex), d12 = contrast(dark[11].hex, dark[0].hex);
+  console.log(`/* Contrast on step 1: step 11 ${t11.toFixed(1)}:1, step 12 ${t12.toFixed(1)}:1 (dark ${d11.toFixed(1)}:1, ${d12.toFixed(1)}:1). Text on step 9 reads best in ${onSolid(light[8].hex)} (${Math.max(contrast(light[8].hex, '#ffffff'), contrast(light[8].hex, '#000000')).toFixed(1)}:1). */`);
+  if (Math.abs(light[8].L - base.L) > 0.02) console.log(`/* Step 9 moved from L ${base.L.toFixed(3)} to ${light[8].L} so it works as a fill; keep the exact source color as --${name}-brand if the logo needs it. */`);
+}
+
 if (command === 'fetch') await fetchFonts();
 else if (command === 'info') await info();
 else if (command === 'specimen') specimen();
 else if (command === 'study') study();
-else fail('Usage: node identity.mjs fetch|info|specimen|study  (see the header of this file)', 2);
+else if (command === 'ramp') ramp();
+else fail('Usage: node identity.mjs fetch|info|specimen|study|ramp  (see the header of this file)', 2);

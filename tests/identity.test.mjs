@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {tmpdir} from 'node:os';
-import {spawnSync} from 'node:child_process';
+import {spawn, spawnSync} from 'node:child_process';
 
 const script = resolve('skills/seenry-identity/scripts/identity.mjs');
 const run = (cwd, ...args) => spawnSync(process.execPath, [script, ...args], {encoding: 'utf8', cwd});
@@ -39,4 +39,31 @@ test('study picks readable text on filled colors and warns about a weak accent',
   assert.match(html, /--on-dominant:#c9c9c5/);
   assert.match(html, /:root\[data-theme="dark"\]\{[^}]*--on-dominant:#d7d7d3/);
   assert.notEqual(run(root, 'study', '--name', 'X').status, 0);
+});
+
+test('fetch --url takes a font zip from a foundry, keeps its license and writes the right @font-face format', async t => {
+  const {root, dir} = canvas();
+  const zip = join(root, 'font.zip');
+  const made = spawnSync('python3', ['-c', `import zipfile;z=zipfile.ZipFile(${JSON.stringify(zip)},'w',zipfile.ZIP_DEFLATED);z.writestr('Demo-main/fonts/otf/Demo-Bold.otf',b'OTTO'+b'x'*64);z.writestr('Demo-main/fonts/otf/Demo-Regular.otf',b'OTTO'+b'y'*64);z.writestr('Demo-main/OFL.txt','SIL Open Font License, Version 1.1');z.close()`]);
+  if (made.status !== 0) return t.skip('python3 is needed to build the test zip');
+  const {createServer} = await import('node:http');
+  const server = createServer((req, res) => { res.end(readFileSync(zip)); }).listen(0, '127.0.0.1');
+  await new Promise(r => server.once('listening', r));
+  t.after(() => server.close());
+  const out = await new Promise(done => { const p = spawn(process.execPath, [script, 'fetch', 'Demo', '--url', `http://127.0.0.1:${server.address().port}/demo.zip`, '--out', join(dir, 'fonts')], {cwd: root}); let o = ''; p.stdout.on('data', d => o += d); p.on('close', code => done({code, o})); });
+  assert.equal(out.code, 0, out.o);
+  assert.match(out.o, /Demo {2}OFL-1\.1 {2}700 400|Demo {2}OFL-1\.1 {2}400 700/);
+  const css = readFileSync(join(dir, 'fonts', 'fonts.css'), 'utf8');
+  assert.match(css, /Demo-700\.otf"\) format\("opentype"\); font-weight: 700/);
+  assert.match(readFileSync(join(dir, 'fonts', 'Demo-LICENSE.txt'), 'utf8'), /Open Font License/);
+});
+
+test('ramp prints twelve OKLCH steps with jobs for light and dark, and the text contrast', () => {
+  const out = run(tmpdir(), 'ramp', '--name', 'shutter', '--color', '#2f5a4c');
+  assert.equal(out.status, 0, out.stderr);
+  assert.equal((out.stdout.match(/--shutter-\d+: oklch\(/g) || []).length, 24);
+  assert.match(out.stdout, /--shutter-9: oklch\(0\.432 0\.054 170\.5\); \/\* #2f5a4c solid fill/);
+  const [, t12] = out.stdout.match(/step 12 ([\d.]+):1/);
+  assert.ok(Number(t12) >= 7, 'high-contrast text passes AAA on the background');
+  assert.notEqual(run(tmpdir(), 'ramp', '--color', 'green').status, 0);
 });

@@ -1,6 +1,6 @@
 ---
 name: seenry-identity
-description: "Designs a product's type and color system before any screen, the way a brand studio does: one idea in a line, the clichés named and avoided, typefaces shortlisted from the best open-source (Inter, Geist, Open Runde, Nunito, Bricolage, Newsreader and more), Fontshare and premium foundries (Klim, Grilli, Dinamo, Pangram Pangram), specimen boards with the real copy, color studies from real sources, the person's pick on the canvas, then tokens.css and self-hosted fonts with their licenses. Use when starting a new product or brand, when fonts or colors feel weak, generic or AI-made, when choosing or pairing typefaces, or building a palette."
+description: "Designs a product's type and color system before any screen, the way a brand studio does: one idea in a line, the clichés named and avoided, typefaces shortlisted from the best open-source (Inter, Geist, Open Runde, Nunito, Bricolage, Newsreader), curated open foundries (Open Foundry, Collletttivo, Velvetyne), Fontshare and premium foundries (Klim, Grilli, Dinamo, Pangram Pangram), specimen boards with the real copy, color studies from real sources with OKLCH ramps, the person's pick on the canvas, then tokens.css and self-hosted fonts with their licenses. Use when starting a new product or brand, when fonts or colors feel weak, generic or AI-made, when choosing or pairing typefaces, or building a palette."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -54,14 +54,18 @@ Write `.seenry/identity.md`: the idea in one line, three adjectives the type mus
 
 ### 2. Shortlist typefaces
 
-From the [type catalog](references/type.md), pick four identity candidates that each read the idea differently (for example: a grotesk with character, a serif with a point of view, a condensed or wide display, and the one premium face that would be the studio's answer), plus a UI face for each (often the same family). Prefer, in order: the brand's fonts; open source (OFL) and Fontshare faces that fit; a premium face, comped with its trial, when the budget allows and nothing free carries the idea.
+From the [type catalog](references/type.md), pick four identity candidates that each read the idea differently (for example: a grotesk with character, a serif with a point of view, a condensed or wide display, and the one premium face that would be the studio's answer), plus a UI face for each (often the same family). Prefer, in order: the brand's fonts; open source (OFL), including the [curated open foundries](references/type.md#curated-open-foundries) where identity faces with real character live, and Fontshare faces that fit; a premium face, comped with its trial, when the budget allows and nothing free carries the idea. Start from the [recipes by product](references/type.md#recipes-by-product), then replace at least one candidate with something less expected.
 
 ```sh
 node scripts/identity.mjs info "Geist" "Bricolage Grotesque" "Newsreader" "Switzer"
 node scripts/identity.mjs fetch "Geist" "Bricolage Grotesque" "Newsreader" "Switzer" --weights 400,600,700 --italic
 ```
 
-`fetch` writes WOFF2 files, `fonts.css` and `fonts.json` (each family's license and source) into `.seenry/canvas/fonts/`.
+`fetch` writes WOFF2 files, `fonts.css` and `fonts.json` (each family's license and source) into `.seenry/canvas/fonts/`. For a face that is not on Fontsource or Fontshare (most of Collletttivo and Velvetyne), pass the foundry's font file or zip, or a GitHub archive; the license file comes with it:
+
+```sh
+node scripts/identity.mjs fetch "Bagnard" --url https://github.com/sebsan/bagnard/archive/refs/heads/master.zip
+```
 
 **Done when** four candidates and their UI faces are fetched or, for premium faces, their trials are in `fonts/` with a note to license them.
 
@@ -84,7 +88,7 @@ Follow [color](references/color.md): collect real images from three different so
 node scripts/identity.mjs study --name "Limestone" --source "street plaques and shutters" --ground "#e7e2d6" --ink "#14213a" --dominant "#2f5a4c" --accent "#e2452a" --display "Familjen Grotesk" --body "Geist" --photo refs/shutters.jpg --lines "The real headline|A real sentence|€38,000" --dark-ground "#0f1514"
 ```
 
-Set the leading type candidate in each study so the person judges type and color together.
+Set the leading type candidate in each study so the person judges type and color together. Check each study in grayscale first ([lightness before hue](references/color.md#lightness-before-hue)), and generate the chosen colors' scales with `identity.mjs ramp`.
 
 **Done when** three studies exist, none of them is the cliché without a reason, and `canvas.mjs verify 00-identity` passes contrast in both modes.
 
@@ -96,7 +100,7 @@ Run `canvas.mjs open` and `wait`. Tell them in two lines what is on the canvas: 
 
 ### 6. Tokens and fonts
 
-Write the choice into `tokens.css`: `@font-face` from `fonts.css`, the families as `--font-display`, `--font-body`, `--font-mono`, text styles with tuned tracking, line height, optical sizing and numerals ([tuning](references/type.md#tuning)), and the palette as primitives, semantic roles and a designed dark set ([color](references/color.md#from-palette-to-tokens)). Record in `identity.md` each choice and its reason, and each font's license from `fonts.json`.
+Write the choice into `tokens.css`: `@font-face` from `fonts.css`, the families as `--font-display`, `--font-body`, `--font-mono`, text styles with tuned tracking, line height, optical sizing and numerals ([tuning](references/type.md#tuning)), and the palette from `identity.mjs ramp` as primitives, semantic roles and a designed dark set ([color](references/color.md#from-palette-to-tokens)). Record in `identity.md` each choice and its reason, and each font's license from `fonts.json`.
 
 **Done when** `_foundations.html` shows the system in both modes, every font loads, and `identity.md` lists licenses. `seenry-canvas` takes it from here.
 
@@ -120,8 +124,8 @@ Show, do not list: the person sees specimens and studies, not font names. For ea
 
 | Need | Read |
 | --- | --- |
-| Typefaces by job, sources, licenses, pairing, tuning, what is overused | [type](references/type.md) |
-| Palettes from real sources, proportions, studies, checks | [color](references/color.md) |
-| Fetch fonts, read their licenses, set specimens | `scripts/identity.mjs` |
+| Typefaces by job, curated open foundries, recipes by product, sources, licenses, pairing, tuning, what is overused | [type](references/type.md) |
+| How the best teams choose color, sources, lightness, proportions, ramps, studies, checks | [color](references/color.md) |
+| Fetch fonts (Fontsource, Fontshare, or a foundry file or zip), read licenses, set specimens and studies, generate OKLCH ramps | `scripts/identity.mjs` |
 | Ramps, contrast and dark mode values | [seenry-craft color](../seenry-craft/references/color.md) |
 | Type scale and rendering details | [seenry-craft typography](../seenry-craft/references/typography.md) |

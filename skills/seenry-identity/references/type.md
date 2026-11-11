@@ -10,6 +10,8 @@ Typefaces worth reaching for, by job, with where they come from and their licens
 - Serifs
 - Display and character
 - Monospace
+- Curated open foundries: Open Foundry, Collletttivo, Velvetyne and more
+- Recipes by product
 - Premium foundries
 - Pairing
 - Tuning
@@ -110,6 +112,101 @@ Fontshare (ITF Free Font License: free for commercial use, not open source; neve
 | **Space Mono** | OFL | Retro-technical; common |
 
 Mono is for aligned figures and code. As background texture or decoration it reads as generated.
+
+## Curated open foundries
+
+Small foundries and curators publish open-source faces with far more character than the big libraries. They are where a studio finds an identity face nobody else's template uses. Most are not on Fontsource: fetch them from the foundry's file or zip with `identity.mjs fetch "<family>" --url <link>`, which keeps the license file. Credit the designer and foundry where the license asks (Velvetyne does).
+
+### Open Foundry (open-foundry.com)
+
+A curated catalog of open-source typefaces with a specimen, the license and a link to the source for each. Picks with character, and what they are good for:
+
+| Family | Kind | License | Use it for |
+| --- | --- | --- | --- |
+| **Reglo** (Sébastien Sanfilippo) | Geometric sans, Bold only | OFL | A radio, culture or event identity; headlines and the name, never text |
+| **Bagnard** (Sébastien Sanfilippo) | Serif from a prisoner's graffiti, Regular only | OFL | A wordmark or a headline with a story; pairs with a neutral sans |
+| **Cotham Sans** (Sébastien Sanfilippo) | Grotesk, Regular | OFL | Quiet text in a small identity |
+| **Bluu Next** (Jean-Baptiste Morizot, Velvetyne) | Sharp bold serif, Bold and Bold Italic | OFL | Editorial headlines that should cut; a Times replacement with edge |
+| **Terminal Grotesque** (Raphaël Bastide, Jérémy Landes) | Display grotesk shaped by the pixel grid | OFL | Tech-art, music and culture titles |
+| **Gap Sans** (Alexandre Liziard, Étienne Ozeray) | Heavy display sans | OFL | Posters, loud headlines |
+| **Young Serif** (Bastien Sozeau, Noir Blanc Rouge) | Soft old-style serif | OFL | Food, craft, children's books |
+| **Cooper Hewitt** (Chester Jenkins) | Modified-geometric sans, Thin to Heavy with italics | OFL | Museums, institutions, a complete open system |
+| **Work Sans** (Wei Huang) | Early-grotesque sans, 9 weights | OFL | Screen text with some warmth |
+| **Libre Baskerville** | Text serif tuned for 16px on screen | OFL | Long reading on the web |
+| **Junicode** (Peter Baker) | Scholarly serif with medieval characters | OFL | History, archives, academic publishing |
+| **League Gothic**, **Ostrich Sans** (The League of Moveable Type) | Condensed gothics | OFL | Posters, signage, sports |
+| **Aileron** (Sori Sagano) | Clean neo-grotesk, 16 styles | CC0 | A Helvetica-like workhorse with no strings at all |
+| **M+ M Type-1** (Coji Morishita) | Sans with Latin and Japanese | OFL | Products with Japanese text |
+| **Office Code Pro** | Monospace from Source Code Pro | OFL | Code |
+| **Tex Gyre Heros** | Helvetica-style sans | GUST Font License | Documents and LaTeX |
+
+### Collletttivo (collletttivo.it)
+
+An Italian collective of designers publishing everything under the OFL. Download from each typeface page.
+
+| Family | Kind | Use it for |
+| --- | --- | --- |
+| **Ronzino** (Luigi Gorlero, Nunzio Mazzaferro) | Neutral, information-driven grotesk, 6 styles | Wayfinding, data, a calm UI face with a European accent |
+| **Apfel Grotezk** (Luigi Gorlero) | Round, airy grotesk with a big x-height, 5 styles | Friendly brands, apps, packaging |
+| **Absans** (Valerio Monopoli) | Quaint early-20th-century grotesk, 1 style | Delicate, elegant editorial layouts |
+| **Mattone** (Nunzio Mazzaferro) | Wide, round, very visible sans, 3 styles | A bold wordmark and headlines |
+| **Halibut** (Matteo Maggi) | Roman serif, sharp unbracketed serifs, very narrow to very wide, variable | A serif identity that can be compressed for headlines and opened for text |
+| **Sprat** (Ethan Nakache) | Sharp, high-contrast serif, 18 styles, width and weight axes | Fashion, culture and poster titling |
+| **Mazius Display** (Alberto Casagrande) | High-contrast calligraphic serif with italics | Luxury and editorial display |
+| **Ortica** (Ben Bovani) | Calligraphic serif in Linear and Angular cuts | Craft, food, a hand-made voice |
+| **Messapia** (Luca Marsano) | Experimental serif; Bold is a heavy extended humanist | One striking headline |
+| **Ribes** (Luigi Gorlero) | Reverse-stress, fifties and funk display | Music, nightlife, playful posters |
+| **Coconat** (Sara Lavazza) | Flared display with an extreme oblique bold | Fashion and art |
+| **Sinistre** (Jules Durand) | Uncial-inspired titling, variable | Games, fantasy, editorial titles |
+| **Aujournuit** (Teo Gaudet) | Organic calligraphic display, condensed to wide, variable | Expressive posters |
+| **Necto Mono** (Marco Condello) | Low-contrast mono with slanted terminals | Technical labels |
+| **Borges** (Matteo Bertin) | Labyrinth pattern face | Texture and ornament only |
+
+### Velvetyne (velvetyne.fr)
+
+A French libre foundry and one of the oldest; credit the designer and foundry when you use its fonts. Its site was showing only a strike notice when this catalog was checked, so confirm each family on the foundry's site or repository before downloading.
+
+| Family | Kind | Use it for |
+| --- | --- | --- |
+| **Karrik** (Lucas Le Bihan, Jean-Baptiste Morizot) | Vernacular sans | Local, street-level identities |
+| **Basteleur** (Keussel) | Display in Bold and Moonlight | Poetic titles, music, culture |
+| **Avara** | Curveless transitional serif | Headlines with a constructed, digital edge |
+| **Bluu Next**, **Terminal Grotesque** | See Open Foundry above | |
+
+### Where to find more
+
+- **Use & Modify** (usemodify.com, by Raphaël Bastide): a personal selection of about 190 open-source faces, filterable by license and by keywords such as grotesque, didone, slab, inktraps, monolinear, reverse-contrast, rounded, pixel and variable. Licenses vary (OFL, Apache, CC0, GPL and others): read each one.
+- **The League of Moveable Type**, **Noir Blanc Rouge**, **Omnibus-Type** (Archivo, Chivo): small foundries with open families.
+
+A curated open face is still judged by the same test: the real headline set in it at real size, beside three other candidates.
+
+## Recipes by product
+
+Starting pairs, each a different reading. Set at least three of them with the real copy before choosing; none is an answer on its own.
+
+| Product | Identity face | UI and text face | Mono | Why it works |
+| --- | --- | --- | --- | --- |
+| Developer tool | Geist at display sizes, tight tracking | Geist | Geist Mono | One family, crisp at small sizes; character comes from weight contrast |
+| Calm productivity app | Inter Display, tuned | Inter with cv11, ss01, ss03 | JetBrains Mono | Neutral and legible; the tuning is the identity |
+| Friendly consumer or health app | Open Runde Bold | Open Runde | — | Rounded terminals read as soft; pair with round corners |
+| Kids, games, playful | Nunito Black or Apfel Grotezk | Nunito | — | Round, wide, warm |
+| Fintech that should feel trustworthy | Switzer or Instrument Sans | Inter | IBM Plex Mono | Swiss restraint; tabular figures everywhere |
+| Editorial, news, long reading | Newsreader Display or Bluu Next | Newsreader for text, Hanken Grotesk for UI | — | A serif voice with a quiet sans for controls |
+| Design studio, agency | Bricolage Grotesque, Ronzino, Reglo or a premium grotesk | Geist or Switzer | — | A face with drawn details nobody else uses |
+| Culture, music, events | Syne, Ribes, Basteleur, Terminal Grotesque | Instrument Sans | — | One loud voice, one quiet one |
+| Fashion, beauty | Bodoni Moda, Sprat or Mazius Display | Switzer | — | High contrast at large sizes only |
+| Food, hospitality, craft | Young Serif, Familjen Grotesk or Ortica | Figtree | — | Warm forms, handmade feel |
+| Civic, museum, institution | Cooper Hewitt, Public Sans or Archivo | the same | — | Complete open systems with a public voice |
+| Accessibility-first | Atkinson Hyperlegible Next | the same | — | Letters that cannot be confused |
+| Japanese or multilingual | M PLUS 1, Onest, IBM Plex | the same | — | Script coverage first |
+
+How to use any of them:
+- **Display** (40px and up): the identity face, weight 600–800 or a light weight at very large size, tracking −0.02 to −0.04em, line height 0.9–1.05, two lines at most on a phone.
+- **Headings** (20–36px): the identity face or the UI face at 600, tracking −0.01em.
+- **Body** (16–18px web, 17pt iOS): the UI face at 400, line height 1.45–1.6, 60–75 characters a line.
+- **UI** (13–15px): the UI face at 500 for labels and buttons; never below 12px.
+- **Numbers**: tabular figures in tables, prices and timers.
+- A display-only face (Reglo, Bagnard, Gap Sans, Ribes, Basteleur) never sets body text or UI.
 
 ## Premium foundries
 
