@@ -1369,7 +1369,7 @@ function launch(url) {
 /** Values a screen types in instead of taking from tokens.css: the canvas's detached styles. Static, no browser. */
 function check() {
   const state = readState(), stage = state.stage || 'wireframe', strict = ['mockup', 'prototype', 'build'].includes(stage);
-  const kit = new Set(['tokens.css', 'wire.css']);
+  const kit = new Set(['tokens.css', 'wire.css', 'fonts.css']);
   const PROPS = /^(color|background|background-color|border|border-[a-z-]*color|border-color|outline-color|fill|stroke|font-family|font|font-size|font-weight|line-height|letter-spacing|padding|padding-[a-z-]+|margin|margin-[a-z-]+|gap|row-gap|column-gap|border-radius|border-[a-z-]*radius|box-shadow)$/;
   const literal = (prop, full) => {
     const value = full.replace(/var\((?:[^()]|\([^()]*\))*\)/g, ' ').replace(/\b(calc|min|max|clamp)\(/g, '(').trim();
