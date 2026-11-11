@@ -139,6 +139,19 @@ test('check flags values typed into screens instead of taken from tokens.css', (
   assert.match(out.stdout, /02-home\/a\n  does not link tokens.css/);
 });
 
+test('identity studies are candidates set by hand, so check skips them and list shows them first', () => {
+  const {dir} = project();
+  writeFileSync(join(dir, 'canvas.json'), JSON.stringify({stage: 'mockup'}));
+  mkdirSync(join(dir, '00-identity'));
+  writeFileSync(join(dir, '00-identity', '01-geist.html'), '<!doctype html><title>Type · Geist</title><style>h1{font:700 160px/0.9 "Geist";color:#141210}</style><h1>Real headline</h1>');
+  const out = run('check', dir);
+  assert.doesNotMatch(out.stdout, /00-identity/);
+  const list = JSON.parse(run('list', '--json', '--dir', dir).stdout);
+  const study = list.sections.find(s => s.id === '00-identity');
+  assert.equal(study.name, 'Identity studies');
+  assert.equal(study.options, true);
+});
+
 test('status, log and resolve keep the file organized', () => {
   const {dir} = project();
   writeFileSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), page('First habit') + '<a href="../02-home.options/a.phone.html">Done</a>');

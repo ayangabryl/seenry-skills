@@ -27,7 +27,7 @@ jobs:
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
       - run: node --test tests/transition-contracts.test.mjs
       - run: node --check skills/seenry-canvas/scripts/canvas.mjs
-      - run: node --test tests/canvas.test.mjs
+      - run: node --test tests/canvas.test.mjs tests/identity.test.mjs
       - name: Validate motion judgment protocol without model calls
         run: node tests/motion-judgment-contract.test.cjs
       - name: Exercise Transitions3 library logic and rendered-finding regressions

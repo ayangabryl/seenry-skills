@@ -13,7 +13,7 @@ Type carries most of the perceived quality of an interface and is the quickest t
 
 ## Font choice
 
-Use the brand font if one exists. Otherwise pick by product type. All of these are free unless marked.
+Use the brand font if one exists. For a new product's identity (the headline voice, the palette), run `seenry-identity`: it shortlists open-source, Fontshare and premium faces, sets specimens with the real copy and fetches the files with their licenses. This table is the quick UI-face default by product type. All of these are free unless marked.
 
 | Product type | First choice | Alternatives | Pair with |
 | --- | --- | --- | --- |

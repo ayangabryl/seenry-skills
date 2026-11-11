@@ -73,7 +73,7 @@ Read the project: its stack, its tokens or theme, its components, its real conte
 
 ### 3. Tokens
 
-`init` the canvas. Set `tokens.css` from the project or the brand: primitives, semantic colors for light and dark, text styles, spacing, radius, effects, grids and the real fonts. Structure and naming are in [the file](references/file.md#tokens). Open `_foundations.html` with `render foundations` and look at it in both modes.
+`init` the canvas. Set `tokens.css` from the project, the brand, or `seenry-identity` for a new product: primitives, semantic colors for light and dark, text styles, spacing, radius, effects, grids and the real fonts. Structure and naming are in [the file](references/file.md#tokens). Open `_foundations.html` with `render foundations` and look at it in both modes.
 
 **Done when** Foundations shows every role, both modes read well, and every font is loaded.
 
@@ -81,15 +81,15 @@ Read the project: its stack, its tokens or theme, its components, its real conte
 
 For the main screen, choose two or three directions. Write the set before building, one line each: a name for the direction (never "Option A"), its axis, when it is the right choice, and what it costs. One is the safe answer closest to what the category expects; at least one is bold.
 
-**Trace, then transform.** Each option starts from one real reference screen (from `refs/`, chosen by the research in `seenry`), never from a description of one. Copy its structure at measured values: the grid and margins, the proportion of the screen each block takes, the type scale and line height, how much of the screen images fill, the density. Then change only the identity: the product's content, typeface, color world and imagery, set as custom properties at the top of the option and promoted into `tokens.css` once picked. Name the reference in `seenry-note`. Run `pair <option> <reference>` and look at both: when the option has drifted back toward the default (a headline left with a paragraph right, a small label column, cards around everything), move it back toward the reference.
+**Compose from references, or trace when asked.** Each option starts from real reference screens in `refs/` (chosen by the research in `seenry`), never from memory. By default, take one principle from each of two or three references, with its numbers (a type scale, how image and type overlap, the density, where space sits), and compose your own layout around the product's idea. Copy one reference's measured structure and change only the identity only when the person asks to replicate. Type and color come from `seenry-identity`. Name the references in `seenry-note`, and run `pair <option> <reference>` against each: an option that reads as one reference with new colors is a reskin, and an option drifting toward the default (a headline left with a paragraph right, a small label column, cards around everything) needs its references back.
 
 Build each as a complete screen with real images in the `.options` section, label it in its head with `seenry-risk`, `seenry-axis`, `seenry-wins` and `seenry-cost`, and keep the default screen beside them so the difference shows.
 
-**Done when** every option has a name, a distinct axis, a traced reference and its own look, its `pair` image shows the reference's structure, none of them resembles the default screen, and each one would be defensible to ship.
+**Done when** every option has a name, a distinct axis, its references and its own look, no `pair` image shows a reskin of one reference (unless replicating), none of them resembles the default screen, and each one would be defensible to ship.
 
 ### 5. Screens
 
-Build every other screen in the tokens, one file per screen and state, linked to the next screen in its flow. On a long page, trace each section from its own reference section the same way, and take neighboring sections from different references so their compositions differ; three sections in a row with the same layout read as a template. Put `data-spec` on anything with behavior, and two or three review questions in `seenry-ask` about what that screen must get right. Components used twice get a sheet in `00-components/`. Naming and conventions are in [the file](references/file.md).
+Build every other screen in the tokens, one file per screen and state, linked to the next screen in its flow. On a long page, compose each section the same way, and give neighboring sections different principles so their compositions differ; three sections in a row with the same layout read as a template. Put `data-spec` on anything with behavior, and two or three review questions in `seenry-ask` about what that screen must get right. Components used twice get a sheet in `00-components/`. Naming and conventions are in [the file](references/file.md).
 
 **Done when** every screen in the scope exists and every flow can be clicked through.
 

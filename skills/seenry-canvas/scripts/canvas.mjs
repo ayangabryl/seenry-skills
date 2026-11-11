@@ -484,7 +484,9 @@ function readState() {
     const frames = htmlIn(entry.name).map(f => frameFrom(entry.name, f));
     if (!frames.length) continue;
     const choose = /\.options$/i.test(entry.name), id = entry.name.replace(/\.options$/i, '');
-    sections.push({id, name: pretty(id), choose, frames});
+    // 00-identity holds type specimens and color studies: candidates set by hand, not screens on the token system.
+    const study = id === '00-identity';
+    sections.push({id, name: study ? 'Identity studies' : pretty(id), choose: choose || study, study, frames});
   }
   const refDir = join(dir, 'refs');
   if (existsSync(refDir)) {
@@ -1390,7 +1392,7 @@ function check() {
   };
   let problems = 0;
   const report = [];
-  for (const section of state.sections.filter(s => !s.reference && !s.system)) for (const f of section.frames) {
+  for (const section of state.sections.filter(s => !s.reference && !s.system && !s.study)) for (const f of section.frames) {
     const html = readFileSync(join(dir, f.src), 'utf8'), issues = [];
     let css = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m => m[1]).join('\n') + ';' + [...html.matchAll(/\sstyle\s*=\s*"([^"]*)"/gi), ...html.matchAll(/\sstyle\s*=\s*'([^']*)'/gi)].map(m => m[1]).join(';');
     for (const m of html.matchAll(/<link\b[^>]*rel=["']?stylesheet[^>]*>/gi)) {

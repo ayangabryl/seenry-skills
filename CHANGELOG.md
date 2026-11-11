@@ -2,6 +2,15 @@
 
 ## 2.1.0
 
+### Identity
+
+- **New: seenry-identity.** Type and color before any screen, the way a brand studio works: one idea in a line, the clichés named, four typefaces that read the idea differently, specimens with the real copy at 160px down to captions, three color studies from real photographed sources with ground, ink, dominant and one accent at their real proportions, the person's pick, then `tokens.css`. A catalog of the best open-source (Inter, Inter Tight, Geist and Geist Mono with italics, Open Runde, Nunito, Figtree, Instrument Sans, Bricolage Grotesque, Newsreader, Source Serif 4 and more), Fontshare (Switzer, Satoshi, General Sans, Zodiak, Erode and more) and premium foundry faces (Klim, Grilli Type, Dinamo, Pangram Pangram, Commercial Type and others), each checked against its source, with pairing and tuning rules and what is overused.
+- **`identity.mjs`**: `fetch` downloads WOFF2 files from Fontsource or Fontshare and writes `fonts.css` and `fonts.json` with each family's license and source; `info` reports license, weights and italics; `specimen` sets the real lines per typeface and says when a family has no italic; `study` builds a color study that picks readable text on each filled color and warns when an accent passes contrast with neither ink nor ground.
+- **Compose by default, trace only to replicate.** Options take one principle from each of two or three references and build their own layout; copying one reference's structure with new colors is a reskin unless the person asked to replicate.
+- The canvas shows `00-identity` as **Identity studies**, pickable like options and exempt from detached-value checks; contrast is still verified.
+
+### Seenry 2.1 core
+
 A test run showed that references alone did not stop generated-looking pages: the agent turned each reference into a description and rebuilt it from memory, and the model's average came back. Tracing the reference's measured structure did stop it. This release builds the flow around that, and covers every part of Emil Kowalski's skills in Seenry's own words.
 
 - **Trace, then transform.** Each option, and each section of a long page, traces one real reference screen: its grid, proportions, type scale, image share and density are copied at measured values, and only the identity (content, type, color, imagery) changes. `.seenry/trace.md` records each trace. Neighboring sections take different references, so a page never repeats one composition.

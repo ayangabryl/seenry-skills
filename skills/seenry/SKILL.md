@@ -1,6 +1,6 @@
 ---
 name: seenry
-description: "Designs and builds web products the way a studio does: a brief from real material, the agent's own default built and avoided, ten or more real reference screens from the Seenry library, each option traced from one reference's measured structure with only the identity changed, every screen approved on the Seenry canvas, then a build checked against the design. Use for any design or UI task: a new app, site, landing page, dashboard or pricing page, a redesign, a screen that looks generic or AI-made, a page made like a named site, or a change to screens in an existing app. Routes to seenry-canvas, seenry-craft, seenry-motion, seenry-review, seenry-break, seenry-subtract, seenry-audit, seenry-assets, seenry-apps and seenry-video."
+description: "Designs and builds web products the way a studio does: a brief from real material, the agent's own default built and avoided, ten or more real reference screens from the Seenry library, each option composed from several references' principles (or traced from one when asked to replicate), type and color chosen as a system from an idea, every screen approved on the Seenry canvas, then a build checked against the design. Use for any design or UI task: a new app, site, landing page, dashboard or pricing page, a redesign, a screen that looks generic or AI-made, a page made like a named site, or a change to screens in an existing app. Routes to seenry-identity, seenry-canvas, seenry-craft, seenry-motion, seenry-review, seenry-break, seenry-subtract, seenry-audit, seenry-assets, seenry-apps and seenry-video."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -25,7 +25,8 @@ The canvas words (canvas, screen, section, flow, option, tokens, round) mean wha
 | --- | --- |
 | the default | What any model would build for this brief with no thought: the look to avoid |
 | reference | A real product's screen that does the same job well |
-| trace | Copy a reference's structure at measured values (grid, proportions, type scale, image share, density), then change only the identity |
+| compose | Take principles from two or three references (scale, overlap of image and type, density, where space sits) and build your own layout around the product's idea |
+| trace | Copy one reference's structure at measured values, then change only the identity. Only when the person asks to replicate |
 
 ## Which skill does what
 
@@ -33,6 +34,7 @@ Load a skill when the task reaches its area, not before.
 
 | The task needs | Skill |
 | --- | --- |
+| Type and color: the idea, typefaces, palette, specimens | `seenry-identity` |
 | Designing screens, options, review and handoff | `seenry-canvas` |
 | Exact values: type, spacing, radius, shadow, color roles, states | `seenry-craft` |
 | Anything that moves | `seenry-motion` |
@@ -48,7 +50,7 @@ Load a skill when the task reaches its area, not before.
 
 1. **Never invent proof.** No made-up testimonials, customers, logos, statistics, awards or press quotes. A missing fact nobody can supply gets a plain plausible value, listed under "Assumed".
 2. **Never ship the default.** Each part of it is fine where it is the best answer; the screen as a whole may not be it.
-3. **References give structure; you give identity.** Trace composition, proportion, type scale, how much of the screen images fill, density and how proof is shown, with the numbers. Never their words, logos, images or brand. A reference rewritten as a description and rebuilt from memory is not traced: the model's average comes back.
+3. **References give principles; the product gives the design.** Take from several references what makes each work (scale, how image and type meet, density, where space sits, how proof is shown), with the numbers, and compose your own layout around the idea. Copy one reference's layout only when the person asks to replicate. Never their words, logos, images or brand.
 4. **One thing leads each screen.** Equal weight everywhere reads as a template, and neighboring sections of a page differ in composition.
 5. **Material is real or absent.** Real product, photographs and data, or a type-led section. Never a gradient or drawing standing in for an image.
 6. **Every affordance works.** A shortcut hint, badge or button with nothing behind it is wired up or removed.
@@ -60,8 +62,9 @@ Load a skill when the task reaches its area, not before.
 - [ ] 2. Brief from real material
 - [ ] 3. Build the default
 - [ ] 4. Ten or more references, studied and measured
-- [ ] 4b. A trace for every option and section
+- [ ] 4b. A composition for every option and section
 - [ ] 4c. Real material
+- [ ] 4d. Type and color (seenry-identity)
 - [ ] 5. Design on the canvas (seenry-canvas)
 - [ ] 6. Build from the handoff
 - [ ] 7. Check the build against the design
@@ -106,11 +109,15 @@ Without the library, use the person's links and `node scripts/bar.mjs --sites <d
 
 **Done when** ten or more references are on the canvas and four are measured.
 
-### 4b. A trace for every option and section
+### 4b. A composition for every option and section
 
-Write `.seenry/trace.md`. For each option, name the one reference screen it traces; for each section of a long page, the reference section it traces, with neighboring sections from different references. Under each, the measured structure to keep (columns and margins, the share of the screen each block takes, headline size and line height, image share, density) and the identity to change (content, typeface, color world, imagery). Measure from the reference image scaled to the screen's width (1440 for desktop) when `compare_measurements` has no numbers for it. Build from that, then check each with `canvas.mjs pair <screen> <reference>`.
+Write `.seenry/compose.md`. For each option, and each section of a long page, name two or three references and the one principle taken from each, with its numbers (the headline at 155px with 0.8 line height from one, the image and wordmark overlapping from another, the price on the first screen from a third), then the product's own idea that ties them together. Neighboring sections take different principles, so a page never repeats one composition. Measure from the reference image scaled to the screen's width when `compare_measurements` has no numbers.
 
-**Done when** every option and section has a reference file and its numbers in `trace.md`.
+When the person asks to replicate ("like X", "replicate", "same as"), trace instead: one reference per option, its measured structure kept, only the identity changed.
+
+Check each option with `canvas.mjs pair <screen> <reference>` against each of its references. Composing: if it reads as one reference with new colors, it is a reskin; change the layout. Tracing: if it drifted toward the default, move it back.
+
+**Done when** every option and section has its references, principles and idea in `compose.md`.
 
 ### 4c. Real material
 
@@ -118,9 +125,15 @@ Every strong reference shows real images at large scale; a type-only page reads 
 
 **Done when** each option has the images it needs, with their licenses recorded.
 
+### 4d. Type and color
+
+Run `seenry-identity`: the idea in one line, the clichés named, typefaces shortlisted from open-source, Fontshare and premium foundries, specimens and color studies with the real copy on the canvas, the person's pick, then `tokens.css` and the fonts with their licenses. Every option then uses this system, or an option-level variant of it that `seenry-identity` produced.
+
+**Done when** `tokens.css` holds the chosen type and palette and `identity.md` lists each font's license.
+
 ### 5. Design on the canvas
 
-Follow `seenry-canvas`, steps 1 to 8. Each option is built from its trace and takes its own type, color world and imagery, so the person chooses between looks, not three layouts of one palette. Put the default beside the options. Build the tokens from [look](references/look.md) when the project has none, and use `seenry-craft` for every value.
+Follow `seenry-canvas`, steps 1 to 8. Each option is built from its composition in the type and color system from `seenry-identity`; when the identity itself is still open, each option carries one of the shortlisted pairs and palettes, so the person chooses between looks, not three layouts of one palette. Put the default beside the options. Build the tokens from [look](references/look.md) when the project has none, and use `seenry-craft` for every value.
 
 **Done when** every screen in scope is approved on the canvas.
 
@@ -155,7 +168,8 @@ Plain and short. Lead the report with what the person approved, then what you ch
 
 ```
 Approved:  the screens and options approved, and what changed after the person's comments
-Traced:    each option and section, its reference and the numbers kept
+Composed:  each option and section, its references, the principle from each, and the idea
+Identity:  typefaces and their licenses, the palette and its source
 Not the default: how the product differs from the default in the brief
 Type and color: families and weights, the palette by role
 Checked:   verify, compare, the states and controls used

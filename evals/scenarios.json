@@ -546,5 +546,13 @@
     ],
     "calls": [],
     "check": "Never edits source; writes recon facts and a frequency map; confirms every finding at file:line; ranks by leverage; asks which findings become plans; writes self-contained plans with exact values, current code, boundaries and a feel check, plus plans/README.md with order and dependencies."
+  },
+  {
+    "request": "Our fonts and colors look generic. Fix the identity before we design pages.",
+    "skills": [
+      "seenry-identity"
+    ],
+    "calls": [],
+    "check": "Writes the idea and the clichés first; fetches four candidates with identity.mjs and records licenses in fonts.json; sets specimens with the product's real copy, not lorem ipsum; builds three color studies from real photographed sources with ground, ink, dominant and one accent; passes canvas.mjs verify contrast in both modes; does not ship the subject's cliché color without a reason; writes the pick into tokens.css with tuned tracking and real italics."
   }
 ]
