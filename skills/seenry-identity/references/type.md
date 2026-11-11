@@ -20,6 +20,8 @@ Typefaces worth reaching for, by job, with where they come from and their licens
 
 ## How to choose
 
+The full method, with the quality checks and the research behind it, is in [choosing type](choosing.md). In short:
+
 A product usually needs two voices: a **UI face** people read for hours (forms, tables, buttons, body) and an **identity face** people remember (the name, headlines, numbers that matter). They can be the same family, used at two different sizes and weights, or two families that differ in one way only.
 
 Pick the identity face from the idea in one line, not from the category. "A Lisbon studio that designs signs for the city" points to a face drawn for signage or public lettering; "a calm sleep app" to soft, open forms with quiet numerals. Write three adjectives the face must carry, then set the real headline in four candidates on the canvas. The one that makes the real line sound like this product wins, not the one that looks most designed.

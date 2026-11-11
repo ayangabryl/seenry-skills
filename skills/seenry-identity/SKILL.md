@@ -54,7 +54,7 @@ Write `.seenry/identity.md`: the idea in one line, three adjectives the type mus
 
 ### 2. Shortlist typefaces
 
-From the [type catalog](references/type.md), pick four identity candidates that each read the idea differently (for example: a grotesk with character, a serif with a point of view, a condensed or wide display, and the one premium face that would be the studio's answer), plus a UI face for each (often the same family). Prefer, in order: the brand's fonts; open source (OFL), including the [curated open foundries](references/type.md#curated-open-foundries) where identity faces with real character live, and Fontshare faces that fit; a premium face, comped with its trial, when the budget allows and nothing free carries the idea. Start from the [recipes by product](references/type.md#recipes-by-product), then replace at least one candidate with something less expected.
+Follow [choosing type](references/choosing.md): write the jobs first (the longest reading, the hardest size, the voice, coverage, budget) and cut candidates that fail coverage before judging feel. Then, from the [type catalog](references/type.md), pick four identity candidates that each read the idea differently (for example: a grotesk with character, a serif with a point of view, a condensed or wide display, and the one premium face that would be the studio's answer), plus a UI face for each (often the same family). Prefer, in order: the brand's fonts; open source (OFL), including the [curated open foundries](references/type.md#curated-open-foundries) where identity faces with real character live, and Fontshare faces that fit; a premium face, comped with its trial, when the budget allows and nothing free carries the idea. Start from the [recipes by product](references/type.md#recipes-by-product), then replace at least one candidate with something less expected.
 
 ```sh
 node scripts/identity.mjs info "Geist" "Bricolage Grotesque" "Newsreader" "Switzer"
@@ -76,7 +76,7 @@ node scripts/identity.mjs specimen --fonts "Geist,Bricolage Grotesque,Newsreader
 node ../seenry-canvas/scripts/canvas.mjs render 00-identity
 ```
 
-Each specimen sets the real lines at 160px bold and regular, a 56px heading, body, italic, captions, numerals and every weight. Look at all of them side by side. Cut any that make the headline sound like a template, fail at small sizes, or lack what the product needs (tabular figures, an italic, a language).
+Each specimen sets the real lines at 160px bold and regular, a 56px heading, body, italic, captions, numerals and every weight. Look at all of them side by side and run the [quality checks](references/choosing.md#quality-checks-on-the-specimen) on the block under each: confusable letters, kerning pairs, rhythm, 12px and 14px text, tabular figures, diacritics. Cut any that fail a check the product needs, or make the headline sound like a template. Put the two finalists through the [pressure test](references/choosing.md#pressure-test) on one real screen.
 
 **Done when** two or three candidates remain and each specimen has two `seenry-ask` questions.
 
@@ -124,6 +124,7 @@ Show, do not list: the person sees specimens and studies, not font names. For ea
 
 | Need | Read |
 | --- | --- |
+| How to choose: what experts and product teams do, what research supports, quality checks, the pressure test | [choosing type](references/choosing.md) |
 | Typefaces by job, curated open foundries, recipes by product, sources, licenses, pairing, tuning, what is overused | [type](references/type.md) |
 | How the best teams choose color, sources, lightness, proportions, ramps, studies, checks | [color](references/color.md) |
 | Fetch fonts (Fontsource, Fontshare, or a foundry file or zip), read licenses, set specimens and studies, generate OKLCH ramps | `scripts/identity.mjs` |

@@ -202,6 +202,10 @@ main{padding:64px;display:grid;gap:48px}
 .it{font-style:italic}
 .num{font-size:72px;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
 .w{display:flex;gap:28px;flex-wrap:wrap;font-size:40px;line-height:1}
+.q{display:grid;gap:14px;border-top:1px solid color-mix(in oklch,var(--ink) 20%,transparent);padding-top:28px}
+.q div{display:grid;grid-template-columns:170px 1fr;align-items:baseline;gap:16px}
+.k{font:500 12px/1.4 ui-monospace,monospace;opacity:.6}
+.v{line-height:1.1}.tn{font-variant-numeric:tabular-nums;line-height:1.3}
 </style></head><body><main>
 <div class="meta"><span>${esc(family)}</span><span>${i + 1} of ${fonts.length}</span></div>
 <p class="d">${esc(head)}</p>
@@ -210,7 +214,15 @@ main{padding:64px;display:grid;gap:48px}
 <div class="row"><p class="b">${esc(rest.slice(1).join(' ') || rest[0] || head)}</p><p class="b${italic ? ' it' : ''}">${italic ? esc(rest[0] || head) : 'No italic in this family: pair it with one that has one, or avoid italics.'}</p><p class="s">${esc(rest.join(' · ') || head)}</p></div>
 <div class="num">0123456789 €38,000 · 12:45 · 1/4</div>
 <div class="w">${[[300, 'Light'], [400, 'Regular'], [500, 'Medium'], [600, 'Semibold'], [700, 'Bold']].filter(([w]) => has(w)).map(([w, n]) => `<span style="font-weight:${w}">Aa ${n}</span>`).join('')}${italic ? '<span class="it">Aa Italic</span>' : ''}</div>
-<p class="s">Hamburgefonstiv · ÀÉÎÕÜ çãõ ß · “Quotes” — dashes – (parens) &amp; @ # % → 01 Il1 O0</p>
+<section class="q" aria-label="Quality checks">
+<div><span class="k">Confusables</span><span class="v" style="font-size:40px">Il1 O0 rn m cl d 5S 8B</span></div>
+<div><span class="k">Kerning pairs</span><span class="v" style="font-size:56px">AV To Ty We LT r. f) “A</span></div>
+<div><span class="k">Even rhythm</span><span class="v" style="font-size:40px">minimum Hamburgefonstiv</span></div>
+<div><span class="k">14px</span><span class="v" style="font-size:14px;line-height:1.45">${esc(rest.slice(1).join(' ') || head)} Invoice INV-2026-0418 · l1I0O · jo@example.com</span></div>
+<div><span class="k">12px</span><span class="v" style="font-size:12px;line-height:1.45">${esc(rest.slice(1).join(' ') || head)} Invoice INV-2026-0418 · l1I0O · jo@example.com</span></div>
+<div><span class="k">Tabular figures</span><span class="v tn" style="font-size:20px">1,284.00<br>11,111.11<br>90,807.65</span></div>
+<div><span class="k">Diacritics, symbols</span><span class="v" style="font-size:24px">ÀÉÎÕÜ çãõ ß ñ ž ł € £ @ &amp; % → “Quotes” — (parens)</span></div>
+</section>
 </main></body></html>
 `;
     writeFileSync(join(section, `${String(i + 1).padStart(2, '0')}-${slug(family)}.html`), html);
