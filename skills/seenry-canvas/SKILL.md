@@ -79,9 +79,9 @@ Read the project: its stack, its tokens or theme, its components, its real conte
 
 ### 4. Options
 
-For the main screen, choose two or three directions. Write the set before building, one line each: a name for the direction (never "Option A"), its axis, when it is the right choice, and what it costs. One is the safe answer closest to what the category expects; at least one is bold. Build each as a complete screen in the `.options` section and label it in its head with `seenry-risk`, `seenry-axis`, `seenry-wins` and `seenry-cost`.
+For the main screen, choose two or three directions. Write the set before building, one line each: a name for the direction (never "Option A"), its axis, when it is the right choice, and what it costs. One is the safe answer closest to what the category expects; at least one is bold. Each option has its own look, not only its own layout: its own typeface, color world and imagery, set as custom properties at the top of the option and promoted into `tokens.css` once it is picked. Build each as a complete screen with real images in the `.options` section, label it in its head with `seenry-risk`, `seenry-axis`, `seenry-wins` and `seenry-cost`, and keep the default screen beside them so the difference shows.
 
-**Done when** every option has a name and a distinct axis, and each one would be defensible to ship.
+**Done when** every option has a name, a distinct axis and its own look, none of them resembles the default screen, and each one would be defensible to ship.
 
 ### 5. Screens
 

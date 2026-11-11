@@ -1735,6 +1735,7 @@ async function tree(names) {
 async function verify(names) {
   const state = readState(), frames = pickFrames(state, names), issues = [], byClass = {};
   const known = new Set(state.sections.flatMap(s => s.frames.map(f => f.src)));
+  const find = id => { for (const s of state.sections) for (const f of s.frames) if (f.id === id) return {section: s, frame: f}; return null; };
   await withBrowser(async (browser, base) => {
     for (const f of frames) {
       const [[device, w, h]] = devicesFor(f);
@@ -1749,7 +1750,8 @@ async function verify(names) {
               if (!existsSync(target)) issues.push({frame: f.id, mode, severity: 'error', kind: 'link', selector: n.selector, message: `Links to ${n.href}, which does not exist`});
               else if (!known.has(relative(dir, target).split(sep).join('/'))) issues.push({frame: f.id, mode, severity: 'warn', kind: 'link', selector: n.selector, message: `Links to ${n.href}, which is not on the canvas (archived?)`});
             }
-            const key = n.classes[0]; if (!key) continue;
+            // Options are meant to differ from each other, so they never count as drift.
+            const key = n.classes[0]; if (!key || find(f.id)?.section.choose) continue;
             const look = ['font-size', 'font-weight', 'color', 'background', 'padding', 'radius'].map(k => n.styles[k]?.value || '-').join(' | ');
             const group = key + ' @' + device;
             ((byClass[group] = byClass[group] || {})[look] = byClass[group][look] || new Set()).add(f.id);
