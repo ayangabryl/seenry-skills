@@ -1,7 +1,7 @@
 // The Seenry canvas: folder layout, live server, feedback round trip and the server's safety checks. No browser.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, utimesSync} from 'node:fs';
+import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, utimesSync, readdirSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn, spawnSync} from 'node:child_process';
@@ -220,6 +220,16 @@ test('options carry their labels, and round resolves picks but keeps riffed sect
   assert.match(out.stdout, /01-onboarding: Ready for dev \(2 of 2 approved\)/);
   assert.match(out.stdout, /02-home: Ready for review \(options still open\)/);
   assert.ok(existsSync(join(dir, '02-home.options')), 'a riffed section is not resolved');
+});
+
+test('resolve archives every losing option, including one drawn for desktop and phone', () => {
+  const {dir} = project();
+  writeFileSync(join(dir, '02-home.options', 'c.html'), page('C'));
+  writeFileSync(join(dir, '02-home.options', 'c.phone.html'), page('C'));
+  const out = run('resolve', '02-home', '--pick', '02-home/b', '--dir', dir);
+  assert.equal(out.status, 0, out.stderr + out.stdout);
+  assert.deepEqual(readdirSync(join(dir, '02-home')), ['b.html']);
+  assert.deepEqual(readdirSync(join(dir, 'archive', '02-home')).sort(), ['a.phone.html', 'c.html', 'c.phone.html']);
 });
 
 test('a screen drawn for phone and desktop keeps both, with distinct ids', () => {

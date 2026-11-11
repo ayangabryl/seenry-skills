@@ -1451,7 +1451,11 @@ function resolveOptions(state, sectionId) {
     let next = html; for (const [lose, win] of swaps) next = next.split(dirname(picked.src) + '/' + lose).join(dirname(picked.src) + '/' + win);
     if (next !== html) writeFileSync(file, next);
   }
-  for (const f of section.frames) if (f.id !== pick) console.log(`Archived ${archiveFrame(readState(), f.id, `Not picked: ${picked.name} was chosen${notes(f.id) ? `. Notes: ${notes(f.id)}` : ''}`)}`);
+  // Ids can shift as files leave (a phone screen loses its suffix once its desktop twin is archived), so find each by its file.
+  for (const f of section.frames) if (f.id !== pick) {
+    const now = readState(), live = now.sections.flatMap(x => x.frames).find(x => x.src === f.src);
+    if (live) console.log(`Archived ${archiveFrame(now, live.id, `Not picked: ${picked.name} was chosen${notes(f.id) ? `. Notes: ${notes(f.id)}` : ''}`)}`);
+  }
   const from = dirname(picked.src), to = from.replace(/\.options$/i, '');
   if (from !== to) {
     if (existsSync(join(dir, to))) { for (const f of readdirSync(join(dir, from))) renameSync(join(dir, from, f), join(dir, to, f)); rmSync(join(dir, from), {recursive: true, force: true}); }
