@@ -4,7 +4,7 @@ description: "Exact values for interface polish: type scale and line height, spa
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Seenry Craft

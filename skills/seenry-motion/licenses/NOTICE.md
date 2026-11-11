@@ -1,3 +1,5 @@
 # Motion guidance attribution
 
 The bundled motion implementation decisions and the [fluid interaction](../references/fluid.md) guide (from his `apple-design` skill at revision `715c1807e08c497cfd1dc4feb450a2a3300ef2a9`) adapt MIT-licensed material by Emil Kowalski at revision `85e8e2363b713506e1d5b6e07a0eb2da66be1bc3`. The original copyright and permission notice is retained in [emil-LICENSE](emil-LICENSE). No endorsement is implied. Seenry's project-specific constraints govern the use of numerical starting points.
+
+The [gate](../references/gate.md), [choreography](../references/choreography.md), [performance](../references/performance.md), [vocabulary](../references/vocabulary.md), [techniques](../references/techniques.md) and the gesture sections of [fluid](../references/fluid.md) adapt his `find-animation-opportunities`, `remove-animations`, `choreograph`, `animation-performance`, `animation-vocabulary`, `gestures` and `emil-design-eng` skills at revision `715c1807e08c497cfd1dc4feb450a2a3300ef2a9`, rewritten in Seenry's own words.

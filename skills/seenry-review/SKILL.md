@@ -4,12 +4,12 @@ description: "Review a web interface, a UI diff or a single component and return
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Seenry Review
 
-Judge what renders, not what the code intends. Every finding is visible, specific, ranked and comes with the smallest fix. Use the values in [seenry-craft](../seenry-craft/SKILL.md) as the standard: grid and spacing, type roles, concentric radii, color roles, states. A screen built as the default named in [seenry](../seenry/SKILL.md#2-name-the-default-then-leave-it) is a finding on hierarchy, not on taste.
+Judge what renders, not what the code intends. Every finding is visible, specific, ranked and comes with the smallest fix. Use the values in [seenry-craft](../seenry-craft/SKILL.md) as the standard: grid and spacing, type roles, concentric radii, color roles, states. A screen built as the default named in [seenry](../seenry/SKILL.md#3-build-the-default) is a finding on hierarchy, not on taste.
 
 If you built the surface yourself, say so and treat the verdict as self-review. A fresh agent context is better.
 
@@ -38,7 +38,7 @@ Report what you can show: a measurement, a screenshot, a failing check, a rule w
 | --- | --- |
 | "Review / critique / audit this page, screen or site" | **Screen review** |
 | "Review this branch / PR / commit / my changes" | **Change review**: run `git diff` against the base, list changed UI surfaces, render them before and after, review only those |
-| "Stress test / break this component" | **Stress test** |
+| "Stress test / break this component" | **Stress test**, with `seenry-break` |
 | "Is this accessible / WCAG" | **Screen review**, accessibility pass only, with [the checklist](../seenry-craft/references/accessibility.md) |
 | "Review / improve the animations", "where should this animate" | **Motion review** |
 | "How was this built / explain this interaction" | **Explain** |
@@ -89,18 +89,11 @@ The question is "did this change make the interface worse?", not "what is wrong 
 
 ## Motion review
 
-Inventory every transition, animation and gesture in scope. For each: frequency tier, purpose, tool, properties, duration, easing or spring, interruption, reduced-motion and hover gating, measured against the build sequence and **Never ship** table in `seenry-motion`. Watch each at normal speed and at 10% in the DevTools Animations panel. Also list **missed opportunities** (a jarring jump that needs continuity, a press with no feedback) and **rejected candidates** (what should stay instant, and why). Report in the table format.
+Inventory every transition, animation and gesture in scope: frequency tier, purpose, tool, properties, duration, curve or spring, interruption, reduced-motion and hover gating. Watch each at normal speed and at 10% in the DevTools Animations panel. Judge against the [motion standards](references/motion-standards.md): ten standards, the flag-on-sight list, the fix order, the Before / After / Why table and a Block or Approve verdict. List missed opportunities and rejected candidates as well. To remove motion, hand over to `seenry-subtract`; to plan fixes across a whole app, `seenry-audit`.
 
 ## Stress test
 
-Render the component alone on a scratch page and put every realistic variant on screen at once:
-
-- Content: empty, 1 character, typical, 2x long, 5x long, unbroken string (URL, email), emoji and CJK, RTL if supported, missing image, 0 / 1 / 99+ / 1,000,000 counts, negative numbers.
-- States: default, hover, focus-visible, active, disabled, loading, error, success, selected, expanded.
-- Containers: 240, 320, 390, 768, 1200 wide; 200% zoom; increased text spacing.
-- Input: mouse, keyboard only, touch emulation, rapid repeated clicks, reversal mid-transition.
-
-Screenshot the grid of variants, run the system audit and [text collisions](../seenry/scripts/text_collisions.mjs), and report failures in the table format. Delete the scratch page afterwards unless asked to keep it.
+Use `seenry-break`: it maps every value a component renders, builds a realistic worst-case dataset, puts it behind a Demo / Worst case toggle, and reports what broke with the fix for each. For a quick pass without a toggle, render the component on a scratch page with empty, one-character, long, unbroken (email, URL), emoji, CJK and RTL content, 0, 1 and 1,000,000 counts, every state, and widths 240, 320, 390, 768 and 1200 at 200% zoom, then report failures in the table format.
 
 ## Explain
 

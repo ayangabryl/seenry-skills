@@ -1,0 +1,3 @@
+interface:
+  display_name: "Seenry Audit"
+  short_description: "Whole-app audit into plans any agent can run"

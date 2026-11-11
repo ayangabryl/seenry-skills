@@ -1,6 +1,6 @@
 # Canvas commands
 
-Every command is `node <skill>/scripts/canvas.mjs <command>`. The canvas folder defaults to `.seenry/canvas`; pass another with `--dir <path>`. Add `--json` to `list`, `feedback`, `render`, `tree`, `verify`, `diff` and `compare` for output you can parse.
+Every command is `node <skill>/scripts/canvas.mjs <command>`. The canvas folder defaults to `.seenry/canvas`; pass another with `--dir <path>`. Add `--json` to `list`, `feedback`, `render`, `tree`, `verify`, `diff`, `pair` and `compare` for output you can parse.
 
 ## Contents
 
@@ -59,6 +59,7 @@ Feedback lists picks, "More like this" requests, approved screens, screens that 
 | Command | Does |
 | --- | --- |
 | `handoff` | Writes `HANDOFF.md`: every screen with file, size, links and review state, every spec, tokens, fonts, components, open questions, what was decided against, the change log |
+| `pair <screen> <reference> [--height px\|full] [--mode]` | The screen beside a reference image in `refs/` (or a url) at the same width and crop, in `.renders/pair/`, to check a traced structure by eye |
 | `compare <screen> <url> [--device] [--mode]` | The built screen beside its design: share of pixels that differ, text missing from the build, differences in size, weight, color, fill, radius and padding, and three images. Exits 1 on any difference |
 
 ## When there is no browser

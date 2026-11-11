@@ -4,7 +4,7 @@ description: "Designs a product's screens on a local canvas before any product c
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Seenry Canvas
@@ -79,13 +79,17 @@ Read the project: its stack, its tokens or theme, its components, its real conte
 
 ### 4. Options
 
-For the main screen, choose two or three directions. Write the set before building, one line each: a name for the direction (never "Option A"), its axis, when it is the right choice, and what it costs. One is the safe answer closest to what the category expects; at least one is bold. Each option has its own look, not only its own layout: its own typeface, color world and imagery, set as custom properties at the top of the option and promoted into `tokens.css` once it is picked. Build each as a complete screen with real images in the `.options` section, label it in its head with `seenry-risk`, `seenry-axis`, `seenry-wins` and `seenry-cost`, and keep the default screen beside them so the difference shows.
+For the main screen, choose two or three directions. Write the set before building, one line each: a name for the direction (never "Option A"), its axis, when it is the right choice, and what it costs. One is the safe answer closest to what the category expects; at least one is bold.
 
-**Done when** every option has a name, a distinct axis and its own look, none of them resembles the default screen, and each one would be defensible to ship.
+**Trace, then transform.** Each option starts from one real reference screen (from `refs/`, chosen by the research in `seenry`), never from a description of one. Copy its structure at measured values: the grid and margins, the proportion of the screen each block takes, the type scale and line height, how much of the screen images fill, the density. Then change only the identity: the product's content, typeface, color world and imagery, set as custom properties at the top of the option and promoted into `tokens.css` once picked. Name the reference in `seenry-note`. Run `pair <option> <reference>` and look at both: when the option has drifted back toward the default (a headline left with a paragraph right, a small label column, cards around everything), move it back toward the reference.
+
+Build each as a complete screen with real images in the `.options` section, label it in its head with `seenry-risk`, `seenry-axis`, `seenry-wins` and `seenry-cost`, and keep the default screen beside them so the difference shows.
+
+**Done when** every option has a name, a distinct axis, a traced reference and its own look, its `pair` image shows the reference's structure, none of them resembles the default screen, and each one would be defensible to ship.
 
 ### 5. Screens
 
-Build every other screen in the tokens, one file per screen and state, linked to the next screen in its flow. Put `data-spec` on anything with behavior, and two or three review questions in `seenry-ask` about what that screen must get right. Components used twice get a sheet in `00-components/`. Naming and conventions are in [the file](references/file.md).
+Build every other screen in the tokens, one file per screen and state, linked to the next screen in its flow. On a long page, trace each section from its own reference section the same way, and take neighboring sections from different references so their compositions differ; three sections in a row with the same layout read as a template. Put `data-spec` on anything with behavior, and two or three review questions in `seenry-ask` about what that screen must get right. Components used twice get a sheet in `00-components/`. Naming and conventions are in [the file](references/file.md).
 
 **Done when** every screen in the scope exists and every flow can be clicked through.
 
@@ -148,9 +152,10 @@ If asked which you would choose, answer from how the product is used (how often,
 | They say | You do |
 | --- | --- |
 | "Show me", "design this", "mock it up" | Steps 1 to 7 |
-| "Options for X", "try a few directions" | Steps 4, 6 and 7 for that screen alone |
-| "More like Ledger", or More like this in the review | New options around it; the section stays open |
-| "Keep Ledger" | Pick it, run `round`, continue with the screens |
+| "Options for X", "try a few directions" | Steps 4, 6 and 7 for that screen alone; one screen or component per run |
+| "Five options for X" | The same with that many, at most five; more dilutes the comparison |
+| "Riff on Ledger", "more like Ledger", or More like this in the review | New options that diverge around it; the section stays open |
+| "Keep Ledger" | Pick it, run `round`, continue with the screens; the losing options go to the archive |
 | "Wireframes first", "do it properly" | Studio speed |
 | "Build it" | Only after approval: step 9 |
 | "Does the build match?" | `compare` each screen |
@@ -163,6 +168,6 @@ Plain and short. Tell the person what is on the canvas and what you need, in two
 
 | Need | Read |
 | --- | --- |
-| Every command, flag and output | [commands](references/commands.md) |
+| Every command, flag and output, including `pair` | [commands](references/commands.md) |
 | The folder, screen naming, meta tags, tokens, components, specs, flows, shared libraries | [the file](references/file.md) |
 | Studio speed: the map and wireframe rounds, and the wireframe kit | [wireframes](references/wireframes.md) |

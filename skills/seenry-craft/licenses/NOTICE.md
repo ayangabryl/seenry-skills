@@ -5,3 +5,5 @@ This skill and its [craft](../references/craft.md) and [components](../reference
 It also adapts MIT-licensed skills by Emil Kowalski (revisions `85e8e2363b713506e1d5b6e07a0eb2da66be1bc3` and `715c1807e08c497cfd1dc4feb450a2a3300ef2a9`): press feedback, named transition properties and hover on hover-capable pointers.
 
 The text is rewritten for Seenry. Their copyright and permission notices are retained in [jakub-LICENSE](jakub-LICENSE) and [emil-LICENSE](emil-LICENSE). Neither author endorses Seenry.
+
+Parts of [mobile web](../references/mobile-web.md) (from his `mobile-native` skill) adapt MIT-licensed material by Emil Kowalski (github.com/emilkowalski/skills) at revision `715c1807e08c497cfd1dc4feb450a2a3300ef2a9`, rewritten in Seenry's own words and structure. The original copyright and permission notice is retained in [emil-LICENSE](emil-LICENSE). No endorsement is implied.

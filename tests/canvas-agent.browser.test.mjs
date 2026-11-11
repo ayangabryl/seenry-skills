@@ -77,3 +77,16 @@ test('compare lists what the build gets wrong against the design', {skip}, async
   assert.ok(result.different.some(d => /font-size: design 32px, build 20px/.test(d)), result.different.join('\n'));
   assert.ok(existsSync(result.files.diff));
 });
+
+test('pair puts a screen beside its reference at the same width', {skip}, () => {
+  const {dir} = project();
+  const shot = run('render', '01-flow/01-good', '--json', '--dir', dir);
+  assert.equal(shot.status, 0, shot.stderr);
+  writeFileSync(join(dir, 'refs', 'ref.png'), readFileSync(JSON.parse(shot.stdout)[0].file));
+  const out = run('pair', '01-flow/01-good', 'ref.png', '--json', '--dir', dir);
+  assert.equal(out.status, 0, out.stderr);
+  const result = JSON.parse(out.stdout), png = readFileSync(result.file);
+  assert.equal(png.subarray(1, 4).toString(), 'PNG');
+  assert.ok(png.readUInt32BE(16) > 2 * 390, 'two screens side by side');
+  assert.notEqual(run('pair', '01-flow/01-good', 'missing.png', '--dir', dir).status, 0);
+});

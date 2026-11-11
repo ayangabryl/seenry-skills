@@ -7,24 +7,28 @@ Agent skills that make an AI work like a design studio. The agent designs every 
 | [seenry](skills/seenry/SKILL.md) | Start here for any design task. The flow from brief to built product, and which skill to load when |
 | [seenry-canvas](skills/seenry-canvas/SKILL.md) | Figma for AI agents: the agent designs screens on a local canvas, renders and reads them, verifies contrast, overflow, targets, links and token use, and compares the build with the approved design. A person can review on the same canvas |
 | [seenry-craft](skills/seenry-craft/SKILL.md) | Exact values for type, spacing, radius, shadows, color roles, icons, hit areas and component states |
-| [seenry-motion](skills/seenry-motion/SKILL.md) | Whether something should move, then how: curves, springs, gestures with velocity, scroll, with runnable assets |
-| [seenry-review](skills/seenry-review/SKILL.md) | Auditing a screen, reviewing a UI diff, stress-testing one component |
+| [seenry-motion](skills/seenry-motion/SKILL.md) | Whether something should move, then how: curves, springs, gestures with velocity, choreography, frame performance, the names of effects, with runnable assets |
+| [seenry-review](skills/seenry-review/SKILL.md) | Auditing a screen, reviewing a UI diff, a strict motion review with a Block or Approve verdict |
+| [seenry-break](skills/seenry-break/SKILL.md) | Breaking a component with realistic worst-case data behind a Demo / Worst case toggle, and the fix for each break |
+| [seenry-subtract](skills/seenry-subtract/SKILL.md) | Removing motion and decoration that do not earn their place; only deletes or reduces |
+| [seenry-audit](skills/seenry-audit/SKILL.md) | Surveying a whole app into ranked findings and self-contained plans another agent or a cheaper model can execute |
 | [seenry-assets](skills/seenry-assets/SKILL.md) | License-clear photos, icons and fonts, generated images when an image model is available, provenance for every file |
-| [seenry-apps](skills/seenry-apps/SKILL.md) | Native-feeling mobile screens and flows |
+| [seenry-apps](skills/seenry-apps/SKILL.md) | Native-feeling mobile screens and flows, Expo and Reanimated motion, modern Swift |
 | [seenry-video](skills/seenry-video/SKILL.md) | Product films as code, from studied references to a mastered MP4 |
 
 ## How it works
 
 1. **Brief from real material.** Real copy, prices, screenshots and photographs. Proof is never invented; anything assumed is listed for the owner.
-2. **Name the default, then leave it.** The agent writes down what any model would build for this brief, and every option must differ from it in structure.
-3. **Anchor to real references.** Each open decision gets two or three real screens, one from outside the category. Structure is taken from them; colors, words and images never are.
+2. **Build the default, then leave it.** The agent builds the page any model would make for this brief and puts it on the canvas, so every option can show how it differs.
+3. **Trace real references.** Ten or more real screens from the Seenry library, judged on a contact sheet. Each option, and each section of a long page, copies one reference's measured structure (grid, proportions, type scale, how much of the screen images fill) and changes only the identity; `canvas.mjs pair` puts the two side by side. Describing a reference and rebuilding it from memory brings the model's average back; tracing does not. Words, logos and images are never taken.
 4. **Design every screen on the canvas.** `node skills/seenry-canvas/scripts/canvas.mjs open` serves a pan-and-zoom canvas on `127.0.0.1`. Each flow is a section, each screen a live HTML frame at phone, tablet or desktop size, and options sit side by side. The person approves screens, picks options and pins comments on elements; the agent reads them with `canvas.mjs feedback`.
 5. **Pick the look, then design every screen in it.** One `tokens.css` that every screen links, so a change updates them all, and the same file moves into the product.
-6. **Build once and check once.** Craft values from `seenry-craft`, motion from `seenry-motion`, then a rendered audit at 1440 and 390 and a side-by-side with the approved screens. No scoring loop and no second model.
+6. **Build once and check once.** Craft values from `seenry-craft`, motion from `seenry-motion`, worst-case data from `seenry-break`, then a rendered audit at 1440 and 390 and a side-by-side with the approved screens. No scoring loop and no second model.
+7. **Take away, then plan.** `seenry-subtract` removes what does not earn its place; `seenry-audit` turns a whole app into plans a cheaper model can run.
 
 The canvas is organized the way design teams organize a Figma file: a generated cover with each section's status, Foundations read live from a tiered `tokens.css` (primitives, semantic variables with light and dark modes, text styles, effects, grids, fonts), component sheets with every variant and state, flows that play as a prototype, Dev Mode inspection that names each element's variables, handoff specs, an archive of decisions with their reasons, a change log, and `HANDOFF.md` for whoever builds it. A design system can be its own canvas that many products link to.
 
-The agent sees its own work with `render` (PNGs at each device and mode), `tree` (the layout with the variable behind each style), `verify` (rendered checks that fail on real problems), `diff` (what changed since the last round) and `compare` (the built product against its design, pixel and style differences). Every command can print JSON.
+The agent sees its own work with `render` (PNGs at each device and mode), `tree` (the layout with the variable behind each style), `verify` (rendered checks that fail on real problems), `diff` (what changed since the last round) `pair` (a screen beside the reference it traces) and `compare` (the built product against its design, pixel and style differences). Every command can print JSON.
 
 The canvas needs only Node: no packages, no account, no Figma. The seeing commands use Playwright. It works with Claude Code, Codex, Cursor or any agent that can run a command. In a cloud session it writes a screenshot of the canvas instead, or a single HTML file that opens from disk.
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.1.0
+
+A test run showed that references alone did not stop generated-looking pages: the agent turned each reference into a description and rebuilt it from memory, and the model's average came back. Tracing the reference's measured structure did stop it. This release builds the flow around that, and covers every part of Emil Kowalski's skills in Seenry's own words.
+
+- **Trace, then transform.** Each option, and each section of a long page, traces one real reference screen: its grid, proportions, type scale, image share and density are copied at measured values, and only the identity (content, type, color, imagery) changes. `.seenry/trace.md` records each trace. Neighboring sections take different references, so a page never repeats one composition.
+- **New canvas command: `pair`.** A screen beside the reference it traces, at the same width and crop, to check by eye that the structure held.
+- **Work first.** Products whose work is the point (agencies, studios, portfolios, shops) show it first; stand-ins are placeholders, listed as assumed, never shipped as the person's work.
+- **New: seenry-break.** Realistic worst-case data behind a Demo / Worst case toggle, failure signatures with cause and fix, a choice per field between wrapping, truncating and clamping, and a catalog of breaking values.
+- **New: seenry-subtract.** Only deletes or reduces: motion that fails the frequency and purpose gate, and the parts of a design that read as generated. Checks removal hazards and cleans up what deletions orphan.
+- **New: seenry-audit.** Recon, an audit in ten categories, every finding confirmed at `file:line`, then self-contained plans in `plans/` that a cheaper model executes; `execute` and `reconcile`.
+- **seenry-motion:** the add and remove gate, choreography (cast, relate, timeline), frame performance, a motion vocabulary, component techniques, and the gesture phases, thresholds and Motion drag props in `fluid`. SKILL.md fell from about 3,000 to 1,600 words; detail moved to references.
+- **seenry-review:** ten motion standards, a flag-on-sight list, a fix order, a Before / After / Why table and a Block or Approve verdict.
+- **seenry-apps:** React Native and Expo motion (Reanimated 4, worklets, `scheduleOnRN`, native stack, haptics) and modern Swift 6. SKILL.md fell from about 5,000 to 1,250 words; the look and platform detail moved to references unchanged.
+- **seenry-craft and seenry:** the full mobile web baseline (input keyboards, theme color per scheme, testing on hardware), the library list, and a Sonner guide.
+- Attribution for every adapted part is in `skills/seenry/references/sources.md` and each skill's `licenses/NOTICE.md`.
+
 ## 2.0.0
 
 Seenry 2 designs before it builds, with the person at the decision points instead of a scoring loop.
@@ -14,8 +30,6 @@ Seenry 2 designs before it builds, with the person at the decision points instea
 - **seenry-motion:** a fluid interaction guide (response on press, velocity handoff, interruptible springs, materials, reduced motion), adapted from Emil Kowalski's MIT-licensed Apple design skill.
 - **seenry-apps:** flows are designed on the canvas and the person picks the signature screen.
 - **Breaking:** the new-page flow no longer runs `check.mjs`, `pick.mjs` or the blind critic, and the identity, flow, anti-slop, standard, premium, art direction, design thinking, new-site, exploration, pages and recommendation references are removed. The scripts remain for existing projects that call them.
-- **Breaking:** removed the seenry-branding and seenry-decks skills. Decks and brand materials are no longer part of the Seenry library, and the tool guide follows the Seenry MCP 0.2.0 contract, which drops the branding and decks families.
-
 - **Breaking:** removed the seenry-branding and seenry-decks skills. Decks and brand materials are no longer part of the Seenry library, and the tool guide follows the Seenry MCP 0.2.0 contract, which drops the branding and decks families.
 
 ## 0.1.0

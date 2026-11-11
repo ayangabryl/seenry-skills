@@ -1845,6 +1845,36 @@ async function compare(frameId, url) {
   return result.missing.length || result.different.length ? 1 : 0;
 }
 
+// The traced screen beside the reference it traces, at the same width and crop, so structure can be compared by eye.
+async function pair(frameId, ref) {
+  if (!frameId || !ref) { console.error('Usage: canvas.mjs pair <screen> <reference image in refs/, or an http url> [--height <px>|full] [--mode light|dark]'); process.exit(2); }
+  const state = readState(), [f] = pickFrames(state, [frameId]), [[device, w, h]] = devicesFor(f), mode = modesFor()[0];
+  const tall = flag('height', String(h)), full = tall === 'full';
+  let refData = null;
+  if (!/^https?:\/\//.test(ref)) {
+    const file = [resolve(dir, ref), resolve(dir, 'refs', ref), resolve(ref)].find(p => existsSync(p));
+    if (!file) { console.error(`No reference "${ref}" in ${dir}, ${join(dir, 'refs')} or the working directory.`); process.exit(2); }
+    const type = {'.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif'}[extname(file).toLowerCase()];
+    if (!type) { console.error('The reference must be a png, jpg, webp, gif or avif image, or an http url.'); process.exit(2); }
+    refData = `data:${type};base64,${readFileSync(file).toString('base64')}`;
+  }
+  const out = join(dir, '.renders', 'pair'); mkdirSync(out, {recursive: true});
+  const file = join(out, `${safe(f.id)}.${device}.${mode}.png`);
+  await withBrowser(async (browser, base) => {
+    const shoot = async target => { const {context, page} = await openPage(browser, target, w, h, mode); const png = await page.screenshot({fullPage: true}); await context.close(); return `data:image/png;base64,${png.toString('base64')}`; };
+    const mine = await shoot(base + f.src.split('/').map(encodeURIComponent).join('/'));
+    const theirs = refData || await shoot(ref);
+    const H = full ? null : Number(tall), gap = 24, label = 36;
+    const page = await (await browser.newContext({viewport: {width: w * 2 + gap * 3, height: (H || h) + label + gap * 2}})).newPage();
+    const cell = src => `<figure><figcaption></figcaption><div class="crop"><img src="${src}"></div></figure>`;
+    await page.setContent(`<!doctype html><style>body{margin:0;padding:${gap}px;display:flex;gap:${gap}px;background:#e7e5e0;font:600 15px system-ui}figure{margin:0;width:${w}px}figcaption{height:${label}px}figure:first-child figcaption::before{content:"Yours"}figure:last-child figcaption::before{content:"Reference"}.crop{width:${w}px;${H ? `height:${H}px;` : ''}overflow:hidden;background:#fff}img{display:block;width:${w}px}</style>${cell(mine)}${cell(theirs)}`);
+    await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => {}))));
+    await page.screenshot({path: file, fullPage: true});
+  });
+  if (json) console.log(JSON.stringify({frame: f.id, reference: ref, device, mode, file}, null, 2));
+  else console.log(`${f.id} beside ${ref}  (${device} ${mode}, ${full ? 'full height' : `top ${tall}px`})\n${file}\nLook at both: grid, proportions, type scale, how much of the screen images fill, density. Fix what drifted back toward the default.`);
+}
+
 async function loadPlaywright() {
   const explicit = flag('playwright', process.env.SEENRY_PLAYWRIGHT);
   if (explicit) return import(pathToFileURL(resolve(explicit)).href);
@@ -1882,6 +1912,8 @@ if (command === 'init') {
   await diffFrames(positional);
 } else if (command === 'compare') {
   process.exitCode = await compare(positional[0], positional[1]);
+} else if (command === 'pair') {
+  await pair(positional[0], positional[1]);
 } else if (command === 'check') {
   process.exit(check());
 } else if (command === 'status') {
@@ -1947,5 +1979,5 @@ if (command === 'init') {
   if (info.started) { try { process.kill(info.pid); } catch {} rmSync(pidFile, {force: true}); }
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|render|tree|verify|diff|compare|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
 }

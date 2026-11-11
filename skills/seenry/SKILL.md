@@ -1,10 +1,10 @@
 ---
 name: seenry
-description: "Designs and builds web products the way a studio does: a brief from real material, the agent's own default built and avoided, at least ten real reference screens from the Seenry library studied and measured, every screen designed and approved on the Seenry canvas, then a build checked against the design. Use for any design or UI task: a new app, site, landing page, dashboard or pricing page, a redesign, a screen that looks generic or AI-made, a page made like a named site, or a change to screens in an existing app. Routes to seenry-canvas (design on the canvas), seenry-craft (exact values), seenry-motion, seenry-review, seenry-assets, seenry-apps and seenry-video."
+description: "Designs and builds web products the way a studio does: a brief from real material, the agent's own default built and avoided, ten or more real reference screens from the Seenry library, each option traced from one reference's measured structure with only the identity changed, every screen approved on the Seenry canvas, then a build checked against the design. Use for any design or UI task: a new app, site, landing page, dashboard or pricing page, a redesign, a screen that looks generic or AI-made, a page made like a named site, or a change to screens in an existing app. Routes to seenry-canvas, seenry-craft, seenry-motion, seenry-review, seenry-break, seenry-subtract, seenry-audit, seenry-assets, seenry-apps and seenry-video."
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Seenry
@@ -24,7 +24,8 @@ The canvas words (canvas, screen, section, flow, option, tokens, round) mean wha
 | Word | Means |
 | --- | --- |
 | the default | What any model would build for this brief with no thought: the look to avoid |
-| reference | A real product's screen that does the same job well, used for structure only |
+| reference | A real product's screen that does the same job well |
+| trace | Copy a reference's structure at measured values (grid, proportions, type scale, image share, density), then change only the identity |
 
 ## Which skill does what
 
@@ -37,6 +38,9 @@ Load a skill when the task reaches its area, not before.
 | Anything that moves | `seenry-motion` |
 | A review of a screen, a diff or one component | `seenry-review` |
 | Photos, icons, fonts, generated images | `seenry-assets` |
+| Worst-case data: long names, empty lists, huge counts | `seenry-break` |
+| Taking away what does not earn its place | `seenry-subtract` |
+| A whole app surveyed into plans another agent can run | `seenry-audit` |
 | Native mobile screens | `seenry-apps` |
 | A product film | `seenry-video` |
 
@@ -44,7 +48,7 @@ Load a skill when the task reaches its area, not before.
 
 1. **Never invent proof.** No made-up testimonials, customers, logos, statistics, awards or press quotes. A missing fact nobody can supply gets a plain plausible value, listed under "Assumed".
 2. **Never ship the default.** Each part of it is fine where it is the best answer; the screen as a whole may not be it.
-3. **References give everything but identity.** Take composition, proportion, type scale, how much of the screen images fill, density, how color is used and how proof is shown, with the numbers. Never their words, logos, images or brand.
+3. **References give structure; you give identity.** Trace composition, proportion, type scale, how much of the screen images fill, density and how proof is shown, with the numbers. Never their words, logos, images or brand. A reference rewritten as a description and rebuilt from memory is not traced: the model's average comes back.
 4. **One thing leads each screen.** Equal weight everywhere reads as a template, and neighboring sections of a page differ in composition.
 5. **Material is real or absent.** Real product, photographs and data, or a type-led section. Never a gradient or drawing standing in for an image.
 6. **Every affordance works.** A shortcut hint, badge or button with nothing behind it is wired up or removed.
@@ -56,7 +60,8 @@ Load a skill when the task reaches its area, not before.
 - [ ] 2. Brief from real material
 - [ ] 3. Build the default
 - [ ] 4. Ten or more references, studied and measured
-- [ ] 4b. Real material
+- [ ] 4b. A trace for every option and section
+- [ ] 4c. Real material
 - [ ] 5. Design on the canvas (seenry-canvas)
 - [ ] 6. Build from the handoff
 - [ ] 7. Check the build against the design
@@ -95,21 +100,27 @@ References are where the design comes from, so this step gets real time. Follow 
 1. Search the Seenry library by its tags, not by guesses: read `get_design_taxonomy`, then search by element, style, category and curated picks, and walk the category's site collections. Add one search outside the category with `borrow_references`.
 2. Download every candidate's poster and judge them on one contact sheet. Keep ten or more that pass on the pixels: one clear first read, tuned type, real material at real size, recognizable with the logo covered. Write why you rejected the rest.
 3. Measure four of the kept pages with `compare_measurements`: headline size, weight and line height, body size, radius, button padding.
-4. Save the kept screens to `.seenry/canvas/refs/` and write `.seenry/research-cards.md`: for each option you will build, the two or three references it borrows from, what it takes (with the numbers) and what it leaves.
+4. Save the kept screens to `.seenry/canvas/refs/`.
 
 Without the library, use the person's links and `node scripts/bar.mjs --sites <domain>,…`, and still reach ten screens.
 
-**Done when** ten or more references are on the canvas, four are measured, and every option has a borrowing card.
+**Done when** ten or more references are on the canvas and four are measured.
 
-### 4b. Real material
+### 4b. A trace for every option and section
 
-Every strong reference shows real images at large scale; a type-only page reads as generated. Before building options, gather the material: the person's own photographs and work first, then license-clear photographs with `seenry-assets` (short concrete nouns on Openverse, The Met for art), each credited. Use stand-ins only where the person has none, and list them under "Assumed". Never use an image that makes a false claim, such as another country's tiles on a Lisbon studio.
+Write `.seenry/trace.md`. For each option, name the one reference screen it traces; for each section of a long page, the reference section it traces, with neighboring sections from different references. Under each, the measured structure to keep (columns and margins, the share of the screen each block takes, headline size and line height, image share, density) and the identity to change (content, typeface, color world, imagery). Measure from the reference image scaled to the screen's width (1440 for desktop) when `compare_measurements` has no numbers for it. Build from that, then check each with `canvas.mjs pair <screen> <reference>`.
+
+**Done when** every option and section has a reference file and its numbers in `trace.md`.
+
+### 4c. Real material
+
+Every strong reference shows real images at large scale; a type-only page reads as generated. A product whose work is the point (an agency, studio, portfolio, shop or restaurant) shows that work first, large; ask for it before designing. Before building options, gather the material: the person's own photographs and work first, then license-clear photographs with `seenry-assets` (short concrete nouns on Openverse, The Met for art), each credited. Use stand-ins only where the person has none, mark them as placeholders on the canvas, list them under "Assumed", and never ship them as the person's own work. Never use an image that makes a false claim, such as another country's tiles on a Lisbon studio.
 
 **Done when** each option has the images it needs, with their licenses recorded.
 
 ### 5. Design on the canvas
 
-Follow `seenry-canvas`, steps 1 to 8. Each option takes its own type, color world and imagery from its borrowing card, so the person chooses between looks, not three layouts of one palette. Put the default beside the options. Build the tokens from [look](references/look.md) when the project has none, and use `seenry-craft` for every value.
+Follow `seenry-canvas`, steps 1 to 8. Each option is built from its trace and takes its own type, color world and imagery, so the person chooses between looks, not three layouts of one palette. Put the default beside the options. Build the tokens from [look](references/look.md) when the project has none, and use `seenry-craft` for every value.
 
 **Done when** every screen in scope is approved on the canvas.
 
@@ -117,7 +128,7 @@ Follow `seenry-canvas`, steps 1 to 8. Each option takes its own type, color worl
 
 Run `canvas.mjs handoff` and build from `HANDOFF.md` in the project's stack, moving `tokens.css` and the fonts in unchanged and following every spec. Use `seenry-motion` before anything moves, `seenry-assets` for material, and [kits](references/building.md) when the project has no component library.
 
-**Done when** every approved screen exists in the product.
+**Done when** every approved screen exists in the product. Before the next step, run `seenry-break` on every list, table, card and profile built against demo data.
 
 ### 7. Check the build against the design
 
@@ -132,6 +143,9 @@ Run `canvas.mjs compare <screen> <url>` for each built screen and look at its im
 | "Build me an app / a site / a page" | Steps 1 to 7 |
 | "Make it look less generic" | Unslop, then steps 3 to 7 |
 | "Make it like Linear" | Named site, then steps 4 to 7 |
+| "Break it", "try the worst case" | `seenry-break` |
+| "Too much going on", "feels slow" | `seenry-subtract` |
+| "Audit the whole app" | `seenry-audit` |
 | "Just fix this" | Existing project |
 | "Ship it" | Step 7 first; never ship an unchecked build |
 
@@ -141,7 +155,7 @@ Plain and short. Lead the report with what the person approved, then what you ch
 
 ```
 Approved:  the screens and options approved, and what changed after the person's comments
-Anchors:   each option's references and what it took from them, with the numbers
+Traced:    each option and section, its reference and the numbers kept
 Not the default: how the product differs from the default in the brief
 Type and color: families and weights, the palette by role
 Checked:   verify, compare, the states and controls used
