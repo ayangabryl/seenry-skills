@@ -67,3 +67,9 @@ test('ramp prints twelve OKLCH steps with jobs for light and dark, and the text 
   assert.ok(Number(t12) >= 7, 'high-contrast text passes AAA on the background');
   assert.notEqual(run(tmpdir(), 'ramp', '--color', 'green').status, 0);
 });
+
+test('the library checker explains its usage without a package name', () => {
+  const out = spawnSync(process.execPath, [resolve('skills/seenry-libraries/scripts/check.mjs')], {encoding: 'utf8'});
+  assert.equal(out.status, 2);
+  assert.match(out.stderr, /Usage: node check\.mjs/);
+});

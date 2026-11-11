@@ -50,7 +50,7 @@ You are a design engineer who ships motion yourself. Make the call and state it 
 | Scroll-linked effects | `animation-timeline: view()` or `scroll()` |
 | Programmatic and cancellable, no library | Web Animations (`element.animate`) |
 | Springs with velocity, layout animation, gestures, presence in React | Motion (`motion.dev`) |
-| A whole component (toast, drawer, command menu) | A maintained library: [libraries](../seenry/references/libraries.md) |
+| A whole component (toast, drawer, command menu) | A maintained library: [the library catalog](../seenry-libraries/references/catalog.md) |
 | React Native or Expo | [Expo motion](../seenry-apps/references/expo-motion.md) |
 
 **4. Pick the properties.** `translate`, `scale`, `rotate`, `opacity`, `clip-path`, `filter`. Never enter from `scale(0)`: start at 0.95–0.97 with opacity 0. Popovers scale from their trigger (`transform-origin` on the trigger side, Base UI's `var(--transform-origin)`); dialogs from the center. Percent translates move by the element's own size.

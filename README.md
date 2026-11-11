@@ -13,6 +13,7 @@ Agent skills that make an AI work like a design studio. The agent designs every 
 | [seenry-break](skills/seenry-break/SKILL.md) | Breaking a component with realistic worst-case data behind a Demo / Worst case toggle, and the fix for each break |
 | [seenry-subtract](skills/seenry-subtract/SKILL.md) | Removing motion and decoration that do not earn their place; only deletes or reduces |
 | [seenry-audit](skills/seenry-audit/SKILL.md) | Surveying a whole app into ranked findings and self-contained plans another agent or a cheaper model can execute |
+| [seenry-libraries](skills/seenry-libraries/SKILL.md) | The right maintained library for a UI job before building by hand: about 115 packages by job (primitives, toasts, NumberFlow, motion, drag, tables, charts, editors, media, AI chat, React Native), each checked on npm for license and last release |
 | [seenry-assets](skills/seenry-assets/SKILL.md) | License-clear photos, icons and fonts, generated images when an image model is available, provenance for every file |
 | [seenry-apps](skills/seenry-apps/SKILL.md) | Native-feeling mobile screens and flows, Expo and Reanimated motion, modern Swift |
 | [seenry-video](skills/seenry-video/SKILL.md) | Product films as code, from studied references to a mastered MP4 |

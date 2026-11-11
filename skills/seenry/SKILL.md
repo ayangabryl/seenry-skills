@@ -1,6 +1,6 @@
 ---
 name: seenry
-description: "Designs and builds web products the way a studio does: a brief from real material, the agent's own default built and avoided, ten or more real reference screens from the Seenry library, each option composed from several references' principles (or traced from one when asked to replicate), type and color chosen as a system from an idea, every screen approved on the Seenry canvas, then a build checked against the design. Use for any design or UI task: a new app, site, landing page, dashboard or pricing page, a redesign, a screen that looks generic or AI-made, a page made like a named site, or a change to screens in an existing app. Routes to seenry-identity, seenry-canvas, seenry-craft, seenry-motion, seenry-review, seenry-break, seenry-subtract, seenry-audit, seenry-assets, seenry-apps and seenry-video."
+description: "Designs and builds web products the way a studio does: a brief from real material, the agent's own default built and avoided, ten or more real reference screens from the Seenry library, each option composed from several references' principles (or traced from one when asked to replicate), type and color chosen as a system from an idea, every screen approved on the Seenry canvas, then a build checked against the design. Use for any design or UI task: a new app, site, landing page, dashboard or pricing page, a redesign, a screen that looks generic or AI-made, a page made like a named site, or a change to screens in an existing app. Routes to seenry-identity, seenry-canvas, seenry-craft, seenry-motion, seenry-review, seenry-break, seenry-subtract, seenry-audit, seenry-libraries, seenry-assets, seenry-apps and seenry-video."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -39,6 +39,7 @@ Load a skill when the task reaches its area, not before.
 | Exact values: type, spacing, radius, shadow, color roles, states | `seenry-craft` |
 | Anything that moves | `seenry-motion` |
 | A review of a screen, a diff or one component | `seenry-review` |
+| Which library to use before building a component by hand | `seenry-libraries` |
 | Photos, icons, fonts, generated images | `seenry-assets` |
 | Worst-case data: long names, empty lists, huge counts | `seenry-break` |
 | Taking away what does not earn its place | `seenry-subtract` |
@@ -139,7 +140,7 @@ Follow `seenry-canvas`, steps 1 to 8. Each option is built from its composition 
 
 ### 6. Build from the handoff
 
-Run `canvas.mjs handoff` and build from `HANDOFF.md` in the project's stack, moving `tokens.css` and the fonts in unchanged and following every spec. Use `seenry-motion` before anything moves, `seenry-assets` for material, and [kits](references/building.md) when the project has no component library.
+Run `canvas.mjs handoff` and build from `HANDOFF.md` in the project's stack, moving `tokens.css` and the fonts in unchanged and following every spec. Use `seenry-libraries` before building any component by hand, `seenry-motion` before anything moves, `seenry-assets` for material, and [kits](references/building.md) when the project has no component library.
 
 **Done when** every approved screen exists in the product. Before the next step, run `seenry-break` on every list, table, card and profile built against demo data.
 
@@ -190,6 +191,6 @@ Assumed:   every fact you supplied that the person should replace
 | Measured values from leading sites | [benchmarks](references/benchmarks.md) |
 | Bundled component and transition kits | [kits](references/building.md) |
 | Imagery rules | [imagery](references/imagery.md) |
-| Libraries and stack choices | [libraries](references/libraries.md), [stack](references/stack.md) |
+| Libraries and stack choices | `seenry-libraries`, [stack](references/stack.md) |
 | A design sheet, only when asked | [sheet](references/sheet.md) |
 | Where the rules come from | [sources](references/sources.md) |

@@ -19,6 +19,7 @@ So Seenry 2 puts a person at the decision points instead of a scoring loop. Ever
 - `seenry-audit` owns whole-app surveys and the self-contained plans that let a cheaper model execute the fixes.
 
 Each of these does one job per run, the way Emil Kowalski's skills do, so the agent's attention goes to that job instead of a long pipeline.
+- `seenry-libraries` owns the choice of library for a UI job, checked on npm by `check.mjs`.
 - `seenry-assets` owns material and provenance.
 - `seenry-apps` owns native mobile screens and flows, designed on the same canvas.
 - `seenry-video` directs and renders product films as code.
