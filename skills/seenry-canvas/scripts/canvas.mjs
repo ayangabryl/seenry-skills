@@ -1707,6 +1707,8 @@ async function openPage(browser, url, width, height, mode, scale = 1) {
   if (mode === 'dark') await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(150);
+  // Judge the settled screen: an entrance caught mid-flight reads as faded text and fails contrast for no reason.
+  await page.evaluate(() => { for (const a of document.getAnimations()) { const t = a.effect?.getComputedTiming?.(); if (t && Number.isFinite(t.endTime)) { try { a.finish(); } catch {} } } });
   return {context, page};
 }
 

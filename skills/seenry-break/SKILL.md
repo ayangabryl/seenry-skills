@@ -78,7 +78,7 @@ A segmented control fixed at the bottom center, plain and obviously not part of 
 
 ### 4. Break it
 
-Look at the worst case at the component's real container width (a sidebar list is not a page list), at 320px, at its widest layout, at 200% zoom, and in dark mode and `dir="rtl"` if the product supports them. Screenshot both datasets at each width when a browser is available; otherwise reason from the CSS and say which breaks you saw and which you inferred.
+Listen for page errors and dialogs while you load each state: a script that runs from data, or an exception on a missing field, is a Broken finding before anything is drawn. Look at the worst case at the component's real container width (a sidebar list is not a page list), at 320px, at its widest layout, at 200% zoom, and in dark mode and `dir="rtl"` if the product supports them. Screenshot both datasets at each width when a browser is available; otherwise reason from the CSS and say which breaks you saw and which you inferred.
 
 Match each break to its signature:
 
@@ -101,6 +101,9 @@ Match each break to its signature:
 | Vietnamese or Thai marks clipped | Tight line height with `overflow: hidden` | Looser line height, no clipping on text |
 | A broken-image icon | No `onError` fallback | Initials fallback; `object-fit: cover` |
 | Truncated text with no way to read it | Ellipsis alone | A `title` or tooltip, and the full value somewhere |
+| A bar or meter full, or overflowing, at 142% or -3% | The raw value drives the width | Clamp the drawing to 0–100% and show the true number as text |
+| `null`, `1970-01-01` or `2027-02-12T00:00:00Z` where a date belongs | A missing or zero timestamp, or an ISO string, rendered raw | `Intl.DateTimeFormat`; a word ("No date") for missing or zero |
+| `€0`, `€-420.5`, `€null` | The amount rendered raw | `Intl.NumberFormat` with currency; a word for zero or missing where zero means something ("Unpaid", "Not set") |
 | 1,000 rows stutter | Every row rendered | Virtualize or paginate, and say which |
 | Raw `<b>`, `&amp;` or `**text**` | Escaped in the wrong layer | Escape once at render; never `dangerouslySetInnerHTML` user data |
 

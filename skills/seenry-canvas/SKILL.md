@@ -79,7 +79,7 @@ Read the project: its stack, its tokens or theme, its components, its real conte
 
 ### 4. Options
 
-For the main screen, choose two or three directions. Write the set before building, one line each: a name for the direction (never "Option A"), its axis, when it is the right choice, and what it costs. One is the safe answer closest to what the category expects; at least one is bold.
+For the main screen, choose two or three directions. Write the set before building, one line each: a name for the direction (never "Option A"), its axis, when it is the right choice, and what it costs. One is the safe answer closest to what the category expects; at least one is bold. When you do not yet know the person's taste, spread the options across temperaments as well (one loud, one quiet, one bright), so their pick tells you which way to go; three variations of your own favorite teach you nothing.
 
 **Compose from references, or trace when asked.** Each option starts from real reference screens in `refs/` (chosen by the research in `seenry`), never from memory. By default, take one principle from each of two or three references, with its numbers (a type scale, how image and type overlap, the density, where space sits), and compose your own layout around the product's idea. Copy one reference's measured structure and change only the identity only when the person asks to replicate. Type and color come from `seenry-identity`. Name the references in `seenry-note`, and run `pair <option> <reference>` against each: an option that reads as one reference with new colors is a reskin, and an option drifting toward the default (a headline left with a paragraph right, a small label column, cards around everything) needs its references back.
 

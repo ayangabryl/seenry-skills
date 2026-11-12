@@ -21,6 +21,11 @@
 - **seenry-craft:** a lines reference: a line has one of three jobs, one direction per group, never boxing text, exactly as wide as what it rules, column rules instead of dividers. `canvas.mjs verify` now warns on a rule running past its content, lines in both directions, and ruled columns starting at uneven steps.
 - **seenry-canvas:** the person who asked always sees the canvas, in cloud sessions too; `resolve` handles options drawn for several devices.
 
+### Found by testing a dense app screen
+
+- A project list built in the picked tokens looked right with demo data and broke ten ways under `seenry-break`'s worst case (unescaped HTML, `undefined` in an avatar, a three-line badge, raw amounts and dates). The skill's fix table resolved all ten. Two gaps closed: break's table gains rows for out-of-range meters, bad dates and raw amounts, and craft's finishing table now catches raw numbers and dates, unescaped data, missing `min-width: 0`, capital or monospace labels, and bad lines in the first draft.
+- The canvas judges settled screens: finite entrance animations are finished before a screenshot or a contrast check.
+
 ### Seenry 2.1 core
 
 A test run showed that references alone did not stop generated-looking pages: the agent turned each reference into a description and rebuilt it from memory, and the model's average came back. Tracing the reference's measured structure did stop it. This release builds the flow around that, and covers every part of Emil Kowalski's skills in Seenry's own words.

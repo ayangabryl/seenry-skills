@@ -103,3 +103,10 @@ test('verify warns about boxed columns, uneven steps and a rule that runs past i
   assert.ok(lines.some(i => /uneven steps/.test(i.message)));
   assert.ok(!lines.some(i => /div\.g/.test(i.selector)), 'column rules with a gap are fine');
 });
+
+test('screens are judged settled: an entrance animation does not fail contrast', {skip}, () => {
+  const {dir} = project();
+  writeFileSync(join(dir, '01-flow', '01-good.phone.html'), '<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="../tokens.css"><title>Enter</title><style>body{background:var(--color-bg);color:var(--color-text)}p{animation:in 4s both}@keyframes in{from{opacity:0}}</style><p>Arriving text</p>');
+  const out = run('verify', '01-flow/01-good', '--json', '--dir', dir);
+  assert.ok(!JSON.parse(out.stdout).issues.some(i => i.kind === 'contrast'), out.stdout);
+});

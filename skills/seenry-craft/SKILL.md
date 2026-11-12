@@ -112,6 +112,12 @@ Search what you changed. Fix each hit or defend it in one sentence.
 | `width: 100vw`, or `100vh` on a phone pane | `100%`, `100dvh` |
 | More than nine font sizes or four radii on one screen | Collapse to the scale |
 | A motion with no `prefers-reduced-motion` branch | Add the resting state |
+| A raw number, amount or ISO date in the interface (`54000`, `2027-02-12`) | `Intl.NumberFormat`, `Intl.DateTimeFormat`, `Intl.PluralRules`; a word for zero and for missing ("Unpaid", "No date") |
+| Data written into the page as HTML (`innerHTML` with a name or title) | Escape it, or set `textContent` |
+| A flex or grid child holding text without `min-width: 0` | Add it, then choose wrap, clamp or truncate with the full value in `title` |
+| Column or field labels in tracked capitals or monospace | Sentence case in the body face |
+| Lines in both directions, or a rule wider than its content | [lines](references/lines.md) |
+| A list, table, card or profile only ever seen with tidy demo data | Run `seenry-break` |
 
 `node ../seenry/scripts/audit_page.mjs <url or file> --widths 1440,390` counts the sizes, weights, radii and colors a page really renders and lists off-grid spacing, radius mismatches and near-miss edges. It needs Playwright in the project.
 
