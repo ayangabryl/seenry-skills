@@ -4,12 +4,12 @@ description: "Review a web interface, a UI diff or a single component and return
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "0.1.0"
+  version: "2.1.0"
 ---
 
 # Seenry Review
 
-Judge what renders, not what the code intends. Every finding is visible, specific, ranked and comes with the smallest fix. Use the rules in the [Seenry system](../seenry/SKILL.md) as the standard: grid and spacing, per-component type limits, concentric radii, one accent, consistent page shell, and the [anti-slop list](../seenry/references/anti-slop.md).
+Judge what renders, not what the code intends. Every finding is visible, specific, ranked and comes with the smallest fix. Use the values in [seenry-craft](../seenry-craft/SKILL.md) as the standard: grid and spacing, type roles, concentric radii, color roles, states. A screen built as the default named in [seenry](../seenry/SKILL.md#3-build-the-default) is a finding on hierarchy, not on taste.
 
 If you built the surface yourself, say so and treat the verdict as self-review. A fresh agent context is better.
 
@@ -38,8 +38,8 @@ Report what you can show: a measurement, a screenshot, a failing check, a rule w
 | --- | --- |
 | "Review / critique / audit this page, screen or site" | **Screen review** |
 | "Review this branch / PR / commit / my changes" | **Change review**: run `git diff` against the base, list changed UI surfaces, render them before and after, review only those |
-| "Stress test / break this component" | **Stress test** |
-| "Is this accessible / WCAG" | **Screen review**, accessibility pass only, with [the checklist](../seenry/references/accessibility.md) |
+| "Stress test / break this component" | **Stress test**, with `seenry-break` |
+| "Is this accessible / WCAG" | **Screen review**, accessibility pass only, with [the checklist](../seenry-craft/references/accessibility.md) |
 | "Review / improve the animations", "where should this animate" | **Motion review** |
 | "How was this built / explain this interaction" | **Explain** |
 
@@ -48,10 +48,10 @@ Report what you can show: a measurement, a screenshot, a failing check, a rule w
 1. **Render.** Open the page at 1440 and 390 (plus 320 for overflow). Screenshot each. Exercise the main action with pointer and keyboard.
    - **Review the complete flow before its motion.** State the component's purpose, how people enter, each meaningful action and its visible outcome. Check discoverability, appropriate Back/Cancel/dismissal behavior, focus return, relevant empty/error/disabled states, repeated or interrupted actions, and phone fit. Mark a state not applicable only with a reason; untested states remain unverified.
    - **Use flow-appropriate dismissal.** A confirmation dialog can use Cancel and Escape with native modal behavior; a navigation flow can use Back. Do not require an extra Close or X button on every dialog. A source-point return control is a spatial criterion for a directly expanding card or toggle flow, not a universal dialog requirement. Existing controls still need clear names, usable targets, visible focus and correct outcomes.
-2. **Measure.** Run `node ../seenry/scripts/audit_page.mjs <url or file> --widths 1440,390,320 --shots <dir>` ([page audit](../seenry/scripts/audit_page.mjs)); it combines the [system audit](../seenry/scripts/system_audit.mjs) and the [optical audit](../seenry/scripts/optical_audit.mjs) and works on any project. Record totals: font sizes, weights, families, radii, shadows, off-grid values, nested radius violations, components over limit, horizontal overflow, and per component the alignment anchors, near-miss edges and optical insets ([alignment](../seenry/references/alignment.md)). Toggle the [grid overlay](../seenry/assets/layout-guides/README.md) to check shared edges.
+2. **Measure.** Run `node ../seenry/scripts/audit_page.mjs <url or file> --widths 1440,390,320 --shots <dir>` ([page audit](../seenry/scripts/audit_page.mjs)); it combines the [system audit](../seenry/scripts/system_audit.mjs) and the [optical audit](../seenry/scripts/optical_audit.mjs) and works on any project. Record totals: font sizes, weights, families, radii, shadows, off-grid values, nested radius violations, components over limit, horizontal overflow, and per component the alignment anchors, near-miss edges and optical insets ([alignment](../seenry-craft/references/alignment.md)). Toggle the [grid overlay](../seenry/assets/layout-guides/README.md) to check shared edges.
 3. **Look in this order**, because earlier failures make later ones moot:
    - **Job and hierarchy.** Within 5 seconds, is it clear what this is, for whom, and what to do next? Is the primary action the most prominent control?
-   - **Material and anchors.** Real images, icons and data, or placeholders? Does every element align to an edge or center line of another, or do some float? Is there one dominant element and one detail layer? Use the studio critique in [exploration](../seenry/references/exploration.md#4-critique-like-a-studio).
+   - **Material and anchors.** Real images, icons and data, or placeholders? Does every element align to an edge or center line of another, or do some float? Is there one dominant element and one detail layer?
    - **Layout.** Shared content edges, section rhythm, grouping (2x rule), reading order, phone reflow.
    - **Type.** Family count, sizes and weights per component and page, display weight and tracking, line length, wrapping.
    - **Color and surface.** Accent area and roles, contrast, elevation choices, radius family and concentricity.
@@ -89,18 +89,11 @@ The question is "did this change make the interface worse?", not "what is wrong 
 
 ## Motion review
 
-Inventory every transition, animation and gesture in scope. For each: frequency tier, purpose, tool, properties, duration, easing or spring, interruption, reduced-motion and hover gating, measured against the build sequence and **Never ship** table in `seenry-motion`. Watch each at normal speed and at 10% in the DevTools Animations panel. Also list **missed opportunities** (a jarring jump that needs continuity, a press with no feedback) and **rejected candidates** (what should stay instant, and why). Report in the table format.
+Inventory every transition, animation and gesture in scope: frequency tier, purpose, tool, properties, duration, curve or spring, interruption, reduced-motion and hover gating. Watch each at normal speed and at 10% in the DevTools Animations panel. Judge against the [motion standards](references/motion-standards.md): ten standards, the flag-on-sight list, the fix order, the Before / After / Why table and a Block or Approve verdict. List missed opportunities and rejected candidates as well. To remove motion, hand over to `seenry-subtract`; to plan fixes across a whole app, `seenry-audit`.
 
 ## Stress test
 
-Render the component alone on a scratch page and put every realistic variant on screen at once:
-
-- Content: empty, 1 character, typical, 2x long, 5x long, unbroken string (URL, email), emoji and CJK, RTL if supported, missing image, 0 / 1 / 99+ / 1,000,000 counts, negative numbers.
-- States: default, hover, focus-visible, active, disabled, loading, error, success, selected, expanded.
-- Containers: 240, 320, 390, 768, 1200 wide; 200% zoom; increased text spacing.
-- Input: mouse, keyboard only, touch emulation, rapid repeated clicks, reversal mid-transition.
-
-Screenshot the grid of variants, run the system audit and [text collisions](../seenry/scripts/text_collisions.mjs), and report failures in the table format. Delete the scratch page afterwards unless asked to keep it.
+Use `seenry-break`: it maps every value a component renders, builds a realistic worst-case dataset, puts it behind a Demo / Worst case toggle, and reports what broke with the fix for each. For a quick pass without a toggle, render the component on a scratch page with empty, one-character, long, unbroken (email, URL), emoji, CJK and RTL content, 0, 1 and 1,000,000 counts, every state, and widths 240, 320, 390, 768 and 1200 at 200% zoom, then report failures in the table format.
 
 ## Explain
 

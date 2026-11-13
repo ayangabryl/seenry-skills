@@ -36,7 +36,7 @@ async function loadPlaywright() {
 const found = findCli(flag('cli', process.env.SEENRY_CRITIC));
 if (!found) { console.error('No working critic CLI found (codex or claude).'); process.exit(2); }
 
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch();
 const page = await browser.newPage({viewport: {width: 1440, height: 900}, deviceScaleFactor: 1});
 await page.goto(/^https?:/.test(target) ? target : pathToFileURL(resolve(target)).href, {waitUntil: 'networkidle'}).catch(() => {});

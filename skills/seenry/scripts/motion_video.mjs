@@ -46,7 +46,7 @@ async function loadPlaywright() {
   try { return await import('playwright'); } catch {}
   console.error('Playwright not found (npm i -D playwright, or pass --playwright).'); process.exit(2);
 }
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch();
 const page = await browser.newPage({viewport: {width: 1560, height: 400}});
 await page.setContent(`<body style="margin:0;background:#c8c8c8;font:12px system-ui"><div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px">${keep.map(({f, t}) =>

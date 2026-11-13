@@ -556,7 +556,7 @@ async function textOverImage(page) {
   return found;
 }
 
-const {chromium} = await loadPlaywright();
+const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch({headless: true, args: ['--allow-file-access-from-files'], ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
 const report = {url, widths: {}};
 for (const [w, h] of [[1440, 900], [390, 844]]) {

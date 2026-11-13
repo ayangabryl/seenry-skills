@@ -1,26 +1,33 @@
 # Seenry architecture
 
-## Why one main skill carries the system
+## Design on a canvas, then build
 
-Splitting design into many narrow skills behind review checkpoints (frozen briefs, paired studies, CLI gates) produces rigorous process and generic output. The agent is told to compare, review and verify, but never what a good button, card or page shell measures, and specialist skills are rarely loaded when they are needed.
+Generated interfaces converge on whatever the current model does by default. A list of banned tells moves the agent to the next default, and a model critic scoring its own family's work rewards the same default. Studios avoid this by deciding structure early, with a person, on cheap artefacts.
 
-So the main skill carries the system itself: allowed values, layered component construction, page shells, measured benchmarks and an explicit anti-slop list. Process is a studio loop: brief, research, frame, material, explore three compositions inside the frame, critique, refine, verify on pixels. The frame gives consistency; exploration gives quality.
+So Seenry 2 puts a person at the decision points instead of a scoring loop. Every screen of a new product is designed first as live HTML on a local canvas (`seenry-canvas`), reviewed flow by flow, with options only where the structure is a real decision. Each option composes principles from several real references, with their numbers, around the product's own idea; copying one reference's structure is reserved for replication. A reference turned into a vague description drifts back to the model's average, and one copied whole is a reskin. The look is picked once, as a token file every screen links. The build happens once and is checked once against the approved screens.
 
 ## Skills
 
-- `seenry` owns building web interfaces, pages and components. Everything the specialist skills used to cover (typography, color, layout, craft, writing, accessibility, imagery) is a reference file it loads on demand.
-- `seenry-assets` owns material: sourcing license-clear images, icons and fonts, generating images when a model is available, and provenance.
-- `seenry-review` owns judgment: screen reviews, diff reviews, stress tests and explanations, all reported in one ranked table against the same system.
-- `seenry-motion` owns behavior over time and ships runnable, tested motion assets.
-- `seenry-apps` owns native mobile screens and flows with platform metrics.
-- `seenry-video` directs and renders product films as code, from studied references to a mastered, claim-checked MP4.
+- `seenry` owns the flow and the routing. It is short and names the one file each step needs.
+- `seenry-identity` owns type and color: the idea, specimens, color studies, and fonts fetched with their licenses by `identity.mjs`.
+- `seenry-canvas` owns the canvas: a folder of HTML screens served by one dependency-free Node script, and the person's feedback.
+- `seenry-craft` owns exact values: type, spacing, radius, surfaces, color roles, icons, states. Adapted in part from Jakub Krehel's and Emil Kowalski's MIT-licensed skills.
+- `seenry-motion` owns behavior over time and ships runnable, tested motion assets, including fluid gesture guidance adapted from Emil Kowalski's Apple design skill.
+- `seenry-review` owns judgment of existing screens and diffs, including a strict motion standard.
+- `seenry-break` owns worst-case data: the catalog, the toggle and the report of what broke.
+- `seenry-subtract` owns removal: motion and decoration that cannot defend themselves. It never adds.
+- `seenry-audit` owns whole-app surveys and the self-contained plans that let a cheaper model execute the fixes.
 
-## Consistency mechanism
+Each of these does one job per run, the way Emil Kowalski's skills do, so the agent's attention goes to that job instead of a long pipeline.
+- `seenry-libraries` owns the choice of library for a UI job, checked on npm by `check.mjs`.
+- `seenry-assets` owns material and provenance.
+- `seenry-apps` owns native mobile screens and flows, designed on the same canvas.
+- `seenry-video` directs and renders product films as code.
 
-1. `tokens.css` (or the project's tokens) defines every allowed value.
-2. `DESIGN.md` records tokens, the page shell, one spec card per component, references studied and rejected directions. Every later task reads it first.
-3. The system audit measures what actually rendered, so drift is visible as numbers: extra font sizes, stray weights, off-grid spacing, non-concentric corners.
+## Keeping tokens down
+
+Each rule has one home. `seenry` links to a reference only at the step that needs it, and a new product needs the flow, the canvas, the craft values and at most two references per open decision. Wireframes are short HTML in a shared kit, so early rounds cost little.
 
 ## Evidence
 
-Seenry MCP is optional. When connected, the agent compares up to three search angles, inspects the two best-fitting references at full size, measures the shared type, radius and padding ranges of the references it chose, and records them in DESIGN.md. Without it, the bundled benchmarks carry measured values from 18 leading sites. A screenshot proves one state at one width; motion and interaction need a recording or a live check.
+Seenry MCP is optional. When connected, the agent finds real screens for each open decision and measures their type and spacing. Without it, the person's links, live captures with `bar.mjs`, and the bundled benchmarks. A screenshot proves one state at one width; motion and interaction need a recording or a live check.

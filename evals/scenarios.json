@@ -508,5 +508,51 @@
       }
     ],
     "check": "Inspect outliers and missing samples before turning a shared range into a rule; verify against pixels; state where a rule deliberately departs from the measured range (for example raising body text for readability)."
+  },
+  {
+    "request": "Design a landing page for our design studio.",
+    "skills": [
+      "seenry",
+      "seenry-canvas"
+    ],
+    "calls": [
+      {
+        "name": "get_design_taxonomy",
+        "arguments": {}
+      }
+    ],
+    "check": "Builds the default first; keeps ten or more library references from a contact sheet; writes .seenry/trace.md naming one reference per option and per section with measured numbers; neighboring sections trace different references; runs canvas.mjs pair for each option; shows the studio's real work first or marks stand-ins as placeholders under Assumed."
+  },
+  {
+    "request": "Stress-test the members table before we ship it.",
+    "skills": [
+      "seenry-break"
+    ],
+    "calls": [],
+    "check": "Maps every rendered field with source and limit; builds one realistic worst-case fixture plus Empty, One and 1,000-row states behind a dev-only Demo / Worst case toggle; reports Broken, Ugly and Fragile rows with file:line fixes, Decisions for you and What held up; fixes nothing until asked."
+  },
+  {
+    "request": "The app feels slow, there is too much animation.",
+    "skills": [
+      "seenry-subtract"
+    ],
+    "calls": [],
+    "check": "Only deletes or reduces; records the deciding branch of the gate for each animation; checks hidden start states, waiting code and exit timing before deleting; lists two to five animations kept with the purpose that saved them; proposes rather than removes a motion library."
+  },
+  {
+    "request": "Audit the whole app and tell a cheaper model what to fix.",
+    "skills": [
+      "seenry-audit"
+    ],
+    "calls": [],
+    "check": "Never edits source; writes recon facts and a frequency map; confirms every finding at file:line; ranks by leverage; asks which findings become plans; writes self-contained plans with exact values, current code, boundaries and a feel check, plus plans/README.md with order and dependencies."
+  },
+  {
+    "request": "Our fonts and colors look generic. Fix the identity before we design pages.",
+    "skills": [
+      "seenry-identity"
+    ],
+    "calls": [],
+    "check": "Writes the idea and the clichés first; fetches four candidates with identity.mjs and records licenses in fonts.json; sets specimens with the product's real copy, not lorem ipsum; builds three color studies from real photographed sources with ground, ink, dominant and one accent; passes canvas.mjs verify contrast in both modes; does not ship the subject's cliché color without a reason; writes the pick into tokens.css with tuned tracking and real italics."
   }
 ]

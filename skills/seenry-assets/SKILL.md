@@ -4,7 +4,7 @@ description: "Find, generate and integrate the visual material a design needs: p
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "0.1.0"
+  version: "2.1.0"
 ---
 
 # Seenry Assets
@@ -34,7 +34,7 @@ Then take the first route that can produce it at quality:
 | Brand marks | The owner's press kit; Simple Icons (CC0 files, marks stay trademarks) | Trademark rules: unmodified, used to refer to that brand | `assets.py icon simple-icons:<name>` |
 | 3D and illustrative icons | 3dicons (CC0), or generate a matched set | CC0 / provider terms | download or `generate` |
 | Textures, HDRIs, materials | Poly Haven (CC0) | CC0 | download |
-| Fonts | Google Fonts (OFL), Fontshare (ITF FFL), Open Runde (OFL), Inter (OFL), Geist (OFL) | OFL allows self-hosting and commercial use | download, self-host WOFF2 |
+| Fonts | Google Fonts (OFL), Fontshare (ITF FFL), Open Runde (OFL), Inter (OFL), Geist (OFL) | OFL allows self-hosting and commercial use; ITF FFL is free for commercial use but not redistributable | `node ../seenry-identity/scripts/identity.mjs fetch "<family>"` writes WOFF2, `fonts.css` and licenses |
 
 ```sh
 python3 scripts/assets.py images "portrait autumn" --count 6 --orientation square --out assets/raw

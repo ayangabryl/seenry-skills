@@ -26,6 +26,8 @@ jobs:
           node-version: 22
       - run: node --test skills/seenry-motion/assets/lottie-toggle.test.mjs skills/seenry-motion/assets/score.test.mjs
       - run: node --test tests/transition-contracts.test.mjs
+      - run: node --check skills/seenry-canvas/scripts/canvas.mjs
+      - run: node --test tests/canvas.test.mjs tests/identity.test.mjs
       - name: Validate motion judgment protocol without model calls
         run: node tests/motion-judgment-contract.test.cjs
       - name: Exercise Transitions3 library logic and rendered-finding regressions
@@ -65,6 +67,10 @@ jobs:
         run: npm install --no-save --package-lock=false playwright@1.63.0
       - name: Install Chromium and host dependencies
         run: npx playwright install --with-deps chromium
+      - name: Exercise the canvas render, tree, verify, diff and compare commands
+        env:
+          SEENRY_PLAYWRIGHT: ${{ github.workspace }}/node_modules/playwright/index.mjs
+        run: node --test tests/canvas-agent.browser.test.mjs
       - name: Exercise native streaming text and Stop contracts
         timeout-minutes: 2
         run: node tests/transitions-library-stream.browser.mjs --playwright "${{ github.workspace }}/node_modules/playwright/index.mjs" --out "${{ runner.temp }}/seenry-stream-contract"

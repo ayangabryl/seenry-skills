@@ -38,4 +38,4 @@ Check a range by hand with `node scripts/check-commit-messages.mjs --range origi
 
 ## Versions
 
-Seenry is pre-1.0: releases go 0.1.0, 0.1.1, 0.1.2, and a new minor (0.2.0) marks a breaking change. Every skill shares one version. A release is a `chore(release): x.y.z` commit that bumps the `version` in each `SKILL.md`, adds a CHANGELOG entry and is tagged `vx.y.z`.
+Seenry follows semantic versioning from 2.0.0: a new major marks a breaking change, a minor adds a capability, a patch fixes one. Every skill shares one version. A release is a `chore(release): x.y.z` commit that bumps the `version` in each `SKILL.md`, adds a CHANGELOG entry and is tagged `vx.y.z`.

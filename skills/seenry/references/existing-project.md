@@ -9,7 +9,7 @@ Use this route when the request adds or changes something in an app with its own
 - Find its styling method (Tailwind, CSS modules, plain CSS with tokens, styled-components), its component library (shadcn, Radix, its own) and its tokens.
 - Render two or three neighbouring screens. The new work must look like the same team made it: same type, colors, radius, spacing, density and components.
 - Bring Seenry's craft inside that system. Never import Seenry's kits, fonts or palette over it.
-- Where the app's values have drifted (a 9px padding beside its 8 and 16), the screens you touch snap to its scale. The app gets more consistent, never a second system. See [one token system](system.md#one-token-system-everywhere).
+- Where the app's values have drifted (a 9px padding beside its 8 and 16), the screens you touch snap to its scale. The app gets more consistent, never a second system. See [one token system](../../seenry-craft/references/system.md#one-token-system-everywhere).
 
 ## 2. Keep the behavior
 
@@ -60,7 +60,7 @@ Rules for specific screens (profile, collections, settings lists, empty states, 
 | A new surface (pricing, onboarding, an empty state) or "this whole screen looks bad" | One `research_design_brief` (family `websites` or `apps`, an `asset_query` naming the screen, two or three structural queries), then one `compare_measurements` on the references you keep |
 | A bug, one control, one state | None |
 
-Take the parts leaders put on that screen and their measured spacing and type, in the project's own components. No idea generation, identity boards, signature component or critic loop unless the owner asks for a redesign.
+Take the parts leaders put on that screen and their measured spacing and type, in the project's own components. No options or new identity unless the owner asks for a redesign; then take the [unslop](unslop.md) route. When you propose a visible change before making it (a new surface, a different layout), show it on the `seenry-canvas` canvas: a screenshot of the current screen in `refs/` and the proposal beside it.
 
 ## 7. Motion by default, from tokens
 
@@ -81,10 +81,9 @@ Use the app's motion library if it has one, or the recipes in [seenry-motion](..
 ## 8. Verify the way a reviewer would
 
 1. Build. Render the changed screen at 1440 and 390, check every state you touched, and render one untouched screen to confirm nothing else moved.
-2. Run `node scripts/existing_check.mjs <url> --project .` (about a minute). It runs the review board, the token lint on changed files, the motion scan and a product-design review at 100% and on phone.
-3. Clear the blockers your change introduced. In a project with a token scale, clear every typed value in the files you changed; in a legacy stylesheet, use the values it already has and do not convert unless asked.
-4. Apply the review's fixes once, most visible first. Its usual notes: meta text 13px or more at 4.5:1, one control height, a clear save model, no dead space on phone.
-5. Run it once more and stop.
+2. Run `node scripts/audit_page.mjs <url> --widths 1440,390` and `node scripts/token_lint.mjs <changed files>`. Both are fast and use no model.
+3. Clear what your change introduced. In a project with a token scale, clear every typed value in the files you changed; in a legacy stylesheet, use the values it already has and do not convert unless asked.
+4. Check the change against the "Before you finish" table in `seenry-craft`, once, and stop.
 
 ## 9. Leave the repo clean
 

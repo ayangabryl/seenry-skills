@@ -41,3 +41,20 @@ An unspecified brief should produce candidates from relevant families and a just
 ## Scripted research
 
 `research.mjs` uses the canonical https://mcp.seenry.design Streamable HTTP endpoint and initializes the session before tool calls. It requires an actual brief for paid research; the default bounded plan is free credits, guide (1), brief research (10). It never retries auth/quota/tool errors or converts them into empty results. No script key produces a manual, unresearched handoff. Use connected MCP when available. Old `research/bar` images are not generated automatically; explicitly inspect and select task-relevant craft targets in `.seenry/refs`.
+
+## Ten screens for a new design
+
+A new product, site or redesign gets at least ten inspected reference screens before any option is built. Fewer, and the design falls back to the model's own taste.
+
+1. `get_design_taxonomy` once: the real tags. Styles include editorial, typographic, brutalist, playful, retro, minimal; categories include Heroes, Branding, Typography, Web design, Footers; components include hero, pricing, footer, card.
+2. Search several angles, each a few credits:
+   - `search_sections` with `element` (Hero, Pricing, Footer) and a short `q` for the category ("studio", "bakery").
+   - `search_designs` with `family: "sections"` and a `category` plus `style` from the taxonomy.
+   - `search_curated_references` with a short `q`: human-rated picks.
+   - `list_sites` with the category word, then `get_website_flow` for the two or three best whole sites.
+   - `borrow_references` with the job the page must do and `exclude_category`, for the outside reference.
+3. Every result carries `posterUrl`. Download them all and judge them on one contact sheet; keep the ones that pass on the pixels, and note why each rejected one failed.
+4. `compare_measurements` on four kept page IDs (capture IDs from `search_sections` or a site's previews). Larger sets can fail on one unmeasurable page; split them.
+5. `get_reference_context` or `get_design` on the one or two references an option leans on most.
+
+Pace calls a few seconds apart: bursts of new sessions return HTTP 500. Behind an HTTPS proxy, run the bundled Node scripts with `NODE_USE_ENV_PROXY=1` so `fetch` uses it.
