@@ -15,6 +15,8 @@ So Seenry 2 puts a person at the decision points instead of a scoring loop. Ever
 - `seenry-motion` owns behavior over time and ships runnable, tested motion assets, including fluid gesture guidance adapted from Emil Kowalski's Apple design skill.
 - `seenry-review` owns judgment of existing screens and diffs, including a strict motion standard.
 - `seenry-break` owns worst-case data: the catalog, the toggle and the report of what broke.
+- `seenry-states` owns the state workbench: one real component, every reachable state, a switcher outside the design system.
+- `seenry-implement` owns building from a finished design (Figma, image or canvas handoff) and the report of what matches, was rounded or deviates.
 - `seenry-subtract` owns removal: motion and decoration that cannot defend themselves. It never adds.
 - `seenry-audit` owns whole-app surveys and the self-contained plans that let a cheaper model execute the fixes.
 

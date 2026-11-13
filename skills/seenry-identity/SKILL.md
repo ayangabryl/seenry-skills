@@ -4,7 +4,7 @@ description: "Designs a product's type and color system before any screen, the w
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # Seenry Identity

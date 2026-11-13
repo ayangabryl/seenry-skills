@@ -4,7 +4,7 @@ description: "Exact values for interface polish: type scale and line height, spa
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # Seenry Craft
@@ -117,6 +117,10 @@ Search what you changed. Fix each hit or defend it in one sentence.
 | A flex or grid child holding text without `min-width: 0` | Add it, then choose wrap, clamp or truncate with the full value in `title` |
 | Column or field labels in tracked capitals or monospace | Sentence case in the body face |
 | Lines in both directions, or a rule wider than its content | [lines](references/lines.md) |
+| `margin-left`, `pr-4`, `left:`, `text-align: left` on layout that should mirror | The logical form (`margin-inline-start`, `pe-4`, `inset-inline-start`, `start`); see [layout](references/layout.md) |
+| `@media (max-width` inside a reusable component | `@container` on its wrapper |
+| A sentence built around a variable, or `n === 1 ? "" : "s"` | One message with a plural argument; see [writing](references/writing.md#written-to-be-translated) |
+| A sticky header with no `scroll-padding-block-start` | Set it to the header height |
 | A list, table, card or profile only ever seen with tidy demo data | Run `seenry-break` |
 
 `node ../seenry/scripts/audit_page.mjs <url or file> --widths 1440,390` counts the sizes, weights, radii and colors a page really renders and lists off-grid spacing, radius mismatches and near-miss edges. It needs Playwright in the project.
@@ -133,6 +137,7 @@ Read one only when the task is in that area.
 | Alignment and optical corrections | [alignment](references/alignment.md), [optical](references/optical.md) |
 | Icons, hit areas, borders, small details | [craft](references/craft.md) |
 | Rules, dividers and borders: when to draw one and how | [lines](references/lines.md) |
+| Layout that survives resizing, translation and right-to-left | [layout](references/layout.md) |
 | Component anatomies with measured defaults | [components](references/components.md) |
 | Accessibility checks | [accessibility](references/accessibility.md) |
 | Phone browser quirks | [mobile web](references/mobile-web.md) |

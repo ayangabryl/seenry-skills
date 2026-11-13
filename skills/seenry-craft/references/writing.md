@@ -31,6 +31,19 @@ Copy is interface. Generic copy makes a well-built page look generated.
 - **Plain words:** "Delete", not "Purge"; "Sign in", not "Authenticate".
 - **Numbers as numerals** ("3 files"), dates in the reader's locale, and relative time ("2 min ago") only for recent events with the absolute time in a tooltip.
 
+## Written to be translated
+
+Copy that works in one language can be impossible in another. These hold even while the product ships in English only; they cost nothing now and a rewrite later.
+
+- **One message per sentence, with placeholders.** Never build a sentence from fragments around a variable (`"You have " + n + " new messages"`): word order changes per language. The translator moves the placeholder.
+- **Plurals come from the language, not from `n === 1`.** English has two forms, Polish four, Arabic six, Japanese one. Write one ICU message (`{count, plural, =0 {No messages} one {# message} other {# messages}}`), or pick the form with `Intl.PluralRules`.
+- **Never hand-build a number, date, amount, unit or list.** `Intl.NumberFormat`, `Intl.DateTimeFormat`, `Intl.RelativeTimeFormat` and `Intl.ListFormat`, each given the reader's locale. Names joined with `", "` and `" and "` are wrong in most languages.
+- **No reused fragments.** "Open" the verb and "Open" the status are different words elsewhere; each use gets its own key, with a note for the translator where the meaning is not obvious.
+- **No idioms, puns or cultural shorthand** in interface text ("You're all set", "Heads up", "Home run"). Plain statements survive.
+- **A word that is never inflected by code.** Do not add "s", "ed" or "un" to a variable, and do not lower-case or capitalise a translated string in code; casing rules differ and some scripts have none.
+- **Names and addresses are not first-then-last.** One full-name field unless the product truly needs the parts; never assume a given name comes first or fits a greeting.
+- **Leave room.** Layout rules for longer strings and mirrored direction are in [layout](layout.md).
+
 ## Voice
 
 Pick three words for the product's voice (e.g. "direct, calm, expert") and write every string against them. Keep a short glossary in `DESIGN.md` so the same thing has the same name on every page (workspace vs. team vs. org).

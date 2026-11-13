@@ -554,5 +554,29 @@
     ],
     "calls": [],
     "check": "Writes the idea and the clichés first; fetches four candidates with identity.mjs and records licenses in fonts.json; sets specimens with the product's real copy, not lorem ipsum; builds three color studies from real photographed sources with ground, ink, dominant and one accent; passes canvas.mjs verify contrast in both modes; does not ship the subject's cliché color without a reason; writes the pick into tokens.css with tuned tracking and real italics."
+  },
+  {
+    "request": "Here is the Figma link for the new billing card. Build it.",
+    "skills": [
+      "seenry-implement"
+    ],
+    "calls": [],
+    "check": "Searches its tools for the Figma MCP before saying it is unavailable; reads each frame's values at the source; writes a mapping from design values to existing project tokens and components; adds no token, variant or arbitrary value; builds only what the frames show; compares the rendered build with the design at each frame's width; reports Matches, Rounded and Deviates rows plus Unwired, Missing states and Conflicts."
+  },
+  {
+    "request": "Show me every state of the audit log table, including what a member without access sees.",
+    "skills": [
+      "seenry-states"
+    ],
+    "calls": [],
+    "check": "Scopes one component; lists the states the code can reach in the product's words, grouped, before building; imports the real component on a throwaway route without editing it; feeds product-shaped fixtures at the data boundary; holds loading states still; adds the grouped switcher with a __state search param, arrow keys and H; loads every state before handing over; changes no visuals and deletes nothing until asked."
+  },
+  {
+    "request": "We launch in German and Arabic next quarter. Will the settings screen hold?",
+    "skills": [
+      "seenry-craft"
+    ],
+    "calls": [],
+    "check": "Reads the layout reference; replaces physical properties with logical ones; lists what must not mirror; removes fixed widths and heights on text boxes; finds sentences built around variables and hand-built plurals, numbers and dates; checks with pseudo-localisation, dir=rtl and 200% zoom."
   }
 ]

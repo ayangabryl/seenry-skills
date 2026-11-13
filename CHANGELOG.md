@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.2.0
+
+- **New: seenry-implement.** Builds a finished design so it matches: reads a Figma file (through the Figma MCP), an image or approved canvas screens at the source, maps every value to the project's tokens and components, builds only what the design shows, compares side by side, and reports each element as Matches, Rounded or Deviates, with Unwired, Missing states and Conflicts.
+- **New: seenry-states.** One real component in every state its code can reach, on a throwaway route fed at the data boundary with product-shaped fixtures, flipped by a switcher that sits outside the design system (`__state` in the URL, arrow keys, `H` to hide), removed in one delete.
+- **seenry-craft:** a layout reference for interfaces that are resized, translated and mirrored (logical properties, what does not mirror, room for longer strings, container queries, scroll padding, pseudo-localisation), a "written to be translated" section in writing, and four new rows in the finishing table.
+- Removed two reference files nothing linked to.
+
 ## 2.1.0
 
 ### Identity

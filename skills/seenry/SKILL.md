@@ -4,7 +4,7 @@ description: "Designs and builds web products the way a studio does: a brief fro
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # Seenry
@@ -42,6 +42,8 @@ Load a skill when the task reaches its area, not before.
 | Which library to use before building a component by hand | `seenry-libraries` |
 | Photos, icons, fonts, generated images | `seenry-assets` |
 | Worst-case data: long names, empty lists, huge counts | `seenry-break` |
+| Every state of one component: loading, empty, error, roles, plans | `seenry-states` |
+| Building a finished design (Figma, image, approved canvas) so it matches | `seenry-implement` |
 | Taking away what does not earn its place | `seenry-subtract` |
 | A whole app surveyed into plans another agent can run | `seenry-audit` |
 | Native mobile screens | `seenry-apps` |
@@ -158,6 +160,8 @@ Run `canvas.mjs compare <screen> <url>` for each built screen and look at its im
 | "Make it look less generic" | Unslop, then steps 3 to 7 |
 | "Make it like Linear" | Named site, then steps 4 to 7 |
 | "Break it", "try the worst case" | `seenry-break` |
+| "Show me every state", "what does it look like empty?" | `seenry-states` |
+| "Build this Figma", "make it match the design" | `seenry-implement` |
 | "Too much going on", "feels slow" | `seenry-subtract` |
 | "Audit the whole app" | `seenry-audit` |
 | "Just fix this" | Existing project |

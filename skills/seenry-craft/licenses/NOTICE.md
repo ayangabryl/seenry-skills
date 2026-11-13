@@ -7,3 +7,5 @@ It also adapts MIT-licensed skills by Emil Kowalski (revisions `85e8e2363b713506
 The text is rewritten for Seenry. Their copyright and permission notices are retained in [jakub-LICENSE](jakub-LICENSE) and [emil-LICENSE](emil-LICENSE). Neither author endorses Seenry.
 
 Parts of [mobile web](../references/mobile-web.md) (from his `mobile-native` skill) adapt MIT-licensed material by Emil Kowalski (github.com/emilkowalski/skills) at revision `715c1807e08c497cfd1dc4feb450a2a3300ef2a9`, rewritten in Seenry's own words and structure. The original copyright and permission notice is retained in [emil-LICENSE](emil-LICENSE). No endorsement is implied.
+
+[Layout](../references/layout.md) and the translation section of [writing](../references/writing.md) (from his `better-layout` and `better-writing` skills) adapt MIT-licensed material by Jakub Krehel (github.com/jakubkrehel/skills) at revision `a72290d140249813898ba8648becf6415abcb059`, rewritten in Seenry's own words and structure. The original copyright and permission notice is retained in [jakub-LICENSE](jakub-LICENSE). No endorsement is implied.

@@ -4,7 +4,7 @@ description: "Surveys a whole app or site as a senior design engineer (motion, v
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # Seenry Audit

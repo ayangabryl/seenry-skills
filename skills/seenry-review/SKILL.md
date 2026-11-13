@@ -4,7 +4,7 @@ description: "Review a web interface, a UI diff or a single component and return
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # Seenry Review

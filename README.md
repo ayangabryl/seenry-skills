@@ -11,6 +11,8 @@ Agent skills that make an AI work like a design studio. The agent designs every 
 | [seenry-motion](skills/seenry-motion/SKILL.md) | Whether something should move, then how: curves, springs, gestures with velocity, choreography, frame performance, the names of effects, with runnable assets |
 | [seenry-review](skills/seenry-review/SKILL.md) | Auditing a screen, reviewing a UI diff, a strict motion review with a Block or Approve verdict |
 | [seenry-break](skills/seenry-break/SKILL.md) | Breaking a component with realistic worst-case data behind a Demo / Worst case toggle, and the fix for each break |
+| [seenry-states](skills/seenry-states/SKILL.md) | One real component in every state it can reach (loading, empty, error, roles, plans, flags) on a throwaway page with a switcher, removed in one step |
+| [seenry-implement](skills/seenry-implement/SKILL.md) | Building a finished design so it matches: a Figma file, an image or approved canvas screens, mapped to the project's tokens and components, compared side by side, every deviation reported |
 | [seenry-subtract](skills/seenry-subtract/SKILL.md) | Removing motion and decoration that do not earn their place; only deletes or reduces |
 | [seenry-audit](skills/seenry-audit/SKILL.md) | Surveying a whole app into ranked findings and self-contained plans another agent or a cheaper model can execute |
 | [seenry-libraries](skills/seenry-libraries/SKILL.md) | The right maintained library for a UI job before building by hand: about 115 packages by job (primitives, toasts, NumberFlow, motion, drag, tables, charts, editors, media, AI chat, React Native), each checked on npm for license and last release |

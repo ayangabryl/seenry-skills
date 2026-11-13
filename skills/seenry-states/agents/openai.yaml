@@ -1,0 +1,3 @@
+interface:
+  display_name: "Seenry States"
+  short_description: "Every state of a component, one key apart"
