@@ -517,7 +517,7 @@
     {
       "name": "search_curated_references",
       "title": "Find editorial recommendations",
-      "description": "Find current human-reviewed references by rating, reference type, and editorial use case. Returns the saved reason, suitable uses, caveats and match evidence. Explain fit to the current brief after inspecting media. An empty result means no matching current review, not no good design.",
+      "description": "Find current human-reviewed references by rating, reference type, and editorial use case. Returns the saved reason, suitable uses, caveats and match evidence. q may be a short natural phrase: it matches the review, the indexed evidence of the reference and the industry of its site, a reference needs at least half of the words, and those matching more come first. Explain fit to the current brief after inspecting media. An empty result means no matching current review, not no good design.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -792,7 +792,7 @@
     {
       "name": "search_sections",
       "title": "Search page sections",
-      "description": "Find Hero, Footer, Pricing and other sections from captured websites and imported galleries. q matches observed names and evidence plus each site's inferred industry and product keywords (\"analytics\", \"payments\", \"meal kits\"). Ranked by brand or title match, then one result per site, then a quality prior (home pages, capture depth, human ratings); not a visual taste score. Imported assets keep their original dimensions; viewport/theme only filter captures.",
+      "description": "Find Hero, Footer, Pricing and other sections from captured websites and imported galleries. q matches observed names and evidence plus each site's inferred industry and product keywords (\"analytics\", \"payments\", \"meal kits\"). q may be a short natural phrase: a section needs at least half of its specific words. Ranked by brand or title match, then words matched, then one result per site, then a quality prior (home pages, capture depth, human ratings); not a visual taste score. Imported assets keep their original dimensions; viewport/theme only filter captures.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -1174,7 +1174,7 @@
     {
       "name": "search_designs",
       "title": "Search motion, sections and apps",
-      "description": "Find imported references. family=apps is public iOS screens; sections is imported components; motion is source video. Use get_design_taxonomy for tags.",
+      "description": "Find imported references. family=apps is public iOS screens; sections is imported components; motion is source video. q may be a short natural phrase: a reference needs at least half of the words and those matching more come first. Use get_design_taxonomy for tags.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,

@@ -59,7 +59,7 @@ A new product, site or redesign gets at least ten inspected reference screens be
 
 ### When a search returns nothing
 
-Matching is lexical: every word of `q` must appear in the same reference's observed text, so a long or specific query ("climbing gym class booking") finds nothing while its parts find plenty. An empty result means the query was too narrow, never that the library has nothing. Work down this order and stop at the first step that fills the sheet:
+Matching is by words, not meaning. With several words a reference needs at least half of the specific ones (in its own observed text or its site's industry) and those matching more rank first, so a short natural phrase ("bookkeeping accountant freelancers") works. An empty or thin result means the words are too rare or too many, never that the library has nothing. Work down this order and stop at the first step that fills the sheet:
 
 1. **One word.** Drop to the single most concrete noun ("booking", "invoice", "incident"), then its neighbors ("schedule", "checkout", "reservation").
 2. **The job, not the industry.** `discover_references` with two or three words, then follow the `searchTool` and `searchArguments` each group hands back. For an app screen, `search_app_flows` and `search_app_screens` with the flow's name ("Booking", "Checkout", "Onboarding", "Settings").

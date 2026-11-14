@@ -208,6 +208,7 @@ Assumed:   every fact you supplied that the person should replace
 | A screen that looks generic | [unslop](references/unslop.md) |
 | "Like X" and replicas | [named site](references/named-site.md), [replication](references/replication.md) |
 | Seenry MCP recipes | [research](references/research.md) |
+| Judging whether a found reference fits the brief | [recommendation judgment](references/recommendation-judgment.md) |
 | Measured values from leading sites | [benchmarks](references/benchmarks.md) |
 | Bundled component and transition kits | [kits](references/building.md) |
 | Imagery rules | [imagery](references/imagery.md) |
