@@ -101,6 +101,7 @@ Search what you changed. Fix each hit or defend it in one sentence.
 | --- | --- |
 | `transition: all` or `transition-all` | Name the properties |
 | `line-height` in `px` | A unitless value |
+| Display `letter-spacing` tighter than −0.05em, or any negative tracking on a serif or condensed headline whose words nearly touch | −0.02em or less on those faces; keep the word space above 0.18em |
 | A padded parent and child with the same radius | Add the padding to the outer radius |
 | A hex or `rgb(` literal in a component where a token exists | The role token |
 | `font-weight: 700` or more on a heading system | 500–600 |

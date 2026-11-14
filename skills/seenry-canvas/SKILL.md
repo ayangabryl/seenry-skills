@@ -110,7 +110,7 @@ With a person present, run `open`, tell them in two lines what is on the canvas 
 
 The person who asked for the design counts as present, in a cloud session too: give them the canvas address (announce the port if your environment can preview it) or show `canvas.png` from `shot`, show the options side by side, and take their pick in chat. Never pick for them and report screenshots of a finished page instead.
 
-Only when told to choose yourself ("auto-pick", an unattended run), pick the option furthest from the default, approve nothing, and say what you chose and why.
+Only when told to choose yourself ("auto-pick", an unattended run, "nobody is available"): still build every option, run `verify`, render them side by side with `shot` and look at the picture, then pick the option furthest from the default that passes, and write what you chose and why in `.seenry/decisions.md`. Being unattended removes `wait`, never the options.
 
 **Done when** you have the feedback, or you have recorded your own choice.
 

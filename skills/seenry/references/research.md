@@ -57,4 +57,17 @@ A new product, site or redesign gets at least ten inspected reference screens be
 4. `compare_measurements` on four kept page IDs (capture IDs from `search_sections` or a site's previews). Larger sets can fail on one unmeasurable page; split them.
 5. `get_reference_context` or `get_design` on the one or two references an option leans on most.
 
+### When a search returns nothing
+
+Matching is lexical: every word of `q` must appear in the same reference's observed text, so a long or specific query ("climbing gym class booking") finds nothing while its parts find plenty. An empty result means the query was too narrow, never that the library has nothing. Work down this order and stop at the first step that fills the sheet:
+
+1. **One word.** Drop to the single most concrete noun ("booking", "invoice", "incident"), then its neighbors ("schedule", "checkout", "reservation").
+2. **The job, not the industry.** `discover_references` with two or three words, then follow the `searchTool` and `searchArguments` each group hands back. For an app screen, `search_app_flows` and `search_app_screens` with the flow's name ("Booking", "Checkout", "Onboarding", "Settings").
+3. **The part, not the page.** `search_sections` with only `element` (Hero, Pricing, FAQ, Footer) and no `q`; `search_references` with only `page_type`.
+4. **Rated picks.** `search_curated_references` with one word or just `min_rating`.
+5. **Named products.** `list_sites` with three or four products known for this kind of screen (for a booking flow: ClassPass, Airbnb, Resy), then `get_website_flow` or `get_app_flow`.
+6. **Another industry.** `borrow_references` with the job in a sentence.
+
+Write the queries tried and their counts in `.seenry/brief.md`. Only after all six come back thin do you fall back to the person's links or `bar.mjs`, and you still reach ten screens.
+
 Pace calls a few seconds apart: bursts of new sessions return HTTP 500. Behind an HTTPS proxy, run the bundled Node scripts with `NODE_USE_ENV_PROXY=1` so `fetch` uses it.

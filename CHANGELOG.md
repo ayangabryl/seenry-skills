@@ -7,6 +7,12 @@
 - **seenry-craft:** a layout reference for interfaces that are resized, translated and mirrored (logical properties, what does not mirror, room for longer strings, container queries, scroll padding, pseudo-localisation), a "written to be translated" section in writing, and four new rows in the finishing table.
 - Removed two reference files nothing linked to.
 
+### Found by the first Sonnet benchmark
+
+- **Unattended runs keep every step.** With nobody to approve choices, agents skipped the references, the identity step and the options and designed directly. The router now has a "Running with nobody to answer" section: the agent decides and records why, shrinks steps when short of budget, never drops them, and resumes an interrupted run where it stopped.
+- **Display tracking has a limit.** Both judges marked down a headline tracked until its words nearly touched. `seenry-identity` now caps tracking by kind of face, and `canvas.mjs verify` reports `tracking` when the space between words falls under 0.18em or tracking passes −0.05em.
+- **An empty search is a narrow query.** The research recipe gains a six-step fallback order for the lexical library search.
+
 ## 2.1.0
 
 ### Identity

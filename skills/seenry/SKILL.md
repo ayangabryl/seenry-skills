@@ -61,6 +61,7 @@ Load a skill when the task reaches its area, not before.
 ## Workflow
 
 ```
+- [ ] 0. Nobody to answer? Every step still runs; you decide and record why
 - [ ] 1. Route
 - [ ] 2. Brief from real material
 - [ ] 3. Build the default
@@ -72,6 +73,21 @@ Load a skill when the task reaches its area, not before.
 - [ ] 6. Build from the handoff
 - [ ] 7. Check the build against the design
 ```
+
+### Running with nobody to answer
+
+An unattended run (a scheduled job, a benchmark, "nobody is available", "decide yourself") changes who decides, not what gets done. Every step still runs.
+
+| Step that needs a person | Unattended |
+| --- | --- |
+| Asking for missing material (step 2) | List it under "Assumed" and continue |
+| The identity pick (step 4d) | Build and look at the specimens and studies, pick, write why |
+| Choosing between options (step 5) | Build at least three options, `verify`, `shot`, look, pick the one furthest from the default that passes, write why |
+| Approval before building (step 5) | Approve your pick yourself and say so |
+
+Record each decision in `.seenry/decisions.md`. Skipping the references, the identity step or the options because no one can approve them gives the default with extra steps: it is the one outcome this skill exists to prevent. If time or budget is short, shrink the steps (six references, two options, one typeface pair against one alternative) and say so; never drop them.
+
+An interrupted run resumes at the step it stopped on. Read `.seenry/` to see what exists, then continue; do not restart smaller.
 
 ### 1. Route
 

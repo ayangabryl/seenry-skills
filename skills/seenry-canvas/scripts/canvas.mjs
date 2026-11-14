@@ -1597,6 +1597,14 @@ function analyzeFrame(opts) {
     const size = parseFloat(c.fontSize), weight = Number(c.fontWeight) || 400;
     if (text) {
       if (size < 12) issue('error', 'text-size', sel, `Text at ${c.fontSize}, under the 12px floor`);
+      const track = (parseFloat(c.letterSpacing) || 0) / size;
+      if (size >= 24 && track < -0.0005) {
+        const cv = analyzeFrame.cv || (analyzeFrame.cv = document.createElement('canvas').getContext('2d'));
+        cv.font = `${c.fontStyle} ${weight} 100px ${c.fontFamily}`;
+        const gap = cv.measureText(' ').width / 100 + track + (parseFloat(c.wordSpacing) || 0) / size;
+        if (/\s/.test(text.trim()) && gap < 0.18) issue('error', 'tracking', sel, `Words nearly touch in “${text.trim().slice(0, 30)}”: the space between them is ${gap.toFixed(2)}em after ${track.toFixed(3)}em tracking; loosen the tracking until the space is at least 0.18em`);
+        else if (track < -0.05) issue('warn', 'tracking', sel, `Tracking ${track.toFixed(3)}em on “${text.trim().slice(0, 30)}” is tighter than −0.05em; letters start to collide, most of all in serif and condensed faces`);
+      }
       const bg = backdrop(n);
       if (bg) {
         const fg = rgba(c.color), mixed = [0, 1, 2].map(i => fg[i] * fg[3] + bg[i] * (1 - fg[3])), cr = ratio(mixed, bg), large = size >= 24 || (size >= 18.66 && weight >= 600);

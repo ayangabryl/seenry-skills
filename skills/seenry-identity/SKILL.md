@@ -94,7 +94,7 @@ Set the leading type candidate in each study so the person judges type and color
 
 ### 5. The person picks
 
-Run `canvas.mjs open` and `wait`. Tell them in two lines what is on the canvas: specimens and studies, and the one question (which voice, which color world). With nobody present, pick the pair furthest from the clichés that still fits the idea, and say why.
+Run `canvas.mjs open` and `wait`. Tell them in two lines what is on the canvas: specimens and studies, and the one question (which voice, which color world). With nobody to answer (an unattended run), still build the specimens and studies, render them and look at them, then pick the pair furthest from the clichés that still fits the idea and write the pick and the reason in `identity.md`. Nobody being present removes the wait, never the step.
 
 **Done when** a typeface pair and a palette are chosen, and `round` has archived the rest with reasons.
 

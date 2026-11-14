@@ -240,7 +240,7 @@ Free near-matches for comping without a license: Switzer or Instrument Sans for 
 
 Untuned free fonts are what makes a page look templated.
 
-- **Display tracking:** tighten as size grows: about −0.01em at 32px, −0.02em at 48px, −0.03 to −0.04em at 96px and above. Line height 0.9–1.05 for display, 1.4–1.6 for body.
+- **Display tracking:** tighten as size grows: about −0.01em at 32px, −0.02em at 48px, −0.03 to −0.04em at 96px and above. These are limits for a neutral grotesque, not targets: a serif, a condensed or heavy face, or a face with an optical-size axis is already tight, so start at 0 and stop at −0.02em. Never go past −0.05em, and never so far that the space between two words falls under about 0.18em: read the headline at 390 wide, where collisions show first. `canvas.mjs verify` reports both as `tracking`. Line height 0.9–1.05 for display, 1.4–1.6 for body.
 - **Optical sizes:** use the axis (`font-optical-sizing: auto`) or the Display cut at large sizes (Inter Display, Newsreader's display range).
 - **Inter:** `font-feature-settings: "cv11", "ss01", "ss03"` (single-storey a, open digits, round quotes), plus `"tnum"` in tables.
 - **Numbers:** `font-variant-numeric: tabular-nums` where numbers line up or change; lining figures in UI, old-style in long text if the face has them.
