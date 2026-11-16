@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motion score: bad fixture</title>
+<style>
+  .btn { transition: all 0.3s ease; }
+  .btn:hover { transform: translateY(-2px) scale(1.03); }
+  .dropdown { opacity: 0; transform: scale(0); transition: transform 600ms ease-in, opacity 600ms ease-in; }
+  .dropdown.open { opacity: 1; transform: scale(1); }
+  .tabs-indicator { position: absolute; left: 0; width: 80px; transition: left 400ms ease, width 400ms ease; }
+  .toast { animation: toast-in 900ms ease-in both; }
+  @keyframes toast-in { from { transform: scale(0); margin-top: 40px; } }
+  .badge { animation: pulse 2s ease-in-out infinite; }
+  .glow { animation: glow 3s linear infinite; }
+  @keyframes pulse { 50% { opacity: .5; } }
+  @keyframes glow { to { filter: hue-rotate(360deg); } }
+</style>
+</head>
+<body>
+  <button class="btn" id="trigger" aria-haspopup="menu" aria-expanded="false">Account</button>
+  <div class="dropdown" id="menu" role="menu"><button role="menuitem">Profile</button></div>
+  <span class="badge">New</span><span class="glow">Live</span>
+<script>
+  const trigger = document.getElementById('trigger'), menu = document.getElementById('menu');
+  trigger.addEventListener('click', () => { const open = menu.classList.toggle('open'); trigger.setAttribute('aria-expanded', String(open)); });
+  document.querySelector('.badge').animate([{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { duration: 1500, easing: 'ease-in' });
+</script>
+</body>
+</html>

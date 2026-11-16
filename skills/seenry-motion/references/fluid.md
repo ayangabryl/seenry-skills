@@ -1,8 +1,28 @@
 # Fluid interaction
 
+**Read when:** a person drags, flicks, swipes, pulls or presses and holds something: sheets, carousels, sliders, sortable lists, swipe to dismiss.
+
 Interfaces that feel physical respond on the first touch, stay under the finger, carry the finger's speed into the animation and can be grabbed again mid-flight. Use this for anything a person drags, flicks, swipes or presses and holds: sheets, carousels, sliders, cards, reorderable lists, drawers.
 
 Adapted from Emil Kowalski's MIT-licensed `apple-design` skill, which translates Apple's *Designing Fluid Interfaces* (WWDC 2018) to the web; see [licenses](../licenses/NOTICE.md).
+
+## Contents
+
+- [Respond on press, not on release](#respond-on-press-not-on-release)
+- [Stay under the finger](#stay-under-the-finger)
+- [Every motion can be grabbed](#every-motion-can-be-grabbed)
+- [Hand the velocity to the spring](#hand-the-velocity-to-the-spring)
+- [Two phases of every gesture](#two-phases-of-every-gesture)
+- [Linked values](#linked-values)
+- [Motion drag props](#motion-drag-props)
+- [Sheets without springs](#sheets-without-springs)
+- [Hold gestures are asymmetric](#hold-gestures-are-asymmetric)
+- [Touch checklist](#touch-checklist)
+- [Leave the way you came](#leave-the-way-you-came)
+- [Materials say what floats](#materials-say-what-floats)
+- [Sound and haptics fire with the frame](#sound-and-haptics-fire-with-the-frame)
+- [Reduced motion keeps the feedback](#reduced-motion-keeps-the-feedback)
+- [Check it](#check-it)
 
 ## Respond on press, not on release
 
@@ -79,7 +99,7 @@ One source keeps them exact mid-gesture and on reversal; two animations drift ap
 
 ## Sheets without springs
 
-A CSS sheet can feel like iOS with `cubic-bezier(0.32, 0.72, 0, 1)` over 500ms: the steep start keeps it snappy and the tail settles like a spring. A small floating drawer that does not touch the screen edge uses about 200ms with `cubic-bezier(0.165, 0.84, 0.44, 1)` on both the drawer's transform and the overlay's opacity. Height changes and content crossfades inside it share that timing family. Mark buttons and inputs inside a draggable sheet so pressing them does not start a drag (Vaul: `data-vaul-no-drag`).
+A sheet with no drag opens in 280ms with `--ease-out` and closes in 180ms (the table in `SKILL.md`). A sheet that is dragged can use Vaul's own clock instead, `cubic-bezier(0.32, 0.72, 0, 1)` over 500ms: the steep start keeps it snappy and the tail settles like a spring, which matches the release of a drag. A small floating drawer that does not touch the screen edge uses about 200ms with `cubic-bezier(0.165, 0.84, 0.44, 1)` on both the drawer's transform and the overlay's opacity. Height changes and content crossfades inside it share that timing family. Mark buttons and inputs inside a draggable sheet so pressing them does not start a drag (Vaul: `data-vaul-no-drag`).
 
 Write the drag on the dragged element's own `transform`. A custom property on a parent recalculates every descendant: a drawer became laggy past about 20 items that way.
 

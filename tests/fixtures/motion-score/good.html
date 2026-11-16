@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion score: good fixture</title>
+<style>
+  :root {
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-fade: cubic-bezier(0.2, 0, 0.2, 1);
+  }
+  :root[data-input="keyboard"] *,
+  :root[data-input="keyboard"] *::before,
+  :root[data-input="keyboard"] *::after { transition-duration: 0s !important; transition-delay: 0s !important; }
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 40px; }
+
+  .btn { transition: scale 120ms var(--ease-out), background-color 120ms var(--ease-fade); }
+  .btn:active { scale: 0.97; transition-duration: 80ms; }
+  @media (hover: hover) and (pointer: fine) { .btn:hover { background-color: #e9e9e7; } }
+
+  .menu[popover] {
+    inset: auto; margin: 4px 0 0; position-area: bottom span-right; transform-origin: top left;
+    transition: opacity 180ms var(--ease-out), scale 180ms var(--ease-out), translate 180ms var(--ease-out),
+                display 180ms allow-discrete, overlay 180ms allow-discrete;
+  }
+  .menu[popover]:not(:popover-open) { opacity: 0; scale: 0.96; translate: 0 -4px; transition-duration: 100ms; }
+  @starting-style { .menu[popover]:popover-open { opacity: 0; scale: 0.96; translate: 0 -4px; } }
+
+  .tabs { position: relative; isolation: isolate; display: inline-flex; }
+  .tabs-indicator { position: absolute; inset: 0; z-index: -1; background: #ecece9;
+    clip-path: inset(0 var(--right, 100%) 0 var(--left, 0px) round 8px); transition: clip-path 180ms var(--ease-move); }
+  .tab { transition: color 120ms var(--ease-fade); }
+  .tabpanel { transition: opacity 120ms var(--ease-fade); }
+  @starting-style { .tabpanel { opacity: 0; } }
+
+  .num { position: relative; display: inline-block; font-variant-numeric: tabular-nums; }
+  .num-text { position: absolute; opacity: 0; pointer-events: none; }
+  .num-digits > span { display: inline-block; }
+  .toast { position: fixed; inset: auto 16px 16px auto; opacity: 0; translate: 0 16px; pointer-events: none;
+    transition: opacity 140ms var(--ease-out), translate 140ms var(--ease-out); }
+  .toast[data-open] { opacity: 1; translate: 0 0; pointer-events: auto; transition-duration: 240ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu, .toast, .tabs-indicator, .tabpanel { transition-property: opacity, display, overlay !important; transition-duration: 100ms !important; }
+  }
+</style>
+</head>
+<body>
+  <button class="btn" popovertarget="account-menu" style="anchor-name: --account">Account</button>
+  <div id="account-menu" class="menu" popover role="menu" style="position-anchor: --account">
+    <button role="menuitem">Profile</button><button role="menuitem">Sign out</button>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <span class="tabs-indicator" aria-hidden="true"></span>
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p1">Overview</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p2" tabindex="-1">Activity</button>
+  </div>
+  <div class="tabpanel" role="tabpanel" id="p1">Overview</div>
+  <div class="tabpanel" role="tabpanel" id="p2" hidden>Activity</div>
+
+  <p><span class="num" id="price"><span class="num-text" aria-live="polite">$19</span><span class="num-digits" aria-hidden="true">$19</span></span> <button class="btn" id="yearly">Bill yearly</button></p>
+  <div class="toast" role="status" aria-live="polite"></div>
+<script>
+  const root = document.documentElement;
+  addEventListener('keydown', () => { root.dataset.input = 'keyboard'; }, true);
+  addEventListener('pointerdown', () => { root.dataset.input = 'pointer'; }, true);
+
+  const tabs = document.querySelector('.tabs'), indicator = tabs.querySelector('.tabs-indicator');
+  const all = [...tabs.querySelectorAll('[role=tab]')];
+  function place(tab, animate = true) {
+    if (!animate) indicator.style.transition = 'none';
+    indicator.style.setProperty('--left', tab.offsetLeft + 'px');
+    indicator.style.setProperty('--right', tabs.clientWidth - tab.offsetLeft - tab.offsetWidth + 'px');
+    if (!animate) { indicator.offsetWidth; indicator.style.transition = ''; }
+  }
+  function select(tab) {
+    for (const t of all) {
+      t.setAttribute('aria-selected', String(t === tab)); t.tabIndex = t === tab ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = t !== tab;
+    }
+    place(tab);
+  }
+  all.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', (e) => {
+      const next = e.key === 'ArrowRight' ? all[(i + 1) % all.length] : e.key === 'ArrowLeft' ? all[(i - 1 + all.length) % all.length] : null;
+      if (next) { next.focus(); select(next); }
+    });
+  });
+  place(all[0], false);
+
+  const toastEl = document.querySelector('.toast'); let timer;
+  function toast(message, ms = 4000) {
+    toastEl.textContent = message; toastEl.dataset.open = '';
+    clearTimeout(timer); timer = setTimeout(() => delete toastEl.dataset.open, ms);
+  }
+  function setNumber(num, text, rose = true) {
+    const label = num.querySelector('.num-text'), digits = num.querySelector('.num-digits'), before = label.textContent;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches || root.dataset.input === 'keyboard';
+    label.textContent = text;
+    digits.replaceChildren(...[...text].map((ch, i) => {
+      const span = document.createElement('span'); span.textContent = ch;
+      const changed = /\d/.test(ch) && before[before.length - text.length + i] !== ch;
+      if (changed && !still) span.animate([{ opacity: 0, translate: `0 ${rose ? 60 : -60}%` }, { opacity: 1, translate: '0 0' }],
+        { duration: 160, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+      return span;
+    }));
+  }
+  let yearly = false;
+  document.getElementById('yearly').addEventListener('click', () => {
+    yearly = !yearly; setNumber(document.getElementById('price'), yearly ? '$15' : '$19', !yearly);
+    toast(yearly ? 'Switched to yearly billing' : 'Switched to monthly billing');
+  });
+</script>
+</body>
+</html>

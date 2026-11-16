@@ -84,8 +84,8 @@ Overshoot only when the gesture carried momentum: right on a flicked card, wrong
 
 | Situation | Curve |
 | --- | --- |
-| Entering or leaving | `Easing.bezier(0.23, 1, 0.32, 1)` |
-| Moving on screen | `Easing.bezier(0.77, 0, 0.175, 1)` |
+| Entering or leaving | `Easing.bezier(0.16, 1, 0.3, 1)` |
+| Moving on screen | `Easing.bezier(0.4, 0, 0.2, 1)` |
 | iOS-style sheet | `Easing.bezier(0.32, 0.72, 0, 1)` |
 | Constant (progress, marquee) | linear |
 

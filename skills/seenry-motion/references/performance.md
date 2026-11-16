@@ -1,5 +1,7 @@
 # Motion performance
 
+**Read when:** an animation stutters, drops frames or heats the device, or before shipping motion that touches layout, blur or many elements.
+
 Making each frame finish in time. Not whether the motion looks right (the build sequence) or should exist (the gate), only whether it lands every frame.
 
 ## Contents
