@@ -285,7 +285,7 @@ test('verify blocks a sketch whose hero holds a gradient, a flat block or a miss
   assert.match(of('missing')[0].message, /not-made-yet\.jpg is not a file in the project/);
   for (const name of ['gradient', 'flat', 'ramp', 'missing']) {
     assert.equal(of(name)[0].kind, 'hero-image'); assert.equal(of(name)[0].severity, 'error');
-    assert.match(of(name)[0].message, /node \S*image\.mjs --batch \S*img\/jobs\.json --background/);
+    assert.match(of(name)[0].message, /node \S*image\.mjs --batch \S*img[\\/]jobs\.json --background/);
     assert.match(of(name)[0].message, /node \S*image\.mjs --template/);
   }
   assert.deepEqual(of('sea'), [], 'a generated image in the hero passes');
