@@ -1,16 +1,16 @@
-# Bundled kits
+# Building components
 
-Use these when the project has no component library. A project with Radix, Base UI, shadcn or its own components keeps them, styled to its tokens. Never ship two component systems.
+**Read when:** a page needs a component (a button, a menu, a dialog, a toast) or a transition, and you are choosing where it comes from.
 
-| Kit | What it gives | Read |
+Seenry bundles no component code. Components come from a maintained library or from the project's own `components.css`, never from a copy that nobody updates.
+
+1. **Framework or package manager present:** pick a maintained library through `seenry-libraries` (Base UI or Radix for components; Sonner, Vaul, NumberFlow and Motion for the rest), style it to the tokens, and keep whatever the project already has. Never ship two component systems.
+2. **No build step** (plain HTML, a static site, a canvas screen): write the component once in the project's `components.css` on the tokens, with its `@component` line, and link that file from every page. Use the platform first: `<dialog>`, `popover`, `<details>`, `:has()`, native form controls.
+3. **Anything that moves:** decide whether it should, and with what values, in `seenry-motion` first. Its recipes are plain CSS and need no kit.
+
+| File | What it gives | Read |
 | --- | --- | --- |
-| Core UI | Buttons, fields, select, checkbox, radio, switch, tabs, menu, tooltip, dialog, sheet, toast, accordion, badge, table | [ui](../assets/components/ui/README.md) |
-| Transitions | Tested enter, move, fade and leave curves, springs, and attribute-driven transitions for menus, dialogs, tabs, numbers and lists | [transitions](../assets/components/transitions/README.md) |
-| Interaction | Slide to confirm, hold to delete, combobox, date range, waveform player | [interaction](../assets/components/interaction/README.md) |
-| Statement and signature | A large editorial statement with proof inline; a product demo player, compare slider, scroll story | [statement](../assets/components/statement/README.md), [signature](../assets/components/signature/README.md) |
 | Starter tokens | One file of type, space, radius, color and motion tokens | [tokens.css](../assets/tokens.css) |
 | Layout grid overlay | Columns and keylines drawn over the page in development | [layout guides](../assets/layout-guides/README.md) |
 
-Copy a kit into the project and restyle it only through its tokens. Decide whether something should move with `seenry-motion` before reaching for the transitions kit.
-
-A component no kit has gets a short brief before code: its states, its inputs by pointer, touch and keyboard, and what happens when an action is interrupted. The template is in [interaction craft](../../seenry-motion/references/interaction-craft.md).
+A component no library has gets a short brief before code: its states, its inputs by pointer, touch and keyboard, and what happens when an action is interrupted. The template is in [interaction craft](../../seenry-motion/references/interaction-craft.md).

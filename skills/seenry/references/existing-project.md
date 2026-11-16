@@ -8,7 +8,7 @@ Use this route when the request adds or changes something in an app with its own
 
 - Find its styling method (Tailwind, CSS modules, plain CSS with tokens, styled-components), its component library (shadcn, Radix, its own) and its tokens.
 - Render two or three neighbouring screens. The new work must look like the same team made it: same type, colors, radius, spacing, density and components.
-- Bring Seenry's craft inside that system. Never import Seenry's kits, fonts or palette over it.
+- Bring Seenry's craft inside that system. Never import Seenry's tokens, fonts or palette over it.
 - Where the app's values have drifted (a 9px padding beside its 8 and 16), the screens you touch snap to its scale. The app gets more consistent, never a second system. See [one token system](../../seenry-craft/references/system.md#one-token-system-everywhere).
 
 ## 2. Keep the behavior

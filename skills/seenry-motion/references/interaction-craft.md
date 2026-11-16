@@ -1,8 +1,19 @@
 # Interaction craft: the method behind memorable controls
 
-Use this whenever you build an interactive component that is not already in the Seenry kits, or when a component feels flat. The method is portable to any stack: decide what the person is trying to do, give the change a visible cause, keep the interface stable while it happens, and make every input path reach the same result. Complete the component brief (section 4) before writing code, and review the result with the checklist (section 5).
+**Read when:** designing an interactive component that no recipe or maintained library covers, and you need its brief, state graph and motion score before code.
+
+Use this whenever you build an interactive component that no recipe or maintained library covers, or when a component feels flat. The method is portable to any stack: decide what the person is trying to do, give the change a visible cause, keep the interface stable while it happens, and make every input path reach the same result. Complete the component brief (section 4) before writing code, and review the result with the checklist (section 5).
 
 The numbers below are well-tested starting points, not a universal token sheet.
+
+## Contents
+
+- [1. The method](#1-the-method)
+- [2. Motion and interaction principles](#2-motion-and-interaction-principles)
+- [3. Pattern catalogue](#3-pattern-catalogue)
+- [4. A component brief to complete before building](#4-a-component-brief-to-complete-before-building)
+- [5. Quality review checklist](#5-quality-review-checklist)
+- [6. What to leave out of a restrained product](#6-what-to-leave-out-of-a-restrained-product)
 
 ## 1. The method
 
@@ -81,9 +92,9 @@ There is a useful asymmetry: arrivals explain, exits clear space. An outgoing la
 
 ### Curves, springs, and keyframes have distinct jobs
 
-- A strong response curve such as `cubic-bezier(0.23, 1, 0.32, 1)` moves quickly at the start and spends the rest of its time settling. It suits a newly revealed surface, a short text entrance, and a press response.
-- A symmetric travel curve such as `cubic-bezier(0.77, 0, 0.175, 1)` gives a deliberate passage between two distant positions. It suits a fold or a large spatial morph whose journey matters.
-- The drawer curve `cubic-bezier(0.32, 0.72, 0, 1)` starts a large surface promptly and lets it arrive softly. A sheet or an object crossing much of the view needs this different rhythm.
+- A strong response curve, `--ease-out: cubic-bezier(0.16, 1, 0.3, 1)`, moves quickly at the start and spends the rest of its time settling. It suits a newly revealed surface, a short text entrance, and a press response.
+- A symmetric travel curve, `--ease-move: cubic-bezier(0.4, 0, 0.2, 1)`, gives a deliberate passage between two distant positions. It suits a fold or a large spatial morph whose journey matters.
+- The drawer curve `cubic-bezier(0.32, 0.72, 0, 1)` at 500ms belongs to a sheet that is dragged (Vaul uses it). A sheet that only opens and closes uses `--ease-out` at 280ms.
 - Linear timing belongs to elapsed time, continuous rotation, constant paper feed, and a hold-to-confirm fill. Easing a timer would make its visual clock disagree with real time. A falling object is one of the few justified uses of acceleration toward the end.
 - A spring is valuable when a target can move again before arrival. It can inherit current position and speed, so the second action redirects the first motion. A precise slot or data value calls for critical or near-critical damping. For example, a row returning with stiffness 500 and damping near 45 settles without crossing its slot. Slight underdamping belongs to a rubber band, a tossed card, or another material whose bounce is the point.
 - Keyframes work for periodic motion and uncontested finite events: a caret blink, a short impact, an ink stroke, or a celebration. A reversible menu or frequently retargeted highlight should not restart a canned sequence on every input.

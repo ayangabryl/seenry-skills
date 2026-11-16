@@ -49,7 +49,7 @@ The same keyline, ink-level and optical rules apply natively ([alignment](../../
 
 Gate every animation by how often it is met ([flows](flows.md#motion-frequency-gate)): the platform's own for tabs, scroll, back and keyboard; under 150ms for presses; designed moments only where they are rare, like the onboarding payoff. Navigation motion comes from the platform (push, sheet, zoom). Custom motion: springs (`response 0.35–0.5, dampingFraction 0.8–0.9`), interruptible, 150–300ms feel, with haptic feedback on commit (selection, success, warning). Respect Reduce Motion. For web-based apps, use `seenry-motion` and the Seenry Transitions kit.
 
-The same transitions the web kit provides, natively (apply them without being asked, by situation):
+The same transitions the web recipes in `seenry-motion` give, natively (apply them without being asked, by situation):
 
 | Situation | SwiftUI | Jetpack Compose | React Native |
 | --- | --- | --- | --- |
