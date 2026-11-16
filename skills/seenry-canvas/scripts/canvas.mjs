@@ -2234,6 +2234,8 @@ function serve(port, attempts = 20) {
   });
   server.on('error', error => {
     if (error.code === 'EADDRINUSE' && attempts > 0) return serve(port + 1, attempts - 1);
+    // Windows reserves whole port ranges (Hyper-V, WinNAT) and answers EACCES inside them: step past the range.
+    if (error.code === 'EACCES' && process.platform === 'win32' && attempts > 0) return serve(port + 101, attempts - 1);
     console.error(`The canvas could not start: ${error.message}${/EPERM|EACCES/.test(error.code || '') ? ' (binding 127.0.0.1 was refused: a sandbox blocks local servers)' : ''}`); process.exit(1);
   });
   server.listen(port, '127.0.0.1', () => {

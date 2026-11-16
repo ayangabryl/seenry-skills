@@ -18,6 +18,16 @@ const skip = playwright ? false : 'Playwright is not installed';
 const runWith = (env, ...args) => spawnSync(process.execPath, [script, ...args, ...(process.env.SEENRY_PLAYWRIGHT ? ['--playwright', process.env.SEENRY_PLAYWRIGHT] : [])], {encoding: 'utf8', timeout: 120000, env: {...process.env, SEENRY_PAIR_JUDGE: 'off', ...env}});
 const run = (...args) => runWith({}, ...args);
 
+/** Resolves when the canvas server is listening; fails with its output when it exits first. */
+function started(server) {
+  return new Promise((done, fail) => {
+    let err = '';
+    server.stderr?.on('data', d => { err += d; });
+    server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); });
+    server.on('exit', code => fail(new Error(`The canvas server exited (${code}) before listening: ${err.trim()}`)));
+  });
+}
+
 function project() {
   const root = mkdtempSync(join(tmpdir(), 'seenry-agent-')), dir = join(root, '.seenry', 'canvas');
   assert.equal(run('init', dir).status, 0);
@@ -221,7 +231,7 @@ test('the canvas UI picks an option, turns a click on an element into a chip, an
   writeFileSync(join(dir, '02-home.options', 'b-dusk.html'), option('Dusk'));
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5900 + Math.floor(Math.random() * 90))], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(r => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) r(); }));
+  await started(server);
   const url = `http://127.0.0.1:${JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port}/`;
   const {chromium} = createRequire(import.meta.url)(playwright);
   let browser; try { browser = await chromium.launch(); } catch { browser = await chromium.launch({channel: 'chrome'}); }
@@ -260,7 +270,7 @@ test('the canvas tucks approved sections away, pins sent comments, captions shor
     notes: [{frame: '02-home/b-dusk', target: '“Dusk headline”', selector: 'h1', text: 'Warmer'}]}));
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5700 + Math.floor(Math.random() * 90))], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(r => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) r(); }));
+  await started(server);
   const url = `http://127.0.0.1:${JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port}/`;
   const {chromium} = createRequire(import.meta.url)(playwright);
   let browser; try { browser = await chromium.launch(); } catch { browser = await chromium.launch({channel: 'chrome'}); }

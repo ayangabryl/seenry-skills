@@ -84,7 +84,7 @@ test('link stores the token in the config folder with 0600 and never in the proj
   try {
     const env = await linked(seenry, p);
     const file = join(p.config, 'canvas-sync.json');
-    assert.equal(statSync(file).mode & 0o777, 0o600);
+    if (process.platform !== 'win32') assert.equal(statSync(file).mode & 0o777, 0o600, 'Windows has no POSIX modes; the file sits in the user profile');
     assert.equal(JSON.parse(readFileSync(file, 'utf8')).token.startsWith('seenry_canvas_'), true);
     const walk = d => readdirSync(d, {withFileTypes: true}).flatMap(e => e.isDirectory() ? walk(join(d, e.name)) : [readFileSync(join(d, e.name), 'utf8')]);
     assert.ok(!walk(p.root).some(text => text.includes('seenry_canvas_')));

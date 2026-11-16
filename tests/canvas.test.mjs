@@ -13,6 +13,16 @@ process.env.SEENRY_CONFIG_DIR = mkdtempSync(join(tmpdir(), 'seenry-no-link-'));
 const run = (...args) => spawnSync(process.execPath, [script, ...args], {encoding: 'utf8'});
 const page = (title, note = '') => `<!doctype html><meta charset="utf-8"><title>${title}</title><meta name="seenry-note" content="${note}"><link rel="stylesheet" href="../wire.css"><p>${title}</p>`;
 
+/** Resolves when the canvas server is listening; fails with its output when it exits first. */
+function started(server) {
+  return new Promise((done, fail) => {
+    let err = '';
+    server.stderr?.on('data', d => { err += d; });
+    server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); });
+    server.on('exit', code => fail(new Error(`The canvas server exited (${code}) before listening: ${err.trim()}`)));
+  });
+}
+
 function project() {
   const root = mkdtempSync(join(tmpdir(), 'seenry-canvas-'));
   const dir = join(root, '.seenry', 'canvas');
@@ -56,7 +66,7 @@ test('the server serves the canvas, guards the folder and saves feedback', async
   const port = 4900 + Math.floor(Math.random() * 300);
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
 
   assert.equal((await call(actual, '/')).status, 200);
@@ -108,7 +118,7 @@ test('wait returns the feedback the moment the person sends it', async t => {
   const {dir} = project();
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5300 + Math.floor(Math.random() * 300))], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const port = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   const waiter = spawn(process.execPath, [script, 'wait', dir, '--timeout', '20'], {stdio: 'pipe'});
   let out = ''; waiter.stdout.on('data', d => { out += d; });
@@ -199,7 +209,7 @@ test('a shared library is served under library/ and listed read-only', async t =
   assert.match(list, /Library · Components\n  library\/00-components\/button/);
   const server = spawn(process.execPath, [script, 'serve', app, '--port', String(5700 + Math.floor(Math.random() * 200))], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const port = JSON.parse(readFileSync(join(app, '.canvas.json'), 'utf8')).port;
   assert.equal((await call(port, '/library/tokens.css')).status, 200);
   assert.equal((await call(port, '/library/%2e%2e/app/canvas.json')).status, 404);
@@ -211,7 +221,7 @@ test('options carry their labels, and round resolves picks but keeps riffed sect
   writeFileSync(join(dir, '02-home.options', 'a.phone.html'), page('Quiet') + '<meta name="seenry-risk" content="safe"><meta name="seenry-axis" content="A plain list"><meta name="seenry-wins" content="Daily use"><meta name="seenry-cost" content="Forgettable"><meta name="seenry-ask" content="Is it calm?|Would you open it daily?">');
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5900 + Math.floor(Math.random() * 90))], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const port = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   const state = JSON.parse((await call(port, '/state')).body), quiet = state.sections.find(s => s.id === '02-home').frames.find(f => f.id === '02-home/a');
   assert.deepEqual([quiet.risk, quiet.axis, quiet.wins, quiet.cost, quiet.ask], ['safe', 'A plain list', 'Daily use', 'Forgettable', ['Is it calm?', 'Would you open it daily?']]);
@@ -277,7 +287,7 @@ test('plan shows named screens as placeholders until their files exist, and roun
   const port = 4900 + Math.floor(Math.random() * 300);
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   const pricing = JSON.parse((await call(actual, '/state')).body).sections.find(s => s.id === '03-pricing');
   assert.deepEqual(pricing.frames.map(f => [f.id, f.kind, f.device]), [['03-pricing/quiet', 'pending', 'desktop'], ['03-pricing/loud', 'pending', 'phone']]);
@@ -340,7 +350,7 @@ test('the live feed shows what the agent says and does, and the server notices s
   const port = 4900 + Math.floor(Math.random() * 300);
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   const first = JSON.parse((await call(actual, '/state')).body).activity;
   assert.deepEqual(first.map(e => [e.kind, e.frame]), [['say', '02-home/b'], ['plan', '']]);
@@ -377,7 +387,7 @@ test('wait returns within the window hosts allow, says how to resume, and keeps 
   const {dir} = project();
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5600 + Math.floor(Math.random() * 300))], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const port = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   const out = spawnSync(process.execPath, [script, 'wait', dir], {encoding: 'utf8', env: {...process.env, SEENRY_WAIT_WINDOW: '1'}});
   assert.equal(out.status, 0, out.stderr);
@@ -398,7 +408,7 @@ test('plan --parts names the parts to come, and the state says which are built',
   const port = 4900 + Math.floor(Math.random() * 300);
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   const state = JSON.parse((await call(actual, '/state')).body), quiet = state.sections.find(s => s.id === '03-pricing').frames[0];
   assert.deepEqual([quiet.plan, quiet.parts], [['Hero', 'Plans', 'FAQ'], ['Hero']]);
@@ -410,7 +420,7 @@ test('each save names the parts it added, so the feed reads like the build', asy
   const port = 4900 + Math.floor(Math.random() * 300);
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
   t.after(() => server.kill());
-  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  await started(server);
   const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   await call(actual, '/state');
   const save = (html, at) => { writeFileSync(file, html); utimesSync(file, new Date(), new Date(at)); };
