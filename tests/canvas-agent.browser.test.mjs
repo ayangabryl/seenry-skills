@@ -387,3 +387,130 @@ test('the canvas tucks approved sections away, pins sent comments, captions shor
   assert.match(await page.locator('#share-pop').innerText(), /only works on this computer[\s\S]*sync\.mjs link/);
   assert.deepEqual(errors, []);
 });
+
+// The live build: a skeleton in the planned proportions, each save patched in place, the cursor on the next block.
+async function canvasPage(t, dir, {width = 1440, height = 900, reducedMotion = 'no-preference', colorScheme = 'light', query = ''} = {}) {
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5300 + Math.floor(Math.random() * 300))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const url = `http://127.0.0.1:${JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port}/${query}`;
+  const {chromium} = createRequire(import.meta.url)(playwright);
+  let browser; try { browser = await chromium.launch(); } catch { browser = await chromium.launch({channel: 'chrome'}); }
+  t.after(() => browser.close());
+  const errors = [], context = await browser.newContext({viewport: {width, height}, reducedMotion, colorScheme}), page = await context.newPage();
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(url);
+  return {page, errors};
+}
+const SHELL = '<!doctype html><html><head><meta charset="utf-8"><title>Pricing</title><link rel="stylesheet" href="../tokens.css"><style>body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}nav{height:60px}.hero{height:400px}.plans{display:grid;grid-template-columns:repeat(3,320px);gap:24px}</style></head><body>\n<!-- next -->\n</body></html>';
+const PARTS = {Nav: '<nav data-seenry-part="Nav">Tally</nav>', Hero: '<section class="hero" data-seenry-part="Hero"><h1>Pay for the habits you keep</h1></section>', Plans: '<section class="plans" data-seenry-part="Plans"><div>Solo</div><div>Pair</div><div>House</div></section>'};
+const withParts = (...names) => SHELL.replace('<!-- next -->', names.map(n => PARTS[n]).join('\n') + '\n<!-- next -->');
+const frameState = (page, id) => page.evaluate(id => {
+  const fr = document.querySelector('.frame[data-id="' + id + '"] .body iframe:not([data-next])'), d = fr && fr.contentDocument;
+  if (!d || !d.body) return {blank: !!document.querySelector('.frame[data-id="' + id + '"] .blank'), blocks: [...document.querySelectorAll('.frame[data-id="' + id + '"] .sk > div')].map(b => [b.textContent, b.offsetHeight])};
+  fr.__probe = fr.__probe || Math.random();
+  const cur = d.getElementById('seenry-cursor'), next = d.querySelector('#seenry-skel > div');
+  return {probe: fr.__probe, frames: document.querySelectorAll('.frame[data-id="' + id + '"] iframe').length, parts: [...d.querySelectorAll('[data-seenry-part]')].map(n => n.dataset.seenryPart),
+    blocks: [...d.querySelectorAll('#seenry-skel > div')].map(b => [b.dataset.name, b.offsetHeight]), scrollY: d.defaultView.scrollY,
+    cursorOnNext: !!(cur && next && Math.abs(cur.getBoundingClientRect().top - next.getBoundingClientRect().top) < 80), animations: d.getAnimations().filter(a => a.playState === 'running' && !(a.animationName === 'seenry-shimmer')).length};
+}, id);
+
+test('a planned screen builds in place: skeleton in its proportions, each part patched in without a reload', {skip}, async t => {
+  const {dir} = project();
+  assert.equal(run('plan', '03-pricing/01-plans.html', '--parts', 'Nav:60,Hero:400,Plans:300', '--dir', dir).status, 0);
+  const {page, errors} = await canvasPage(t, dir);
+  const id = '03-pricing/01-plans';
+  await page.waitForSelector(`.frame[data-id="${id}"] .sk > div`);
+  assert.deepEqual((await frameState(page, id)).blocks, [['Nav', 60], ['Hero', 400], ['Plans', 300]], 'the placeholder shows the planned parts at their heights');
+  mkdirSync(join(dir, '03-pricing'));
+  const file = join(dir, '03-pricing', '01-plans.html');
+  writeFileSync(file, SHELL);
+  await page.waitForFunction(id => { const d = document.querySelector('.frame[data-id="' + id + '"] iframe')?.contentDocument; return d && d.querySelectorAll('#seenry-skel > div').length === 3 && !document.querySelector('.frame[data-id="' + id + '"] .blank'); }, id);
+  const shell = await frameState(page, id);
+  assert.deepEqual(shell.blocks, [['Nav', 60], ['Hero', 400], ['Plans', 300]], 'the shell carries the same skeleton');
+  for (const [i, names] of [['Nav'], ['Nav', 'Hero']].entries()) {
+    const at = Date.now();
+    writeFileSync(file, withParts(...names));
+    await page.waitForFunction(([id, n]) => document.querySelector('.frame[data-id="' + id + '"] iframe:not([data-next])').contentDocument.querySelectorAll('[data-seenry-part]').length === n, [id, names.length]);
+    assert.ok(Date.now() - at < 1200, `part ${i + 1} showed after ${Date.now() - at} ms`);
+    await page.waitForTimeout(450);
+    const now = await frameState(page, id);
+    assert.equal(now.probe, shell.probe, 'the same document: no reload, no white frame');
+    assert.equal(now.frames, 1);
+    assert.deepEqual(now.parts, names);
+    assert.deepEqual(now.blocks.map(b => b[0]), ['Nav', 'Hero', 'Plans'].filter(n => !names.includes(n)), 'the landed part replaced its block');
+    assert.ok(now.cursorOnNext, 'the cursor waits on the next block');
+    assert.equal(now.scrollY, 0, 'no scroll jump');
+  }
+  // A change to the head cannot be patched: it reloads hidden and keeps the skeleton.
+  writeFileSync(file, withParts('Nav', 'Hero').replace('</style>', 'h1{letter-spacing:-.02em}</style>'));
+  await page.waitForFunction(([id, p]) => { const fr = document.querySelector('.frame[data-id="' + id + '"] iframe:not([data-next])'); return fr && fr.__probe !== p && fr.contentDocument.querySelector('#seenry-skel > div'); }, [id, shell.probe]);
+  writeFileSync(file, withParts('Nav', 'Hero', 'Plans'));
+  await page.waitForFunction(id => !document.querySelector('.frame[data-id="' + id + '"] iframe:not([data-next])').contentDocument.querySelector('#seenry-skel > div'), id);
+  assert.deepEqual(errors, []);
+});
+
+test('with reduced motion the build lands with no movement', {skip}, async t => {
+  const {dir} = project();
+  run('plan', '03-pricing/01-plans.html', '--parts', 'Nav,Hero,Plans', '--dir', dir);
+  const {page, errors} = await canvasPage(t, dir, {reducedMotion: 'reduce'});
+  await page.waitForSelector('.frame[data-id="03-pricing/01-plans"] .sk > div');
+  mkdirSync(join(dir, '03-pricing'));
+  const file = join(dir, '03-pricing', '01-plans.html');
+  writeFileSync(file, SHELL);
+  const id = '03-pricing/01-plans';
+  await page.waitForFunction(id => document.querySelector('.frame[data-id="' + id + '"] iframe')?.contentDocument?.querySelector('#seenry-skel > div'), id);
+  writeFileSync(file, withParts('Nav'));
+  await page.waitForFunction(id => document.querySelector('.frame[data-id="' + id + '"] iframe').contentDocument.querySelector('[data-seenry-part]'), id);
+  const s = await frameState(page, id);
+  assert.equal(s.animations, 0, 'nothing animates');
+  assert.equal(await page.evaluate(id => getComputedStyle(document.querySelector('.frame[data-id="' + id + '"] iframe').contentDocument.querySelector('#seenry-skel > div'), '::after').animationName, id), 'none', 'the shimmer holds still');
+  assert.deepEqual(errors, []);
+});
+
+test('each save is checked for layout problems at its width and at 390, on the frame and for the agent', {skip}, async t => {
+  const {dir} = project();
+  mkdirSync(join(dir, '03-pricing'));
+  const file = join(dir, '03-pricing', '01-plans.html');
+  writeFileSync(file, withParts('Nav', 'Hero', 'Plans'));
+  // Headless, with no canvas open: three 320px columns run past a 390 screen.
+  let out = run('problems', '03-pricing', '--dir', dir);
+  assert.equal(out.status, 1, out.stderr);
+  assert.match(out.stdout, /03-pricing\/01-plans  1 problem\n  390   Plans › section\.plans: Its content is wider than the screen: runs to \d+px of 390/);
+  const {page, errors} = await canvasPage(t, dir);
+  const id = '03-pricing/01-plans';
+  await page.waitForSelector(`.frame[data-id="${id}"] .lab .pb`);
+  assert.equal(await page.locator(`.frame[data-id="${id}"] .lab .pb`).innerText(), '1 layout problem');
+  assert.match(await page.locator(`.frame[data-id="${id}"] .cap`).innerText(), /^390 · Plans › section\.plans: Its content is wider than the screen/);
+  writeFileSync(file, withParts('Nav', 'Hero', 'Plans').replace('repeat(3,320px)', 'repeat(auto-fit,minmax(min(100%,240px),1fr))').replace('<h1>', '<h1 style="height:20px;overflow:hidden;font-size:40px;line-height:60px">'));
+  await page.waitForFunction(id => /^1440 · Hero › h1: Text cut off/.test(document.querySelector('.frame[data-id="' + id + '"] .cap').textContent), id, {timeout: 15000});
+  assert.equal(await page.evaluate(id => document.querySelector('.frame[data-id="' + id + '"] iframe').contentDocument.querySelector('h1').dataset.seenryProblem, id), 'clipped', 'the element is outlined on the screen');
+  out = run('problems', id, '--json', '--dir', dir);
+  const listed = JSON.parse(out.stdout);
+  assert.equal(listed.screens[0].from, 'canvas', 'the open canvas already checked this save');
+  assert.deepEqual(listed.screens[0].results.flatMap(r => r.problems.map(p => r.width + ' ' + p.kind)), ['1440 clipped', '390 clipped']);
+  writeFileSync(file, withParts('Nav', 'Hero', 'Plans').replace('repeat(3,320px)', 'repeat(auto-fit,minmax(min(100%,240px),1fr))'));
+  await page.waitForFunction(id => !document.querySelector('.frame[data-id="' + id + '"] .lab .pb'), id);
+  assert.equal(run('problems', id, '--dir', dir).status, 0);
+  assert.deepEqual(errors, []);
+});
+
+test('in an agent app\'s pane the canvas follows the host theme and drops its own title', {skip}, async t => {
+  const {dir} = project();
+  const {page, errors} = await canvasPage(t, dir, {width: 1200, colorScheme: 'dark', query: '?embed=1'});
+  await page.waitForSelector('.frame iframe');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(12, 12, 12)', 'the canvas is dark with the host');
+  assert.equal(await page.locator('#side .sb-head b').isVisible(), false, 'no second title bar');
+  assert.equal(await page.locator('#side').isVisible(), false, 'the screen list starts closed in a pane');
+  await page.waitForFunction(() => document.querySelector('.frame[data-id="01-flow/01-good"] iframe').contentDocument?.documentElement.dataset.theme === 'dark');
+  await page.emulateMedia({colorScheme: 'light'});
+  await page.waitForFunction(() => document.querySelector('.frame[data-id="01-flow/01-good"] iframe').contentDocument.documentElement.dataset.theme !== 'dark');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(239, 239, 237)');
+  await page.setViewportSize({width: 900, height: 900});
+  await page.waitForFunction(() => document.body.dataset.narrow === 'true', null, {timeout: 3000});
+  // ?theme= wins over the host.
+  await page.goto(page.url().replace('?embed=1', '?embed=1&theme=dark'));
+  await page.waitForSelector('#stage iframe');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(12, 12, 12)');
+  assert.deepEqual(errors, []);
+});
