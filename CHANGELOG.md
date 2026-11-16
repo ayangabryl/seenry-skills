@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Style briefs
+
+- **A shelf of sixteen style briefs.** `skills/seenry/references/styles/` holds sixteen visual identities (image interlock, product stage, dark technical, editorial type, clinic warm, place photographic and more), each with the same nine headings: identity, type, colour roles, imagery, how image and interface meet, below-the-hero moves, phone, never, seen in. Each is at most 480 words, names no section order and cites the Seenry library references it was drawn from. Its Imagery block holds two image jobs, a hero and a returning motif; `art_prompt.mjs` gains `extends` so the motif inherits the hero's palette, grade, light and texture, and refuses a job that still holds a `<…>` placeholder.
+- **One first call.** `scripts/start.mjs "<brief>"` prints the two or three styles whose keywords the brief uses, the bans and the nine steps, and nothing else; `--style <slug>` prints one brief whole. Matching is keyword overlap, with no model call. `SKILL.md` makes it the first call of every task.
+- **Bans in one list.** `references/bans.md` gathers the habits that make a page read as generated (a card around everything, the default section stack, eyebrow labels, glow blobs, icons in tinted circles, invented proof). `SKILL.md`, the loader, `unslop.md` and `imagery.md` point to it.
+
+### Canvas
+
+- **Patch, never regenerate.** `seenry` and `seenry-canvas` both say to fix a screen with an edit to the part that is wrong. The canvas feed now reads "Rewrote <screen>" when one save changes every part of a screen that already had two or more.
+- **Three ways to answer More like this.** Feedback for a More like this request lists three fixed modes, one option each: same style with a new layout, a new style with the same content, and breaking one rule the option obeys that nobody asked for. `canvas.mjs` and `sync.mjs` send the same three.
+
+### Final check
+
+- **Five blockers, ranked.** `check.mjs` prints the five blockers that matter most (the missing study first, then the page's level, then visible craft, the rest of the board, motion details), each on one line with its fix, and keeps every section in `review/blockers.txt`. `--all` prints everything as before. `review_board.mjs` writes each blocker to `board.json` as a ranked item.
+
 ## 3.2.0
 
 ### Fast path
