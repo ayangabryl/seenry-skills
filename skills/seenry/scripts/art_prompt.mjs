@@ -11,7 +11,9 @@
  *    placement   {slot, field, mode}: where it sits on the page, which area stays empty for type or UI, and
  *                cutout (transparent background), tile (cropped into a frame) or bleed (full-bleed behind content)
  *    prop        the brand colour or mark inside the frame
- *    ratio, exclude   optional */
+ *    ratio, exclude   optional
+ *    extends     "hero" (the first job) or another job's out: every field this job leaves out is taken from that one,
+ *                so a returning motif shares the hero's palette, grade, light and texture by construction */
 
 export const GRADES = ['monochrome', 'duotone', 'desaturated-one-accent', 'full-color'];
 export const MODES = ['cutout', 'tile', 'bleed'];
@@ -50,9 +52,34 @@ export function normalize(job = {}) {
   };
 }
 
+/** Resolve `extends` across a batch: a job takes every field it does not set from the job it extends. */
+export function inherit(jobs = []) {
+  return jobs.map((job, n) => {
+    if (!job || !job.extends) return job;
+    const from = job.extends === 'hero' ? jobs[0] : jobs.find(j => j && j.out === job.extends);
+    const {extends: _, ...own} = job;
+    if (!from || from === job) return own;
+    const {prompt, use, ...base} = from;
+    return {...base, ...own};
+  });
+}
+
+/** A style brief's template leaves <…> for what only this product can say; a job still holding one is not written yet. */
+const PLACEHOLDER = /<[^<>\n]{2,}>/;
+function unfilled(job) {
+  const out = [];
+  const visit = (key, value) => {
+    if (typeof value === 'string') { if (PLACEHOLDER.test(value)) out.push(`${key}: still holds the template placeholder ${value.match(PLACEHOLDER)[0]}; write this product's own`); }
+    else if (value && typeof value === 'object') for (const [k, v] of Object.entries(value)) visit(`${key}.${k}`, v);
+  };
+  for (const k of ['out', 'subject', 'concept', 'palette', 'light', 'texture', 'placement', 'prop']) visit(k, job[k]);
+  return out;
+}
+
 /** Every reason the job is not art-directed yet. An empty list means it can be generated. */
 export function validateJob(raw) {
-  const job = normalize(raw), errors = [];
+  const job = normalize(raw), errors = unfilled(job);
+  if (errors.length) return errors;
   const need = (k, v, hint) => { if (!v || !String(v).trim()) errors.push(`${k}: missing (${hint})`); };
   need('subject', job.subject, 'what is in the frame');
   need('concept', job.concept, 'the idea the image carries, not the scene');
