@@ -388,7 +388,7 @@ test('the canvas tucks approved sections away, pins sent comments, captions shor
   assert.deepEqual(errors, []);
 });
 
-// The live build: a skeleton in the planned proportions, each save patched in place, the cursor on the next block.
+// The live build: only what the agent has written, each save patched into the open screen, the cursor on the part that landed.
 async function canvasPage(t, dir, {width = 1440, height = 900, reducedMotion = 'no-preference', colorScheme = 'light', query = ''} = {}) {
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5300 + Math.floor(Math.random() * 300))], {stdio: 'pipe'});
   t.after(() => server.kill());
@@ -407,28 +407,31 @@ const PARTS = {Nav: '<nav data-seenry-part="Nav">Tally</nav>', Hero: '<section c
 const withParts = (...names) => SHELL.replace('<!-- next -->', names.map(n => PARTS[n]).join('\n') + '\n<!-- next -->');
 const frameState = (page, id) => page.evaluate(id => {
   const fr = document.querySelector('.frame[data-id="' + id + '"] .body iframe:not([data-next])'), d = fr && fr.contentDocument;
-  if (!d || !d.body) return {blank: !!document.querySelector('.frame[data-id="' + id + '"] .blank'), blocks: [...document.querySelectorAll('.frame[data-id="' + id + '"] .sk > div')].map(b => [b.textContent, b.offsetHeight])};
+  const blank = document.querySelector('.frame[data-id="' + id + '"] .blank');
+  if (!d || !d.body) return {blank: !!blank, blankText: blank ? blank.textContent : '', cursorWaiting: !!(blank && blank.querySelector('.cursor'))};
   fr.__probe = fr.__probe || Math.random();
-  const cur = d.getElementById('seenry-cursor'), next = d.querySelector('#seenry-skel > div');
-  return {probe: fr.__probe, frames: document.querySelectorAll('.frame[data-id="' + id + '"] iframe').length, parts: [...d.querySelectorAll('[data-seenry-part]')].map(n => n.dataset.seenryPart),
-    blocks: [...d.querySelectorAll('#seenry-skel > div')].map(b => [b.dataset.name, b.offsetHeight]), scrollY: d.defaultView.scrollY,
-    cursorOnNext: !!(cur && next && Math.abs(cur.getBoundingClientRect().top - next.getBoundingClientRect().top) < 80), animations: d.getAnimations().filter(a => a.playState === 'running' && !(a.animationName === 'seenry-shimmer')).length};
+  const cur = d.getElementById('seenry-cursor'), parts = [...d.querySelectorAll('[data-seenry-part]')], last = parts[parts.length - 1];
+  return {probe: fr.__probe, frames: document.querySelectorAll('.frame[data-id="' + id + '"] iframe').length, parts: parts.map(n => n.dataset.seenryPart),
+    placeholders: d.querySelectorAll('[id^="seenry-skel"], .sk').length, scrollY: d.defaultView.scrollY,
+    cursorOnLast: !!(cur && last && Math.abs(cur.getBoundingClientRect().top - last.getBoundingClientRect().top) < 80), animations: d.getAnimations().filter(a => a.playState === 'running').length};
 }, id);
 
-test('a planned screen builds in place: skeleton in its proportions, each part patched in without a reload', {skip}, async t => {
+test('a planned screen shows only what is written: each part patched in without a reload', {skip}, async t => {
   const {dir} = project();
-  assert.equal(run('plan', '03-pricing/01-plans.html', '--parts', 'Nav:60,Hero:400,Plans:300', '--dir', dir).status, 0);
+  assert.equal(run('plan', '03-pricing/01-plans.html', '--parts', 'Nav,Hero,Plans', '--dir', dir).status, 0);
   const {page, errors} = await canvasPage(t, dir);
   const id = '03-pricing/01-plans';
-  await page.waitForSelector(`.frame[data-id="${id}"] .sk > div`);
-  assert.deepEqual((await frameState(page, id)).blocks, [['Nav', 60], ['Hero', 400], ['Plans', 300]], 'the placeholder shows the planned parts at their heights');
+  await page.waitForSelector(`.frame[data-id="${id}"] .blank .cursor`);
+  const empty = await frameState(page, id);
+  assert.ok(empty.blank && empty.cursorWaiting, 'an empty page with the cursor waiting');
+  assert.doesNotMatch(empty.blankText.replace('Seenry', ''), /Nav|Hero|Plans/, 'no blocks for parts not yet written');
   mkdirSync(join(dir, '03-pricing'));
   const file = join(dir, '03-pricing', '01-plans.html');
   writeFileSync(file, SHELL);
-  await page.waitForFunction(id => { const d = document.querySelector('.frame[data-id="' + id + '"] iframe')?.contentDocument; return d && d.querySelectorAll('#seenry-skel > div').length === 3 && !document.querySelector('.frame[data-id="' + id + '"] .blank'); }, id);
+  await page.waitForFunction(id => { const d = document.querySelector('.frame[data-id="' + id + '"] iframe')?.contentDocument; return d && d.body && !document.querySelector('.frame[data-id="' + id + '"] .blank'); }, id);
   const shell = await frameState(page, id);
-  assert.deepEqual(shell.blocks, [['Nav', 60], ['Hero', 400], ['Plans', 300]], 'the shell carries the same skeleton');
-  for (const [i, names] of [['Nav'], ['Nav', 'Hero']].entries()) {
+  assert.deepEqual([shell.parts, shell.placeholders], [[], 0], 'the shell shows nothing the agent has not written');
+  for (const [i, names] of [['Nav'], ['Nav', 'Hero'], ['Nav', 'Hero', 'Plans']].entries()) {
     const at = Date.now();
     writeFileSync(file, withParts(...names));
     await page.waitForFunction(([id, n]) => document.querySelector('.frame[data-id="' + id + '"] iframe:not([data-next])').contentDocument.querySelectorAll('[data-seenry-part]').length === n, [id, names.length]);
@@ -438,15 +441,13 @@ test('a planned screen builds in place: skeleton in its proportions, each part p
     assert.equal(now.probe, shell.probe, 'the same document: no reload, no white frame');
     assert.equal(now.frames, 1);
     assert.deepEqual(now.parts, names);
-    assert.deepEqual(now.blocks.map(b => b[0]), ['Nav', 'Hero', 'Plans'].filter(n => !names.includes(n)), 'the landed part replaced its block');
-    assert.ok(now.cursorOnNext, 'the cursor waits on the next block');
+    assert.equal(now.placeholders, 0);
+    assert.ok(now.cursorOnLast, 'the cursor sits on the part that just landed');
     assert.equal(now.scrollY, 0, 'no scroll jump');
   }
-  // A change to the head cannot be patched: it reloads hidden and keeps the skeleton.
-  writeFileSync(file, withParts('Nav', 'Hero').replace('</style>', 'h1{letter-spacing:-.02em}</style>'));
-  await page.waitForFunction(([id, p]) => { const fr = document.querySelector('.frame[data-id="' + id + '"] iframe:not([data-next])'); return fr && fr.__probe !== p && fr.contentDocument.querySelector('#seenry-skel > div'); }, [id, shell.probe]);
-  writeFileSync(file, withParts('Nav', 'Hero', 'Plans'));
-  await page.waitForFunction(id => !document.querySelector('.frame[data-id="' + id + '"] iframe:not([data-next])').contentDocument.querySelector('#seenry-skel > div'), id);
+  // A change to the head cannot be patched: it reloads hidden and shows the same parts.
+  writeFileSync(file, withParts('Nav', 'Hero', 'Plans').replace('</style>', 'h1{letter-spacing:-.02em}</style>'));
+  await page.waitForFunction(([id, p]) => { const fr = document.querySelector('.frame[data-id="' + id + '"] iframe:not([data-next])'); return fr && fr.__probe !== p && fr.contentDocument.querySelectorAll('[data-seenry-part]').length === 3; }, [id, shell.probe]);
   assert.deepEqual(errors, []);
 });
 
@@ -454,17 +455,15 @@ test('with reduced motion the build lands with no movement', {skip}, async t => 
   const {dir} = project();
   run('plan', '03-pricing/01-plans.html', '--parts', 'Nav,Hero,Plans', '--dir', dir);
   const {page, errors} = await canvasPage(t, dir, {reducedMotion: 'reduce'});
-  await page.waitForSelector('.frame[data-id="03-pricing/01-plans"] .sk > div');
+  await page.waitForSelector('.frame[data-id="03-pricing/01-plans"] .blank');
   mkdirSync(join(dir, '03-pricing'));
   const file = join(dir, '03-pricing', '01-plans.html');
   writeFileSync(file, SHELL);
   const id = '03-pricing/01-plans';
-  await page.waitForFunction(id => document.querySelector('.frame[data-id="' + id + '"] iframe')?.contentDocument?.querySelector('#seenry-skel > div'), id);
+  await page.waitForFunction(id => { const d = document.querySelector('.frame[data-id="' + id + '"] iframe')?.contentDocument; return d && d.body && !document.querySelector('.frame[data-id="' + id + '"] .blank'); }, id);
   writeFileSync(file, withParts('Nav'));
   await page.waitForFunction(id => document.querySelector('.frame[data-id="' + id + '"] iframe').contentDocument.querySelector('[data-seenry-part]'), id);
-  const s = await frameState(page, id);
-  assert.equal(s.animations, 0, 'nothing animates');
-  assert.equal(await page.evaluate(id => getComputedStyle(document.querySelector('.frame[data-id="' + id + '"] iframe').contentDocument.querySelector('#seenry-skel > div'), '::after').animationName, id), 'none', 'the shimmer holds still');
+  assert.equal((await frameState(page, id)).animations, 0, 'nothing animates');
   assert.deepEqual(errors, []);
 });
 

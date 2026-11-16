@@ -466,7 +466,7 @@ test('each save names the parts it added, so the feed reads like the build', asy
   assert.equal(JSON.parse((await call(actual, '/state')).body).activity.at(-1).text, 'Changed First habit');
 });
 
-test('plan --parts takes a height per part, so the skeleton holds the planned proportions', async t => {
+test('plan --parts takes the part names; a height after a colon is accepted and ignored', async t => {
   const {dir} = project();
   assert.equal(run('plan', '03-pricing/01-plans.html', '--parts', 'Nav:72, Hero:560,Plans', '--dir', dir).status, 0);
   const port = 4900 + Math.floor(Math.random() * 300);
@@ -475,7 +475,7 @@ test('plan --parts takes a height per part, so the skeleton holds the planned pr
   await started(server);
   const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   const f = JSON.parse((await call(actual, '/state')).body).sections.find(s => s.id === '03-pricing').frames[0];
-  assert.deepEqual([f.kind, f.plan, f.planH], ['pending', ['Nav', 'Hero', 'Plans'], [72, 560, 0]]);
+  assert.deepEqual([f.kind, f.plan, f.planH], ['pending', ['Nav', 'Hero', 'Plans'], undefined]);
 });
 
 test('a save reaches the page as a pushed event, without waiting for a poll', async t => {

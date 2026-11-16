@@ -19,8 +19,8 @@
  *  node canvas.mjs round "what changed" [dir]   after applying feedback: resolve picks, log it, set every section's status
  *  node canvas.mjs round "what changed" --unattended "why nobody can review" [dir]   record a run with no person: nothing is approved
  *  node canvas.mjs init [dir] --library <path>   link a shared design system (another canvas folder) instead of local tokens
- *  node canvas.mjs plan <file>… [--parts "Nav:72,Hero:560"] [--dir dir]   name the screens (and their parts, with an optional
- *                                        height in px) you are about to draw; the canvas holds a shimmering block for each
+ *  node canvas.mjs plan <file>… [--parts "Nav,Hero,Plans"] [--dir dir]   name the screens (and their parts) you are about to
+ *                                        draw; the canvas shows each part the moment it is written
  *  node canvas.mjs say "what you are doing" [--frame id] [dir]   one line on the canvas's live activity feed, for the person watching
  *  node canvas.mjs problems [screens] [--dir dir]   layout problems after the last save, at the screen's width and at 390:
  *                                        sideways overflow, cut-off text, collapsed parts, overlapping text. Exits 1 on any
@@ -730,7 +730,6 @@ function readState({pending = false} = {}) {
     const rel = f.kind === 'pending' ? f.rel : f.src;
     const spec = Array.isArray(planned[rel]) ? planned[rel].map(String).slice(0, 12) : [];
     f.plan = spec.map(p => p.replace(/\s*:\s*\d+\s*$/, '').trim());
-    f.planH = spec.map(p => { const m = p.match(/:\s*(\d+)\s*$/); return m ? Math.min(4000, Number(m[1])) : 0; });
     f.parts = f.kind === 'page' && !s.library ? partsIn(join(dir, f.src)) : [];
   }
   const ids = new Set(sections.flatMap(s => s.frames.map(f => f.id)));
@@ -856,13 +855,6 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 .pin.l { transform: scale(var(--inv)) translate(calc(-100% - 6px), -25%); }
 .tag { position: absolute; left: calc(-1.5px * var(--inv)); top: 0; height: 20px; padding: 0 6px; border-radius: 4px 4px 4px 0; transform: scale(var(--inv)) translateY(-100%); transform-origin: 0 0; background: var(--blue); color: #fff; font: 500 11px/20px var(--font); white-space: nowrap; }
 .blank { position: absolute; inset: 0; overflow: hidden; background: var(--screen-bg, #fff); transition: opacity 260ms var(--out); }
-/* The parts still to come, in their planned proportions: the same blocks the screen itself shows once its shell lands. */
-.sk { display: flex; flex-direction: column; gap: 16px; transform-origin: 0 0; pointer-events: none; }
-.sk > div { position: relative; flex: none; overflow: hidden; border-radius: 12px; background: rgb(128 128 128 / .1); padding: 14px 16px; font: 500 12px/1.2 var(--font); color: rgb(128 128 128 / .95); }
-.sk > div::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 35%, rgb(255 255 255 / .22) 50%, transparent 65%) 0 0 / 250% 100% no-repeat; animation: seenry-shimmer 1.8s linear infinite; }
-@media (prefers-color-scheme: dark) { .sk > div::after { background-image: linear-gradient(100deg, transparent 35%, rgb(255 255 255 / .06) 50%, transparent 65%); } }
-@keyframes seenry-shimmer { from { background-position: 130% 0; } to { background-position: -30% 0; } }
-@media (prefers-reduced-motion: reduce) { .sk > div::after { animation: none; opacity: 0; } }
 .lab .pb { flex: none; color: var(--red); font-weight: 500; }
 .frame[data-problems="true"] .cap { color: var(--red); }
 #pane-act .why.pb { color: var(--red); }
@@ -1386,26 +1378,11 @@ function arm(iframe, f) {
 }
 function cursorNode(text) { const c = el('div', {className: 'cursor'}); c.innerHTML = ARROW; c.append(el('span', {textContent: text || 'Seenry'})); return c; }
 
-// ---------- Live build: a shimmering block where each planned part will land; each save patched into the open screen ----------
-// Heights come from plan --parts "Hero:560"; without one, a guess from the part's name.
-function partHeight(name, h, w) {
-  if (h) return h;
-  const k = w < 600 ? 0.8 : 1;
-  return Math.round(k * (/nav|header|menu|top ?bar/i.test(name) ? 72 : /hero|intro|masthead|headline/i.test(name) ? 520 : /foot/i.test(name) ? 220 : 360));
-}
-function skelWant(f) {
-  const w = size(f)[0], plan = (f.plan || []).map((n, i) => ({name: n, h: partHeight(n, (f.planH || [])[i], w)}));
-  if (f.kind === 'pending') return plan.length ? plan : [{name: 'Being drawn', h: partHeight('nav', 0, w)}, {name: '', h: partHeight('hero', 0, w)}, {name: '', h: partHeight('', 0, w)}];
-  if (f.kind !== 'page' || !building(f)) return [];
-  const miss = missing(f);
-  return plan.filter(p => miss.includes(p.name));
-}
-const skelPad = w => Math.round(Math.max(16, Math.min(48, w * 0.034)));
-const SKEL_CSS = '#seenry-skel{display:flex;flex-direction:column;gap:16px;pointer-events:none;box-sizing:border-box}#seenry-skel>div{position:relative;flex:none;overflow:hidden;box-sizing:border-box;border-radius:12px;background:rgb(128 128 128 / .1);padding:14px 16px;font:500 12px/1.2 ui-rounded,system-ui,sans-serif;letter-spacing:0;text-align:left;color:rgb(128 128 128 / .95)}#seenry-skel>div::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgb(255 255 255 / .22) 50%,transparent 65%) 0 0/250% 100% no-repeat;animation:seenry-shimmer 1.8s linear infinite}@keyframes seenry-shimmer{from{background-position:130% 0}to{background-position:-30% 0}}:root[data-theme="dark"] #seenry-skel>div::after{background-image:linear-gradient(100deg,transparent 35%,rgb(255 255 255 / .06) 50%,transparent 65%)}@media (prefers-reduced-motion: reduce){#seenry-skel>div::after{animation:none;opacity:0}}';
+// ---------- Live build: each save patched into the open screen, showing only what the agent has written ----------
 const CURSOR_CSS = '#seenry-cursor{position:absolute;left:0;top:0;z-index:2147483647;pointer-events:none;transform-origin:0 0;transition:transform 420ms cubic-bezier(.23,1,.32,1),opacity 300ms;display:flex;align-items:flex-start}#seenry-cursor svg{width:15px;height:15px;flex:none;filter:drop-shadow(0 1px 1.5px rgb(0 0 0 / .25))}#seenry-cursor span{height:22px;margin:11px 0 0 -2px;padding:0 9px;border-radius:3px 99px 99px 99px;background:' + LIVE + ';color:#fff;font:500 12px/22px "Open Runde",ui-rounded,system-ui,sans-serif;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 0 1px rgb(255 255 255 / .6),0 4px 12px rgb(43 99 232 / .28)}#seenry-cursor.flip{flex-direction:row-reverse}#seenry-cursor.flip span{margin:11px -2px 0 0;border-radius:99px 3px 99px 99px}#seenry-cursor.flip svg{transform:scaleX(-1)}';
 function liveCss(doc) {
   if (doc.getElementById('seenry-live-css')) return;
-  const st = doc.createElement('style'); st.id = 'seenry-live-css'; st.textContent = SKEL_CSS + CURSOR_CSS + '[data-seenry-problem]{outline:2px dashed #e5484d!important;outline-offset:2px!important}';
+  const st = doc.createElement('style'); st.id = 'seenry-live-css'; st.textContent = CURSOR_CSS + '[data-seenry-problem]{outline:2px dashed #e5484d!important;outline-offset:2px!important}';
   (doc.head || doc.documentElement).append(st);
 }
 // The agent's insertion point: the <!-- next --> marker, else the end of the body.
@@ -1414,51 +1391,15 @@ function marker(doc) {
   for (let n = walk.nextNode(); n; n = walk.nextNode()) if (n.nodeValue.trim().toLowerCase() === 'next') return n;
   return null;
 }
-const skelTop = doc => { const b = doc && doc.getElementById('seenry-skel'); return b ? b.getBoundingClientRect().top : null; };
-// Brings the screen's skeleton in line with the parts still missing. Returns true when it changed.
-function syncSkel(doc, f, force) {
-  if (!doc || !doc.body) return false;
-  const want = skelWant(f), key = JSON.stringify(want);
-  if (doc.__skel === key && !force) return false;
-  doc.__skel = key;
-  let box = doc.getElementById('seenry-skel');
-  if (!want.length) {
-    if (box) { box.id = 'seenry-skel-gone'; if (REDUCED.matches) box.remove(); else box.animate([{opacity: 1}, {opacity: 0}], {duration: 220, easing: 'ease-out'}).finished.then(() => box.remove(), () => box.remove()); }
-    return true;
-  }
-  liveCss(doc);
-  if (!box) {
-    box = doc.createElement('div'); box.id = 'seenry-skel'; box.setAttribute('aria-hidden', 'true');
-    const pad = skelPad(size(f)[0]); box.style.padding = '16px ' + pad + 'px 40px';
-    const m = marker(doc); if (m) m.before(box); else doc.body.append(box);
-  }
-  for (const b of [...box.children]) if (!want.some(w => w.name === b.dataset.name)) b.remove();
-  want.forEach((w, i) => {
-    let b = [...box.children].find(x => x.dataset.name === w.name);
-    if (!b) { b = doc.createElement('div'); b.dataset.name = w.name; b.textContent = w.name; }
-    b.style.height = w.h + 'px';
-    if (box.children[i] !== b) box.insertBefore(b, box.children[i] || null);
-  });
-  return true;
-}
-// What is below a landed part slides to its new place instead of jumping.
-function flip(doc, y0) {
-  const b = doc && doc.getElementById('seenry-skel');
-  if (!b || y0 == null || REDUCED.matches) return;
-  const dy = y0 - b.getBoundingClientRect().top;
-  if (Math.abs(dy) > 1) b.animate([{transform: 'translateY(' + dy + 'px)'}, {transform: 'none'}], {duration: 380, easing: 'cubic-bezier(.23,1,.32,1)'});
-}
 const invFor = fr => { const m = (fr.style.transform || '').match(/scale\(([\d.]+)\)/), k = fr.closest('#world') ? (glideZ == null ? view.z : glideZ) : m ? Number(m[1]) : 1; return Math.min(8, 1 / Math.max(0.05, k)); };
-// Seenry's cursor waits on the block where the next part will land, so it is always a step ahead of the build.
+// Seenry's cursor sits on the part that just landed, so the person sees where the build is.
 function pointAt(fr, f, n, glideTo) {
   const doc = fr.contentDocument, win = doc.defaultView;
   liveCss(doc);
   let cur = doc.getElementById('seenry-cursor'); const fresh = !cur;
   if (!cur) { cur = doc.createElement('div'); cur.id = 'seenry-cursor'; cur.setAttribute('aria-hidden', 'true'); cur.innerHTML = ARROW + '<span>Seenry</span>'; doc.body.append(cur); }
   clearTimeout(cur.__bye); cur.style.opacity = '1';
-  // Aim at where the block ends up, not where its slide starts.
-  const box = n.getBoundingClientRect(), skel = n.closest('#seenry-skel'), m = skel ? win.getComputedStyle(skel).transform.match(/matrix\(([^)]+)\)/) : null;
-  const dy = m ? Number(m[1].split(',')[5]) || 0 : 0, r = {left: box.left, top: box.top - dy, width: box.width, height: box.height, bottom: box.bottom - dy};
+  const r = n.getBoundingClientRect();
   if (r.top > win.innerHeight * 0.8 || r.bottom < 0) win.scrollTo({top: Math.max(0, r.top + win.scrollY - win.innerHeight * 0.3), behavior: REDUCED.matches ? 'auto' : 'smooth'});
   if (glideTo !== false) followUnit(fr, f, r);
   const inv = invFor(fr);
@@ -1469,34 +1410,15 @@ function pointAt(fr, f, n, glideTo) {
 function aim(fr, f) {
   let doc; try { doc = fr.contentDocument; } catch (e) { return; }
   if (!doc || !doc.body || replaying.has(f.id)) return;
-  const next = doc.querySelector('#seenry-skel > div');
-  if (next) return pointAt(fr, f, next);
   const cur = doc.getElementById('seenry-cursor');
+  if (cur && building(f)) return;
   if (cur) { clearTimeout(cur.__bye); cur.__bye = setTimeout(() => { cur.style.opacity = '0'; setTimeout(() => { if (cur.style.opacity === '0') cur.remove(); }, 400); }, 1600); }
 }
-function fillBlank(b, f) {
-  if (!b) return;
-  const want = skelWant(f), [w] = size(f), key = JSON.stringify(want) + w;
-  if (b.__key === key) return; b.__key = key;
-  const pad = skelPad(w), sk = el('div', {className: 'sk', style: 'width:' + w + 'px;padding:16px ' + pad + 'px 40px'}, ...want.map(p => el('div', {textContent: p.name, style: 'height:' + p.h + 'px'})));
-  const c = cursorNode(); c.style.left = 'calc(' + (pad + Math.min(48, (w - pad * 2) * 0.06)) + 'px * var(--k, 1))'; c.style.top = 'calc(' + (16 + Math.min(40, want[0].h * 0.3)) + 'px * var(--k, 1))';
-  b.replaceChildren(sk, c);
+// A planned screen with nothing written yet is an empty page, Seenry's cursor waiting at its top corner.
+function blankFor(f) {
+  const c = cursorNode(); c.style.left = 'calc(40px * var(--k, 1))'; c.style.top = 'calc(32px * var(--k, 1))';
+  return el('div', {className: 'blank'}, c);
 }
-function blankFor(f) { const b = el('div', {className: 'blank'}); fillBlank(b, f); return b; }
-function skeletons() {
-  for (const f of frames()) {
-    for (const body of [nodes[f.id] && nodes[f.id].querySelector('.body'), narrow && paneId === f.id ? $('stage').querySelector('.body') : null]) {
-      if (!body) continue;
-      if (f.kind === 'pending') { fillBlank(body.querySelector('.blank'), f); continue; }
-      const fr = body.querySelector('iframe:not([data-next])');
-      if (!fr || !fr.__ready || fr.__busy || f.kind !== 'page' || !isDesign(f.section)) continue;
-      let doc; try { doc = fr.contentDocument; } catch (e) { continue; }
-      const y0 = skelTop(doc);
-      if (syncSkel(doc, f)) { flip(doc, y0); aim(fr, f); }
-    }
-  }
-}
-const ghostAll = skeletons;
 
 function build() {
   const world = $('world'); world.replaceChildren();
@@ -1592,7 +1514,7 @@ function place() {
     node.dataset.building = building(f); node.dataset.status = status[f.id] || ''; node.dataset.archived = !!f.section.archived;
     labelFor(node, f); placeMarks(f);
   }
-  placePick(boxes); drawLinks(boxes); ghostAll();
+  placePick(boxes); drawLinks(boxes);
   if (!fitted && Object.keys(boxes).length) { fitted = true; fitDecision(); }
 }
 // Under the selected screen: the decision it asks for.
@@ -1962,7 +1884,7 @@ function gaze() {
 }
 function renderLive() {
   if (!state) return;
-  renderSide(); renderTop(); ghostAll();
+  renderSide(); renderTop();
   const a = agentNow();
   if (a.last && a.last.at !== lastAt) { const fresh = lastAt !== ''; lastAt = a.last.at; if (fresh) blink($('mark')); if (following && fresh && a.frame) show(a.frame, true); }
   gaze();
@@ -2057,7 +1979,7 @@ function swap(fr, f) {
   });
   fr.after(next);
 }
-// Every screen load goes through here: wire it up, lay its skeleton, and check its layout.
+// Every screen load goes through here: wire it up and check its layout.
 function onFrameLoad(fr, id, reveal) {
   const f = find(id);
   if (!f || !fr.isConnected) { if (reveal) reveal(); return; }
@@ -2065,7 +1987,7 @@ function onFrameLoad(fr, id, reveal) {
   fr.__ready = true; fr.__busy = false; fr.dataset.rev = f.rev;
   arm(fr, f);
   if (doc && doc.body && f.kind === 'page' && isDesign(f.section)) {
-    remember(fr, f); doc.__skel = null; syncSkel(doc, f); aim(fr, f);
+    remember(fr, f); aim(fr, f);
     const bg = c => c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent' ? c : '';
     const color = bg(getComputedStyle(doc.body).backgroundColor) || bg(getComputedStyle(doc.documentElement).backgroundColor);
     if (color) document.documentElement.style.setProperty('--screen-bg', color);
@@ -2106,22 +2028,18 @@ async function patch(fr, f) {
   const d = diffKids(doc.body, a.body, b.body);
   if (!d || d.add.some(n => n.tagName === 'SCRIPT' || n.querySelector('script'))) return null;
   fr.__text = text;
-  const skel = doc.getElementById('seenry-skel'), y0 = skelTop(doc), FOLLOWS = 4;
-  let ref = d.anchor;
-  if (skel && skel.parentNode === d.parent && (!d.after || d.after.compareDocumentPosition(skel) & FOLLOWS) && (!d.anchor || skel.compareDocumentPosition(d.anchor) & FOLLOWS)) ref = skel;
   const added = d.add.map(n => doc.importNode(n, true));
-  for (const n of added) d.parent.insertBefore(n, ref);
+  for (const n of added) d.parent.insertBefore(n, d.anchor);
   for (const n of d.gone) n.remove();
-  return {added, replaced: d.gone.length > 0, y0};
+  return {added, replaced: d.gone.length > 0};
 }
 function landed(fr, f, r) {
   fr.__busy = false; fr.dataset.rev = f.rev;
   const doc = fr.contentDocument, now = find(f.id) || f;
-  syncSkel(doc, now, true); flip(doc, r.y0);
   if (!REDUCED.matches) for (const n of r.added) if (n.animate) n.animate([{opacity: 0, transform: 'translateY(' + (r.replaced ? 0 : 10) + 'px)'}, {opacity: 1, transform: 'none'}], {duration: r.replaced ? 200 : 360, easing: 'cubic-bezier(.23,1,.32,1)'});
   applyView(doc); snaps.set(fr, snapOf(doc));
   const last = r.added[r.added.length - 1];
-  if (!doc.querySelector('#seenry-skel > div') && last && building(now)) pointAt(fr, now, last);
+  if (last) pointAt(fr, now, last);
   aim(fr, now);
   setTimeout(() => { if (fr.__measure) fr.__measure(); }, 420);
   check(fr, now); placeMarks(now);
@@ -2138,7 +2056,7 @@ function refresh(body, f, old) {
     if (r) landed(fr, f, r); else { fr.__busy = false; swap(fr, f); }
   }, () => { fr.__busy = false; swap(fr, f); });
 }
-// The first save of a planned screen: its shell loads under the placeholder, which fades once the skeleton is in place.
+// The first save of a planned screen: its shell loads under the empty placeholder, which then fades.
 function land(body, f) {
   const blank = body.querySelector('.blank'), frame = body.closest('.frame');
   if (frame) { frame.dataset.kind = 'page'; const cap = frame.querySelector('.cap'); if (cap) { cap.textContent = f.caption || ''; cap.title = f.axis || f.note || ''; } }
@@ -2291,7 +2209,6 @@ function scalePane() {
   const W = $('stage').clientWidth, H = $('stage').clientHeight, [w] = size(f), k = Math.min(1, W / w);
   Object.assign(body.style, {width: Math.round(w * k) + 'px', height: H + 'px'});
   for (const fr of body.querySelectorAll('iframe')) Object.assign(fr.style, {width: w + 'px', height: Math.round(H / k) + 'px', transform: 'scale(' + k + ')', transformOrigin: '0 0'});
-  const sk = body.querySelector('.sk'); if (sk) sk.style.transform = 'scale(' + k + ')';
   body.style.setProperty('--k', k);
 }
 new ResizeObserver(() => { if (narrow) scalePane(); }).observe($('stage'));
