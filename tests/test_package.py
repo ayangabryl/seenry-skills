@@ -27,16 +27,16 @@ class Installation(unittest.TestCase):
     def test_dry_run_keeps_unrelated_skills(self):
         unrelated = self.home / '.codex/skills/unrelated'
         unrelated.mkdir(parents=True)
-        (unrelated / 'SKILL.md').write_text('keep me')
+        (unrelated / 'SKILL.md').write_text('keep me', encoding='utf-8')
         plan = installer.plan(self.home)
         self.assertEqual(plan['status'], 'planned')
         self.assertEqual(plan['old'], [])
-        self.assertEqual((unrelated / 'SKILL.md').read_text(), 'keep me')
+        self.assertEqual((unrelated / 'SKILL.md').read_text(encoding='utf-8'), 'keep me')
         self.assertFalse((self.home / '.agents/skills/seenry').exists())
     def test_shared_install_idempotence_and_rollback(self):
         unrelated = self.home / '.codex/skills/unrelated'
         unrelated.mkdir(parents=True)
-        (unrelated / 'SKILL.md').write_text('keep me')
+        (unrelated / 'SKILL.md').write_text('keep me', encoding='utf-8')
         plan = installer.plan(self.home)
         manifest = installer.apply(plan)
         for name in installer.NAMES:
@@ -46,7 +46,7 @@ class Installation(unittest.TestCase):
         self.assertEqual(installer.plan(self.home)['status'], 'unchanged')
         installer.undo(plan, manifest.parent)
         self.assertFalse((self.home / '.agents/skills/seenry').exists())
-        self.assertEqual((unrelated / 'SKILL.md').read_text(), 'keep me')
+        self.assertEqual((unrelated / 'SKILL.md').read_text(encoding='utf-8'), 'keep me')
     def test_copy_mode_and_upgrade_rollback(self):
         first = installer.plan(self.home, link_mode='copy')
         installer.apply(first)
@@ -86,7 +86,7 @@ class Installation(unittest.TestCase):
     def test_replace_archives_retired_skills_and_rollback_restores_them(self):
         retired = self.home / '.claude/skills' / installer.RETIRED[0]
         retired.mkdir(parents=True)
-        (retired / 'SKILL.md').write_text('old specialist')
+        (retired / 'SKILL.md').write_text('old specialist', encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'Retired Seenry skill'):
             installer.plan(self.home)
         plan = installer.plan(self.home, replace=True)
@@ -94,7 +94,7 @@ class Installation(unittest.TestCase):
         self.assertFalse(retired.exists())
         self.assertEqual(installer.plan(self.home)['status'], 'unchanged')
         installer.undo(plan, manifest.parent)
-        self.assertEqual((retired / 'SKILL.md').read_text(), 'old specialist')
+        self.assertEqual((retired / 'SKILL.md').read_text(encoding='utf-8'), 'old specialist')
     def test_missing_source_rejected_before_install(self):
         with self.assertRaises(ValueError):
             installer.plan(self.home, source=self.home)
@@ -104,13 +104,13 @@ class Installation(unittest.TestCase):
         installer.apply(first)
         source = self.home / 'updated'
         shutil.copytree(ROOT / 'skills', source / 'skills')
-        (source / 'skills/seenry/SKILL.md').write_text('updated skill')
+        (source / 'skills/seenry/SKILL.md').write_text('updated skill', encoding='utf-8')
         second = installer.plan(self.home, source=source, replace=True)
         manifest = installer.apply(second)
         shutil.rmtree(manifest.parent / 'entries/agents/seenry')
         with self.assertRaisesRegex(ValueError, 'Missing archive'):
             installer.undo(second, manifest.parent)
-        self.assertEqual((self.home / '.agents/skills/seenry/SKILL.md').read_text(), 'updated skill')
+        self.assertEqual((self.home / '.agents/skills/seenry/SKILL.md').read_text(encoding='utf-8'), 'updated skill')
 
 class AgentInstructions(unittest.TestCase):
     def setUp(self):
@@ -127,45 +127,45 @@ class AgentInstructions(unittest.TestCase):
         self.assertLessEqual(len(inner.split()), 150)
     def test_insert_into_missing_file(self):
         self.run_install()
-        self.assertEqual((self.project / 'AGENTS.md').read_text(), self.block + '\n')
+        self.assertEqual((self.project / 'AGENTS.md').read_text(encoding='utf-8'), self.block + '\n')
         self.assertFalse((self.project / 'CLAUDE.md').exists())
     def test_insert_into_existing_file_keeps_content(self):
-        (self.project / 'AGENTS.md').write_text('# Rules\n\nUse tabs.\n')
+        (self.project / 'AGENTS.md').write_text('# Rules\n\nUse tabs.\n', encoding='utf-8')
         self.run_install()
-        self.assertEqual((self.project / 'AGENTS.md').read_text(), '# Rules\n\nUse tabs.\n\n' + self.block + '\n')
+        self.assertEqual((self.project / 'AGENTS.md').read_text(encoding='utf-8'), '# Rules\n\nUse tabs.\n\n' + self.block + '\n')
     def test_update_in_place_touches_only_the_block(self):
         before, after = '# Rules\n\nUse tabs.\n\n', '\n\n## Later\n\nKeep me.\n'
         stale = installer.START + '\nold index\n' + installer.END
-        (self.project / 'AGENTS.md').write_text(before + stale + after)
+        (self.project / 'AGENTS.md').write_text(before + stale + after, encoding='utf-8')
         self.run_install()
-        self.assertEqual((self.project / 'AGENTS.md').read_text(), before + self.block + after)
+        self.assertEqual((self.project / 'AGENTS.md').read_text(encoding='utf-8'), before + self.block + after)
     def test_idempotent(self):
-        (self.project / 'AGENTS.md').write_text('# Rules\n')
+        (self.project / 'AGENTS.md').write_text('# Rules\n', encoding='utf-8')
         self.run_install()
-        once = (self.project / 'AGENTS.md').read_text()
+        once = (self.project / 'AGENTS.md').read_text(encoding='utf-8')
         self.assertEqual(installer.plan_instructions(installer.instruction_targets(self.project), self.block), [])
         self.run_install()
-        self.assertEqual((self.project / 'AGENTS.md').read_text(), once)
+        self.assertEqual((self.project / 'AGENTS.md').read_text(encoding='utf-8'), once)
     def test_removal_restores_content_and_deletes_files_it_created(self):
-        (self.project / 'AGENTS.md').write_text('# Rules\n\nUse tabs.\n')
-        (self.project / 'CLAUDE.md').write_text('# Claude\n')
+        (self.project / 'AGENTS.md').write_text('# Rules\n\nUse tabs.\n', encoding='utf-8')
+        (self.project / 'CLAUDE.md').write_text('# Claude\n', encoding='utf-8')
         self.run_install()
-        self.assertIn(installer.START, (self.project / 'CLAUDE.md').read_text())
+        self.assertIn(installer.START, (self.project / 'CLAUDE.md').read_text(encoding='utf-8'))
         self.run_install(remove=True)
-        self.assertEqual((self.project / 'AGENTS.md').read_text(), '# Rules\n\nUse tabs.\n')
-        self.assertEqual((self.project / 'CLAUDE.md').read_text(), '# Claude\n')
+        self.assertEqual((self.project / 'AGENTS.md').read_text(encoding='utf-8'), '# Rules\n\nUse tabs.\n')
+        self.assertEqual((self.project / 'CLAUDE.md').read_text(encoding='utf-8'), '# Claude\n')
         fresh = self.project / 'fresh'
         fresh.mkdir()
         installer.write_instructions(installer.plan_instructions(installer.instruction_targets(fresh), self.block))
         installer.write_instructions(installer.plan_instructions(installer.instruction_targets(fresh, remove=True), self.block))
         self.assertEqual(list(fresh.iterdir()), [])
     def test_claude_md_that_imports_agents_md_gets_no_copy(self):
-        (self.project / 'CLAUDE.md').write_text('@AGENTS.md\n\nMore.\n')
+        (self.project / 'CLAUDE.md').write_text('@AGENTS.md\n\nMore.\n', encoding='utf-8')
         self.run_install()
-        self.assertEqual((self.project / 'CLAUDE.md').read_text(), '@AGENTS.md\n\nMore.\n')
-        self.assertIn(installer.START, (self.project / 'AGENTS.md').read_text())
+        self.assertEqual((self.project / 'CLAUDE.md').read_text(encoding='utf-8'), '@AGENTS.md\n\nMore.\n')
+        self.assertIn(installer.START, (self.project / 'AGENTS.md').read_text(encoding='utf-8'))
     def test_unbalanced_markers_are_left_alone(self):
-        (self.project / 'AGENTS.md').write_text('x\n' + installer.START + '\nhalf\n')
+        (self.project / 'AGENTS.md').write_text('x\n' + installer.START + '\nhalf\n', encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'Unbalanced'):
             installer.plan_instructions(installer.instruction_targets(self.project), self.block)
     def test_dry_run_diff_writes_nothing(self):
