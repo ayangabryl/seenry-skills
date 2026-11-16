@@ -1,0 +1,17 @@
+[
+  "add a settings page",
+  "we need a pricing page with three plans",
+  "make a waitlist signup form on the home page",
+  "show something useful when the projects list is empty",
+  "add onboarding for new users, 3 steps",
+  "the dashboard looks kind of bland, can you improve it",
+  "add a dark mode toggle",
+  "show a toast when a project is saved",
+  "make the sidebar collapsible",
+  "create a 404 page",
+  "add a profile page where people can change their name and avatar",
+  "show a loading state while projects load",
+  "add a chart of weekly signups to the dashboard",
+  "rework the landing page so it doesn't look like every other startup",
+  "ask for confirmation before deleting a project"
+]

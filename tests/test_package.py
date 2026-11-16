@@ -112,5 +112,71 @@ class Installation(unittest.TestCase):
             installer.undo(second, manifest.parent)
         self.assertEqual((self.home / '.agents/skills/seenry/SKILL.md').read_text(), 'updated skill')
 
+class AgentInstructions(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.project = Path(self.temp.name)
+        self.block = installer.index_block('~/.agents/skills')
+    def tearDown(self):
+        self.temp.cleanup()
+    def run_install(self, remove=False):
+        targets = installer.instruction_targets(self.project, remove=remove)
+        installer.write_instructions(installer.plan_instructions(targets, self.block))
+    def test_index_stays_short(self):
+        inner = self.block.split('\n', 1)[1].rsplit('\n', 1)[0]
+        self.assertLessEqual(len(inner.split()), 150)
+    def test_insert_into_missing_file(self):
+        self.run_install()
+        self.assertEqual((self.project / 'AGENTS.md').read_text(), self.block + '\n')
+        self.assertFalse((self.project / 'CLAUDE.md').exists())
+    def test_insert_into_existing_file_keeps_content(self):
+        (self.project / 'AGENTS.md').write_text('# Rules\n\nUse tabs.\n')
+        self.run_install()
+        self.assertEqual((self.project / 'AGENTS.md').read_text(), '# Rules\n\nUse tabs.\n\n' + self.block + '\n')
+    def test_update_in_place_touches_only_the_block(self):
+        before, after = '# Rules\n\nUse tabs.\n\n', '\n\n## Later\n\nKeep me.\n'
+        stale = installer.START + '\nold index\n' + installer.END
+        (self.project / 'AGENTS.md').write_text(before + stale + after)
+        self.run_install()
+        self.assertEqual((self.project / 'AGENTS.md').read_text(), before + self.block + after)
+    def test_idempotent(self):
+        (self.project / 'AGENTS.md').write_text('# Rules\n')
+        self.run_install()
+        once = (self.project / 'AGENTS.md').read_text()
+        self.assertEqual(installer.plan_instructions(installer.instruction_targets(self.project), self.block), [])
+        self.run_install()
+        self.assertEqual((self.project / 'AGENTS.md').read_text(), once)
+    def test_removal_restores_content_and_deletes_files_it_created(self):
+        (self.project / 'AGENTS.md').write_text('# Rules\n\nUse tabs.\n')
+        (self.project / 'CLAUDE.md').write_text('# Claude\n')
+        self.run_install()
+        self.assertIn(installer.START, (self.project / 'CLAUDE.md').read_text())
+        self.run_install(remove=True)
+        self.assertEqual((self.project / 'AGENTS.md').read_text(), '# Rules\n\nUse tabs.\n')
+        self.assertEqual((self.project / 'CLAUDE.md').read_text(), '# Claude\n')
+        fresh = self.project / 'fresh'
+        fresh.mkdir()
+        installer.write_instructions(installer.plan_instructions(installer.instruction_targets(fresh), self.block))
+        installer.write_instructions(installer.plan_instructions(installer.instruction_targets(fresh, remove=True), self.block))
+        self.assertEqual(list(fresh.iterdir()), [])
+    def test_claude_md_that_imports_agents_md_gets_no_copy(self):
+        (self.project / 'CLAUDE.md').write_text('@AGENTS.md\n\nMore.\n')
+        self.run_install()
+        self.assertEqual((self.project / 'CLAUDE.md').read_text(), '@AGENTS.md\n\nMore.\n')
+        self.assertIn(installer.START, (self.project / 'AGENTS.md').read_text())
+    def test_unbalanced_markers_are_left_alone(self):
+        (self.project / 'AGENTS.md').write_text('x\n' + installer.START + '\nhalf\n')
+        with self.assertRaisesRegex(ValueError, 'Unbalanced'):
+            installer.plan_instructions(installer.instruction_targets(self.project), self.block)
+    def test_dry_run_diff_writes_nothing(self):
+        changes = installer.plan_instructions(installer.instruction_targets(self.project), self.block)
+        self.assertIn('+' + installer.START, installer.diff_instructions(changes))
+        self.assertFalse((self.project / 'AGENTS.md').exists())
+    def test_global_files_only_on_request(self):
+        home = self.project / 'home'
+        self.assertEqual([f.name for f, _ in installer.instruction_targets(self.project)], ['AGENTS.md'])
+        names = [f.relative_to(home).as_posix() for f, _ in installer.instruction_targets(home=home)]
+        self.assertEqual(names, ['.codex/AGENTS.md', '.claude/CLAUDE.md'])
+
 if __name__ == '__main__':
     unittest.main()
