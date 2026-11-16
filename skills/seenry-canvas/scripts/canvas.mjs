@@ -15,13 +15,19 @@
  *  node canvas.mjs log "what changed and why" [dir]       add a line to the change log on the cover
  *  node canvas.mjs handoff [dir]           write HANDOFF.md: screens, flows, specs, tokens, open questions
  *  node canvas.mjs round "what changed" [dir]   after applying feedback: resolve picks, log it, set every section's status
+ *  node canvas.mjs round "what changed" --unattended "why nobody can review" [dir]   record a run with no person: nothing is approved
  *  node canvas.mjs init [dir] --library <path>   link a shared design system (another canvas folder) instead of local tokens
+ *  node canvas.mjs plan <file>… [--dir dir]   name the screens you are about to draw: each shows as a placeholder until its file exists
+ *  node canvas.mjs say "what you are doing" [--frame id] [dir]   one line on the canvas's live activity feed, for the person watching
  *
  *  The agent's eyes (Playwright): screens are ids or section names; none means every screen. --dir picks the canvas.
  *  node canvas.mjs render  [screens] [--device phone|tablet|desktop|all] [--mode light|dark|both] [--scale 2]   PNGs to look at
  *  node canvas.mjs tree    [screens]     the layout: boxes, text, the variable behind each style, specs, links
  *  node canvas.mjs verify  [screens]     overflow, clipped text, contrast in both modes, small text and targets, names,
- *                                        broken links, detached values, components drawn differently across screens
+ *                                        broken links, detached values, components drawn differently across screens; for
+ *                                        options, the teardown, a pair render beside a reference, and the execution bar
+ *                                        (product view inventory, hue families, headline lines and size)
+ *  node canvas.mjs verify --quick        the rule-based checks only, in seconds: use it while iterating, never before showing
  *  node canvas.mjs diff    [screens]     what visibly changed since the last render
  *  node canvas.mjs compare <screen> <url>   the built screen against its design: pixels, missing text, style differences
  *  --json on list, feedback, render, tree, verify, diff and compare prints machine-readable output.
@@ -33,8 +39,10 @@
  *    01-onboarding/01-welcome.phone.html   a folder is a section, a file is a frame, numbers set the order
  *    02-home.options/a.html, b.html        a folder ending .options holds alternatives: the person picks one
  *    refs/*.png                            reference screenshots, shown as their own section
+ *    components.css                        the shared components every screen links; "@component" lines generate their sheet
  *  A file ending .phone.html, .tablet.html or .laptop.html renders at that device size; anything else is desktop.
  *  A frame's name is its <title>; <meta name="seenry-note" content="..."> is the line shown under it.
+ *  <meta name="seenry-fidelity" content="sketch"> marks a one-screen sketch: the first screen only, extended after the pick.
  *  A link from one screen to another (<a href="02-next.phone.html">) is a prototype connection: the canvas draws it
  *  and Present mode follows it, like a Figma prototype.
  *  Plain Node, no packages, bound to 127.0.0.1. */
@@ -49,12 +57,12 @@ const here = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'open';
 const flag = (name, fallback) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? argv[i + 1] : fallback; };
-const SWITCHES = new Set(['--no-browser', '--json']);
+const SWITCHES = new Set(['--no-browser', '--browser', '--json', '--no-judge', '--quick']);
 // Arguments after the command that are not a --flag or a flag's value.
 const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !SWITCHES.has(all[i - 1])));
-const ARGS = {status: 2, resolve: 1, archive: 1, log: 1, round: 1}[command] || 0;
+const ARGS = {status: 2, resolve: 1, archive: 1, log: 1, round: 1, say: 1}[command] || 0;
 // Commands that take screens as arguments find the canvas with --dir; the others also take it as the next argument.
-const FRAME_COMMANDS = new Set(['render', 'tree', 'verify', 'diff', 'compare']);
+const FRAME_COMMANDS = new Set(['render', 'tree', 'verify', 'diff', 'compare', 'pair', 'plan']);
 const dir = resolve(flag('dir') || (FRAME_COMMANDS.has(command) ? '' : positional[ARGS]) || '.seenry/canvas');
 const pidFile = join(dir, '.canvas.json');
 const waitFile = join(dir, '.waiting.json');
@@ -352,7 +360,90 @@ function init() {
     const manifest = readManifest(); manifest.library = relative(dir, target) || '.'; writeManifest(manifest);
   }
   for (const [name, text] of Object.entries(KIT)) if (!existsSync(join(dir, name)) && !(lib && name === 'tokens.css')) writeFileSync(join(dir, name), text);
+  const manifest = readManifest();
+  if (!manifest.error && !manifest.started) { manifest.started = new Date().toISOString(); writeManifest(manifest); }
   writeFoundations();
+}
+
+/** The live activity feed: what the agent is doing, one JSON line each, shown on the canvas as it happens. Never fails a command. */
+const activityFile = () => join(dir, '.activity.jsonl');
+function activity(kind, text, frame = '') {
+  try {
+    if (!existsSync(dir)) return;
+    const line = JSON.stringify({at: new Date().toISOString(), kind, text: String(text).slice(0, 300), frame: String(frame || '')}) + '\n';
+    writeFileSync(activityFile(), line, {flag: 'a'});
+    if (statSync(activityFile()).size > 200000) writeFileSync(activityFile(), readActivity(400).map(e => JSON.stringify(e)).join('\n') + '\n');
+  } catch {}
+}
+function readActivity(n = 40) {
+  try { return readFileSync(activityFile(), 'utf8').trim().split('\n').slice(-n).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean); } catch { return []; }
+}
+
+/** The app the agent runs in, when it has a pane that can show a local page beside the chat. */
+function hostApp() {
+  const e = process.env, bundle = e.__CFBundleIdentifier || '';
+  if (e.T3CODE_THREAD_ID || e.CLAUDE_CODE_ENTRYPOINT === 't3-code' || /t3code/i.test(bundle)) return 'T3 Code';
+  if (/^claude-desktop/.test(e.CLAUDE_CODE_ENTRYPOINT || '') || /com\.anthropic\.claude/i.test(bundle)) return 'the Claude app';
+  if (/com\.openai\.codex/i.test(bundle)) return 'the Codex app';
+  return '';
+}
+
+/** Shared components: components.css names each one in a comment, "@component Name | <markup> | <markup>". */
+function readComponents(root = dir) {
+  let css = '';
+  try { css = readFileSync(join(root, 'components.css'), 'utf8'); } catch { return []; }
+  const out = [];
+  for (const m of css.matchAll(/\/\*\s*@component\s+([^|*]+?)\s*\|([\s\S]*?)\*\//g)) {
+    const examples = m[2].split(/\s\|\s/).map(x => x.trim()).filter(Boolean);
+    const classes = [...new Set(examples.flatMap(x => [...x.matchAll(/\bclass\s*=\s*["']([^"']+)["']/g)].flatMap(c => c[1].trim().split(/\s+/))))];
+    out.push({name: m[1].trim(), examples, classes});
+  }
+  return out;
+}
+
+/** The class names components.css defines, so a screen that redefines one can be caught. */
+function componentClasses(root = dir) {
+  let css = '';
+  try { css = readFileSync(join(root, 'components.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ''); } catch { return new Set(); }
+  const out = new Set();
+  for (const m of css.matchAll(/(^|[},])\s*([^{}@]+)\{/g)) for (const c of m[2].matchAll(/\.([a-zA-Z_][\w-]*)/g)) out.add(c[1]);
+  return out;
+}
+
+/** The Components sheet is generated from components.css, like Foundations from tokens.css: never edited by hand. */
+function writeComponents() {
+  if (!existsSync(dir)) return;
+  const path = join(dir, '_components.html');
+  if (!existsSync(join(dir, 'components.css'))) return;
+  const list = readComponents(), esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const tokens = libraryDir(readManifest()) && !existsSync(join(dir, 'tokens.css')) ? 'library/tokens.css' : 'tokens.css';
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Components</title>
+<link rel="stylesheet" href="${tokens}">${existsSync(join(dir, 'fonts.css')) ? '\n<link rel="stylesheet" href="fonts.css">' : ''}
+<link rel="stylesheet" href="components.css">
+<style>
+.seenry-sheet { margin: 0; padding: 64px 72px; background: var(--color-bg, #fff); color: var(--color-text, #111); }
+.seenry-sheet-head { font: 600 40px/1.1 ui-sans-serif, system-ui, sans-serif; margin: 0 0 8px; letter-spacing: -0.02em; }
+.seenry-sheet-lede, .seenry-sheet-meta { font: 14px/1.5 ui-sans-serif, system-ui, sans-serif; color: var(--color-text-secondary, #666); margin: 0; }
+.seenry-sheet-row { display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: start; padding: 28px 0; border-top: 1px solid var(--color-border, rgb(0 0 0 / .12)); }
+.seenry-sheet-row:first-of-type { margin-top: 40px; }
+.seenry-sheet-name { font: 600 16px/1.3 ui-sans-serif, system-ui, sans-serif; margin: 0 0 4px; }
+.seenry-sheet-meta { font: 12px/1.5 ui-monospace, "SF Mono", Menlo, monospace; overflow-wrap: anywhere; }
+.seenry-sheet-examples { display: flex; flex-wrap: wrap; gap: 20px 24px; align-items: center; }
+</style>
+</head>
+<body class="seenry-sheet">
+<h1 class="seenry-sheet-head">Components</h1>
+<p class="seenry-sheet-lede">${list.length ? `${list.length} shared component${list.length === 1 ? '' : 's'}, drawn live from components.css. Change the file, never a copy in a screen.` : 'components.css has no "@component" lines yet. Add one comment line above each component: /* @component Button | &lt;button class="btn"&gt;Save&lt;/button&gt; */'}</p>
+${list.map(c => `<section class="seenry-sheet-row"><div><h2 class="seenry-sheet-name">${esc(c.name)}</h2><p class="seenry-sheet-meta">${c.classes.map(x => '.' + esc(x)).join(' ')}</p></div><div class="seenry-sheet-examples">${c.examples.join('\n')}</div></section>`).join('\n')}
+</body>
+</html>
+`;
+  try { if (!existsSync(path) || readFileSync(path, 'utf8') !== html) writeFileSync(path, html); } catch {}
 }
 
 /** The Foundations page is generated: it reads tokens.css live, so it is rewritten on every start, never edited. */
@@ -364,6 +455,7 @@ function writeFoundations() {
     const path = join(root, '_foundations.html');
     try { if (!existsSync(path) || readFileSync(path, 'utf8') !== FOUNDATIONS) writeFileSync(path, FOUNDATIONS); } catch {}
   }
+  writeComponents();
 }
 
 function waiting() {
@@ -441,7 +533,7 @@ function frameFrom(folder, file, root = dir, prefix = '') {
   const {title, note, meta} = head(join(root, rel));
   const [w, h] = DEVICES[device];
   return {id: prefix + idFor(folder, file), kind: 'page', src: prefix + rel, name: title || pretty(clean), note, device, w, h, rev: mtime(join(root, rel)), links: linksOf(folder, file, root), specs: specsIn(join(root, rel)).length,
-    axis: meta.axis || '', wins: meta.wins || '', cost: meta.cost || '', risk: /^(safe|bold)$/i.test(meta.risk || '') ? meta.risk.toLowerCase() : '', ask: (meta.ask || '').split('|').map(s => s.trim()).filter(Boolean).slice(0, 4)};
+    axis: meta.axis || '', wins: meta.wins || '', cost: meta.cost || '', risk: /^(safe|bold)$/i.test(meta.risk || '') ? meta.risk.toLowerCase() : '', ask: (meta.ask || '').split('|').map(s => s.trim()).filter(Boolean).slice(0, 4), sketch: /^sketch$/i.test(meta.fidelity || '')};
 }
 
 /** Handoff annotations: elements a screen marks with data-spec="…". */
@@ -460,7 +552,8 @@ function specsIn(path) {
 function readReview() { try { return JSON.parse(readFileSync(join(dir, 'review.json'), 'utf8')); } catch { return {frames: {}}; } }
 
 /** The canvas content, read from the folder every time: sections, frames, and the last feedback. */
-function readState() {
+function readState({pending = false} = {}) {
+  writeComponents();
   const manifest = readManifest(), manifestPath = join(dir, 'canvas.json'), library = libraryDir(manifest);
   const entries = existsSync(dir) ? readdirSync(dir, {withFileTypes: true}).filter(e => !e.name.startsWith('.')).sort((a, b) => a.name.localeCompare(b.name, 'en', {numeric: true})) : [];
   const htmlIn = folder => readdirSync(join(dir, folder)).filter(f => /\.html$/i.test(f)).sort((a, b) => a.localeCompare(b, 'en', {numeric: true}));
@@ -478,6 +571,9 @@ function readState() {
   if (existsSync(join(dir, '_foundations.html')) && existsSync(join(dir, 'tokens.css'))) {
     sections.push({id: 'foundations', name: 'Foundations', choose: false, system: true, frames: [{id: 'foundations', kind: 'page', src: '_foundations.html', name: 'Foundations', note: 'Variables, text styles, fonts, effects and grids, read live from tokens.css', device: 'desktop', w: 1440, h: 900, rev: mtime(join(dir, 'tokens.css')), links: []}]});
   }
+  if (existsSync(join(dir, '_components.html')) && existsSync(join(dir, 'components.css'))) {
+    sections.push({id: 'components', name: 'Components', choose: false, system: true, frames: [{id: 'components', kind: 'page', src: '_components.html', name: 'Components', note: 'Every shared component, drawn live from components.css', device: 'desktop', w: 1440, h: 900, rev: mtime(join(dir, 'components.css')), links: []}]});
+  }
   if (loose.length) sections.push({id: 'screens', name: 'Screens', choose: false, frames: loose});
   for (const entry of entries) {
     if (!entry.isDirectory() || ['refs', 'assets', 'fonts', 'node_modules', 'archive', 'library'].includes(entry.name)) continue;
@@ -487,6 +583,17 @@ function readState() {
     // 00-identity holds type specimens and color studies: candidates set by hand, not screens on the token system.
     const study = id === '00-identity';
     sections.push({id, name: study ? 'Identity studies' : pretty(id), choose: choose || study, study, frames});
+  }
+  // Screens the agent has named but not written yet: the page shows each as a placeholder, so the person sees the work arrive.
+  if (pending) for (const rel of (Array.isArray(manifest.planned) ? manifest.planned : []).map(String)) {
+    const parts = rel.split('/');
+    if (parts.length > 2 || !/\.html$/i.test(rel) || !inside(rel) || existsSync(join(dir, rel))) continue;
+    const [folder, name] = parts.length === 2 ? parts : ['', parts[0]];
+    const stem = name.replace(/\.html$/i, ''), device = Object.keys(DEVICES).find(d => stem.toLowerCase().endsWith('.' + d)) || 'desktop';
+    const [w, h] = DEVICES[device], choose = /\.options$/i.test(folder), id = folder ? folder.replace(/\.options$/i, '') : 'screens';
+    let section = sections.find(x => x.id === id);
+    if (!section) sections.push(section = {id, name: folder ? pretty(id) : 'Screens', choose, frames: []});
+    section.frames.push({id: idFor(folder, name), kind: 'pending', src: '', name: pretty(stem.replace(new RegExp('\\.' + device + '$', 'i'), '')), note: 'Being drawn', device, w, h, rev: 0, links: [], ask: []});
   }
   const refDir = join(dir, 'refs');
   if (existsSync(refDir)) {
@@ -518,8 +625,8 @@ function readState() {
   }
   const ids = new Set(sections.flatMap(s => s.frames.map(f => f.id)));
   for (const f of sections.flatMap(s => s.frames)) f.links = (f.links || []).filter(id => ids.has(id) && id !== f.id);
-  const design = sections.filter(s => !s.system && !s.reference);
-  const flows = (Array.isArray(manifest.flows) && manifest.flows.length ? manifest.flows : design.map(s => ({name: s.name, start: s.frames[0].id})))
+  const design = sections.filter(s => !s.system && !s.reference && s.frames.some(f => f.kind !== 'pending'));
+  const flows = (Array.isArray(manifest.flows) && manifest.flows.length ? manifest.flows : design.map(s => ({name: s.name, start: s.frames.find(f => f.kind !== 'pending').id})))
     .filter(f => f && ids.has(f.start)).map(f => ({name: String(f.name || f.start), start: String(f.start)}));
   const review = readReview(), approvals = {};
   for (const f of design.flatMap(s => s.frames)) { const r = review.frames?.[f.id]; if (r && r.at >= f.rev) approvals[f.id] = r.status; }
@@ -529,8 +636,9 @@ function readState() {
   const state = {title: String(manifest.title || basename(resolve(dir, '..', '..')) || 'Seenry canvas'), stage: String(manifest.stage || ''), question: String(manifest.question || ''),
     description: String(manifest.description || ''), owner: String(manifest.owner || ''), speed: manifest.speed === 'studio' ? 'studio' : 'quick', library: library ? libraryName(library) : '',
     log: (Array.isArray(manifest.log) ? manifest.log : []).slice(-8).reverse(), statuses: STATUSES,
-    error: manifest.error || (manifest.library && !library ? `The library "${manifest.library}" has no tokens.css.` : null), sections, flows, approvals, feedback, agentWaiting: waiting()};
-  state.rev = [mtime(manifestPath), mtime(join(dir, 'review.json')), state.agentWaiting, ...sections.flatMap(s => [s.id, ...s.frames.map(f => f.id + f.rev)])].join('|');
+    error: manifest.error || (manifest.library && !library ? `The library "${manifest.library}" has no tokens.css.` : null), sections, flows, approvals, feedback, agentWaiting: waiting(),
+    timing: {started: manifest.started || '', firstOption: manifest.firstOption || ''}, activity: pending ? readActivity(30) : []};
+  state.rev = [mtime(manifestPath), mtime(join(dir, 'review.json')), mtime(activityFile()), state.agentWaiting, ...sections.flatMap(s => [s.id, ...s.frames.map(f => f.id + f.kind + f.rev)])].join('|');
   return state;
 }
 
@@ -541,23 +649,69 @@ const PAGE = String.raw`<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seenry canvas</title>
 <style>
-:root { color-scheme: light dark; --bg: #e9e8e5; --panel: #fbfaf8; --ink: #1b1a18; --ink-2: #66625b; --line: rgb(0 0 0 / .1); --fill: rgb(0 0 0 / .06); --sel: #2f6fed; --ok: #1f8a4c; --warn: #b4530a;
-  font: 13px/1.4 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-@media (prefers-color-scheme: dark) { :root { --bg: #121211; --panel: #1d1c1a; --ink: #f1efea; --ink-2: #a39e95; --line: rgb(255 255 255 / .12); --fill: rgb(255 255 255 / .08); --sel: #6b9bff; --ok: #4cc27e; --warn: #f0a35c; } }
+@font-face { font-family: "Open Runde"; src: url("/_seenry/fonts/runde-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Open Runde"; src: url("/_seenry/fonts/runde-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Open Runde"; src: url("/_seenry/fonts/runde-Semibold.woff2") format("woff2"); font-weight: 600 700; font-display: swap; }
+/* Seenry's own materials (seenry-web sx.css): white paper, #f4f4f3 wells, #171717 ink, hairlines, Open Runde. Colour comes only from the screens. */
+:root { color-scheme: light dark; --paper: #ffffff; --surface: #f4f4f3; --bg: #f4f4f3; --dots: rgb(0 0 0 / .08); --panel: #ffffff; --panel-2: #f4f4f3; --ink: #171717; --on-ink: #ffffff; --heading: #242424; --text: #383838; --ink-2: #6d6d6d; --ink-3: #707070; --line: rgb(0 0 0 / .07); --line-strong: rgb(0 0 0 / .14); --fill: rgb(0 0 0 / .045); --fill-2: rgb(0 0 0 / .08); --sel: #171717; --agent: #171717; --ok: #1a7f4b; --warn: #944509; --section: rgb(255 255 255 / .62); --section-line: rgb(0 0 0 / .06);
+  --float: 0 0 0 1px rgb(0 0 0 / .06), 0 16px 40px rgb(0 0 0 / .1); --out: cubic-bezier(0.23, 1, 0.32, 1);
+  --font: "Open Runde", ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif;
+  --top: 60px; --left: 248px; --right: 304px; --rail: 320px;
+  font: 14px/1.45 var(--font); }
+@media (prefers-color-scheme: dark) { :root { --paper: #0c0c0c; --surface: #181818; --bg: #111111; --dots: rgb(255 255 255 / .06); --panel: #0c0c0c; --panel-2: #1f1f1f; --ink: #f2f2f0; --on-ink: #111111; --heading: #f2f2f0; --text: #d6d6d4; --ink-2: #9a9a98; --ink-3: #8a8a88; --line: rgb(255 255 255 / .08); --line-strong: rgb(255 255 255 / .16); --fill: rgb(255 255 255 / .06); --fill-2: rgb(255 255 255 / .11); --sel: #f2f2f0; --agent: #f2f2f0; --ok: #4cc27e; --warn: #f0a046; --section: rgb(255 255 255 / .03); --section-line: rgb(255 255 255 / .07); --float: 0 0 0 1px rgb(255 255 255 / .08), 0 16px 40px rgb(0 0 0 / .5); } }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; overflow: hidden; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
-button, textarea { font: inherit; color: inherit; }
-#viewport { position: fixed; inset: 0 320px 0 0; overflow: hidden; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 24px 24px; }
+button, textarea, select { font: inherit; color: inherit; }
+#topbar { position: fixed; inset: 0 0 auto 0; height: var(--top); z-index: 3; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 16px; padding: 0 16px 0 18px; background: var(--paper); box-shadow: 0 1px 0 var(--line); }
+.tb-left, .tb-right, .tb-mid { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.tb-left { gap: 12px; }
+.tb-right { justify-content: end; }
+.who { display: grid; min-width: 0; line-height: 1.25; }
+#title { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; border: 0; background: none; padding: 0; color: var(--ink-2); font-size: 13px; cursor: pointer; text-align: start; }
+.status span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status:hover, .status[aria-pressed="true"] { color: var(--ink); }
+.tb-mid { padding: 3px; border-radius: 999px; background: var(--surface); }
+.tb-mid button { border: 0; background: none; height: 32px; padding: 0 16px; border-radius: 999px; cursor: pointer; color: var(--ink-2); font-weight: 500; }
+.tb-mid button[aria-selected="true"] { background: var(--paper); color: var(--ink); box-shadow: 0 0 0 1px var(--line), 0 1px 3px rgb(0 0 0 / .06); }
+.tb { border: 0; background: none; height: 36px; padding: 0 14px; border-radius: 999px; cursor: pointer; color: var(--ink-2); font-weight: 500; white-space: nowrap; transition: background-color 160ms var(--out), color 160ms var(--out); }
+.tb:hover { background: var(--surface); color: var(--ink); }
+.tb[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
+.tb.primary { background: var(--ink); color: var(--on-ink); margin-left: 4px; }
+.tb.primary:hover { background: var(--ink); color: var(--on-ink); opacity: .88; }
+.sx-mark { flex: none; display: block; width: 32px; height: 32px; }
+.sx-mark svg, .sx-eyes { display: block; width: 100%; height: 100%; overflow: visible; }
+.seen-tile { fill: var(--ink); }
+.seen-eye { fill: var(--paper); transform-box: fill-box; transform-origin: center; }
+.seen-look { transition: transform 280ms var(--out); }
+.is-blink .seen-eye { animation: seen-blink 180ms var(--out); }
+@keyframes seen-blink { 50% { transform: scaleY(0.12); } }
+.live-dot { width: 7px; height: 7px; border-radius: 99px; background: var(--ink-3); flex: none; opacity: .5; }
+[data-active="true"] > .live-dot, [data-active="true"] .live-head .live-dot { background: var(--ok); opacity: 1; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ok) 22%, transparent); }
+.sep { width: 1px; height: 20px; background: var(--line); margin: 0 6px; }
+#left { position: fixed; top: var(--top); left: 0; bottom: 0; width: var(--left); z-index: 2; background: var(--panel); box-shadow: 1px 0 0 var(--line); display: flex; flex-direction: column; }
+.pane-head { padding: 12px 14px 6px; font-weight: 600; display: flex; justify-content: space-between; color: var(--ink); }
+.pane-head span { color: var(--ink-3); font-weight: 400; font-variant-numeric: tabular-nums; }
+#viewport { position: fixed; inset: var(--top) var(--right) 0 var(--left); overflow: hidden; cursor: default; touch-action: none; user-select: none; -webkit-user-select: none; background-color: var(--bg); background-image: radial-gradient(var(--dots) 1px, transparent 1px); background-size: 20px 20px; }
 #viewport.panning { cursor: grabbing; }
+#viewport[data-tool="comment"] .shield { cursor: crosshair; }
 #world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
-.section-title { position: absolute; white-space: nowrap; font-weight: 600; font-size: calc(18px * var(--inv)); line-height: 1.2; translate: 0 calc(-100% - 34px * var(--inv)); }
-.section-title small { font-weight: 400; color: var(--ink-2); margin-left: .6em; }
+.section { position: absolute; border-radius: calc(10px * var(--inv)); background: var(--section); box-shadow: inset 0 0 0 calc(1px * var(--inv)) var(--section-line); }
+.section[data-choose="true"] { background: color-mix(in oklab, var(--sel) 6%, transparent); box-shadow: inset 0 0 0 calc(1px * var(--inv)) color-mix(in oklab, var(--sel) 28%, transparent); }
+.section[data-system="true"] { background: transparent; box-shadow: inset 0 0 0 calc(1px * var(--inv)) var(--section-line); }
+.section-title { position: absolute; left: calc(18px * var(--inv)); top: calc(16px * var(--inv)); display: flex; align-items: center; gap: calc(8px * var(--inv)); white-space: nowrap; font-size: calc(14px * var(--inv)); line-height: 1.3; }
+.section-title b { font-weight: 600; }
+.section-title small { color: var(--ink-2); font-size: 1em; font-weight: 400; }
 .frame { position: absolute; }
-.frame-label { position: absolute; left: 0; bottom: 100%; padding-bottom: calc(6px * var(--inv)); font-size: calc(12px * var(--inv)); line-height: 1.4; color: var(--ink-2); white-space: nowrap; max-width: calc(100% + 100px); overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-.frame-label b { font-weight: 500; color: var(--ink); }
+.frame-label { position: absolute; left: 0; bottom: 100%; padding-bottom: calc(6px * var(--inv)); display: flex; align-items: center; gap: calc(6px * var(--inv)); font-size: calc(11px * var(--inv)); line-height: 1.4; color: var(--ink-3); white-space: nowrap; max-width: 100%; overflow: hidden; cursor: pointer; font-variant-numeric: tabular-nums; }
+.frame-label b { font-weight: 500; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; }
+.frame[data-selected="true"] .frame-label b { color: var(--sel); }
 .frame[data-status="approved"] .frame-label b { color: var(--ok); }
 .frame[data-status="change"] .frame-label b { color: var(--warn); }
-.frame-body { position: absolute; inset: 0; background: #fff; overflow: hidden; box-shadow: 0 0 0 calc(1px * var(--inv)) var(--line), 0 calc(8px * var(--inv)) calc(30px * var(--inv)) rgb(0 0 0 / .08); }
+.chip { font-style: normal; font-size: .9em; font-weight: 600; line-height: 1; padding: .3em .55em; border-radius: .45em; background: var(--fill-2); color: var(--ink-2); }
+.chip[data-tone="pick"] { background: var(--ink); color: var(--on-ink); }
+.chip[data-tone="bold"] { background: color-mix(in oklab, var(--warn) 20%, transparent); color: var(--warn); }
+.frame-body { position: absolute; inset: 0; background: #fff; overflow: hidden; box-shadow: 0 0 0 calc(1px * var(--inv)) var(--line), 0 calc(4px * var(--inv)) calc(18px * var(--inv)) rgb(0 0 0 / .06); }
 .frame[data-device="phone"] .frame-body { border-radius: 28px; }
 .frame[data-selected="true"] .frame-body { box-shadow: 0 0 0 calc(2px * var(--inv)) var(--sel); }
 .frame[data-picked="true"] .frame-body { box-shadow: 0 0 0 calc(3px * var(--inv)) var(--ok); }
@@ -565,41 +719,53 @@ button, textarea { font: inherit; color: inherit; }
 .frame img { object-fit: cover; object-position: top; }
 .frame .shield { position: absolute; inset: 0; }
 .frame[data-live="true"] .shield { display: none; }
-.pin { position: absolute; translate: -50% -50%; min-width: calc(22px * var(--inv)); height: calc(22px * var(--inv)); border-radius: 99px; background: var(--warn); color: #fff; font-size: calc(12px * var(--inv)); font-weight: 600; display: grid; place-items: center; pointer-events: none; }
-#panel { position: fixed; inset: 0 0 0 auto; width: 320px; background: var(--panel); box-shadow: -1px 0 0 var(--line); display: flex; flex-direction: column; }
-#panel header { padding: 14px 16px 10px; }
-#panel h1 { margin: 0; font-size: 15px; font-weight: 600; text-wrap: balance; }
-#panel header p { margin: 4px 0 0; color: var(--ink-2); }
-.scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 0 8px 12px; }
-.outline h2 { margin: 12px 8px 4px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
-.outline button { display: flex; gap: 8px; align-items: center; width: 100%; text-align: start; border: 0; background: none; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
+.frame[data-kind="pending"] .frame-body { background: var(--panel-2); box-shadow: inset 0 0 0 calc(1.5px * var(--inv)) var(--ink-3); border: 0; }
+.pending { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; color: var(--ink-2); font-size: max(28px, calc(13px * var(--inv))); background: linear-gradient(100deg, transparent 30%, var(--fill) 50%, transparent 70%) 0 0 / 300% 100%; animation: shimmer 1.6s linear infinite; }
+.pending small { font-size: .6em; color: var(--ink-3); }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .pending { animation: none; } }
+.pin { position: absolute; translate: -50% -50%; min-width: calc(22px * var(--inv)); height: calc(22px * var(--inv)); border-radius: 99px 99px 99px 0; background: var(--warn); color: #fff; font-size: calc(12px * var(--inv)); font-weight: 600; display: grid; place-items: center; pointer-events: none; box-shadow: 0 0 0 calc(2px * var(--inv)) #fff; }
+#panel { position: fixed; top: var(--top); right: 0; bottom: 0; width: var(--right); z-index: 2; background: var(--panel); box-shadow: -1px 0 0 var(--line); display: flex; flex-direction: column; }
+.scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+#left .scroll { padding: 0 6px 12px; }
+.outline h2 { display: flex; align-items: center; gap: 6px; margin: 14px 8px 4px; font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.outline h2 .badge, .outline h2 .chip { text-transform: none; letter-spacing: 0; }
+.outline button { display: flex; gap: 8px; align-items: center; width: 100%; height: 28px; text-align: start; border: 0; background: none; padding: 0 8px; border-radius: 6px; cursor: pointer; }
 .outline button:hover { background: var(--fill); }
-.outline button[aria-current="true"] { background: color-mix(in oklab, var(--sel) 16%, transparent); }
+.outline button[aria-current="true"] { background: color-mix(in oklab, var(--sel) 14%, transparent); }
 .outline .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dot { width: 8px; height: 8px; border-radius: 99px; background: var(--line); flex: none; }
+.outline .meta { color: var(--ink-3); font-size: 11px; }
+.outline button[data-kind="pending"] .name { color: var(--ink-3); font-style: italic; }
+.dot { width: 7px; height: 7px; border-radius: 99px; background: var(--fill-2); flex: none; }
 .dot[data-status="approved"] { background: var(--ok); } .dot[data-status="change"] { background: var(--warn); }
-.inspector { border-top: 1px solid var(--line); padding: 12px 16px; display: grid; gap: 10px; }
-.inspector[hidden] { display: none; }
+.inspector { padding: 14px 16px 16px; display: grid; gap: 12px; align-content: start; }
 .inspector h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .inspector p { margin: 0; color: var(--ink-2); }
+.eyebrow { font-size: 11px; font-weight: 600; color: var(--ink-3) !important; text-transform: uppercase; letter-spacing: .04em; }
+.decision { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
+.choice { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; padding: 8px 10px; border-radius: 8px; background: var(--fill); cursor: pointer; border: 0; text-align: start; width: 100%; }
+.choice:hover { background: var(--fill-2); }
+.choice[aria-pressed="true"] { background: color-mix(in oklab, var(--ok) 16%, transparent); box-shadow: inset 0 0 0 1.5px var(--ok); }
+.choice b { font-weight: 600; } .choice span { grid-column: 1; color: var(--ink-2); font-size: 11px; } .choice em { grid-row: 1 / 3; grid-column: 2; font-style: normal; font-weight: 600; color: var(--ink-2); }
+.choice[aria-pressed="true"] em { color: var(--ok); }
 .row { display: flex; flex-wrap: wrap; gap: 6px; }
-.btn { border: 0; border-radius: 8px; padding: 6px 10px; background: var(--fill); cursor: pointer; font-weight: 500; text-decoration: none; color: var(--ink); }
+.btn { border: 0; border-radius: 999px; height: 32px; padding: 0 14px; background: var(--fill); cursor: pointer; font-weight: 500; text-decoration: none; color: var(--ink); display: inline-flex; align-items: center; }
+.btn:hover { background: var(--fill-2); }
 .btn:active { scale: .97; }
 .btn[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
-.btn.primary { background: var(--ink); color: var(--panel); }
+.btn.primary { background: var(--ink); color: var(--on-ink); }
 .notes { display: grid; gap: 6px; }
 .note { display: flex; gap: 8px; align-items: start; background: var(--fill); border-radius: 8px; padding: 6px 8px; }
 .note span { flex: 1; overflow-wrap: anywhere; }
 .note b { color: var(--warn); }
 .note button { border: 0; background: none; cursor: pointer; color: var(--ink-2); padding: 0 4px; }
-footer { border-top: 1px solid var(--line); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); display: grid; gap: 8px; }
-textarea { width: 100%; min-height: 56px; max-height: 160px; resize: vertical; font-size: 16px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: transparent; }
+textarea { width: 100%; min-height: 52px; max-height: 160px; resize: vertical; font-size: 13px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); }
 #status { color: var(--ink-2); min-height: 1.4em; }
 #links { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
-#links path { fill: none; stroke: var(--sel); stroke-width: calc(2px * var(--inv)); opacity: .6; }
+#links path { fill: none; stroke: var(--sel); stroke-width: calc(2px * var(--inv)); opacity: .55; }
 #links circle { fill: var(--sel); }
 #links[hidden] { display: none; }
-.agent { margin: 8px 0 0; padding: 6px 10px; border-radius: 8px; background: color-mix(in oklab, var(--ok) 16%, transparent); color: var(--ink); }
+.agent { margin: 0; padding: 8px 16px; background: color-mix(in oklab, var(--ok) 14%, transparent); color: var(--ink); border-bottom: 1px solid var(--line); }
 .agent[hidden] { display: none; }
 #present { position: fixed; inset: 0; z-index: 10; background: #0f0f0e; color: #f1efea; display: grid; grid-template-rows: auto 1fr; }
 #present[hidden] { display: none; }
@@ -618,69 +784,173 @@ textarea { width: 100%; min-height: 56px; max-height: 160px; resize: vertical; f
 .cover-row b { font-weight: 600; flex: 1; } .cover-row span { font-size: 17px; color: var(--ink-2); }
 .cover h2 { margin: 20px 0 0; font-size: 20px; font-weight: 600; }
 .cover li { font-size: 18px; color: var(--ink-2); }
-.badge { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1; padding: 4px 7px; border-radius: 6px; background: var(--fill); color: var(--ink-2); vertical-align: middle; white-space: nowrap; }
+.badge { display: inline-block; font-size: 11px; font-weight: 600; line-height: 1; padding: 4px 6px; border-radius: 5px; background: var(--fill); color: var(--ink-2); vertical-align: middle; white-space: nowrap; }
 .badge[data-status="in-progress"] { background: color-mix(in oklab, var(--warn) 18%, transparent); color: var(--warn); }
 .badge[data-status="review"] { background: color-mix(in oklab, var(--sel) 16%, transparent); color: var(--sel); }
 .badge[data-status="ready"] { background: color-mix(in oklab, var(--ok) 18%, transparent); color: var(--ok); }
 .cover .badge { font-size: 15px; padding: 5px 9px; }
-.section-title .badge { font-size: calc(12px * var(--inv)); padding: calc(4px * var(--inv)) calc(7px * var(--inv)); border-radius: calc(6px * var(--inv)); margin-left: calc(10px * var(--inv)); }
+.section-title .badge, .section-title .chip { font-size: .8em; padding: .35em .55em; border-radius: .4em; }
 .frame[data-archived="true"] .frame-body { opacity: .55; }
 .outline h2[data-dim="true"] { opacity: .6; }
-.keys { color: var(--ink-2); font-size: 12px; margin: 0; }
-.keys kbd { font: 11px ui-monospace, Menlo, monospace; padding: 1px 4px; border-radius: 4px; background: var(--fill); }
 #p-flow { font: inherit; color: #f1efea; background: rgb(255 255 255 / .1); border: 0; border-radius: 8px; padding: 6px 8px; }
-#review { position: fixed; inset: 0; z-index: 11; background: #0f0f0e; color: #f1efea; display: grid; grid-template-columns: 1fr 360px; }
+#review { position: fixed; inset: 0; z-index: 11; background: var(--surface); color: var(--ink); display: grid; grid-template-columns: 1fr 380px; }
 #review[hidden] { display: none; }
 #review .stage { position: relative; overflow: hidden; display: grid; place-items: center; }
-#review .stage iframe { border: 0; background: #fff; transform-origin: 50% 50%; box-shadow: 0 0 0 1px rgb(255 255 255 / .1), 0 24px 60px rgb(0 0 0 / .5); }
+#review .stage iframe { border: 0; background: #fff; transform-origin: 50% 50%; border-radius: 14px; box-shadow: var(--float); }
 #review[data-device="phone"] .stage iframe { border-radius: 32px; }
-#review aside { background: #191918; padding: 20px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overscroll-behavior: contain; }
-#review h2 { margin: 0; font-size: 18px; font-weight: 600; }
-#review .muted { color: #a39e95; margin: 0; }
-#review .btn { background: rgb(255 255 255 / .1); color: #f1efea; }
-#review .btn[aria-pressed="true"], #review .btn.primary { background: #f1efea; color: #161513; }
-#review textarea { color: #f1efea; border-color: rgb(255 255 255 / .16); }
-#review .q { display: grid; gap: 6px; padding: 10px 0; border-top: 1px solid rgb(255 255 255 / .1); }
-#review .pill { position: absolute; bottom: 20px; left: 50%; translate: -50% 0; display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgb(10 10 10 / .82); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08), 0 8px 24px rgb(0 0 0 / .3); }
+#review aside { background: var(--paper); box-shadow: -1px 0 0 var(--line); padding: 24px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overscroll-behavior: contain; }
+#review h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--heading); }
+#review .muted { color: var(--ink-2); margin: 0; }
+#review .btn { height: 36px; padding: 0 14px; border-radius: 999px; background: var(--surface); color: var(--ink); }
+#review .btn[aria-pressed="true"], #review .btn.primary { background: var(--ink); color: var(--on-ink); }
+#review textarea { color: var(--ink); border-color: var(--line-strong); background: var(--paper); }
+#review .q { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid var(--line); }
+#review .pill { position: absolute; bottom: 24px; left: 50%; translate: -50% 0; display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: var(--paper); box-shadow: var(--float); }
 #review .pill[hidden] { display: none; }
-#review .pill button { border: 0; background: none; color: rgb(255 255 255 / .55); font: inherit; font-size: 13px; height: 28px; padding: 0 12px; border-radius: 999px; cursor: pointer; }
-#review .pill button[data-active] { background: rgb(255 255 255 / .14); color: #fff; }
-#review .risk { font-size: 12px; font-weight: 600; padding: 3px 7px; border-radius: 6px; background: rgb(255 255 255 / .1); }
-#review .risk[data-risk="bold"] { background: color-mix(in oklab, var(--warn) 30%, transparent); }
+#review .pill button { border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 13px; font-weight: 500; height: 32px; padding: 0 14px; border-radius: 999px; cursor: pointer; }
+#review .pill button[data-active] { background: var(--ink); color: var(--on-ink); }
+#review .risk { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--surface); }
+#review .risk[data-risk="bold"] { background: color-mix(in oklab, var(--warn) 18%, transparent); color: var(--warn); }
 #review .grow { flex: 1; }
 @media (max-width: 760px) { #review { grid-template-columns: 1fr; grid-template-rows: 55vh 1fr; } }
 .specs { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12px; }
 .specs dt { color: var(--ink-2); } .specs dd { margin: 0; overflow-wrap: anywhere; }
-.specs code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; }
+.specs code { font: 11px ui-monospace, "SF Mono", Menlo, monospace; }
 .specs .tok { color: var(--sel); } .specs .raw { color: var(--warn); }
-#zoom { position: fixed; left: 12px; bottom: 12px; display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--panel); box-shadow: 0 0 0 1px var(--line), 0 4px 14px rgb(0 0 0 / .1); }
-#zoom button { border: 0; background: none; border-radius: 7px; padding: 5px 9px; cursor: pointer; font-variant-numeric: tabular-nums; }
-#zoom button:hover { background: var(--fill); }
-#hint { position: fixed; left: 12px; top: 12px; padding: 6px 10px; border-radius: 8px; background: var(--panel); box-shadow: 0 0 0 1px var(--line); color: var(--ink-2); }
+#zoom { position: fixed; left: calc(var(--left) + 12px); bottom: 12px; z-index: 2; display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--panel); box-shadow: 0 0 0 1px var(--line), 0 4px 14px rgb(0 0 0 / .08); }
+#zoom button { border: 0; background: none; border-radius: 6px; height: 26px; padding: 0 9px; cursor: pointer; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+#zoom button:hover { background: var(--fill); color: var(--ink); }
+#zoom-level { min-width: 48px; }
+#hint { position: fixed; left: calc((var(--left) + 100vw - var(--right)) / 2); top: calc(var(--top) + 12px); translate: -50% 0; z-index: 2; padding: 6px 12px; border-radius: 8px; background: var(--ink); color: var(--panel); font-weight: 500; }
 #hint[hidden] { display: none; }
-.error { margin: 0 16px 8px; padding: 8px 10px; border-radius: 8px; background: color-mix(in oklab, var(--warn) 18%, transparent); }
+.error { margin: 0; padding: 8px 16px; background: color-mix(in oklab, var(--warn) 18%, transparent); }
 dialog { border: 0; border-radius: 12px; padding: 16px; width: min(420px, calc(100vw - 32px)); background: var(--panel); color: var(--ink); box-shadow: 0 16px 48px rgb(0 0 0 / .3); }
 dialog::backdrop { background: rgb(0 0 0 / .35); }
-dialog h3 { margin: 0 0 4px; font-size: 15px; } dialog p { margin: 0 0 10px; color: var(--ink-2); overflow-wrap: anywhere; }
+dialog h3 { margin: 0 0 4px; font-size: 14px; } dialog p { margin: 0 0 10px; color: var(--ink-2); overflow-wrap: anywhere; }
 dialog .row { justify-content: end; margin-top: 10px; }
 :focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
-@media (max-width: 760px) { #viewport { inset: 0 0 46vh 0; } #panel { inset: auto 0 0 0; width: auto; height: 46vh; box-shadow: 0 -1px 0 var(--line); } }
+.blank { position: absolute; inset: 0; background: #fff; }
+.idle { position: absolute; left: 40px; top: 32px; display: flex; align-items: center; gap: 7px; transform: scale(var(--inv, 1)); transform-origin: 0 0; font-size: 13px; font-weight: 600; }
+.c-thumb .idle { transform: none; left: 20px; top: 18px; }
+.idle svg { width: 26px; height: 26px; flex: none; }
+.idle .seen-tile { fill: #171717; stroke: #fff; stroke-width: 5; paint-order: stroke; } .idle .seen-eye { fill: #fff; }
+.idle .seen-look { animation: glance 3.2s var(--out) infinite; }
+.idle span { background: #171717; color: #fff; padding: 7px 11px; border-radius: 999px; white-space: nowrap; box-shadow: 0 8px 24px rgb(0 0 0 / .18); }
+.c-card[data-kind="pending"] .c-thumb { background: #fff; }
+@media (prefers-reduced-motion: reduce) { .idle .seen-look { animation: none; } }
+.agent-tag { display: none; position: absolute; right: 0; bottom: 100%; margin-bottom: calc(6px * var(--inv)); align-items: center; gap: calc(6px * var(--inv)); padding: calc(4px * var(--inv)) calc(10px * var(--inv)) calc(4px * var(--inv)) calc(4px * var(--inv)); border-radius: 999px; background: var(--ink); color: var(--on-ink); font-size: calc(12px * var(--inv)); font-weight: 600; white-space: nowrap; max-width: 70%; overflow: hidden; text-overflow: ellipsis; box-shadow: var(--float); }
+.agent-tag svg { width: calc(18px * var(--inv)); height: calc(18px * var(--inv)); flex: none; }
+.agent-tag .seen-tile { fill: var(--on-ink); } .agent-tag .seen-eye { fill: var(--ink); }
+.frame[data-agent="true"] .agent-tag { display: flex; }
+.frame[data-agent="true"] .frame-body { box-shadow: 0 0 0 calc(2px * var(--inv)) var(--ink); }
+#live, #c-feed { padding: 16px 20px 20px; display: grid; gap: 2px; align-content: start; }
+#live { border-top: 1px solid var(--line); }
+.live-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.live-head b { font-weight: 600; color: var(--heading); }
+.live-head .meta { margin-left: auto; color: var(--ink-3); font-size: 12px; }
+.live-item { display: grid; grid-template-columns: 34px 1fr; gap: 8px; text-align: start; border: 0; background: none; padding: 6px 8px; margin: 0 -8px; border-radius: 8px; color: var(--text); cursor: pointer; font-size: 13px; line-height: 1.4; }
+.live-item:disabled { cursor: default; color: var(--ink-2); }
+.live-item:not(:disabled):hover { background: var(--surface); }
+.live-item .meta { color: var(--ink-3); font-variant-numeric: tabular-nums; font-size: 12px; padding-top: 1px; }
+.live-empty { margin: 0; color: var(--ink-2); font-size: 13px; }
+/* The board: the options pinned up side by side, the reasoning under each, one choice. */
+#compact { position: fixed; inset: var(--top) 0 0 0; display: none; background: var(--paper); grid-template-columns: minmax(0, 1fr) var(--rail); grid-template-areas: "list rail"; }
+body[data-compact="true"] #compact { display: grid; }
+body[data-compact="true"] :is(#viewport, #left, #panel, #zoom, #hint) { display: none !important; }
+#c-live { grid-area: live; display: none; gap: 8px; align-items: center; padding: 10px 16px; background: var(--paper); box-shadow: 0 1px 0 var(--line); color: var(--ink-2); font-size: 13px; min-width: 0; }
+#c-live span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#c-list { grid-area: list; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 44px clamp(16px, 4vw, 64px) 72px; display: grid; gap: 56px; align-content: start; }
+#c-rail { grid-area: rail; min-height: 0; display: flex; flex-direction: column; box-shadow: -1px 0 0 var(--line); background: var(--paper); }
+#c-feed { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+.b-intro { display: grid; gap: 10px; max-width: 760px; }
+.b-intro h2 { margin: 0; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.08; font-weight: 600; letter-spacing: -0.035em; color: var(--heading); text-wrap: balance; }
+.b-intro p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--ink-2); text-wrap: pretty; max-width: 62ch; }
+.b-empty { display: grid; justify-items: start; gap: 18px; padding-top: 8vh; }
+.b-empty .sx-mark { width: 56px; height: 56px; }
+.b-section { display: grid; gap: 20px; }
+.b-head { display: flex; gap: 10px; align-items: center; }
+.b-head h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--heading); }
+.b-row { display: grid; gap: clamp(20px, 2.4vw, 32px); grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); align-items: start; }
+.b-grid { display: grid; gap: 28px 24px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); align-items: start; }
+.c-card { position: relative; display: grid; gap: 14px; min-width: 0; }
+.c-thumb { position: relative; overflow: hidden; border-radius: 14px; background: var(--surface); cursor: zoom-in; transition: translate 240ms var(--out), box-shadow 240ms var(--out); }
+.c-thumb::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--line); pointer-events: none; transition: box-shadow 200ms var(--out); }
+@media (hover: hover) and (pointer: fine) { .c-thumb:hover { translate: 0 -3px; box-shadow: var(--float); } }
+.c-thumb iframe { position: absolute; top: 0; border: 0; transform-origin: 0 0; pointer-events: none; background: #fff; }
+.c-card[data-picked="true"] .c-thumb::after { box-shadow: inset 0 0 0 2px var(--ink); }
+.c-card[data-agent="true"] .c-thumb::after { box-shadow: inset 0 0 0 2px var(--ink); }
+.c-chosen { position: absolute; z-index: 1; left: 12px; top: 12px; display: none; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--ink); color: var(--on-ink); font-size: 13px; font-weight: 600; }
+.c-card[data-picked="true"] .c-chosen { display: inline-flex; }
+.c-card[data-kind="pending"] .c-thumb { aspect-ratio: 16 / 10; cursor: default; }
+.c-card[data-kind="pending"] .pending { background: none; animation: none; font-size: 14px; gap: 14px; }
+.c-card[data-kind="pending"] .pending .sx-mark { width: 40px; height: 40px; }
+.c-card[data-kind="pending"] .seen-look { animation: glance 3.2s var(--out) infinite; }
+@keyframes glance { 0%, 18% { transform: translate(-3px, 0); } 40%, 62% { transform: translate(3px, 1px); } 84%, 100% { transform: translate(-3px, 0); } }
+.c-body { display: grid; gap: 6px; padding: 0 2px; }
+.c-title { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.c-title b { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; color: var(--heading); }
+.c-body p { margin: 0; color: var(--text); font-size: 14px; line-height: 1.5; }
+.c-why { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 4px 0 0; font-size: 13px; line-height: 1.45; }
+.c-why dt { color: var(--ink-3); } .c-why dd { margin: 0; color: var(--ink-2); }
+.c-body .row { margin-top: 8px; gap: 8px; }
+.c-body .btn { height: 36px; padding: 0 16px; border-radius: 999px; background: var(--surface); }
+.c-body .btn.primary { background: var(--ink); color: var(--on-ink); }
+.c-body .btn[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+.c-body .btn.quiet { background: none; color: var(--ink-2); padding: 0 8px; }
+.c-body .btn.quiet:hover { color: var(--ink); background: none; text-decoration: underline; text-underline-offset: 3px; }
+.b-grid .c-why, .b-grid .c-body p:not(:first-of-type) { display: none; }
+.c-card .seen-mark-dot { display: none; }
+#composer { border-top: 1px solid var(--line); padding: 14px 20px calc(16px + env(safe-area-inset-bottom)); display: grid; gap: 10px; background: var(--paper); }
+#composer textarea { min-height: 64px; border-radius: 12px; background: var(--surface); border-color: transparent; font-size: 14px; padding: 10px 12px; }
+#composer textarea:focus { background: var(--paper); border-color: var(--line-strong); outline: none; box-shadow: 0 0 0 3px var(--fill); }
+#send { height: 40px; padding: 0 18px; border-radius: 999px; background: var(--ink); color: var(--on-ink); font-weight: 600; }
+#status { font-size: 13px; }
+@media (max-width: 820px) {
+  #compact { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "live" "list" "rail"; }
+  #c-live { display: flex; }
+  #c-feed { display: none; }
+  #c-rail { box-shadow: 0 -1px 0 var(--line); }
+  #c-list { padding: 24px 16px 32px; gap: 40px; }
+  .b-row { grid-template-columns: minmax(0, 1fr); }
+  .status { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .c-card[data-kind="pending"] .seen-look { animation: none; } .c-thumb { transition: none; } }
+@media (max-width: 1100px) { :root { --left: 0px; } #left { display: none; } }
+@media (max-width: 760px) { :root { --right: 0px; } #topbar { grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; padding: 0 12px; } .tb-right .tb:not(.primary) { display: none; } .tb-mid button { padding: 0 12px; } #viewport { inset: var(--top) 0 46vh 0; } #zoom { bottom: calc(46vh + 12px); } #panel { inset: auto 0 0 0; width: auto; height: 46vh; box-shadow: 0 -1px 0 var(--line); } }
 </style>
 </head>
 <body>
+<header id="topbar">
+  <div class="tb-left"><span class="sx-mark" id="mark" aria-hidden="true"><svg viewBox="0 0 64 64"><rect class="seen-tile" width="64" height="64" rx="18"/><g class="seen-look"><rect class="seen-eye" x="18.5" y="22" width="10" height="20" rx="5"/><rect class="seen-eye" x="35.5" y="22" width="10" height="20" rx="5"/></g></svg></span>
+    <div class="who"><h1 id="title"></h1><button type="button" class="status" id="agent-presence" aria-pressed="false" title="Follow Seenry as it works (A)"><span class="live-dot"></span><span id="presence-text">Seenry is idle</span></button></div></div>
+  <div class="tb-mid" role="tablist" aria-label="View">
+    <button type="button" role="tab" id="view-map" aria-selected="true" title="Every screen on one canvas, built live (M)">Canvas</button>
+    <button type="button" role="tab" id="view-board" aria-selected="false" title="The options as a list of cards, for a side pane (B)">List</button>
+  </div>
+  <div class="tb-right">
+    <button type="button" class="tb" id="mode" title="Show every screen in light or dark mode (D)">Light</button>
+    <button type="button" class="tb" id="play" title="Play the screens full size, following their links (P)">Present</button>
+    <button type="button" class="tb primary" id="start-review" title="Go through the screens one at a time (R)">Review</button>
+  </div>
+</header>
+<nav id="left" aria-label="Screens"><div class="pane-head">Screens <span id="count"></span></div><div class="scroll"><div class="outline" id="outline"></div></div></nav>
 <div id="viewport"><div id="world"></div></div>
 <div id="hint" hidden></div>
-<div id="zoom" role="group" aria-label="Zoom">
-  <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
-  <button type="button" id="zoom-level" title="Zoom to 100%">100%</button>
-  <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
-  <button type="button" id="zoom-fit" title="Fit everything (1)">Fit</button>
+<main id="compact" aria-label="Board"><div id="c-live" aria-live="polite"><span class="live-dot"></span><span id="c-live-text"></span></div><div id="c-list"></div><aside id="c-rail" aria-label="Seenry and your notes"><section id="c-feed" aria-live="polite"></section></aside></main>
+<div id="zoom" role="group" aria-label="Map controls">
+  <button type="button" id="tool-move" aria-pressed="true" title="Select and pan (V)">Move</button>
+  <button type="button" id="tool-comment" aria-pressed="false" title="Click a screen, then the element to comment on (C)">Comment</button>
+  <button type="button" id="tool-inspect" aria-pressed="false" title="Click a screen, then an element to see its values and variables (I)">Inspect</button>
+  <span class="sep"></span>
   <button type="button" id="flows" title="Show prototype connections (F)" aria-pressed="true">Flows</button>
   <button type="button" id="grid" title="Show layout grids (G)" aria-pressed="false">Grid</button>
   <button type="button" id="specs-toggle" title="Show handoff specs (S)" aria-pressed="false">Specs</button>
-  <button type="button" id="mode" title="Switch every screen between light and dark mode (D)">Light</button>
-  <button type="button" id="play" title="Present the prototype (P)">▶ Present</button>
-  <button type="button" id="start-review" title="Review the screens one at a time (R)">Review</button>
+  <span class="sep"></span>
+  <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+  <button type="button" id="zoom-level" title="Zoom to 100%">100%</button>
+  <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+  <button type="button" id="zoom-decision" title="Show what needs your decision (2)">Decision</button>
+  <button type="button" id="zoom-fit" title="Fit everything (1)">Fit all</button>
 </div>
 <div id="review" hidden>
   <div class="stage" id="r-stage"><iframe id="r-frame" title="Screen under review"></iframe><div class="pill" id="r-pill" hidden></div></div>
@@ -695,15 +965,13 @@ dialog .row { justify-content: end; margin-top: 10px; }
     <button type="button" class="btn" id="p-close">Close (Esc)</button></div>
   <div class="stage" id="p-stage"><iframe id="p-frame" title="Prototype"></iframe></div>
 </div>
-<aside id="panel">
-  <header><h1 id="title"></h1><p id="question"></p><p class="agent" id="agent" hidden>Your agent is waiting. “Send to agent” goes straight to it.</p></header>
+<aside id="panel" aria-label="Details">
+  <p class="agent" id="agent" hidden>Your agent is waiting. “Send to agent” goes straight to it.</p>
   <p class="error" id="error" hidden></p>
-  <div class="scroll"><nav class="outline" id="outline" aria-label="Screens"></nav></div>
-  <section class="inspector" id="inspector" hidden></section>
-  <footer>
+  <div class="scroll"><section class="inspector" id="inspector"></section><section id="live" aria-live="polite" aria-label="What the agent is doing"></section></div>
+  <footer id="composer">
     <textarea id="general" placeholder="Anything else the agent should know" aria-label="General notes"></textarea>
     <div class="row" style="align-items:center;justify-content:space-between"><span id="status" role="status"></span><button type="button" class="btn primary" id="send">Send to agent</button></div>
-    <p class="keys">Drag to pan · <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+scroll to zoom · <kbd>1</kbd> fit · <kbd>R</kbd> review · <kbd>P</kbd> present · <kbd>I</kbd> inspect · <kbd>S</kbd> specs · <kbd>G</kbd> grid · <kbd>D</kbd> dark · <kbd>F</kbd> flows</p>
   </footer>
 </aside>
 <dialog id="note-dialog"><form method="dialog">
@@ -716,6 +984,8 @@ const EMBEDDED = /*STATE*/null;
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...children) => { const node = Object.assign(document.createElement(tag), props); node.append(...children.filter(c => c !== '' && c != null)); return node; };
 const GAP = 120, ROW_GAP = 420, MAX_H = 7000;
+let tool = 'move', following = true, lastAt = '', compact = false, forceCanvas = false;
+const cards = {}, heads = {};
 let state = null, view = {x: 0, y: 0, z: 1}, selected = null, live = null, commenting = false, pending = null, fitted = false, showLinks = true, playing = null, inspecting = false, inspected = null, showGrid = false, dark = false, showSpecs = false, flow = null;
 const touched = new Set(), riffs = [];
 let reviewing = null;
@@ -726,15 +996,21 @@ const frames = () => state.sections.flatMap(s => s.frames.map(f => ({...f, secti
 const find = id => frames().find(f => f.id === id);
 const height = f => heights[f.id] || f.h;
 
+// Decisions first, then the screens, the references, the system pages and the archive: the canvas opens on what needs the person.
+const rank = s => s.archived ? 4 : s.choose && !s.study ? 0 : !s.system && !s.reference ? 1 : s.reference ? 2 : 3;
+const placed = () => state.sections.map((s, i) => [s, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(x => x[0]);
+const pickChip = s => isOpen(s) ? chip('Pick one', 'pick') : picks[s.id] ? chip('Picked') : s.frames.some(f => f.kind === 'pending') ? chip('Being drawn') : '';
+const isOpen = s => s.choose && !s.study && !s.archived && !picks[s.id] && s.frames.some(f => f.kind === 'page');
+
 function layout() {
+  // Titles and labels keep a readable screen size, so the space they need grows as the canvas zooms out.
+  const pad = Math.max(48, 20 / view.z), head = Math.max(80, 76 / view.z), gap = Math.max(GAP, 36 / view.z);
   let y = 0; const boxes = {};
-  for (const section of state.sections) {
-    let x = 0, row = 0;
-    section.box = {x: 0, y};
-    for (const f of section.frames) { boxes[f.id] = {x, y, w: f.w, h: height(f)}; x += f.w + GAP; row = Math.max(row, height(f)); }
-    section.box.w = x - GAP; section.box.h = row;
-    // Titles keep a readable screen size, so the gap between rows grows as the canvas zooms out.
-    y += row + Math.max(ROW_GAP, 130 / view.z);
+  for (const section of placed()) {
+    let x = pad, row = 0;
+    for (const f of section.frames) { boxes[f.id] = {x, y: y + head, w: f.w, h: height(f)}; x += f.w + gap; row = Math.max(row, height(f)); }
+    section.box = {x: 0, y, w: Math.max(x - gap + pad, 600), h: head + row + pad};
+    y += section.box.h + Math.max(ROW_GAP / 2, 90 / view.z);
   }
   return boxes;
 }
@@ -749,22 +1025,30 @@ function zoomAt(cx, cy, z) {
   view.x = cx - (cx - view.x) * (z / view.z); view.y = cy - (cy - view.y) * (z / view.z); view.z = z; apply();
   if (state) place();
 }
-function fitBox(box, pad = 80) {
+function fitBox(box, pad = 56, top = false) {
   const vp = $('viewport').getBoundingClientRect();
   const z = Math.min(1, (vp.width - pad * 2) / box.w, (vp.height - pad * 2) / box.h);
-  view.z = Math.max(0.03, z); view.x = (vp.width - box.w * view.z) / 2 - box.x * view.z; view.y = Math.max(pad, (vp.height - box.h * view.z) / 2) - box.y * view.z; apply();
+  view.z = Math.max(0.03, z); view.x = (vp.width - box.w * view.z) / 2 - box.x * view.z; view.y = (top ? pad / 2 : Math.max(pad, (vp.height - box.h * view.z) / 2)) - box.y * view.z; apply();
 }
-// The layout depends on the zoom (row gaps), so fitting repeats until it settles, then places everything.
-function fitAll() {
+// The layout depends on the zoom, so fitting repeats until it settles, then places everything.
+function fitSections(pick, cap) {
   for (let pass = 0; pass < 4; pass++) {
-    const boxes = Object.values(layout()); if (!boxes.length) return;
-    const w = Math.max(...boxes.map(b => b.x + b.w)), h = Math.max(...boxes.map(b => b.y + b.h));
-    fitBox({x: 0, y: -60, w, h: h + 60});
+    layout(); const list = pick().filter(s => s.box); if (!list.length) return false;
+    const x = Math.min(...list.map(s => s.box.x)), y = Math.min(...list.map(s => s.box.y));
+    const w = Math.max(...list.map(s => s.box.x + s.box.w)) - x, h = Math.max(...list.map(s => s.box.y + s.box.h)) - y;
+    fitBox({x, y, w, h: cap ? Math.min(h, Math.max(w * 0.6, 900)) : h}, 56, !!cap);
   }
   if (state) place();
+  return true;
+}
+function fitAll() { fitSections(() => state.sections); }
+// Opens on the options waiting for a pick, side by side and top-aligned; with none open, on the first screens.
+function fitDecision() {
+  const open = state.sections.filter(isOpen), design = state.sections.filter(s => !s.system && !s.reference && !s.archived);
+  if (!fitSections(() => open.length ? [open[0]] : design.slice(0, 1), true)) fitAll();
 }
 function focusFrame(id) {
-  for (let pass = 0; pass < 2; pass++) { const box = layout()[id]; if (box) fitBox({x: box.x, y: box.y - 40, w: box.w, h: Math.min(box.h, box.w * 1.1) + 40}, 60); }
+  for (let pass = 0; pass < 2; pass++) { const box = layout()[id]; if (box) fitBox({x: box.x, y: box.y - 40, w: box.w, h: Math.min(box.h, box.w * 1.1) + 40}, 48); }
   if (state) place();
 }
 
@@ -801,7 +1085,7 @@ function applyView(doc) {
   if (grid.childElementCount !== cols) grid.replaceChildren(...Array.from({length: cols}, () => { const s = doc.createElement('span'); s.style.background = 'rgb(255 60 60 / .09)'; return s; }));
   grid.style.height = doc.documentElement.scrollHeight + 'px';
 }
-function eachDoc(fn) { document.querySelectorAll('#world iframe, #p-frame').forEach(i => { try { fn(i.contentDocument); } catch {} }); }
+function eachDoc(fn) { document.querySelectorAll('#world iframe, #p-frame, #c-list iframe').forEach(i => { try { fn(i.contentDocument); } catch {} }); }
 
 /** The rules that apply in a screen, flattened through @media, @supports and @layer, in source order. */
 function rules(doc) {
@@ -892,47 +1176,50 @@ function arm(iframe, f) {
     const r = e.target.getBoundingClientRect(), win = doc.defaultView;
     ask({frame: f.id, ...describe(e.target), x: (r.left + r.width / 2 + win.scrollX) / f.w, y: (r.top + Math.min(r.height / 2, 40) + win.scrollY) / height(f)});
   }, true);
-  doc.addEventListener('keydown', e => { if (e.key === 'Escape') { live = null; commenting = false; inspecting = false; render(); } });
+  doc.addEventListener('keydown', e => { if (e.key === 'Escape') { tool = 'move'; live = null; commenting = false; inspecting = false; render(); } });
 }
 function ask(note) { pending = note; $('note-target').textContent = find(note.frame).name + ' · ' + note.target; $('note-text').value = ''; $('note-dialog').showModal(); }
 
 function build() {
   const world = $('world'); world.replaceChildren();
   for (const k in nodes) delete nodes[k];
-  world.append(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
-  world.firstChild.id = 'links';
   for (const section of state.sections) {
-    section.node = el('div', {className: 'section-title', textContent: section.name}, section.note ? el('small', {textContent: section.note}) : '');
+    section.node = el('div', {className: 'section'});
+    section.node.dataset.choose = !!(section.choose && !section.archived); section.node.dataset.system = !!(section.system || section.reference);
     world.append(section.node);
     for (const f of section.frames) {
       const body = el('div', {className: 'frame-body'});
       if (f.kind === 'cover') body.append(el('div', {className: 'cover'}));
+      else if (f.kind === 'pending') body.append(el('div', {className: 'blank'}, idleCursor(f)));
       else if (f.kind === 'image') {
         const img = el('img', {src: f.src + '?v=' + f.rev, alt: f.name, draggable: false});
         img.addEventListener('load', () => { const h = Math.min(MAX_H, Math.round(f.w * img.naturalHeight / img.naturalWidth)); if (h && h !== heights[f.id]) { heights[f.id] = h; place(); } });
         body.append(img);
       } else {
         const iframe = el('iframe', {src: f.src + '?v=' + f.rev, title: f.name, loading: 'lazy'});
-        iframe.addEventListener('load', () => arm(iframe, f));
+        iframe.addEventListener('load', () => { arm(iframe, f); frameLoaded(iframe, f); });
         body.append(iframe);
       }
       const shield = el('div', {className: 'shield'});
       const label = el('div', {className: 'frame-label'});
-      const node = el('div', {className: 'frame'}, label, body, shield);
-      node.dataset.id = f.id; node.dataset.device = f.device;
+      const node = el('div', {className: 'frame'}, label, body, shield, el('div', {className: 'agent-tag'}));
+      node.dataset.id = f.id; node.dataset.device = f.device; node.dataset.kind = f.kind;
       label.addEventListener('click', e => { e.stopPropagation(); select(f.id); });
       shield.addEventListener('dblclick', () => { select(f.id); if (f.kind === 'page') { live = f.id; render(); } });
       nodes[f.id] = node; world.append(node);
     }
   }
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.id = 'links'; world.append(svg);
+  if (compact) buildCompact();
   place();
 }
 
 function place() {
   const boxes = layout();
   for (const section of state.sections) {
-    section.node.style.left = section.box.x + 'px'; section.node.style.top = section.box.y + 'px';
-    section.node.replaceChildren(document.createTextNode(section.name), section.status ? badge(section.status) : '', section.note ? el('small', {textContent: section.note}) : '');
+    Object.assign(section.node.style, {left: section.box.x + 'px', top: section.box.y + 'px', width: section.box.w + 'px', height: section.box.h + 'px'});
+    const choose = section.choose && !section.archived;
+    section.node.replaceChildren(el('div', {className: 'section-title'}, el('b', {textContent: section.name}), choose ? pickChip(section) : '', section.status ? badge(section.status) : '', section.note && !choose ? el('small', {textContent: section.note}) : ''));
   }
   for (const f of frames()) {
     const node = nodes[f.id], box = boxes[f.id]; if (!node) continue;
@@ -941,12 +1228,12 @@ function place() {
     node.dataset.picked = f.section.choose && picks[f.section.id] === f.id;
     node.dataset.archived = !!f.section.archived;
     const mark = status[f.id] === 'approved' ? ' ✓' : status[f.id] === 'change' ? ' •' : '';
-    node.firstChild.replaceChildren(el('b', {textContent: f.name + mark}), document.createTextNode(f.kind === 'page' ? '  ' + f.w + ' × ' + f.h : ''));
+    node.firstChild.replaceChildren(el('b', {textContent: f.name + mark}), f.sketch ? chip('Sketch') : '', f.risk === 'bold' ? chip('Bold', 'bold') : '', document.createTextNode(f.kind === 'page' ? f.w + ' × ' + f.h : f.kind === 'pending' ? 'being drawn' : ''));
     node.querySelectorAll('.pin').forEach(p => p.remove());
     notes.forEach((n, i) => { if (n.frame === f.id && n.x != null) node.append(el('div', {className: 'pin', textContent: String(i + 1), style: 'left:' + n.x * 100 + '%;top:' + n.y * 100 + '%'})); });
   }
   drawLinks(boxes);
-  if (!fitted && Object.keys(boxes).length) { fitted = true; fitAll(); }
+  if (!fitted && !compact && Object.keys(boxes).length) { fitted = true; fitDecision(); }
 }
 
 function drawLinks(boxes) {
@@ -1007,14 +1294,27 @@ addEventListener('resize', () => { if (playing) showPlaying(false); });
 $('play').addEventListener('click', () => present(selected));
 $('flows').addEventListener('click', () => { showLinks = !showLinks; $('flows').setAttribute('aria-pressed', showLinks); place(); });
 
-function select(id) { selected = id; if (live !== id) { live = null; commenting = false; inspecting = false; } if (inspected && inspected.frame !== id) inspected = null; render(); }
+function select(id) {
+  selected = id; const f = id && find(id);
+  if (tool !== 'move' && f && f.kind === 'page' && location.protocol !== 'file:') { live = id; commenting = tool === 'comment'; inspecting = tool === 'inspect'; }
+  else if (live !== id) { live = null; commenting = false; inspecting = false; }
+  if (inspected && inspected.frame !== id) inspected = null; render();
+}
+function setTool(t) {
+  tool = t; const f = selected && find(selected);
+  if (t === 'move' || !f || f.kind !== 'page') { live = null; commenting = false; inspecting = false; }
+  else { live = f.id; commenting = t === 'comment'; inspecting = t === 'inspect'; }
+  render();
+}
+for (const t of ['move', 'comment', 'inspect']) $('tool-' + t).addEventListener('click', () => setTool(t));
 
 // Guided review: one screen at a time, full size, plain questions; options flip with a picker like a prototype.
 function reviewItems() {
   const items = [];
   for (const s of state.sections.filter(s => !s.system && !s.reference)) {
-    if (s.choose) items.push({section: s, frames: s.frames});
-    else for (const f of s.frames) if (state.approvals[f.id] !== 'approved' || touched.has(f.id)) items.push({section: s, frames: [f]});
+    const ready = s.frames.filter(f => f.kind === 'page');
+    if (s.choose) { if (ready.length) items.push({section: s, frames: ready}); }
+    else for (const f of ready) if (state.approvals[f.id] !== 'approved' || touched.has(f.id)) items.push({section: s, frames: [f]});
   }
   return items;
 }
@@ -1081,10 +1381,11 @@ function showReview(load) {
 $('start-review').addEventListener('click', startReview);
 addEventListener('resize', () => { if (reviewing && reviewing.i < reviewing.items.length) { const it = reviewing.items[reviewing.i]; fitReview(it.frames[it.section.choose ? reviewing.option : 0]); } });
 
+function chip(text, tone) { const c = el('i', {className: 'chip', textContent: text}); if (tone) c.dataset.tone = tone; return c; }
 function badge(s) { const b = el('span', {className: 'badge', textContent: state.statuses[s] || s}); b.dataset.status = s; return b; }
 function renderCover() {
   const box = document.querySelector('.frame[data-id="cover"] .cover'); if (!box) return;
-  const design = state.sections.filter(s => !s.system && !s.reference), all = design.flatMap(s => s.frames);
+  const design = state.sections.filter(s => !s.system && !s.reference), all = design.flatMap(s => s.frames.filter(f => f.kind === 'page'));
   const approved = all.filter(f => status[f.id] === 'approved').length;
   const updated = Math.max(0, ...frames().map(f => f.rev || 0));
   box.replaceChildren(
@@ -1101,27 +1402,45 @@ function renderCover() {
 }
 
 function render() {
-  $('title').textContent = state.title + (state.stage ? ' · ' + state.stage : ''); document.title = state.title + ' · Seenry canvas';
-  $('question').textContent = state.question || 'Approve screens, pick between options, pin comments, then send.';
+  $('title').textContent = state.title; document.title = state.title + ' · Seenry canvas';
+  for (const t of ['move', 'comment', 'inspect']) $('tool-' + t).setAttribute('aria-pressed', tool === t);
+  $('viewport').dataset.tool = tool;
+  $('count').textContent = String(frames().filter(f => f.kind === 'page' && !f.section.system && !f.section.reference && !f.section.archived).length);
   $('error').hidden = !state.error; $('error').textContent = state.error || '';
   $('agent').hidden = !state.agentWaiting;
   const outline = $('outline'); outline.replaceChildren();
   if (!state.sections.length) outline.append(el('p', {textContent: 'No screens yet. The agent adds .html files to this folder.', style: 'margin:12px 8px;color:var(--ink-2)'}));
-  for (const section of state.sections) {
-    const head = el('h2', {}, document.createTextNode(section.name + (section.choose ? ' · pick one' : '') + ' '), section.status ? badge(section.status) : '');
+  for (const section of placed()) {
+    const head = el('h2', {}, document.createTextNode(section.name), section.choose && !section.archived ? pickChip(section) : '', section.status ? badge(section.status) : '');
     head.dataset.dim = !!(section.archived || section.library); outline.append(head);
     for (const f of section.frames) {
       const dot = el('span', {className: 'dot'}); dot.dataset.status = status[f.id] || '';
       const count = notes.filter(n => n.frame === f.id).length;
-      const button = el('button', {type: 'button'}, dot, el('span', {className: 'name', textContent: f.name}), section.choose && picks[section.id] === f.id ? el('span', {textContent: 'Picked'}) : '', count ? el('span', {textContent: String(count)}) : '');
+      const button = el('button', {type: 'button'}, dot, el('span', {className: 'name', textContent: f.name}), section.choose && picks[section.id] === f.id ? el('span', {className: 'meta', textContent: 'Picked'}) : '', count ? el('span', {className: 'meta', textContent: count + ' note' + (count === 1 ? '' : 's')}) : el('span', {className: 'meta', textContent: f.kind === 'pending' ? 'drawing' : f.sketch ? 'sketch' : f.device === 'desktop' || f.device === 'image' ? '' : f.device}));
+      button.dataset.kind = f.kind;
       button.setAttribute('aria-current', selected === f.id);
       button.addEventListener('click', () => { select(f.id); focusFrame(f.id); });
       outline.append(button);
     }
   }
   const inspector = $('inspector'), f = selected && find(selected);
-  inspector.hidden = !f;
-  if (f) {
+  if (!f) {
+    const open = state.sections.filter(s => s.choose && !s.study && !s.archived && s.frames.some(x => x.kind === 'page'));
+    inspector.replaceChildren(el('h3', {textContent: open.length ? 'Your decision' : 'Review'}),
+      el('p', {textContent: state.question || (open.length ? 'Pick one option in each set. The rest of the work waits on it.' : 'Approve screens, pin comments, then send.')}),
+      ...open.map(s => el('div', {className: 'decision'}, el('p', {className: 'eyebrow', textContent: s.name}), ...s.frames.filter(x => x.kind === 'page').map(o => {
+        const b = el('button', {type: 'button', className: 'choice'}, el('b', {textContent: o.name}), el('em', {textContent: picks[s.id] === o.id ? 'Picked' : 'Pick'}), o.axis || o.note ? el('span', {textContent: o.axis || o.note}) : '');
+        b.setAttribute('aria-pressed', picks[s.id] === o.id);
+        b.addEventListener('click', () => { picks[s.id] = picks[s.id] === o.id ? null : o.id; render(); });
+        b.addEventListener('mouseenter', () => { nodes[o.id]?.setAttribute('data-selected', 'true'); });
+        b.addEventListener('mouseleave', () => { nodes[o.id]?.setAttribute('data-selected', 'false'); });
+        return b;
+      }))),
+      el('div', {className: 'row'}, Object.assign(el('button', {type: 'button', className: 'btn', textContent: 'Review one at a time'}), {onclick: startReview})),
+      state.timing && state.timing.firstOption ? el('p', {className: 'eyebrow', textContent: 'First option ' + since(state.timing.started, state.timing.firstOption) + ' after start'}) : '');
+  } else if (f.kind === 'pending') {
+    inspector.replaceChildren(el('h3', {textContent: f.name}), el('p', {textContent: 'The agent is drawing this screen. It appears here the moment its file is written.'}));
+  } else {
     const toggle = (text, on, fn) => { const b = el('button', {type: 'button', className: 'btn', textContent: text}); b.setAttribute('aria-pressed', on); b.addEventListener('click', fn); return b; };
     const set = value => () => { status[f.id] = status[f.id] === value ? '' : value; touched.add(f.id); render(); };
     const actions = el('div', {className: 'row'});
@@ -1133,8 +1452,8 @@ function render() {
     const whole = el('button', {type: 'button', className: 'btn', textContent: 'Add note'});
     whole.addEventListener('click', () => ask({frame: f.id, selector: '', target: 'whole screen'}));
     tools.append(whole);
-    if (f.kind === 'page' && location.protocol !== 'file:') tools.append(toggle(commenting && live === f.id ? 'Click an element…' : 'Pin a comment', commenting && live === f.id, () => { const on = !(commenting && live === f.id); commenting = on; inspecting = false; live = on ? f.id : null; render(); }));
-    if (f.kind === 'page' && location.protocol !== 'file:') tools.append(toggle(inspecting && live === f.id ? 'Click an element…' : 'Inspect', inspecting && live === f.id, () => { const on = !(inspecting && live === f.id); inspecting = on; commenting = false; live = on ? f.id : null; render(); }));
+    if (f.kind === 'page' && location.protocol !== 'file:') tools.append(toggle(commenting && live === f.id ? 'Click an element…' : 'Pin a comment', commenting && live === f.id, () => setTool(commenting && live === f.id ? 'move' : 'comment')));
+    if (f.kind === 'page' && location.protocol !== 'file:') tools.append(toggle(inspecting && live === f.id ? 'Click an element…' : 'Inspect', inspecting && live === f.id, () => setTool(inspecting && live === f.id ? 'move' : 'inspect')));
     if (f.kind === 'page') { const play = el('button', {type: 'button', className: 'btn', textContent: '▶ Present'}); play.addEventListener('click', () => present(f.id)); tools.append(play); }
     if (f.kind === 'page') tools.append(toggle('Use it', live === f.id && !commenting, () => { live = live === f.id && !commenting ? null : f.id; commenting = false; render(); }));
     tools.append(el('a', {className: 'btn', href: f.src, target: '_blank', rel: 'noopener', textContent: 'Open'}));
@@ -1155,11 +1474,293 @@ function render() {
     const label = f.section.choose && (f.axis || f.wins || f.cost || f.risk) ? el('div', {className: 'notes'}, el('p', {}, el('strong', {textContent: f.risk === 'bold' ? 'Bold · ' : f.risk === 'safe' ? 'Safe · ' : ''}), document.createTextNode(f.axis || '')), f.wins ? el('p', {textContent: 'Right when: ' + f.wins}) : '', f.cost ? el('p', {textContent: 'Costs: ' + f.cost}) : '') : '';
     inspector.replaceChildren(el('h3', {textContent: f.name}), f.note ? el('p', {textContent: f.note}) : '', label, actions, tools, specs, handoffSpecs, list);
   }
-  renderCover();
-  $('hint').hidden = !live; $('hint').textContent = inspecting ? 'Click any element to inspect its values and variables. Esc to stop.' : commenting ? 'Click the element to comment on. Esc to stop.' : 'Using this screen. Click outside it or press Esc to go back to the canvas.';
+  renderCover(); updateCompact(); renderLive();
+  $('hint').hidden = !live && tool === 'move';
+  $('hint').textContent = inspecting ? 'Click any element to inspect its values and variables. Esc to stop.' : commenting ? 'Click the element to comment on. Esc to stop.' : live ? 'Using this screen. Click outside it or press Esc to go back to the canvas.' : tool === 'comment' ? 'Click a screen to comment on it. Esc to stop.' : 'Click a screen to inspect it. Esc to stop.';
   place();
 }
 
+const ago = at => { const s = Math.max(0, (Date.now() - Date.parse(at)) / 1000); return s < 45 ? 'now' : s < 3600 ? Math.round(s / 60) + 'm' : s < 86400 ? Math.round(s / 3600) + 'h' : Math.round(s / 86400) + 'd'; };
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)');
+const EYES = '<svg viewBox="0 0 64 64" aria-hidden="true"><rect class="seen-tile" width="64" height="64" rx="18"/><g class="seen-look"><rect class="seen-eye" x="18.5" y="22" width="10" height="20" rx="5"/><rect class="seen-eye" x="35.5" y="22" width="10" height="20" rx="5"/></g></svg>';
+const markNode = cls => { const m = el('span', {className: 'sx-mark' + (cls ? ' ' + cls : '')}); m.innerHTML = EYES; return m; };
+function agentNow() {
+  const list = state.activity || [], last = list.at(-1), fresh = e => Date.now() - Date.parse(e.at) < 60000;
+  const on = [...list].reverse().find(e => e.frame && find(e.frame) && fresh(e));
+  return {last, active: !!last && Date.now() - Date.parse(last.at) < 90000, frame: on ? on.frame : null, text: on ? on.text : ''};
+}
+function blink(node) { if (!node || REDUCED.matches) return; node.classList.remove('is-blink'); void node.getBoundingClientRect(); node.classList.add('is-blink'); setTimeout(() => node.classList.remove('is-blink'), 220); }
+(function idleBlink() { setTimeout(() => { if (!document.hidden) blink($('mark')); idleBlink(); }, 4000 + Math.random() * 5000); })();
+// The mark in the header looks toward the screen Seenry is working on.
+function gaze() {
+  const a = state ? agentNow() : {}, target = a.frame && (compact ? cards[a.frame] && cards[a.frame].card : nodes[a.frame]), look = $('mark').querySelector('.seen-look');
+  if (!target || REDUCED.matches) { look.style.transform = ''; return; }
+  const m = $('mark').getBoundingClientRect(), r = target.getBoundingClientRect(), dx = r.left + r.width / 2 - (m.left + m.width / 2), dy = r.top + Math.min(r.height, 300) / 2 - (m.top + m.height / 2), d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 420) * 3.2;
+  look.style.transform = 'translate(' + (dx / d * k).toFixed(2) + 'px,' + (dy / d * k).toFixed(2) + 'px)';
+}
+function feed(root) {
+  const a = agentNow(), items = (state.activity || []).slice(-10).reverse();
+  root.dataset.active = a.active;
+  root.replaceChildren(el('div', {className: 'live-head'}, el('span', {className: 'live-dot'}), el('b', {textContent: 'Seenry, live'}), el('span', {className: 'meta', textContent: a.active ? 'working now' : items.length ? 'last step ' + ago(items[0].at) + (ago(items[0].at) === 'now' ? '' : ' ago') : ''})),
+    ...(items.length ? items.map(e => { const b = el('button', {type: 'button', className: 'live-item', disabled: !(e.frame && find(e.frame))}, el('span', {className: 'meta', textContent: ago(e.at)}), el('span', {textContent: e.text})); b.onclick = () => show(e.frame); return b; })
+      : [el('p', {className: 'live-empty', textContent: 'What Seenry draws, checks and fixes shows here as it happens.'})]));
+}
+function renderLive() {
+  if (!state) return;
+  const a = agentNow(), name = a.frame && find(a.frame) ? find(a.frame).name : '';
+  $('presence-text').textContent = (state.agentWaiting ? 'Seenry is waiting for you' : a.active ? (name ? 'Seenry is working on ' + name : 'Seenry is working') : a.last ? 'Seenry · last step ' + ago(a.last.at) + (ago(a.last.at) === 'now' ? '' : ' ago') : 'Seenry is ready') + (following ? ' · following' : '');
+  $('agent-presence').dataset.active = a.active || !!state.agentWaiting; $('agent-presence').setAttribute('aria-pressed', following);
+  feed($('live')); feed($('c-feed'));
+  $('c-live').dataset.active = a.active;
+  $('c-live-text').textContent = a.last ? (a.active ? '' : ago(a.last.at) + ' · ') + a.last.text : 'What Seenry draws, checks and fixes shows here as it happens.';
+  for (const [id, node] of Object.entries(nodes)) { const on = a.frame === id, tag = node.querySelector('.agent-tag'); node.dataset.agent = on; if (on) { tag.innerHTML = EYES; tag.append(document.createTextNode('Seenry · ' + a.text)); } else tag.replaceChildren(); }
+  for (const [id, c] of Object.entries(cards)) c.card.dataset.agent = a.frame === id;
+  if (a.last && a.last.at !== lastAt) { const fresh = lastAt !== ''; lastAt = a.last.at; if (fresh) blink($('mark')); if (following && fresh && a.frame) show(a.frame, true); }
+  gaze();
+}
+function show(id, follow) { if (!id || !find(id)) return; if (follow && !compact) { if (!replaying.has(id)) focusFrame(id); return; } if (compact) { const c = cards[id]; if (c) c.card.scrollIntoView({block: 'center', behavior: REDUCED.matches ? 'auto' : 'smooth'}); } else { select(id); focusFrame(id); } }
+$('agent-presence').addEventListener('click', () => { following = !following; if (following) show(agentNow().frame); renderLive(); });
+setInterval(renderLive, 15000);
+
+// Seenry's cursor. A screen is written to disk whole, so when one lands or changes the canvas compares it with what was
+// there and plays the change back: the eyes travel to each new or changed component in reading order, it lands, and its
+// text types in. With reduced motion the changed parts are outlined instead.
+const SKIP = new Set(['SCRIPT', 'STYLE', 'LINK', 'META', 'TITLE', 'TEMPLATE', 'NOSCRIPT', 'BR', 'HEAD', 'SOURCE', 'TRACK']);
+const snaps = new WeakMap(), born = new Set(), parked = new Map(), replaying = new Set();
+// Follow keeps the component being built in view: the frame's width fits the canvas and the view glides to the cursor.
+let glideFrame = 0;
+function glide(tx, ty, tz) {
+  cancelAnimationFrame(glideFrame);
+  const from = {x: view.x, y: view.y, z: view.z}, t0 = performance.now(), d = REDUCED.matches ? 0 : 560;
+  const tick = now => { const p = d ? Math.min(1, (now - t0) / d) : 1, e = 1 - Math.pow(1 - p, 3); view.x = from.x + (tx - from.x) * e; view.y = from.y + (ty - from.y) * e; view.z = from.z + (tz - from.z) * e; apply(); if (p < 1) glideFrame = requestAnimationFrame(tick); else place(); };
+  glideFrame = requestAnimationFrame(tick);
+}
+function followUnit(fr, f, r) {
+  if (!following || compact || !fr.closest('#world')) return;
+  const vp = $('viewport').getBoundingClientRect(), z = Math.min(1, (vp.width - 120) / f.w), box = layout()[f.id];
+  if (!box) return;
+  const sy = vp.height * 0.4 - (box.y + r.top + r.height / 2) * z, sx = vp.width / 2 - (box.x + box.w / 2) * z;
+  if (Math.abs(sx - view.x) < 24 && Math.abs(sy - view.y) < 24 && Math.abs(z - view.z) < 0.01) return;
+  glide(sx, sy, z);
+}
+const ownText = n => { let t = ''; for (const c of n.childNodes) if (c.nodeType === 3) t += c.nodeValue; return t.trim().replace(/\s+/g, ' '); };
+const sigOf = n => n.tagName + '|' + (n.getAttribute('class') || '') + '|' + ownText(n).slice(0, 240) + '|' + (n.getAttribute('src') || n.getAttribute('href') || '') + '|' + (n.getAttribute('style') || '');
+function unitsOf(doc) {
+  const win = doc.defaultView, out = [];
+  for (const n of doc.body.querySelectorAll('*')) {
+    if (SKIP.has(n.tagName) || (n.id || '').startsWith('seenry-') || n.closest('[id^="seenry-"]')) continue;
+    const svg = n.closest('svg'); if (svg && svg !== n) continue;
+    if (n.parentElement && n.parentElement.closest('button, select, picture, a[class*="btn"], a[class*="button"]')) continue;
+    const r = n.getBoundingClientRect(); if (r.width < 4 || r.height < 4) continue;
+    const c = win.getComputedStyle(n); if (c.visibility === 'hidden' || c.display === 'contents') continue;
+    const media = /^(IMG|svg|SVG|VIDEO|CANVAS|INPUT|BUTTON|TEXTAREA|SELECT|PICTURE|IFRAME)$/.test(n.tagName);
+    const boxed = (c.backgroundColor !== 'rgba(0, 0, 0, 0)' && c.backgroundColor !== 'transparent') || c.backgroundImage !== 'none' || (parseFloat(c.borderTopWidth) > 0 && c.borderTopStyle !== 'none') || c.boxShadow !== 'none';
+    if (media || ownText(n) || boxed) out.push(n);
+  }
+  if (out.length > 90) { const area = n => { const r = n.getBoundingClientRect(); return r.width * r.height; }; const keep = new Set(out.filter(n => ownText(n)).slice(0, 70)); for (const n of out.slice().sort((a, b) => area(b) - area(a))) { if (keep.size >= 90) break; keep.add(n); } return out.filter(n => keep.has(n)); }
+  return out;
+}
+function frameLoaded(fr, f, reveal = () => {}) {
+  let doc; try { doc = fr.contentDocument; } catch (e) { reveal(); return; }
+  if (!doc || !doc.body) { reveal(); return; }
+  const go = () => {
+    // Parts are matched by what they are, not where they sit, so a part inserted above others leaves those alone.
+    const prev = snaps.get(fr), all = unitsOf(doc), next = new Map();
+    for (const n of all) { const k = sigOf(n); next.set(k, (next.get(k) || 0) + 1); }
+    snaps.set(fr, next);
+    if (!(compact ? fr.closest('#c-list') : fr.closest('#world'))) { reveal(); return; }
+    let list = null;
+    if (prev) { const left = new Map(prev), changed = all.filter(n => { const k = sigOf(n), c = left.get(k) || 0; if (c) { left.set(k, c - 1); return false; } return true; }); if (changed.length) list = changed; }
+    else if (born.has(f.id)) list = all;
+    born.delete(f.id);
+    if (list && list.length) replay(fr, f, list, !prev);
+    reveal();
+  };
+  (doc.fonts ? doc.fonts.ready : Promise.resolve()).then(() => setTimeout(go, 80));
+}
+function swap(fr, f) {
+  if (!fr) return;
+  const src = f.src + '?v=' + f.rev;
+  if (fr.tagName !== 'IFRAME') { fr.src = src; return; }
+  for (const x of fr.parentElement.querySelectorAll('iframe[data-next]')) x.remove();
+  const next = fr.cloneNode(false);
+  next.removeAttribute('loading'); next.dataset.next = ''; next.src = src;
+  Object.assign(next.style, {position: 'absolute', top: '0', visibility: 'hidden'});
+  if (!fr.style.left) next.style.left = '0';
+  next.addEventListener('load', () => {
+    if (!next.isConnected) return;
+    snaps.set(next, snaps.get(fr));
+    try { applyView(next.contentDocument); } catch (e) {}
+    if (next.closest('#world')) arm(next, f);
+    frameLoaded(next, f, () => { next.style.visibility = ''; delete next.dataset.next; fr.remove(); });
+  });
+  fr.after(next);
+}
+function idleCursor(f) {
+  const c = el('div', {className: 'idle'}); c.innerHTML = EYES;
+  c.append(el('span', {textContent: 'Seenry · starting ' + f.name}));
+  return c;
+}
+function replay(fr, f, units, fresh) {
+  const doc = fr.contentDocument, win = doc.defaultView, token = {};
+  doc.__seenry = token;
+  const recent = (state.activity || []).filter(e => e.frame === f.id && Date.now() - Date.parse(e.at) < 60000 && e.kind !== 'edit').at(-1);
+  const base = recent ? recent.text : (fresh ? 'Building ' : 'Changing ') + f.name;
+  const partOf = n => { const p = n.closest('[data-seenry-part]'); return p ? p.getAttribute('data-seenry-part') : ''; };
+  const label = 'Seenry · ' + (partOf(units[0]) || base);
+  replaying.add(f.id);
+  const m = (fr.style.transform || '').match(/scale\(([\d.]+)\)/), k = fr.closest('#world') ? view.z : m ? Number(m[1]) : 1, inv = Math.min(8, 1 / Math.max(0.05, k));
+  doc.getElementById('seenry-cursor')?.remove(); doc.getElementById('seenry-replay')?.remove();
+  const css = doc.createElement('style'); css.id = 'seenry-replay';
+  css.textContent = '[data-seenry-wait]{opacity:0!important}[data-seenry-in]{animation:seenry-in 280ms cubic-bezier(.23,1,.32,1) both}@keyframes seenry-in{from{opacity:0;translate:0 8px}to{opacity:1;translate:0 0}}[data-seenry-typing]::after{content:"";display:inline-block;width:.08em;min-width:2px;height:1em;margin-left:2px;vertical-align:-.12em;background:currentColor;animation:seenry-caret .9s steps(1) infinite}@keyframes seenry-caret{50%{opacity:0}}[data-seenry-mark]{outline:2px solid #171717!important;outline-offset:4px!important;border-radius:4px}#seenry-cursor{position:absolute;left:0;top:0;z-index:2147483647;pointer-events:none;transform-origin:0 0;transition:transform 420ms cubic-bezier(.23,1,.32,1),opacity 300ms;display:flex;align-items:center;gap:7px;font:600 13px/1 "Open Runde",ui-rounded,system-ui,sans-serif}#seenry-cursor svg{width:26px;height:26px;flex:none;filter:drop-shadow(0 2px 6px rgb(0 0 0 / .25))}#seenry-cursor .t{fill:#171717;stroke:#fff;stroke-width:5;paint-order:stroke}#seenry-cursor.flip{flex-direction:row-reverse}#seenry-cursor .e{fill:#fff;transform-box:fill-box;transform-origin:center}#seenry-cursor g{transition:transform 260ms cubic-bezier(.23,1,.32,1)}#seenry-cursor.blink .e{animation:seenry-blink 180ms}@keyframes seenry-blink{50%{transform:scaleY(.12)}}#seenry-cursor.quiet span{opacity:0}#seenry-cursor span{transition:opacity .3s;background:#171717;color:#fff;padding:7px 11px;border-radius:999px;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 0 1px rgb(255 255 255 / .12),0 8px 24px rgb(0 0 0 / .18)}';
+  doc.head.append(css);
+  const cur = doc.createElement('div'); cur.id = 'seenry-cursor'; cur.setAttribute('aria-hidden', 'true');
+  cur.innerHTML = '<svg viewBox="0 0 64 64"><rect class="t" width="64" height="64" rx="18"/><g><rect class="e" x="18.5" y="22" width="10" height="20" rx="5"/><rect class="e" x="35.5" y="22" width="10" height="20" rx="5"/></g></svg><span></span>';
+  cur.lastChild.textContent = label; doc.body.append(cur);
+  let [x, y] = parked.get(f.id) || [24, 24];
+  // The cursor sits on the element's top edge, eyes at its corner, so the label never covers what is being written; near the right edge the label flips to the left of the eyes.
+  const at = (nx, ny, d) => {
+    const dx = nx - x, dy = ny - y, len = Math.hypot(dx, dy) || 1, w = cur.offsetWidth * inv, flip = nx + w > win.innerWidth - 8;
+    cur.classList.toggle('flip', flip);
+    cur.firstChild.lastChild.style.transform = 'translate(' + (dx / len * 3.5).toFixed(1) + 'px,' + (dy / len * 3.5).toFixed(1) + 'px)';
+    cur.style.transitionDuration = d + 'ms, 300ms'; x = nx; y = ny;
+    cur.style.transform = 'translate(' + Math.max(4, flip ? x - w + 26 * inv : x) + 'px,' + y + 'px) scale(' + inv + ')';
+  };
+  // The eyes sit in the margin left of the line being written; with no margin, on the part's top edge.
+  const pos = n => { const r = n.getBoundingClientRect(), side = r.left - 34 * inv; return side >= 4 ? [side + win.scrollX, r.top + win.scrollY + Math.min(r.height / 2, 14) - 13 * inv] : [r.left + win.scrollX, Math.max(4, r.top + win.scrollY - 32 * inv)]; };
+  let shown = '', quiet = 0;
+  const say = text => { cur.lastChild.textContent = text; if (text === shown) return; shown = text; cur.classList.remove('quiet'); clearTimeout(quiet); quiet = setTimeout(() => cur.classList.add('quiet'), 1500); };
+  const follow = n => { const r = n.getBoundingClientRect(); if (r.top < 0 || r.bottom > win.innerHeight) win.scrollTo({top: Math.max(0, r.top + win.scrollY - win.innerHeight * 0.3), behavior: REDUCED.matches ? 'auto' : 'smooth'}); };
+  at(x, y, 0);
+  const done = () => setTimeout(() => {
+    if (doc.__seenry !== token) return;
+    replaying.delete(f.id);
+    cur.style.opacity = '0';
+    if (win.scrollY && fr.closest('#c-list')) win.scrollTo({top: 0, behavior: REDUCED.matches ? 'auto' : 'smooth'});
+    setTimeout(() => { if (doc.__seenry !== token) return; cur.remove(); css.remove(); for (const n of doc.querySelectorAll('[data-seenry-in],[data-seenry-mark],[data-seenry-wait]')) { n.removeAttribute('data-seenry-in'); n.removeAttribute('data-seenry-mark'); n.removeAttribute('data-seenry-wait'); } }, 420);
+  }, REDUCED.matches ? 2400 : 6000);
+  if (REDUCED.matches) { units.forEach(n => n.setAttribute('data-seenry-mark', '')); follow(units[0]); at(...pos(units[0]), 0); done(); return; }
+  units.forEach(n => n.setAttribute('data-seenry-wait', ''));
+  const step = Math.max(70, Math.min(360, 5200 / units.length)), travel = Math.min(420, Math.max(120, step * 0.7));
+  let i = 0;
+  const type = n => {
+    const kids = [...n.childNodes], text = n.textContent, c = win.getComputedStyle(n);
+    if (kids.some(k => k.nodeType === 1) || !text.trim() || text.length > 420 || /^inline$/.test(c.display)) return 0;
+    const ms = units.length > 40 ? step * 0.8 : Math.min(1100, Math.max(160, text.length * 16)), r = n.getBoundingClientRect(), keepH = n.style.minHeight;
+    n.style.minHeight = r.height + 'px'; n.textContent = ''; n.setAttribute('data-seenry-typing', '');
+    const t0 = performance.now();
+    const tick = now => { if (doc.__seenry !== token) { n.textContent = text; return; } const p = Math.min(1, (now - t0) / ms); n.textContent = text.slice(0, Math.ceil(text.length * p)); if (p < 1) win.requestAnimationFrame(tick); else { n.removeAttribute('data-seenry-typing'); n.style.minHeight = keepH; } };
+    win.requestAnimationFrame(tick);
+    return ms;
+  };
+  const next = () => {
+    if (doc.__seenry !== token) return;
+    if (i >= units.length) return done();
+    const n = units[i++], part = partOf(n);
+    say('Seenry · ' + (part || base));
+    follow(n); at(...pos(n), travel); parked.set(f.id, [x, y]); followUnit(fr, f, n.getBoundingClientRect());
+    if (i % 7 === 1) { cur.classList.remove('blink'); void cur.offsetWidth; cur.classList.add('blink'); }
+    setTimeout(() => {
+      if (doc.__seenry !== token) return;
+      n.removeAttribute('data-seenry-wait'); n.setAttribute('data-seenry-in', '');
+      const typed = type(n);
+      setTimeout(next, Math.max(step, typed + 60));
+    }, travel * 0.8);
+  };
+  setTimeout(next, 200);
+}
+
+// The board is the default: what needs the person, pinned up at a readable size. The Map is the whole file on one canvas.
+const prefView = () => { try { return localStorage.getItem('seenry-canvas-view'); } catch (e) { return null; } };
+const wantsCompact = () => { const v = new URLSearchParams(location.search).get('view'); if (v === 'canvas' || v === 'map') return false; if (v === 'board' || v === 'compact') return true; return matchMedia('(max-width: 820px)').matches || (!forceCanvas && prefView() === 'board'); };
+function setCompact(on) {
+  compact = on; document.body.dataset.compact = on;
+  $(on ? 'c-rail' : 'panel').append($('composer'));
+  $('view-board').setAttribute('aria-selected', on); $('view-map').setAttribute('aria-selected', !on);
+  if (on) buildCompact(); else { fitted = false; place(); }
+  render();
+}
+const choose = map => { forceCanvas = map; try { localStorage.setItem('seenry-canvas-view', map ? 'map' : 'board'); } catch (e) {} setCompact(!map); };
+$('view-board').addEventListener('click', () => choose(false));
+$('view-map').addEventListener('click', () => choose(true));
+matchMedia('(max-width: 820px)').addEventListener('change', () => setCompact(wantsCompact()));
+function intro(open, sections) {
+  const pending = frames().filter(f => f.kind === 'pending' && !f.section.system).length, wait = pending ? ' Seenry is still drawing ' + pending + (pending === 1 ? ' screen.' : ' screens.') : '';
+  if (!sections.length) return el('header', {className: 'b-intro b-empty'}, markNode(), el('h2', {textContent: 'Seenry hasn’t drawn anything yet'}), el('p', {textContent: 'Screens appear here the moment they are written, and you can watch each one come together.'}));
+  if (open.length === 1) { const n = open[0].frames.filter(f => f.kind === 'page').length; return el('header', {className: 'b-intro'}, el('h2', {textContent: state.question || 'Choose a direction for ' + open[0].name}), el('p', {textContent: 'Seenry drew ' + n + ' directions. Choose one, or ask for more like the one closest to what you want.' + wait})); }
+  if (open.length) return el('header', {className: 'b-intro'}, el('h2', {textContent: state.question || open.length + ' choices are waiting for you'}), el('p', {textContent: 'Choose one option in each set. Everything else waits on these.' + wait}));
+  const drawing = sections.find(s => s.choose && !s.study && !picks[s.id] && s.frames.some(f => f.kind === 'pending'));
+  if (drawing) return el('header', {className: 'b-intro'}, el('h2', {textContent: 'Seenry is drawing directions for ' + drawing.name}), el('p', {textContent: 'Each one appears here as it lands, built up component by component. Watch it, or come back when they are ready.'}));
+  return el('header', {className: 'b-intro'}, el('h2', {textContent: state.question || 'Review the screens'}), el('p', {textContent: 'Approve what is ready and leave a note on what is not. Send it to Seenry when you are done.' + wait}));
+}
+function card(f, s, big) {
+  const thumb = el('div', {className: 'c-thumb'}, el('span', {className: 'c-chosen', textContent: '✓ Chosen'}));
+  thumb.dataset.w = f.w; thumb.dataset.h = f.h;
+  if (f.kind === 'page') {
+    const fr = el('iframe', {src: f.src + '?v=' + f.rev, title: f.name, loading: 'lazy', tabIndex: -1});
+    Object.assign(fr.style, {width: f.w + 'px', height: f.h + 'px'});
+    fr.addEventListener('load', () => { try { applyView(fr.contentDocument); } catch (e) {} frameLoaded(fr, f); });
+    thumb.append(fr); thumb.addEventListener('click', () => present(f.id)); thumb.title = 'Open ' + f.name + ' full size';
+    thumb.tabIndex = 0; thumb.setAttribute('role', 'button'); thumb.setAttribute('aria-label', 'Open ' + f.name + ' full size');
+    thumb.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); present(f.id); } });
+  } else thumb.append(el('div', {className: 'blank'}, idleCursor(f)));
+  const actions = el('div', {className: 'row'});
+  const why = big && (f.wins || f.cost) ? el('dl', {className: 'c-why'}, ...(f.wins ? [el('dt', {textContent: 'Right when'}), el('dd', {textContent: f.wins})] : []), ...(f.cost ? [el('dt', {textContent: 'Costs'}), el('dd', {textContent: f.cost})] : [])) : '';
+  const node = el('article', {className: 'c-card'}, thumb, el('div', {className: 'c-body'},
+    el('div', {className: 'c-title'}, el('b', {textContent: f.name}), f.sketch ? chip('Sketch') : '', f.risk === 'bold' ? chip('Bold', 'bold') : ''),
+    f.kind === 'page' && (f.axis || f.note) ? el('p', {textContent: f.axis || f.note}) : '', why, actions));
+  node.dataset.kind = f.kind;
+  cards[f.id] = {card: node, actions, f, s};
+  return node;
+}
+function buildCompact() {
+  const root = $('c-list'); root.replaceChildren();
+  for (const k in cards) delete cards[k]; for (const k in heads) delete heads[k];
+  const sections = placed().filter(s => !s.system && !s.reference && !s.archived), open = sections.filter(isOpen);
+  root.append(intro(open, sections));
+  const decisions = sections.filter(s => s.choose && !s.study), rest = sections.filter(s => !decisions.includes(s));
+  for (const s of decisions) {
+    const row = el('div', {className: 'b-row'}); row.style.setProperty('--n', Math.min(3, Math.max(1, s.frames.length)));
+    for (const f of s.frames) row.append(card(f, s, true));
+    root.append(el('section', {className: 'b-section'}, heads[s.id] = el('div', {className: 'b-head'}), row));
+  }
+  for (const s of rest) {
+    const grid = el('div', {className: 'b-grid'});
+    for (const f of s.frames) grid.append(card(f, s, false));
+    root.append(el('section', {className: 'b-section'}, heads[s.id] = el('div', {className: 'b-head'}), grid));
+  }
+  requestAnimationFrame(scaleCompact); updateCompact(); renderLive();
+}
+// Each card shows the screen's first viewport at the card's width; a phone screen keeps its shape, centred.
+function scaleCompact() {
+  for (const {card} of Object.values(cards)) {
+    const t = card.firstChild, w = +t.dataset.w, h = +t.dataset.h, cw = t.clientWidth, fr = t.querySelector('iframe');
+    if (!fr || !cw) continue;
+    const k = Math.min(1, cw / w, w < 600 ? 520 / h : 1);
+    fr.style.transform = 'scale(' + k + ')'; fr.style.left = Math.round((cw - w * k) / 2) + 'px'; t.style.height = Math.round(h * k) + 'px';
+  }
+}
+new ResizeObserver(() => { if (compact) scaleCompact(); }).observe($('compact'));
+function updateCompact() {
+  if (!compact) return;
+  for (const s of state.sections) if (heads[s.id]) heads[s.id].replaceChildren(el('h3', {textContent: s.name}), s.choose ? pickChip(s) : '');
+  for (const {card, actions, f, s} of Object.values(cards)) {
+    card.dataset.picked = !!(s.choose && picks[s.id] === f.id);
+    actions.replaceChildren(); if (f.kind !== 'page') continue;
+    const b = (text, on, fn, cls) => { const x = el('button', {type: 'button', className: 'btn' + (cls ? ' ' + cls : ''), textContent: text}); x.setAttribute('aria-pressed', on); x.onclick = fn; return x; };
+    if (s.choose) {
+      const picked = picks[s.id] === f.id, riffed = riffs.some(r => r.frame === f.id);
+      actions.append(b(picked ? 'Chosen' : 'Choose this', picked, () => { picks[s.id] = picked ? null : f.id; render(); }, picked ? '' : 'primary'),
+        b(riffed ? 'Asked for more' : 'More like this', riffed, () => { const i = riffs.findIndex(r => r.frame === f.id); if (i >= 0) riffs.splice(i, 1); else riffs.push({section: s.id, frame: f.id}); render(); }));
+    } else {
+      const set = v => () => { status[f.id] = status[f.id] === v ? '' : v; touched.add(f.id); render(); };
+      actions.append(b(status[f.id] === 'approved' ? 'Approved' : 'Approve', status[f.id] === 'approved', set('approved')), b('Needs changes', status[f.id] === 'change', set('change')));
+    }
+    const count = notes.filter(n => n.frame === f.id).length;
+    actions.append(b(count ? count + (count === 1 ? ' note' : ' notes') : 'Add a note', false, () => ask({frame: f.id, selector: '', target: 'whole screen'}), 'quiet'));
+  }
+}
+function since(a, b) { const ms = Date.parse(b) - Date.parse(a); return !(ms >= 0) ? '' : ms < 90000 ? Math.max(1, Math.round(ms / 1000)) + ' s' : Math.round(ms / 60000) + ' min'; }
 function summary() {
   const lines = [];
   for (const s of state.sections) if (s.choose) lines.push(s.name + ': ' + (picks[s.id] ? 'picked ' + picks[s.id] : riffs.some(r => r.section === s.id) ? 'more like ' + riffs.filter(r => r.section === s.id).map(r => r.frame).join(', ') : 'no pick'));
@@ -1184,12 +1785,14 @@ viewport.addEventListener('pointermove', e => {
   if (!drag) return;
   const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
   if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+  if (!drag.moved && following) { following = false; renderLive(); }
   drag.moved = true; viewport.classList.add('panning'); view.x = drag.vx + dx; view.y = drag.vy + dy; apply();
 });
 const release = () => { if (!drag) return; viewport.classList.remove('panning'); if (!drag.moved) { if (drag.id) select(drag.id); else { selected = null; render(); } } drag = null; };
 viewport.addEventListener('pointerup', release); viewport.addEventListener('pointercancel', release);
 viewport.addEventListener('wheel', e => {
   if (live) return;
+  if (following) { following = false; renderLive(); }
   e.preventDefault();
   if (e.ctrlKey || e.metaKey) zoomAt(e.clientX, e.clientY, view.z * Math.exp(-e.deltaY * 0.01));
   else { view.x -= e.deltaX; view.y -= e.deltaY; apply(); }
@@ -1199,6 +1802,7 @@ $('zoom-in').addEventListener('click', () => zoomAt(...centre(), view.z * 1.25))
 $('zoom-out').addEventListener('click', () => zoomAt(...centre(), view.z / 1.25));
 $('zoom-level').addEventListener('click', () => zoomAt(...centre(), 1));
 $('zoom-fit').addEventListener('click', fitAll);
+$('zoom-decision').addEventListener('click', fitDecision);
 addEventListener('keydown', e => {
   if (e.target.closest('textarea, input, dialog')) return;
   if (reviewing) {
@@ -1209,14 +1813,21 @@ addEventListener('keydown', e => {
     return;
   }
   if (playing) { if (e.key === 'Escape') closePresent(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); return; }
-  if (e.key === 'Escape') { live = null; commenting = false; inspecting = false; render(); }
+  if (e.key === 'Escape') { tool = 'move'; live = null; commenting = false; inspecting = false; render(); }
+  else if (e.key === 'v' || e.key === 'V') setTool('move');
+  else if (e.key === 'c' || e.key === 'C') setTool('comment');
+  else if (e.key === '2') fitDecision();
+  else if (e.key === 'a' || e.key === 'A') $('agent-presence').click();
+  else if (e.key === 'l' || e.key === 'L') choose(compact);
+  else if (e.key === 'b' || e.key === 'B') choose(false);
+  else if (e.key === 'm' || e.key === 'M') choose(true);
   else if (e.key === 'p' || e.key === 'P') present(selected);
   else if (e.key === 'f' || e.key === 'F') $('flows').click();
   else if (e.key === 'g' || e.key === 'G') $('grid').click();
   else if (e.key === 's' || e.key === 'S') $('specs-toggle').click();
   else if (e.key === 'r' || e.key === 'R') startReview();
   else if (e.key === 'd' || e.key === 'D') $('mode').click();
-  else if (e.key === 'i' || e.key === 'I') { if (selected && find(selected)?.kind === 'page') { inspecting = !(inspecting && live === selected); commenting = false; live = inspecting ? selected : null; render(); } }
+  else if (e.key === 'i' || e.key === 'I') setTool(tool === 'inspect' ? 'move' : 'inspect');
   else if (e.key === '1') fitAll();
   else if (e.key === '+' || e.key === '=') zoomAt(...centre(), view.z * 1.25);
   else if (e.key === '-') zoomAt(...centre(), view.z / 1.25);
@@ -1243,16 +1854,17 @@ function syncApprovals() {
 }
 
 async function load() {
-  if (EMBEDDED) { state = EMBEDDED; build(); syncApprovals(); render(); return; }
+  if (EMBEDDED) { state = EMBEDDED; build(); syncApprovals(); setCompact(wantsCompact()); return; }
   try {
     const next = await (await fetch('state', {cache: 'no-store'})).json();
     if (!state || next.rev !== state.rev) {
-      const first = !state, shape = s => s.sections.map(x => x.id + ':' + x.frames.map(f => f.id).join(',')).join('|');
+      const first = !state, shape = s => s.sections.map(x => x.id + ':' + x.frames.map(f => f.id + '/' + f.kind).join(',')).join('|');
       const same = !first && shape(next) === shape(state), before = state;
       state = next;
-      if (same) { for (const f of frames()) { const old = before.sections.flatMap(s => s.frames).find(o => o.id === f.id); const media = nodes[f.id]?.querySelector('iframe, img'); if (old && old.rev !== f.rev && media) media.src = f.src + '?v=' + f.rev; } for (const s of state.sections) s.node = before.sections.find(o => o.id === s.id).node; }
+      if (before) { const had = new Set(before.sections.flatMap(x => x.frames).filter(f => f.kind === 'page').map(f => f.id)); for (const f of frames()) if (f.kind === 'page' && !had.has(f.id)) born.add(f.id); }
+      if (same) { for (const f of frames()) { const old = before.sections.flatMap(s => s.frames).find(o => o.id === f.id); const media = nodes[f.id]?.querySelector('iframe, img'); if (old && old.rev !== f.rev) { swap(media, f); swap(cards[f.id]?.card.querySelector('iframe'), f); } } for (const s of state.sections) s.node = before.sections.find(o => o.id === s.id).node; }
       else { if (selected && !find(selected)) selected = null; build(); }
-      syncApprovals(); render();
+      syncApprovals(); if (first) setCompact(wantsCompact()); else render();
     }
   } catch {}
   setTimeout(load, 1500);
@@ -1265,6 +1877,8 @@ apply(); load();
 
 const page = embedded => PAGE.replace('/*STATE*/null', embedded ? JSON.stringify(embedded).replace(/</g, '\\u003c') : 'null');
 
+const seen = new Map(), seenParts = new Map(); let seenReady = false;
+const partsIn = path => { try { return [...readFileSync(path, 'utf8').matchAll(/\bdata-seenry-part\s*=\s*["']([^"']{1,80})["']/g)].map(m => unescape(m[1])); } catch { return []; } };
 function serve(port, attempts = 20) {
   if (!existsSync(dir)) init();
   writeFoundations();
@@ -1303,8 +1917,29 @@ function serve(port, attempts = 20) {
       return;
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return send(405, 'Method not allowed');
+    if (path.startsWith('/_seenry/fonts/')) {
+      const name = basename(path), font = join(here, '..', '..', 'seenry', 'assets', 'sheet', name);
+      return /^runde-(Regular|Medium|Semibold)\.woff2$/.test(name) && existsSync(font) ? send(200, readFileSync(font), TYPES['.woff2']) : send(404, 'Not found');
+    }
     if (path === '/') return send(200, page(null), TYPES['.html']);
-    if (path === '/state') return send(200, JSON.stringify(readState()), TYPES['.json']);
+    if (path === '/state') {
+      writeComponents();
+      const state = readState({pending: true});
+      let edited = false;
+      for (const f of state.sections.filter(x => !x.system && !x.reference && !x.archived).flatMap(x => x.frames)) {
+        if (f.kind !== 'page') continue;
+        const was = seen.get(f.id);
+        if (was !== f.rev) {
+          const parts = partsIn(join(dir, f.src)), before = seenParts.get(f.id) || [], added = parts.filter(p => !before.includes(p));
+          if (seenReady) { edited = true; activity('edit', added.length ? `Added ${added.join(', ')} to ${f.name}` : `${was === undefined ? 'Started' : 'Changed'} ${f.name}`, f.id); }
+          seenParts.set(f.id, parts);
+        }
+        seen.set(f.id, f.rev);
+      }
+      seenReady = true;
+      if (edited) state.activity = readActivity(30);
+      return send(200, JSON.stringify(state), TYPES['.json']);
+    }
     const manifest = readManifest(), library = libraryDir(manifest);
     let file = inside('.' + path);
     if (path.startsWith('/library/')) {
@@ -1359,7 +1994,7 @@ function printFeedback(feedback) { for (const line of feedbackLines(feedback)) c
 
 /** Open the address in the person's browser when this machine has one. Never fails the command. */
 function launch(url) {
-  if (argv.includes('--no-browser') || process.env.CI || process.env.SEENRY_NO_BROWSER) return false;
+  if (!argv.includes('--browser') && (argv.includes('--no-browser') || process.env.CI || process.env.SEENRY_NO_BROWSER)) return false;
   if (process.platform === 'linux' && !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY) return false;
   if (process.env.SSH_CONNECTION && process.platform !== 'darwin') return false;
   const [cmd, args] = process.platform === 'darwin' ? ['open', [url]] : process.platform === 'win32' ? ['cmd', ['/c', 'start', '', url]] : ['xdg-open', [url]];
@@ -1369,7 +2004,7 @@ function launch(url) {
 /** Values a screen types in instead of taking from tokens.css: the canvas's detached styles. Static, no browser. */
 function check() {
   const state = readState(), stage = state.stage || 'wireframe', strict = ['mockup', 'prototype', 'build'].includes(stage);
-  const kit = new Set(['tokens.css', 'wire.css', 'fonts.css']);
+  const kit = new Set(['tokens.css', 'wire.css', 'fonts.css']), shared = componentClasses();
   const PROPS = /^(color|background|background-color|border|border-[a-z-]*color|border-color|outline-color|fill|stroke|font-family|font|font-size|font-weight|line-height|letter-spacing|padding|padding-[a-z-]+|margin|margin-[a-z-]+|gap|row-gap|column-gap|border-radius|border-[a-z-]*radius|box-shadow)$/;
   const literal = (prop, full) => {
     const value = full.replace(/var\((?:[^()]|\([^()]*\))*\)/g, ' ').replace(/\b(calc|min|max|clamp)\(/g, '(').trim();
@@ -1404,8 +2039,14 @@ function check() {
     const detached = scan(css);
     if (detached.length) issues.push(`${detached.length} detached value${detached.length === 1 ? '' : 's'}: ${[...new Set(detached)].slice(0, 6).join(' · ')}${detached.length > 6 ? ' …' : ''}`);
     if (!/<title[^>]*>[^<]+</i.test(html)) issues.push('no <title>, so the frame has no name');
+    if (shared.size && !section.choose) {
+      const own = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m => m[1]).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+      const redone = [...new Set([...own.matchAll(/(^|[},])\s*([^{}@]+)\{/g)].flatMap(m => [...m[2].matchAll(/\.([a-zA-Z_][\w-]*)/g)].map(c => c[1])).filter(c => shared.has(c)))];
+      if (redone.length) issues.push(`redefines shared component${redone.length === 1 ? '' : 's'} ${redone.map(c => '.' + c).join(' ')} from components.css: change components.css instead, or give the variant its own class there`);
+      if (!/href\s*=\s*["'][^"']*components\.css/i.test(html)) issues.push('does not link components.css, so it cannot use the shared components');
+    }
     if (strict && !/href\s*=\s*["'][^"']*tokens\.css/i.test(html)) issues.push('does not link tokens.css');
-    if (issues.length) { problems += strict ? issues.length : issues.filter(i => !i.includes('detached')).length; report.push(`${f.id}\n  ${issues.join('\n  ')}`); }
+    if (issues.length) { problems += strict ? issues.filter(i => !/shared component|components\.css/.test(i)).length : issues.filter(i => !/detached|shared component|components\.css/.test(i)).length; report.push(`${f.id}\n  ${issues.join('\n  ')}`); }
   }
   console.log(report.length ? report.join('\n') : 'Every screen takes its values from tokens.css.');
   if (report.length && !strict) console.log(`Stage "${stage}": detached values are allowed in wireframes and become errors from "mockup".`);
@@ -1470,22 +2111,27 @@ function resolveOptions(state, sectionId) {
 }
 
 /** After applying the person's feedback: resolve picks, log the round and set each section's status, in one step. */
-function round(text) {
+function round(text, unattended) {
   let state = readState();
   const riffed = new Set((state.feedback?.riff || []).map(r => r.section));
   for (const s of state.sections.filter(s => s.choose && !riffed.has(s.id) && state.feedback?.picks?.[s.id])) { resolveOptions(state, s.id); state = readState(); }
   const manifest = readManifest();
   if (text) manifest.log = [...(Array.isArray(manifest.log) ? manifest.log : []), {at: new Date().toISOString(), text}];
+  // A run with nobody to review is recorded, never approved: the build gate accepts the record and reports it as unapproved.
+  if (unattended) { manifest.unattended = {at: new Date().toISOString(), reason: String(unattended).slice(0, 400)}; manifest.log = [...(Array.isArray(manifest.log) ? manifest.log : []), {at: manifest.unattended.at, text: 'Unattended: ' + manifest.unattended.reason}]; }
   manifest.sections = {...manifest.sections};
+  if (Array.isArray(manifest.planned)) manifest.planned = manifest.planned.filter(p => !existsSync(join(dir, String(p))));
   const lines = [];
   for (const s of state.sections.filter(s => !s.system && !s.reference)) {
     const approved = s.frames.filter(f => state.approvals[f.id] === 'approved').length;
-    const status = !s.choose && approved === s.frames.length ? 'ready' : 'review';
+    const sketches = s.choose ? 0 : s.frames.filter(f => f.sketch).length;
+    const status = !s.choose && !sketches && approved === s.frames.length ? 'ready' : sketches ? 'in-progress' : 'review';
     manifest.sections[s.id] = {...manifest.sections[s.id], status};
-    lines.push(`${s.id}: ${STATUSES[status]}${s.choose ? ' (options still open)' : ` (${approved} of ${s.frames.length} approved)`}`);
+    lines.push(`${s.id}: ${STATUSES[status]}${s.choose ? ' (options still open)' : sketches ? ` (${sketches} picked sketch${sketches === 1 ? '' : 'es'} to extend to the full page: then remove its seenry-fidelity meta)` : ` (${approved} of ${s.frames.length} approved)`}`);
   }
   writeManifest(manifest);
-  console.log(lines.join('\n') + (text ? '\nLogged.' : ''));
+  activity('round', text ? `Round done: ${text}` : 'Round done');
+  console.log(lines.join('\n') + (text ? '\nLogged.' : '') + (unattended ? '\nUnattended run recorded. No screen is approved: say which option you chose and why, and list every screen as not approved by a person.' : ''));
 }
 
 function handoff() {
@@ -1496,8 +2142,10 @@ function handoff() {
   lines.push('## Design system', '', `- Tokens: ${library ? relative(process.cwd(), join(library, 'tokens.css')) + ' (shared library)' : relative(process.cwd(), join(dir, 'tokens.css'))}. Move it into the product unchanged; components use only its semantic variables.`);
   const fonts = [library, dir].filter(Boolean).map(r => join(r, 'fonts')).filter(existsSync).flatMap(f => readdirSync(f).map(n => relative(process.cwd(), join(f, n))));
   lines.push(`- Fonts: ${fonts.length ? fonts.join(', ') : 'none self-hosted; check the <link> in each screen'}`);
-  const components = state.sections.filter(s => /components/i.test(s.id)).flatMap(s => s.frames.map(f => `${f.name} (${f.src})`));
-  lines.push(`- Components: ${components.length ? components.join(', ') : 'none on the canvas'}`, '');
+  const shared = readComponents(), sheets = state.sections.filter(s => /components/i.test(s.id) && s.id !== 'components').flatMap(s => s.frames.map(f => `${f.name} (${f.src})`));
+  if (shared.length) lines.push(`- Components: ${relative(process.cwd(), join(dir, 'components.css'))}. One source for every screen: build each of these once in the product and reuse it.`, ...shared.map(c => `  - ${c.name}: ${c.classes.map(x => '`.' + x + '`').join(' ') || 'no classes'}`));
+  if (sheets.length || !shared.length) lines.push(`- ${shared.length ? 'Component sheets' : 'Components'}: ${sheets.length ? sheets.join(', ') : 'none on the canvas'}`);
+  lines.push('');
   if (state.flows.length) lines.push('## Flows', '', ...state.flows.map(f => `- ${f.name}: starts at ${f.start}`), '');
   lines.push('## Screens', '');
   for (const s of design) {
@@ -1511,8 +2159,25 @@ function handoff() {
   const archive = Object.entries(manifest.archive || {});
   if (archive.length) lines.push('## Decided against', '', ...archive.map(([id, a]) => `- ${id}: ${a.reason}`), '');
   if (state.log.length) lines.push('## Change log', '', ...[...state.log].reverse().map(l => `- ${String(l.at).slice(0, 10)}: ${l.text}`), '');
+  const took = firstOptionTime(manifest);
+  if (took) lines.push('## Speed', '', `First option shown ${took} after the canvas was started.`, '');
   writeFileSync(join(dir, 'HANDOFF.md'), lines.join('\n'));
+  activity('handoff', 'Wrote the handoff for the build');
   console.log(`Wrote ${join(dir, 'HANDOFF.md')}`);
+}
+
+const span = ms => ms < 90000 ? `${Math.max(1, Math.round(ms / 1000))} s` : `${Math.round(ms / 60000)} min`;
+function firstOptionTime(manifest) {
+  const a = Date.parse(manifest.started || ''), b = Date.parse(manifest.firstOption || '');
+  return a && b && b >= a ? span(b - a) : '';
+}
+/** Called when the canvas is shown to the person: the first time options are on it, the time since the start is kept. */
+function markShown() {
+  const manifest = readManifest();
+  if (manifest.error || manifest.firstOption || !manifest.started) return '';
+  if (!readState().sections.some(s => s.choose && !s.study && s.frames.length)) return '';
+  manifest.firstOption = new Date().toISOString(); writeManifest(manifest);
+  return firstOptionTime(manifest);
 }
 
 /** The running canvas server, started in the background when there is none. */
@@ -1717,6 +2382,7 @@ const devicesFor = f => { const d = flag('device'); if (!d || f.device === 'imag
 
 async function render(names) {
   const state = readState(), frames = pickFrames(state, names), out = resolve(flag('out', join(dir, '.renders'))), scale = Number(flag('scale', 1)), shots = [];
+  for (const f of frames.slice(0, 6)) activity('look', `Looking at ${f.name}`, f.id);
   mkdirSync(out, {recursive: true});
   await withBrowser(async (browser, base) => {
     for (const f of frames) for (const mode of modesFor()) for (const [device, w, h] of devicesFor(f)) {
@@ -1760,8 +2426,19 @@ async function tree(names) {
   if (json) console.log(JSON.stringify(results, null, 2));
 }
 
+/** The execution bar lives in the seenry skill beside this one; a canvas.mjs downloaded alone runs without it. */
+async function seenryScript(name) {
+  const file = join(here, '..', '..', 'seenry', 'scripts', name);
+  if (!existsSync(file)) return null;
+  try { return await import(pathToFileURL(file).href); } catch { return null; }
+}
+const executionBar = () => seenryScript('execution_bar.mjs');
+const pairLog = () => join(dir, '.renders', 'pair', 'pair.json');
+const readPairs = () => { try { return JSON.parse(readFileSync(pairLog(), 'utf8')).entries || []; } catch { return []; } };
+
 async function verify(names) {
   const state = readState(), frames = pickFrames(state, names), issues = [], byClass = {};
+  activity('check', `Checking ${frames.length === 1 ? frames[0].name : frames.length + ' screens'}${argv.includes('--quick') ? ' (quick)' : ''}`, frames.length === 1 ? frames[0].id : '');
   const known = new Set(state.sections.flatMap(s => s.frames.map(f => f.src)));
   const find = id => { for (const s of state.sections) for (const f of s.frames) if (f.id === id) return {section: s, frame: f}; return null; };
   await withBrowser(async (browser, base) => {
@@ -1789,6 +2466,81 @@ async function verify(names) {
       }
     }
   });
+  // Options are where a design is first shown, so the study behind them is checked here: a teardown with measurements,
+  // each option put beside a reference, and the execution bar on desktop screens. Showing options composed from memory
+  // was the top failure in testing. A wireframe stage (set in canvas.json) is exempt: it has no look to study yet.
+  const optionFrames = frames.filter(f => find(f.id)?.section.choose);
+  if (optionFrames.length && !['map', 'wireframe'].includes(state.stage)) {
+    const seenry = resolve(dir, '..'), tearFile = join(seenry, 'teardown.md');
+    const bar = await executionBar();
+    // With no teardown yet, verify writes one: full-size crops of up to three references and a section each to fill in.
+    let tear = existsSync(tearFile) ? readFileSync(tearFile, 'utf8') : '', started = 0;
+    if (!tear.trim()) {
+      const td = await seenryScript('teardown.mjs'), images = d => existsSync(d) ? readdirSync(d).filter(n => /\.(png|jpe?g|webp|avif)$/i.test(n)).sort().map(n => join(d, n)) : [];
+      const inputs = [...images(join(seenry, 'level')), ...images(join(dir, 'refs'))].slice(0, 3);
+      if (td && inputs.length) { await withBrowser(async browser => { started = (await td.prepareTeardown({dir: seenry, inputs, browser})).length; }); tear = readFileSync(tearFile, 'utf8'); }
+    }
+    const problems = bar ? bar.teardownProblems(tear) : !tear.trim() ? ['it does not exist'] : tear.length < 900 ? ['it is too short to hold measurements per reference'] : [];
+    if (problems.length) issues.push({frame: find(optionFrames[0].id).section.id, mode: 'light', severity: 'error', kind: 'teardown', selector: relative(process.cwd(), tearFile), message: started
+      ? `Fill in ${relative(process.cwd(), tearFile)}: it was just written with ${started} reference sections, and their full-size crops are in ${relative(process.cwd(), join(dir, 'refs', 'crops'))}. Open each crop and replace every __ with a count or a measurement.`
+      : `Finish ${relative(process.cwd(), tearFile)} before any option is shown: ${problems.join('; ')}.${existsSync(join(dir, 'refs')) && readdirSync(join(dir, 'refs')).some(n => /\.(png|jpe?g|webp|avif)$/i.test(n)) || existsSync(join(seenry, 'level')) ? '' : ` Save two or more reference screens to ${relative(process.cwd(), join(dir, 'refs'))} first; verify then writes the crops and the sections to fill in.`}`});
+    const hasRefs = [join(dir, 'refs'), join(seenry, 'level')].some(d => existsSync(d) && readdirSync(d).some(f => /\.(png|jpe?g|webp|avif)$/i.test(f)));
+    // Each option is put beside its references here, so nobody has to remember to: the ones compose.md names, else
+    // the first level image and the first reference. A pair is redone only when the screen changed after it.
+    const refFiles = d => existsSync(d) ? readdirSync(d).filter(n => /\.(png|jpe?g|webp|avif)$/i.test(n)).sort().map(n => join(d, n)) : [];
+    const composeText = existsSync(join(seenry, 'compose.md')) ? readFileSync(join(seenry, 'compose.md'), 'utf8').toLowerCase() : '';
+    const allRefs = [...refFiles(join(seenry, 'level')), ...refFiles(join(dir, 'refs'))];
+    const asWord = s => new RegExp(`(^|[^a-z0-9-])${s.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^a-z0-9-])`);
+    const namedRefs = allRefs.filter(p => asWord(basename(p)).test(composeText) || (basename(p, extname(p)).length >= 4 && asWord(basename(p, extname(p))).test(composeText)));
+    const pairWith = (namedRefs.length ? namedRefs : [refFiles(join(seenry, 'level'))[0], refFiles(join(dir, 'refs'))[0]].filter(Boolean)).slice(0, 2);
+    const quick = argv.includes('--quick');
+    if (hasRefs && !argv.includes('--no-judge') && !quick) for (const f of optionFrames) {
+      const src = join(dir, f.src), changed = existsSync(src) ? statSync(src).mtimeMs : 0;
+      for (const ref of pairWith) {
+        const had = readPairs().find(e => e.frame === f.id && e.reference === basename(ref));
+        if (had && had.verdict && !had.verdict.skipped && Date.parse(had.at || 0) >= changed) continue;
+        const r = await pairCore(f, ref);
+        if (r.error) issues.push({frame: f.id, mode: 'light', severity: 'warn', kind: 'pair', selector: basename(ref), message: r.error});
+      }
+    }
+    // The skill's worked example is a path to copy, not a page: a blind run copied it move for move. Each desktop option
+    // is put beside the example's screenshot too, unless the brief is the example's own product.
+    const exampleShot = join(here, '..', '..', 'seenry', 'assets', 'examples', 'waterline', 'waterline-example.jpg');
+    const briefText = [join(seenry, 'brief.md'), join(seenry, 'BRIEF.md')].filter(existsSync).map(p => readFileSync(p, 'utf8')).join('\n');
+    if (existsSync(exampleShot) && !argv.includes('--no-judge') && !quick && !/ledgerline/i.test(briefText)) for (const f of optionFrames) {
+      const [[, w]] = devicesFor(f); if (w < 1200) continue;
+      const src = join(dir, f.src), changed = existsSync(src) ? statSync(src).mtimeMs : 0;
+      const had = readPairs().find(e => e.frame === f.id && e.reference === basename(exampleShot));
+      if (had && had.verdict && !had.verdict.skipped && Date.parse(had.at || 0) >= changed) continue;
+      const r = await pairCore(f, exampleShot, {example: true});
+      if (r.error) issues.push({frame: f.id, mode: 'light', severity: 'warn', kind: 'pair', selector: basename(exampleShot), message: r.error});
+    }
+    // A pair render is only evidence once someone other than the builder has judged it: a yes to "reskin" or
+    // "less finished" blocks the option until it is fixed and paired again.
+    const judge = await seenryScript('judge_pair.mjs'), pairs = readPairs().filter(e => optionFrames.some(f => f.id === e.frame));
+    for (const e of quick ? [] : pairs) {
+      const src = join(dir, find(e.frame)?.frame.src || ''), stale = existsSync(src) && statSync(src).mtimeMs > Date.parse(e.at || 0);
+      if (judge?.blocked(e.verdict)) issues.push({frame: e.frame, mode: 'light', severity: 'error', kind: 'pair-verdict', selector: e.reference, message: judge.pairBlocks([e])[0] + (stale ? ' The screen changed since: pair it again for a new verdict.' : '')});
+      else if (!e.verdict || e.verdict.skipped) issues.push({frame: e.frame, mode: 'light', severity: 'warn', kind: 'pair-verdict', selector: e.reference, message: `Paired with ${e.reference} but not judged (${e.verdict?.skipped || 'no verdict'}): the pair image is yours to look at, the verdict is not yours to give. Run pair again where a model CLI is available.`});
+      else if (stale) issues.push({frame: e.frame, mode: 'light', severity: 'warn', kind: 'pair-verdict', selector: e.reference, message: `Changed since it was paired with ${e.reference}: pair it again.`});
+    }
+    if (bar) {
+      const level = existsSync(join(seenry, 'level.md')) ? readFileSync(join(seenry, 'level.md'), 'utf8') : '';
+      const allow = ((level.match(/^Allow:\s*(.+)$/mi) || [])[1] || '').split(',').map(s => s.trim()).filter(Boolean);
+      await withBrowser(async (browser, base) => {
+        for (const f of optionFrames) {
+          const [[, w, h]] = devicesFor(f); if (w < 1200) continue;
+          const {context, page} = await openPage(browser, base + f.src.split('/').map(encodeURIComponent).join('/'), w, h, 'light');
+          const result = bar.judgeExecution(await page.evaluate(bar.collectExecution), {allow});
+          for (const m of result.thinProduct) issues.push({frame: f.id, mode: 'light', severity: 'error', kind: 'product', selector: '[data-seenry-product]', message: m});
+          for (const m of result.template || []) issues.push({frame: f.id, mode: 'light', severity: 'error', kind: 'template', selector: 'img', message: m});
+          for (const m of result.offGrid || []) issues.push({frame: f.id, mode: 'light', severity: 'error', kind: 'grid', selector: 'section', message: m});
+          for (const m of result.notes) issues.push({frame: f.id, mode: 'light', severity: 'warn', kind: /headline/.test(m) ? 'headline' : /moments/.test(m) ? 'section' : 'hue', selector: /headline/.test(m) ? 'h1' : 'body', message: m});
+          await context.close();
+        }
+      });
+    }
+  }
   const seen = new Set();
   for (const i of [...issues]) { const k = i.frame + i.selector + i.message; if (seen.has(k)) issues.splice(issues.indexOf(i), 1); else seen.add(k); }
   // Drift is one screen drawing a component one way and another screen drawing it another way, at the same device size.
@@ -1805,11 +2557,13 @@ async function verify(names) {
   for (const line of staticIssues.join('\n').split('\n')) { if (!line.startsWith(' ')) blocks.push([line]); else if (blocks.length) blocks[blocks.length - 1].push(line); }
   const detached = blocks.filter(b => wanted.has(b[0]) && b.slice(1).some(l => /detached|does not link/.test(l))).map(b => b.join('\n')).join('\n');
   const errors = issues.filter(i => i.severity === 'error').length;
-  if (json) console.log(JSON.stringify({errors, warnings: issues.length - errors, issues, detached}, null, 2));
+  activity('check', errors ? `Found ${errors} problem${errors === 1 ? '' : 's'} to fix${issues.length - errors ? `, ${issues.length - errors} to look at` : ''}` : `Checks pass${issues.length ? `, ${issues.length} warning${issues.length === 1 ? '' : 's'}` : ''}`, frames.length === 1 ? frames[0].id : '');
+  if (json) console.log(JSON.stringify({errors, warnings: issues.length - errors, quick: argv.includes('--quick'), issues, detached}, null, 2));
   else {
     for (const i of issues) console.log(`${i.severity === 'error' ? 'ERROR' : 'warn '}  ${i.frame}${i.mode === 'dark' ? ' (dark)' : ''}  ${i.selector}\n       ${i.message}`);
     if (detached) console.log(detached);
     console.log(issues.length ? `\n${errors} error${errors === 1 ? '' : 's'}, ${issues.length - errors} warning${issues.length - errors === 1 ? '' : 's'} in ${frames.length} screen${frames.length === 1 ? '' : 's'}.` : `All ${frames.length} screens pass.`);
+    if (argv.includes('--quick')) console.log('Quick: rules only. The pairs and the judge did not run, so run verify without --quick before you show anything.');
   }
   return errors ? 1 : 0;
 }
@@ -1839,6 +2593,7 @@ async function diffFrames(names) {
 async function compare(frameId, url) {
   if (!frameId || !/^https?:\/\//.test(url || '')) { console.error('Usage: canvas.mjs compare <frame> <http url of the built screen> [--device phone|desktop] [--mode light|dark]'); process.exit(2); }
   const state = readState(), [f] = pickFrames(state, [frameId]), [[device, w, h]] = devicesFor(f), mode = modesFor()[0];
+  activity('compare', `Comparing the build of ${f.name} with its design`, f.id);
   const out = join(dir, '.renders', 'compare'); mkdirSync(out, {recursive: true});
   const result = await withBrowser(async (browser, base) => {
     const shoot = async target => { const {context, page} = await openPage(browser, target, w, h, mode); const png = await page.screenshot({fullPage: true}); const data = await page.evaluate(analyzeFrame, {width: w}); await context.close(); return {png, data}; };
@@ -1874,20 +2629,21 @@ async function compare(frameId, url) {
 }
 
 // The traced screen beside the reference it traces, at the same width and crop, so structure can be compared by eye.
-async function pair(frameId, ref) {
-  if (!frameId || !ref) { console.error('Usage: canvas.mjs pair <screen> <reference image in refs/, or an http url> [--height <px>|full] [--mode light|dark]'); process.exit(2); }
-  const state = readState(), [f] = pickFrames(state, [frameId]), [[device, w, h]] = devicesFor(f), mode = modesFor()[0];
-  const tall = flag('height', String(h)), full = tall === 'full';
+/** Renders one screen beside one reference, asks the judge, and records the verdict. Returns {error} when the reference cannot be read. */
+async function pairCore(f, ref, {mode = 'light', tall: wanted, example = false} = {}) {
+  const [[device, w, h]] = devicesFor(f);
+  const tall = wanted || (example ? 'full' : String(h)), full = tall === 'full';
   let refData = null;
   if (!/^https?:\/\//.test(ref)) {
     const file = [resolve(dir, ref), resolve(dir, 'refs', ref), resolve(ref)].find(p => existsSync(p));
-    if (!file) { console.error(`No reference "${ref}" in ${dir}, ${join(dir, 'refs')} or the working directory.`); process.exit(2); }
+    if (!file) return {error: `No reference "${ref}" in ${dir}, ${join(dir, 'refs')} or the working directory.`};
     const type = {'.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif'}[extname(file).toLowerCase()];
-    if (!type) { console.error('The reference must be a png, jpg, webp, gif or avif image, or an http url.'); process.exit(2); }
+    if (!type) return {error: 'The reference must be a png, jpg, webp, gif or avif image, or an http url.'};
     refData = `data:${type};base64,${readFileSync(file).toString('base64')}`;
   }
   const out = join(dir, '.renders', 'pair'); mkdirSync(out, {recursive: true});
   const file = join(out, `${safe(f.id)}.${device}.${mode}.png`);
+  activity('judge', `Comparing ${f.name} with ${example ? 'the worked example' : basename(ref.replace(/[?#].*$/, ''))}`, f.id);
   await withBrowser(async (browser, base) => {
     const shoot = async target => { const {context, page} = await openPage(browser, target, w, h, mode); const png = await page.screenshot({fullPage: true}); await context.close(); return `data:image/png;base64,${png.toString('base64')}`; };
     const mine = await shoot(base + f.src.split('/').map(encodeURIComponent).join('/'));
@@ -1899,8 +2655,32 @@ async function pair(frameId, ref) {
     await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => {}))));
     await page.screenshot({path: file, fullPage: true});
   });
-  if (json) console.log(JSON.stringify({frame: f.id, reference: ref, device, mode, file}, null, 2));
-  else console.log(`${f.id} beside ${ref}  (${device} ${mode}, ${full ? 'full height' : `top ${tall}px`})\n${file}\nLook at both: grid, proportions, type scale, how much of the screen images fill, density. Fix what drifted back toward the default.`);
+  // One image per reference is kept as well, so pairing against a second reference does not erase the first.
+  const refName = basename(ref.replace(/[?#].*$/, '')) || ref, kept = join(out, `${safe(f.id)}.${device}.${mode}.${safe(refName)}.png`);
+  writeFileSync(kept, readFileSync(file));
+  const judge = argv.includes('--no-judge') ? null : await seenryScript('judge_pair.mjs');
+  const verdict = judge ? judge.judgePair({image: kept, screen: `${f.name || f.id}, a new ${device} screen`, reference: refName, example}) : {skipped: argv.includes('--no-judge') ? '--no-judge' : 'the seenry skill is not installed beside seenry-canvas'};
+  const entries = [...readPairs().filter(e => !(e.frame === f.id && e.reference === refName && e.device === device)), {frame: f.id, src: f.src, reference: refName, device, mode, file: relative(dir, kept), at: new Date().toISOString(), verdict}];
+  writeFileSync(pairLog(), JSON.stringify({entries}, null, 2));
+  if (!verdict.skipped) activity('judge', verdict.reskin || verdict.less_finished ? `Judge: ${f.name} is ${[verdict.reskin && 'a reskin', verdict.less_finished && 'less finished'].filter(Boolean).join(' and ')}; reworking it` : `Judge: ${f.name} holds up beside ${refName}`, f.id);
+  const blocks = judge?.blocked(verdict) ? judge.pairBlocks([{frame: f.id, reference: refName, verdict}]) : [];
+  return {frame: f.id, reference: ref, refName, device, mode, file, kept, verdict, blocks, full, tall};
+}
+
+async function pair(frameId, ref) {
+  if (!frameId || !ref) { console.error('Usage: canvas.mjs pair <screen> <reference image in refs/, or an http url> [--height <px>|full] [--mode light|dark] [--no-judge]'); process.exit(2); }
+  const [f] = pickFrames(readState(), [frameId]);
+  const r = await pairCore(f, ref, {mode: modesFor()[0], tall: flag('height')});
+  if (r.error) { console.error(r.error); process.exit(2); }
+  const {device, mode, file, kept, verdict, blocks, full, tall} = r;
+  if (json) console.log(JSON.stringify({frame: f.id, reference: ref, device, mode, file, kept, verdict, blocked: blocks.length > 0}, null, 2));
+  else {
+    console.log(`${f.id} beside ${ref}  (${device} ${mode}, ${full ? 'full height' : `top ${tall}px`})\n${file}\nLook at both: grid, proportions, type scale, how much of the screen images fill, density. Fix what drifted back toward the default.`);
+    if (verdict.skipped) console.log(`Not judged: ${verdict.skipped}. verify will warn until a judge has seen it.`);
+    else console.log(`Judge (${verdict.by || 'stub'}): reskin ${verdict.reskin ? 'YES' : 'no'}${verdict.reskin_why ? ` (${verdict.reskin_why})` : ''}; less finished ${verdict.less_finished ? 'YES' : 'no'}${verdict.gaps?.length ? '\n  ' + verdict.gaps.join('\n  ') : ''}${verdict.keep ? `\nKeep: ${verdict.keep}` : ''}`);
+    for (const b of blocks) console.log(`BLOCKED  ${b}`);
+  }
+  if (blocks.length) process.exitCode = 1;
 }
 
 async function loadPlaywright() {
@@ -1922,9 +2702,12 @@ if (command === 'init') {
   const info = await startServer();
   if (!info) { console.error(`The canvas did not start. See ${join(dir, '.canvas.log')}, or run "node canvas.mjs static" for a file that opens from disk.`); process.exit(1); }
   const state = readState(), design = state.sections.filter(s => !s.reference && !s.system), count = design.reduce((n, s) => n + s.frames.length, 0);
-  const url = `http://127.0.0.1:${info.port}/`, opened = launch(url);
+  const url = `http://127.0.0.1:${info.port}/`, app = argv.includes('--browser') ? '' : hostApp(), opened = app ? false : launch(url);
   console.log(`Seenry canvas: ${url}  (${count} screen${count === 1 ? '' : 's'} in ${design.length} section${design.length === 1 ? '' : 's'})${opened ? ', opened in the browser' : ''}`);
-  if (!opened) console.log('No browser here. Give the person the address, or run "canvas.mjs shot" and show canvas.png.');
+  if (app) console.log(`Running inside ${app}: open ${url} in its preview pane so the person stays in the app (it fits a side pane). Pass --browser for a separate tab.`);
+  else if (!opened) console.log('No browser here. Give the person the address, or run "canvas.mjs shot" and show canvas.png.');
+  activity('open', 'Opened the canvas for you');
+  const took = markShown(); if (took) console.log(`First option shown ${took} after the canvas was started.`);
   if (state.error) console.log(state.error);
 } else if (command === 'list') {
   const state = readState();
@@ -1960,8 +2743,23 @@ if (command === 'init') {
   console.log('Logged.');
 } else if (command === 'handoff') {
   handoff();
+} else if (command === 'plan') {
+  if (!positional.length) { console.error('Usage: canvas.mjs plan <file>… [--dir dir], e.g. plan 02-home.options/quiet.html 02-home.options/ledger.html'); process.exit(2); }
+  const bad = positional.filter(p => p.split('/').length > 2 || !/\.html$/i.test(p) || !inside(p));
+  if (bad.length) { console.error(`Not a screen path inside the canvas: ${bad.join(', ')}. Use <section>/<file>.html.`); process.exit(2); }
+  if (!existsSync(dir)) init();
+  const manifest = readManifest();
+  if (!manifest.started) manifest.started = new Date().toISOString();
+  manifest.planned = [...new Set([...(Array.isArray(manifest.planned) ? manifest.planned : []), ...positional])].filter(p => !existsSync(join(dir, String(p))));
+  writeManifest(manifest);
+  activity('plan', `Planning ${positional.length} screen${positional.length === 1 ? '' : 's'}: ${positional.map(p => pretty(basename(p).replace(/(\.(phone|tablet|laptop|desktop))?\.html$/i, ''))).join(', ')}`);
+  console.log(manifest.planned.length ? `Planned: ${manifest.planned.join(', ')}. Each shows as a placeholder on the canvas until its file is written.` : 'Every planned screen already exists.');
+} else if (command === 'say') {
+  if (!positional[0]) { console.error('Usage: canvas.mjs say "what you are doing, in one line" [--frame <screen>]'); process.exit(2); }
+  activity('say', positional[0], flag('frame', ''));
+  console.log('Shown on the canvas.');
 } else if (command === 'round') {
-  round(positional[0]);
+  round(positional[0], flag('unattended'));
 } else if (command === 'stop') {
   const info = running();
   if (info) { try { process.kill(info.pid); } catch {} }
@@ -1987,6 +2785,7 @@ if (command === 'init') {
 } else if (command === 'static') {
   if (!existsSync(dir)) init();
   writeFoundations();
+  markShown();
   writeFileSync(join(dir, 'canvas.html'), page(readState()));
   console.log(`Wrote ${join(dir, 'canvas.html')}. It opens from disk; feedback is copied as text to paste to the agent.`);
 } else if (command === 'shot') {
@@ -1997,15 +2796,17 @@ if (command === 'init') {
   if (!info) { console.error('The canvas did not start; see .canvas.log.'); process.exit(1); }
   const browser = await chromium.launch({headless: true, ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
   const tab = await browser.newPage({viewport: {width: Number(flag('width', 2000)), height: Number(flag('height', 1300))}, deviceScaleFactor: 1});
-  await tab.goto(`http://127.0.0.1:${info.port}/`);
+  const all = flag('view', 'decision') === 'all';
+  await tab.goto(`http://127.0.0.1:${info.port}/?view=${all ? 'map' : 'board'}`);
   await tab.waitForTimeout(2500);
-  await tab.addStyleTag({content: '#panel,#zoom,#hint{display:none!important} #viewport{inset:0!important}'});
-  await tab.evaluate(() => document.getElementById('zoom-fit').click());
+  if (all) { await tab.addStyleTag({content: '#panel,#zoom,#hint,#topbar,#left{display:none!important} #viewport{inset:0!important}'}); await tab.evaluate(() => document.getElementById('zoom-fit').click()); }
+  else await tab.addStyleTag({content: '#topbar,#c-rail,#c-live{display:none!important} #compact{inset:0!important;grid-template-columns:1fr!important;grid-template-areas:"list"!important}'});
   await tab.waitForTimeout(300);
   await tab.screenshot({path: join(dir, 'canvas.png')});
   await browser.close();
   if (info.started) { try { process.kill(info.pid); } catch {} rmSync(pidFile, {force: true}); }
+  markShown();
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|open|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|plan|say|open|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
 }

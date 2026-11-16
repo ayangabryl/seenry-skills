@@ -13,7 +13,9 @@ const script = resolve('skills/seenry-canvas/scripts/canvas.mjs');
 let playwright = process.env.SEENRY_PLAYWRIGHT;
 if (!playwright) { try { playwright = createRequire(join(process.cwd(), 'x.js')).resolve('playwright'); } catch {} }
 const skip = playwright ? false : 'Playwright is not installed';
-const run = (...args) => spawnSync(process.execPath, [script, ...args, ...(process.env.SEENRY_PLAYWRIGHT ? ['--playwright', process.env.SEENRY_PLAYWRIGHT] : [])], {encoding: 'utf8', timeout: 120000});
+// The pair judge is a model call; tests switch it off or answer for it with SEENRY_PAIR_STUB.
+const runWith = (env, ...args) => spawnSync(process.execPath, [script, ...args, ...(process.env.SEENRY_PLAYWRIGHT ? ['--playwright', process.env.SEENRY_PLAYWRIGHT] : [])], {encoding: 'utf8', timeout: 120000, env: {...process.env, SEENRY_PAIR_JUDGE: 'off', ...env}});
+const run = (...args) => runWith({}, ...args);
 
 function project() {
   const root = mkdtempSync(join(tmpdir(), 'seenry-agent-')), dir = join(root, '.seenry', 'canvas');
@@ -109,4 +111,102 @@ test('screens are judged settled: an entrance animation does not fail contrast',
   writeFileSync(join(dir, '01-flow', '01-good.phone.html'), '<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="../tokens.css"><title>Enter</title><style>body{background:var(--color-bg);color:var(--color-text)}p{animation:in 4s both}@keyframes in{from{opacity:0}}</style><p>Arriving text</p>');
   const out = run('verify', '01-flow/01-good', '--json', '--dir', dir);
   assert.ok(!JSON.parse(out.stdout).issues.some(i => i.kind === 'contrast'), out.stdout);
+});
+
+// Options are where a design is first shown: verify checks the study behind them.
+function optionsProject() {
+  const {root, dir} = project();
+  mkdirSync(join(dir, '02-home.options'));
+  const head = '<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="../tokens.css"><style>body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}h1{font-size:var(--size-56);line-height:1.05;max-width:20ch;margin:0}</style>';
+  writeFileSync(join(dir, '02-home.options', 'a.html'), head + '<title>A</title><main><h1 class="text-display">One short line</h1><div data-seenry-product class="panel"><svg width="600" height="200" viewBox="0 0 600 200"><rect x="10" y="40" width="40" height="160"/><rect x="70" y="80" width="40" height="120"/><rect x="130" y="20" width="40" height="180"/></svg></div></main>');
+  return {root, dir};
+}
+const teardown = `# Teardown
+## Reference A
+- 22 UI elements in the app window, 2 visualisation types. Headline 64px, weight 300, 2 lines. 1 hue.
+- Interlock: grass in front of the app over its lower 40%. Motif repeats in 3 tiles. 6 logos as marks. Pill tabs, 4 of them.
+## Reference B
+- 18 UI elements, 3 visualisation types, 4 metric cards. Headline 68px, weight 300, 2 lines. 1 hue on black.
+- Interlock: translucent at the top, melts into the page over 120px. Motif: the logo tile repeats. 6 logos. Button 40px with a 28px icon tile.`;
+
+test('verify blocks options with no teardown and a thin product view', {skip}, () => {
+  const {dir} = optionsProject();
+  const out = run('verify', '02-home', '--json', '--dir', dir);
+  assert.equal(out.status, 1, out.stderr);
+  const kinds = JSON.parse(out.stdout).issues.filter(i => i.severity === 'error').map(i => i.kind);
+  assert.ok(kinds.includes('teardown'), `expected a teardown error in ${kinds}`);
+  assert.ok(kinds.includes('product'), `expected a product error in ${kinds}`);
+});
+
+test('verify accepts a measured teardown and exempts the wireframe stage', {skip}, () => {
+  const {root, dir} = optionsProject();
+  writeFileSync(join(root, '.seenry', 'teardown.md'), teardown);
+  let issues = JSON.parse(run('verify', '02-home', '--json', '--dir', dir).stdout).issues;
+  assert.ok(!issues.some(i => i.kind === 'teardown'), JSON.stringify(issues));
+  writeFileSync(join(root, '.seenry', 'teardown.md'), '');
+  writeFileSync(join(dir, 'canvas.json'), JSON.stringify({stage: 'wireframe'}));
+  issues = JSON.parse(run('verify', '02-home', '--json', '--dir', dir).stdout).issues;
+  assert.ok(!issues.some(i => ['teardown', 'product', 'pair'].includes(i.kind)), JSON.stringify(issues));
+});
+
+test('verify puts each option beside a reference itself and blocks on the judge\'s verdict', {skip}, () => {
+  const {root, dir} = optionsProject();
+  writeFileSync(join(root, '.seenry', 'teardown.md'), teardown);
+  writeFileSync(join(dir, 'refs', 'a.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64'));
+  const verdicts = env => JSON.parse(runWith(env, 'verify', '02-home', '--json', '--dir', dir).stdout).issues.filter(i => i.kind === 'pair-verdict');
+  let found = verdicts({SEENRY_PAIR_JUDGE: '', SEENRY_PAIR_STUB: JSON.stringify({less_finished: true, gaps: ['product UI: 14 kinds of interface, yours has 1']})});
+  assert.ok(found.some(i => i.severity === 'error' && /less finished than a\.png: product UI: 14 kinds/.test(i.message)), JSON.stringify(found));
+  assert.ok(existsSync(join(dir, '.renders', 'pair', 'pair.json')));
+  // The verdict stands until the screen changes; then verify pairs it again.
+  found = verdicts({SEENRY_PAIR_JUDGE: '', SEENRY_PAIR_STUB: JSON.stringify({})});
+  assert.ok(found.some(i => i.severity === 'error'), 'an unchanged screen keeps its verdict');
+  const screen = join(dir, '02-home.options', 'a.html');
+  writeFileSync(screen, readFileSync(screen, 'utf8') + '<!-- fixed -->');
+  found = verdicts({SEENRY_PAIR_JUDGE: '', SEENRY_PAIR_STUB: JSON.stringify({})});
+  assert.ok(!found.some(i => i.severity === 'error'), JSON.stringify(found));
+  // With no judge the pair is still rendered, and verify says it was not judged.
+  writeFileSync(screen, readFileSync(screen, 'utf8') + '<!-- again -->');
+  found = verdicts({});
+  assert.ok(found.some(i => i.severity === 'warn' && /not judged/.test(i.message)), JSON.stringify(found));
+});
+
+test('with no teardown, verify writes the crops and the sections to fill in', {skip}, () => {
+  const {root, dir} = optionsProject();
+  const shot = run('render', '02-home/a', '--json', '--dir', dir);
+  writeFileSync(join(dir, 'refs', 'ref-one.png'), readFileSync(JSON.parse(shot.stdout)[0].file));
+  writeFileSync(join(dir, 'refs', 'ref-two.png'), readFileSync(JSON.parse(shot.stdout)[0].file));
+  const issues = JSON.parse(run('verify', '02-home', '--json', '--dir', dir).stdout).issues;
+  const t = issues.find(i => i.kind === 'teardown');
+  assert.match(t.message, /just written with 2 reference sections/);
+  const text = readFileSync(join(root, '.seenry', 'teardown.md'), 'utf8');
+  assert.match(text, /## ref-one\n[\s\S]*UI elements: __ kinds/);
+  assert.ok(existsSync(join(dir, 'refs', 'crops', 'ref-one.product.png')));
+  // Filling it in is the agent's work: a second run does not overwrite, it reports the blanks left.
+  const again = JSON.parse(run('verify', '02-home', '--json', '--dir', dir).stdout).issues.find(i => i.kind === 'teardown');
+  assert.match(again.message, /\d+ blanks \(__\) still to replace/);
+});
+
+test('verify puts each option beside the worked example and blocks its reskin, except for the example\'s own product', {skip}, () => {
+  const {root, dir} = optionsProject();
+  writeFileSync(join(root, '.seenry', 'teardown.md'), teardown);
+  const env = {SEENRY_PAIR_JUDGE: '', SEENRY_PAIR_STUB: JSON.stringify({}), SEENRY_EXAMPLE_STUB: JSON.stringify({reskin: true, reskin_why: 'the same hero and section order'})};
+  let found = JSON.parse(runWith(env, 'verify', '02-home', '--json', '--dir', dir).stdout).issues.filter(i => i.kind === 'pair-verdict');
+  assert.ok(found.some(i => i.severity === 'error' && /worked example with a new skin/.test(i.message)), JSON.stringify(found));
+  const {root: own, dir: ownDir} = optionsProject();
+  writeFileSync(join(own, '.seenry', 'teardown.md'), teardown);
+  writeFileSync(join(own, '.seenry', 'brief.md'), '# Brief\n\nLanding page for Ledgerline, a 13-week cash forecast.\n');
+  found = JSON.parse(runWith(env, 'verify', '02-home', '--json', '--dir', ownDir).stdout).issues.filter(i => i.kind === 'pair-verdict');
+  assert.ok(!found.some(i => /worked example/.test(i.message)), JSON.stringify(found));
+});
+
+test('verify --quick runs the rules without pairing or judging, and says so', {skip}, () => {
+  const {dir} = optionsProject();
+  mkdirSync(join(dir, 'refs'), {recursive: true});
+  writeFileSync(join(dir, 'refs', 'ref.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64'));
+  const out = run('verify', '02-home', '--quick', '--json', '--dir', dir);
+  const result = JSON.parse(out.stdout);
+  assert.equal(result.quick, true);
+  assert.ok(!result.issues.some(i => /^pair/.test(i.kind)), 'no pair or verdict issues in quick mode');
+  assert.ok(!existsSync(join(dir, '.renders', 'pair')), 'nothing was paired');
+  assert.ok(result.issues.some(i => i.kind === 'product'), 'the rule checks still run');
 });

@@ -241,3 +241,126 @@ test('a screen drawn for phone and desktop keeps both, with distinct ids', () =>
   assert.match(out, /03-home\/home  desktop 1440×900  "Home"/);
   assert.match(out, /03-home\/home\.phone  phone 390×844  "Home · Phone"/);
 });
+
+test('an unattended round is recorded and approves nothing', () => {
+  const {dir} = project();
+  const out = run('round', 'Chose option B: furthest from the default', '--unattended', 'headless run, nobody to review', dir);
+  assert.equal(out.status, 0, out.stderr);
+  assert.match(out.stdout, /Unattended run recorded\. No screen is approved/);
+  const manifest = JSON.parse(readFileSync(join(dir, 'canvas.json'), 'utf8'));
+  assert.equal(manifest.unattended.reason, 'headless run, nobody to review');
+  assert.ok(manifest.log.some(l => l.text === 'Unattended: headless run, nobody to review'));
+  assert.ok(!existsSync(join(dir, 'review.json')), 'nothing is marked approved');
+});
+
+test('plan shows named screens as placeholders until their files exist, and round clears them', async t => {
+  const {dir} = project();
+  const out = run('plan', '03-pricing.options/quiet.html', '03-pricing.options/loud.phone.html', '--dir', dir);
+  assert.equal(out.status, 0, out.stderr);
+  assert.equal(run('plan', '../escape.html', '--dir', dir).status, 2, 'a path outside the canvas is refused');
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const pricing = JSON.parse((await call(actual, '/state')).body).sections.find(s => s.id === '03-pricing');
+  assert.deepEqual(pricing.frames.map(f => [f.id, f.kind, f.device]), [['03-pricing/quiet', 'pending', 'desktop'], ['03-pricing/loud', 'pending', 'phone']]);
+  assert.ok(pricing.choose);
+  assert.ok(!JSON.parse(run('list', dir, '--json').stdout).sections.some(s => s.id === '03-pricing'), 'list, check and handoff see only real screens');
+
+  mkdirSync(join(dir, '03-pricing.options'));
+  writeFileSync(join(dir, '03-pricing.options', 'quiet.html'), page('Quiet'));
+  const after = JSON.parse((await call(actual, '/state')).body).sections.find(s => s.id === '03-pricing');
+  assert.deepEqual(after.frames.map(f => f.kind), ['page', 'pending']);
+  run('round', 'first pass', dir);
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, 'canvas.json'), 'utf8')).planned, ['03-pricing.options/loud.phone.html']);
+});
+
+test('components.css generates the Components sheet, and check catches a screen redefining one', () => {
+  const {dir} = project();
+  writeFileSync(join(dir, 'components.css'), '/* @component Button | <button class="btn">Save</button> | <button class="btn btn-quiet">Cancel</button> */\n.btn { padding: var(--space-3); }\n.btn-quiet { background: none; }\n');
+  writeFileSync(join(dir, 'canvas.json'), JSON.stringify({stage: 'mockup'}));
+  mkdirSync(join(dir, '03-settings'));
+  writeFileSync(join(dir, '03-settings', 'a.html'), '<!doctype html><title>A</title><link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../components.css"><button class="btn">Save</button>');
+  writeFileSync(join(dir, '03-settings', 'b.html'), '<!doctype html><title>B</title><link rel="stylesheet" href="../tokens.css"><style>.btn { padding: var(--space-4); }</style><button class="btn">Save</button>');
+  const list = JSON.parse(run('list', dir, '--json').stdout);
+  assert.ok(list.sections.some(s => s.id === 'components' && s.system), 'the sheet is a system section');
+  const sheet = readFileSync(join(dir, '_components.html'), 'utf8');
+  assert.match(sheet, /<h2 class="seenry-sheet-name">Button<\/h2>/);
+  assert.match(sheet, /\.btn \.btn-quiet/);
+  assert.match(sheet, /<button class="btn btn-quiet">Cancel<\/button>/);
+  const check = run('check', dir);
+  assert.match(check.stdout, /03-settings\/b\n[\s\S]*redefines shared component \.btn/);
+  assert.match(check.stdout, /03-settings\/b\n[\s\S]*does not link components\.css/);
+  assert.doesNotMatch(check.stdout, /03-settings\/a\n/);
+  run('handoff', dir);
+  assert.match(readFileSync(join(dir, 'HANDOFF.md'), 'utf8'), /- Button: `\.btn` `\.btn-quiet`/);
+});
+
+test('a picked sketch keeps its section in progress until it is extended to a full page', () => {
+  const {dir} = project();
+  mkdirSync(join(dir, '03-home'));
+  writeFileSync(join(dir, '03-home', 'ledger.html'), '<!doctype html><meta charset="utf-8"><title>Ledger</title><meta name="seenry-fidelity" content="sketch"><p>Hero</p>');
+  assert.match(run('round', 'picked Ledger', dir).stdout, /03-home: In progress \(1 picked sketch to extend/);
+  writeFileSync(join(dir, '03-home', 'ledger.html'), '<!doctype html><meta charset="utf-8"><title>Ledger</title><p>Full page</p>');
+  assert.match(run('round', 'extended Ledger', dir).stdout, /03-home: Ready for review/);
+});
+
+test('the time to the first option is kept when options are first shown', () => {
+  const {dir} = project();
+  const started = JSON.parse(readFileSync(join(dir, 'canvas.json'), 'utf8')).started;
+  assert.ok(Date.parse(started), 'init starts the clock');
+  assert.equal(run('static', dir).status, 0);
+  const manifest = JSON.parse(readFileSync(join(dir, 'canvas.json'), 'utf8'));
+  assert.ok(Date.parse(manifest.firstOption) >= Date.parse(started));
+  run('handoff', dir);
+  assert.match(readFileSync(join(dir, 'HANDOFF.md'), 'utf8'), /First option shown \d+ (s|min) after the canvas was started/);
+});
+
+test('the live feed shows what the agent says and does, and the server notices screens being written', async t => {
+  const {dir} = project();
+  assert.equal(run('say', 'Composing the home screen from two references', '--frame', '02-home/b', dir).status, 0);
+  run('plan', '03-pricing.options/quiet.html', '--dir', dir);
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const first = JSON.parse((await call(actual, '/state')).body).activity;
+  assert.deepEqual(first.map(e => [e.kind, e.frame]), [['say', '02-home/b'], ['plan', '']]);
+  assert.match(first[1].text, /Planning 1 screen: Quiet/);
+  assert.equal((await call(actual, '/.activity.jsonl')).status, 404, 'the feed is served only through /state');
+
+  writeFileSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), page('First habit, again'));
+  utimesSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), new Date(), new Date(Date.now() + 5000));
+  const next = JSON.parse((await call(actual, '/state')).body).activity;
+  assert.deepEqual(next.at(-1), {...next.at(-1), kind: 'edit', frame: '01-onboarding/02-first-habit', text: 'Changed First habit, again'});
+});
+
+test('open inside an agent app points at its preview pane instead of opening a tab', () => {
+  const {dir} = project();
+  const env = {...process.env, T3CODE_THREAD_ID: 'test-thread', CI: ''};
+  const out = spawnSync(process.execPath, [script, 'open', dir, '--port', String(5300 + Math.floor(Math.random() * 300))], {encoding: 'utf8', env});
+  spawnSync(process.execPath, [script, 'stop', dir]);
+  assert.equal(out.status, 0, out.stderr);
+  assert.match(out.stdout, /Running inside T3 Code: open http:\/\/127\.0\.0\.1:\d+\/ in its preview pane/);
+  assert.doesNotMatch(out.stdout, /opened in the browser/);
+});
+
+test('each save names the parts it added, so the feed reads like the build', async t => {
+  const {dir} = project();
+  const file = join(dir, '01-onboarding', '02-first-habit.phone.html');
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  await call(actual, '/state');
+  const save = (html, at) => { writeFileSync(file, html); utimesSync(file, new Date(), new Date(at)); };
+  save(page('First habit') + '<h1 data-seenry-part="Headline">Pick one habit</h1>', Date.now() + 5000);
+  assert.equal(JSON.parse((await call(actual, '/state')).body).activity.at(-1).text, 'Added Headline to First habit');
+  save(page('First habit') + '<h1 data-seenry-part="Headline">Pick one habit</h1><ul data-seenry-part="Habit list"><li>Walk</li></ul><button data-seenry-part="Start button">Start</button>', Date.now() + 10000);
+  assert.equal(JSON.parse((await call(actual, '/state')).body).activity.at(-1).text, 'Added Habit list, Start button to First habit');
+  save(page('First habit') + '<h1 data-seenry-part="Headline">Pick a habit</h1><ul data-seenry-part="Habit list"><li>Walk</li></ul><button data-seenry-part="Start button">Start</button>', Date.now() + 15000);
+  assert.equal(JSON.parse((await call(actual, '/state')).body).activity.at(-1).text, 'Changed First habit');
+});
