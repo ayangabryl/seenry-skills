@@ -23,7 +23,9 @@ const newRes = JSON.parse(readFileSync(join(NEW, 'results.json'), 'utf8')), oldR
 const BASE = resolve(flag('base', OLD)), baseRes = JSON.parse(readFileSync(join(BASE, 'results.json'), 'utf8'));
 const wantedBriefs = flag('briefs', 'cash-forecast,clinic-scheduling,studio-portfolio').split(','), skip = flag('skip', '').split(',');
 const outFile = join(NEW, 'cross.json'), cross = existsSync(outFile) ? JSON.parse(readFileSync(outFile, 'utf8')) : {};
-const save = () => writeFileSync(outFile, JSON.stringify(cross, null, 2));
+// One process per brief may run side by side (--briefs): each writes its own keys over the file as it stands.
+const mine = new Set();
+const save = () => { const now = existsSync(outFile) ? JSON.parse(readFileSync(outFile, 'utf8')) : {}; for (const k of mine) now[k] = cross[k]; writeFileSync(outFile, JSON.stringify(now, null, 2)); };
 const WATERLINE = join(root, 'skills', 'seenry', 'assets', 'examples', 'waterline', 'waterline-example.jpg');
 const WATERLINE_BRIEF = briefs['cash-forecast'];
 
@@ -112,6 +114,7 @@ for (const brief of wantedBriefs) {
     if (skip.includes(name)) continue;
     const key = `${brief}/${name}`;
     if (cross[key]?.verdict && cross[key].verdict !== 'error') continue;
+    mine.add(key);
     if (!c.images) { cross[key] = {verdict: 'missing'}; save(); continue; }
     const withMobile = name !== 'waterline', me = {desktop: mine.desktop, mobile: withMobile ? mine.mobile : null};
     const sides = {new: {imgs: me, brief: briefs[brief]}, other: {imgs: c.images, brief: c.brief}};

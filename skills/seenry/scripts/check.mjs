@@ -327,6 +327,17 @@ if (!native && existsSync(join(here, 'token_lint.mjs'))) {
   const lint = spawnSync('node', [join(here, 'token_lint.mjs'), project, ...(args.includes('--changed') ? ['--changed'] : [])], {encoding: 'utf8'});
   if (lint.status === 1) { blockers++; console.log('\n■ ' + lint.stdout.trim().split('\n').join('\n  ')); }
 }
+// The build is finished when its gate has run: the moment is kept on the canvas beside the first sketch and the pick,
+// whether the gate passed or not, so a run that stops on blockers still has its time.
+function stampBuilt() {
+  if (!canvasManifest.started || !(picked || approvedScreens || unattended) || !existsSync(join(canvasDir, 'canvas.json'))) return '';
+  canvasManifest.built = new Date().toISOString();
+  const start = Date.parse(canvasManifest.started), secs = key => { const t = Date.parse(canvasManifest[key] || ''); return start && t && t >= start ? Math.round((t - start) / 1000) : null; };
+  canvasManifest.timing = {firstSketchSeconds: secs('firstOption'), pickSeconds: secs('picked'), builtSeconds: secs('built')};
+  try { writeFileSync(join(canvasDir, 'canvas.json'), JSON.stringify(canvasManifest, null, 2) + '\n'); } catch {}
+  const min = n => n === null ? null : n < 90 ? `${n} s` : `${Math.round(n / 60)} min`, t = canvasManifest.timing;
+  return ` Time since the canvas was started: ${[t.firstSketchSeconds !== null && `first sketch at ${min(t.firstSketchSeconds)}`, t.pickSeconds !== null && `pick at ${min(t.pickSeconds)}`, `build finished at ${min(t.builtSeconds)}`].filter(Boolean).join(', ')}.`;
+}
 if (blockers) {
   const last = history[history.length - 1];
   if (last && !last.critic && fingerprint && last.hash === fingerprint) {
@@ -335,7 +346,7 @@ if (blockers) {
   }
   history.push({round, blockers, critic: null, hash: fingerprint});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one above, then run check.mjs again${studio ? '. The critic runs once the board is clean; board rounds do not use up critic rounds' : ' once'}.`);
+  console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one above, then run check.mjs again${studio ? '. The critic runs once the board is clean; board rounds do not use up critic rounds' : ` once.${round >= 2 ? ' That was the second round: report what is left instead of a third.' : ''}${stampBuilt()}`}`);
   process.exit(1);
 }
 
@@ -343,15 +354,7 @@ if (blockers) {
 if (!studio) {
   history.push({round, blockers: 0, critic: null, hash: fingerprint, mechanical: true});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  let times = '';
-  if (canvasManifest.started && existsSync(join(canvasDir, 'canvas.json'))) {
-    canvasManifest.built = new Date().toISOString();
-    const start = Date.parse(canvasManifest.started), secs = key => { const t = Date.parse(canvasManifest[key] || ''); return start && t && t >= start ? Math.round((t - start) / 1000) : null; };
-    canvasManifest.timing = {firstSketchSeconds: secs('firstOption'), pickSeconds: secs('picked'), builtSeconds: secs('built')};
-    try { writeFileSync(join(canvasDir, 'canvas.json'), JSON.stringify(canvasManifest, null, 2) + '\n'); } catch {}
-    const min = n => n === null ? null : n < 90 ? `${n} s` : `${Math.round(n / 60)} min`, t = canvasManifest.timing;
-    times = ` Time since the canvas was started: ${[t.firstSketchSeconds !== null && `first sketch at ${min(t.firstSketchSeconds)}`, t.pickSeconds !== null && `pick at ${min(t.pickSeconds)}`, `build finished at ${min(t.builtSeconds)}`].filter(Boolean).join(', ')}.`;
-  }
+  const times = stampBuilt();
   console.log(`\nCHECKS PASS round ${round}: 0 blockers. No model scored this page: the person who picked the direction is the judge. Show it to them and report "checks pass, not scored".${times} For a blind critic's score, run check.mjs again with --studio.`);
   process.exit(0);
 }

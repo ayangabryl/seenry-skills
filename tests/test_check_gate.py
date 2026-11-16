@@ -173,6 +173,17 @@ class CheckGate(unittest.TestCase):
         self.assertEqual((after['timing']['firstSketchSeconds'],after['timing']['pickSeconds']),(240,360))
         self.assertGreater(after['timing']['builtSeconds'],360);self.assertIn('built',after)
 
+    def test_a_gate_that_stops_on_blockers_still_keeps_the_build_time_and_names_the_second_round(self):
+        manifest=self.canvas_manifest(started='2026-01-01T00:00:00.000Z',firstOption='2026-01-01T00:04:00.000Z',picked='2026-01-01T00:06:00.000Z')
+        (self.scripts/'review_board.mjs').write_text(BOARD.replace('{blockers:0}','{blockers:3}'))
+        first=self.run_gate(studio=False)
+        self.assert_blocked(first);self.assertIn('FAIL round 1: 3 blocker(s)',first.stdout)
+        self.assertIn('build finished at',first.stdout);self.assertNotIn('second round',first.stdout)
+        self.assertGreater(json.loads(manifest.read_text())['timing']['builtSeconds'],360)
+        (self.project/'app.css').write_text('main { color: navy; }')
+        second=self.run_gate(studio=False)
+        self.assertIn('That was the second round: report what is left instead of a third.',second.stdout)
+
     def run_native_gate(self, screens='screen.png'):
         env=self.isolated_env()
         return subprocess.run([NODE,str(self.scripts/'check.mjs'),'--screens',screens,'--video','screen.mov',
