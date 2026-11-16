@@ -40,6 +40,23 @@ if(config.output !== null) writeFileSync(join(out,'motion.json'),typeof config.o
 process.exit(config.exit);
 """
 
+TEARDOWN = """# Teardown
+
+## Reference A: workflow landing page
+- Product UI: 22 UI elements in the app window (sidebar, breadcrumb, 3 avatars, 2 actions), 2 visualisation types.
+- Headline: 64px, weight 300, 2 lines, tracking -0.03em. Hues: 1 (cobalt) plus white.
+- Interlock: the grass image sits in front of the app, hiding its lower 40%.
+- Motif: the grass repeats at the bottom of 3 tiles in section 2. Logos: 6 marks, icon and wordmark, white.
+- Buttons: 44px, pill tab bar with 4 tabs.
+
+## Reference B: integration dashboard
+- Product UI: 18 UI elements, 4 metric cards each with its own mini visual, 3 visualisation types.
+- Headline: 68px, weight 300, 2 lines. Hues: 1 warm accent on black.
+- Interlock: the dashboard is translucent to the photo at its top and melts into the page over 120px.
+- Motif: the logo tile repeats with connectors in section 2. Logos: 6 marks in one colour.
+- Buttons: 40px with an icon tile of 28px.
+"""
+
 @unittest.skipUnless(NODE, 'Node is unavailable')
 class CheckGate(unittest.TestCase):
     def setUp(self):
@@ -50,7 +67,7 @@ class CheckGate(unittest.TestCase):
         for p in [self.scripts, self.project/'.seenry/research', self.project/'.seenry/refs', self.project/'.seenry/explore']:
             p.mkdir(parents=True)
         shutil.copyfile(ROOT/'skills/seenry/scripts/check.mjs',self.scripts/'check.mjs')
-        for name in ('motion_contract.mjs','history.mjs','workdir.mjs'):
+        for name in ('motion_contract.mjs','history.mjs','workdir.mjs','execution_bar.mjs','judge_pair.mjs','model_cli.mjs','motion_doc.mjs'):
             dep=ROOT/'skills/seenry/scripts'/name
             if dep.exists(): shutil.copyfile(dep,self.scripts/name)
         (self.scripts/'review_board.mjs').write_text(BOARD)
@@ -63,7 +80,7 @@ class CheckGate(unittest.TestCase):
         (self.project/'app.js').write_text('globalThis.example=true;')
         (self.project/'photo.webp').write_bytes(b'original image bytes')
         (self.project/'font.woff2').write_bytes(b'original font bytes')
-        (self.project/'DESIGN.md').write_text('# Brand guidelines\nTest only')
+        (self.project/'DESIGN.md').write_text('# Brand guidelines\nTest only\nStack: Astro, because it is a content page with no accounts.\n')
         (self.project/'brief.md').write_text('Test the gate offline.')
         (self.project/'.seenry/idea.md').write_text('Idea fixture. '*60)
         (self.project/'.seenry/motion.md').write_text('Motion fixture. '*40)
@@ -74,6 +91,8 @@ class CheckGate(unittest.TestCase):
         for name in ['a.png','b.png']:
             (self.project/'.seenry/refs'/name).write_bytes(b'local test reference')
         (self.project/'.seenry/refs'/'kept.md').write_text('- a.png: two-column hero with the product working; fits a tool people try first.\n')
+        (self.project/'tokens.css').write_text(':root { --color-text: black; }')
+        (self.project/'.seenry/teardown.md').write_text(TEARDOWN)
         self.configure()
 
     def tearDown(self):
@@ -561,5 +580,171 @@ class CheckGate(unittest.TestCase):
         r=self.run_gate()
         self.assertNotEqual(r.returncode,0,r.stdout+r.stderr)
         self.assertIn('Copied reference',r.stdout)
+
+    def run_mode_gate(self, mode):
+        return subprocess.run([NODE,str(self.scripts/'check.mjs'),'index.html','--brief','brief.md','--mode',mode],cwd=self.project,
+                              env=self.isolated_env(),text=True,capture_output=True,timeout=30)
+
+    def test_low_impact_blocks_a_high_overall_score(self):
+        (self.scripts/'critic.mjs').write_text(CRITIC.replace("{scores:{overall:9}}","{scores:{overall:9,impact:7},fixes:[]}"))
+        r=self.run_gate()
+        self.assertNotEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertIn('Impact 7/10',r.stdout)
+        self.assertNotIn('PASS round',r.stdout)
+
+    def test_quick_mode_rescores_once_after_the_fixes(self):
+        self.critic_score(7)
+        first=self.run_mode_gate('quick')
+        self.assertEqual(first.returncode,1,first.stdout+first.stderr)
+        self.assertIn('re-scores the fixed page once',first.stdout)
+        self.assertNotIn('stop',self.latest_history())
+        (self.project/'app.css').write_text('main { color: #111; }')
+        second=self.run_mode_gate('quick')
+        self.assertEqual(second.returncode,3,second.stdout+second.stderr)
+        self.assertIn('QUICK final round 2',second.stdout)
+        self.assertEqual(len(list((self.project/'.seenry/review').glob('critic-*.json'))),2)
+        (self.project/'app.css').write_text('main { color: #222; }')
+        third=self.run_mode_gate('quick')
+        self.assertIn('QUICK verified',third.stdout,third.stdout+third.stderr)
+        self.assertEqual(len(list((self.project/'.seenry/review').glob('critic-*.json'))),2)
+
+    def test_level_reference_reaches_the_critic(self):
+        (self.scripts/'critic.mjs').write_text(CRITIC + "\nimport {appendFileSync} from 'node:fs';\nappendFileSync(new URL('./critic-args.log', import.meta.url), JSON.stringify(a)+'\\n');\n")
+        (self.project/'.seenry/level').mkdir()
+        (self.project/'.seenry/level/post.png').write_bytes(b'level reference pixels')
+        (self.project/'.seenry/level.md').write_text('Register: loud\nAllow: twoToneHead\n' + 'Hero image share 60 percent, cut-out subject. '*12)
+        r=self.run_gate()
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+        args=json.loads((self.scripts/'critic-args.log').read_text().splitlines()[-1])
+        self.assertIn('--level',args)
+        self.assertTrue(args[args.index('--level-refs')+1].endswith('post.png'))
+
+    def test_level_images_without_a_level_sheet_block(self):
+        (self.project/'.seenry/level').mkdir()
+        (self.project/'.seenry/level/post.png').write_bytes(b'level reference pixels')
+        r=self.run_gate();self.assert_blocked(r)
+        self.assertIn('level reference: write',r.stdout)
+
+    def photo_report(self, hero, other):
+        (self.project/'index.html').write_text('<img src="photo.webp"><img src="detail.webp"><main data-seenry-signature="fixture">Test</main>')
+        (self.project/'detail.webp').write_bytes(b'detail image bytes')
+        review=self.project/'.seenry/review';review.mkdir(parents=True,exist_ok=True)
+        (review/'photos.json').write_text(json.dumps({'images':[{'image':'photo.webp','hero':True,'overall':hero},{'image':'detail.webp','hero':False,'overall':other}]}))
+
+    def test_quick_mode_holds_the_first_screen_image_to_eight(self):
+        self.photo_report(hero=7,other=6)
+        r=self.run_mode_gate('quick');self.assert_blocked(r)
+        self.assertIn('first-screen image until it scores 8',r.stdout)
+        self.assertFalse(list((self.project/'.seenry/review').glob('critic-*.json')))
+
+    def test_quick_mode_keeps_a_six_outside_the_first_screen(self):
+        self.photo_report(hero=8,other=6)
+        r=self.run_mode_gate('quick')
+        self.assertNotIn('photographs',r.stdout,r.stdout+r.stderr)
+        self.assertTrue(list((self.project/'.seenry/review').glob('critic-*.json')))
+
+    def test_missing_teardown_blocks_before_the_critic(self):
+        (self.project/'.seenry/teardown.md').unlink()
+        r=self.run_gate();self.assert_blocked(r)
+        self.assertIn('teardown:',r.stdout)
+        self.assertIn('does not exist',r.stdout)
+        self.assertFalse(list((self.project/'.seenry/review').glob('critic-*.json')))
+
+    def test_a_blocking_pair_verdict_stops_the_gate_and_prints_above_the_board(self):
+        pair=self.project/'.seenry/canvas/.renders/pair';pair.mkdir(parents=True)
+        (self.project/'.seenry/canvas/home.options').mkdir()
+        (self.project/'.seenry/canvas/home.options/a.html').write_text('<p>a</p>')
+        (self.project/'.seenry/canvas/canvas.json').write_text(json.dumps({'unattended':{'reason':'test'}}))
+        entries=[{'frame':'home/a','src':'home.options/a.html','reference':'ref.png','verdict':{'reskin':False,'less_finished':True,'gaps':['product UI: 14 kinds, yours has 1']}},
+                 {'frame':'home/gone','src':'home.options/gone.html','reference':'ref.png','verdict':{'reskin':True,'reskin_why':'archived'}}]
+        (pair/'pair.json').write_text(json.dumps({'entries':entries}))
+        (self.scripts/'review_board.mjs').write_text(BOARD+"\nconsole.log('BOARD OUTPUT');")
+        r=self.run_gate();self.assert_blocked(r)
+        self.assertIn('pair: home/a: visibly less finished than ref.png: product UI: 14 kinds, yours has 1',r.stdout)
+        self.assertNotIn('home/gone',r.stdout)
+        self.assertLess(r.stdout.index('do these first'),r.stdout.index('BOARD OUTPUT'))
+
+    def test_the_critic_is_given_the_references_the_composition_names(self):
+        for name in ['c.png','z-kept.png']:
+            (self.project/'.seenry/refs'/name).write_bytes(b'local test reference')
+        (self.project/'.seenry/compose.md').write_text('Composed from z-kept.png (the image in front of the app) and b.png. '*8)
+        (self.scripts/'critic.mjs').write_text(CRITIC.replace("writeFileSync(a[a.indexOf('--out')+1]","writeFileSync(a[a.indexOf('--out')+1]+'.refs',a[a.indexOf('--refs')+1]);writeFileSync(a[a.indexOf('--out')+1]"))
+        r=self.run_gate()
+        refs=next((self.project/'.seenry/review').glob('critic-*.json.refs')).read_text()
+        names=[Path(x).name for x in refs.split(',')]
+        self.assertEqual(names,['a.png','b.png','z-kept.png'],r.stdout+r.stderr)  # kept.md cites a.png; c.png is cited nowhere
+
+    def test_teardown_without_measurements_blocks(self):
+        (self.project/'.seenry/teardown.md').write_text('# Teardown\n\n## Reference A\n'+'It looks clean and premium with a strong hero and good type. '*6+'\n\n## Reference B\n'+'It feels modern and has a nice dashboard with pleasant colours. '*6)
+        r=self.run_gate();self.assert_blocked(r)
+        self.assertIn('fewer than five numbers',r.stdout)
+
+    def test_canvas_workflow_files_satisfy_the_gate_without_the_older_studio_files(self):
+        for name in ['idea.md','motion.md','identity.md','identity.html','research/pack.md','explore/pick.json','refs/kept.md']:
+            (self.project/'.seenry'/name).unlink()
+        (self.project/'DESIGN.md').write_text('Stack: Astro + Motion, because it is a landing page.\n')
+        (self.project/'index.html').write_text('<link rel="stylesheet" href="app.css"><main>Test</main>')
+        (self.project/'.seenry/compose.md').write_text('Hero: reference A for the app sinking into the image (40% hidden), reference B for metric cards with their own mini visual; idea: the waterline. '*3)
+        r=self.run_gate()
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertNotIn('steps missing',r.stdout)
+
+    def test_a_build_with_no_stack_line_blocks_and_default_plain_html_warns(self):
+        (self.project/'DESIGN.md').write_text('# Brand guidelines\nNo stack here.\n')
+        r=self.run_gate();self.assert_blocked(r)
+        self.assertIn('stack: ',r.stdout);self.assertIn('has no line `Stack:',r.stdout)
+        (self.project/'DESIGN.md').write_text('Stack: Next.js + Base UI\n')
+        r=self.run_gate();self.assert_blocked(r)
+        self.assertIn('gives no reason',r.stdout)
+        (self.project/'DESIGN.md').write_text('Stack: plain HTML and CSS, because it is simple.\n')
+        r=self.run_gate()
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertIn('stack (a warning, not a blocker)',r.stdout)
+        (self.project/'DESIGN.md').write_text('Stack: plain HTML and CSS, because the user asked for no build step.\n')
+        r=self.run_gate()
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertNotIn('stack (a warning',r.stdout)
+        (self.project/'DESIGN.md').write_text('Stack: plain HTML and CSS, because it is simple.\n')
+        (self.project/'package.json').write_text('{}')
+        r=self.run_gate()
+        self.assertNotIn('stack (a warning',r.stdout)
+
+    def test_references_without_a_composition_block(self):
+        (self.project/'.seenry/refs/kept.md').unlink()
+        r=self.run_gate();self.assert_blocked(r)
+        self.assertIn('composition: write',r.stdout)
+
+    def test_low_execution_blocks_a_high_overall_score(self):
+        (self.scripts/'critic.mjs').write_text(CRITIC.replace("{scores:{overall:9}}","{scores:{overall:9,impact:9,execution:7},fixes:[]}"))
+        r=self.run_gate()
+        self.assertNotEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertIn('Execution 7/10',r.stdout)
+        self.assertNotIn('PASS round',r.stdout)
+
+    def canvas(self):
+        d=self.project/'.seenry/canvas';d.mkdir()
+        (d/'tokens.css').write_text(':root { --color-text: black; }')
+        return d
+
+    def test_canvas_with_no_approval_blocks(self):
+        self.canvas()
+        r=self.run_gate();self.assert_blocked(r)
+        self.assertIn('approval: no screen is approved',r.stdout)
+        self.assertIn('--unattended',r.stdout)
+
+    def test_canvas_with_an_approved_screen_passes(self):
+        d=self.canvas()
+        (d/'review.json').write_text(json.dumps({'frames':{'01-home/01-home':{'status':'approved','at':1}}}))
+        r=self.run_gate()
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertNotIn('Unattended',r.stdout)
+
+    def test_recorded_unattended_run_passes_and_is_reported_as_unapproved(self):
+        d=self.canvas()
+        (d/'canvas.json').write_text(json.dumps({'unattended':{'at':'2026-11-16','reason':'headless test run'}}))
+        r=self.run_gate()
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+        self.assertIn('Unattended run (headless test run)',r.stdout)
+        self.assertIn('not approved',r.stdout)
 
 if __name__=='__main__': unittest.main()

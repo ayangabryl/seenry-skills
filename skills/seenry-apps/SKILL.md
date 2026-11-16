@@ -1,6 +1,6 @@
 ---
 name: seenry-apps
-description: "Designs and builds native-feeling mobile app screens and flows (SwiftUI, UIKit, React Native, Expo, Flutter, mobile web prototypes) that hold up next to top App Store apps. Studies whole journeys in real apps with Seenry MCP, designs the flow on the Seenry canvas for the person to approve, then builds it with correct navigation, motion on the UI thread and a pre-flight check. Use for onboarding, tab and stack navigation, lists, forms, settings, paywalls, players, sheets, empty and error states, and for motion, gestures or Swift code in a mobile app."
+description: "Designs and builds native mobile screens and flows (SwiftUI, UIKit, React Native, Expo, Flutter). Use for onboarding, tab and stack navigation, lists, forms, settings, paywalls, sheets, empty and error states, or motion and gestures in a mobile app. Studies real App Store journeys in Seenry MCP, designs the flow on the canvas for approval, then builds. Not for web pages (seenry)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -10,6 +10,12 @@ metadata:
 # Seenry Apps
 
 This skill designs a mobile flow from real apps, gets it approved on the canvas, and builds it so it feels native on a real phone.
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| `.seenry/brief.md`, `.seenry/look.md` | The approved flow on the canvas, then the built screens | `seenry-break`, then `seenry-review` |
 
 ## Operating posture
 

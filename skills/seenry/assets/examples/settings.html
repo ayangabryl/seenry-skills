@@ -53,7 +53,7 @@
   --color-accent-text: #5e5ed9;
   --color-on-accent: #ffffff;
   --color-focus: #7175f5;
---gutter:16px;--radius:16px;--danger:oklch(0.577 0.215 27.3);--danger-subtle:oklch(0.577 0.215 27.3/.08);--ease-out:cubic-bezier(0.23,1,0.32,1);
+--gutter:16px;--radius:16px;--danger:oklch(0.577 0.215 27.3);--danger-subtle:oklch(0.577 0.215 27.3/.08);--ease-out:cubic-bezier(0.16,1,0.3,1);
 }
 @media (min-width:768px){:root{--gutter:32px}}
 @media (prefers-color-scheme:dark){:root{--color-bg: #090a0d; --color-bg-surface: #16171b; --color-bg-sunken: #090a0d; --color-bg-hover: #25262b; --color-text: #f9fafd; --color-text-secondary: #d3d4da; --color-text-tertiary: #d3d4da; --color-text-disabled: #51535a; --color-border: #25262b; --color-border-control: #9fa0a8; --color-separator: #25262b; --color-accent-subtle: #212252; --color-accent-border: #403f9c; --color-accent-solid: #b2bbff; --color-accent-solid-hover: #d0d6ff; --color-accent-text: #b2bbff; --color-on-accent: #090a0d; --color-focus: #8d95ff;}}
@@ -72,7 +72,7 @@ h2{margin:0 0 12px;font:600 16px/24px "Inter",system-ui,sans-serif}
 .title{display:block;font-weight:500}
 .help{margin:4px 0 0;color:var(--color-text-secondary);text-wrap:pretty}
 .switch{all:unset;flex:none;position:relative;width:40px;height:24px;border-radius:9999px;background:var(--color-border-control);cursor:pointer;transition:background-color 150ms ease}
-.switch .thumb{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:9999px;background:#fff;box-shadow:0 1px 2px oklch(0 0 0/.2);transition:translate 200ms cubic-bezier(0.23,1,0.32,1)}
+.switch .thumb{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:9999px;background:#fff;box-shadow:0 1px 2px oklch(0 0 0/.2);transition:translate 200ms cubic-bezier(0.16,1,0.3,1)}
 .switch[aria-checked="true"]{background:var(--color-accent-solid)}
 .switch[aria-checked="true"] .thumb{translate:16px 0}
 .switch:focus-visible,.seg button:focus-visible,select:focus-visible,.btn:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}
@@ -82,7 +82,7 @@ select{appearance:none;height:36px;padding:0 36px 0 12px;border-radius:10px;bord
 .seg{flex:none;display:inline-flex;padding:2px;border-radius:10px;background:var(--color-bg-sunken);box-shadow:inset 0 0 0 1px var(--color-border)}
 .seg button{all:unset;cursor:pointer;height:32px;padding:0 12px;border-radius:8px;font-weight:500;line-height:32px;color:var(--color-text-secondary)}
 .seg button[aria-checked="true"]{background:var(--color-bg-surface);color:var(--color-text);box-shadow:0 0 0 1px var(--color-border),0 1px 2px oklch(0 0 0/.06)}
-.btn{flex:none;display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:9999px;font:500 14px/20px "Inter",system-ui,sans-serif;cursor:pointer;border:0;transition:scale 120ms cubic-bezier(0.23,1,0.32,1),background-color 150ms ease}
+.btn{flex:none;display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:9999px;font:500 14px/20px "Inter",system-ui,sans-serif;cursor:pointer;border:0;transition:scale 120ms cubic-bezier(0.16,1,0.3,1),background-color 150ms ease}
 .btn:active{scale:.97}
 .btn-danger{background:var(--color-bg-surface);color:var(--danger);box-shadow:0 0 0 1px color-mix(in oklab,var(--danger) 40%,transparent)}
 .btn-danger:hover{background:var(--danger-subtle)}

@@ -1,12 +1,35 @@
-# Libraries and frameworks by design target
+# Stack: framework and libraries
 
-Use what the project already uses first. A new library has to earn its weight: it should do something the page needs that the platform or the existing stack cannot do as well. Never add two libraries for the same job.
+Decide the stack before building, in this order. Do not ask the user; pick, and write one line in `DESIGN.md`: `Stack: <framework> + <libraries>, because <reason from the brief>`.
 
-## Choosing by what the page needs
+1. **The user named it.** Use it.
+2. **The project has one** (`package.json`, lockfile, config). Use it, and the libraries already installed for each job. If it uses a competitor of a pick below, keep the competitor and say so once.
+3. **Empty project.** Pick the framework from the first table, then only the libraries the page needs from the second. Plain HTML is a choice for the cases listed, never the default.
+
+The canvas design is always HTML. This file is about step 6, the build.
+
+## Framework for an empty project
+
+| What is being built | Pick | Why |
+| --- | --- | --- |
+| Landing page, marketing site, portfolio, blog, docs | Astro, with React islands only where something is interactive | Ships HTML, no JavaScript unless a component needs it; content collections; fastest pages |
+| Marketing plus a signed-in product, SaaS, storefront, anything with accounts or server data | Next.js (App Router) with Tailwind | One codebase for public pages and the app; server rendering for search |
+| Dashboard or tool behind a login, no public pages | Vite + React with TanStack Router | No server to run; fastest dev loop |
+| Shopify storefront | Hydrogen | Built on the Shopify data layer |
+| The team writes Vue, Svelte or Angular (the user said so) | Nuxt, SvelteKit, Angular | Their language beats our preference. Never pick Angular unprompted |
+| Native mobile app | Expo, per [seenry-apps](../../seenry-apps/SKILL.md) | Platform behavior people expect |
+| One throwaway page, an email, an embed, or the user asked for no build step | Semantic HTML and modern CSS | Nothing to install |
+
+## Libraries
+
+One library per job, picked and checked with `seenry-libraries` (its [catalog](../../seenry-libraries/references/catalog.md) has the pick for primitives, toasts, drawers, command menus, animated numbers, drag and drop, virtual lists and the rest). Hover, fade and press states are plain CSS; a library is for what CSS cannot do. The table below is the short version by design target.
+
+## By design target
+
 
 | Design target | Reach for | Why | Avoid |
 | --- | --- | --- | --- |
-| A plain marketing page or prototype | Semantic HTML, modern CSS (container queries, `:has`, `clamp`, View Transitions, scroll-driven animations) and Seenry's [tokens](../assets/tokens.css) | No build step, fastest load, nothing to fight | A framework only for one page |
+| A page with no build step (see above) | Semantic HTML, modern CSS (container queries, `:has`, `clamp`, View Transitions, scroll-driven animations) and Seenry's [tokens](../assets/tokens.css) | No build step, fastest load, nothing to fight | A framework only for one page |
 | An app UI in React or Next.js | shadcn/ui on Radix or Base UI primitives, Tailwind CSS, Lucide icons | Accessible behavior for menus, dialogs and selects, owned code you can restyle to the system | Kitchen-sink kits whose look you then have to undo |
 | Vue or Nuxt | shadcn-vue on Reka UI, Tailwind CSS | Same model as above | Mixing two component libraries |
 | Svelte | shadcn-svelte on Bits UI, Tailwind CSS | Same model as above | |

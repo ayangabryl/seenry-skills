@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /** Render one local page or URL to a PNG at 1440×900 (the identity board for the critic).
- *  node render_page.mjs <file|url> <out.png> [--full] [--playwright <path>] */
+ *  node render_page.mjs <file|url> <out.png> [--full] [--reduced] [--playwright <path>]
+ *  --reduced renders with reduced motion, so content revealed on scroll is in its final state in a full-page still. */
 import {resolve, join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
@@ -20,7 +21,7 @@ async function loadPlaywright() {
 }
 const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
 const browser = await chromium.launch();
-const page = await browser.newPage({viewport: {width: 1440, height: 900}});
+const page = await browser.newPage({viewport: {width: 1440, height: 900}, ...(args.includes('--reduced') ? {reducedMotion: 'reduce'} : {})});
 await page.goto(/^https?:/.test(target) ? target : pathToFileURL(resolve(target)).href, {waitUntil: 'networkidle'}).catch(() => {});
 await page.waitForTimeout(1200);
 await page.screenshot({path: resolve(out), fullPage: args.includes('--full')});

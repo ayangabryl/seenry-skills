@@ -12,7 +12,7 @@ So Seenry 2 puts a person at the decision points instead of a scoring loop. Ever
 - `seenry-identity` owns type and color: the idea, specimens, color studies, and fonts fetched with their licenses by `identity.mjs`.
 - `seenry-canvas` owns the canvas: a folder of HTML screens served by one dependency-free Node script, and the person's feedback.
 - `seenry-craft` owns exact values: type, spacing, radius, surfaces, color roles, icons, states. Adapted in part from Jakub Krehel's and Emil Kowalski's MIT-licensed skills.
-- `seenry-motion` owns behavior over time and ships runnable, tested motion assets, including fluid gesture guidance adapted from Emil Kowalski's Apple design skill.
+- `seenry-motion` owns behavior over time: whether something moves at all, one table of measured values, recipes for the common components, a `MOTION.md` per screen and a script that scores the result. With a framework it sends the agent to a maintained library through `seenry-libraries`; its bundled effects are a fallback for pages with no build step. The gate, choreography and gesture guidance adapt Emil Kowalski's MIT-licensed skills.
 - `seenry-review` owns judgment of existing screens and diffs, including a strict motion standard.
 - `seenry-break` owns worst-case data: the catalog, the toggle and the report of what broke.
 - `seenry-subtract` owns removal: motion and decoration that cannot defend themselves. It never adds.

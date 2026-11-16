@@ -6,6 +6,8 @@ How to choose type, color and imagery once the structure is picked. Skip it when
 
 A logo, a product, a photograph, a shopfront or a color they already use decides more than any preference here. Ask for it. Take the palette and the type voice from that material and from the references they picked on the board.
 
+Quiet premium is a default only when the person has shown nothing. Work they show for register and level ([level reference](level-reference.md)) sets the register: both treatments meet its floors, and its `Register:` line outranks every house default.
+
 ## Two treatments, one screen
 
 Write the token file first. Then build the picked structure's first screen twice, in two treatments that differ in a way a person sees at once: light or dark ground, quiet or loud, grotesk or serif headline, photograph-led or type-led. Show both with `seenry-canvas` at stage `look`. Never show two treatments that differ only in accent hue.

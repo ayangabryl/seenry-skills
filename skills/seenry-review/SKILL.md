@@ -1,6 +1,6 @@
 ---
 name: seenry-review
-description: "Review a web interface, a UI diff or a single component and return ranked, fixable findings. Use for design critique, UI audits, accessibility checks, reviewing a branch or PR for interface impact, stress-testing one component across states and sizes, or explaining how an observed interface or animation is built."
+description: "Reviews one screen, component or UI diff and returns ranked findings with a fix for each. Use for a design critique, an accessibility check, reviewing a branch or PR for interface impact, or explaining how an interface or animation is built. Read-only. Not for a whole app (seenry-audit), worst-case data (seenry-break) or doing the redesign (seenry)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -12,6 +12,12 @@ metadata:
 Judge what renders, not what the code intends. Every finding is visible, specific, ranked and comes with the smallest fix. Use the values in [seenry-craft](../seenry-craft/SKILL.md) as the standard: grid and spacing, type roles, concentric radii, color roles, states. A screen built as the default named in [seenry](../seenry/SKILL.md#3-build-the-default) is a finding on hierarchy, not on taste.
 
 If you built the surface yourself, say so and treat the verdict as self-review. A fresh agent context is better.
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| One screen, component or diff | A ranked findings report, each finding with a fix | Fix the findings, then `seenry-break`; a whole app goes to `seenry-audit` |
 
 ## Evidence, not taste
 

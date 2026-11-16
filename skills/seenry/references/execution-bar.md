@@ -1,0 +1,41 @@
+# The execution bar
+
+The measured difference between a page at its references' level and one that only has the idea. Worked example: [Waterline](../assets/examples/waterline/README.md).
+
+## Study before composing
+
+Save the references to `.seenry/canvas/refs/` and run `canvas.mjs verify`. It writes full-size crops to `refs/crops/` and a section per reference in `.seenry/teardown.md`, with lines like `- UI elements: __ kinds in the product view: __`. Open each crop and replace every `__` with a count or a measurement. No option is shown while a blank remains.
+
+## The bar
+
+Every page, of any kind (product, studio, portfolio, shop, clinic, editorial):
+
+| Part | Floor |
+| --- | --- |
+| Real material | The product, the work, the goods or the place itself, at real size and art-directed. Never thumbnails in equal cards |
+| Image and layout | Meet in depth, as your image allows: the image in front, the UI or type melting into it, cards fanned with connectors. Never a panel on a picture |
+| Every section | One moment in each section below the hero: the hero image in a new crop or role, a product or work moment, or one measured number. The image may return as a ground (behind the section, bled or masked into it) in a new crop each time; two pictures of it in flow, or one crop in sibling tiles, are blocked. Pricing, questions and closing use the page's device, not default cards |
+| One grid | Every block shares the page's left and right edges, is centred inside them, or bleeds. Any other width carries `data-seenry-inset="<reason>"`: every width difference has a stated reason |
+| One hue system | One saturated hue outside the images; a state is a weight, a fill or the one highlight |
+| Headline | Two lines, 60 to 76px at 1440, light or regular weight |
+| Motion | Every movement has a row in `MOTION.md` with the change it explains; one signature moment carries the idea; at most one idle loop; body text never arrives late (`seenry-motion`) |
+| Finish | Logos are marks in one colour; buttons and tabs are designed controls; one radius family |
+| Not a reskin | Layout, palette and image subject never all come from one reference, the Waterline example included |
+
+Only when the page shows a product view (marked `data-seenry-product`):
+
+| Part | Floor |
+| --- | --- |
+| Product view | 12 or more kinds of UI: navigation, a top bar, avatars or a status, two actions, metric cards, a tooltip or selected state. 2 or more kinds of visualisation |
+| Chart form | A designed object (sticks with a mirrored row, stacked blocks, a filled curve), in the page hue with one highlight |
+
+A level reference that does otherwise sets its own floor: add `multiHue` or `bigHead` to the `Allow:` line in `.seenry/level.md`.
+
+## How it is checked
+
+| Command | Blocks on | Warns on |
+| --- | --- | --- |
+| `canvas.mjs verify` | A teardown with blanks; a product view under 12 kinds of UI or 2 of visualisation; a reskin of a reference or of the Waterline example, or a visibly less finished screen (blind judge); one crop in 3 sibling tiles; a block off the grid with no reason | A second hue; a headline over 2 lines or 80px; a section of only equal cards |
+| `check.mjs` | The same on the built page; a page that moves with no `MOTION.md` reasons or no reduced-motion CSS; the blind critic's `execution` under 8 | |
+
+Each message names the number it measured and the number it needs.

@@ -242,6 +242,6 @@ export function collectSystemAudit(options = {}) {
   };
 }
 
-if (typeof window === 'undefined' && import.meta.url === `file://${process.argv[1]}`) {
+if (typeof window === 'undefined' && process.argv[1] && (await import('node:fs')).realpathSync((await import('node:url')).fileURLToPath(import.meta.url)) === (await import('node:fs')).realpathSync(process.argv[1])) {
   console.log('Import collectSystemAudit and run it in a page: await page.evaluate(collectSystemAudit, {base: 4}).');
 }

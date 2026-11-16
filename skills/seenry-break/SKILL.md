@@ -1,6 +1,6 @@
 ---
 name: seenry-break
-description: "Breaks a component or screen on purpose with realistic worst-case data (long hyphenated names, unbreakable emails, one-letter names, emoji and right-to-left text, missing fields, zero, one and huge counts, long translated labels, slow or broken images), puts it behind a Demo / Worst case toggle, and reports every break with its cause and fix. Use when asked to stress-test, break or find edge cases in UI, to try the worst case, or before handing off a list, table, card, profile, form or dashboard built against tidy demo data."
+description: "Stress-tests a component or screen with realistic worst-case data (long names, unbreakable emails, emoji, right-to-left text, missing fields, zero and huge counts, slow images) behind a Demo / Worst case toggle, and reports each break with its cause and fix. Use when asked to break, stress-test or find edge cases, or before handing off UI built on tidy demo data. Not for visual critique (seenry-review)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -10,6 +10,12 @@ metadata:
 # Seenry Break
 
 This skill feeds a piece of UI the data real people produce, shows the result behind a toggle, and reports what broke. It does not redesign the component (`seenry-canvas`), judge its taste (`seenry-review`) or its motion (`seenry-motion`).
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| One component or screen and its data shape | The worst-case fixture, the toggle and the break report | "fix all", then `seenry-review` |
 
 ## Operating posture
 

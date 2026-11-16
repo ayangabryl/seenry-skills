@@ -38,7 +38,7 @@ colors, sizes, media queries). Never "a nicer easing":
 
 How this codebase already does it, with one exemplar to imitate:
 
-- Easing tokens live in `src/styles/tokens.css`; add new curves there, e.g. `--ease-out: cubic-bezier(0.23, 1, 0.32, 1);`
+- Easing tokens live in `src/styles/tokens.css`; add new curves there, e.g. `--ease-out: cubic-bezier(0.16, 1, 0.3, 1);`
 - <exemplar file:line that already does this right>
 
 ## Steps

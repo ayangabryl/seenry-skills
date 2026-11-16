@@ -27,6 +27,20 @@ Decide what a person sees first on the screen, then second, then third, and buil
 - A product screen leads with the work, not with a header band or summary cards.
 - Proof on a page renders at real size. Show fewer rows or a crop; never a shrunken screenshot.
 
+## Product views and charts have a floor
+
+A product shown on a landing page is held to the same standard as the product itself. A chart drawn as a bare line in an empty field reads as decoration and as generated.
+
+| Part | Holds |
+| --- | --- |
+| Every chart | An axis with tick labels and units, gridlines, a legend when there is more than one series, and state: now, past and planned, or actual and forecast. Labels never collide with marks, lines or each other |
+| Every product view | Real app chrome: tabs or navigation, a toolbar or status, one primary action. Populated, believable data whose numbers agree with each other |
+| The figure around it | The view at real scale, with facts or a list beside the chart rather than empty field |
+
+`review_board.mjs` blocks an SVG chart with no tick labels and text that overlaps a chart's lines; the critic scores the rest under clarity.
+
+That floor makes a product view readable. What makes it read as a real product at the references' level (a dozen kinds of UI, metric cards with their own mini visuals, charts in the brand's form, one hue) is [the execution bar](execution-bar.md).
+
 ## The page shell is one decision
 
 | Part | Phone (390) | Desktop (1440) |

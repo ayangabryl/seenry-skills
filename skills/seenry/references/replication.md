@@ -12,7 +12,7 @@ Inspect the real source. Captions, CSS and ratings cannot establish pixels or be
 
 ## Reuse source first
 
-Inspect dependencies, assets and publisher packages first. Use compatible source; record version, terms and configuration. Compare the actual render because defaults may differ. Rebuild only missing parts. For effects, follow [implementation routing](../../seenry-motion/references/existing-implementations.md). Never rebrand third-party code as Seenry's.
+Inspect dependencies, assets and publisher packages first. Use compatible source; record version, terms and configuration. Compare the actual render because defaults may differ. Rebuild only missing parts. For effects, follow [motion replication](../../seenry-motion/references/replication.md). Never rebrand third-party code as Seenry's.
 
 ## Build a measured specification
 
