@@ -3,3 +3,5 @@ __pycache__/
 .DS_Store
 .claude/launch.json
 evals/level/results*/
+
+evals/baseline/results*/
