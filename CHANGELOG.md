@@ -1,5 +1,37 @@
 # Changelog
 
+## Unreleased
+
+### Kits removed
+
+- **No bundled component code.** Removed the Core UI, Transitions, Interaction, Statement and Signature kits, the unreferenced `assets/kits/` and `quiet-kit/`, their 110 tests and fixtures, and the three CI jobs that ran only them. Components now come from a maintained library through `seenry-libraries`, or, with no build step, from the project's own `components.css`. `building.md` says so.
+
+### Canvas
+
+- **seenry-canvas 2.2.0: sketch first, extend the winner.** Options are drawn as one-screen sketches marked `seenry-fidelity` `sketch`; only the picked one is extended to a full page, and `round` keeps its section in progress until it is.
+- **Shared components in one file.** `components.css` holds every control used on two screens, with one `@component` comment line each; the canvas generates the Components sheet from it live, `check` warns when a screen redefines one of its classes, and `handoff` lists each component with its classes.
+- **The person watches the work arrive.** `plan <file>…` shows named screens as placeholders that fill in as each file is written.
+- **Faster checks.** `verify --quick` runs the rule checks without pairing or judging; the full `verify` runs once per screen version, and the skill stops after two rounds of self-review.
+- **Speed is a number.** `init` starts a clock, and the first time options are shown `open` prints the time and keeps it in `canvas.json` and `HANDOFF.md`.
+- **Opens on the decision.** The canvas lays out open option sets first and opens on them, side by side; the cover, Foundations and Components move below.
+- **seenry-canvas 3.0.0: watch the agent build, live.** The agent writes a screen's shell and then adds one part per save, each named with `data-seenry-part`. The canvas swaps each version in without a flash, and Seenry's cursor (the Seenry eyes, with the part's name) goes to the new part, builds it up and types its text; only what was added moves. Follow glides the canvas to the part being built until the person pans or zooms. The canvas is the default view again, in Seenry's own type, materials and mark; the List view remains for side panes. A planned screen is an empty frame with the cursor waiting at its corner, and the feed reads "Added Plan cards to Pricing".
+- **Watch the agent work.** Commands post what the agent is doing to a live feed (`say` adds its intent), the screen it works on carries an Agent tag, the server notes each screen as it is written, and Follow (the Agent button, or A) moves the view to wherever the agent is.
+- **Stays in the app.** Inside T3 Code, the Claude app or the Codex app, `open` prints the address for the app's preview pane instead of opening a tab, and below 820px the canvas becomes a list of option cards with Pick, More like this, Approve and Comment, so it fits a side pane (L switches views).
+- **Redesigned canvas UI:** a toolbar with Move, Comment and Inspect tools, a layers list, a right panel that shows your decision when nothing is selected, and sections drawn as framed regions.
+
+### Motion
+
+- **seenry-motion 3.0.0, rebuilt around a decision, a table and a script.** `SKILL.md` opens with whether the thing should move at all, then one table of exact values per element (enter, exit, curve, starting state) taken from the measured production specifications, numbered build steps, the `MOTION.md` format and a stop gate. The curves are now the starter tokens' (`cubic-bezier(0.16, 1, 0.3, 1)`, `cubic-bezier(0.4, 0, 0.2, 1)`), so the skill, `tokens.css` and `motion_scan.mjs` agree.
+- **Recipes for the common set** in two files: press, menu, tooltip, dialog, sheet, toast, tabs with a sliding indicator, accordion, page and shared element; number change, icon swap, checkbox, toggle and success check, skeleton to content, list add, remove and reorder, error shake, AI thinking and streaming text, staggered group, scroll reveal, hold to confirm. Each says when to use it and when not, gives CSS that runs with no build step, the library to take through `seenry-libraries` when there is a framework (Base UI, Sonner, Vaul, NumberFlow, Motion) with its settings, what happens on interruption, and the reduced-motion state.
+- **`scripts/motion_score.mjs`** scores a built page or a source tree and prints the measured and the allowed value per finding: `ease-in`, a duration over the limit for the element type, `transition: all`, entrances from `scale(0)`, layout properties, hover motion outside `(hover: hover)`, more than one infinite loop, no reduced-motion branch, and with `--browser` any movement a key press starts. It runs the `MOTION.md` gate when the `seenry` skill is installed.
+- **Choreography has a value per relationship:** attached, together, swap in place, newly exposed content, removal, two stagger sequences (0, 40, 70, 90ms and 0, 80, 140, 180ms), cause then effect, accent on a lead.
+- **Cut:** 32 reference files and a `patterns/` folder became 12, each with a "Read when" line. Removed assets that duplicated a maintained library, the platform or each other: the action menu, modal surface, directional stage, expanding card and geometry transition, selection surface, count pop, icon swap, the vendored Morphicons runtime and its adapter, the Lottie toggle, notification state, anchored surface, fit interaction and scroll scene adapters.
+- **Kits are a fallback.** `building.md` says the bundled component and transitions kits are for pages with no build step; with a framework the agent picks through `seenry-libraries`.
+
+### Libraries
+
+- Catalog: seven MIT React packages for AI-interface effects (`border-beam`, `thinking-orbs`, `voice-glow`, `liquid-gooey`, `bot-avatars`, `metal-fx`, `img-fx`), each checked on npm.
+
 ## 2.1.0
 
 ### Identity

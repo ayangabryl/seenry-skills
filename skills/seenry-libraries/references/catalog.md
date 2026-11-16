@@ -170,6 +170,18 @@ One sparkline needs no library: an inline SVG path is enough. Apply `seenry-craf
 | `@assistant-ui/react` | assistant-ui | Chat interface primitives: threads, composer, attachments |
 | `streamdown` | Vercel | Markdown that renders correctly mid-stream |
 
+Effects for AI interfaces, all MIT, React 18 or later, by Jakub Antalik (libraries.dev), checked with `check.mjs` on 2026-11-16. Each is decoration over a real state: one per screen, off under reduced motion, and never the only sign that work is happening. A page with no build step uses `seenry-motion`'s bundled [effects](../../seenry-motion/references/expressive.md#bundled-effects) instead.
+
+| Package | Use it for |
+| --- | --- |
+| `border-beam` | A light travelling round the border of a surface that is working or newly active |
+| `thinking-orbs` | Dotted orb indicators for thinking and agent states, in two sizes |
+| `voice-glow` | A glow along the bottom edge that follows a real audio level |
+| `liquid-gooey` | Gooey merge, morph and trail between shapes that share one fill |
+| `bot-avatars` | Animated assistant avatars with idle and working states |
+| `metal-fx` | Liquid-metal shader surfaces for one important control or mark |
+| `img-fx` | A WebGL loader for a card while an image is generated (needs `three`) |
+
 ## React Native
 
 | Package | By | Use it for |
@@ -200,6 +212,7 @@ Check a framework build before assuming one: NumberFlow, Embla, TanStack and Flo
 - A select rebuilt without typeahead and keyboard support: the primitive's Select, or the native element.
 - A toast built by hand or with a modal library: Sonner.
 - A number animated by re-rendering its text, or with a count-up on load: NumberFlow, and only when the value really changes.
+- A component or transition kit copied into a project that has a package manager: the maintained library for that job. With no build step, the platform and the project's own `components.css`.
 - A bottom sheet with a hand-written drag: Vaul on the web, a native sheet or `@gorhom/bottom-sheet` in React Native.
 - 1,000 or more rows rendered directly: virtualize.
 - Drag and drop on raw pointer events with no keyboard path: dnd kit or Pragmatic drag and drop.

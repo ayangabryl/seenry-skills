@@ -1,52 +1,113 @@
-# Reconstruct an observed transition
+# Replicate an observed transition
 
-Replication follows observed motion. Recipes and timing tokens fill gaps; they cannot retime a reference.
+**Read when:** the person points at a recording, a live site or a named effect and wants that motion, not a recipe.
 
-## Evidence and coordinates
+Replication follows what was observed. The recipes and timing tokens fill gaps; they never retime a reference.
 
-Watch at normal speed. Mark opening, closing and trigger. Use [video study](video-study.md) for timestamped frames. Keep source attribution, dimensions and decoded timestamps. Duplicate frames mean encoded FPS can overstate temporal resolution.
+## Contents
 
-When public source permits reuse, inspect component code, tokens and hooks. Adapting them in a compatible stack can preserve visual details; retain notices for copied material. Code shows intended mechanics; the rendered reference shows actual behavior.
+- [1. Get the evidence](#1-get-the-evidence)
+- [2. Extract frames](#2-extract-frames)
+- [3. Measure](#3-measure)
+- [4. Pick the mechanism](#4-pick-the-mechanism)
+- [5. Check for a maintained library](#5-check-for-a-maintained-library)
+- [6. Build](#6-build)
+- [7. Compare side by side](#7-compare-side-by-side)
+- [What to report](#what-to-report)
 
-Before fitting curves for a named demo, check [existing implementation routing](existing-implementations.md). Use a compatible published effect and compare its actual render; reconstruct only missing behavior.
+## 1. Get the evidence
 
-Measure in source coordinates: host, trigger, resting shell and radius; then displacement, bounds, opacity and content at start, quarter, midpoint, three-quarter and settlement. For fast events, inspect actual intermediate frames. Distinguish screen position from local geometry; centering can move the whole object.
+Use a recording the person supplied, your own capture, or a clip from their authorized source. A poster frame cannot establish timing, easing, keyboard behavior or interruption; without playback, label every timing as proposed.
 
-A useful score has tracks:
+With Seenry MCP connected (it is optional):
 
-| Track | What to record |
+| Looking for | Tools |
 | --- | --- |
-| Trigger | Input frame, hit area, stationary point or observed motion |
-| Surface | Position, width/height, radius, outline/shadow, clipping and overshoot |
-| Contents | First visible frame, opacity, individual offsets, stagger, clipping and baseline |
-| Neighboring elements | Whether they remain fixed, move, compress or overlap |
-| Return | Close trigger, trajectory and settlement, independently of opening |
+| A website's recorded journey | `search_references(motion=true, site=...)`, then `get_page_motion(id, viewport)` |
+| Creator motion studies | `get_design_taxonomy`, `search_designs(family="motion", ...)`, then `get_design_video` |
+| Clips inside a collection | `get_design_reference`, `get_reference_asset` |
+| Editorial picks | `search_curated_references` with the `motion` or `walkthroughs` family |
 
-Store measurements and estimates separately. A fitted curve is an approximation with residual error. Do not claim exact spring parameters from a compressed clip or interpolate missing captured frames as if they were observed.
+Read the recording's coverage, duration, cadence and warnings before trusting it. Keep the public source page or Seenry ID with the file. A signed playback URL is temporary access, not provenance: never store tokens or query strings.
 
-## Hover is a separate transition
+Watch at normal speed first. Name the trigger, the stationary anchor, the moving subject, the overlap and the settled result.
 
-Inspect pointer entry, held hover, exit and reentry before settlement. Record the affected layer, delay, trajectory and return timing; distinguish hover from pressed, focus and persistent selected/open states. A pointer in a recording does not prove which event triggered a change. For a replica, preserve the observed color, shape, icon or position response instead of adding a default lift or bounce. If the clip never shows hover, mark it unobserved and label any necessary behavior as proposed. Keep hit areas stable, test movement from trigger to revealed content, and provide keyboard/touch access without requiring hover.
+## 2. Extract frames
 
-Follow the highlight boundary while the pointer crosses rows. A single traveling pill needs one persistent surface with measured position, size, radius and retargeting; independent row background switches do not reproduce it. Compare row-to-row travel and exit separately from menu opening. Do not mark hover unobserved merely because the opening was the only interval studied.
+The [video helper](../scripts/video_frames.py) needs Python's standard library and a local `ffmpeg` and `ffprobe`. It downloads nothing and calls no model. Run it from the `seenry-motion` directory, or use its absolute path.
 
-## Choose the mechanism from the evidence
+```sh
+python3 scripts/video_frames.py inspect /path/to/reference.mp4 --source seenry:reference-id
+python3 scripts/video_frames.py extract /path/to/reference.mp4 --out /path/to/study --times 0 0.12 0.28 0.55 0.9 --source https://example.com/project
+python3 scripts/video_frames.py extract /path/to/reference.mp4 --out /path/to/detail --every-frame --start 0.2 --end 0.5 --max-frames 24
+```
 
-- A panel appearing near a trigger is not necessarily a button-to-panel morph. Follow the **same boundary** through the clip. If it continuously changes shape, animate that surface or a shared background; do not leave a second trigger underneath unless observed.
-- A rounded rectangle changing width/height needs geometry and radius control. Scaling the whole subtree also scales text and strokes; use a shell plus a separately positioned content layer when the source preserves glyph size.
-- A shared highlight should move between measured targets instead of being recreated separately in each target. A dissolving label needs outgoing and incoming layers with one semantic current value.
-- A carousel can rotate order, translate neighbors and replace content while changing size. Match those tracks separately; an expanding flex item alone is insufficient. Inspect departing text, full-card imagery, incoming masks and connected boundaries before choosing a mechanism.
-- A soft fluid join may require SVG filtering, masking or multiple overlapping surfaces. First prove its silhouette and clipping at native size. Blur alone on a rectangular menu does not establish that effect. Render-filter bounds must include overshoot without bleeding onto unrelated text.
-- Scroll-driven movement follows progress, not elapsed time. Preserve the source's holds and overlap. Never synthesize scroll hijacking from a video that merely depicts scrolling.
+- `inspect` prints stream metadata and the file's SHA-256.
+- `extract` writes PNGs, `manifest.json` and `contact-sheet.html` into a new directory and refuses to overwrite one.
+- Limits: 24 images by default (`--max-frames` up to 96), `--times` spanning at most 30 seconds, `--every-frame` intervals of at most 5 seconds, PNG width 640 by default (`--width` 160 to 1280), input up to 1 GiB, local MP4/MOV, WebM/MKV, AVI or GIF only.
+- Times are seconds from the stream's start. Each request takes the first decoded frame at or after it; the manifest records both the request and the real frame time.
+- The manifest always says `playback_reviewed: false`. Record your own playback review separately.
 
-Use ordinary CSS or Web Animations when they reproduce the score. Adopt a spring or rendering library only when it supports the observed behavior. One owner per animated property. Maintain current visual state when reversing; do not restart from a hardcoded first frame or allow a stale close timer to hide a reopened panel.
+Sample the **last unchanged**, **first changing**, **midpoint** and **first settled** frames of each transition. Use every-frame mode only for a short interval where a skip or collision is in question. Repeated frames mean the encoded frame rate overstates the real cadence.
 
-## Compare temporal evidence
+## 3. Measure
 
-Compare at the same viewport and trigger-relative time, not arbitrary screenshots of both animations. First align their settled geometry and input frame. Inspect both at normal speed; then compare the shape, anchor, content and neighboring geometry at corresponding checkpoints. Record time uncertainty at least as large as the source's observed cadence. If only a poster is accessible, the motion result remains unverified.
+Duration is **first visible movement to visual settle**, per layer, excluding pointer dwell and network wait. Allow one source frame of error at each end.
 
-For autoplay, sample the source's **last unchanged**, **first changing**, **midpoint** and **first settled** frames. Distinguish overlay change from asset blend. Align viewport and trigger; capture the live browser animation at those times after assets and fonts load. A debug state jump checks endpoints only. Capture pre-onset and midpoint without it. Recheck live phase after the final timing edit. Report mismatch and cadence uncertainty.
+Measure in the source's own coordinates: host, trigger, resting shell and radius; then displacement, bounds, opacity and content at start, quarter, midpoint, three-quarter and settle. Record one row per track:
 
-Run a second input before settlement, alternate opening and closing, resize the host and change reduced-motion preference while active. Preserve final information, immediate keyboard focus and usable pointer targets. These unseen-source behaviors are implementation requirements, not claims about how the source behaves.
+| Track | Record |
+| --- | --- |
+| Trigger | Input frame, hit area, whether it moves |
+| Surface | Position, width and height, radius, shadow, clipping, overshoot |
+| Contents | First visible frame, opacity, offsets, stagger, baseline |
+| Neighbours | Fixed, moved, compressed or overlapped |
+| Return | Close trigger, path and settle, measured separately from opening |
+| Hover | Entry, hold, exit and re-entry, or "unobserved" |
 
-Do not score fidelity by counting effects or copying duration tokens. A simple accurately reproduced transition is more faithful than a more elaborate but different one. Report unresolved mismatches by track and state.
+Keep measurements and estimates in separate columns. A fitted curve is an approximation; do not claim spring constants from a compressed clip or invent frames between captured ones. Keep three statuses apart: guidance available, implementation exercised, reference matched. One never upgrades another.
+
+## 4. Pick the mechanism
+
+Follow the **same boundary** through the clip, then choose:
+
+| Observed | Build |
+| --- | --- |
+| One surface continuously changes shape | Animate that surface; no second trigger underneath unless the clip shows one |
+| A rounded rectangle changes width and height but glyphs keep their size | A shell with geometry and radius control, plus a separately positioned content layer |
+| A highlight travels between targets | One persistent layer moved between measured targets, not a background per row |
+| A label dissolves into another | Outgoing and incoming layers, one semantic current value |
+| Digits roll through places | Per-place tracks with the unit anchored; NumberFlow or [number-transition.mjs](../assets/number-transition.mjs) |
+| Digits pop in as replacements | Clipped place-value slots with a short capped stagger |
+| A value follows a drag | Direct update, no queue behind the pointer |
+| A soft liquid join | SVG filtering or masking on a shared silhouette; prove the silhouette at native size first |
+| Movement tied to scrolling | Progress-driven, with the source's holds; never synthesize scroll hijacking from a video |
+
+A panel appearing near a trigger is not automatically a button-to-panel morph. Hover is its own transition: preserve the observed colour, shape or position response and do not add a default lift.
+
+## 5. Check for a maintained library
+
+For a named effect, a published package may already implement it. Read the project's `package.json`, then pick through `seenry-libraries` ([catalog](../../seenry-libraries/references/catalog.md)) and run its check script for licence and last release. Install into the target project only, use the documented API and record the version. Never vendor a package into the skill or present its code as Seenry's.
+
+Defaults rarely equal the reference's configuration: fix the configuration and the surrounding layout first, and write a local adapter only where the API cannot express the behavior. If the package does not fit (other framework, licence, missing configuration), say why and reconstruct from the measurements. A working import is functional evidence, not visual parity.
+
+## 6. Build
+
+1. Use plain CSS or Web Animations when they reproduce the score; add a spring or rendering library only when the observed behavior needs it.
+2. One owner per animated property.
+3. Reversal starts from the current visual state, never a hardcoded first frame; a stale close timer must not hide a reopened surface.
+4. Behaviors the clip never shows (a second input before settle, resize, reduced motion, keyboard) still have to work. Build them from the recipes and label them as proposed, not observed.
+
+## 7. Compare side by side
+
+1. Same viewport, same content, same state.
+2. Align the settled geometry and the input frame first.
+3. Compare at the same trigger-relative times as step 2's samples, after fonts and assets load. Capture the live animation; a debug jump to an end state checks endpoints only.
+4. Compare shape, anchor, content and neighbours at each checkpoint, then watch both at normal speed.
+5. Recheck after the last timing edit.
+
+A simple transition reproduced accurately is more faithful than an elaborate one that differs. Do not score fidelity by counting effects.
+
+## What to report
+
+Source or Seenry ID and file hash, viewport and capture method, the interval reviewed, the real frame timestamps, what was observed, what was inferred, whether playback was reviewed, and each unresolved mismatch by track with a time uncertainty at least as large as the source's cadence.

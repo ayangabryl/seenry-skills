@@ -5,12 +5,15 @@
  *  node photo_check.mjs <image> [<image> ...] --use "product hero, 3:4, right column" [--refs a.png,b.png]
  *                       [--brand "Ferro, specialty coffee roaster, Lisbon"] [--min 8] [--out .seenry/review/photos.json]
  *                       [--page index.html]   judge each image as it sits on the rendered page, not as a loose file
+ *                       [--hero hero.png] [--hero-min 8]   the first-screen image is held to --hero-min; with --page it is
+ *                       found on the page (any image whose top sits in the first 900px)
+ *                       [--palette "#2b1314,#e6e0d5,#6b1f24"]   the page palette (shadows, highlights, accent) its grade must belong to
  *
- *  Prints KEEP or REGENERATE per image with the problems and a better prompt. Exits 1 if any image is below --min. */
+ *  Prints KEEP or REGENERATE per image with the problems and a better prompt. Exits 1 if any image is below its floor. */
 import {existsSync, writeFileSync, mkdirSync, mkdtempSync} from 'node:fs';
 import {resolve, dirname, basename, join} from 'node:path';
 import {tmpdir} from 'node:os';
-import {pathToFileURL} from 'node:url';
+import {pathToFileURL, fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {findCli, askModel} from './model_cli.mjs';
 import {namedIntent} from './named.mjs';
@@ -22,6 +25,10 @@ const images = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 
 if (!images.length || images.some(p => !existsSync(p))) { console.error('Usage: node photo_check.mjs <image> [...] --use "<slot>" [--refs a.png,b.png] [--brand "<brand>"] [--medium "<oil painting>"]'); process.exit(2); }
 const refs = (flag('refs', '') || '').split(',').filter(Boolean).map(p => resolve(p)).filter(existsSync);
 const min = Number(flag('min', '8')), out = resolve(flag('out', '.seenry/review/photos.json'));
+// The first screen carries the page: a 6 elsewhere is usable, a 6 in the hero makes the page forgettable.
+const heroMin = Math.max(min, Number(flag('hero-min', '8')));
+const named = new Set((flag('hero', '') || '').split(',').filter(Boolean).map(n => basename(n)));
+const hero = images.map(p => named.has(basename(p)));
 markWorkDir(out);
 const found = findCli(process.env.SEENRY_CRITIC);
 if (!found) { console.error('No working Codex or Claude CLI found; review the images yourself against the imagery rules in references/standard.md.'); process.exit(2); }
@@ -55,6 +62,7 @@ if (pageTarget) {
       }) || null, name);
       const el = handle.asElement();
       if (!el) { shown.push(img); continue; }
+      if (await el.evaluate(e => e.getBoundingClientRect().top + scrollY < innerHeight).catch(() => false)) hero[i] = true;
       await el.scrollIntoViewIfNeeded().catch(() => {});
       await page.waitForTimeout(700);
       const r = await el.boundingBox();
@@ -69,12 +77,15 @@ if (pageTarget) {
 }
 // The named site's pattern map, given or found beside the page, tells the art director which medium is intended.
 const patternsPath = flag('patterns') || [pageTarget && !/^https?:/.test(pageTarget) ? join(dirname(resolve(pageTarget)), '.seenry', 'refs', 'patterns.md') : '', resolve('.seenry/refs/patterns.md')].find(p => p && existsSync(p));
-const KEYS = ['realism', 'light', 'composition', 'premium', 'fit', 'concept', 'overall'];
+// The rewrite comes back as the fields image.mjs takes, so regenerating never falls back to a free-text prompt.
+const JOB_KEYS = ['subject', 'concept', 'shadows', 'highlights', 'accent', 'grade', 'light', 'light_reason', 'texture', 'texture_reason', 'slot', 'field', 'mode', 'prop', 'exclude'];
+const KEYS = ['realism', 'light', 'composition', 'premium', 'fit', 'concept', 'palette_fit', 'integration', 'overall'];
+const palette = (flag('palette', '') || '').split(',').map(s => s.trim()).filter(Boolean);
 const schema = {type: 'object', additionalProperties: false, required: ['images'], properties: {images: {type: 'array', items: {
-  type: 'object', additionalProperties: false, required: ['image', ...KEYS, 'problems', 'better_prompt'], properties: {
+  type: 'object', additionalProperties: false, required: ['image', ...KEYS, 'problems', 'better_job'], properties: {
     image: {type: 'string'}, ...Object.fromEntries(KEYS.map(k => [k, {type: 'integer', minimum: 1, maximum: 10}])),
-    problems: {type: 'array', items: {type: 'string'}}, better_prompt: {type: 'string'}}}}}};
-const listing = [...images.map((p, i) => `image ${i + 1} = candidate ${basename(p)}${shown[i] !== p ? ' shown in place on the page' : ''}`), ...refs.map((p, i) => `image ${images.length + i + 1} = reference screen ${basename(p)}`)].join('\n');
+    problems: {type: 'array', items: {type: 'string'}}, better_job: {type: 'object', additionalProperties: false, required: JOB_KEYS, properties: Object.fromEntries(JOB_KEYS.map(k => [k, {type: 'string'}]))}}}}}};
+const listing = [...images.map((p, i) => `image ${i + 1} = candidate ${basename(p)}${shown[i] !== p ? ' shown in place on the page' : ''}${hero[i] ? ' (the first-screen image: it carries the page)' : ''}`), ...refs.map((p, i) => `image ${images.length + i + 1} = reference screen ${basename(p)}`)].join('\n');
 const prompt = `You are the art director for ${flag('brand', 'a premium brand')}. You approve or reject imagery before it goes on the site. The standard is the photography of Apple, Aesop, ARKET and Stripe: real, calm, precisely lit, art-directed, never stock-like or AI-looking.
 
 ${listing}
@@ -88,20 +99,28 @@ Score each candidate 1-10 (8 = a professional shoot for a premium brand; 5 = acc
 - premium: styling, props, surface and color grade at the level of the references; no clichés (sunset circles, floating objects, gradient blobs, coffee beans scattered everywhere, steam wisps, bokeh fairy lights).
 - fit: matches the brand and the slot.
 - concept: is this a directed image with its own angle (an unexpected scale, crop, object or staging), or the first picture anyone would generate for this category? 9-10 directed, 5 the default category scene. It does not lower overall on its own; it breaks ties between variants.
+- palette_fit: does the image's grade belong to the page palette${palette.length ? ` (${palette.join(', ')}: shadows, highlights, then the one accent)` : inPlace ? ' (read it from the page around the image)' : ' (read it from the brand and slot)'}? 10 = shadows, highlights and the single saturated colour all come from it, so the image looks shot for this brand; 7 = neutral and harmless; 5 or lower = its own colour world (stock blue sky, golden-hour orange, teal and orange) that fights the page. An image graded to the page reads as part of the brand; a natural-colour scene reads as stock. overall is never more than two points above palette_fit.
+- integration: ${inPlace ? 'how well the image is composed into the layout where it sits' : 'how well it is built to be composed into its slot'}: one image owning its section at real scale, type or product UI set over a calm field it leaves, a cut-out subject layered in front of or behind the headline, an edge that blends into the page ground, a crop that runs off the frame on purpose. 10 = it could not be lifted out without breaking the design; 7 = a clean framed photo in a grid; 5 or lower = a boxed stock photo floating in an empty band, a cut-out with a halo or a hard edge, a scrim so heavy the image turns to mud, or effects stacked for their own sake (glow, blur, duotone and grain all at once). ${inPlace ? 'overall is never more than two points above integration.' : ''}
 - overall.
-List the concrete problems, then write a better generation prompt that fixes them (subject, set and surface, light, lens and distance, composition for the slot, color grade, what to exclude, including "no text on labels" when a label would garble).
+List the concrete problems, then rewrite the image as an art-directed job in better_job, one short phrase per field: subject (what is in the frame, from which distance), concept (the idea it carries, not the scene, in a sentence), shadows, highlights and accent (each a #rrggbb hex from the page palette; accent is the one saturated colour), grade (monochrome, duotone, desaturated-one-accent or full-color), light and light_reason, texture (grain, halftone, torn paper, collage or none) and texture_reason, slot (where it sits on the page), field (the area left empty for type or UI), mode (cutout, tile or bleed), prop (the brand colour or mark inside the frame) and exclude (what must not appear, including "text on labels" when a label would garble).
 Do not open any files other than the attached images.`;
 
 let verdict;
 try { verdict = askModel(found, {images: [...shown, ...refs], prompt, schema}); } catch (e) { console.error(`photo check failed: ${e.message}`); process.exit(1); }
 mkdirSync(dirname(out), {recursive: true});
-writeFileSync(out, JSON.stringify({cli: found.cli, min, ...verdict}, null, 2));
+verdict.images.forEach((v, i) => { v.hero = Boolean(hero[i]); });
+writeFileSync(out, JSON.stringify({cli: found.cli, min, heroMin, ...verdict}, null, 2));
 let weak = 0;
 verdict.images.forEach((v, i) => {
-  const ok = v.overall >= min; if (!ok) weak++;
-  console.log(`${ok ? 'KEEP' : 'REGENERATE'} ${basename(images[i] || v.image)}: overall ${v.overall} · realism ${v.realism} · light ${v.light} · composition ${v.composition} · premium ${v.premium} · fit ${v.fit}`);
+  const floor = v.hero ? heroMin : min, ok = v.overall >= floor; if (!ok) weak++;
+  console.log(`${ok ? 'KEEP' : 'REGENERATE'} ${basename(images[i] || v.image)}${v.hero ? ` (first screen, floor ${heroMin})` : ''}: overall ${v.overall} · realism ${v.realism} · light ${v.light} · composition ${v.composition} · premium ${v.premium} · fit ${v.fit} · palette ${v.palette_fit} · integration ${v.integration}`);
   for (const p of v.problems) console.log(`  - ${p}`);
-  if (!ok) console.log(`  Better prompt: ${v.better_prompt}`);
 });
-console.log(`\n${weak ? `${weak} image(s) below ${min}. Regenerate with the better prompt (at most three attempts per image), then check again.` : 'All images pass.'} Written to ${out}`);
+const jobs = verdict.images.map((v, i) => ({v, file: images[i]})).filter(({v}) => v.overall < (v.hero ? heroMin : min) && v.better_job).map(({v, file}) => {
+  const b = v.better_job;
+  return {out: file, subject: b.subject, concept: b.concept, palette: {shadows: b.shadows, highlights: b.highlights, accent: b.accent}, grade: b.grade, light: b.light, light_reason: b.light_reason, texture: b.texture, texture_reason: b.texture_reason, placement: {slot: b.slot, field: b.field, mode: b.mode}, prop: b.prop, exclude: b.exclude};
+});
+const redo = join(dirname(out), 'regenerate.json');
+if (jobs.length) writeFileSync(redo, JSON.stringify(jobs, null, 2));
+console.log(`\n${weak ? `${weak} image(s) below their floor (${min}, first screen ${heroMin}). Regenerate them with: node ${join(dirname(fileURLToPath(import.meta.url)), 'image.mjs')} --batch ${redo}  (at most three attempts per image), then check again.` : 'All images pass.'} Written to ${out}`);
 process.exit(weak ? 1 : 0);

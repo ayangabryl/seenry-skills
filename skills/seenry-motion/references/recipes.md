@@ -1,245 +1,309 @@
-# Motion recipes
+# Recipes: surfaces and navigation
 
-Ready-to-build motion for the components every product has. Start from the recipe, keep the values, adapt names to the project. Modern CSS covers most of these without a library; a fallback is given where browser support is still uneven.
+**Read when:** building the motion of a menu, dropdown, popover, tooltip, dialog, sheet, drawer, toast, tabs, accordion or a page or shared-element transition. Feedback, numbers, lists and loading states are in [recipes-state](recipes-state.md).
 
-Tokens used throughout:
+Every value comes from the table at the top of `SKILL.md`. Each recipe is plain CSS that runs with no build step; where a maintained library does the job better, the recipe names it and its settings, and you pick it through `seenry-libraries` ([catalog](../../seenry-libraries/references/catalog.md)).
+
+## Contents
+
+- Setup: tokens, keyboard, reduced motion
+- Interruption rules for every recipe
+- Press feedback
+- Menu, dropdown, popover
+- Tooltip
+- Dialog
+- Sheet and drawer
+- Toast
+- Tabs with a sliding indicator
+- Accordion
+- Page and shared-element transition
+
+## Setup: tokens, keyboard, reduced motion
+
+Paste once per project. Reuse the project's own tokens when it has them.
 
 ```css
 :root {
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);       /* entrances, exits, UI response */
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);   /* things moving across the screen */
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);    /* sheets and drawers */
-  /* Springs as CSS easing (computed from a damped oscillator, 29 samples) */
-  --spring-snappy: linear(0, 0.038, 0.124, 0.231, 0.341, 0.447, 0.542, 0.626, 0.697, 0.756, 0.805, 0.845, 0.878, 0.904, 0.925, 0.941, 0.954, 0.964, 0.972, 0.979, 0.983, 0.987, 0.99, 0.992, 0.994, 0.996, 0.997, 0.997, 1); /* critically damped, use at 400ms */
-  --spring-bounce: linear(0, 0.046, 0.154, 0.292, 0.436, 0.572, 0.691, 0.789, 0.868, 0.927, 0.969, 0.997, 1.015, 1.024, 1.028, 1.028, 1.026, 1.022, 1.018, 1.014, 1.01, 1.007, 1.005, 1.003, 1.001, 1, 1, 1, 1); /* damping 0.75, ~3% overshoot, use at 500ms */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);    /* enter, exit, press */
+  --ease-move: cubic-bezier(0.4, 0, 0.2, 1);    /* travel and resize with both ends on screen */
+  --ease-fade: cubic-bezier(0.2, 0, 0.2, 1);    /* opacity and colour on their own */
+  --spring-snappy: linear(0, 0.038, 0.124, 0.231, 0.341, 0.447, 0.542, 0.626, 0.697, 0.756, 0.805, 0.845, 0.878, 0.904, 0.925, 0.941, 0.954, 0.964, 0.972, 0.979, 0.983, 0.987, 0.99, 0.992, 0.994, 0.996, 0.997, 0.997, 1); /* no overshoot, use at 400ms */
+  --spring-bounce: linear(0, 0.046, 0.154, 0.292, 0.436, 0.572, 0.691, 0.789, 0.868, 0.927, 0.969, 0.997, 1.015, 1.024, 1.028, 1.028, 1.026, 1.022, 1.018, 1.014, 1.01, 1.007, 1.005, 1.003, 1.001, 1, 1, 1, 1); /* 3% overshoot, use at 500ms, drag release only */
+}
+
+/* A key press gets the result at once: transitions end in zero time while the keyboard is the input. */
+:root[data-input="keyboard"] *,
+:root[data-input="keyboard"] *::before,
+:root[data-input="keyboard"] *::after { transition-duration: 0s !important; transition-delay: 0s !important; }
+
+/* Reduced motion: keep a 100ms fade, drop travel and scale. Add each moving class to this list. */
+@media (prefers-reduced-motion: reduce) {
+  .menu, .tooltip, dialog, .toast, .tabs-indicator, .tabpanel {
+    transition-property: opacity, display, overlay !important; transition-duration: 100ms !important;
+  }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
 ```
+
+```js
+const root = document.documentElement;
+addEventListener('keydown', () => { root.dataset.input = 'keyboard'; }, true);
+addEventListener('pointerdown', () => { root.dataset.input = 'pointer'; }, true);
+```
+
+React with Motion: `<MotionConfig reducedMotion="user" transition={keyboard ? { duration: 0 } : undefined}>` around the app, where `keyboard` mirrors the same two listeners.
+
+## Interruption rules for every recipe
+
+1. Use transitions or springs for anything a person can trigger twice. They retarget from the value on screen. Keyframes restart from zero; keep them for one-shot entrances, the error shake and loops.
+2. Publish the new state at once (`aria-expanded`, `aria-selected`, the text, the route). The animation follows the state and never gates it.
+3. The latest input wins. Never queue: open, close, open within 100ms must not flash at opacity 0, duplicate a layer or leave a hidden focus trap.
+4. Focus and hit-testing are valid from the first frame, before the motion settles.
+5. Clear timers and listeners with the element. A finished or cancelled animation must not write a stale state.
 
 ## Press feedback
 
-Every pressable element. Instant confirmation that the interface heard the input.
+Use on every button. Not on table rows, inputs or large cards (step the background instead).
 
 ```css
-.btn { transition: scale 120ms var(--ease-out), background-color 150ms ease; }
-.btn:active { scale: 0.97; }
+.btn { transition: scale 120ms var(--ease-out), background-color 120ms var(--ease-fade); }
+.btn:active { scale: 0.97; transition-duration: 80ms; }
+@media (hover: hover) and (pointer: fine) { .btn:hover { background-color: var(--btn-hover, #e9e9e7); } }
 ```
 
-`scale` scales children too, which is what makes it feel physical. Keep it between 0.96 and 0.98; lower looks cartoonish. Skip it on large cards and list rows (use a background step instead).
+Hover changes tint only, never position or size. Reduced motion: keep it, the scale is 3% and under 100ms.
 
-## Menu, dropdown, popover (native popover)
+## Menu, dropdown, popover
 
-Scales out of its trigger. `allow-discrete` lets the exit play before `display: none` applies.
+Use for a surface that opens from a trigger. Not for a command menu opened by a shortcut (no motion), and not for more than about 12 items (use a dialog or a page).
+
+With a framework: Base UI `Menu`, `Popover` or `Select` through `seenry-libraries`. It supplies focus, typeahead, collision handling and `--transform-origin`:
+
+```css
+.Popup { transform-origin: var(--transform-origin);
+  transition: opacity 180ms var(--ease-out), scale 180ms var(--ease-out); }
+.Popup[data-starting-style], .Popup[data-ending-style] { opacity: 0; scale: 0.96; }
+.Popup[data-ending-style] { transition-duration: 100ms; }
+```
+
+Radix uses `var(--radix-dropdown-menu-content-transform-origin)` and `data-state="open|closed"` with the same values.
+
+No build step: the native popover. The browser gives the top layer, Escape and click-outside.
+
+```html
+<button popovertarget="account-menu" style="anchor-name: --account">Account</button>
+<div id="account-menu" class="menu" popover role="menu" style="position-anchor: --account">…</div>
+```
 
 ```css
 .menu[popover] {
-  transform-origin: top left;                         /* the trigger's side */
-  transition: opacity 150ms var(--ease-out), scale 150ms var(--ease-out),
-              display 150ms allow-discrete, overlay 150ms allow-discrete;
+  inset: auto; margin: 4px 0 0; position-area: bottom span-right;
+  transform-origin: top left;                              /* the corner that touches the trigger */
+  transition: opacity 180ms var(--ease-out), scale 180ms var(--ease-out), translate 180ms var(--ease-out),
+              display 180ms allow-discrete, overlay 180ms allow-discrete;
 }
-.menu[popover]:not(:popover-open) { opacity: 0; scale: 0.96; }
-@starting-style { .menu[popover]:popover-open { opacity: 0; scale: 0.96; } }
+.menu[popover]:not(:popover-open) { opacity: 0; scale: 0.96; translate: 0 -4px; transition-duration: 100ms; }
+@starting-style { .menu[popover]:popover-open { opacity: 0; scale: 0.96; translate: 0 -4px; } }
 ```
 
-With CSS anchor positioning (`position-anchor` + `position-area: bottom span-right`), set `transform-origin` to match the area. With Floating UI, Base UI or Radix, use the origin variable the library provides (`var(--transform-origin)`, `var(--radix-popper-transform-origin)`). Browsers without `overlay` transitions close instantly, which is acceptable.
+- Rows are attached to the panel: no item stagger, no separate fade.
+- A menu built without `popover` or a library owes what they give for free: Escape closes it from wherever focus is (listen on `document`, not on the menu), a press outside closes it, focus returns to the trigger, and arrow keys move between rows.
+- Open 180ms, close 100ms. The closed-state rule carries the exit duration.
+- A menu that opens upward uses `transform-origin: bottom left` and `translate: 0 4px`.
+- Interruption: a second click mid-open reverses from the current scale; nothing to clean up.
+- Reduced motion: the setup block leaves a 100ms fade.
 
 ## Tooltip
 
-Same as the popover, faster (120ms), scale from 0.97. First tooltip waits 400–600ms to open; while one is open, neighbours open with no delay and no animation (Base UI and Radix `Tooltip.Provider` implement this group behavior). Never animate tooltips on keyboard focus with a delay: show immediately.
+Use for a label on an icon control. Not for anything with a button in it (that is a popover).
 
-## Dialog (native `<dialog>`)
+```css
+.tooltip { transform-origin: var(--transform-origin, bottom center);
+  transition: opacity 120ms var(--ease-fade), scale 120ms var(--ease-out); }
+.tooltip[data-starting-style], .tooltip[data-ending-style], .tooltip:not([data-open]) { opacity: 0; scale: 0.97; }
+.tooltip[data-ending-style], .tooltip:not([data-open]) { transition-duration: 80ms; }
+.tooltip[data-instant] { transition-duration: 0s; }
+```
 
-The one surface that scales from center.
+- Dwell 400ms before the first one opens on hover; 0ms on keyboard focus.
+- While one is open, a neighbour opens with no dwell and no animation (`data-instant`; Base UI and Radix `Tooltip.Provider` do this).
+- Exit 80ms, no travel.
+
+## Dialog
+
+Use when a decision must interrupt the page. The one surface that scales from its centre.
 
 ```css
 dialog {
-  transition: opacity 200ms var(--ease-out), scale 200ms var(--ease-out),
-              display 200ms allow-discrete, overlay 200ms allow-discrete;
+  transition: opacity 240ms var(--ease-out), scale 240ms var(--ease-out),
+              display 240ms allow-discrete, overlay 240ms allow-discrete;
 }
-dialog:not([open]) { opacity: 0; scale: 0.97; }
-@starting-style { dialog[open] { opacity: 0; scale: 0.97; } }
+dialog:not([open]) { opacity: 0; scale: 0.96; transition-duration: 140ms; }
+@starting-style { dialog[open] { opacity: 0; scale: 0.96; } }
 
-dialog::backdrop { background: rgb(0 0 0 / 0.4);
-  transition: opacity 200ms ease, display 200ms allow-discrete, overlay 200ms allow-discrete; }
+dialog::backdrop { background: rgb(0 0 0 / 0.32);
+  transition: opacity 160ms var(--ease-fade), display 240ms allow-discrete, overlay 240ms allow-discrete; }
 dialog:not([open])::backdrop { opacity: 0; }
 @starting-style { dialog[open]::backdrop { opacity: 0; } }
 ```
 
-`showModal()` gives focus trapping, Escape and the top layer for free.
+- `showModal()` gives the focus trap, Escape and the top layer. With a framework use Base UI `Dialog` and the same values on `[data-starting-style]` and `[data-ending-style]`.
+- The content is attached: it does not fade or stagger after the panel.
+- A change of view inside an open dialog resizes the same panel (240ms, `--ease-move`); the backdrop does not re-enter.
+- Interruption: closing during entry reverses from the current values.
 
 ## Sheet and drawer
 
+Use for a task that keeps the page as context, and on touch screens for anything a dialog would do.
+
+With a framework: Vaul through `seenry-libraries`. Keep its own timing (500ms, `cubic-bezier(0.32, 0.72, 0, 1)`); it is matched to its drag physics. Without drag, build it:
+
 ```css
-.sheet { translate: 0 0; transition: translate 400ms var(--ease-drawer); }
-.sheet[data-state="closed"] { translate: 0 100%; }   /* percent of its own height */
+dialog.sheet { margin: auto 0 0; width: 100%; max-width: none; opacity: 1; scale: 1; translate: 0 0;
+  transition: translate 280ms var(--ease-out), display 280ms allow-discrete, overlay 280ms allow-discrete; }
+dialog.sheet:not([open]) { opacity: 1; scale: 1; translate: 0 100%; transition-duration: 180ms; }
+@starting-style { dialog.sheet[open] { opacity: 1; scale: 1; translate: 0 100%; } }
 ```
 
-Use Vaul (React) for drag-to-dismiss with snap points; otherwise see **Drag to dismiss** below.
+- `100%` is the sheet's own height, so it works at any content size. A side drawer uses `translate: 100% 0`.
+- It leaves through the edge it came from.
+- Dragging is a gesture: 1:1 tracking, then a spring. Read [fluid](fluid.md) before writing it.
+- Reduced motion: add `dialog.sheet` to the setup list and it fades in place.
 
 ## Toast
 
-Enter from and exit toward the same edge; transitions, not keyframes, so a rapid second toast retargets instead of restarting.
+Use to confirm something the person just did. Not for errors that need an answer (inline message or dialog).
 
-```css
-.toast { transition: translate 400ms var(--ease-out), opacity 400ms ease; }
-@starting-style { .toast { translate: 0 100%; opacity: 0; } }
-.toast[data-leaving] { translate: 0 100%; opacity: 0; }
+With a framework: Sonner through `seenry-libraries`, `<Toaster position="bottom-right" visibleToasts={3} />`, its own motion left alone. Notes are in [Sonner in practice](../../seenry-libraries/references/sonner.md).
+
+No build step: one live region whose text is replaced.
+
+```html
+<div class="toast" role="status" aria-live="polite"></div>
 ```
 
-Use Sonner in React. Stack at most 3; the 4th pushes the oldest out.
-
-## Accordion and disclosure
-
-Animate to intrinsic height with no measuring:
-
 ```css
-:root { interpolate-size: allow-keywords; }           /* Chrome 129+; others snap, which is fine */
-details::details-content { block-size: 0; overflow: clip;
-  transition: block-size 200ms var(--ease-out), content-visibility 200ms allow-discrete; }
-details[open]::details-content { block-size: auto; }
-```
-
-Fallback that works everywhere: a grid track.
-
-```css
-.panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 200ms var(--ease-out); }
-.panel > .inner { overflow: hidden; }
-.open > .panel { grid-template-rows: 1fr; }
-```
-
-Keep it under 250ms: height animation costs layout every frame.
-
-## Staggered entrance
-
-Only for occasional, first-time content (onboarding, a results page), never for lists people scroll daily.
-
-```css
-.item { animation: rise 300ms var(--ease-out) both; animation-delay: calc(min(var(--i), 8) * 40ms); }
-@keyframes rise { from { opacity: 0; translate: 0 8px; } }
-```
-
-Set `--i` inline (`style="--i: 3"`) or use `sibling-index()` where supported. Cap the total at ~300ms; content must be usable while the stagger plays.
-
-## Tab indicator
-
-The cleanest version uses the View Transitions API; the browser morphs the indicator between tabs with no measuring:
-
-```css
-.tab[aria-selected="true"]::after { content: ""; position: absolute; inset: auto 0 -1px; height: 2px;
-  background: currentColor; view-transition-name: tab-indicator; }
-::view-transition-group(tab-indicator) { animation-duration: 250ms; animation-timing-function: var(--ease-out); }
+.toast { position: fixed; inset: auto 16px 16px auto; opacity: 0; translate: 0 16px; pointer-events: none;
+  transition: opacity 140ms var(--ease-out), translate 140ms var(--ease-out); }
+.toast[data-open] { opacity: 1; translate: 0 0; pointer-events: auto; transition-duration: 240ms; }
 ```
 
 ```js
-const select = tab => document.startViewTransition ? document.startViewTransition(() => activate(tab)) : activate(tab);
-```
-
-For a filled pill where the label color must flip in sync, duplicate the tab list in the active style and animate `clip-path: inset()` of the copy to the active tab's box.
-
-## Page and shared-element transitions
-
-Same document (SPA routes, list → detail):
-
-```js
-document.startViewTransition(() => router.navigate(url));   // wrap the DOM update
-```
-
-```css
-.card-thumb { view-transition-name: var(--vt-name); }       /* unique per item, e.g. --vt-name: cover-42 */
-.detail-cover { view-transition-name: cover-42; }
-::view-transition-group(*) { animation-duration: 300ms; animation-timing-function: var(--ease-in-out); }
-```
-
-Multi-page sites (no JS): `@view-transition { navigation: auto; }` in both pages' CSS. Unsupported browsers navigate normally. Respect reduced motion by setting `animation: none` on `::view-transition-group(*)` inside `@media (prefers-reduced-motion: reduce)`.
-
-## Scroll reveal
-
-Marketing surfaces only. Scroll-driven, no JavaScript:
-
-```css
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal { animation: reveal linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; }
-    @keyframes reveal { from { opacity: 0; translate: 0 24px; } }
-  }
+const el = document.querySelector('.toast'); let timer;
+function toast(message, ms = 4000) {
+  el.textContent = message; el.dataset.open = '';
+  clearTimeout(timer); timer = setTimeout(() => delete el.dataset.open, ms);
 }
+el.addEventListener('pointerenter', () => clearTimeout(timer));
+el.addEventListener('pointerleave', () => { timer = setTimeout(() => delete el.dataset.open, 2000); });
 ```
 
-Scroll-driven animations reverse when scrolling back. For a play-once reveal, use `IntersectionObserver` (`threshold: 0.2`, unobserve after the first hit) and a class transition.
+- Enter 240ms from 16px below, exit 140ms the same way.
+- Interruption: a second toast while the first is open swaps the text and restarts the timer; the transition retargets, so nothing flashes.
+- The text and its action ride the card; never animate an Undo label in after its button.
 
-## Contextual icon swap
+## Tabs with a sliding indicator
 
-Copy → check, play → pause, menu → close. Keep both icons in the DOM, stacked; cross-fade with scale and a little blur so it reads as one icon changing.
+Use for 2 to 6 sibling views. The selected state changes at once; the indicator follows.
+
+```html
+<div class="tabs" role="tablist">
+  <span class="tabs-indicator" aria-hidden="true"></span>
+  <button class="tab" role="tab" aria-selected="true" aria-controls="p1">Overview</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="p2" tabindex="-1">Activity</button>
+</div>
+<div class="tabpanel" role="tabpanel" id="p1">…</div>
+<div class="tabpanel" role="tabpanel" id="p2" hidden>…</div>
+```
 
 ```css
-.swap { display: grid; } .swap > * { grid-area: 1 / 1; transition: opacity 180ms var(--ease-out), scale 180ms var(--ease-out), filter 180ms var(--ease-out); }
-.swap > [data-hidden] { opacity: 0; scale: 0.5; filter: blur(2px); }
+.tabs { position: relative; isolation: isolate; display: inline-flex; }
+.tabs-indicator { position: absolute; inset: 0; z-index: -1; background: var(--tab-active, #ecece9);
+  clip-path: inset(0 var(--right, 100%) 0 var(--left, 0px) round 8px);
+  transition: clip-path 180ms var(--ease-move); }
+.tab { transition: color 120ms var(--ease-fade); }
+.tabpanel { transition: opacity 120ms var(--ease-fade); }
+@starting-style { .tabpanel { opacity: 0; } }
 ```
 
-The state must also be conveyed without motion (label, `aria-pressed`, tooltip text change).
+```js
+const tabs = document.querySelector('.tabs'), indicator = tabs.querySelector('.tabs-indicator');
+const all = [...tabs.querySelectorAll('[role=tab]')];
+function place(tab, animate = true) {
+  if (!animate) indicator.style.transition = 'none';
+  indicator.style.setProperty('--left', tab.offsetLeft + 'px');
+  indicator.style.setProperty('--right', tabs.clientWidth - tab.offsetLeft - tab.offsetWidth + 'px');
+  if (!animate) { indicator.offsetWidth; indicator.style.transition = ''; }
+}
+function select(tab) {
+  for (const t of all) {
+    t.setAttribute('aria-selected', String(t === tab)); t.tabIndex = t === tab ? 0 : -1;
+    document.getElementById(t.getAttribute('aria-controls')).hidden = t !== tab;
+  }
+  place(tab);
+}
+all.forEach((t, i) => {
+  t.addEventListener('click', () => select(t));
+  t.addEventListener('keydown', (e) => {
+    const next = e.key === 'ArrowRight' ? all[(i + 1) % all.length] : e.key === 'ArrowLeft' ? all[(i - 1 + all.length) % all.length] : null;
+    if (next) { next.focus(); select(next); }
+  });
+});
+place(all.find((t) => t.getAttribute('aria-selected') === 'true'), false);
+new ResizeObserver(() => place(all.find((t) => t.getAttribute('aria-selected') === 'true'), false)).observe(tabs);
+```
 
-## Number changes
+- The indicator animates `clip-path` only: no `width` or `left`, so no layout. An underline uses `inset(calc(100% - 2px) var(--right) 0 var(--left))`.
+- First paint and resize place it with no transition.
+- Content: the old panel leaves at once, the new one fades in over 120ms. No slide, no height animation.
+- Interruption: three fast clicks land on the last tab; the clip retargets from where it is.
+- Keyboard: arrow keys move selection instantly (setup block).
+- React: Base UI `Tabs.Indicator` with `clip-path: inset(0 var(--active-tab-right) 0 var(--active-tab-left) round 8px)`, or Motion `layoutId="tab-indicator"` with `transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}`.
 
-Counters, prices, timers: `font-variant-numeric: tabular-nums` always. For animated digits use NumberFlow or the bundled [number transition](../assets/number-transition.mjs); keep one live, accessible value (`aria-live="polite"` on the container, not per digit).
+## Accordion
 
-## Hold to confirm
-
-For destructive actions. Slow deliberate fill on press, fast snap back on release.
+Use for optional detail under a heading. Height is the one layout property worth animating, so keep it short.
 
 ```css
-.hold .fill { clip-path: inset(0 100% 0 0); transition: clip-path 200ms var(--ease-out); }
-.hold:active .fill { clip-path: inset(0 0 0 0); transition: clip-path 1.5s linear; }   /* progress is linear */
+:root { interpolate-size: allow-keywords; }
+details::details-content { block-size: 0; overflow: clip;
+  transition: block-size 240ms var(--ease-move), content-visibility 240ms allow-discrete; }
+details[open]::details-content { block-size: auto; }
+details:not([open])::details-content { transition-duration: 180ms; }
+details > summary .chevron { transition: rotate 180ms var(--ease-move); }
+details[open] > summary .chevron { rotate: 180deg; }
 ```
 
-Fire the action on `animationend`/timer completion, not on press start; keyboard users hold Space/Enter the same way.
+Browsers without `interpolate-size` open instantly, which is fine. For a custom disclosure, a grid track works everywhere:
 
-## Drag to dismiss (sheets, cards, toasts)
+```css
+.panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 240ms var(--ease-move); }
+.panel > .inner { overflow: hidden; min-height: 0; }
+.panel[data-open] { grid-template-rows: 1fr; }
+```
+
+- Open 240ms, close 180ms. Never `max-height` with a guessed number: it makes the duration depend on the content.
+- Interruption: a second click reverses from the current height.
+- Padding goes on `.inner`, not on the track, or the panel never fully closes.
+- Reduced motion: `details::details-content, .panel { transition: none; }`.
+
+## Page and shared-element transition
+
+Use when the next view has a visible relationship to this one (a card that becomes the page, a step that follows a step). Unrelated routes change instantly or with a 120ms crossfade.
 
 ```js
-el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); start = {y: e.clientY, t: performance.now()}; });
-el.addEventListener('pointermove', e => {
-  if (!start) return;
-  const dy = e.clientY - start.y;
-  const d = dy < 0 ? rubberBand(dy, el.offsetHeight) : dy;       // resist dragging the wrong way
-  el.style.translate = `0 ${d}px`;                                // set on the element, not a parent variable
-});
-el.addEventListener('pointerup', e => {
-  const dy = e.clientY - start.y, v = dy / (performance.now() - start.t);   // px per ms
-  const projected = dy + project(v * 1000);                       // where the flick is going
-  (projected > el.offsetHeight * 0.5 || v > 0.5) ? dismiss() : settle();
-  start = null;
-});
-const rubberBand = (x, d, c = 0.55) => -(1 - 1 / (Math.abs(x) * c / d + 1)) * d;
-const project = (velocityPxPerS, rate = 0.998) => (velocityPxPerS / 1000) * rate / (1 - rate);
+const go = (update) => document.startViewTransition ? document.startViewTransition(update) : update();
+go(() => router.navigate(url));
 ```
 
-- **Projection** (from Apple's fluid interface work): decide by where the gesture is going, not where the finger stopped. A fast short flick dismisses.
-- **Rubber band** past a boundary instead of a hard wall.
-- **Settle** with `--spring-bounce` (500ms) or a Motion spring `{type: "spring", duration: 0.5, bounce: 0.2}` so an interrupted drag keeps its velocity.
-- Ignore extra pointers while dragging; add `touch-action: none` to the handle only.
-
-## Masking a stubborn crossfade
-
-When two overlapping states read as two objects no matter the timing, add `filter: blur(2px)` to both during the swap (≤ 4px for small elements; heavy blur is expensive in Safari).
-
-## Theme switch without smearing
-
-A light/dark flip transitions every color at once. Suppress it:
-
-```js
-const css = document.createElement('style');
-css.textContent = '*,*::before,*::after{transition:none!important}';
-document.head.appendChild(css); applyTheme(next); getComputedStyle(document.body).opacity; // force reflow
-requestAnimationFrame(() => css.remove());
+```css
+.card-cover { view-transition-name: var(--vt, none); }   /* unique per item, set inline: --vt: cover-42 */
+::view-transition-group(*) { animation-duration: 280ms; animation-timing-function: var(--ease-move); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 120ms; }
 ```
 
-## No animation on first render
-
-Entrance animations belong to user-caused changes, not the initial page paint: `initial={false}` on Motion's `AnimatePresence`; in CSS, only attach enter transitions after the first frame (`requestAnimationFrame(() => root.classList.add('motion-ready'))` and scope `@starting-style` rules under `.motion-ready`).
-
-## Performance and cleanup
-
-- Animate `transform`/`translate`/`scale`/`rotate`, `opacity`, `clip-path` and `filter`; never `width`, `height`, `top`, `left`, `margin` (accordion height is the tolerated exception).
-- Name properties: never `transition: all`.
-- `will-change` only on elements that stutter on the first frame, removed after; never globally.
-- In Motion, prefer `transform` strings or independent `translate`/`scale` values that run on the compositor; profile before trusting shorthands under load.
-- Cancel timers, observers and pointer captures on unmount.
+- Multi-page sites with no script: `@view-transition { navigation: auto; }` in both pages.
+- Frameworks: use the router's own support (Astro `<ClientRouter />`, SvelteKit `onNavigate`, React Router `viewTransition`), or Motion `layoutId` for one shared element.
+- Forward enters from the right, back from the left; the shell and navigation stay still.
+- The route and focus change at once. A new navigation cancels the running transition.
+- Reduced motion: the setup block removes the animation; the new page simply appears.

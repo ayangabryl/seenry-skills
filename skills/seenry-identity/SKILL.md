@@ -1,6 +1,6 @@
 ---
 name: seenry-identity
-description: "Designs a product's type and color system before any screen, the way a brand studio does: one idea in a line, the clichés named and avoided, typefaces shortlisted from the best open-source (Inter, Geist, Open Runde, Nunito, Bricolage, Newsreader), curated open foundries (Open Foundry, Collletttivo, Velvetyne), Fontshare and premium foundries (Klim, Grilli, Dinamo, Pangram Pangram), specimen boards with the real copy, color studies from real sources with OKLCH ramps, the person's pick on the canvas, then tokens.css and self-hosted fonts with their licenses. Use when starting a new product or brand, when fonts or colors feel weak, generic or AI-made, when choosing or pairing typefaces, or building a palette."
+description: "Chooses a product's typefaces and colors and writes tokens.css. Use when starting a product or brand, picking or pairing fonts, building a palette, or when type or color feels weak, generic or AI-made. Shortlists real typefaces, shows specimens with the real copy on the canvas for the person's pick, and ships self-hosted fonts with their licenses. Not for screen layout (seenry-canvas) or spacing and radius values (seenry-craft)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -10,6 +10,12 @@ metadata:
 # Seenry Identity
 
 This skill sets a product's typefaces and colors from an idea, tests them with real copy on the canvas, and hands `seenry-canvas` one system every screen uses. Layout comes later; this is the voice.
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| `.seenry/brief.md` | `.seenry/identity.md`, `tokens.css`, font files with licenses | `seenry-canvas` to design screens on those tokens |
 
 ## Operating posture
 

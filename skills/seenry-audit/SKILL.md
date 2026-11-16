@@ -1,6 +1,6 @@
 ---
 name: seenry-audit
-description: "Surveys a whole app or site as a senior design engineer (motion, visual craft, accessibility, performance and consistency), returns prioritized findings with file and line evidence, and writes self-contained implementation plans that another agent or a cheaper model can execute without taste or context. Read-only on source code: it plans, it does not apply. Use when asked to audit, improve or polish a whole app, audit the animations or the design, make an app feel better, or produce a roadmap of fixes rather than a review of one diff."
+description: "Audits a whole app or site (motion, visual craft, accessibility, performance, consistency) and writes prioritized fix plans that another agent or a cheaper model can execute. Read-only on code. Use when asked to audit, improve or polish a whole app, make it feel better, or produce a roadmap of fixes. Not for one screen or one diff (seenry-review)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -10,6 +10,12 @@ metadata:
 # Seenry Audit
 
 This skill spends judgment where it compounds (understanding the app, deciding what is worth fixing, writing the exact spec) and hands execution to any agent. It reviews the whole app; `seenry-review` reviews one screen or diff.
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| The whole codebase, read-only | `plans/NNN-short-slug.md`, one per fix, and `plans/README.md` | Any agent executes a plan; `seenry-review` checks the diff |
 
 ## Operating posture
 

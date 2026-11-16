@@ -3,7 +3,8 @@
  *  node history.mjs [--dir .seenry] [--project .]      records .seenry/identity.md (display face, hero color, device)
  *  node history.mjs --list                              prints the last ten identities to avoid
  *  Kept in ~/.config/seenry/history.json (last 20). Run it right after writing identity.md; check.mjs runs it too. */
-import {existsSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs';
+import {existsSync, readFileSync, writeFileSync, mkdirSync, realpathSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import {resolve, join} from 'node:path';
 import {homedir} from 'node:os';
 
@@ -12,7 +13,14 @@ export function recordIdentity(dir, project) {
   if (!existsSync(idFile)) return null;
   const text = readFileSync(idFile, 'utf8');
   // The text under a numbered or bold heading, up to the next heading, flattened to one line.
-  const section = name => { const m = text.match(new RegExp(`${name}[^\\n]*?[.:]\\**\\s*([\\s\\S]*?)(?=\\n\\s*(?:\\d+[.)]|#|- \\*\\*)|$)`, 'i')); return (m?.[1] || '').replace(/[*_`]/g, '').replace(/\s+/g, ' ').trim().slice(0, 180); };
+  const flat = s => (s || '').replace(/[*_`]/g, '').replace(/\s+/g, ' ').trim().slice(0, 180);
+  const section = name => {
+    // A markdown heading ("## 3. Type voice and range") holds its text on the lines below it.
+    const heading = text.match(new RegExp(`^#{1,6}[^\\n]*${name}[^\\n]*\\n+([\\s\\S]*?)(?=\\n#{1,6}\\s|$)`, 'im'));
+    if (heading && flat(heading[1])) return flat(heading[1]);
+    const m = text.match(new RegExp(`${name}[^\\n]*?[.:]\\**\\s*([\\s\\S]*?)(?=\\n\\s*(?:\\d+[.)]|#|- \\*\\*)|$)`, 'i'));
+    return flat(m?.[1]);
+  };
   const entry = {project: resolve(project), at: new Date().toISOString(), type: section('typographic voice') || section('type voice'), color: section('colou?r world'), device: section('graphic device') || section('device')};
   const histDir = join(homedir(), '.config', 'seenry'), hist = join(histDir, 'history.json');
   mkdirSync(histDir, {recursive: true});
@@ -21,7 +29,9 @@ export function recordIdentity(dir, project) {
   return entry;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Through a symlinked path (/tmp on macOS) argv holds the link and import.meta.url the real file.
+const real = p => { try { return realpathSync(p); } catch { return p; } };
+if (process.argv[1] && real(fileURLToPath(import.meta.url)) === real(process.argv[1])) {
   const args = process.argv.slice(2), flag = (n, d) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
   if (args.includes('--list')) {
     const hist = join(homedir(), '.config', 'seenry', 'history.json');

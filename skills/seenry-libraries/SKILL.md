@@ -1,6 +1,6 @@
 ---
 name: seenry-libraries
-description: "Picks the right maintained library for a UI job before anything is built by hand: primitives (Base UI, Radix, React Aria), toasts, drawers, command menus, animated numbers (NumberFlow) and text, motion (Motion, GSAP, Rive, Lottie), drag and drop, tables and virtual lists, charts, editors, canvases, media players, maps, forms, state, AI chat interfaces and React Native. Checks each package's license, last release and downloads on npm. Use when about to build a component or interaction from scratch, when asked which library or package to use, or when reviewing a hand-rolled toast, modal, select, drag, chart or number animation."
+description: "Picks the maintained library for a UI job before it is built by hand, and the framework for an empty project. Covers primitives (Base UI, Radix), toasts (Sonner), drawers (Vaul), command menus, animated numbers (NumberFlow), motion, drag and drop, tables, charts, forms and state. Use when about to build a component from scratch, when asked which package or framework to use, or reviewing a hand-rolled toast, modal, select or chart. Checks license and last release on npm. Not for designing the component (seenry-craft)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -10,6 +10,12 @@ metadata:
 # Seenry Libraries
 
 This skill names the library that already solves a UI job, checks that it is alive and licensed for the project, and says when the platform or plain CSS is enough. It does not design the component (`seenry-canvas`, `seenry-craft`) or its motion (`seenry-motion`).
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| `package.json` and the `Stack:` line in `DESIGN.md` | The pick with its license and release check, added to the `Stack:` line | Build it; `seenry-motion` if it moves |
 
 ## Operating posture
 
@@ -88,6 +94,7 @@ When building: install with the project's package manager, follow the library's 
 
 | They say | You do |
 | --- | --- |
+| "Which framework?", an empty project | The framework table in [stack](../seenry/references/stack.md), then one `Stack:` line in `DESIGN.md` |
 | "Which library for X?" | Steps 1 to 5, one job |
 | "Build a toast, a drawer, a command menu" | Steps 1 to 5, then build with the pick |
 | "Make this number animate" | `@number-flow/react`, only where the value really changes |

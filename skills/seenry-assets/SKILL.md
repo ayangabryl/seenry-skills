@@ -1,6 +1,6 @@
 ---
 name: seenry-assets
-description: "Find, generate and integrate the visual material a design needs: photos, hero images, album or product art, PNG and 3D-style icons, UI icons, illustrations, textures and fonts. Sources license-clear assets from the internet (CC0/public domain photos, permissive icon sets, open fonts) and generates images when the host has an image model. Records provenance for every file. Use whenever a page or component would otherwise ship with placeholders, gradients or stock clichés."
+description: "Finds or generates the images a design needs: photos, hero art, product shots, icons, illustrations, textures and font files, license-clear with provenance recorded. Use when a page would ship with placeholders, gradients or stock clichés, or when asked for an image, an icon set or fonts. Not for choosing the brand typeface or palette (seenry-identity)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -10,6 +10,12 @@ metadata:
 # Seenry Assets
 
 Real material is the difference between a studio result and a template. A placeholder gradient where a cover image should be, or an emoji where an icon should be, makes everything around it look fake. Every asset in a Seenry build is real, license-clear, art-directed and recorded.
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| `.seenry/compose.md` or the screen that needs material, and `tokens.css` for the grade | The files and a provenance row for each in `DESIGN.md` | Back to `seenry-canvas` to place them |
 
 ## Decide the material first
 

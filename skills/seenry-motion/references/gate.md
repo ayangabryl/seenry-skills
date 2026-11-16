@@ -1,5 +1,7 @@
 # The motion gate
 
+**Read when:** deciding whether something should animate at all, hunting for motion worth adding, or removing and reducing motion that cannot defend itself.
+
 One test decides both directions: whether a still thing should start moving, and whether a moving thing should stop. `seenry-motion` uses it to find motion worth adding; `seenry-subtract` uses it to remove motion that cannot defend itself; `seenry-audit` uses it to rank findings.
 
 ## Contents
@@ -45,10 +47,11 @@ Name one, in one word, or it does not move:
 
 | Element | Duration |
 | --- | --- |
-| Press feedback | 100–160ms |
-| Tooltip, small popover | 125–200ms |
-| Menu, dropdown, select | 150–250ms |
-| Dialog, drawer | 200–500ms |
+| Press feedback | 80–120ms |
+| Tooltip, small popover | 120ms |
+| Menu, dropdown, select | 180ms |
+| Dialog | 240ms |
+| Sheet, drawer | 280ms |
 | Marketing, explanation | Longer when the motion is the message |
 
 Product UI stays under 300ms. A moment that only works slow and showy fails.

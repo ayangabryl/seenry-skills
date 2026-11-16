@@ -1,5 +1,7 @@
 # Motion vocabulary
 
+**Read when:** the person describes an effect loosely ("what's it called when…") and you need the exact term before building.
+
 Turns a loose description ("the bouncy thing when a popover opens") into the exact term, so the person can ask for it and you build the right thing. Answer with the term first, then one or two close alternates and how they differ:
 
 ```
@@ -8,6 +10,21 @@ Close: **Scale in** if it grows from its center; **Shared element transition** i
 ```
 
 Read for the sensation, not keywords. If nothing fits exactly, give the nearest term and say it is an approximation, or describe the effect with these words ("a stagger of scale-in entrances"). Do not invent terms.
+
+## Contents
+
+- [Entrances and exits](#entrances-and-exits)
+- [Sequencing and timing](#sequencing-and-timing)
+- [Movement and transforms](#movement-and-transforms)
+- [Between states](#between-states)
+- [Scroll](#scroll)
+- [Feedback and interaction](#feedback-and-interaction)
+- [Easing](#easing)
+- [Springs](#springs)
+- [Looping and ambient](#looping-and-ambient)
+- [Polish and effects](#polish-and-effects)
+- [Performance](#performance)
+- [Principles](#principles)
 
 ## Entrances and exits
 

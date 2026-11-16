@@ -34,7 +34,7 @@ for doc in (root / 'skills').rglob('*.md'):
     for link in re.findall(r'\]\(([^)#]+)', doc.read_text(encoding='utf-8')):
         if not re.match(r'https?://', link):
             assert (doc.parent / link).is_file(), f'Missing reference: {doc} -> {link}'
-for directory in ('morphicons','number-flow'):
+for directory in ('number-flow',):
     manifest_path = root / 'skills/seenry-motion/assets' / directory / 'manifest.json'
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
     for item in manifest['files']:

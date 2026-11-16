@@ -1,20 +1,25 @@
 #!/usr/bin/env node
-/** Generate photographs through the Codex CLI's built-in image model, from any host (Claude Code, Cursor, Codex).
+/** Generate images through the Codex CLI's built-in image model, from any host (Claude Code, Cursor, Codex).
  *
- *  node image.mjs --prompt "<art-directed prompt>" --out assets/hero.png
- *  node image.mjs --batch images.json           # [{"prompt": "...", "out": "assets/hero.png", "use": "hero, 16:9"}, ...]
+ *  node image.mjs --batch images.json           # art-directed jobs, see art_prompt.mjs for the fields
+ *  node image.mjs --subject "..." --concept "..." --palette "#2b1314,#e6e0d5,#6b1f24" --grade desaturated-one-accent \
+ *                 --light "..." --light-reason "..." --texture grain --texture-reason "..." \
+ *                 --slot "hero, right of the headline" --field "left two-thirds" --mode cutout --prop "..." --out assets/hero.png
+ *  --dry      print the composed prompts and exit, without generating
+ *  --raw      accept free-text {"prompt": "...", "out": "..."} jobs (old behaviour); stock tells are still reported
  *  --variants 3 --brand "<brand>" [--refs a.png,b.png]   generate 3 candidates per shot and keep the one photo_check.mjs
  *                                                         scores highest (the others stay beside it as -v2, -v3)
  *
- *  Write prompts like a photographer (see references/standard.md Imagery and seenry-assets/references/generation.md): subject, set
- *  and surface, one light, lens and distance, composition for the slot and ratio, color grade, exclusions, and
- *  "no text" on labels. Then run photo_check.mjs on the results. Needs a working, signed-in `codex` CLI. */
+ *  Every job declares palette, grade, concept, light, texture, placement and the brand prop before it is generated:
+ *  images graded to the page palette and composed for their slot read as one brand; a subject in a setting reads as
+ *  stock. Then run photo_check.mjs on the results. Needs a working, signed-in `codex` CLI. */
 import {existsSync, readFileSync, copyFileSync, mkdirSync, mkdtempSync, readdirSync, statSync, rmSync} from 'node:fs';
 import {resolve, dirname, join, extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn} from 'node:child_process';
 import {findCli, codexModels} from './model_cli.mjs';
 import {markWorkDir} from './workdir.mjs';
+import {validateJob, composePrompt, rawWarnings} from './art_prompt.mjs';
 
 const args = process.argv.slice(2);
 // --background: start the same job detached and return at once, so the page is built while images generate. A pending
@@ -27,6 +32,39 @@ if (args.includes('--wait')) {
   console.log(existsSync(pendingFile) ? 'Images still generating after 30 minutes; check .seenry/images.log.' : 'Images ready.');
   process.exit(0);
 }
+const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
+const variants = Math.max(1, Math.min(4, Number(flag('variants', '1'))));
+const raw = args.includes('--raw');
+const single = flag('prompt') !== undefined ? {prompt: flag('prompt'), out: flag('out'), use: flag('use')} : {
+  subject: flag('subject'), concept: flag('concept'), palette: flag('palette'), grade: flag('grade'), grade_reason: flag('grade-reason'),
+  light: flag('light'), light_reason: flag('light-reason'), texture: flag('texture'), texture_reason: flag('texture-reason'),
+  placement: {slot: flag('slot'), field: flag('field'), mode: flag('mode')}, prop: flag('prop'), ratio: flag('ratio'), exclude: flag('exclude'),
+  out: flag('out'), use: flag('use'),
+};
+const base = flag('batch') ? JSON.parse(readFileSync(resolve(flag('batch')), 'utf8')) : [single];
+const ART = ['subject', 'concept', 'palette', 'grade', 'light', 'texture', 'placement', 'prop'];
+const refusals = [];
+base.forEach((j, n) => {
+  const name = j.out || `job ${n + 1}`;
+  if (!j.out) refusals.push(`${name}: out is missing`);
+  if (raw) {
+    if (!j.prompt) refusals.push(`${name}: --raw needs a prompt`);
+    else for (const w of rawWarnings(j.prompt)) console.error(`warning ${name}: ${w}`);
+    return;
+  }
+  if (j.prompt && !ART.some(k => j[k] && (typeof j[k] !== 'object' || Object.values(j[k]).some(Boolean)))) {
+    refusals.push(`${name}: a free-text prompt is not art direction. Declare ${ART.join(', ')} (see art_prompt.mjs), or pass --raw to generate it as written`);
+    return;
+  }
+  const errors = validateJob(j);
+  if (errors.length) refusals.push(`${name}:\n  - ${errors.join('\n  - ')}`);
+  else { j.prompt = composePrompt(j); j.use = j.use || j.placement?.slot || (typeof j.placement === 'string' ? j.placement : undefined); }
+});
+if (!base.length || refusals.length) {
+  console.error(`Refused: ${base.length ? 'these jobs are not art-directed yet.' : 'no jobs.'}\n${refusals.join('\n')}\n\nEvery image declares its palette (shadow, highlight and accent hex from the page), grade, concept, light and why, texture and why, placement (slot, empty field, cutout | tile | bleed) and the brand prop inside the frame.`);
+  process.exit(2);
+}
+if (args.includes('--dry')) { for (const j of base) console.log(`${j.out}\n  ${j.prompt}\n`); process.exit(0); }
 if (args.includes('--background')) {
   const {openSync, writeFileSync: write} = await import('node:fs');
   mkdirSync(dirname(pendingFile), {recursive: true});
@@ -38,12 +76,8 @@ if (args.includes('--background')) {
   process.exit(0);
 }
 if (args.includes('--pending')) process.on('exit', () => { try { rmSync(pendingFile); } catch {} });
-const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
-const variants = Math.max(1, Math.min(4, Number(flag('variants', '1'))));
-const base = flag('batch') ? JSON.parse(readFileSync(resolve(flag('batch')), 'utf8')) : [{prompt: flag('prompt'), out: flag('out'), use: flag('use')}];
 // With --variants, every shot is generated several times and the best one (by photo_check) keeps the requested name.
 const jobs = base.flatMap(j => variants === 1 ? [j] : Array.from({length: variants}, (_, v) => ({...j, shot: j.out, out: j.out.replace(/(\.[a-z]+)?$/i, m => `-v${v + 1}` + (m || '.png'))})));
-if (!jobs.length || jobs.some(j => !j.prompt || !j.out)) { console.error('Usage: node image.mjs --prompt "<prompt>" --out <file.png> | --batch <jobs.json>'); process.exit(2); }
 const found = findCli('codex');
 if (!found) { console.error('No working Codex CLI found, so no image model is available. Use the host image tool, seenry-assets (OPENAI_API_KEY or GEMINI_API_KEY), license-clear photos, or the museum art set in references/new-site.md.'); process.exit(2); }
 
@@ -110,7 +144,7 @@ if (variants > 1) {
     const cands = jobs.filter(j => j.shot === shot.out).map(j => resolve(j.out)).filter(existsSync);
     if (!cands.length) continue;
     const report = resolve(dirname(shot.out), `.photo-${Date.now()}.json`);
-    spawnSync('node', [join(here, 'photo_check.mjs'), ...cands, '--use', shot.use || 'photograph on a web page', '--brand', flag('brand', 'the brand'), '--out', report, ...(flag('refs') ? ['--refs', flag('refs')] : [])], {stdio: 'inherit'});
+    spawnSync('node', [join(here, 'photo_check.mjs'), ...cands, '--use', shot.use || 'photograph on a web page', '--brand', flag('brand', 'the brand'), '--out', report, ...(flag('refs') ? ['--refs', flag('refs')] : []), ...(shot.palette && typeof shot.palette === 'object' ? ['--palette', [shot.palette.shadows, shot.palette.highlights, shot.palette.accent].join(',')] : typeof shot.palette === 'string' ? ['--palette', shot.palette] : [])], {stdio: 'inherit'});
     let best = cands[0];
     try { const imgs = JSON.parse(readFileSync(report, 'utf8')).images; const i = imgs.reduce((b, x, k) => (x.overall > imgs[b].overall || (x.overall === imgs[b].overall && (x.concept || 0) > (imgs[b].concept || 0))) ? k : b, 0); best = cands[i] || best; console.log(`best for ${shot.out}: ${best.split('/').pop()} (${imgs[i].overall}/10)`); } catch {}
     copyFileSync(best, resolve(shot.out));

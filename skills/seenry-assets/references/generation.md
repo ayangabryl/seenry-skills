@@ -4,14 +4,15 @@ Generate only when the host actually has an image model: an image-generation MCP
 
 ## Write an art-directed prompt
 
-Generic prompts produce generic images. Specify every one of these:
+Generic prompts produce generic images. With seenry's `image.mjs`, declare the job fields in [imagery](../../seenry/references/imagery.md#art-direct-every-generated-image) (palette hex, grade, concept, light and why, texture and why, placement, brand prop) and it composes the prompt; it refuses a subject-and-setting brief. Grade every image to the page palette: shadows and highlights from the tokens, one saturated accent. With another tool, specify every one of these:
 
 ```
 Subject:     what, doing what, from which distance
 Composition: aspect ratio, where the subject sits, negative space for text (e.g. "left third empty")
 Light:       direction, softness, time of day, color temperature
 Material:    surfaces, texture, grain, finish
-Palette:     2–3 named colors taken from the design tokens
+Palette:     shadow, highlight and one accent as hex from the design tokens; the accent is the only saturated colour
+Concept:     the idea the image carries, not the literal scene
 Style:       photographic (lens, film stock) or rendered (studio 3D, matte clay, glass) or illustrated (line weight, fill)
 Exclusions:  no text, no logos, no watermark, no extra hands, no borders
 ```

@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Original Seenry renderer: contact-local mixing with unfiltered outer faces.
-// Research and limitations are recorded in references/surface-effects.md.
+// Research and limitations are recorded in references/expressive.md.
 export default function ImageBlend({images,id}) {
  const pair=images.slice(0,2),[a,b]=pair;
  if(!a)return null;

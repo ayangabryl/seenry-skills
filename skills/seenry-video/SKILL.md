@@ -1,6 +1,6 @@
 ---
 name: seenry-video
-description: "Direct and render short product films as code: launch videos, feature explainers, tool and agent demos, social cuts. Studies launch videos and recordings in Seenry for pacing, writes the story, shot list and voiceover, builds a seekable HTML film from real captures, renders it frame by frame, designs and mixes the sound, and checks format, loudness and every on-screen claim. Not for editing live-action footage."
+description: "Directs and renders a short product film as code: launch video, feature explainer, tool or agent demo, social cut, with story, shot list, voiceover and sound. Use when asked for a launch, promo or demo video of a product. Not for editing live-action footage or in-product animation (seenry-motion)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -12,6 +12,12 @@ metadata:
 A good product film proves one thing. Everything in it, picture, words, music and cuts, serves that proof, and every fact it shows is true. The film is built as a web page whose every frame is a pure function of time, rendered by seeking frame by frame. That makes it exact, repeatable and editable like code: change a number, re-render, and the cut is identical except for that number.
 
 Use this for 6–90 second films about a product: launches, feature reveals, "how it works" explainers, MCP and agent demos, social cuts. For interface motion inside a product use [seenry-motion](../seenry-motion/SKILL.md); for the page or product being shown use [seenry](../seenry/SKILL.md).
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| The built product and real captures of it | The rendered film and its checks | Nothing; this is the last step |
 
 ## The standard
 

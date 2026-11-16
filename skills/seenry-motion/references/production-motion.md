@@ -1,8 +1,34 @@
 # Production motion: measured from real products
 
+**Read when:** someone asks why a recipe value is what it is, or a component family needs evidence beyond its recipe.
+
+The recipes in [recipes](recipes.md) and [recipes-state](recipes-state.md) distil the production specifications below; this file is the evidence behind them.
+
 Prepared 30 September 2026. **The replacement kit needs distinct clocks for feedback, surfaces, layout continuity and celebration.** A 120 ms icon, a 280 ms sheet and a 1 s particle removal solve different problems. Layer relationships matter as much as duration: preserve content attached to a moving surface; reveal new content while its container finishes; remove outgoing content before collapsing its space.
 
 This is a frame-based research deliverable, not a component implementation. All downloaded media, extracted frames, evidence and scripts are local to this folder.
+
+## Contents
+
+- [Evidence and how to read the numbers](#evidence-and-how-to-read-the-numbers)
+- [1. Menu / dropdown](#1-menu--dropdown)
+- [2. Modal / dialog](#2-modal--dialog)
+- [3. Sheet / panel](#3-sheet--panel)
+- [4. Toast](#4-toast)
+- [5. Tabs / segmented indicators](#5-tabs--segmented-indicators)
+- [6. Number / text changes](#6-number--text-changes)
+- [7. Icon swaps / morphing buttons](#7-icon-swaps--morphing-buttons)
+- [8. Success / confirmation](#8-success--confirmation)
+- [9. List add / remove / reorder](#9-list-add--remove--reorder)
+- [10. Accordion / expanding card](#10-accordion--expanding-card)
+- [11. Page / view transition](#11-page--view-transition)
+- [12. Skeleton → content](#12-skeleton--content)
+- [13. Hover / press on buttons and cards](#13-hover--press-on-buttons-and-cards)
+- [14. Tooltip](#14-tooltip)
+- [15. AI thinking / streaming states](#15-ai-thinking--streaming-states)
+- [Numeric curve cross-checks](#numeric-curve-cross-checks)
+- [The system: consistent relationships, different clocks](#the-system-consistent-relationships-different-clocks)
+- [What separates senior motion from junior motion](#what-separates-senior-motion-from-junior-motion)
 
 ## Evidence and how to read the numbers
 

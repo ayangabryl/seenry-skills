@@ -20,10 +20,10 @@ How the canvas folder is laid out and what each part holds, organized the way de
 .seenry/canvas/
   canvas.json                 title, description, owner, speed, stage, sections, flows, log, archive reasons
   tokens.css                  the one design system every screen links
+  components.css              the shared controls every screen links, one "@component" line each
   fonts/                      real font files, self-hosted WOFF2
   _foundations.html           generated from tokens.css on every start; never edit
-  00-components/              one sheet per component
-    button.html
+  _components.html            generated from components.css whenever it changes; never edit
   01-onboarding/              a section: one flow
     01-welcome.phone.html     a screen; the number sets its order
     02-target.phone.html
@@ -34,7 +34,7 @@ How the canvas folder is laid out and what each part holds, organized the way de
   archive/                    options that lost, with the reason; never deleted
 ```
 
-The canvas shows a generated cover first (title, description, owner, each section's status and approvals, recent changes), then Foundations, the sections in order, references and the archive.
+The canvas opens on the options waiting for a pick. It lays out the open decisions first, then the other sections in order, the references, the cover (title, description, owner, each section's status and approvals, recent changes), Foundations and Components, and the archive.
 
 ## Screens and their names
 
@@ -61,6 +61,8 @@ Put these in the screen's `<head>`.
 | `<meta name="seenry-axis" content="…">` | For an option: the direction it explores, in a phrase |
 | `<meta name="seenry-wins" content="…">` | For an option: when it is the right choice |
 | `<meta name="seenry-cost" content="…">` | For an option: what it gives up |
+| `data-seenry-part="Plan cards"` on an element | The part's name, shown on Seenry's cursor and in the live feed as the part is added |
+| `<meta name="seenry-fidelity" content="sketch">` | For an option: drawn as its first screen only. Remove it once the picked sketch is a full page |
 
 ## Tokens
 
@@ -73,13 +75,20 @@ Put these in the screen's `<head>`.
 5. **Text styles.** `.text-display`, `.text-title`, `.text-heading`, `.text-body`, `.text-ui`, `.text-caption`, `.text-code`: each sets family, size, line height, weight and tracking together.
 6. **Effects.** `--shadow-raised`, `--shadow-overlay`, `--ring-focus`.
 7. **Layout grids.** `--grid-columns`, `--grid-gutter`, `--grid-margin`, `--grid-max` per breakpoint.
-8. **Motion.** `--ease-out`, `--ease-in-out`, `--duration-*`.
+8. **Motion.** `--ease-out`, `--ease-move`, `--ease-fade`, `--duration-*`.
 
 A typed value or a primitive used in a screen is a detached value: `check` and `verify` report it. Foundations shows every token in both modes and marks any font that did not load.
 
 ## Components
 
-A component used on two or more screens gets one sheet in `00-components/` showing every variant in every state: default, hover, focus, pressed, disabled, loading, error. Label each cell like a Figma variant, `Button / Primary / Hover`. Screens reuse the same classes, so the component changes in one place; `verify` warns when one class renders differently on two screens.
+A control used on two or more screens lives once, in `components.css`, and every screen links it after `tokens.css`. Above each component write one comment line naming it and giving its markup, one example per variant:
+
+```css
+/* @component Button | <button class="btn">Save</button> | <button class="btn btn-quiet">Cancel</button> | <button class="btn" disabled>Saving…</button> */
+.btn { … }
+```
+
+The canvas draws the Components sheet from these lines, live, so it never drifts from the screens and costs one line per component. `check` warns when a screen redefines a class from `components.css` (change the file, or give the variant its own class there), and `verify` warns when one class renders differently on two screens. `handoff` lists each component with its classes so the build makes it once. A component that needs every state shown at once (hover, focus, pressed) can still get a hand-made sheet in `00-components/`.
 
 ## Specs for developers
 
@@ -115,7 +124,7 @@ Present opens on the flow of the selected screen and follows the links between s
 }
 ```
 
-`round`, `status`, `resolve`, `archive` and `log` write `sections`, `log` and `archive` for you.
+`round`, `status`, `resolve`, `archive` and `log` write `sections`, `log` and `archive` for you; `init`, `plan` and `open` write `started`, `planned` and `firstOption`.
 
 ## A shared design system
 

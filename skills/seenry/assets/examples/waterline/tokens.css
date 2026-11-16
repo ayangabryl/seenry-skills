@@ -1,0 +1,147 @@
+/* Seenry tokens: the design system every screen links, organized like a design team's Figma variables.
+   Change values, keep the names and tiers. This file moves into the product unchanged.
+
+   1. Fonts         @font-face for the real files in fonts/ (self-hosted WOFF2), or a Google Fonts <link> in each screen
+   2. Primitives    raw values with no meaning: the gray and accent ramps, the size and space scales
+   3. Semantic      what components use, by role, with a light and a dark mode
+   4. Text styles   one class per role: family, size, line height, weight and tracking together
+   5. Effects       elevation shadows, focus ring
+   6. Layout grids  columns, gutter and margin per breakpoint
+   7. Motion        easing and durations
+   Components use only tiers 3 to 7. A primitive used directly in a screen is a detached value. */
+
+/* 1. Fonts. Example: @font-face { font-family: "Inter"; src: url("fonts/Inter-Variable.woff2") format("woff2"); font-weight: 100 900; font-display: swap; } */
+
+:root {
+  /* 2. Primitives */
+  --font-family-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --gray-0: oklch(1 0 0);
+  --gray-50: oklch(0.985 0.002 90);
+  --gray-100: oklch(0.965 0.003 90);
+  --gray-200: oklch(0.92 0.003 90);
+  --gray-300: oklch(0.86 0.004 90);
+  --gray-500: oklch(0.52 0.005 90);
+  --gray-600: oklch(0.45 0.005 90);
+  --gray-800: oklch(0.28 0.005 90);
+  --gray-900: oklch(0.22 0.005 90);
+  --gray-950: oklch(0.16 0.004 90);
+  --accent-500: oklch(0.55 0.16 255);
+  --accent-600: oklch(0.48 0.16 255);
+  --accent-400: oklch(0.66 0.14 255);
+  --green-600: oklch(0.55 0.13 150);
+  --amber-500: oklch(0.72 0.14 70);
+  --red-600: oklch(0.55 0.19 27);
+
+  --size-12: 0.75rem; --size-13: 0.8125rem; --size-14: 0.875rem; --size-16: 1rem; --size-18: 1.125rem;
+  --size-20: 1.25rem; --size-24: 1.5rem; --size-32: 2rem; --size-40: 2.5rem; --size-56: 3.5rem; --size-72: 4.5rem;
+
+  /* 3. Semantic: spacing, radius, type */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px;
+  --space-8: 32px; --space-12: 48px; --space-16: 64px; --space-24: 96px;
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px; --radius-full: 999px;
+  --font-body: var(--font-family-sans); --font-display: var(--font-family-sans); --font-code: var(--font-family-mono);
+  --weight-regular: 400; --weight-medium: 500; --weight-strong: 600;
+
+  /* 3. Semantic: color, light mode */
+  --color-bg: var(--gray-50);
+  --color-bg-surface: var(--gray-0);
+  --color-bg-sunken: var(--gray-100);
+  --color-text: var(--gray-900);
+  --color-text-secondary: var(--gray-600);
+  --color-text-tertiary: var(--gray-500);
+  --color-border: var(--gray-200);
+  --color-border-strong: var(--gray-300);
+  --color-accent: var(--accent-600);
+  --color-accent-hover: var(--accent-500);
+  --color-on-accent: var(--gray-0);
+  --color-focus: var(--accent-500);
+  --color-positive: var(--green-600);
+  --color-warning: var(--amber-500);
+  --color-negative: var(--red-600);
+
+  /* 5. Effects */
+  --shadow-raised: 0 1px 2px oklch(0 0 0 / 0.06), 0 1px 1px oklch(0 0 0 / 0.04);
+  --shadow-overlay: 0 12px 32px oklch(0 0 0 / 0.12), 0 2px 6px oklch(0 0 0 / 0.08);
+  --ring-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+
+  /* 6. Layout grids: mobile first */
+  --grid-columns: 4; --grid-gutter: 16px; --grid-margin: 16px; --grid-max: 100%;
+
+  /* 7. Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-press: 120ms; --duration-short: 180ms; --duration-medium: 240ms;
+}
+@media (min-width: 768px) { :root { --grid-columns: 8; --grid-gutter: 24px; --grid-margin: 32px; } }
+@media (min-width: 1200px) { :root { --grid-columns: 12; --grid-gutter: 24px; --grid-margin: 48px; --grid-max: 1280px; } }
+
+/* 3. Semantic: color, dark mode. Its own palette, never the light one inverted. */
+:root[data-theme="dark"] {
+  --color-bg: var(--gray-950);
+  --color-bg-surface: oklch(0.2 0.004 90);
+  --color-bg-sunken: oklch(0.13 0.004 90);
+  --color-text: oklch(0.96 0.003 90);
+  --color-text-secondary: oklch(0.74 0.004 90);
+  --color-text-tertiary: oklch(0.6 0.004 90);
+  --color-border: oklch(1 0 0 / 0.1);
+  --color-border-strong: oklch(1 0 0 / 0.18);
+  --color-accent: var(--accent-400);
+  --color-accent-hover: oklch(0.74 0.12 255);
+  --color-on-accent: var(--gray-950);
+  --shadow-raised: 0 0 0 1px oklch(1 0 0 / 0.06);
+  --shadow-overlay: 0 0 0 1px oklch(1 0 0 / 0.08), 0 16px 40px oklch(0 0 0 / 0.5);
+}
+
+/* 4. Text styles */
+.text-display { font-family: var(--font-display); font-size: var(--size-56); line-height: 1.05; font-weight: var(--weight-strong); letter-spacing: -0.025em; }
+.text-title { font-family: var(--font-display); font-size: var(--size-32); line-height: 1.15; font-weight: var(--weight-strong); letter-spacing: -0.015em; }
+.text-heading { font-family: var(--font-body); font-size: var(--size-20); line-height: 1.3; font-weight: var(--weight-strong); letter-spacing: -0.01em; }
+.text-body { font-family: var(--font-body); font-size: var(--size-16); line-height: 1.55; font-weight: var(--weight-regular); }
+.text-ui { font-family: var(--font-body); font-size: var(--size-14); line-height: 1.45; font-weight: var(--weight-medium); }
+.text-caption { font-family: var(--font-body); font-size: var(--size-13); line-height: 1.4; font-weight: var(--weight-regular); }
+.text-code { font-family: var(--font-code); font-size: var(--size-13); line-height: 1.5; font-weight: var(--weight-regular); }
+
+/* Shared additions for the worked example. */
+:root{
+  --size-11:0.6875rem; --size-15:0.9375rem; --size-22:1.375rem; --size-28:1.75rem; --size-48:3rem; --size-64:4rem; --size-88:5.5rem; --size-104:6.5rem;
+  --space-10:40px; --space-20:80px; --space-32:128px; --space-40:160px;
+  --radius-xl:22px;
+  --line-hair:1px; --line-bold:2px; --weight-light:300; --tracking-tight:-0.02em; --tracking-snug:-0.01em;
+  --frame-max:1280px; --hero-h:980px; --chart-h:240px;
+  --alpha-soft:0.55; --alpha-faint:0.18;
+}
+
+
+/* Round 2: Waterline. One hue (cobalt) in five steps, white app surfaces, ink text. No second hue anywhere. */
+[data-look="waterline"]{
+  --wl-sky: oklch(0.5 0.235 264);
+  --wl-deep: oklch(0.3 0.17 266);
+  --wl-abyss: oklch(0.2 0.11 267);
+  --wl-tint: oklch(0.93 0.035 264);
+  --wl-tint-2: oklch(0.86 0.07 264);
+  --wl-mid: oklch(0.68 0.15 264);
+  --wl-page: oklch(0.975 0.008 264);
+  --wl-white: oklch(1 0 0);
+  --wl-ink: oklch(0.2 0.03 266);
+  --wl-ink-2: oklch(0.44 0.03 266);
+  --wl-ink-3: oklch(0.5 0.03 266);
+  --wl-line: oklch(0.2 0.03 266 / 0.1);
+  --wl-on-sky: oklch(1 0 0);
+  --wl-on-sky-2: oklch(0.96 0.02 264);
+  --wl-glass: oklch(1 0 0 / 0.14);
+  --wl-glass-line: oklch(1 0 0 / 0.22);
+  --wl-edge: inset 0 0 0 var(--line-hair) var(--wl-line);
+  --wl-edge-glass: inset 0 0 0 var(--line-hair) var(--wl-glass-line);
+  --wl-shadow-app: 0 40px 80px -20px oklch(0.2 0.11 267 / 0.55);
+  --wl-shadow-pop: 0 10px 24px -6px oklch(0.2 0.11 267 / 0.28), 0 0 0 var(--line-hair) var(--wl-line);
+  --font-display: "Newsreader", Georgia, serif; --font-body: "Geist", system-ui, sans-serif;
+  --wl-hero-h: 1250px; --wl-app-w: 1100px; --wl-rail-w: 216px; --wl-moves-w: 264px; --wl-plot-h: 168px; --wl-stick-h: 44px; --wl-tile-h: 440px;
+  --size-68: 4.25rem; --size-52: 3.25rem;
+  --tracking-display: -0.035em;
+}
+.text-wl-hero { font-family: var(--font-display); font-size: var(--size-68); line-height: 1.02; font-weight: var(--weight-light); letter-spacing: var(--tracking-display); }
+.text-wl-section { font-family: var(--font-display); font-size: var(--size-52); line-height: 1.04; font-weight: var(--weight-light); letter-spacing: var(--tracking-display); }
+.text-wl-num { font-family: var(--font-body); font-size: var(--size-22); line-height: 1.1; font-weight: var(--weight-medium); letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums; }
+.text-wl-micro { font-family: var(--font-body); font-size: var(--size-12); line-height: 1.35; font-weight: var(--weight-regular); }

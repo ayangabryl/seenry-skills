@@ -1,0 +1,17 @@
+[
+  {
+    "out": "sea.jpg",
+    "ratio": "3:2",
+    "subject": "A wide open sea painted in gouache, flat broad brush planes, with a small pale headland at the far left edge and a sea stack at the far right, both low on the horizon, and large rolling swells that grow toward the bottom edge, the nearest one carrying a bright foam crest across the full width",
+    "concept": "The level you can see coming: a calm sea line that the product's cash floor is read against",
+    "palette": {"shadows": "#0E2A8A", "highlights": "#DCE6FF", "accent": "#1F4FE0"},
+    "grade": "duotone",
+    "light": "hard midday sun on the crests",
+    "light_reason": "a forecast is read in plain daylight, with nothing hidden in shadow",
+    "texture": "dry-brush grain",
+    "texture_reason": "a painted surface sets the image apart from stock sea photographs",
+    "placement": {"slot": "the full-bleed hero, bottom-anchored, 1440 by 1250", "field": "the top half: a perfectly flat, empty cobalt sky for a two-line headline", "mode": "bleed"},
+    "prop": "the cobalt sky itself, which is the brand colour",
+    "exclude": "boats, people, clouds, text, green, orange, red"
+  }
+]

@@ -1,6 +1,6 @@
 ---
 name: seenry-subtract
-description: "Removes what an interface does not need: animations on keyboard and frequent actions, fade-ins on every section, hover lifts, infinite loops, decoration with no purpose, and the generated-looking parts of a design (repeated section layouts, a clever one-line title on every section, labels in a side column, stock photos standing in for real work, cards around everything). Edits only to delete or reduce, never to add. Use when an app feels slow or over-animated, when asked to tone down motion, or when a page looks generic, templated or AI-made and needs things taken away."
+description: "Removes what an interface does not need: animation on frequent actions, fade-ins on every section, hover lifts, loops, purposeless decoration, and templated or AI-looking parts. Only deletes or reduces, never adds. Use when an app feels slow or over-animated, when asked to tone it down, simplify or declutter, or when a page looks generic and needs things taken away. Not for a redesign (seenry) or new motion (seenry-motion)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -10,6 +10,12 @@ metadata:
 # Seenry Subtract
 
 This skill puts every animation and every decorative choice on trial, then deletes or reduces what cannot defend itself. It never adds. It is the counterpart to finding motion to add (`seenry-motion`) and to redesigning (`seenry-canvas`).
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| The screen or app, and `DESIGN.md` if it exists | The deletions and a list of what was removed and why | `seenry-review` on the result |
 
 ## Operating posture
 

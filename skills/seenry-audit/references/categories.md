@@ -33,9 +33,9 @@ Look for motion on keyboard-triggered actions, command menus with open and close
 Entering or leaving: ease-out. Moving on screen: ease-in-out. Hover and color: `ease`. Constant motion: linear. Default: ease-out. `ease-in` on UI is always a finding. Built-in curves are too weak for deliberate motion; plans add strong tokens that follow the repo's conventions:
 
 ```css
---ease-out: cubic-bezier(0.23, 1, 0.32, 1);
---ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
---ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+--ease-move: cubic-bezier(0.4, 0, 0.2, 1);
+--ease-fade: cubic-bezier(0.2, 0, 0.2, 1);
 ```
 
 | Element | Duration |

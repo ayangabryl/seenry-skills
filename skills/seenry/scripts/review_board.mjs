@@ -13,6 +13,9 @@ import {resolve, join, extname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {markWorkDir} from './workdir.mjs';
+import {collectChartGeometry, judgeCharts} from './chart_check.mjs';
+import {collectImageLayout, judgeImageLayout} from './image_layout.mjs';
+import {collectExecution, judgeExecution} from './execution_bar.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -47,15 +50,32 @@ function inspect({phone, studio, quiet, software}) {
   const pctx = paint.getContext('2d', {willReadFrequently: true});
   // Computed colors can be oklch(), lab() or color(); paint them to read sRGB instead of parsing text.
   const toRGBA = c => { pctx.clearRect(0, 0, 1, 1); pctx.fillStyle = '#000'; pctx.fillStyle = c; pctx.fillRect(0, 0, 1, 1); const d = pctx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
+  // A wordmark or a logo row is a mark, drawn once at its own weight; it is not a text weight of the page.
+  const MARK = 'header a[href="/"], [data-wordmark], .logo, .wordmark';
+  // The part of the source an <img> shows, as fractions of the picture, and whether it is a ground (laid behind the
+  // section: positioned, and bled across the page, masked into the surface or dimmed) or a figure (a picture in flow).
+  const cropOf = img => {
+    const r = img.getBoundingClientRect(), s = getComputedStyle(img), nw = img.naturalWidth || r.width, nh = img.naturalHeight || r.height;
+    if (!/cover|none/.test(s.objectFit) || !nw || !nh) return {x: 0, y: 0, w: 1, h: 1};
+    const k = s.objectFit === 'none' ? 1 : Math.max(r.width / nw, r.height / nh), w = Math.min(1, r.width / k / nw), h = Math.min(1, r.height / k / nh);
+    const [px, py] = s.objectPosition.split(' ').map((v, i) => /%$/.test(v) ? parseFloat(v) / 100 : ((i ? nh * k - r.height : nw * k - r.width) ? parseFloat(v) / -(i ? nh * k - r.height : nw * k - r.width) : 0.5));
+    return {x: Math.min(1, Math.max(0, px)) * (1 - w), y: Math.min(1, Math.max(0, py)) * (1 - h), w, h};
+  };
+  const sameCrop = (a, b) => { const iw = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), ih = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y); if (iw <= 0 || ih <= 0) return 0; const i = iw * ih; return i / (a.w * a.h + b.w * b.h - i); };
+  const isGround = img => { const s = getComputedStyle(img), r = img.getBoundingClientRect(); return /absolute|fixed/.test(s.position) && (r.width >= innerWidth * 0.9 || (s.maskImage && s.maskImage !== 'none') || (s.webkitMaskImage && s.webkitMaskImage !== 'none') || +s.opacity < 0.9); };
   const numbered = /^\s*(\(?0\d{1,2}\)?\s*[\/.\-–—)]|\(\d{2,3}\)|№\s?\d|No\.\s?\d|§\s?\d|\d{2}\s*\/\s*\d{2}\s*$)/;
+  const mediaRects = [...document.querySelectorAll('img,video,canvas,picture')].map(m => [m, m.getBoundingClientRect()]).filter(([, q]) => q.width > 120 && q.height > 80);
   for (const el of els) {
     const s = getComputedStyle(el), size = parseFloat(s.fontSize), text = ownText(el), weight = +s.fontWeight;
-    weights.add(weight);
+    if (!el.closest(MARK)) weights.add(weight);
     const letters = text.replace(/[^A-Za-z]/g, '');
     const upper = s.textTransform === 'uppercase' || (letters.length > 3 && letters === letters.toUpperCase());
     const tracked = parseFloat(s.letterSpacing) / size > 0.03;
-    if ((size < 13 || (phone && size < 14 && text.length > 24)) && text.length > 2 && !/^[\d:.,\s]+$/.test(text)) f.small.push(`${size}px ${label(el)}`);
-    else if (!phone && text.length > 2 && !/^[\d:.,\s]+$/.test(text) && ((size < 15 && !(size >= 14 && text.length <= 24)) || (el.tagName === 'P' && text.length > 60 && size < 16))) f.desktopSmall.push(`${size}px ${label(el)}`);
+    // Inside a marked product view the type is an app's own: 12px labels are real interface density, and the view is
+    // already held to the product inventory. Under 12px is unreadable anywhere.
+    const inProduct = !!el.closest('[data-seenry-product]');
+    if ((size < (inProduct ? 12 : 13) || (phone && !inProduct && size < 14 && text.length > 24)) && text.length > 2 && !/^[\d:.,\s]+$/.test(text)) f.small.push(`${size}px ${label(el)}`);
+    else if (!inProduct && !phone && text.length > 2 && !/^[\d:.,\s]+$/.test(text) && ((size < 15 && !(size >= 14 && text.length <= 24)) || (el.tagName === 'P' && text.length > 60 && size < 16))) f.desktopSmall.push(`${size}px ${label(el)}`);
     if (text.length > 2 && size < 24) {
       const rgb = c => (c === 'transparent' || /rgba?\([^)]*,\s*0\)$/.test(c)) ? [0, 0, 0, 0] : toRGBA(c);
       let bg = null;
@@ -64,7 +84,11 @@ function inspect({phone, studio, quiet, software}) {
       if (bg && fg.length >= 3 && (fg[3] === undefined || fg[3] > 0.9)) {
         const lum = ([r, g, b]) => [r, g, b].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
         const [a, b] = [lum(fg), lum(bg)].sort((x, y) => y - x), ratio = (a + 0.05) / (b + 0.05);
-        if (ratio < 4.5 && !el.closest('button:disabled,[aria-disabled="true"],del,s')) f.faint.push(`${ratio.toFixed(1)}:1 ${label(el)}`);
+        // Text lying over an image is measured against the image by textOverImage; the CSS color of an ancestor is
+        // not what is behind it, and reading it gave a false 1.7:1 on a hero lede.
+        const tr = el.getBoundingClientRect(), cx = tr.left + tr.width / 2, cy = tr.top + tr.height / 2;
+        const onImage = mediaRects.some(([m, q]) => !el.contains(m) && q.width > tr.width && q.left <= cx && q.right >= cx && q.top <= cy && q.bottom >= cy);
+        if (ratio < 4.5 && !onImage && !el.closest('button:disabled,[aria-disabled="true"],del,s')) f.faint.push(`${ratio.toFixed(1)}:1 ${label(el)}`);
       }
     }
     const device = el.closest('[data-seenry-device]');
@@ -74,14 +98,17 @@ function inspect({phone, studio, quiet, software}) {
       if (below) f.eyebrow.push(`${label(el)} above ${label(below)}`);
     }
     // Sentence-case eyebrows count too: a short small line sitting right on top of a display heading, aligned with it.
-    else if (!device && size <= 15 && text.length >= 3 && text.length <= 60 && ![...el.querySelectorAll('*')].some(c => !(c.closest('svg') || (['SPAN', 'I'].includes(c.tagName) && !c.textContent.trim()))) && !el.closest('a,button,nav,label,li,figcaption,[role=tab],[role=status]')) {
+    else if (!device && !inProduct && size <= 15 && text.length >= 3 && text.length <= 60 && ![...el.querySelectorAll('*')].some(c => !(c.closest('svg') || (['SPAN', 'I'].includes(c.tagName) && !c.textContent.trim()))) && !el.closest('a,button,nav,label,li,figcaption,[role=tab],[role=status]')) {
       const r = el.getBoundingClientRect(), mid = (r.left + r.right) / 2;
       const below = headings.find(h => { const hr = h.getBoundingClientRect(); return parseFloat(getComputedStyle(h).fontSize) >= 32 && !h.contains(el) && hr.top >= r.bottom - 2 && hr.top - r.bottom < 32 && (Math.abs(hr.left - r.left) <= 4 || Math.abs((hr.left + hr.right) / 2 - mid) <= 4); });
-      if (below) f.eyebrow.push(`${label(el)} above ${label(below)}`);
+      // A designed tag is not an eyebrow: a sentence-case pill with its own surface that carries an icon from the
+      // page's set. A bare small line over the heading, and any uppercase tracked label, stay blocked.
+      const cs = getComputedStyle(el), tagged = !upper && el.querySelector('svg') && parseFloat(cs.borderTopLeftRadius) >= r.height / 2 - 1 && (toRGBA(cs.backgroundColor)[3] > 0.05 || cs.boxShadow !== 'none' || parseFloat(cs.borderTopWidth) > 0);
+      if (below && !tagged) f.eyebrow.push(`${label(el)} above ${label(below)}`);
     }
     if (upper && tracked && size <= 14 && letters.length > 3) f.caps.push(label(el));
     if (size <= 16 && numbered.test(text) && !device) f.numbered.push(label(el));
-    if (weight >= 700 && !el.closest('header a[href="/"], [data-wordmark], .logo, .wordmark')) f.heavy.push(`${weight} ${label(el)}`);
+    if (weight >= 700 && !el.closest(MARK)) f.heavy.push(`${weight} ${label(el)}`);
     if (/^h[12]$/i.test(el.tagName) || el.closest('h1,h2')) {
       const h = el.closest('h1,h2');
       for (const it of h ? h.querySelectorAll('em,i,[style*="italic"],span') : []) {
@@ -128,7 +155,7 @@ function inspect({phone, studio, quiet, software}) {
       if (v.length < 3 || (v[3] !== undefined && v[3] < 0.9)) continue;
       for (const [k, name] of Object.entries(defaults)) {
         const d = k.match(/\d+/g).map(Number);
-        if (Math.hypot(v[0] - d[0], v[1] - d[1], v[2] - d[2]) < 30) { hits.set(name, (hits.get(name) || 0) + 1); break; }
+        if (Math.hypot(v[0] - d[0], v[1] - d[1], v[2] - d[2]) < 12) { hits.set(name, (hits.get(name) || 0) + 1); break; }
       }
     }
   }
@@ -149,7 +176,7 @@ function inspect({phone, studio, quiet, software}) {
       if (!big(el) || el.closest('nav, header nav, footer') || (el.tagName === 'IMG' && el.closest('picture'))) continue;
       let key = '';
       if (el.tagName === 'svg') { const ps = [...el.querySelectorAll('path, rect, circle, line, polyline, polygon')]; if (ps.length < 3) continue; key = 'svg:' + (el.parentElement?.className || el.getAttribute('class') || '') + ':' + ps.length + ':' + ps.map(x => x.tagName).join(''); if (!String(el.parentElement?.className || el.getAttribute('class') || '').trim()) key += ':' + ps.slice(0, 4).map(x => (x.getAttribute('d') || '').slice(0, 12)).join('|'); }
-      else if (el.tagName === 'IMG') key = 'img:' + (el.currentSrc || el.src).split('?')[0];
+      else if (el.tagName === 'IMG' && !isGround(el)) key = 'img:' + (el.currentSrc || el.src).split('?')[0];
       else continue;
       const y = Math.round(el.getBoundingClientRect().top + scrollY);
       if (seen.has(key) && Math.abs(seen.get(key) - y) > innerHeight * 0.6) dup.push(el.tagName.toLowerCase() + (el.getAttribute('aria-label') ? ` "${el.getAttribute('aria-label').slice(0, 30)}"` : '')); else if (!seen.has(key)) seen.set(key, y);
@@ -306,7 +333,8 @@ function inspect({phone, studio, quiet, software}) {
   const dotLike = (st, w, h) => w > 0 && w <= 12 && h > 0 && h <= 12 && (parseFloat(st.borderTopLeftRadius) >= Math.min(w, h) / 2 - 0.5 || st.borderTopLeftRadius.includes('%'))
     && toRGBA(st.backgroundColor)[3] > 0.5;
   for (const el of document.body.querySelectorAll('*')) {
-    if (!vis(el) || el.closest('[data-seenry-dot],[data-seenry-device]')) continue;
+    // Inside a product view or a chart legend a dot is a key or a status, which is interface, not decoration.
+    if (!vis(el) || el.closest('[data-seenry-dot],[data-seenry-device],[data-seenry-product],[class*="legend" i],[class*="leg" i],figure,[role="img"]')) continue;
     const text = (el.textContent || '').trim();
     if (text.length < 2) continue;
     const b = getComputedStyle(el, '::before');
@@ -365,7 +393,10 @@ function inspect({phone, studio, quiet, software}) {
     const bar = r.width >= 8 && r.width <= 48 && r.height > 0 && r.height <= 3 && !el.textContent.trim() && (toRGBA(st.backgroundColor)[3] > 0.1 || parseFloat(st.borderTopWidth) > 0);
     // Chart legends draw a line swatch before each series name; that is information, not decoration.
     const legend = el.closest('[class*=legend i],[aria-label*=legend i],[role=img],figure,svg') || /legend/i.test(el.parentElement?.className || '');
-    if (bar && !legend) { const next = el.nextSibling && (el.nextSibling.textContent || '').trim(); if (next) f.dashLabel.push(`rule before "${next.slice(0, 40)}"`); }
+    // A line between two boxes is a connector in a diagram, not a dash in front of a label.
+    const boxed = n => { if (!n) return false; const q = n.getBoundingClientRect(), c = getComputedStyle(n); return q.height >= 32 && (toRGBA(c.backgroundColor)[3] > 0.1 || c.boxShadow !== 'none' || parseFloat(c.borderTopWidth) > 0); };
+    const connector = bar && boxed(el.previousElementSibling) && boxed(el.nextElementSibling);
+    if (bar && !legend && !connector) { const next = el.nextSibling && (el.nextSibling.textContent || '').trim(); if (next) f.dashLabel.push(`rule before "${next.slice(0, 40)}"`); }
     else if (/^\s*[—–]\s+\S/.test(el.textContent) && el.textContent.trim().length < 70) f.dashLabel.push(`"${el.textContent.trim().slice(0, 40)}"`);
   }
   for (const el of document.body.querySelectorAll('p,span,div,small,a,li,h1,h2,h3,h4,h5,h6')) {
@@ -420,11 +451,19 @@ function inspect({phone, studio, quiet, software}) {
     if (!phone) { let n = 0; for (const el of document.body.querySelectorAll('h1,h2,h3,p,li,a,button,span,label')) { if (!vis(el) || el.children.length) continue; const r = el.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0) n += words(el.innerText || ''); }
       if (n > 110) f.textWall.push(`${n} words on the first screen`); } }
   // The same photograph shown twice on one screen (a hero image reused in the grid below it).
+  // One image may return down the page as a motif: as a ground in each section, in a different crop each time. What
+  // stays blocked is the picture pasted twice: two figures of one source, a figure showing the crop a ground already
+  // shows, and one crop in sibling tiles. Two copies stacked on one box are a single layered image.
   { const seen = new Map();
     for (const img of document.body.querySelectorAll('img')) {
       const r = img.getBoundingClientRect(); if (!vis(img) || r.width < 120 || r.height < 90) continue;
       const src = (img.currentSrc || img.src || '').split('?')[0]; if (!src || /\.svg$|^data:image\/svg/i.test(src)) continue;
-      if (seen.has(src)) f.repeatedPhoto.push(`${label(img)} repeats ${label(seen.get(src))}`); else seen.set(src, img);
+      const me = {img, r, crop: cropOf(img), ground: isGround(img)}, list = seen.get(src) || seen.set(src, []).get(src);
+      if (list.some(o => Math.abs(o.r.left - r.left) < 2 && Math.abs(o.r.top - r.top) < 2 && Math.abs(o.r.width - r.width) < 2 && Math.abs(o.r.height - r.height) < 2)) continue;
+      const tiles = o => { const a = img.parentElement, b = o.img.parentElement; return a && b && a !== b && a.parentElement === b.parentElement; };
+      const hit = list.find(o => { const same = sameCrop(o.crop, me.crop); return (!o.ground && !me.ground) || (o.ground !== me.ground && same >= 0.6) || (tiles(o) && same >= 0.85); });
+      if (hit) f.repeatedPhoto.push(`${label(img)} repeats ${label(hit.img)}${hit.ground && me.ground ? ' at the same crop in a sibling tile' : ''}`);
+      list.push(me);
     } }
   for (const el of document.body.querySelectorAll('p,span,small,figcaption,li,div')) {
     if (!vis(el) || el.children.length > 2 || el.closest('footer')) continue;
@@ -510,22 +549,47 @@ async function clippedText(page) {
   });
 }
 
-// Type set on a photograph or painting: hide the glyphs, sample the pixels behind each first-screen text block and
-// compare the text color with the busiest tenth of them. Scrims, shades and text shadows stay in the sample.
+// Type set on a photograph or painting: hide the glyphs, sample the pixels behind each text block and compare the text
+// color with the busiest tenth of them. Scrims, shades and text shadows stay in the sample. Runs one viewport at a time
+// down the whole page, since images behind type in the middle of a page fail as often as the hero.
 async function textOverImage(page) {
-  const blocks = await page.evaluate(() => {
+  const found = [], done = new Set();
+  const total = await page.evaluate(() => document.documentElement.scrollHeight), step = await page.evaluate(() => innerHeight);
+  for (let y = 0; y < total && done.size < 40; y += step) {
+    await page.evaluate(top => scrollTo(0, top), y);
+    await page.waitForTimeout(120);
+    for (const x of await textOverImageView(page, done)) found.push(x);
+  }
+  await page.evaluate(() => scrollTo(0, 0));
+  return found;
+}
+
+async function textOverImageView(page, done) {
+  const blocks = (await page.evaluate(() => {
     const imageLike = el => /^(IMG|VIDEO|CANVAS|PICTURE|svg)$/.test(el.tagName) || /url\(/.test(getComputedStyle(el).backgroundImage);
+    const paint = Object.assign(document.createElement('canvas'), {width: 1, height: 1}).getContext('2d', {willReadFrequently: true});
     const out = [];
     for (const el of document.querySelectorAll('h1,h2,h3,p,a,button,span,small,time,strong')) {
-      const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+      let r = el.getBoundingClientRect(); const s = getComputedStyle(el);
       if (!r.width || !r.height || r.top >= innerHeight || r.bottom <= 0 || s.visibility === 'hidden' || +s.opacity === 0) continue;
       if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
       if (/rgba?\(\d+, \d+, \d+, 0\)/.test(s.backgroundColor) === false && s.backgroundColor !== 'transparent') continue;
       const stack = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2);
       const i = stack.indexOf(el);
-      if (i < 0 || !stack.slice(i + 1).some(imageLike)) continue;
+      if (i < 0) continue;
+      // The first painted layer under the text decides: an opaque card or panel between the text and a photo means the
+      // text sits on the card, which the plain contrast check already measures.
+      const under = stack.slice(i + 1).find(e => !el.contains(e) && (imageLike(e) || !/rgba?\(\d+, \d+, \d+, 0\)|transparent/.test(getComputedStyle(e).backgroundColor)));
+      if (!under || !imageLike(under)) continue;
+      // Sample only the glyphs' own box, not icons or marks inside the same element.
+      const range = document.createRange(), runs = [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim());
+      range.setStartBefore(runs[0]); range.setEndAfter(runs[runs.length - 1]);
+      const tr = range.getBoundingClientRect();
+      if (tr.width && tr.height) r = tr;
       const size = parseFloat(s.fontSize), bold = parseInt(s.fontWeight) >= 700;
-      const m = s.color.match(/[\d.]+/g).map(Number);
+      // The computed colour can be oklch(), lab() or color(); reading its digits as RGB made white read as black.
+      paint.clearRect(0, 0, 1, 1); paint.fillStyle = '#000'; paint.fillStyle = s.color; paint.fillRect(0, 0, 1, 1);
+      const m = [...paint.getImageData(0, 0, 1, 1).data];
       out.push({label: (el.textContent || '').trim().slice(0, 40), rect: {x: Math.max(0, r.left), y: Math.max(0, r.top), width: Math.min(r.width, innerWidth - Math.max(0, r.left)), height: Math.min(r.height, innerHeight - Math.max(0, r.top))}, color: m.slice(0, 3), large: size >= 24 || (bold && size >= 18.66), size, weight: s.fontWeight});
       el.setAttribute('data-seenry-glyph', '');
     }
@@ -533,7 +597,7 @@ async function textOverImage(page) {
     style.textContent = '[data-seenry-glyph]{color:transparent!important;-webkit-text-fill-color:transparent!important}';
     document.head.append(style);
     return out.slice(0, 24);
-  });
+  })).filter(b => { const k = b.label + '|' + b.size; if (done.has(k)) return false; done.add(k); return true; });
   const found = [];
   for (const b of blocks) {
     if (b.rect.width < 4 || b.rect.height < 4) continue;
@@ -557,7 +621,12 @@ async function textOverImage(page) {
 }
 
 const chromium = ((m) => m.chromium || m.default?.chromium)(await loadPlaywright());
-const browser = await chromium.launch({headless: true, args: ['--allow-file-access-from-files'], ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})});
+let browser;
+try { browser = await chromium.launch({headless: true, args: ['--allow-file-access-from-files'], ...(process.env.SEENRY_CHROME_PATH ? {executablePath: process.env.SEENRY_CHROME_PATH} : {})}); }
+catch (e) {
+  console.error(`The browser could not start, so nothing was checked: ${String(e.message || e).split('\n')[0].slice(0, 200)}. Set SEENRY_CHROME_PATH to an installed Chrome or Chromium, or run where launching a browser is allowed (a sandbox that blocks it cannot run the gate).`);
+  process.exit(2);
+}
 const report = {url, widths: {}};
 for (const [w, h] of [[1440, 900], [390, 844]]) {
   const page = await browser.newPage({viewport: {width: w, height: h}});
@@ -568,6 +637,21 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
   report.widths[w] = await page.evaluate(inspect, {phone: w < 768, studio: args.includes('--studio'), quiet: args.includes('--quiet'), software: args.includes('--software')});
   report.widths[w].findings.textOverImage = await textOverImage(page);
   report.widths[w].findings.clippedText = await clippedText(page);
+  {
+    const {floatingImage, premium} = judgeImageLayout(await page.evaluate(collectImageLayout));
+    report.widths[w].findings.floatingImage = floatingImage;
+    report.widths[w].premium = premium;
+  }
+  Object.assign(report.widths[w].findings, judgeCharts(await page.evaluate(collectChartGeometry)));
+  // The execution bar is measured once, at desktop: a thin product view blocks; a second hue or an oversized headline is a note.
+  if (w === 1440) {
+    const execution = judgeExecution(await page.evaluate(collectExecution), {allow: String((args.includes('--allow') ? args[args.indexOf('--allow') + 1] : '') || '').split(',').map(s => s.trim())});
+    report.widths[w].findings.thinProduct = execution.thinProduct;
+    report.widths[w].findings.sameCrop = execution.template;
+    report.widths[w].findings.offGrid = execution.offGrid;
+    report.widths[w].premium.push(...execution.notes);
+    report.execution = {families: execution.families};
+  }
   // The full-page still shows the composition, not the motion: pinned scenes leave a screen of blank travel and
   // scroll-drawn layers render empty, so it is taken in the reduced-motion version (every scene in its final state).
   {
@@ -667,19 +751,21 @@ await browser.close();
 
 // --allow numbered,italicAccent: tells the named reference itself uses, listed in .seenry/refs/patterns.md. Craft checks
 // (contrast, clipping, small text) can never be allowed.
-const craftKeys = new Set(['clippedText', 'textOverImage', 'small', 'desktopSmall', 'faint', 'fallback', 'fixed', 'phoneHero']);
+const craftKeys = new Set(['thinProduct', 'sameCrop', 'offGrid', 'bareChart', 'chartCollision', 'clippedText', 'textOverImage', 'small', 'desktopSmall', 'faint', 'fallback', 'fixed', 'phoneHero']);
 const allow = new Set(String((args.includes('--allow') ? args[args.indexOf('--allow') + 1] : '') || '').split(',').map(s => s.trim()).filter(k => k && !craftKeys.has(k)));
-const names = {clippedText: 'letters cut off by their own box (descenders or accents sliced by an overflow mask)', textOverImage: 'text set on a photograph or painting without enough contrast against the image behind it', repeatedVisual: 'the same chart, diagram or image shown twice on the page (each visual appears once; show something different in the second place)', heroNoImage: 'quiet page whose first screen is not led by imagery (put a photograph or painting at large size in the hero, with the product on or beside it)', fewImages: 'too few image moments for the quiet register (the hero and at least two more sections carry a photograph or painting)', brandBand: 'a full-width band of saturated brand color in the quiet register (keep surfaces off-white and ink; let imagery carry color)', clichePalette: 'a palette the skill lists as generated (cream with terracotta, forest green with cream or mustard, plum with peach): use warm off-white or white with ink and let imagery carry color, or a brand color that is not on that list', tokenDrift: 'token drift: values typed one at a time instead of picked from the token scale (define the type scale, 4px space scale, radii and motion durations once and use only those; snap near values to the nearest step)', denseHero: 'crowded first screen (one message: headline, one supporting line and one action; move facts, captions and secondary links below)', tooMuchCopy: 'too much copy (cut every section to one message and the page by about a third; studios say it once)', heavyCaption: 'caption longer than one short line (keep captions to one line of 18 words or fewer, or cut them)', typeFlat: 'flat typography in the middle (use the identity\'s type scale: two or more levels per section and a different lead move in neighbouring sections, such as a large pull quote in the text face, a captioned grid, a measured number with its annotation or a margin note)', noMaterial: 'no real material (a page made only of type, rules and drawn shapes reads as a sketch: show the product\'s own interface on a stage, art-directed photography or video at real size, at least twice)', repeatedMotif: 'one visual motif repeated in three or more sections (a device used everywhere becomes a tic; use it once where it explains most)', twoToneHead: 'two-tone headline used more than once (a grey second sentence in a headline is a generated tell; one color per headline, and say it in one sentence)', monoGarnish: 'monospace used as texture (captions, timestamps and meta lines in mono read as generated; keep mono for code and aligned table figures)', splitHeader: 'the same section header on three or more sections (title left, small note right): open each section the way its content needs', initialsAvatar: 'initials in a circle standing in for a person (use a real photo, or the name alone)', phoneHero: 'phone first screen shows no hero visual (bring the product, photograph or display type into the first 844px: shorten the copy, drop the announcement bar and secondary button above it, or mark type-as-image with data-seenry-hero-visual)', deviceOnce: 'a declared identity device used fewer than three times (a device is a system across sections; otherwise it is decoration: use it consistently or remove it)', washed: 'washed palette: pale tinted panels in several hues (use neutral surfaces and one committed brand color at full strength)', textWall: 'too much text (cut paragraphs to two sentences and the first screen to a headline, one line of support and an action)', repeatedPhoto: 'the same photograph used twice on one screen (give every card and the hero its own image)', dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'eyebrow label above a title (drop it and let the heading carry the section)', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', pageOverflow: 'content wider than the screen: the page scrolls sideways or cuts it off (put wide tables and rows in their own overflow-x:auto container, or recompose them as stacked rows on phone)', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)', curvedUnderline: 'one-sided border on a rounded element: an accent rail down a card or a tab underline that bends at its ends (separate cards by tone and space; draw indicators as a straight ::after bar)', dashLabel: 'short rule or dash in front of a label (let the label stand alone, or cut it)', orphan: 'a word stranded alone on a headline\'s last line', weakAction: 'no primary action that reads as the action (filled, 44px+ tall on desktop, 48px+ on phone, 15px+ label)', headlineCrowd: 'headline jammed under the navigation', glyphIcon: 'typed symbol used as an icon or logo (arrows, stars, sparkles, check marks or emoji as text; use a wordmark or SVG mark and icons from one real icon set)'};
+const names = {offGrid: 'a section off the page grid (one grid: every width difference needs a reason)', sameCrop: 'the same image at the same crop in sibling tiles (it reads as one picture pasted three times: each tile needs its own crop or image and its own mini UI; see execution-bar.md)', thinProduct: 'a product view thinner than the references (one chart in a box reads as a drawing of a product: build the app around it, with chrome, metric cards that each carry their own mini visual, a second chart form and a selected state; see execution-bar.md)', floatingImage: 'a small boxed image alone in an empty band (a stock photo dropped into the layout: let one image own the section, set type or product UI over a calm field, cut the subject out in front of the type, or blend its edge into the ground; see image-composition.md)', bareChart: 'a chart with no labelled value axis (a bare line or bars in an empty field reads as decoration: add tick labels with units on the value axis, gridlines, a legend for more than one series and the state, such as now, past and planned)', chartCollision: 'a chart label sitting on its line or on another label (move it clear of the series)', clippedText: 'letters cut off by their own box (descenders or accents sliced by an overflow mask)', textOverImage: 'text set on a photograph or painting without enough contrast against the image behind it', repeatedVisual: 'the same chart, diagram or image shown twice on the page (each visual appears once; show something different in the second place)', heroNoImage: 'quiet page whose first screen is not led by imagery (put a photograph or painting at large size in the hero, with the product on or beside it)', fewImages: 'too few image moments for the quiet register (the hero and at least two more sections carry a photograph or painting)', brandBand: 'a full-width band of saturated brand color in the quiet register (keep surfaces off-white and ink; let imagery carry color)', clichePalette: 'a palette the skill lists as generated (cream with terracotta, forest green with cream or mustard, plum with peach): use warm off-white or white with ink and let imagery carry color, or a brand color that is not on that list', tokenDrift: 'token drift: values typed one at a time instead of picked from the token scale (define the type scale, 4px space scale, radii and motion durations once and use only those; snap near values to the nearest step)', denseHero: 'crowded first screen (one message: headline, one supporting line and one action; move facts, captions and secondary links below)', tooMuchCopy: 'too much copy (cut every section to one message and the page by about a third; studios say it once)', heavyCaption: 'caption longer than one short line (keep captions to one line of 18 words or fewer, or cut them)', typeFlat: 'flat typography in the middle (use the identity\'s type scale: two or more levels per section and a different lead move in neighbouring sections, such as a large pull quote in the text face, a captioned grid, a measured number with its annotation or a margin note)', noMaterial: 'no real material (a page made only of type, rules and drawn shapes reads as a sketch: show the product\'s own interface on a stage, art-directed photography or video at real size, at least twice)', repeatedMotif: 'one visual motif repeated in three or more sections (a device used everywhere becomes a tic; use it once where it explains most)', twoToneHead: 'two-tone headline used more than once (a grey second sentence in a headline is a generated tell; one color per headline, and say it in one sentence)', monoGarnish: 'monospace used as texture (captions, timestamps and meta lines in mono read as generated; keep mono for code and aligned table figures)', splitHeader: 'the same section header on three or more sections (title left, small note right): open each section the way its content needs', initialsAvatar: 'initials in a circle standing in for a person (use a real photo, or the name alone)', phoneHero: 'phone first screen shows no hero visual (bring the product, photograph or display type into the first 844px: shorten the copy, drop the announcement bar and secondary button above it, or mark type-as-image with data-seenry-hero-visual)', deviceOnce: 'a declared identity device used fewer than three times (a device is a system across sections; otherwise it is decoration: use it consistently or remove it)', washed: 'washed palette: pale tinted panels in several hues (use neutral surfaces and one committed brand color at full strength)', textWall: 'too much text (cut paragraphs to two sentences and the first screen to a headline, one line of support and an action)', repeatedPhoto: 'the same photograph pasted twice (an image may return as a ground in a new crop in each section; two pictures of it in flow, a picture repeating the crop a ground shows, or one crop in sibling tiles reads as one image reused: give each its own image or crop)', dividers: 'divider lines everywhere (separate with space and surface tone; tint the selected row; nest panels one surface step apart)', dotText: 'colored dot in front of text (use the word alone; mark a real live, presence or unread dot with data-seenry-dot)', defaultColor: 'framework default color as the accent', radiusAwkward: 'control radius between 26% and 49% of its height (use at most 25% or a full pill)', radiusMixed: 'mixed control radii', small: 'text under 13px, or readable text under 14px on phone', desktopSmall: 'desktop text under 15px (short labels 14px), or paragraph under 16px (reads as faint at review scale)', faint: 'text contrast under 4.5:1', caps: 'uppercase letter-spaced label (sentence case instead)', eyebrow: 'eyebrow label above a title (drop it and let the heading carry the section)', numbered: 'numbered label', heavy: 'weight 700+', italicAccent: 'italic accent word in a headline', fallback: 'font not loaded or glyphs missing (renders in a fallback)', tabularPunct: 'tabular figures space out , and . (use proportional figures for single values, tabular only in columns, or a font with proportional punctuation)', clipped: 'clipped horizontal row on phone', pageOverflow: 'content wider than the screen: the page scrolls sideways or cuts it off (put wide tables and rows in their own overflow-x:auto container, or recompose them as stacked rows on phone)', fixed: 'fixed bar over content', tokenCloud: 'a claim of "many" drawn as a cloud of tiny chips (show three to five readable instances and the one result)', processNote: 'production note on the page (illustrative, placeholder, invented, demo data)', curvedUnderline: 'one-sided border on a rounded element: an accent rail down a card or a tab underline that bends at its ends (separate cards by tone and space; draw indicators as a straight ::after bar)', dashLabel: 'short rule or dash in front of a label (let the label stand alone, or cut it)', orphan: 'a word stranded alone on a headline\'s last line', weakAction: 'no primary action that reads as the action (filled, 44px+ tall on desktop, 48px+ on phone, 15px+ label)', headlineCrowd: 'headline jammed under the navigation', glyphIcon: 'typed symbol used as an icon or logo (arrows, stars, sparkles, check marks or emoji as text; use a wordmark or SVG mark and icons from one real icon set)'};
 const named = args.includes('--named');
 // A <header> inside main, an article or a section is that section's header, not site navigation, so its buttons count.
 // App screens (dashboards, settings, tools) are not landing pages: a hero visual, image moments, a word budget or a
 // product stage do not apply, and tables, dividers and initials avatars are normal there.
-const appSkip = args.includes('--app') ? new Set(['phoneHero', 'heroNoImage', 'fewImages', 'noMaterial', 'tooMuchCopy', 'splitHeader', 'denseHero', 'headlineCrowd', 'brandBand', 'initialsAvatar', 'dividers', 'repeatedVisual']) : new Set();
+const appSkip = args.includes('--app') ? new Set(['thinProduct', 'phoneHero', 'heroNoImage', 'fewImages', 'floatingImage', 'noMaterial', 'tooMuchCopy', 'splitHeader', 'denseHero', 'headlineCrowd', 'brandBand', 'initialsAvatar', 'dividers', 'repeatedVisual']) : new Set();
 let blockers = 0;
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);
   if (r.weights.length > 3) blockers++;
-  for (const [k, list] of Object.entries(r.findings)) {
+  // What decides whether the page is at the references' level prints first; the small tidy-ups follow.
+  const first = ['thinProduct', 'sameCrop', 'offGrid', 'bareChart', 'chartCollision', 'floatingImage', 'textOverImage'];
+  for (const [k, list] of Object.entries(r.findings).sort(([a], [b]) => (first.includes(b) ? 1 : 0) - (first.includes(a) ? 1 : 0))) {
     if (!list.length) continue;
     if (appSkip.has(k)) continue;
     if (allow.has(k)) { console.log(`  allowed by the pattern map: ${names[k]} ×${list.length}`); continue; }
@@ -687,6 +773,7 @@ for (const [w, r] of Object.entries(report.widths)) {
     console.log(`  ${names[k]} ×${list.length}${named && !craftKeys.has(k) ? `  [${k}: if the named site does this on purpose, add it to the Allow line in patterns.md]` : ''}`);
     for (const x of [...new Set(list)].slice(0, 4)) console.log(`    ${x}`);
   }
+  for (const x of (r.premium || []).slice(0, 4)) console.log(`  premium (not a blocker): ${x}`);
 }
 const m = report.widths[1440].motion;
 const motionGaps = [];

@@ -1,6 +1,6 @@
 ---
 name: seenry-craft
-description: "Exact values for interface polish: type scale and line height, spacing and grouping, concentric radius, shadows and borders, color roles and contrast, icons, hit areas, press and focus states, and the states every component needs. Use while building or polishing any screen or component, when something looks slightly off, cheap or unfinished, or to check a build against measured values before it ships."
+description: "Exact values for interface polish: type scale, spacing, concentric radius, shadows, borders, color roles, contrast, icons, hit areas and component states. Use while building or polishing a screen or component, or when something looks slightly off, cheap or unfinished. Not for choosing fonts and colors (seenry-identity), motion (seenry-motion) or a findings report (seenry-review)."
 license: Apache-2.0
 metadata:
   author: Seenry
@@ -10,6 +10,12 @@ metadata:
 # Seenry Craft
 
 This skill holds the values that make an interface look finished. It applies to any screen in any style, once the structure is right.
+
+## Hand-off
+
+| Reads | Leaves | Next |
+| --- | --- | --- |
+| The project's tokens and the screen being built | The corrected screen and the checked "Before you finish" list | `seenry-break`, then `seenry-review` |
 
 ## Project tokens first, these values second
 
