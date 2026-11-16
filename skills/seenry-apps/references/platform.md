@@ -109,4 +109,4 @@ Exits are faster than entrances, only transform and opacity move in lists, and e
 
 ## Review
 
-Screenshot the flow in order on device or simulator (light and dark, largest text size) and review with `seenry-review` or a fresh agent. The optional [flow gate](../scripts/independent_flow_gate.py) sends ordered captures to fresh visual and flow reviewers when Codex CLI is installed. Static captures do not prove gestures, VoiceOver or calculations; exercise those on the device.
+Screenshot the flow in order on device or simulator (light and dark, largest text size) and review with `seenry-review` or a fresh agent. The optional [flow gate](../scripts/independent_flow_gate.py) sends ordered captures to fresh visual and flow reviewers when Codex CLI is installed, on the model in your Codex config (`--model` or `SEENRY_MODEL` names another). Static captures do not prove gestures, VoiceOver or calculations; exercise those on the device.

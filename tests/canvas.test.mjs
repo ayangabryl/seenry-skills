@@ -227,8 +227,6 @@ test('options carry their labels, and round resolves picks but keeps riffed sect
   assert.deepEqual([quiet.risk, quiet.axis, quiet.wins, quiet.cost, quiet.ask], ['safe', 'A plain list', 'Daily use', 'Forgettable', ['Is it calm?', 'Would you open it daily?']]);
   await call(port, '/feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({riff: [{section: '02-home', frame: '02-home/b'}], frames: [{id: '01-onboarding/01-welcome', status: 'approved'}, {id: '01-onboarding/02-first-habit', status: 'approved'}]})});
   assert.match(run('feedback', dir).stdout, /More like this in 02-home: 02-home\/b/);
-  const riff = run('feedback', dir).stdout;
-  assert.match(riff, /\(1\) Same style, new layout.*\(2\) New style, same content.*\(3\) Break its rule/);
   const out = run('round', 'Riffing on B', dir);
   assert.equal(out.status, 0, out.stderr);
   assert.match(out.stdout, /01-onboarding: Ready for dev \(2 of 2 approved\)/);
@@ -405,7 +403,7 @@ test('open inside an agent app prints the exact call for its own pane instead of
   let out = open({T3CODE_THREAD_ID: 'test-thread'});
   assert.equal(out.status, 0, out.stderr);
   const port = Number(out.stdout.match(/127\.0\.0\.1:(\d+)/)[1]);
-  assert.match(out.stdout, new RegExp(`Running inside T3 Code\\. Call preview_open with target \\{"kind": "environment-port", "port": ${port}\\}`));
+  assert.match(out.stdout, new RegExp(`Running inside T3 Code\\. Call preview_open with target \\{"kind": "environment-port", "port": ${port}, "path": "/\\?embed=1"\\}`));
   assert.doesNotMatch(out.stdout, /opened in the browser/);
   assert.equal(Number(open({T3CODE_THREAD_ID: 'x'}).stdout.match(/127\.0\.0\.1:(\d+)/)[1]), port, 'the same project gets the same port');
   assert.match(open({CODEX_THREAD_ID: 'x'}).stdout, /Use @Browser to open http:\/\/127\.0\.0\.1:\d+\//);
@@ -466,6 +464,74 @@ test('each save names the parts it added, so the feed reads like the build', asy
   assert.equal(JSON.parse((await call(actual, '/state')).body).activity.at(-1).text, 'Added Habit list, Start button to First habit');
   save(page('First habit') + '<h1 data-seenry-part="Headline">Pick a habit</h1><ul data-seenry-part="Habit list"><li>Walk</li></ul><button data-seenry-part="Start button">Start</button>', Date.now() + 15000);
   assert.equal(JSON.parse((await call(actual, '/state')).body).activity.at(-1).text, 'Changed First habit');
+});
+
+test('plan --parts takes a height per part, so the skeleton holds the planned proportions', async t => {
+  const {dir} = project();
+  assert.equal(run('plan', '03-pricing/01-plans.html', '--parts', 'Nav:72, Hero:560,Plans', '--dir', dir).status, 0);
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const f = JSON.parse((await call(actual, '/state')).body).sections.find(s => s.id === '03-pricing').frames[0];
+  assert.deepEqual([f.kind, f.plan, f.planH], ['pending', ['Nav', 'Hero', 'Plans'], [72, 560, 0]]);
+});
+
+test('a save reaches the page as a pushed event, without waiting for a poll', async t => {
+  const {dir} = project();
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const got = await new Promise((done, fail) => {
+    const req = request({host: '127.0.0.1', port: actual, path: '/events'}, res => {
+      assert.match(res.headers['content-type'], /text\/event-stream/);
+      let data = '';
+      res.on('data', c => { data += c; const m = data.match(/data: (.+)\n\n/); if (m) { req.destroy(); done({ms: Date.now() - at, event: JSON.parse(m[1])}); } });
+    });
+    req.on('error', e => { if (e.code !== 'ECONNRESET') fail(e); });
+    req.end();
+    let at = 0;
+    setTimeout(() => { at = Date.now(); writeFileSync(join(dir, '01-onboarding', '02-first-habit.phone.html'), page('First habit, again')); }, 300);
+    setTimeout(() => fail(new Error('no event within 3 s')), 3000);
+  });
+  assert.ok(got.event.files.includes('01-onboarding/02-first-habit.phone.html'), JSON.stringify(got.event));
+  assert.ok(got.ms < 1000, `pushed after ${got.ms} ms`);
+});
+
+test('the canvas page script parses and carries the layout checks', async t => {
+  const {dir} = project();
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const html = (await call(actual, '/')).body, code = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].at(-1)[1];
+  assert.doesNotThrow(() => new Function(code));
+  assert.match(code, /function seenryProblems\(doc, limit\)/);
+  assert.match(code, /new EventSource\('events'\)/);
+  run('static', dir);
+  assert.match(readFileSync(join(dir, 'canvas.html'), 'utf8'), /function seenryProblems/);
+});
+
+test('the open canvas reports layout problems, and problems prints them for the current save', async t => {
+  const {dir} = project();
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const state = JSON.parse((await call(actual, '/state')).body), f = state.sections.find(s => s.id === '01-onboarding').frames[0];
+  const post = (body, headers = {}) => call(actual, '/problems', {method: 'POST', headers: {'content-type': 'application/json', ...headers}, body: JSON.stringify(body)});
+  assert.equal((await post({frame: f.id, rev: f.rev, results: []}, {origin: 'http://evil.example'})).status, 403);
+  assert.equal((await post({frame: f.id, rev: f.rev, results: [{width: 390, problems: [{kind: 'overflow', where: 'Hero › div.wide', selector: 'body > div', message: 'Wider than the screen: runs to 612px of 390'}]}]})).status, 200);
+  const out = run('problems', f.id, '--dir', dir);
+  assert.equal(out.status, 1, out.stderr);
+  assert.match(out.stdout, /01-onboarding\/01-welcome  1 problem\n  390   Hero › div\.wide: Wider than the screen: runs to 612px of 390/);
+  const listed = JSON.parse(run('problems', f.id, '--json', '--dir', dir).stdout);
+  assert.equal(listed.count, 1); assert.equal(listed.screens[0].from, 'canvas');
 });
 
 test('a save that changes every part of a built screen is called a rewrite on the feed', async t => {

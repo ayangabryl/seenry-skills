@@ -1,8 +1,8 @@
-/** Run a fresh, blind model process (Codex CLI or Claude Code) on images and a prompt, and get JSON back.
- *  Shared by critic.mjs and photo_check.mjs. Override the CLI with SEENRY_CRITIC=codex|claude and the binaries with
- *  SEENRY_CODEX_BIN / SEENRY_CLAUDE_BIN. Codex runs on SEENRY_CODEX_MODEL if set, else the models this account
- *  offers (read from Codex's models cache, so a plan change never leaves the critics on a retired model), then the
- *  CLI's default. */
+/** Run a fresh, blind model process on images and a prompt, and get JSON back. Shared by every Seenry critic and judge.
+ *  The CLI is the host agent app's own: Claude Code inside Claude Code, Codex inside Codex; outside either, whichever is
+ *  installed. SEENRY_CRITIC=codex|claude picks one, SEENRY_CODEX_BIN / SEENRY_CLAUDE_BIN the binaries.
+ *  No model is chosen here: the CLI runs on the model the person selected or set as their default. SEENRY_MODEL (or
+ *  SEENRY_CODEX_MODEL / SEENRY_CLAUDE_MODEL) names one explicitly, and SEENRY_CRITIC_EFFORT a Codex reasoning effort. */
 import {existsSync, readFileSync, writeFileSync, mkdtempSync} from 'node:fs';
 import {join, dirname} from 'node:path';
 import {tmpdir, homedir, userInfo} from 'node:os';
@@ -15,29 +15,39 @@ function runnable(name) {
   const homes = [homedir(), userInfo().homedir];
   const extra = name === 'codex'
     ? [process.env.SEENRY_CODEX_BIN, ...homes.flatMap(h => [join(h, '.local/bin/codex'), join(h, '.codex/packages/standalone/current/bin/codex')])]
-    : [process.env.SEENRY_CLAUDE_BIN, ...homes.map(h => join(h, '.local/bin/claude'))];
+    : [process.env.SEENRY_CLAUDE_BIN, process.env.CLAUDE_CODE_EXECPATH, ...homes.map(h => join(h, '.local/bin/claude'))];
   for (const bin of [...new Set([...extra.filter(Boolean), ...found])]) {
     if (existsSync(bin) && spawnSync(bin, ['--version'], {stdio: ['ignore', 'pipe', 'pipe'], timeout: 20000}).status === 0) return bin;
   }
   return null;
 }
 
+/** The agent app this process runs inside, when it is one with a CLI: its CLI runs on the model the person chose there. */
+export function hostCli(env = process.env) {
+  if (env.CLAUDECODE === '1' || env.CLAUDE_CODE_ENTRYPOINT || env.CLAUDE_CODE_EXECPATH) return 'claude';
+  if (env.CODEX_THREAD_ID || env.CODEX_SANDBOX || env.CODEX_SANDBOX_NETWORK_DISABLED || /com\.openai\.codex/i.test(env.__CFBundleIdentifier || '')) return 'codex';
+  return null;
+}
+
 export function findCli(preferred) {
-  for (const cli of preferred ? [preferred] : ['codex', 'claude']) {
+  const host = hostCli();
+  for (const cli of preferred ? [preferred] : [...new Set([host, 'codex', 'claude'].filter(Boolean))]) {
     const bin = runnable(cli);
     if (bin) return {cli, bin};
   }
   return null;
 }
 
-/** Codex models to try, best first: SEENRY_CODEX_MODEL, then the listed models in the account's models cache. */
-export function codexModels() {
-  const listed = [];
-  try {
-    const cache = JSON.parse(readFileSync(join(process.env.CODEX_HOME || join(homedir(), '.codex'), 'models_cache.json'), 'utf8'));
-    for (const m of cache.models || []) if (m.slug && m.visibility === 'list') listed.push(m.slug);
-  } catch {}
-  return [...new Set([process.env.SEENRY_CODEX_MODEL, ...listed, ...(listed.length ? [] : ['gpt-6.1-sol', 'gpt-6-sol'])].filter(Boolean))];
+/** The model the person asked for explicitly, or '' for the CLI's own (their selected or default) model. */
+export function modelFor(cli, env = process.env) {
+  return String(env.SEENRY_MODEL || (cli === 'codex' ? env.SEENRY_CODEX_MODEL : env.SEENRY_CLAUDE_MODEL) || '').trim();
+}
+
+/** The command line for one blind call, without the prompt and images. */
+export function cliArgs(cli, env = process.env) {
+  const model = modelFor(cli, env);
+  if (cli === 'codex') return ['exec', '--skip-git-repo-check', '-s', 'read-only', ...(model ? ['-m', model] : []), ...(env.SEENRY_CRITIC_EFFORT ? ['-c', `model_reasoning_effort="${env.SEENRY_CRITIC_EFFORT}"`] : [])];
+  return ['--allowedTools', 'Read', '--output-format', 'text', ...(model ? ['--model', model] : [])];
 }
 
 /** Returns the parsed JSON, or throws with the CLI's error output. */
@@ -46,20 +56,15 @@ export function askModel({cli, bin}, {images, prompt, schema}) {
   if (cli === 'codex') {
     const schemaFile = join(work, 'schema.json'), result = join(work, 'out.json');
     writeFileSync(schemaFile, JSON.stringify(schema));
-    let last = '';
-    for (const model of [...codexModels(), '']) {
-      const cmd = ['exec', '--skip-git-repo-check', '-s', 'read-only', ...(model ? ['-m', model] : []), '-c', `model_reasoning_effort="${process.env.SEENRY_CRITIC_EFFORT || 'medium'}"`, '--output-schema', schemaFile, '-o', result];
-      for (const img of images) cmd.push('-i', img);
-      cmd.push('--', prompt);
-      const r = spawnSync(bin, cmd, {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
-      if (existsSync(result)) return JSON.parse(readFileSync(result, 'utf8'));
-      last = `codex failed on ${model || 'its default model'} (status ${r.status}${r.error ? ', ' + r.error.code : ''}): ${(r.stderr || r.stdout || '').slice(-1500)}`;
-      if (!/not supported|does not exist|unknown model|model_not_found|invalid model/i.test(r.stderr + r.stdout)) break;
-    }
-    throw new Error(last);
+    const cmd = [...cliArgs('codex'), '--output-schema', schemaFile, '-o', result];
+    for (const img of images) cmd.push('-i', img);
+    cmd.push('--', prompt);
+    const r = spawnSync(bin, cmd, {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
+    if (existsSync(result)) return JSON.parse(readFileSync(result, 'utf8'));
+    throw new Error(`codex failed on ${modelFor('codex') || 'your default model'} (status ${r.status}${r.error ? ', ' + r.error.code : ''}): ${(r.stderr || r.stdout || '').slice(-1500)}`);
   }
   const p = `${prompt}\n\nThe images are these files; read each one: ${images.join(', ')}\nAnswer with only a JSON object matching this schema: ${JSON.stringify(schema)}`;
-  const r = spawnSync(bin, ['-p', p, '--allowedTools', 'Read', '--output-format', 'text', ...[...new Set(images.map(i => dirname(i)))].flatMap(d => ['--add-dir', d])], {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
+  const r = spawnSync(bin, ['-p', p, ...cliArgs('claude'), ...[...new Set(images.map(i => dirname(i)))].flatMap(d => ['--add-dir', d])], {cwd: work, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 900000});
   const out = r.stdout || '';
   const raw = out.slice(out.indexOf('{'), out.lastIndexOf('}') + 1);
   if (!raw) throw new Error(`claude failed (status ${r.status}): ${(r.stderr || out).slice(-1500)}`);

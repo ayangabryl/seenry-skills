@@ -19,7 +19,7 @@ import {existsSync, readFileSync, copyFileSync, mkdirSync, mkdtempSync, readdirS
 import {resolve, dirname, join, extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn} from 'node:child_process';
-import {findCli, codexModels} from './model_cli.mjs';
+import {findCli, modelFor} from './model_cli.mjs';
 import {markWorkDir} from './workdir.mjs';
 import {validateJob, composePrompt, rawWarnings, inherit} from './art_prompt.mjs';
 
@@ -98,15 +98,8 @@ const jobs = base.flatMap(j => variants === 1 ? [j] : Array.from({length: varian
 const found = findCli('codex');
 if (!found) { console.error('No working Codex CLI found, so no image model is available. Use the host image tool, seenry-assets (OPENAI_API_KEY or GEMINI_API_KEY), license-clear photos, or the museum art set in references/new-site.md.'); process.exit(2); }
 
-// The image tool runs inside a Codex session; use the first model this account offers.
-let model = process.env.SEENRY_CODEX_MODEL || null;
-if (!model) {
-  const {spawnSync} = await import('node:child_process');
-  for (const m of codexModels()) {
-    const t = spawnSync(found.bin, ['exec', '--skip-git-repo-check', '-s', 'read-only', '-m', m, 'Reply only: ok'], {encoding: 'utf8', timeout: 120000});
-    if (t.status === 0 && !/not supported/i.test(t.stdout + t.stderr)) { model = m; break; }
-  }
-}
+// The image tool runs inside a Codex session on the person's own model; SEENRY_MODEL or SEENRY_CODEX_MODEL names another.
+const model = modelFor('codex') || null;
 // The image tool is missing for the whole account when one job reports it; stop instead of retrying every job.
 let toolMissing = false;
 function generate({prompt, out}) {

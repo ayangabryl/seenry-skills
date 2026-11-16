@@ -6,8 +6,8 @@
  *                  [--refs a.png,b.png] [--kept .seenry/refs/kept.md] [--out .seenry/review/critic.json] [--cli codex|claude]
  *                  [--level .seenry/level.md --level-refs a.png,b.png]   the work the person showed for register and level
  *
- *  Uses the Codex CLI (`codex exec`) or Claude Code (`claude -p`), whichever is installed (override with --cli or
- *  SEENRY_CRITIC). Prints scores and the fixes ranked by visible impact, and writes them to --out. */
+ *  Uses the host agent app's CLI (Claude Code's `claude -p` or Codex's `codex exec`), else whichever is installed
+ *  (override with --cli or SEENRY_CRITIC), on the person's own model (SEENRY_MODEL names another). Prints scores and the fixes ranked by visible impact, and writes them to --out. */
 import {existsSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs';
 import {resolve, dirname, join} from 'node:path';
 import {spawn} from 'node:child_process';

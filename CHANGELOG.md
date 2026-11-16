@@ -17,6 +17,17 @@
 
 - **Five blockers, ranked.** `check.mjs` prints the five blockers that matter most (the missing study first, then the page's level, then visible craft, the rest of the board, motion details), each on one line with its fix, and keeps every section in `review/blockers.txt`. `--all` prints everything as before. `review_board.mjs` writes each blocker to `board.json` as a ranked item.
 
+### Canvas live build
+
+- **Built in place, not reloaded.** `plan --parts "Nav:72,Hero:560"` lays a shimmering block for each part at its planned height, on the placeholder and then inside the screen at the `<!-- next -->` marker. Each save is patched into the open document: the part replaces its block with a short fade, what is below slides to its new place, and Seenry's cursor waits on the next block. No white frame, no zoom change mid-build, no scroll jump; with reduced motion nothing moves. A save that changes the `<head>` still reloads, out of sight, keeping the scroll position. Recorded on a scripted shell plus five parts 2.5 s apart: a save reached the screen in about 60 ms (was 0.1 to 1.1 s), each part was fully shown in about 60 ms (was 0.5 to 5.5 s while the cursor typed it in), and the camera moved in 68 frames instead of 429.
+- **Pushed, not polled.** The server watches the canvas folder and pushes an event on every save (`/events`); the page falls back to polling only when the stream is down.
+- **Layout problems on every save.** The canvas checks each save at the screen's width and at 390 for sideways overflow, text cut off by its box, collapsed parts, images that did not load and overlapping text, outlines each problem on the screen and labels the frame. `canvas.mjs problems [screens]` prints the same short list for the agent (rendering headless when no canvas has checked that save) and exits 1 on any.
+- **At home in an agent app's pane.** In an Electron webview, a frame or `?embed=1` the canvas follows the host's light or dark setting (screens too, until the person presses D), drops its own title row, starts with the screen list closed and shows one screen at a time below 960px. `?theme=` fixes a theme. `open` in T3 Code now opens `/?embed=1`. Tested in T3 Code's preview pane; the Claude app and Codex app panes are untested.
+
+### Model-agnostic helpers
+
+- **The host's CLI, the person's model.** `model_cli.mjs`, and every critic and judge that uses it (`critic.mjs`, `judge_pair.mjs`, `photo_check.mjs`, `pick.mjs`, `detail_critic.mjs`, `choreography.mjs`, `motion_*`, `film_critic.mjs`), runs on the agent app's own CLI (Claude Code inside Claude Code, Codex inside Codex) and passes no model, so the CLI uses the person's selected or default model. The built-in Codex model list and its hard-coded fallback ids are gone, and so is the fixed reasoning effort. `image.mjs` no longer probes models. `independent_flow_gate.py` carries the model from the person's Codex config. `SEENRY_MODEL` (or `SEENRY_CODEX_MODEL`, `SEENRY_CLAUDE_MODEL`) and `SEENRY_CRITIC_EFFORT` name one explicitly.
+
 ## 3.2.0
 
 ### Fast path

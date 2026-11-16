@@ -23,6 +23,16 @@ class IndependentFlowGate(unittest.TestCase):
         self.assertEqual(gate.disposition({'visual': keep, 'flow': {'verdict': 'Unverified', 'findings': [], 'limits': ['No result']}}), 'Revise')
         self.assertEqual(gate.disposition({'visual': keep, 'flow': {**revise, 'verdict': 'Keep'}}), 'Revise')
 
+    def test_reviewer_runs_on_the_persons_model_never_one_of_its_own(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            self.assertIsNone(gate.user_model({'CODEX_HOME': str(home)}), 'no config, no named model: the CLI default')
+            (home / 'config.toml').write_text('model = "their-model"\n\n[profiles.x]\nmodel = "other"\n')
+            self.assertEqual(gate.user_model({'CODEX_HOME': str(home)}), 'their-model')
+            self.assertEqual(gate.user_model({'CODEX_HOME': str(home), 'SEENRY_MODEL': 'named'}), 'named')
+        source = (ROOT / 'skills/seenry-apps/scripts/independent_flow_gate.py').read_text()
+        self.assertNotRegex(source, r"'gpt-|\bdefault='(gpt|o\d|claude)")
+
     def test_incomplete_review_rejected(self):
         with self.assertRaises(ValueError):
             gate.validate_result({'verdict': 'Keep', 'findings': [{'observation': 'Issue'}], 'limits': []})
