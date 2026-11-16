@@ -17,22 +17,27 @@ Every command is `node <skill>/scripts/canvas.mjs <command>`. The canvas folder 
 | --- | --- |
 | `init` | Creates the folder with `tokens.css`, `wire.css` and `refs/`; ignores itself in git |
 | `init --library <path>` | Links a shared design system (another canvas folder) instead of local tokens |
-| `plan <file>… [--parts "Nav,Hero,Pricing"]` | Names the screens you are about to draw. Each shows on the canvas as a placeholder until its file is written; `round` drops the ones that exist. With `--parts`, the parts not yet written (by `data-seenry-part`) show as dashed outlines under Seenry's cursor while you build |
+| `plan <file>… [--parts "Nav:72,Hero:560,Pricing"]` | Names the screens you are about to draw. Each shows on the canvas as a placeholder until its file is written; `round` drops the ones that exist. With `--parts`, each part not yet written (by `data-seenry-part`) holds a shimmering block where it will land, at the height after its colon (else a guess from its name), first on the placeholder and then inside the screen at the `<!-- next -->` marker. Each save is patched into the open screen: the new part replaces its block, what is below slides, and Seenry's cursor moves on to the next block. A save that changes the `<head>` reloads the screen out of sight instead |
 | `say "…" [--frame <screen>]` | One line on the canvas's live feed, shown on that screen with an Agent tag. Use it for intent, about once per screen; the other commands post their own lines |
 | `open [--browser] [--port n]` | Starts the canvas in the background on `127.0.0.1` at a port fixed per project, opens the browser on the options waiting for a pick, prints the address. Inside an agent app it opens no tab and prints the exact call for that app's pane (table below); `--browser` opens a tab anyway. In a cloud session it starts no server and writes `canvas.html` to publish. Prints the time since `init` or `plan` to the first sketch shown, to the person's pick and to the finished build, and keeps them in `canvas.json` (`firstOption`, `picked`, `built`, and `timing` in seconds) |
 | `list` | Prints sections, screens, sizes and links as the canvas sees them |
+| `problems [screens] [--json]` | The layout problems in the last save, at the screen's width and at 390: sideways overflow, text cut off by its box, a part or text collapsed to nothing, an image that did not load, text drawn over text. Short, so run it after each part. The open canvas checks every save itself, outlines each problem on the screen and labels the frame; this reads its result, or renders the screen headless when the canvas has not checked that save. Exits 1 on any |
 | `link` / `sync [push\|pull\|status\|unlink]` | Passed through to `sync.mjs` (below). `link`, or `sync` alone, then starts `sync.mjs watch` in the background; `open` starts it too whenever this machine is linked, so syncing needs no extra step |
 | `stop` | Stops the canvas and its sync |
 
 | App (detected by) | `open` prints |
 | --- | --- |
-| T3 Code (`T3CODE_THREAD_ID`) | Call `preview_open` with target `{"kind": "environment-port", "port": n}` |
+| T3 Code (`T3CODE_THREAD_ID`) | Call `preview_open` with target `{"kind": "environment-port", "port": n, "path": "/?embed=1"}` |
 | Claude app, Code tab (`CLAUDE_CODE_ENTRYPOINT=claude-desktop…`) | Open it in the Browser pane; also writes a `Seenry canvas` entry on the same port in `.claude/launch.json`. The Claude Code CLI gets a tab |
 | Codex app (`CODEX_THREAD_ID`) | Use `@Browser` to open the address. When the sandbox (`CODEX_SANDBOX`) refuses the bind, it says to rerun with escalated permissions |
 | Cursor (`CURSOR_AGENT`) | Call `browser_navigate` (Cursor asks the person to approve) |
 | VS Code (`TERM_PROGRAM=vscode`) | Call `openBrowserPage` |
 | Antigravity, Devin | Use the app's preview tool |
 | Cloud (`CLAUDE_CODE_REMOTE=true`, `CONDUCTOR_IS_LOCAL=0`) | No server; publish `canvas.html` |
+
+In an app's pane (an Electron webview, a frame, or `?embed=1`) the canvas follows the app's light or dark setting, screens included until the person presses D, drops its own title row, starts with the screen list closed and switches to one screen at a time below 960px. `?theme=light` or `?theme=dark` fixes the theme. Tested in T3 Code's preview pane; the Claude app and Codex app panes are detected the same way but untested.
+
+Saves reach the page as they land: the server watches the folder and pushes an event (`/events`); the page polls every 1.5 s only when that stream is down.
 
 The script is plain Node with no packages and serves only to `127.0.0.1`. Without the skill installed, download it once from `https://seenry.design/skills/seenry-canvas/scripts/canvas.mjs` into `.seenry/` and run it from there.
 
