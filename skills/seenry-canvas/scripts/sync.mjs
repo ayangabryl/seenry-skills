@@ -232,10 +232,16 @@ function mergeFeedback(events) {
   merged.general = generals.join('\n\n');
   return merged;
 }
+// The three fixed ways to answer More like this; canvas.mjs holds the same three for feedback sent from the local canvas.
+const RIFF_MODES = [
+  'Same style, new layout: keep its tokens, type, image and idea line; recompose the first screen (what leads, where the image sits, the grid).',
+  'New style, same content: keep every word, number and the product view; change the type, colour, image treatment and surfaces.',
+  'Break its rule: name one rule this option obeys that nobody asked for (everything centred, the image always behind the text, one column), then make the version that breaks it on purpose.',
+];
 function feedbackLines(feedback, sections) {
   const lines = [];
   for (const [section, id] of Object.entries(feedback.picks || {})) lines.push(`Picked in ${section}: ${id}`);
-  for (const r of feedback.riff || []) lines.push(`More like this in ${r.section}: ${r.frame}. Make a new round of options around it; do not resolve the section yet.`);
+  for (const r of feedback.riff || []) lines.push(`More like this in ${r.section}: ${r.frame}. Make three new options around it, one per mode, each named by its mode in seenry-axis; do not resolve the section yet. ${RIFF_MODES.map((m, i) => `(${i + 1}) ${m}`).join(' ')}`);
   const of = v => (feedback.frames || []).filter(f => f.status === v).map(f => f.id);
   if (of('approved').length) lines.push(`Approved: ${of('approved').join(', ')}`);
   if (of('change').length) lines.push(`Needs changes: ${of('change').join(', ')}`);

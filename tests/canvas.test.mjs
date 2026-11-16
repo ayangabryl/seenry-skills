@@ -227,6 +227,8 @@ test('options carry their labels, and round resolves picks but keeps riffed sect
   assert.deepEqual([quiet.risk, quiet.axis, quiet.wins, quiet.cost, quiet.ask], ['safe', 'A plain list', 'Daily use', 'Forgettable', ['Is it calm?', 'Would you open it daily?']]);
   await call(port, '/feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({riff: [{section: '02-home', frame: '02-home/b'}], frames: [{id: '01-onboarding/01-welcome', status: 'approved'}, {id: '01-onboarding/02-first-habit', status: 'approved'}]})});
   assert.match(run('feedback', dir).stdout, /More like this in 02-home: 02-home\/b/);
+  const riff = run('feedback', dir).stdout;
+  assert.match(riff, /\(1\) Same style, new layout.*\(2\) New style, same content.*\(3\) Break its rule/);
   const out = run('round', 'Riffing on B', dir);
   assert.equal(out.status, 0, out.stderr);
   assert.match(out.stdout, /01-onboarding: Ready for dev \(2 of 2 approved\)/);
@@ -464,4 +466,31 @@ test('each save names the parts it added, so the feed reads like the build', asy
   assert.equal(JSON.parse((await call(actual, '/state')).body).activity.at(-1).text, 'Added Habit list, Start button to First habit');
   save(page('First habit') + '<h1 data-seenry-part="Headline">Pick a habit</h1><ul data-seenry-part="Habit list"><li>Walk</li></ul><button data-seenry-part="Start button">Start</button>', Date.now() + 15000);
   assert.equal(JSON.parse((await call(actual, '/state')).body).activity.at(-1).text, 'Changed First habit');
+});
+
+test('a save that changes every part of a built screen is called a rewrite on the feed', async t => {
+  const {dir} = project();
+  const file = join(dir, '01-onboarding', '02-first-habit.phone.html');
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  await call(actual, '/state');
+  const save = (html, at) => { writeFileSync(file, html); utimesSync(file, new Date(), new Date(at)); };
+  const last = async () => JSON.parse((await call(actual, '/state')).body).activity.at(-1);
+  save(page('First habit') + '<h1 data-seenry-part="Headline">Pick one habit</h1><ul data-seenry-part="Habit list"><li>Walk</li></ul><button data-seenry-part="Start button">Start</button>', Date.now() + 5000);
+  assert.equal((await last()).kind, 'edit');
+  save(page('First habit') + '<h1 data-seenry-part="Headline" class="big">Choose a habit</h1><ul data-seenry-part="Habit list"><li>Read</li></ul><button data-seenry-part="Start button">Begin</button>', Date.now() + 10000);
+  const rewrite = await last();
+  assert.equal(rewrite.kind, 'warn');
+  assert.equal(rewrite.text, 'Rewrote First habit: 3 parts changed in one save. Patch the part that needs it instead');
+  save(page('First habit') + '<h1 data-seenry-part="Headline" class="big">Choose one habit</h1><ul data-seenry-part="Habit list"><li>Read</li></ul><button data-seenry-part="Start button">Begin</button>', Date.now() + 15000);
+  assert.deepEqual([(await last()).kind, (await last()).text], ['edit', 'Changed First habit']);
+});
+
+test('the local canvas and online sync answer More like this with the same three modes', () => {
+  const modes = f => readFileSync(resolve('skills/seenry-canvas/scripts', f), 'utf8').match(/const RIFF_MODES = \[([\s\S]+?)\];/)[1];
+  assert.equal(modes('canvas.mjs'), modes('sync.mjs'));
+  assert.equal((modes('canvas.mjs').match(/^  '/gm) || []).length, 3);
 });

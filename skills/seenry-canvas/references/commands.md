@@ -60,7 +60,7 @@ These need Playwright in the project, or `--playwright <path to playwright/index
 | `wait [--timeout seconds]` | Blocks until the person presses Send, then prints the feedback. Hosts cap a foreground command near two minutes, so without `--timeout` it returns within 100 s with `Still waiting` and the command to run again (exit 0); the canvas keeps showing Seenry is waiting in between. Feedback already handed over is not returned twice. With `--timeout` it exits 3 when time runs out |
 | `feedback` | Prints the last feedback without waiting; exits 3 when it is older than your latest change |
 
-Feedback lists picks, "More like this" requests, approved screens, screens that need changes, each comment with the element it is pinned to, answers to the review questions, and screens with no answer. It is also saved to `FEEDBACK.md`.
+Feedback lists picks, "More like this" requests (each with the three variation modes to answer it), approved screens, screens that need changes, each comment with the element it is pinned to, answers to the review questions, and screens with no answer. It is also saved to `FEEDBACK.md`.
 
 ## Keep the file
 

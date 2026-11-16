@@ -2154,8 +2154,19 @@ apply(); load();
 
 const page = embedded => PAGE.replace('/*STATE*/null', embedded ? JSON.stringify(embedded).replace(/</g, '\\u003c') : 'null');
 
-const seen = new Map(), seenParts = new Map(); let seenReady = false;
+const seen = new Map(), seenParts = new Map(), seenChunks = new Map(); let seenReady = false;
 const partsIn = path => { try { return [...readFileSync(path, 'utf8').matchAll(/\bdata-seenry-part\s*=\s*["']([^"']{1,80})["']/g)].map(m => unescape(m[1])); } catch { return []; } };
+/** Each part's source, from its marker to the next one: enough to tell a one-part edit from a regenerated file. */
+function partChunks(html) {
+  const marks = [...String(html).matchAll(/\bdata-seenry-part\s*=\s*["']([^"']{1,80})["']/g)], out = {};
+  marks.forEach((m, i) => { out[unescape(m[1])] = html.slice(m.index, i + 1 < marks.length ? marks[i + 1].index : undefined); });
+  return out;
+}
+/** A save that changes every part of a screen that already had two or more is a rewrite, not a patch. */
+function rewroteParts(before = {}, after = {}) {
+  const kept = Object.keys(before).filter(k => k in after);
+  return Object.keys(before).length >= 2 && kept.length >= 2 && kept.every(k => before[k] !== after[k]) ? kept.length : 0;
+}
 function serve(port, attempts = 20) {
   if (!existsSync(dir)) init();
   writeFoundations();
@@ -2216,8 +2227,10 @@ function serve(port, attempts = 20) {
         const was = seen.get(f.id);
         if (was !== f.rev) {
           const parts = partsIn(join(dir, f.src)), before = seenParts.get(f.id) || [], added = parts.filter(p => !before.includes(p));
-          if (seenReady) { edited = true; activity('edit', added.length ? `Added ${added.join(', ')} to ${f.name}` : `${was === undefined ? 'Started' : 'Changed'} ${f.name}`, f.id); }
-          seenParts.set(f.id, parts);
+          let chunks = {}; try { chunks = partChunks(readFileSync(join(dir, f.src), 'utf8')); } catch {}
+          const rewrote = rewroteParts(seenChunks.get(f.id), chunks);
+          if (seenReady) { edited = true; activity(rewrote ? 'warn' : 'edit', rewrote ? `Rewrote ${f.name}: ${rewrote} parts changed in one save. Patch the part that needs it instead` : added.length ? `Added ${added.join(', ')} to ${f.name}` : `${was === undefined ? 'Started' : 'Changed'} ${f.name}`, f.id); }
+          seenParts.set(f.id, parts); seenChunks.set(f.id, chunks);
         }
         seen.set(f.id, f.rev);
       }
@@ -2262,10 +2275,16 @@ function printList(state) {
   if (!state.sections.length) console.log('No screens yet.');
 }
 
+// The three fixed ways to answer More like this; sync.mjs keeps the same three words for feedback sent online.
+const RIFF_MODES = [
+  'Same style, new layout: keep its tokens, type, image and idea line; recompose the first screen (what leads, where the image sits, the grid).',
+  'New style, same content: keep every word, number and the product view; change the type, colour, image treatment and surfaces.',
+  'Break its rule: name one rule this option obeys that nobody asked for (everything centred, the image always behind the text, one column), then make the version that breaks it on purpose.',
+];
 function feedbackLines(feedback) {
   const lines = [];
   for (const [section, id] of Object.entries(feedback.picks || {})) lines.push(`Picked in ${section}: ${id}`);
-  for (const r of feedback.riff || []) lines.push(`More like this in ${r.section}: ${r.frame}. Make a new round of options around it; do not resolve the section yet.`);
+  for (const r of feedback.riff || []) lines.push(`More like this in ${r.section}: ${r.frame}. Make three new options around it, one per mode, each named by its mode in seenry-axis; do not resolve the section yet. ${RIFF_MODES.map((m, i) => `(${i + 1}) ${m}`).join(' ')}`);
   const of = v => (feedback.frames || []).filter(f => f.status === v).map(f => f.id);
   if (of('approved').length) lines.push(`Approved: ${of('approved').join(', ')}`);
   if (of('change').length) lines.push(`Needs changes: ${of('change').join(', ')}`);
