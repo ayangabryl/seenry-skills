@@ -13,6 +13,8 @@ Takes a design task from brief to built page. The person is the judge: the idea 
 
 Worked example: [Waterline](assets/examples/waterline/README.md). Copy its path and principles, never the page.
 
+**First call, every task:** `node scripts/start.mjs "<the brief in a few words>"` (or `.seenry/brief.md`). It prints the two or three [style briefs](references/styles/index.json) that fit, the [bans](references/bans.md) and the steps below, and nothing else. `--style <slug>` prints one brief whole: a visual identity (type, colour roles, imagery, how image and interface meet, section moves), never a page order. One direction may take a style; the others answer the brief their own way.
+
 ## Route
 
 | The request | Do |
@@ -37,7 +39,7 @@ Worked example: [Waterline](assets/examples/waterline/README.md). Copy its path 
 | 6 | **Pick.** Show the sketches and wait. Never mark a favourite | `<canvas> open`, `<canvas> wait` (again while it says Still waiting), then `<canvas> round "<the pick and their note>"` | The picked sketch |
 | 7 | **Extend.** Only the pick becomes the full page, on the canvas: every section to the footer, the hero image returning below in new crops, one grid. Remove its `seenry-fidelity` line | `<canvas> verify` | The full page |
 | 8 | **Build.** Pick the [stack](references/stack.md) (never plain HTML by default), write the `Stack:` line in `DESIGN.md`, and move the page into it with the same tokens and images. Write `MOTION.md` (`seenry-motion`) | (the project's build) | The page, `MOTION.md` |
-| 9 | **Check.** Once, at the end. Fix what it blocks, run it once more, report | `node scripts/check.mjs <page> --brief .seenry/brief.md` | Its result line |
+| 9 | **Check.** Once, at the end. It prints the five blockers that matter most, ranked (`--all` for every check). Fix them, run it once more, report | `node scripts/check.mjs <page> --brief .seenry/brief.md` | Its result line |
 
 A sketch's head:
 
@@ -60,6 +62,8 @@ The full process, only when asked for: `--studio` on both commands adds a writte
 4. **Proof is real.** No invented customers, quotes, logos or figures, unless the brief says the company is fictional: then invented proof is expected, never labelled on the page, and listed under "Assumed".
 5. **Everything works.** A control or shortcut hint with nothing behind it is wired up or removed.
 6. **Twice, then show.** After two rounds on a step, show it and name what is left. Quote the checks; never give your own score.
+7. **Patch, never regenerate.** Fix a screen or page with a targeted edit to the part that is wrong, never by writing the whole file again: a rewrite loses what was approved and hides what changed.
+8. **Never the [bans](references/bans.md).** The habits that make a page read as generated, in one list.
 
 ## Which skill, and what comes next
 
@@ -93,6 +97,7 @@ Assumed:   every fact you supplied that the person should replace
 
 | Need | Read |
 | --- | --- |
+| A style's identity, in full | `node scripts/start.mjs --style <slug>`, or [the shelf](references/styles/index.json) |
 | What each kind of screen must hold | [screens](references/screens.md) |
 | Type, colour and imagery for tokens | [look](references/look.md) |
 | Image rules and composing images into the layout | [imagery](references/imagery.md), [image composition](references/image-composition.md) |
