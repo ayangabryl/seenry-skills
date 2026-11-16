@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /** The finishing gate. One command per round:
  *
- *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png] [--dir .seenry] [--target 9] [--mode quick|polish|showcase] [--critic-rounds n] [--fast] [--playwright path]
+ *  node check.mjs <url | file.html> --brief BRIEF.md [--refs a.png,b.png] [--dir .seenry] [--target 9] [--mode quick|polish|showcase] [--critic-rounds n] [--fast] [--all] [--playwright path]
  *  node check.mjs --screens home.png,detail.png,sheet.png --video rec.mov --brief BRIEF.md   (native apps: SwiftUI,
  *    UIKit, React Native, Flutter; simulator screenshots in flow order and a screen recording of the interactions)
  *
- *  1. Renders the page with review_board.mjs. Any slop or craft blocker fails the round.
+ *  1. Renders the page with review_board.mjs. Any slop or craft blocker fails the round. It prints the five blockers that
+ *     matter most, ranked (blockers.mjs); --all prints every check in full. The full list is kept in review/blockers.txt.
  *  2. With zero blockers the default run ends: CHECKS PASS, no model score, the person is the judge. With --studio, or
  *     when the canvas records an unattended run, critic.mjs runs: a fresh model scores the page against the references.
  *  3. Prints PASS when the critic's overall reaches --target (default 9: a local heuristic, not evidence of outperforming another product)
@@ -22,6 +23,7 @@ import {markWorkDir} from './workdir.mjs';
 import {teardownProblems} from './execution_bar.mjs';
 import {pairBlocks} from './judge_pair.mjs';
 import {motionDocProblems} from './motion_doc.mjs';
+import {shortBlockers} from './blockers.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -198,7 +200,14 @@ if (!native && !existsSync(join(review, 'board.json'))) {
   console.log(`GATE DID NOT RUN: the review board produced no result (${why.slice(0, 220)}). Nothing was checked, so there is no score to report. Fix the cause and run check.mjs again.`);
   process.exit(2);
 }
-let blockers = native ? 0 : JSON.parse(readFileSync(join(review, 'board.json'), 'utf8')).blockers;
+const boardReport = native ? {} : JSON.parse(readFileSync(join(review, 'board.json'), 'utf8'));
+let blockers = native ? 0 : boardReport.blockers;
+// The final check prints the five blockers that matter most, ranked (blockers.mjs); --all prints every section in
+// full as before. Either way the full list is written to review/blockers.txt.
+const all = args.includes('--all'), items = [], fullLog = [];
+const detail = text => { fullLog.push(text); if (all) console.log(text); };
+items.push(...(boardReport.items || []));
+if (blockers > (boardReport.items || []).length) items.push({rank: 3, text: `review board: ${blockers - (boardReport.items || []).length} more blocker(s) in ${join(review, 'blockers.txt')}`});
 const project = !/^https?:/.test(target) && existsSync(target) ? dirname(resolve(target)) : process.cwd();
 const refCount = existsSync(join(dir, 'refs')) ? readdirSync(join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).length : 0;
 // Remember this project's identity so the next one can differ from it (the skill reads the last ten).
@@ -277,10 +286,11 @@ const missing = [
 // however many small blockers are cleared.
 if (missing.length) {
   blockers += missing.length;
-  console.log(`\n■ do these first ×${missing.length}`);
-  for (const m of missing) console.log(`  ${m}`);
+  items.push(...missing.map(text => ({rank: 0, text})));
+  detail(`\n■ do these first ×${missing.length}`);
+  for (const m of missing) detail(`  ${m}`);
 }
-process.stdout.write(board.stdout);
+detail(board.stdout.replace(/\n$/, ''));
 if (stack.warn) console.log(`\n■ stack (a warning, not a blocker)  ${stack.warn}.`);
 // Photographs must pass photo_check.mjs before the critic is asked; weak imagery is the most-cited gap.
 if (studio && !/^https?:/.test(target) && existsSync(target)) {
@@ -300,15 +310,17 @@ if (studio && !/^https?:/.test(target) && existsSync(target)) {
     console.log(`\n■ photographs  best effort after ${checks >= 3 ? 'three photo checks' : 'one photo check'} (${data.images.map(i => i.overall).join('/')}); not blocking. Keep the strongest versions and move on.`);
   } else if (photos.length && !passed) {
     blockers++;
-    console.log(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
-    console.log(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" --page ${target}${existsSync(patternFile) ? ' --patterns ' + patternFile : ''} [--medium "<image medium from identity.md, e.g. oil painting>"]${refs ? ' --refs ' + refs : ''} --out ${report}`);
-    console.log(quick ? '  Regenerate the first-screen image until it scores 8 (at most three attempts, with the jobs it writes to regenerate.json (image.mjs --batch)); elsewhere regenerate only images under 6, once, and keep everything at 6 or above.' : '  Regenerate anything under 8 with the jobs it writes to regenerate.json (image.mjs --batch) (at most three attempts per image), then run check.mjs again.');
+    const photoRun = `Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" --page ${target}${existsSync(patternFile) ? ' --patterns ' + patternFile : ''}${refs ? ' --refs ' + refs : ''} --out ${report}`;
+    items.push({rank: 2, text: `photographs: ${photos.length} local image(s) not yet passed by the photo check (${photos.slice(0, 4).join(', ')}). ${quick ? 'Regenerate the first-screen image until it scores 8' : 'Regenerate anything under 8'}`, fix: photoRun});
+    detail(`\n■ photographs  ${photos.length} local image(s) not yet passed by the photo check: ${photos.slice(0, 4).join(', ')}`);
+    detail(`  Run: node ${join(here, 'photo_check.mjs')} ${photos.slice(0, 6).join(' ')} --use "<slot, ratio, position>" --brand "<brand>" --page ${target}${existsSync(patternFile) ? ' --patterns ' + patternFile : ''} [--medium "<image medium from identity.md, e.g. oil painting>"]${refs ? ' --refs ' + refs : ''} --out ${report}`);
+    detail(quick ? '  Regenerate the first-screen image until it scores 8 (at most three attempts, with the jobs it writes to regenerate.json (image.mjs --batch)); elsewhere regenerate only images under 6, once, and keep everything at 6 or above.' : '  Regenerate anything under 8 with the jobs it writes to regenerate.json (image.mjs --batch) (at most three attempts per image), then run check.mjs again.');
   }
 }
 // A named site lends its patterns, never its words.
 if (!native && refUrl) {
   const overlap = spawnSync(process.execPath, [join(here, 'copy_overlap.mjs'), target, '--ref', refUrl, ...(pw ? ['--playwright', pw] : [])], {encoding: 'utf8', timeout: 180000});
-  if (overlap.status === 1) { blockers++; console.log('\n■ ' + overlap.stdout.trim().split('\n').join('\n  ')); }
+  if (overlap.status === 1) { blockers++; items.push({rank: 1, text: overlap.stdout.trim()}); detail('\n■ ' + overlap.stdout.trim().split('\n').join('\n  ')); }
   else if (overlap.stdout) console.log('\n' + overlap.stdout.trim());
 }
 // Static motion scan: token, easing, transition-all and reduced-motion checks from source, in well under a second.
@@ -319,13 +331,14 @@ if (!native && existsSync(join(here, 'motion_scan.mjs'))) {
   if (scan.status === 1 && existsSync(scanReport)) {
     const n = JSON.parse(readFileSync(scanReport, 'utf8')).violations;
     blockers += n;
-    console.log('\n■ ' + scan.stdout.trim().split('\n').join('\n  '));
+    items.push(...scan.stdout.trim().split('\n').slice(1, 1 + n).map(l => ({rank: 4, text: `motion scan: ${l.trim()}`})));
+    detail('\n■ ' + scan.stdout.trim().split('\n').join('\n  '));
   } else if (scan.stdout) console.log('\n' + scan.stdout.trim().split('\n').slice(0, 6).join('\n  '));
 }
 // Token lint: every size, space, radius and duration from the token file, never typed one at a time.
 if (!native && existsSync(join(here, 'token_lint.mjs'))) {
   const lint = spawnSync('node', [join(here, 'token_lint.mjs'), project, ...(args.includes('--changed') ? ['--changed'] : [])], {encoding: 'utf8'});
-  if (lint.status === 1) { blockers++; console.log('\n■ ' + lint.stdout.trim().split('\n').join('\n  ')); }
+  if (lint.status === 1) { blockers++; items.push({rank: 3, text: `tokens: ${lint.stdout.trim().split('\n')[0]}`}); detail('\n■ ' + lint.stdout.trim().split('\n').join('\n  ')); }
 }
 // The build is finished when its gate has run: the moment is kept on the canvas beside the first sketch and the pick,
 // whether the gate passed or not, so a run that stops on blockers still has its time.
@@ -338,6 +351,9 @@ function stampBuilt() {
   const min = n => n === null ? null : n < 90 ? `${n} s` : `${Math.round(n / 60)} min`, t = canvasManifest.timing;
   return ` Time since the canvas was started: ${[t.firstSketchSeconds !== null && `first sketch at ${min(t.firstSketchSeconds)}`, t.pickSeconds !== null && `pick at ${min(t.pickSeconds)}`, `build finished at ${min(t.builtSeconds)}`].filter(Boolean).join(', ')}.`;
 }
+try { writeFileSync(join(review, 'blockers.txt'), fullLog.join('\n') + '\n'); } catch {}
+if (blockers && !all) for (const line of shortBlockers(items, {total: blockers, full: join(review, 'blockers.txt')})) console.log(line);
+else if (!all) console.log(fullLog.join('\n'));
 if (blockers) {
   const last = history[history.length - 1];
   if (last && !last.critic && fingerprint && last.hash === fingerprint) {
@@ -346,7 +362,7 @@ if (blockers) {
   }
   history.push({round, blockers, critic: null, hash: fingerprint});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one above, then run check.mjs again${studio ? '. The critic runs once the board is clean; board rounds do not use up critic rounds' : ` once.${round >= 2 ? ' That was the second round: report what is left instead of a third.' : ''}${stampBuilt()}`}`);
+  console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one, in the order above, then run check.mjs again${studio ? '. The critic runs once the board is clean; board rounds do not use up critic rounds' : ` once.${round >= 2 ? ' That was the second round: report what is left instead of a third.' : ''}${stampBuilt()}`}`);
   process.exit(1);
 }
 
