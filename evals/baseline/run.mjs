@@ -108,15 +108,16 @@ function setupHome(dir, model, cond, work, key) {
   return {home, codexHome, mcpFile};
 }
 
-function childEnv({home, codexHome}, cond, key) {
-  const env = {};
+export function childEnv({home, codexHome}, cond, key, runs = RUNS) {
+  const env = {}, pwDir = join(runs, 'pw');
+  key = key ?? proKey();
   for (const [k, v] of Object.entries(process.env)) if (!/^(CLAUDE|CLAUDECODE|ANTHROPIC_|CODEX_|SEENRY_|MCP_|T3CODE_|CURSOR_|CONDUCTOR_)/.test(k)) env[k] = v;
   Object.assign(env, {
     HOME: home, CODEX_HOME: codexHome,
     PLAYWRIGHT_BROWSERS_PATH: join(realHome, 'Library', 'Caches', 'ms-playwright'),
     npm_config_cache: join(realHome, '.npm'),
-    NODE_PATH: join(PW_DIR, 'node_modules'),
-    SEENRY_PLAYWRIGHT: PLAYWRIGHT,
+    NODE_PATH: join(pwDir, 'node_modules'),
+    SEENRY_PLAYWRIGHT: join(pwDir, 'node_modules', 'playwright', 'index.mjs'),
     // The canvas must not open a tab on the machine running the eval; the director reaches it over HTTP.
     SEENRY_NO_BROWSER: '1',
     PATH: `${join(realHome, '.local', 'bin')}:${process.env.PATH}`,
@@ -125,7 +126,7 @@ function childEnv({home, codexHome}, cond, key) {
   return env;
 }
 
-function command(model, cond, work, mcpFile) {
+export function command(model, cond, work, mcpFile) {
   const [cli, name] = model.split(':');
   if (cli === 'codex') return ['codex', ['exec', '--json', '--skip-git-repo-check', '--dangerously-bypass-approvals-and-sandbox', ...(name ? ['-m', name] : []), '-C', work, PROMPTS[cond]]];
   return ['claude', ['-p', PROMPTS[cond], '--output-format', 'stream-json', '--verbose', ...(name ? ['--model', name] : []), '--permission-mode', 'bypassPermissions', '--strict-mcp-config', '--mcp-config', mcpFile]];

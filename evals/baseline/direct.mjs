@@ -4,14 +4,17 @@
  *  node evals/baseline/direct.mjs watch <run dir> [--minutes 30]     wait until the sketches are shown; print them
  *  node evals/baseline/direct.mjs shots <run dir>                    a PNG of each option, to look at before picking
  *  node evals/baseline/direct.mjs pick  <run dir> <screen> --reason "…" [--note "…"]
+ *  node evals/baseline/direct.mjs note  <run dir> "…" [--minutes 40]  a second round: one note on the built page
  *
  *  `pick` goes through the canvas's own feedback path: the POST the Send button makes. The reason and at most one note
  *  travel as the general comment, and the pick is recorded in <run dir>/director.json. A run dir is the folder that
- *  holds work/ and meta.json. */
+ *  holds work/ and meta.json. `note` resumes the finished run's own session (Claude only) with the note as the
+ *  person's next message, in the same isolated home run.mjs made, and adds its time and cost to meta.json as `round2`. */
 import {existsSync, readFileSync, writeFileSync, readdirSync} from 'node:fs';
 import {resolve, join, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
+import {childEnv, command} from './run.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url)), root = resolve(here, '..', '..');
 const [cmd, runArg, ...rest] = process.argv.slice(2), flag = (n, f) => { const i = rest.indexOf(`--${n}`); return i >= 0 ? rest[i + 1] : f; };
@@ -50,4 +53,22 @@ if (cmd === 'watch') {
   log.push({at: new Date().toISOString(), options: opts.map(f => f.id), pick: frame, reason, note});
   writeFileSync(file, JSON.stringify(log, null, 2));
   console.log(`Sent: ${frame}. ${general}`);
+} else if (cmd === 'note') {
+  const meta = json(join(run, 'meta.json')), note = rest[0];
+  if (!meta?.finished || !meta.sessionId || !note) { console.error('note needs a finished Claude run (meta.sessionId) and the note text.'); process.exit(2); }
+  const home = join(run, 'home'), paths = {home, codexHome: join(home, '.codex'), mcpFile: join(home, 'mcp.json')};
+  const ask = `I looked at the built page. One note, then finish: ${note} Apply it, rebuild if the stack has a build step so the page on disk is current, run check.mjs once, and report.`;
+  // The same command line and environment as the first round, with the session resumed and the note as the prompt.
+  const [bin, argv] = command(meta.model, meta.cond, work, paths.mcpFile);
+  argv[1] = ask; argv.push('--resume', meta.sessionId);
+  const started = Date.now();
+  const r = spawnSync(bin, argv, {cwd: work, env: childEnv(paths, meta.cond, null, join(run, '..', '..', '..')), encoding: 'utf8', timeout: Number(flag('minutes', 40)) * 60000, maxBuffer: 1 << 28});
+  writeFileSync(join(run, 'transcript-round2.jsonl'), r.stdout || '');
+  let result = {}; for (const line of (r.stdout || '').split('\n')) { try { const e = JSON.parse(line); if (e.type === 'result') result = e; } catch {} }
+  meta.round2 = {note, seconds: Math.round((Date.now() - started) / 1000), costUsd: result.total_cost_usd ?? null, turns: result.num_turns ?? null, exitCode: r.status, resultText: String(result.result || '').slice(0, 4000)};
+  writeFileSync(join(run, 'meta.json'), JSON.stringify(meta, null, 2));
+  const file = join(run, 'director.json'), log = json(file) || [];
+  log.push({at: new Date().toISOString(), round: 2, note});
+  writeFileSync(file, JSON.stringify(log, null, 2));
+  console.log(`Round 2 done in ${meta.round2.seconds}s, $${meta.round2.costUsd}.\n${meta.round2.resultText}`);
 } else { console.error(`Unknown command ${cmd}`); process.exit(2); }
