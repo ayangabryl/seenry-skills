@@ -62,7 +62,7 @@ async function fakeSeenry({feedback = []} = {}) {
     }
     if (url.pathname === '/api/canvas/sync/feedback') return send(200, {canvasId: 'c1', events: state.feedback.filter(e => !state.acked.includes(e.id))});
     if (url.pathname === '/api/canvas/sync/feedback/ack') { state.acked.push(...JSON.parse(body).ids); return send(200, {acked: 1}); }
-    if (url.pathname === '/api/canvas/sync/status') return send(200, {machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}, canvases: []});
+    if (url.pathname === '/api/canvas/sync/status') return send(200, {machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}, canvases: [...new Set(state.pushes.map(p => p.localKey))].map(localKey => ({id: 'c1', title: 'Kept', localKey, screens: 3, pending: 0, pushedAt: Date.now(), url: 'http://seenry.test/canvases/c1'}))});
     if (url.pathname === '/api/canvas/sync/unlink') { state.unlinked = true; return send(200, {unlinked: true}); }
     send(404, {detail: 'nope'});
   });
@@ -164,4 +164,41 @@ test('offline: push and pull fail cleanly and never touch the canvas; unlink for
   assert.equal(unlinked.status, 0);
   assert.ok(!existsSync(join(p.config, 'canvas-sync.json')));
   assert.equal((await run(sync, ['push'], {cwd: p.root, env})).status, 2, 'push asks to link first');
+});
+
+test('open starts the watch on a linked machine, Share returns the Seenry link, and stop ends both', async () => {
+  const seenry = await fakeSeenry(), p = project();
+  const port = String(5800 + Math.floor(Math.random() * 90)), clean = {CI: '', T3CODE_THREAD_ID: 'x', CODEX_THREAD_ID: '', CLAUDE_CODE_REMOTE: '', CONDUCTOR_IS_LOCAL: ''};
+  try {
+    const unlinked = {SEENRY_CONFIG_DIR: mkdtempSync(join(tmpdir(), 'seenry-sync-none-')), ...clean};
+    let opened = await run(canvas, ['open', p.dir, '--port', port], {cwd: p.root, env: unlinked});
+    assert.equal(opened.status, 0, opened.err);
+    assert.doesNotMatch(opened.out, /sync\.mjs watch/);
+    const at = Number(opened.out.match(/127\.0\.0\.1:(\d+)/)[1]);
+    const share = async () => (await fetch(`http://127.0.0.1:${at}/share`, {method: 'POST'})).json();
+    const state = async () => (await (await fetch(`http://127.0.0.1:${at}/state`)).json()).sync;
+    assert.deepEqual(await share(), {linked: false, available: true});
+    assert.equal((await state()).linked, false);
+    await run(canvas, ['stop', p.dir], {cwd: p.root, env: unlinked});
+
+    const env = {...await linked(seenry, p), ...clean};
+    opened = await run(canvas, ['open', p.dir, '--port', port], {cwd: p.root, env});
+    assert.equal(opened.status, 0, opened.err);
+    assert.match(opened.out, /started sync\.mjs watch/);
+    const record = JSON.parse(readFileSync(join(p.dir, '.sync.json'), 'utf8'));
+    process.kill(record.pid, 0);
+    for (let i = 0; i < 60 && !seenry.state.pushes.length; i++) await new Promise(r => setTimeout(r, 100));
+    assert.ok(seenry.state.pushes.length, 'the watch pushed without an extra step');
+    const now = await state();
+    assert.deepEqual([now.linked, now.watching, 'token' in now], [true, true, false], 'the page learns the link, never the token');
+    assert.deepEqual(await share(), {linked: true, url: 'http://seenry.test/canvases/c1'});
+    const again = await run(canvas, ['open', p.dir, '--port', port], {cwd: p.root, env});
+    assert.match(again.out, /Syncing to Seenry/);
+    const stopped = await run(canvas, ['stop', p.dir], {cwd: p.root, env});
+    assert.match(stopped.out, /Stopped syncing to Seenry/);
+    const alive = () => { try { process.kill(record.pid, 0); return true; } catch { return false; } };
+    for (let i = 0; i < 40 && alive(); i++) await new Promise(r => setTimeout(r, 50));
+    assert.equal(alive(), false, 'the watch stopped with the canvas');
+    assert.ok(!existsSync(join(p.dir, '.sync.json')));
+  } finally { await run(canvas, ['stop', p.dir], {cwd: p.root}); await seenry.close(); }
 });

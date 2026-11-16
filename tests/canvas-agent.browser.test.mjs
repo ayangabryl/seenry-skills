@@ -10,6 +10,7 @@ import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 
 const script = resolve('skills/seenry-canvas/scripts/canvas.mjs');
+process.env.SEENRY_CONFIG_DIR = mkdtempSync(join(tmpdir(), 'seenry-no-link-'));
 let playwright = process.env.SEENRY_PLAYWRIGHT;
 if (!playwright) { try { playwright = createRequire(join(process.cwd(), 'x.js')).resolve('playwright'); } catch {} }
 const skip = playwright ? false : 'Playwright is not installed';
@@ -244,5 +245,40 @@ test('the canvas UI picks an option, turns a click on an element into a chip, an
   assert.equal(await page.locator('#side').isVisible(), false, 'no list of its own in a side pane');
   assert.deepEqual(await page.locator('#tabs [role="tab"]').allInnerTexts(), ['Tide', 'Dusk']);
   assert.equal(await page.locator('#stage iframe').count(), 1, 'one screen at a time');
+  assert.deepEqual(errors, []);
+});
+
+test('the canvas tucks approved sections away, pins sent comments, captions short and explains Share', {skip}, async t => {
+  const {dir} = project();
+  mkdirSync(join(dir, '02-home.options'));
+  const option = (name, axis) => `<!doctype html><meta charset="utf-8"><title>Home · ${name}</title><meta name="seenry-axis" content="${axis}"><style>body{margin:0}h1{margin:200px 0 0 300px}</style><h1>${name} headline</h1>`;
+  writeFileSync(join(dir, '02-home.options', 'a-tide.html'), option('Tide', 'One cobalt field: a painted sea sets the floor'));
+  writeFileSync(join(dir, '02-home.options', 'b-dusk.html'), option('Dusk', 'Black page, one band of dusk light'));
+  const later = Date.now() + 60000;
+  writeFileSync(join(dir, 'review.json'), JSON.stringify({frames: {'01-flow/01-good': {status: 'approved', at: later}, '01-flow/02-bad': {status: 'approved', at: later}}}));
+  writeFileSync(join(dir, 'feedback.json'), JSON.stringify({stage: '', picks: {}, frames: [], riff: [], general: '', at: new Date(later).toISOString(),
+    notes: [{frame: '02-home/b-dusk', target: '“Dusk headline”', selector: 'h1', text: 'Warmer'}]}));
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5700 + Math.floor(Math.random() * 90))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(r => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) r(); }));
+  const url = `http://127.0.0.1:${JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port}/`;
+  const {chromium} = createRequire(import.meta.url)(playwright);
+  let browser; try { browser = await chromium.launch(); } catch { browser = await chromium.launch({channel: 'chrome'}); }
+  t.after(() => browser.close());
+  const errors = [], page = await browser.newPage({viewport: {width: 1440, height: 900}});
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(url);
+  await page.waitForSelector('.frame[data-id="02-home/b-dusk"] .pin');
+  assert.equal(await page.locator('.frame[data-id="01-flow/01-good"]').isVisible(), false, 'an approved section takes no room under the decision');
+  assert.equal(await page.locator('.frame[data-id="02-home/a-tide"] .cap').innerText(), 'One cobalt field');
+  const pin = await page.locator('.frame[data-id="02-home/b-dusk"] .pin').evaluate(n => [n.textContent, parseFloat(n.style.left), parseFloat(n.style.top)]);
+  assert.equal(pin[0], '1');
+  assert.ok(pin[1] > 300 && pin[1] < 900 && pin[2] >= 180 && pin[2] < 260, `pinned at the headline: ${pin}`);
+  assert.equal(await page.locator('#sync-text').innerText(), 'Synced with the folder');
+  await page.locator('#list button[data-section="01-flow"]').click();
+  await page.waitForFunction(() => !document.querySelector('.frame[data-id="01-flow/01-good"]').hidden);
+  await page.locator('#share').click();
+  await page.waitForSelector('#share-pop:not([hidden])');
+  assert.match(await page.locator('#share-pop').innerText(), /only works on this computer[\s\S]*sync\.mjs link/);
   assert.deepEqual(errors, []);
 });

@@ -107,7 +107,7 @@ function frameFrom(folder, file) {
   const clean = device === 'desktop' && !stem.toLowerCase().endsWith('.desktop') ? stem : stem.slice(0, stem.lastIndexOf('.'));
   const {title, meta} = head(join(dir, rel));
   return {id: idFor(folder, file), path: rel, name: title || pretty(clean), device, rev: mtime(join(dir, rel)),
-    meta: {note: meta.note || '', axis: meta.axis || '', wins: meta.wins || '', cost: meta.cost || '', risk: /^(safe|bold)$/i.test(meta.risk || '') ? meta.risk.toLowerCase() : '', ask: (meta.ask || '').split('|').map(s => s.trim()).filter(Boolean).slice(0, 4), sketch: /^sketch$/i.test(meta.fidelity || '')}};
+    meta: {note: meta.note || '', caption: meta.caption || '', axis: meta.axis || '', wins: meta.wins || '', cost: meta.cost || '', risk: /^(safe|bold)$/i.test(meta.risk || '') ? meta.risk.toLowerCase() : '', ask: (meta.ask || '').split('|').map(s => s.trim()).filter(Boolean).slice(0, 4), sketch: /^sketch$/i.test(meta.fidelity || '')}};
 }
 
 function readCanvas() {
@@ -308,6 +308,10 @@ async function watch(config) {
   const signature = () => { try { const {files} = collectFiles(); return JSON.stringify([agentWaiting(), mtime(join(dir, 'canvas.json')), ...files.map(f => [f.path, f.size, mtime(join(dir, f.path))]), existsSync(join(dir, '.renders')) ? readdirSync(join(dir, '.renders')).length : 0]); } catch { return ''; } };
   let pushed = '', seen = signature(), changedAt = 0, nextPull = 0, backoff = 0, offline = false;
   const debounce = Number(flag('debounce', 1500)), every = Number(flag('pull-every', 10000));
+  // canvas.mjs reads this record to say "Synced to Seenry" and to stop the watch with the canvas.
+  const record = join(dir, '.sync.json'), mark = url => { try { writeFileSync(record, JSON.stringify({pid: process.pid, server: config.server, url: url || ''})); } catch {} };
+  const clear = () => { try { if (JSON.parse(readFileSync(record, 'utf8')).pid === process.pid) rmSync(record, {force: true}); } catch {} };
+  mark(); process.on('exit', clear); process.on('SIGINT', () => process.exit(130)); process.on('SIGTERM', () => process.exit(143));
   console.log(`Watching ${dir}. Changes push to ${config.server}; online feedback is pulled into the canvas. Ctrl-C to stop.`);
   for (;;) {
     const now = Date.now();
@@ -315,7 +319,7 @@ async function watch(config) {
     try {
       const current = signature();
       if (current !== seen) { seen = current; changedAt = now; }
-      if (current !== pushed && now - changedAt >= debounce) { await push(config, {quiet: true}); pushed = current; console.log(`${new Date().toLocaleTimeString()} pushed`); }
+      if (current !== pushed && now - changedAt >= debounce) { const result = await push(config, {quiet: true}); pushed = current; if (result?.url) mark(result.url); console.log(`${new Date().toLocaleTimeString()} pushed`); }
       if (now >= nextPull) { nextPull = now + every; await pull(config, {quiet: true}); }
       if (offline) { offline = false; console.log('Back online.'); }
     } catch (error) {

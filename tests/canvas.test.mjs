@@ -8,6 +8,8 @@ import {spawn, spawnSync} from 'node:child_process';
 import {request} from 'node:http';
 
 const script = resolve('skills/seenry-canvas/scripts/canvas.mjs');
+// A machine linked to Seenry must not start a real sync from these tests.
+process.env.SEENRY_CONFIG_DIR = mkdtempSync(join(tmpdir(), 'seenry-no-link-'));
 const run = (...args) => spawnSync(process.execPath, [script, ...args], {encoding: 'utf8'});
 const page = (title, note = '') => `<!doctype html><meta charset="utf-8"><title>${title}</title><meta name="seenry-note" content="${note}"><link rel="stylesheet" href="../wire.css"><p>${title}</p>`;
 
@@ -220,6 +222,20 @@ test('options carry their labels, and round resolves picks but keeps riffed sect
   assert.match(out.stdout, /01-onboarding: Ready for dev \(2 of 2 approved\)/);
   assert.match(out.stdout, /02-home: Ready for review \(options still open\)/);
   assert.ok(existsSync(join(dir, '02-home.options')), 'a riffed section is not resolved');
+});
+
+test('a frame caption is the short seenry-caption, else the first clause of the axis, never the whole axis', () => {
+  const {dir} = project();
+  writeFileSync(join(dir, '02-home.options', 'a.phone.html'), page('Quiet') + '<meta name="seenry-axis" content="One cobalt field: a painted sea sets the floor, the forecast rises out of it">');
+  writeFileSync(join(dir, '02-home.options', 'b.html'), page('B') + '<meta name="seenry-caption" content="Black page, one band of dusk light"><meta name="seenry-axis" content="Black page and one band of dusk light: the dip is the only colour">');
+  mkdirSync(join(dir, '03-long.options'));
+  writeFileSync(join(dir, '03-long.options', 'a.html'), page('Long') + '<meta name="seenry-axis" content="Ink on cream like a printed ledger with an engraved ship that sails over the whole forecast">');
+  const frames = JSON.parse(run('list', dir, '--json').stdout).sections.flatMap(s => s.frames), cap = id => frames.find(f => f.id === id).caption;
+  assert.equal(cap('02-home/a'), 'One cobalt field');
+  assert.equal(cap('02-home/b'), 'Black page, one band of dusk light');
+  assert.ok(cap('03-long/a').length <= 49 && cap('03-long/a').endsWith('…'), cap('03-long/a'));
+  assert.equal(cap('01-onboarding/01-welcome'), 'One promise', 'without an axis, the note');
+  assert.match(readFileSync(resolve('skills/seenry-canvas/references/file.md'), 'utf8'), /seenry-caption/);
 });
 
 test('resolve archives every losing option, including one drawn for desktop and phone', () => {

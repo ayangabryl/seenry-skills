@@ -35,7 +35,9 @@
  *  --json on list, feedback, render, tree, verify, diff and compare prints machine-readable output.
  *  node canvas.mjs static [dir]            write canvas.html, which opens from disk with no server
  *  node canvas.mjs shot   [dir] [--playwright path]  write canvas.png, for sessions with no browser to show
- *  node canvas.mjs stop   [dir]
+ *  node canvas.mjs link   [dir]            link this machine to Seenry (sync.mjs link), then sync the canvas in the background
+ *  node canvas.mjs sync   [push|pull|status|unlink] [dir]   pass through to sync.mjs; with none, start the background watch
+ *  node canvas.mjs stop   [dir]            stop the canvas and its sync
  *
  *  dir defaults to .seenry/canvas. Layout on disk:
  *    01-onboarding/01-welcome.phone.html   a folder is a section, a file is a frame, numbers set the order
@@ -43,16 +45,19 @@
  *    refs/*.png                            reference screenshots, shown as their own section
  *    components.css                        the shared components every screen links; "@component" lines generate their sheet
  *  A file ending .phone.html, .tablet.html or .laptop.html renders at that device size; anything else is desktop.
- *  A frame's name is its <title>; <meta name="seenry-note" content="..."> is the line shown under it.
+ *  A frame's name is its <title>; <meta name="seenry-caption" content="..."> is the short line shown under it (else
+ *  the axis up to its first colon or comma); <meta name="seenry-note" content="..."> is read when it is selected.
  *  <meta name="seenry-fidelity" content="sketch"> marks a one-screen sketch: the first screen only, extended after the pick.
  *  A link from one screen to another (<a href="02-next.phone.html">) is a prototype connection: the canvas draws it
  *  and Present mode follows it, like a Figma prototype.
  *  Plain Node, no packages, bound to 127.0.0.1. */
 import {createServer} from 'node:http';
-import {existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, rmSync, openSync, readSync, closeSync, renameSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, rmSync, openSync, readSync, closeSync, renameSync, realpathSync} from 'node:fs';
 import {resolve, join, extname, basename, dirname, sep, relative} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {spawn} from 'node:child_process';
+import {spawn, spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {homedir} from 'node:os';
 import {createRequire} from 'node:module';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -62,7 +67,7 @@ const flag = (name, fallback) => { const i = argv.indexOf(`--${name}`); return i
 const SWITCHES = new Set(['--no-browser', '--browser', '--json', '--no-judge', '--quick']);
 // Arguments after the command that are not a --flag or a flag's value.
 const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !SWITCHES.has(all[i - 1])));
-const ARGS = {status: 2, resolve: 1, archive: 1, log: 1, round: 1, say: 1}[command] || 0;
+const ARGS = {status: 2, resolve: 1, archive: 1, log: 1, round: 1, say: 1, sync: 1}[command] || 0;
 // Commands that take screens as arguments find the canvas with --dir; the others also take it as the next argument.
 const FRAME_COMMANDS = new Set(['render', 'tree', 'verify', 'diff', 'compare', 'pair', 'plan']);
 const dir = resolve(flag('dir') || (FRAME_COMMANDS.has(command) ? '' : positional[ARGS]) || '.seenry/canvas');
@@ -419,6 +424,56 @@ function writeLaunch(port) {
   try { mkdirSync(dirname(path), {recursive: true}); writeFileSync(path, JSON.stringify(json, null, 2) + '\n'); return path; } catch { return ''; }
 }
 
+// ---------- Online sync: sync.mjs keeps the link token in the config folder and a watch record in the canvas ----------
+const syncScript = join(here, 'sync.mjs');
+const syncFile = () => join(dir, '.sync.json');
+function syncConfig() {
+  const folder = process.env.SEENRY_CONFIG_DIR || join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'seenry');
+  try { const c = JSON.parse(readFileSync(join(folder, 'canvas-sync.json'), 'utf8')); return c && c.token ? c : null; } catch { return null; }
+}
+function syncWatching() {
+  try { const info = JSON.parse(readFileSync(syncFile(), 'utf8')); process.kill(info.pid, 0); return info; } catch { return null; }
+}
+/** What the page may know: never the token. */
+function syncInfo() {
+  const config = syncConfig(), watching = config ? syncWatching() : null;
+  return {available: existsSync(syncScript), linked: !!config, watching: !!watching, server: config ? String(config.server || '') : '', account: config?.account?.email || '', url: watching?.url || ''};
+}
+/** Starts sync.mjs watch in the background when this machine is linked and nothing watches this canvas yet. */
+function startSync() {
+  if (!existsSync(syncScript) || !syncConfig()) return null;
+  const was = syncWatching(); if (was) return was;
+  mkdirSync(dir, {recursive: true});
+  const log = openSync(join(dir, '.sync.log'), 'a');
+  const child = spawn(process.execPath, [syncScript, 'watch', dir], {detached: true, stdio: ['ignore', log, log]});
+  child.unref();
+  writeFileSync(syncFile(), JSON.stringify({pid: child.pid, started: new Date().toISOString()}));
+  return {pid: child.pid, started: true};
+}
+function stopSync() {
+  const info = syncWatching(); if (info) { try { process.kill(info.pid); } catch {} }
+  rmSync(syncFile(), {force: true});
+  return !!info;
+}
+/** The canvas's address on Seenry, through the API sync.mjs uses; pushes once when the canvas is not online yet. */
+async function onlineUrl() {
+  const config = syncConfig(); if (!config) return null;
+  const key = createHash('sha256').update('seenry-canvas:' + realpathSync(dir)).digest('hex');
+  const find = async () => {
+    const response = await fetch(String(config.server).replace(/\/+$/, '') + '/api/canvas/sync/status', {headers: {authorization: `Bearer ${config.token}`}, signal: AbortSignal.timeout(8000)});
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.detail || `Seenry answered ${response.status}`);
+    return (data.canvases || []).find(c => c.localKey === key)?.url || '';
+  };
+  let url = await find();
+  if (!url && existsSync(syncScript)) {
+    const pushed = spawnSync(process.execPath, [syncScript, 'push', dir], {encoding: 'utf8', timeout: 60000});
+    if (pushed.status !== 0) throw new Error((pushed.stderr || pushed.stdout || 'The push failed').trim().split('\n').at(-1));
+    url = await find();
+  }
+  return url;
+}
+
 /** Shared components: components.css names each one in a comment, "@component Name | <markup> | <markup>". */
 function readComponents(root = dir) {
   let css = '';
@@ -556,6 +611,14 @@ function idFor(folder, file) {
   return (folder ? folder.replace(/\.options$/i, '') + '/' : '') + clean;
 }
 
+/** The line under a frame: seenry-caption, else the axis up to its first colon or comma, both cut to about 48 characters. */
+function captionOf(meta = {}, note = '') {
+  const fit = text => { text = String(text || '').replace(/\s+/g, ' ').trim(); if (text.length <= 48) return text; const cut = text.slice(0, 48); return cut.slice(0, cut.lastIndexOf(' ') > 24 ? cut.lastIndexOf(' ') : 47).replace(/[\s,;:.\u2014-]+$/, '') + '…'; };
+  if (meta.caption) return fit(meta.caption);
+  if (meta.axis) return fit(meta.axis.split(/\s*[:,;\u2014]\s*|\s+-\s+/)[0]);
+  return fit(note);
+}
+
 function frameFrom(folder, file, root = dir, prefix = '') {
   const rel = folder ? `${folder}/${file}` : file;
   const stem = file.replace(/\.html$/i, '');
@@ -563,7 +626,7 @@ function frameFrom(folder, file, root = dir, prefix = '') {
   const clean = device === 'desktop' && !stem.toLowerCase().endsWith('.desktop') ? stem : stem.slice(0, stem.lastIndexOf('.'));
   const {title, note, meta} = head(join(root, rel));
   const [w, h] = DEVICES[device];
-  return {id: prefix + idFor(folder, file), kind: 'page', src: prefix + rel, name: title || pretty(clean), note, device, w, h, rev: mtime(join(root, rel)), links: linksOf(folder, file, root), specs: specsIn(join(root, rel)).length,
+  return {id: prefix + idFor(folder, file), kind: 'page', src: prefix + rel, name: title || pretty(clean), note, caption: captionOf(meta, note), device, w, h, rev: mtime(join(root, rel)), links: linksOf(folder, file, root), specs: specsIn(join(root, rel)).length,
     axis: meta.axis || '', wins: meta.wins || '', cost: meta.cost || '', risk: /^(safe|bold)$/i.test(meta.risk || '') ? meta.risk.toLowerCase() : '', ask: (meta.ask || '').split('|').map(s => s.trim()).filter(Boolean).slice(0, 4), sketch: /^sketch$/i.test(meta.fidelity || '')};
 }
 
@@ -677,8 +740,9 @@ function readState({pending = false} = {}) {
     log: (Array.isArray(manifest.log) ? manifest.log : []).slice(-8).reverse(), statuses: STATUSES,
     error: manifest.error || (manifest.library && !library ? `The library "${manifest.library}" has no tokens.css.` : null), sections, flows, approvals, feedback, agentWaiting: waiting(),
     timing: {started: manifest.started || '', firstOption: manifest.firstOption || ''}, activity: pending ? readActivity(30) : [],
-    refs: (sections.find(s => s.reference)?.frames || []).map(f => ({id: f.id, src: f.src, name: f.name})), rounds: Array.isArray(manifest.log) ? manifest.log.length : 0};
-  state.rev = [mtime(manifestPath), mtime(join(dir, 'review.json')), mtime(activityFile()), state.agentWaiting, ...sections.flatMap(s => [s.id, ...s.frames.map(f => f.id + f.kind + f.rev)])].join('|');
+    refs: (sections.find(s => s.reference)?.frames || []).map(f => ({id: f.id, src: f.src, name: f.name})), rounds: Array.isArray(manifest.log) ? manifest.log.length : 0,
+    sync: syncInfo()};
+  state.rev = [mtime(manifestPath), mtime(join(dir, 'review.json')), mtime(feedbackPath), mtime(activityFile()), state.agentWaiting, state.sync.linked, state.sync.watching, ...sections.flatMap(s => [s.id, ...s.frames.map(f => f.id + f.kind + f.rev)])].join('|');
   return state;
 }
 
@@ -752,6 +816,7 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 .held button { display: block; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 7px; margin-left: -6px; background: var(--surface) center / cover; box-shadow: 0 0 0 2px var(--canvas); }
 .held button:first-child { margin-left: 0; }
 .frame { position: absolute; }
+.set[hidden], .frame[hidden] { display: none; }
 .lab { left: 0; top: 0; width: calc(var(--w) * var(--z) * 1px); padding-bottom: 8px; display: flex; align-items: baseline; gap: 8px; transform: scale(var(--inv)) translateY(-100%); font-size: 13px; color: var(--faint); cursor: pointer; font-variant-numeric: tabular-nums; }
 .lab b { flex: none; font-weight: 500; color: var(--ink); }
 .lab > span:not(.st) { overflow: hidden; text-overflow: ellipsis; }
@@ -773,6 +838,8 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 .frame[data-live="true"] .shield, #viewport:is([data-tool="comment"], [data-tool="inspect"]) .frame[data-kind="page"] .shield { display: none; }
 .marks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
 .hl { position: absolute; border-radius: 2px; box-shadow: 0 0 0 calc(1.5px * var(--inv)) var(--blue); }
+.pin { position: absolute; width: 26px; height: 26px; border-radius: 50%; transform: scale(var(--inv)) translate(6px, -25%); transform-origin: 0 0; background: #171717; color: #fff; box-shadow: 0 0 0 2px #fff, 0 2px 8px rgb(0 0 0 / .3); font: 600 12px/26px var(--font); text-align: center; font-variant-numeric: tabular-nums; }
+.pin.l { transform: scale(var(--inv)) translate(calc(-100% - 6px), -25%); }
 .tag { position: absolute; left: calc(-1.5px * var(--inv)); top: 0; height: 20px; padding: 0 6px; border-radius: 4px 4px 4px 0; transform: scale(var(--inv)) translateY(-100%); transform-origin: 0 0; background: var(--blue); color: #fff; font: 500 11px/20px var(--font); white-space: nowrap; }
 .blank { position: absolute; inset: 0; background: #fff; }
 .todo { position: absolute; left: 0; right: 0; bottom: 0; height: calc(12% + var(--n) * 12%); pointer-events: none; background: linear-gradient(rgb(255 255 255 / 0), #fff 18%); }
@@ -876,6 +943,12 @@ body[data-side="closed"] { --side: 0px; }
 .specs dt { color: var(--muted); } .specs dd { margin: 0; overflow-wrap: anywhere; color: var(--ink); }
 .specs code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; }
 .specs .tok { color: var(--blue); } .specs .raw { color: var(--amber); }
+#share-pop { position: fixed; z-index: 20; right: 12px; top: 64px; width: 320px; padding: 14px 16px 12px; border-radius: 12px; font-size: 13px; line-height: 1.45; color: var(--text); }
+#share-pop[hidden] { display: none; }
+#share-pop b { display: block; margin-bottom: 4px; font-size: 14px; font-weight: 600; color: var(--ink); }
+#share-pop p { margin: 0 0 10px; }
+#share-pop code { display: block; margin: 0 0 10px; padding: 7px 9px; border-radius: 8px; background: var(--surface); color: var(--ink); font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+#share-pop .row { display: flex; justify-content: flex-end; gap: 4px; }
 #menu, #history { position: fixed; z-index: 20; min-width: 236px; padding: 6px; border-radius: 12px; font-size: 13px; }
 #menu[hidden], #history[hidden] { display: none; }
 #menu button { width: 100%; height: 32px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); text-align: start; }
@@ -959,7 +1032,7 @@ body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 <button type="button" id="side-pill" class="float" hidden title="Show the screen list (L)"><span class="ib" data-i="panel"></span><span class="mark" id="pill-mark" style="width:24px;height:24px"></span><b id="pill-title"></b><span class="work" id="pill-work" hidden></span></button>
 <div id="top" class="float"><span class="who"><span class="avatar" id="me-2"></span><button type="button" id="mark" title="Follow Seenry as it works (A)" aria-pressed="true"></button></span>
   <button type="button" class="ib" id="play" data-i="play" title="Present: play the screens full size, following their links (P)" aria-label="Present"></button>
-  <button type="button" class="pill ink" id="share" data-i="share" title="Copy the canvas address">Share</button></div>
+  <button type="button" class="pill ink" id="share" data-i="share" aria-haspopup="dialog" aria-expanded="false" title="Share this canvas">Share</button></div>
 <div id="zoom" class="float" role="group" aria-label="Zoom"><button type="button" class="ib" id="zoom-out" aria-label="Zoom out" title="Zoom out (−)">−</button><button type="button" id="zoom-level" title="Zoom to 100%">100%</button><button type="button" class="ib" id="zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button><span class="sep"></span><button type="button" class="pill ghost" id="zoom-fit" title="Fit everything (1). The decision: 2">Fit</button></div>
 <main id="pane" aria-label="Canvas"><div id="tabs" role="tablist" aria-label="Screens"></div><div id="stage"></div><div id="pane-act"></div></main>
 <div id="composer" class="float">
@@ -978,6 +1051,7 @@ body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 <section id="inspector" class="float" aria-label="Inspect" hidden></section>
 <div id="menu" class="float" role="menu" hidden></div>
 <section id="history" class="float" aria-label="History" hidden></section>
+<section id="share-pop" class="float" role="dialog" aria-label="Share" hidden></section>
 <div id="review" hidden>
   <div class="stage" id="r-stage"><iframe id="r-frame" title="Screen under review"></iframe><div id="r-pill" hidden></div></div>
   <aside id="r-panel"></aside>
@@ -1047,6 +1121,10 @@ function height(f) {
   return Math.min(heights[f.id] || h, clip(f));
 }
 // Decisions first, then the screens, the references, the system pages and the archive: the canvas opens on what needs the person.
+// A section whose every screen is approved leaves the canvas while something else waits; the screen list keeps it reachable.
+let shownSection = null;
+const settled = s => isDesign(s) && !s.choose && pagesOf(s).length > 0 && s.frames.every(f => f.kind === 'page' && state.approvals[f.id] === 'approved');
+const tucked = s => s.id !== shownSection && settled(s) && state.sections.some(x => isDesign(x) && x.frames.length && !settled(x));
 const rank = s => s.archived ? 4 : s.choose && !s.study ? 0 : !s.system && !s.reference ? 1 : s.reference ? 2 : 3;
 const placed = () => state.sections.map((s, i) => [s, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(x => x[0]);
 
@@ -1081,6 +1159,7 @@ function layout() {
   const z = view.z, head = Math.max(96, 70 / z), gap = Math.max(GAP, 28 / z), tail = Math.max(80, 120 / z), between = Math.max(200, 56 / z);
   let y = 0; const boxes = {};
   for (const s of placed()) {
+    if (tucked(s)) { s.box = null; continue; }
     let x = 0, row = 0;
     for (const raw of s.frames) { const f = {...raw, section: s}, w = size(f)[0], h = height(f); boxes[f.id] = {x, y: y + head, w, h}; x += w + gap; row = Math.max(row, h); }
     s.box = {x: 0, y, w: Math.max(x - gap, 600), h: head + row + tail, top: y + head};
@@ -1120,11 +1199,13 @@ function fitSections(pick, top) {
 function fitAll() { fitSections(() => state.sections); }
 // Opens on the options waiting for a pick; with none open, on the first screens.
 function fitDecision() {
+  shownSection = null;
   const open = state.sections.filter(isOpen), design = placed().filter(isDesign);
   if (!fitSections(() => open.length ? [open[0]] : design.slice(0, 1), true)) fitAll();
 }
 function fitSection(id) { const s = state.sections.find(x => x.id === id); if (s) fitSections(() => [s], true); }
 function focusFrame(id) {
+  const f = find(id); if (f && tucked(f.section)) shownSection = f.section.id;
   for (let pass = 0; pass < 2; pass++) { const box = layout()[id]; if (box) fitBox({x: box.x, y: box.y - 60 / view.z, w: box.w, h: box.h + 140 / view.z}); }
   if (state) place();
 }
@@ -1309,11 +1390,11 @@ function build() {
       } else {
         const iframe = el('iframe', {src: f.src + '?v=' + f.rev, title: f.name});
         if (!isDesign(s)) iframe.loading = 'lazy';
-        iframe.addEventListener('load', () => { arm(iframe, f); frameLoaded(iframe, f); });
+        iframe.addEventListener('load', () => { arm(iframe, f); frameLoaded(iframe, f); placeMarks(f); });
         body.append(iframe);
       }
       body.append(el('div', {className: 'marks'}));
-      const lab = el('div', {className: 'ui lab'}), cap = el('div', {className: 'ui cap', textContent: f.kind === 'pending' ? '' : (f.axis || f.note || '')});
+      const lab = el('div', {className: 'ui lab'}), cap = el('div', {className: 'ui cap', textContent: f.kind === 'pending' ? '' : (f.caption || ''), title: f.kind === 'pending' ? '' : (f.axis || f.note || '')});
       const node = el('div', {className: 'frame'}, lab, body, el('div', {className: 'shield'}), cap);
       node.dataset.id = f.id; node.dataset.device = f.device; node.dataset.kind = f.kind;
       lab.addEventListener('click', e => { e.stopPropagation(); select(f.id); });
@@ -1347,14 +1428,37 @@ function placeMarks(f) {
   const node = nodes[f.id]; if (!node) return;
   const layer = node.querySelector('.marks'); if (!layer) return;
   let sy = 0; try { sy = node.querySelector('iframe').contentWindow.scrollY || 0; } catch (e) {}
-  layer.replaceChildren(...chips.filter(c => c.frame === f.id && c.box).map(c => el('div', {className: 'hl', style: 'left:' + c.box.x + 'px;top:' + (c.box.y - sy) + 'px;width:' + c.box.w + 'px;height:' + c.box.h + 'px'}, el('span', {className: 'tag', textContent: c.tag}))));
+  const marks = chips.filter(c => c.frame === f.id && c.box).map(c => el('div', {className: 'hl', style: 'left:' + c.box.x + 'px;top:' + (c.box.y - sy) + 'px;width:' + c.box.w + 'px;height:' + c.box.h + 'px'}, el('span', {className: 'tag', textContent: c.tag})));
+  layer.replaceChildren(...marks, ...pinsFor(f, node, sy));
+}
+// Comments already sent on this version of a screen, numbered as the agent reads them, pinned to their element.
+function pinsFor(f, node, sy) {
+  const fb = state && state.feedback, sent = fb && Array.isArray(fb.notes) ? fb.notes : [];
+  if (!sent.length || !(Date.parse(fb.at) >= (f.rev || 0))) return [];
+  let doc = null; try { doc = node.querySelector('iframe').contentDocument; } catch (e) {}
+  const [w] = size(f), out = [];
+  sent.forEach((n, i) => {
+    if (n.frame !== f.id || /^Q: /.test(n.target || '')) return;
+    let x = 16, y = 16, left = false;
+    if (n.selector) {
+      let target = null; try { target = doc && doc.querySelector(n.selector); } catch (e) {}
+      if (!target) return;
+      // On the ink, not the box: a centred headline's box spans the page, its text does not.
+      const range = doc.createRange(); range.selectNodeContents(target);
+      const text = range.getBoundingClientRect(), r = text.width && text.height ? text : target.getBoundingClientRect(), win = doc.defaultView;
+      left = r.right + win.scrollX > w * 0.85; x = left ? Math.max(0, r.left + win.scrollX) : r.right + win.scrollX; y = Math.max(16, r.top + win.scrollY);
+    }
+    out.push(el('div', {className: 'pin' + (left ? ' l' : ''), textContent: String(i + 1), title: n.text, style: 'left:' + x + 'px;top:' + (y - sy) + 'px'}));
+  });
+  return out;
 }
 function place() {
   if (!state || narrow) return;
   const boxes = layout(), z = view.z;
-  for (const s of state.sections) if (s.head && s.box) Object.assign(s.head.style, {left: s.box.x + 'px', top: (s.box.top - 40 / z) + 'px'});
+  for (const s of state.sections) if (s.head) { s.head.hidden = !s.box; if (s.box) Object.assign(s.head.style, {left: s.box.x + 'px', top: (s.box.top - 40 / z) + 'px'}); }
   for (const f of frames()) {
-    const node = nodes[f.id], box = boxes[f.id]; if (!node || !box) continue;
+    const node = nodes[f.id], box = boxes[f.id]; if (!node) continue;
+    node.hidden = !box; if (!box) continue;
     Object.assign(node.style, {left: box.x + 'px', top: box.y + 'px', width: box.w + 'px', height: box.h + 'px'}); node.style.setProperty('--w', box.w);
     node.dataset.selected = selected === f.id; node.dataset.live = selected === f.id && tool === 'move' && f.kind === 'page' && live();
     node.dataset.building = building(f); node.dataset.status = status[f.id] || ''; node.dataset.archived = !!f.section.archived;
@@ -1548,7 +1652,10 @@ function renderSide() {
   $('error').hidden = !state.error; $('error').textContent = state.error || '';
   $('rounds').textContent = state.rounds ? state.rounds + (state.rounds === 1 ? ' round' : ' rounds') : '';
   $('sync').dataset.off = !online;
-  $('sync-text').textContent = !live() ? 'Saved copy, opened from disk' : online ? 'Synced with the folder' : 'Reconnecting…';
+  const seenry = !!(state.sync && state.sync.linked && state.sync.watching);
+  $('sync-text').textContent = !live() ? 'Saved copy, opened from disk' : !online ? 'Reconnecting…' : seenry ? 'Synced to Seenry' : 'Synced with the folder';
+  $('sync').title = seenry ? 'Every change is pushed to ' + (state.sync.account || 'your Seenry account') + '; feedback sent online comes back here' : 'Screens update the moment their files change';
+  $('share').title = seenry ? 'Copy the Seenry link to this canvas' : 'Share this canvas';
   const q = filterText.toLowerCase(), hit = (...t) => !q || t.join(' ').toLowerCase().includes(q);
   const current = sel(), cur = s => current && current.section.id === s.id;
   const design = placed().filter(isDesign), needs = [], done = [], other = [];
@@ -1577,7 +1684,7 @@ function renderSide() {
   $('pill-work').hidden = !w && !state.agentWaiting;
   $('pill-work').replaceChildren(...(w ? [icon('spin', 'spin'), document.createTextNode('Seenry is building ' + short(w))] : state.agentWaiting ? [el('span', {className: 'dot', style: 'background:var(--amber)'}), document.createTextNode('Seenry is waiting for you')] : []));
 }
-function go(s) { if (narrow) { const f = s.frames[0]; if (f) { paneId = f.id; render(); } return; } selected = null; inspected = null; fitSection(s.id); render(); }
+function go(s) { if (narrow) { const f = s.frames[0]; if (f) { paneId = f.id; render(); } return; } shownSection = s.id; selected = null; inspected = null; fitSection(s.id); render(); }
 function toggleSide() { sideOpen = !sideOpen; store.set('seenry-canvas-side', sideOpen ? 'open' : 'closed'); render(); }
 $('side-close').onclick = toggleSide; $('side-pill').onclick = toggleSide;
 $('project').onclick = () => { selected = 'cover'; focusFrame('cover'); render(); };
@@ -1645,7 +1752,7 @@ function renderHint() {
 }
 
 // ---------- Menus: More, the right-click menu and the device switcher ----------
-function closeMenus() { $('menu').hidden = true; $('history').hidden = true; for (const id of ['more', 'device', 'history-open']) $(id).setAttribute('aria-expanded', 'false'); }
+function closeMenus() { $('menu').hidden = true; $('history').hidden = true; $('share-pop').hidden = true; for (const id of ['more', 'device', 'history-open', 'share']) $(id).setAttribute('aria-expanded', 'false'); }
 function openMenu(items, x, y, from) {
   closeMenus();
   const menu = $('menu');
@@ -1680,7 +1787,7 @@ $('device').addEventListener('click', e => {
   const r = $('device').getBoundingClientRect();
   openMenu([{label: 'As drawn', on: !device, run: () => setDevice(null)}, ...Object.keys(DEVICES).map(d => ({label: DEVICE_NAMES[d] + ' · ' + DEVICES[d][0], on: device === d, run: () => setDevice(d)}))], r.left, r.top, $('device'));
 });
-addEventListener('pointerdown', e => { if (!e.target.closest('#menu, #history, #more, #device, #history-open')) closeMenus(); }, true);
+addEventListener('pointerdown', e => { if (!e.target.closest('#menu, #history, #more, #device, #history-open, #share-pop, #share')) closeMenus(); }, true);
 function setDevice(d) { device = d; for (const k in heights) delete heights[k]; build(); if (narrow) { paneKey = ''; buildPane(); } else fitDecision(); render(); }
 function toggleFollow() { following = !following; if (following) show(agentNow().frame || (working()[0] || {}).id, true); render(); }
 function toggleLinks() { showLinks = !showLinks; place(); }
@@ -1689,9 +1796,27 @@ function toggleSpecs() { showSpecs = !showSpecs; eachDoc(applyView); render(); }
 function toggleDark() { dark = !dark; eachDoc(applyView); flash(dark ? 'Screens in dark mode' : 'Screens in light mode'); }
 function toggleFull() { fullHeight = !fullHeight; place(); }
 $('mark').addEventListener('click', toggleFollow);
-$('share').addEventListener('click', async () => {
+async function copy(text) { try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; } }
+function sharePop(title, text, code, actions) {
+  const box = $('share-pop');
+  box.replaceChildren(el('b', {textContent: title}), el('p', {textContent: text}), code ? el('code', {textContent: code}) : '', el('div', {className: 'row'}, ...actions, btn('Done', 'ghost', () => { box.hidden = true; $('share').focus(); })));
+  box.hidden = false; $('share').setAttribute('aria-expanded', 'true');
+}
+$('share').addEventListener('click', async e => {
+  e.stopPropagation();
   if (!live()) return flash('This is a saved copy: send canvas.html with its folder');
-  try { await navigator.clipboard.writeText(location.href); flash('Address copied. It opens on this computer'); } catch (e) { flash(location.href); }
+  if (!$('share-pop').hidden) { closeMenus(); return; }
+  closeMenus(); $('share').disabled = true;
+  let r = null; try { r = await (await fetch('share', {method: 'POST'})).json(); } catch (err) {}
+  $('share').disabled = false;
+  if (r && r.linked && r.url) {
+    const done = await copy(r.url);
+    sharePop(done ? 'Seenry link copied' : 'Seenry link', 'It opens this canvas in your Seenry account, kept in sync with this folder. Invite people from there to view and comment.', r.url, [btn('Open', 'soft', () => window.open(r.url, '_blank', 'noopener'))]);
+  } else if (r && r.linked) {
+    sharePop('Seenry did not answer', (r.error || 'The canvas could not reach Seenry') + '. The local address still works on this computer; try again in a moment.', '', []);
+  } else {
+    sharePop('This link only works on this computer', 'Nobody else can open 127.0.0.1. Link this machine to your Seenry account, then press Share again. Ask your agent, or run this in the seenry-canvas skill:', 'node scripts/sync.mjs link', [btn('Copy local address', 'soft', async () => { flash(await copy(location.href) ? 'Address copied. It opens on this computer' : location.href); })]);
+  }
 });
 
 // ---------- Live: who is doing what ----------
@@ -1885,7 +2010,7 @@ function buildPane() {
     else body.append(blankFor(f));
     $('stage').replaceChildren(body);
   }
-  $('pane-act').replaceChildren(...actionsFor(f, true), el('span', {className: 'why', textContent: f.axis || f.note || ''}));
+  $('pane-act').replaceChildren(...actionsFor(f, true), el('span', {className: 'why', textContent: f.caption || '', title: f.axis || f.note || ''}));
   scalePane();
 }
 function scalePane() {
@@ -2063,6 +2188,13 @@ function serve(port, attempts = 20) {
           send(200, '{"ok":true}', TYPES['.json']);
         } catch { send(400, 'Bad request'); }
       });
+      return;
+    }
+    if (req.method === 'POST' && path === '/share') {
+      const origin = req.headers.origin;
+      if (origin && origin !== `http://${host}`) return send(403, 'Forbidden');
+      if (!syncConfig()) return send(200, JSON.stringify({linked: false, available: existsSync(syncScript)}), TYPES['.json']);
+      onlineUrl().then(url => send(200, JSON.stringify({linked: true, url}), TYPES['.json']), error => send(502, JSON.stringify({linked: true, error: error.message}), TYPES['.json']));
       return;
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return send(405, 'Method not allowed');
@@ -2872,12 +3004,14 @@ if (command === 'init') {
     if (where.id === 'claude') { const file = writeLaunch(info.port); if (file) console.log(`Wrote the "Seenry canvas" entry in ${file} (port ${info.port}).`); }
     console.log(`Running inside ${where.name}. ${where.tell(url, info.port)} Do not open a separate tab; the canvas fits a side pane. Pass --browser for a tab anyway.`);
   } else if (!opened) console.log('No browser here. Give the person the address, or run "canvas.mjs shot" and show canvas.png.');
+  const synced = startSync();
+  if (synced) console.log(synced.started ? `This machine is linked to Seenry: started sync.mjs watch, so the canvas and its feedback stay in sync online (log: ${join(dir, '.sync.log')}).` : 'Syncing to Seenry (sync.mjs watch is running).');
   activity('open', 'Opened the canvas for you');
   const took = markShown(); if (took) console.log(`First option shown ${took} after the canvas was started.`);
   if (state.error) console.log(state.error);
 } else if (command === 'list') {
   const state = readState();
-  if (json) console.log(JSON.stringify({title: state.title, stage: state.stage, library: state.library, flows: state.flows, sections: state.sections.map(s => ({id: s.id, name: s.name, status: s.status, options: !!s.choose, system: !!s.system, frames: s.frames.map(f => ({id: f.id, name: f.name, file: f.src, device: f.device, size: [f.w, f.h], links: f.links, specs: f.specs || 0, review: state.approvals[f.id] || null}))}))}, null, 2));
+  if (json) console.log(JSON.stringify({title: state.title, stage: state.stage, library: state.library, flows: state.flows, sections: state.sections.map(s => ({id: s.id, name: s.name, status: s.status, options: !!s.choose, system: !!s.system, frames: s.frames.map(f => ({id: f.id, name: f.name, file: f.src, device: f.device, size: [f.w, f.h], caption: f.caption || '', links: f.links, specs: f.specs || 0, review: state.approvals[f.id] || null}))}))}, null, 2));
   else printList(state);
 } else if (command === 'render') {
   await render(positional);
@@ -2932,7 +3066,20 @@ if (command === 'init') {
   const info = running();
   if (info) { try { process.kill(info.pid); } catch {} }
   rmSync(pidFile, {force: true});
-  console.log(info ? 'Canvas stopped.' : 'No canvas was running.');
+  const synced = stopSync();
+  console.log((info ? 'Canvas stopped.' : 'No canvas was running.') + (synced ? ' Stopped syncing to Seenry.' : ''));
+} else if (command === 'link' || command === 'sync') {
+  // Passed through to sync.mjs; after a link, or with no subcommand, the watch starts in the background.
+  if (!existsSync(syncScript)) { console.error(`sync.mjs is not beside canvas.mjs (${here}). Install the seenry-canvas skill to sync online.`); process.exit(2); }
+  const sub = command === 'link' ? 'link' : positional[0] || 'watch', rest = argv.slice(1).filter(a => a !== sub && a !== '--dir' && a !== flag('dir'));
+  if (sub !== 'watch') {
+    const forDir = sub === 'unlink' ? [] : ['--dir', dir];
+    const run = spawnSync(process.execPath, [syncScript, sub, ...forDir, ...rest.filter(a => resolve(a) !== dir)], {stdio: 'inherit'});
+    if (run.status !== 0 || sub !== 'link') process.exit(run.status ?? 1);
+  }
+  if (sub === 'unlink') process.exit(0);
+  const synced = startSync();
+  console.log(synced ? `Syncing ${dir} to Seenry in the background (log: ${join(dir, '.sync.log')}). "canvas.mjs stop" stops it.` : 'This machine is not linked to Seenry. Run: node canvas.mjs link');
 } else if (command === 'feedback' || command === 'wait') {
   const path = join(dir, 'feedback.json'), deliveredFile = join(dir, '.delivered.json');
   const newest = () => { const s = readState(); return Math.max(mtime(join(dir, 'canvas.json')), ...s.sections.flatMap(x => x.frames.map(f => f.rev)), 0); };
@@ -2989,5 +3136,5 @@ if (command === 'init') {
   markShown();
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|plan|say|open|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|plan|say|open|link|sync|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
 }

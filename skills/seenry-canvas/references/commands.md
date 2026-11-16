@@ -21,7 +21,8 @@ Every command is `node <skill>/scripts/canvas.mjs <command>`. The canvas folder 
 | `say "…" [--frame <screen>]` | One line on the canvas's live feed, shown on that screen with an Agent tag. Use it for intent, about once per screen; the other commands post their own lines |
 | `open [--browser] [--port n]` | Starts the canvas in the background on `127.0.0.1` at a port fixed per project, opens the browser on the options waiting for a pick, prints the address. Inside an agent app it opens no tab and prints the exact call for that app's pane (table below); `--browser` opens a tab anyway. In a cloud session it starts no server and writes `canvas.html` to publish. The first time options are on it, prints the time since `init` or `plan` and keeps it in `canvas.json` and `HANDOFF.md` |
 | `list` | Prints sections, screens, sizes and links as the canvas sees them |
-| `stop` | Stops the canvas |
+| `link` / `sync [push\|pull\|status\|unlink]` | Passed through to `sync.mjs` (below). `link`, or `sync` alone, then starts `sync.mjs watch` in the background; `open` starts it too whenever this machine is linked, so syncing needs no extra step |
+| `stop` | Stops the canvas and its sync |
 
 | App (detected by) | `open` prints |
 | --- | --- |
@@ -86,7 +87,7 @@ Feedback lists picks, "More like this" requests, approved screens, screens that 
 
 ## Online, across machines
 
-`scripts/sync.mjs` mirrors the canvas to the person's Seenry account, where they see every linked machine's canvases on the Canvases page, pick and comment, and share a view-and-comment link. The local canvas never depends on it.
+`scripts/sync.mjs` mirrors the canvas to the person's Seenry account, where they see every linked machine's canvases on the Canvases page, pick and comment, and share a view-and-comment link. The local canvas never depends on it. Once linked, `canvas.mjs open` runs the watch itself, the panel says "Synced to Seenry", and Share copies the canvas's Seenry link; unlinked, Share explains that the address works only on this computer and how to link.
 
 | Command | Does |
 | --- | --- |
