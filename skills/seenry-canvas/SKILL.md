@@ -4,7 +4,7 @@ description: "Designs screens as live HTML on a local canvas before any product 
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 
 # Seenry Canvas
