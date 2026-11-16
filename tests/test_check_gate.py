@@ -112,10 +112,66 @@ class CheckGate(unittest.TestCase):
             if name in os.environ: env[name]=os.environ[name]
         return env
 
-    def run_gate(self, target='index.html'):
+    def run_gate(self, target='index.html', studio=True):
+        # The critic and motion judges run only with --studio (or in an unattended run); these tests are about them.
         env=self.isolated_env()
-        return subprocess.run([NODE,str(self.scripts/'check.mjs'),target,'--brief','brief.md'],cwd=self.project,
+        return subprocess.run([NODE,str(self.scripts/'check.mjs'),target,'--brief','brief.md',*(['--studio'] if studio else [])],cwd=self.project,
                               env=env,text=True,capture_output=True,timeout=30)
+
+    def count_model_calls(self):
+        for name in ('critic.mjs','motion_judge.mjs'):
+            script=self.scripts/name
+            script.write_text(script.read_text()+"\nimport {appendFileSync as _log} from 'node:fs';\n_log(new URL('./model-calls.log', import.meta.url), '"+name+"\\n');\n")
+        return self.scripts/'model-calls.log'
+
+    def canvas_manifest(self, **manifest):
+        d=self.project/'.seenry/canvas';d.mkdir(parents=True,exist_ok=True)
+        (d/'canvas.json').write_text(json.dumps(manifest))
+        return d/'canvas.json'
+
+    def test_default_run_passes_on_the_checks_alone_and_asks_no_model(self):
+        calls=self.count_model_calls()
+        # The written study belongs to --studio: the default path needs neither a teardown nor a composition.
+        (self.project/'.seenry/teardown.md').unlink();(self.project/'.seenry/refs/kept.md').unlink()
+        result=self.run_gate(studio=False)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertIn('CHECKS PASS round 1: 0 blockers. No model scored this page',result.stdout)
+        self.assertNotIn('PASS round 1: critic',result.stdout)
+        self.assertFalse(calls.exists(),'a model was asked')
+        self.assertFalse(list((self.project/'.seenry/review').glob('critic-*.json')))
+        history=json.loads((self.project/'.seenry/review/check.json').read_text())
+        self.assertEqual([(h['blockers'],h['critic'],h.get('mechanical')) for h in history],[(0,None,True)])
+
+    def test_studio_flag_still_needs_the_teardown_and_runs_the_critic(self):
+        calls=self.count_model_calls()
+        (self.project/'.seenry/teardown.md').unlink()
+        blocked=self.run_gate()
+        self.assert_blocked(blocked);self.assertIn('teardown:',blocked.stdout);self.assertFalse(calls.exists())
+        (self.project/'.seenry/teardown.md').write_text(TEARDOWN)
+        result=self.run_gate()
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertIn('PASS round',result.stdout);self.assertIn('critic.mjs',calls.read_text())
+
+    def test_unattended_run_is_judged_by_the_critic_without_the_flag(self):
+        calls=self.count_model_calls()
+        self.canvas_manifest(started='2026-01-01T00:00:00.000Z',unattended={'at':'2026-01-01T00:04:00.000Z','reason':'a headless run'})
+        result=self.run_gate(studio=False)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertIn('critic.mjs',calls.read_text());self.assertIn('PASS round',result.stdout)
+        self.assertIn('Unattended run (a headless run)',result.stdout)
+
+    def test_a_pick_is_the_go_ahead_and_the_passing_gate_stamps_the_build_time(self):
+        manifest=self.canvas_manifest(started='2026-01-01T00:00:00.000Z',firstOption='2026-01-01T00:04:00.000Z')
+        blocked=self.run_gate(studio=False)
+        self.assert_blocked(blocked);self.assertIn('approval: no option is picked and no screen is approved',blocked.stdout)
+        self.assertNotIn('built',json.loads(manifest.read_text()))
+        self.canvas_manifest(started='2026-01-01T00:00:00.000Z',firstOption='2026-01-01T00:04:00.000Z',picked='2026-01-01T00:06:00.000Z')
+        result=self.run_gate(studio=False)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertRegex(result.stdout,r'first sketch at 4 min, pick at 6 min, build finished at \d+ min\.')
+        after=json.loads(manifest.read_text())
+        self.assertEqual((after['timing']['firstSketchSeconds'],after['timing']['pickSeconds']),(240,360))
+        self.assertGreater(after['timing']['builtSeconds'],360);self.assertIn('built',after)
 
     def run_native_gate(self, screens='screen.png'):
         env=self.isolated_env()
@@ -519,7 +575,7 @@ class CheckGate(unittest.TestCase):
         self.assertIn('source changed during review',result.stdout)
 
     def run_fast_gate(self):
-        return subprocess.run([NODE,str(self.scripts/'check.mjs'),'index.html','--brief','brief.md','--fast'],cwd=self.project,
+        return subprocess.run([NODE,str(self.scripts/'check.mjs'),'index.html','--brief','brief.md','--fast','--studio'],cwd=self.project,
                               env=self.isolated_env(),text=True,capture_output=True,timeout=30)
 
     def critic_score(self, score):
@@ -582,7 +638,7 @@ class CheckGate(unittest.TestCase):
         self.assertIn('Copied reference',r.stdout)
 
     def run_mode_gate(self, mode):
-        return subprocess.run([NODE,str(self.scripts/'check.mjs'),'index.html','--brief','brief.md','--mode',mode],cwd=self.project,
+        return subprocess.run([NODE,str(self.scripts/'check.mjs'),'index.html','--brief','brief.md','--mode',mode,'--studio'],cwd=self.project,
                               env=self.isolated_env(),text=True,capture_output=True,timeout=30)
 
     def test_low_impact_blocks_a_high_overall_score(self):
@@ -729,7 +785,7 @@ class CheckGate(unittest.TestCase):
     def test_canvas_with_no_approval_blocks(self):
         self.canvas()
         r=self.run_gate();self.assert_blocked(r)
-        self.assertIn('approval: no screen is approved',r.stdout)
+        self.assertIn('approval: no option is picked and no screen is approved',r.stdout)
         self.assertIn('--unattended',r.stdout)
 
     def test_canvas_with_an_approved_screen_passes(self):

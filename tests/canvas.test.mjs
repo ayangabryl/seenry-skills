@@ -343,6 +343,40 @@ test('the time to the first option is kept when options are first shown', () => 
   assert.match(readFileSync(join(dir, 'HANDOFF.md'), 'utf8'), /First option shown \d+ (s|min) after the canvas was started/);
 });
 
+test('the times to the first sketch, to the pick and to the finished build are kept in canvas.json and printed', async t => {
+  const {dir} = project();
+  const manifest = () => JSON.parse(readFileSync(join(dir, 'canvas.json'), 'utf8'));
+  assert.equal(run('static', dir).status, 0);
+  assert.equal(typeof manifest().timing.firstSketchSeconds, 'number');
+  assert.equal(manifest().timing.pickSeconds, null);
+  // The person's pick is stamped by the server when they press Send, before feedback.json is written.
+  const port = 5300 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const sent = await call(port, '/feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({picks: {'02-home': '02-home/b'}, general: 'B: the image leads'})});
+  assert.equal(sent.status, 200);
+  assert.ok(Date.parse(manifest().picked) >= Date.parse(manifest().firstOption));
+  assert.equal(typeof manifest().timing.pickSeconds, 'number');
+  assert.match(run('wait', dir, '--timeout', '2').stdout, /Picked in 02-home: 02-home\/b/, 'stamping the pick does not make the feedback stale');
+  const round = run('round', 'picked B', dir).stdout;
+  assert.match(round, /Time since the canvas was started: first sketch at \d+ (s|min), pick at \d+ (s|min)\./);
+  // check.mjs stamps `built` when its gate passes; handoff prints all three.
+  writeFileSync(join(dir, 'canvas.json'), JSON.stringify({...manifest(), built: new Date().toISOString()}));
+  assert.match(run('handoff', dir).stdout, /first sketch at \d+ (s|min), pick at \d+ (s|min), build finished at \d+ (s|min)\./);
+  assert.match(readFileSync(join(dir, 'HANDOFF.md'), 'utf8'), /Time since the canvas was started: first sketch at/);
+});
+
+test('a first sketch later than five minutes is printed against the target', () => {
+  const {dir} = project();
+  const file = join(dir, 'canvas.json'), m = JSON.parse(readFileSync(file, 'utf8'));
+  writeFileSync(file, JSON.stringify({...m, started: new Date(Date.now() - 7 * 60000).toISOString()}));
+  assert.equal(run('static', dir).status, 0);
+  assert.match(run('handoff', dir).stdout, /first sketch at 7 min \(target: within 5 min\)/);
+  // An agent's own choice in an unattended run counts as the pick.
+  assert.match(run('round', 'chose B: furthest from the default', '--unattended', 'a headless run', dir).stdout, /pick at 7 min/);
+});
+
 test('the live feed shows what the agent says and does, and the server notices screens being written', async t => {
   const {dir} = project();
   assert.equal(run('say', 'Composing the home screen from two references', '--frame', '02-home/b', dir).status, 0);

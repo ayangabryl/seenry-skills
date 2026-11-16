@@ -1,5 +1,5 @@
-// The study behind a page is enforced by scripts, not prose: the teardown template, the pair verdict, the worked
-// example and the short spine a weaker model can follow.
+// What a page needs is enforced by scripts, not prose: the idea line and the image on the default path, the teardown
+// template and the pair verdict under --studio, the worked example, and the short spine a weaker model can follow.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync, existsSync, mkdtempSync} from 'node:fs';
@@ -82,11 +82,21 @@ test('words in a row beside a chart are not chart labels colliding', () => {
   assert.equal(judgeCharts([chart]).chartCollision.length, 1);
 });
 
-test('the spine is short enough to follow: seven steps, one gate, under 1,300 words', () => {
-  const skill = readFileSync(resolve('skills/seenry/SKILL.md'), 'utf8');
-  assert.ok(skill.split(/\s+/).length < 1300, `${skill.split(/\s+/).length} words`);
-  const steps = [...skill.matchAll(/^\| (\d) \| \*\*/gm)].map(m => Number(m[1]));
-  assert.deepEqual(steps, [1, 2, 3, 4, 5, 6, 7]);
+test('the spine is short enough to follow: nine steps, the idea and the image before any page, under 1,300 words', () => {
+  const skill = readFileSync(resolve('skills/seenry/SKILL.md'), 'utf8'), canvas = readFileSync(resolve('skills/seenry-canvas/SKILL.md'), 'utf8');
+  // Both are shorter than in 3.1.0 (1,297 and 2,905 words): the fast path replaced text, it was not added beside it.
+  assert.ok(skill.split(/\s+/).length < 1297, `${skill.split(/\s+/).length} words`);
+  assert.ok(canvas.split(/\s+/).length < 2905, `${canvas.split(/\s+/).length} words`);
+  const steps = [...skill.matchAll(/^\| (\d) \| \*\*([A-Z][a-z]+)\.\*\*/gm)].map(m => `${m[1]} ${m[2]}`);
+  assert.deepEqual(steps, ['1 Brief', '2 References', '3 Ideas', '4 Images', '5 Sketches', '6 Pick', '7 Extend', '8 Build', '9 Check']);
+  assert.match(skill, /First sketches are on the canvas within 5 minutes; no step loops more than twice/);
+  // The model judges and the written teardown are off the default path, in both skills.
+  for (const text of [skill, canvas]) {
+    assert.doesNotMatch(text, /verify --quick|--mode quick/);
+    assert.ok((text.match(/teardown/g) || []).length <= 1, 'the teardown is named once, under --studio');
+    assert.match(text, /seenry-idea/); assert.match(text, /--background/);
+  }
+  assert.match(skill, /check\.mjs <page> --brief \.seenry\/brief\.md` \|/);
   for (const ref of ['references/level-bar.md', 'references/execution-bar.md', 'references/level-reference.md']) {
     const words = readFileSync(resolve('skills/seenry', ref), 'utf8').split(/\s+/).length;
     assert.ok(words < 650, `${ref}: ${words} words`);

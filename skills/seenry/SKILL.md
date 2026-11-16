@@ -9,53 +9,59 @@ metadata:
 
 # Seenry
 
-Takes a design task from brief to built page at the level of real, studied references. One habit carries it: count the references at full size before composing, and let the checks say when the page is still below them.
+Takes a design task from brief to built page. The person is the judge: the idea and the image reach them first, as hero-only sketches that are cheap to reject, and only their pick is built. First sketches are on the canvas within 5 minutes; no step loops more than twice.
 
-Worked example: [Waterline](assets/examples/waterline/README.md). Copy its path and principles, not the page: the example with a new skin is blocked.
+Worked example: [Waterline](assets/examples/waterline/README.md). Copy its path and principles, never the page.
 
 ## Route
 
 | The request | Do |
 | --- | --- |
-| A new page, site, screen or redesign | The seven steps below |
+| A new page, site, screen or redesign | The nine steps below |
 | A fix inside an existing app | [Existing project](references/existing-project.md) |
-| "This looks generic or AI-made" | [Unslop](references/unslop.md), then steps 2 to 7 |
-| "Make it like X" | [Named site](references/named-site.md), then steps 3 to 7 |
-| "Design like @someone", "at this level" | [Level reference](references/level-reference.md), then steps 1 to 7 |
-| "Show me options", "mock this up" | `seenry-canvas` alone |
+| "This looks generic or AI-made" | [Unslop](references/unslop.md), then steps 2 to 9 |
+| "Make it like X" | [Named site](references/named-site.md), then steps 3 to 9 |
+| "Design like @someone", "at this level" | [Level reference](references/level-reference.md), then steps 1 to 9 |
 
-## The seven steps
+## The nine steps
 
-`<canvas>` is `../seenry-canvas/scripts/canvas.mjs`. In order; each step leaves the file the next reads.
+`<canvas>` is `node ../seenry-canvas/scripts/canvas.mjs`, `<image>` is `node scripts/image.mjs`. In order.
 
 | # | Do | Run | Leaves |
 | --- | --- | --- | --- |
-| 1 | **Brief.** Write who it is for, the one job of each screen, the content that exists, and what is fixed. Say if the company is fictional | (write it) | `.seenry/brief.md` |
-| 2 | **Level bar.** Save three references the page will be held to: the person's work, else the library's best ([level bar](references/level-bar.md)) | Seenry MCP `get_level_bar`, or the searches that file lists | Three or more images in `.seenry/canvas/refs/` |
-| 3 | **Teardown.** Open each crop at full size and replace every `__` with a count or a measurement | `node <canvas> verify` (it writes the crops and the template) | `.seenry/teardown.md`, no blanks |
-| 4 | **Compose.** For each screen and every section down to the footer, take one principle with its number from each of two or three references, around the product's own idea. Choose how image and interface meet from what your own image allows; name the default you are avoiding | (write it, like the example's [compose.md](assets/examples/waterline/compose.md)) | `.seenry/compose.md` |
-| 5 | **Design on the canvas.** Set `tokens.css` with `seenry-identity`, make the images, and build two or three options as screens on one grid, any product view marked `data-seenry-product` ([execution bar](references/execution-bar.md)) | `node <canvas> verify` until 0 errors, then `node <canvas> open` for the person's pick | Approved screens on the canvas |
-| 6 | **Build.** Pick the [stack](references/stack.md) (the project's, else the best fit; plain HTML is not the default), write the `Stack:` line in `DESIGN.md`, and build the approved screen in it with the same tokens. Write `MOTION.md`: a row per moving thing with the change it explains, and one signature moment (`seenry-motion`) | (the project's build) | The page, `MOTION.md` |
-| 7 | **Check.** Fix what it blocks, top first, and quote its score line | `node scripts/check.mjs <page> --brief .seenry/brief.md --mode quick` | The score in your report |
+| 1 | **Brief.** A few lines: who it is for, the page's one job, the content that exists, what is fixed, whether the company is fictional | `<canvas> init` (starts the clock) | `.seenry/brief.md` |
+| 2 | **References.** Three: the person's, else the library's best ([level bar](references/level-bar.md)). Open each at full size and look; write nothing | Seenry MCP `get_level_bar` | Three images in `.seenry/canvas/refs/` |
+| 3 | **Ideas.** For two or three directions, one line each: the idea that will carry the whole page, and how the hero image and the interface meet | (write them) | Each sketch's `seenry-idea` line |
+| 4 | **Images.** One art-directed hero image per direction, in one batch, generating in the background while you write step 5. The person's own images come first | `<image> --template`, then `<image> --batch .seenry/canvas/img/jobs.json --background` | `.seenry/canvas/img/<direction>.jpg` |
+| 5 | **Sketches.** Set `tokens.css` (one hue, real fonts). Draw each direction as its first screen only: one viewport, real copy, its image in place, a product view marked `data-seenry-product` | `<image> --wait`, then `<canvas> verify` | `02-home.options/<direction>.html` |
+| 6 | **Pick.** Show the sketches and wait. Never mark a favourite | `<canvas> open`, `<canvas> wait` (again while it says Still waiting), then `<canvas> round "<the pick and their note>"` | The picked sketch |
+| 7 | **Extend.** Only the pick becomes the full page, on the canvas: every section to the footer, the hero image returning below in new crops, one grid. Remove its `seenry-fidelity` line | `<canvas> verify` | The full page |
+| 8 | **Build.** Pick the [stack](references/stack.md) (never plain HTML by default), write the `Stack:` line in `DESIGN.md`, and move the page into it with the same tokens and images. Write `MOTION.md` (`seenry-motion`) | (the project's build) | The page, `MOTION.md` |
+| 9 | **Check.** Once, at the end. Fix what it blocks, run it once more, report | `node scripts/check.mjs <page> --brief .seenry/brief.md` | Its result line |
 
-What the two commands do, so you never run these by hand: `verify` writes the teardown template, counts a product view (needs 12 kinds of UI, 2 of visualisation), checks the grid, hues and headline, and puts each option beside a reference for a blind judge (a reskin of a reference or of the example, or a visibly less finished screen, is blocked). `check.mjs` repeats that on the built page, checks charts, images and `MOTION.md`, and asks a blind critic for the score. Every message names the number measured and the number needed: change that, run again.
+A sketch's head:
 
-Nobody to review: instead of `open`, run `node <canvas> round "<choice and why>" --unattended "<why>"` and report every screen as not approved by a person.
+```html
+<meta name="seenry-fidelity" content="sketch">
+<meta name="seenry-idea" content="Heat you can see leaving: a thermal photograph of one street, the meter reading printed over its coldest house">
+```
 
-Images: the person's own first. Otherwise `node scripts/image.mjs --batch jobs.json`, each job written like the example's [image-job.json](assets/examples/waterline/image-job.json). A rejected image leaves `regenerate.json` in the same format.
+`verify` blocks a sketch with no `seenry-idea` line or no generated or own image in its hero (a flat block or a CSS gradient is not one), and a full page whose hero image never returns below the hero (mark another carrier of the idea `data-seenry-motif`). Both commands block overflow, clipped text, low contrast, typed values and a product view under 12 kinds of UI; `check.mjs` adds the phone layout. No model scores the page. Each message gives the command that fixes it.
+
+Nobody to review: `<canvas> verify --judge` asks a blind judge; choose the option furthest from the default and record it with `<canvas> round "<choice and why>" --unattended "<why>"`. `check.mjs` then runs a blind critic.
+
+The full process, only when asked for: `--studio` on both commands adds a written teardown, the pair judge and critic rounds ([execution bar](references/execution-bar.md)).
 
 ## Rules
 
-1. **Count before composing.** No option is built from memory of a reference; compose from the teardown's numbers.
+1. **One idea, hero to footer.** The image, and how it meets the interface, come back in lower sections.
 2. **References give principles; the product gives the design.** Layout, palette and image subject never all come from one reference, unless the person asked to replicate it.
-3. **Real material at real size, held to the footer.** A product is a whole app with real data telling one story and charts in the page's one hue; a studio, shop or portfolio shows the work itself, large. Image and layout meet in depth. Every section has one moment of its own, on one grid; a different width or a movement states its reason.
-4. **Proof is real.** No invented customers, quotes, logos or figures. The exception is a brief that says the company is fictional: then invented proof is expected, is never labelled on the page, and is listed under "Assumed".
+3. **Real material at real size.** A product is a whole app with real data and charts in the page's one hue; a studio, shop or portfolio shows the work itself, large. Image and layout meet in depth.
+4. **Proof is real.** No invented customers, quotes, logos or figures, unless the brief says the company is fictional: then invented proof is expected, never labelled on the page, and listed under "Assumed".
 5. **Everything works.** A control or shortcut hint with nothing behind it is wired up or removed.
-6. **Report what the checks said.** Quote the gate's score line; never give your own.
+6. **Twice, then show.** After two rounds on a step, show it and name what is left. Quote the checks; never give your own score.
 
 ## Which skill, and what comes next
-
-Recommend one, and name the next.
 
 | The person says | Skill | Leaves | Then |
 | --- | --- | --- | --- |
@@ -74,11 +80,11 @@ Recommend one, and name the next.
 ## Report
 
 ```
-Held to:   the three references and where they came from (the person, the library, the bundled bar)
-Composed:  each screen and section, the principle and number from each reference, and the idea
-Measured:  the teardown's counts beside the page's own
-Approved:  the screens the person approved, or "not approved by a person" for an unattended run
-Checked:   verify's result and the gate's score line, quoted
+Held to:   the three references and where they came from
+Idea:      the picked idea line, and where it returns down the page
+Picked:    the person's pick and note, or "not approved by a person"
+Time:      first sketch, pick and finished build, as the canvas printed them
+Checked:   the result lines of verify and check.mjs, quoted
 Not checked: what you could not check
 Assumed:   every fact you supplied that the person should replace
 ```

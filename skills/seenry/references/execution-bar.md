@@ -2,9 +2,9 @@
 
 The measured difference between a page at its references' level and one that only has the idea. Worked example: [Waterline](../assets/examples/waterline/README.md).
 
-## Study before composing
+## Look, then sketch
 
-Save the references to `.seenry/canvas/refs/` and run `canvas.mjs verify`. It writes full-size crops to `refs/crops/` and a section per reference in `.seenry/teardown.md`, with lines like `- UI elements: __ kinds in the product view: __`. Open each crop and replace every `__` with a count or a measurement. No option is shown while a blank remains.
+Open the three references in `.seenry/canvas/refs/` at full size: how much product is shown, how image and interface meet, what returns below the hero. Then sketch; the person judges the sketches, and this bar is what the finished page is held to. With `--studio`, `canvas.mjs verify` also writes `.seenry/teardown.md` with a blank (`__`) per count to fill in.
 
 ## The bar
 
@@ -35,7 +35,8 @@ A level reference that does otherwise sets its own floor: add `multiHue` or `big
 
 | Command | Blocks on | Warns on |
 | --- | --- | --- |
-| `canvas.mjs verify` | A teardown with blanks; a product view under 12 kinds of UI or 2 of visualisation; a reskin of a reference or of the Waterline example, or a visibly less finished screen (blind judge); one crop in 3 sibling tiles; a block off the grid with no reason | A second hue; a headline over 2 lines or 80px; a section of only equal cards |
-| `check.mjs` | The same on the built page; a page that moves with no `MOTION.md` reasons or no reduced-motion CSS; the blind critic's `execution` under 8 | |
+| `canvas.mjs verify` | A sketch with no idea line or no real image in its hero; a full page whose hero image or motif never returns below the hero; a product view under 12 kinds of UI or 2 of visualisation; one crop in 3 sibling tiles; a block off the grid with no reason | A second hue; a headline over 2 lines or 80px; a section of only equal cards |
+| `check.mjs` | The same on the built page; a page that moves with no `MOTION.md` reasons or no reduced-motion CSS | |
+| Either, with `--studio` or unattended | A teardown with blanks (studio); a reskin or a visibly less finished screen (blind judge); the blind critic's `execution` under 8 | |
 
 Each message names the number it measured and the number it needs.

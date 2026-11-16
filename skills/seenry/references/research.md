@@ -51,7 +51,7 @@ Start with the three the page is held to: [level bar](level-bar.md). Then widen 
 3. Pass `family` on every `search_reference_assets` call; without it a web query returns app screens.
 4. Search by industry and element, not by composition. `illustration` finds illustration vendors and `landscape` finds a settings screen; captured heroes carry only "Hero" and their site's industry words.
 5. A zero result means shorten the query, never "nothing exists". `list_sites` with a leader's name reaches whole sites.
-6. Open what you keep at full size (`get_screenshot`, or the result's `inspect` call). The teardown is done on those pixels, never on a poster.
-7. `compare_measurements` gives headline, body, radius and padding for captured pages. It measures none of what the teardown counts, so it does not replace it.
+6. Open what you keep at full size (`get_screenshot`, or the result's `inspect` call). A thumbnail hides what decides the level.
+7. `compare_measurements` gives headline, body, radius and padding for captured pages. It measures no product density, image interlock or finish, so it does not replace looking.
 
 Pace calls a few seconds apart: bursts of new sessions return HTTP 500. Behind an HTTPS proxy, run the bundled Node scripts with `NODE_USE_ENV_PROXY=1` so `fetch` uses it.

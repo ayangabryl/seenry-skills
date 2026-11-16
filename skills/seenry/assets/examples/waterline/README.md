@@ -1,10 +1,10 @@
-# Waterline: composing from references, start to finish
+# Waterline: one idea from hero to footer
 
-Copy the path and the principles, never the page: a reskin of it is blocked.
+Copy the path and the principles, never the page.
 
-## 1. The teardown ([teardown.md](teardown.md))
+## 1. The references ([teardown.md](teardown.md))
 
-Three references, counted at full size:
+Three references, counted at full size (written down only with `--studio`):
 
 ```
 - UI elements: 19 kinds in the product view: side navigation, search with a ⌘F hint, breadcrumb, …

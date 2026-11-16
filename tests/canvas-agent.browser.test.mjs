@@ -2,7 +2,8 @@
 // Skips when Playwright is not installed; CI passes it with SEENRY_PLAYWRIGHT.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync} from 'node:fs';
+import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, copyFileSync} from 'node:fs';
+import {deflateSync, crc32} from 'node:zlib';
 import {join, resolve} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn, spawnSync} from 'node:child_process';
@@ -124,7 +125,7 @@ test('screens are judged settled: an entrance animation does not fail contrast',
   assert.ok(!JSON.parse(out.stdout).issues.some(i => i.kind === 'contrast'), out.stdout);
 });
 
-// Options are where a design is first shown: verify checks the study behind them.
+// Options are where a design is first shown. With --studio, verify checks the study behind them.
 function optionsProject() {
   const {root, dir} = project();
   mkdirSync(join(dir, '02-home.options'));
@@ -140,9 +141,9 @@ const teardown = `# Teardown
 - 18 UI elements, 3 visualisation types, 4 metric cards. Headline 68px, weight 300, 2 lines. 1 hue on black.
 - Interlock: translucent at the top, melts into the page over 120px. Motif: the logo tile repeats. 6 logos. Button 40px with a 28px icon tile.`;
 
-test('verify blocks options with no teardown and a thin product view', {skip}, () => {
+test('verify --studio blocks options with no teardown and a thin product view', {skip}, () => {
   const {dir} = optionsProject();
-  const out = run('verify', '02-home', '--json', '--dir', dir);
+  const out = run('verify', '02-home', '--studio', '--json', '--dir', dir);
   assert.equal(out.status, 1, out.stderr);
   const kinds = JSON.parse(out.stdout).issues.filter(i => i.severity === 'error').map(i => i.kind);
   assert.ok(kinds.includes('teardown'), `expected a teardown error in ${kinds}`);
@@ -152,11 +153,11 @@ test('verify blocks options with no teardown and a thin product view', {skip}, (
 test('verify accepts a measured teardown and exempts the wireframe stage', {skip}, () => {
   const {root, dir} = optionsProject();
   writeFileSync(join(root, '.seenry', 'teardown.md'), teardown);
-  let issues = JSON.parse(run('verify', '02-home', '--json', '--dir', dir).stdout).issues;
+  let issues = JSON.parse(run('verify', '02-home', '--studio', '--json', '--dir', dir).stdout).issues;
   assert.ok(!issues.some(i => i.kind === 'teardown'), JSON.stringify(issues));
   writeFileSync(join(root, '.seenry', 'teardown.md'), '');
   writeFileSync(join(dir, 'canvas.json'), JSON.stringify({stage: 'wireframe'}));
-  issues = JSON.parse(run('verify', '02-home', '--json', '--dir', dir).stdout).issues;
+  issues = JSON.parse(run('verify', '02-home', '--studio', '--json', '--dir', dir).stdout).issues;
   assert.ok(!issues.some(i => ['teardown', 'product', 'pair'].includes(i.kind)), JSON.stringify(issues));
 });
 
@@ -164,7 +165,7 @@ test('verify puts each option beside a reference itself and blocks on the judge\
   const {root, dir} = optionsProject();
   writeFileSync(join(root, '.seenry', 'teardown.md'), teardown);
   writeFileSync(join(dir, 'refs', 'a.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64'));
-  const verdicts = env => JSON.parse(runWith(env, 'verify', '02-home', '--json', '--dir', dir).stdout).issues.filter(i => i.kind === 'pair-verdict');
+  const verdicts = env => JSON.parse(runWith(env, 'verify', '02-home', '--studio', '--json', '--dir', dir).stdout).issues.filter(i => i.kind === 'pair-verdict');
   let found = verdicts({SEENRY_PAIR_JUDGE: '', SEENRY_PAIR_STUB: JSON.stringify({less_finished: true, gaps: ['product UI: 14 kinds of interface, yours has 1']})});
   assert.ok(found.some(i => i.severity === 'error' && /less finished than a\.png: product UI: 14 kinds/.test(i.message)), JSON.stringify(found));
   assert.ok(existsSync(join(dir, '.renders', 'pair', 'pair.json')));
@@ -186,14 +187,14 @@ test('with no teardown, verify writes the crops and the sections to fill in', {s
   const shot = run('render', '02-home/a', '--json', '--dir', dir);
   writeFileSync(join(dir, 'refs', 'ref-one.png'), readFileSync(JSON.parse(shot.stdout)[0].file));
   writeFileSync(join(dir, 'refs', 'ref-two.png'), readFileSync(JSON.parse(shot.stdout)[0].file));
-  const issues = JSON.parse(run('verify', '02-home', '--json', '--dir', dir).stdout).issues;
+  const issues = JSON.parse(run('verify', '02-home', '--studio', '--json', '--dir', dir).stdout).issues;
   const t = issues.find(i => i.kind === 'teardown');
   assert.match(t.message, /just written with 2 reference sections/);
   const text = readFileSync(join(root, '.seenry', 'teardown.md'), 'utf8');
   assert.match(text, /## ref-one\n[\s\S]*UI elements: __ kinds/);
   assert.ok(existsSync(join(dir, 'refs', 'crops', 'ref-one.product.png')));
   // Filling it in is the agent's work: a second run does not overwrite, it reports the blanks left.
-  const again = JSON.parse(run('verify', '02-home', '--json', '--dir', dir).stdout).issues.find(i => i.kind === 'teardown');
+  const again = JSON.parse(run('verify', '02-home', '--studio', '--json', '--dir', dir).stdout).issues.find(i => i.kind === 'teardown');
   assert.match(again.message, /\d+ blanks \(__\) still to replace/);
 });
 
@@ -201,25 +202,119 @@ test('verify puts each option beside the worked example and blocks its reskin, e
   const {root, dir} = optionsProject();
   writeFileSync(join(root, '.seenry', 'teardown.md'), teardown);
   const env = {SEENRY_PAIR_JUDGE: '', SEENRY_PAIR_STUB: JSON.stringify({}), SEENRY_EXAMPLE_STUB: JSON.stringify({reskin: true, reskin_why: 'the same hero and section order'})};
-  let found = JSON.parse(runWith(env, 'verify', '02-home', '--json', '--dir', dir).stdout).issues.filter(i => i.kind === 'pair-verdict');
+  let found = JSON.parse(runWith(env, 'verify', '02-home', '--studio', '--json', '--dir', dir).stdout).issues.filter(i => i.kind === 'pair-verdict');
   assert.ok(found.some(i => i.severity === 'error' && /worked example with a new skin/.test(i.message)), JSON.stringify(found));
   const {root: own, dir: ownDir} = optionsProject();
   writeFileSync(join(own, '.seenry', 'teardown.md'), teardown);
   writeFileSync(join(own, '.seenry', 'brief.md'), '# Brief\n\nLanding page for Ledgerline, a 13-week cash forecast.\n');
-  found = JSON.parse(runWith(env, 'verify', '02-home', '--json', '--dir', ownDir).stdout).issues.filter(i => i.kind === 'pair-verdict');
+  found = JSON.parse(runWith(env, 'verify', '02-home', '--studio', '--json', '--dir', ownDir).stdout).issues.filter(i => i.kind === 'pair-verdict');
   assert.ok(!found.some(i => /worked example/.test(i.message)), JSON.stringify(found));
 });
 
-test('verify --quick runs the rules without pairing or judging, and says so', {skip}, () => {
-  const {dir} = optionsProject();
-  mkdirSync(join(dir, 'refs'), {recursive: true});
+test('no model judges by default: verify pairs nothing and asks for no teardown, and --judge runs the judge alone', {skip}, () => {
+  const {root, dir} = optionsProject();
   writeFileSync(join(dir, 'refs', 'ref.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64'));
-  const out = run('verify', '02-home', '--quick', '--json', '--dir', dir);
+  // A stub that would block, were the judge asked.
+  const env = {SEENRY_PAIR_JUDGE: '', SEENRY_PAIR_STUB: JSON.stringify({less_finished: true, gaps: ['product UI: 14 kinds, yours has 1']})};
+  const out = runWith(env, 'verify', '02-home', '--json', '--dir', dir);
   const result = JSON.parse(out.stdout);
-  assert.equal(result.quick, true);
-  assert.ok(!result.issues.some(i => /^pair/.test(i.kind)), 'no pair or verdict issues in quick mode');
+  assert.equal(result.judged, false);
+  assert.ok(!result.issues.some(i => /^pair|teardown/.test(i.kind)), JSON.stringify(result.issues));
   assert.ok(!existsSync(join(dir, '.renders', 'pair')), 'nothing was paired');
+  assert.ok(!existsSync(join(root, '.seenry', 'teardown.md')), 'no teardown was written');
   assert.ok(result.issues.some(i => i.kind === 'product'), 'the rule checks still run');
+  assert.match(runWith(env, 'verify', '02-home', '--quick', '--dir', dir).stdout, /No model judged these options: the person does/);
+  // Nobody to review: --judge asks the blind judge and still writes no teardown; a recorded unattended round does the same.
+  const judged = JSON.parse(runWith(env, 'verify', '02-home', '--judge', '--json', '--dir', dir).stdout);
+  assert.equal(judged.judged, true);
+  assert.ok(judged.issues.some(i => i.kind === 'pair-verdict' && i.severity === 'error'), JSON.stringify(judged.issues));
+  assert.ok(!judged.issues.some(i => i.kind === 'teardown'));
+  const {dir: later} = optionsProject();
+  writeFileSync(join(later, 'refs', 'ref.png'), readFileSync(join(dir, 'refs', 'ref.png')));
+  writeFileSync(join(later, 'canvas.json'), JSON.stringify({unattended: {at: new Date().toISOString(), reason: 'a headless run'}}));
+  assert.equal(JSON.parse(runWith(env, 'verify', '02-home', '--json', '--dir', later).stdout).judged, true);
+});
+
+// What a weaker model skips unless a script holds it: the idea in a line, a real image in the hero of each sketch,
+// and the image coming back below the hero once the pick is a full page.
+function png(w, h, pixel) {
+  const raw = Buffer.alloc((w * 3 + 1) * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) raw.set(pixel(x, y), y * (w * 3 + 1) + 1 + x * 3);
+  const chunk = (type, data) => { const body = Buffer.concat([Buffer.from(type), data]), out = Buffer.alloc(8 + data.length + 4); out.writeUInt32BE(data.length, 0); body.copy(out, 4); out.writeUInt32BE(crc32(body) >>> 0, 8 + data.length); return out; };
+  const head = Buffer.alloc(13); head.writeUInt32BE(w, 0); head.writeUInt32BE(h, 4); head.set([8, 2, 0, 0, 0], 8);
+  return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', head), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]);
+}
+const IDEA = 'Cash under the waterline: the forecast sinks into a painted sea, drawn behind the app and in front of it';
+const HEROES = {
+  sea: '<img src="../img/sea.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">',
+  flat: '<img src="../img/flat.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">',
+  ramp: '<div style="position:absolute;inset:0;background:url(../img/ramp.png) center / cover"></div>',
+  gradient: '<div style="position:absolute;inset:0;background:linear-gradient(#0e2a8a,#dce6ff)"></div>',
+  missing: '<img src="../img/not-made-yet.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%">',
+};
+const sketchHead = (title, metas) => `<!doctype html><meta charset="utf-8"><title>${title}</title>${metas}<link rel="stylesheet" href="../tokens.css"><style>body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}section{position:relative;height:900px;overflow:hidden}</style>`;
+function sketchProject() {
+  const {root, dir} = project();
+  mkdirSync(join(dir, '02-home.options')); mkdirSync(join(dir, 'img'));
+  copyFileSync(resolve('skills/seenry/assets/examples/waterline/sea.jpg'), join(dir, 'img', 'sea.jpg'));
+  writeFileSync(join(dir, 'img', 'flat.png'), png(96, 64, () => [31, 79, 224]));
+  writeFileSync(join(dir, 'img', 'ramp.png'), png(96, 64, (x, y) => [14 + y * 3, 42 + y * 3, 138 + y]));
+  const sketch = (name, hero, idea = IDEA) => writeFileSync(join(dir, '02-home.options', `${name}.html`), sketchHead(name, `<meta name="seenry-fidelity" content="sketch">${idea ? `<meta name="seenry-idea" content="${idea}">` : ''}`) + `<section>${HEROES[hero]}</section>`);
+  return {root, dir, sketch};
+}
+const sketchIssues = (dir, ...more) => JSON.parse(run('verify', '02-home', '--json', '--dir', dir, ...more).stdout).issues.filter(i => ['idea', 'hero-image', 'idea-return'].includes(i.kind));
+
+test('verify blocks a sketch with no idea line, and one whose idea is a label', {skip}, () => {
+  const {dir, sketch} = sketchProject();
+  sketch('tide', 'sea', ''); sketch('dusk', 'sea', 'Bold and blue'); sketch('reef', 'sea');
+  const found = sketchIssues(dir);
+  const tide = found.find(i => i.frame === '02-home/tide'), dusk = found.find(i => i.frame === '02-home/dusk');
+  assert.equal(tide.kind, 'idea'); assert.equal(tide.severity, 'error');
+  assert.match(tide.message, /^No idea line \(needs 1\)\. Add to the <head> of 02-home\.options\/tide\.html: <meta name="seenry-idea" content="/);
+  assert.match(dusk.message, /^Its idea line is 3 words \(needs 6 or more\)/);
+  assert.ok(!found.some(i => i.frame === '02-home/reef'), JSON.stringify(found));
+});
+
+test('verify blocks a sketch whose hero holds a gradient, a flat block or a missing file, with the command to run', {skip}, () => {
+  const {dir, sketch} = sketchProject();
+  for (const hero of ['gradient', 'flat', 'ramp', 'missing', 'sea']) sketch(hero, hero);
+  const found = sketchIssues(dir), of = name => found.filter(i => i.frame === `02-home/${name}`);
+  assert.match(of('gradient')[0].message, /^No generated or own image in the hero: the first screen holds 0 images covering a tenth of it or more \(needs 1\); a CSS gradient is not an image\./);
+  assert.match(of('flat')[0].message, /flat\.png is a flat block or a plain gradient \(1 colours, 0% textured\), a placeholder/);
+  assert.match(of('ramp')[0].message, /ramp\.png is a flat block or a plain gradient/);
+  assert.match(of('missing')[0].message, /not-made-yet\.jpg is not a file in the project/);
+  for (const name of ['gradient', 'flat', 'ramp', 'missing']) {
+    assert.equal(of(name)[0].kind, 'hero-image'); assert.equal(of(name)[0].severity, 'error');
+    assert.match(of(name)[0].message, /node \S*image\.mjs --batch \S*img\/jobs\.json --background/);
+    assert.match(of(name)[0].message, /node \S*image\.mjs --template/);
+  }
+  assert.deepEqual(of('sea'), [], 'a generated image in the hero passes');
+  // While a background batch is running the message says to wait for it, not to start another.
+  writeFileSync(join(dir, '..', 'images.pending'), '1');
+  assert.match(sketchIssues(dir).find(i => i.frame === '02-home/missing').message, /Images are still generating\. Run: node \S*image\.mjs --wait/);
+  // A wireframe round has no look yet, so nothing here applies.
+  writeFileSync(join(dir, 'canvas.json'), JSON.stringify({stage: 'wireframe'}));
+  assert.deepEqual(sketchIssues(dir), []);
+});
+
+test('verify blocks a full page whose hero image never returns below the hero', {skip}, () => {
+  const {dir} = sketchProject();
+  mkdirSync(join(dir, '03-home'));
+  const lower = '<section><h2>Moves</h2><p>Delay a purchase order.</p></section><section><h2>Pricing</h2><p>Three bands.</p></section>';
+  const page = (name, extra, idea = IDEA) => writeFileSync(join(dir, '03-home', `${name}.html`), sketchHead(name, idea ? `<meta name="seenry-idea" content="${idea}">` : '') + `<section>${HEROES.sea}</section>${lower}${extra}`);
+  page('stops', '');
+  page('returns', '<section><img src="../img/sea.jpg" alt="" style="width:100%;height:400px;object-fit:cover;object-position:center bottom"></section>');
+  page('motif', '<section><svg data-seenry-motif width="600" height="120" viewBox="0 0 600 120"><path d="M0 60 Q150 0 300 60 T600 60" fill="none" stroke="currentColor"/></svg></section>');
+  page('plain', '', '');
+  const found = JSON.parse(run('verify', '03-home', '--json', '--dir', dir).stdout).issues.filter(i => ['idea', 'hero-image', 'idea-return'].includes(i.kind));
+  const stops = found.filter(i => i.frame === '03-home/stops');
+  assert.equal(stops.length, 1); assert.equal(stops[0].severity, 'error'); assert.equal(stops[0].kind, 'idea-return');
+  assert.match(stops[0].message, /^The idea stops at the hero: the hero image sea\.jpg returns 0 times below the first screen \(needs 1 or more\)/);
+  assert.match(stops[0].message, /data-seenry-motif/);
+  assert.match(stops[0].message, /Then run: node \S*canvas\.mjs verify 03-home\/stops$/);
+  for (const name of ['returns', 'motif']) assert.ok(!found.some(i => i.frame === `03-home/${name}` && i.severity === 'error'), JSON.stringify(found));
+  assert.ok(found.some(i => i.frame === '03-home/returns' && i.severity === 'warn' && /returns once/.test(i.message)));
+  assert.ok(!found.some(i => i.frame === '03-home/plain'), 'a screen with no idea line is not a page from this path');
 });
 
 // The person's side: pick under the selected option, point at an element, send; and the side-pane layout.
