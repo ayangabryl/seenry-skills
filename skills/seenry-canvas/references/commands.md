@@ -73,3 +73,16 @@ Feedback lists picks, "More like this" requests, approved screens, screens that 
 | --- | --- |
 | The person cannot open a local address (a cloud session) | `127.0.0.1` is your machine, not theirs: say so. If your environment can publish a folder as a private page, run `static` and publish `canvas.html` with the canvas files beside it; otherwise `shot` writes `canvas.png` of the options waiting for a pick (`--view all` for the whole file). Either way take feedback in chat |
 | No server can run | `static` writes `canvas.html`, which opens from disk and copies feedback as text |
+
+## Online, across machines
+
+`scripts/sync.mjs` mirrors the canvas to the person's Seenry account, where they see every linked machine's canvases on the Canvases page, pick and comment, and share a view-and-comment link. The local canvas never depends on it.
+
+| Command | Does |
+| --- | --- |
+| `node <skill>/scripts/sync.mjs link [--server url] [--name "Studio iMac"]` | Prints a code and a link; the person approves it while signed in. The token goes to `~/.config/seenry/canvas-sync.json` (mode 0600), never into the project |
+| `sync.mjs push [dir]` / `watch [dir]` | Pushes screens, tokens, images and fresh renders; only files whose content changed are uploaded. `watch` pushes on every change and pulls feedback every 10 seconds |
+| `sync.mjs pull [dir]` | Writes feedback sent online into `feedback.json`, `FEEDBACK.md` and `review.json`, exactly as Send to agent does, so a running or later `wait` gets it |
+| `sync.mjs status` / `unlink` | Shows the link and this canvas online / forgets this machine |
+
+References in `refs/`, the archive, hidden files and `canvas.json` stay on the machine. Screens are shown online in a sandbox with no access to the person's account.
