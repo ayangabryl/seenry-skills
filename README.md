@@ -62,6 +62,16 @@ python3 scripts/install.py --apply
 
 Replacing an older Seenry install: run with `--replace --apply`. Retired skill folders are archived, and the printed manifest works with `--rollback`.
 
+Agents often skip an installed skill they were not told about. `--project <dir>` also writes a short Seenry index (about 130 words, between `<!-- seenry:start -->` and `<!-- seenry:end -->`) into the project's `AGENTS.md`, which Codex, Cursor and Claude Code read. If the project has a `CLAUDE.md` that does not import `@AGENTS.md`, it gets the same block, since Claude Code then skips `AGENTS.md`. Re-running replaces only the block; the dry run prints the diff.
+
+```sh
+python3 scripts/install.py --project . --apply                      # skills and index; asks first when interactive
+python3 scripts/install.py --project . --instructions-only --apply  # index only, e.g. after npx skills add
+python3 scripts/install.py --project . --remove-instructions --apply
+```
+
+`--no-instructions` skips the index. Global files (`~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`) change only with `--global-instructions`. [evals/always-on](evals/always-on) measures how often the agent loads the skill with and without the index.
+
 ## Seenry MCP
 
 The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, and iOS app screens and flows. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
