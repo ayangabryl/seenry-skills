@@ -4,7 +4,7 @@ description: "Exact values for interface polish: type scale, spacing, concentric
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.1.0"
+  version: "3.2.0"
 ---
 
 # Seenry Craft
