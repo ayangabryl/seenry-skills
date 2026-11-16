@@ -17,11 +17,21 @@ Every command is `node <skill>/scripts/canvas.mjs <command>`. The canvas folder 
 | --- | --- |
 | `init` | Creates the folder with `tokens.css`, `wire.css` and `refs/`; ignores itself in git |
 | `init --library <path>` | Links a shared design system (another canvas folder) instead of local tokens |
-| `plan <file>…` | Names the screens you are about to draw. Each shows on the canvas as a placeholder until its file is written; `round` drops the ones that exist |
+| `plan <file>… [--parts "Nav,Hero,Pricing"]` | Names the screens you are about to draw. Each shows on the canvas as a placeholder until its file is written; `round` drops the ones that exist. With `--parts`, the parts not yet written (by `data-seenry-part`) show as dashed outlines under Seenry's cursor while you build |
 | `say "…" [--frame <screen>]` | One line on the canvas's live feed, shown on that screen with an Agent tag. Use it for intent, about once per screen; the other commands post their own lines |
-| `open [--browser]` | Starts the canvas in the background, opens the browser on the options waiting for a pick, prints the address. Inside T3 Code, the Claude app or the Codex app it opens no tab and prints the address to show in the app's preview pane; `--browser` opens a tab anyway. The first time options are on it, prints the time since `init` or `plan` and keeps it in `canvas.json` and `HANDOFF.md` |
+| `open [--browser] [--port n]` | Starts the canvas in the background on `127.0.0.1` at a port fixed per project, opens the browser on the options waiting for a pick, prints the address. Inside an agent app it opens no tab and prints the exact call for that app's pane (table below); `--browser` opens a tab anyway. In a cloud session it starts no server and writes `canvas.html` to publish. The first time options are on it, prints the time since `init` or `plan` and keeps it in `canvas.json` and `HANDOFF.md` |
 | `list` | Prints sections, screens, sizes and links as the canvas sees them |
 | `stop` | Stops the canvas |
+
+| App (detected by) | `open` prints |
+| --- | --- |
+| T3 Code (`T3CODE_THREAD_ID`) | Call `preview_open` with target `{"kind": "environment-port", "port": n}` |
+| Claude app, Code tab (`CLAUDE_CODE_ENTRYPOINT=claude-desktop…`) | Open it in the Browser pane; also writes a `Seenry canvas` entry on the same port in `.claude/launch.json`. The Claude Code CLI gets a tab |
+| Codex app (`CODEX_THREAD_ID`) | Use `@Browser` to open the address. When the sandbox (`CODEX_SANDBOX`) refuses the bind, it says to rerun with escalated permissions |
+| Cursor (`CURSOR_AGENT`) | Call `browser_navigate` (Cursor asks the person to approve) |
+| VS Code (`TERM_PROGRAM=vscode`) | Call `openBrowserPage` |
+| Antigravity, Devin | Use the app's preview tool |
+| Cloud (`CLAUDE_CODE_REMOTE=true`, `CONDUCTOR_IS_LOCAL=0`) | No server; publish `canvas.html` |
 
 The script is plain Node with no packages and serves only to `127.0.0.1`. Without the skill installed, download it once from `https://seenry.design/skills/seenry-canvas/scripts/canvas.mjs` into `.seenry/` and run it from there.
 
@@ -43,7 +53,7 @@ These need Playwright in the project, or `--playwright <path to playwright/index
 
 | Command | Does |
 | --- | --- |
-| `wait [--timeout seconds]` | Blocks until the person presses Send to agent, then prints the feedback. Run it in the background |
+| `wait [--timeout seconds]` | Blocks until the person presses Send, then prints the feedback. Hosts cap a foreground command near two minutes, so without `--timeout` it returns within 100 s with `Still waiting` and the command to run again (exit 0); the canvas keeps showing Seenry is waiting in between. Feedback already handed over is not returned twice. With `--timeout` it exits 3 when time runs out |
 | `feedback` | Prints the last feedback without waiting; exits 3 when it is older than your latest change |
 
 Feedback lists picks, "More like this" requests, approved screens, screens that need changes, each comment with the element it is pinned to, answers to the review questions, and screens with no answer. It is also saved to `FEEDBACK.md`.
