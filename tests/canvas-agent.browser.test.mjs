@@ -210,3 +210,39 @@ test('verify --quick runs the rules without pairing or judging, and says so', {s
   assert.ok(!existsSync(join(dir, '.renders', 'pair')), 'nothing was paired');
   assert.ok(result.issues.some(i => i.kind === 'product'), 'the rule checks still run');
 });
+
+// The person's side: pick under the selected option, point at an element, send; and the side-pane layout.
+test('the canvas UI picks an option, turns a click on an element into a chip, and sends both to wait', {skip}, async t => {
+  const {dir} = project();
+  mkdirSync(join(dir, '02-home.options'));
+  const option = name => `<!doctype html><meta charset="utf-8"><title>Home · ${name}</title><meta name="seenry-axis" content="${name} axis"><h1 data-seenry-part="Hero">${name} headline</h1>`;
+  writeFileSync(join(dir, '02-home.options', 'a-tide.html'), option('Tide'));
+  writeFileSync(join(dir, '02-home.options', 'b-dusk.html'), option('Dusk'));
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5900 + Math.floor(Math.random() * 90))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(r => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) r(); }));
+  const url = `http://127.0.0.1:${JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port}/`;
+  const {chromium} = createRequire(import.meta.url)(playwright);
+  let browser; try { browser = await chromium.launch(); } catch { browser = await chromium.launch({channel: 'chrome'}); }
+  t.after(() => browser.close());
+  const errors = [], page = await browser.newPage({viewport: {width: 1440, height: 900}});
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(url);
+  await page.locator('.frame[data-id="02-home/a-tide"] .lab').click();
+  await page.locator('#pick button', {hasText: 'Pick Tide'}).click();
+  await page.frameLocator('.frame[data-id="02-home/a-tide"] iframe').locator('h1').click();
+  assert.equal(await page.locator('#chips .chip').innerText(), 'Tide · h1');
+  await page.fill('#general', 'Lighter headline');
+  assert.match(await page.locator('#status').innerText(), /1 pick · 1 note/);
+  await page.locator('#send').click();
+  await page.waitForFunction(() => /Saved|Sent/.test(document.getElementById('status').textContent));
+  const feedback = JSON.parse(readFileSync(join(dir, 'feedback.json'), 'utf8'));
+  assert.equal(feedback.picks['02-home'], '02-home/a-tide');
+  assert.deepEqual([feedback.notes[0].frame, feedback.notes[0].selector, feedback.notes[0].text], ['02-home/a-tide', 'h1', 'Lighter headline']);
+  await page.setViewportSize({width: 640, height: 900});
+  await page.waitForFunction(() => document.body.dataset.narrow === 'true');
+  assert.equal(await page.locator('#side').isVisible(), false, 'no list of its own in a side pane');
+  assert.deepEqual(await page.locator('#tabs [role="tab"]').allInnerTexts(), ['Tide', 'Dusk']);
+  assert.equal(await page.locator('#stage iframe').count(), 1, 'one screen at a time');
+  assert.deepEqual(errors, []);
+});

@@ -337,14 +337,55 @@ test('the live feed shows what the agent says and does, and the server notices s
   assert.deepEqual(next.at(-1), {...next.at(-1), kind: 'edit', frame: '01-onboarding/02-first-habit', text: 'Changed First habit, again'});
 });
 
-test('open inside an agent app points at its preview pane instead of opening a tab', () => {
+test('open inside an agent app prints the exact call for its own pane instead of opening a tab', () => {
   const {dir} = project();
-  const env = {...process.env, T3CODE_THREAD_ID: 'test-thread', CI: ''};
-  const out = spawnSync(process.execPath, [script, 'open', dir, '--port', String(5300 + Math.floor(Math.random() * 300))], {encoding: 'utf8', env});
-  spawnSync(process.execPath, [script, 'stop', dir]);
+  const open = (env, ...args) => { const out = spawnSync(process.execPath, [script, 'open', dir, ...args], {encoding: 'utf8', env: {...process.env, CI: '', T3CODE_THREAD_ID: '', CODEX_THREAD_ID: '', CURSOR_AGENT: '', CLAUDE_CODE_ENTRYPOINT: '', CLAUDE_CODE_REMOTE: '', CONDUCTOR_IS_LOCAL: '', TERM_PROGRAM: '', __CFBundleIdentifier: '', ...env}}); spawnSync(process.execPath, [script, 'stop', dir]); return out; };
+  let out = open({T3CODE_THREAD_ID: 'test-thread'});
   assert.equal(out.status, 0, out.stderr);
-  assert.match(out.stdout, /Running inside T3 Code: open http:\/\/127\.0\.0\.1:\d+\/ in its preview pane/);
+  const port = Number(out.stdout.match(/127\.0\.0\.1:(\d+)/)[1]);
+  assert.match(out.stdout, new RegExp(`Running inside T3 Code\\. Call preview_open with target \\{"kind": "environment-port", "port": ${port}\\}`));
   assert.doesNotMatch(out.stdout, /opened in the browser/);
+  assert.equal(Number(open({T3CODE_THREAD_ID: 'x'}).stdout.match(/127\.0\.0\.1:(\d+)/)[1]), port, 'the same project gets the same port');
+  assert.match(open({CODEX_THREAD_ID: 'x'}).stdout, /Use @Browser to open http:\/\/127\.0\.0\.1:\d+\//);
+  assert.match(open({CURSOR_AGENT: '1'}).stdout, /Call browser_navigate with url http/);
+  out = open({CLAUDECODE: '1', CLAUDE_CODE_ENTRYPOINT: 'claude-desktop'});
+  assert.match(out.stdout, /Browser pane/);
+  const launch = JSON.parse(readFileSync(join(dir, '..', '..', '.claude', 'launch.json'), 'utf8'));
+  assert.equal(launch.configurations.find(c => c.name === 'Seenry canvas').port, port);
+  out = open({CLAUDE_CODE_REMOTE: 'true'});
+  assert.match(out.stdout, /cloud session: 127\.0\.0\.1 here is not the person's machine/);
+  assert.ok(existsSync(join(dir, 'canvas.html')));
+});
+
+test('wait returns within the window hosts allow, says how to resume, and keeps the canvas showing it waits', async t => {
+  const {dir} = project();
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5600 + Math.floor(Math.random() * 300))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  const port = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const out = spawnSync(process.execPath, [script, 'wait', dir], {encoding: 'utf8', env: {...process.env, SEENRY_WAIT_WINDOW: '1'}});
+  assert.equal(out.status, 0, out.stderr);
+  assert.match(out.stdout, /Still waiting: nothing sent yet\. Run the same command again to keep waiting: node .*canvas\.mjs wait /);
+  assert.equal(JSON.parse((await call(port, '/state')).body).agentWaiting, true, 'between calls the canvas still says Seenry is waiting');
+  await call(port, '/feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({general: 'Calmer'})});
+  const again = spawnSync(process.execPath, [script, 'wait', dir], {encoding: 'utf8', env: {...process.env, SEENRY_WAIT_WINDOW: '5'}});
+  assert.match(again.stdout, /General: Calmer/);
+  const third = spawnSync(process.execPath, [script, 'wait', dir], {encoding: 'utf8', env: {...process.env, SEENRY_WAIT_WINDOW: '1'}});
+  assert.match(third.stdout, /Still waiting/, 'feedback already handed over is not handed over twice');
+});
+
+test('plan --parts names the parts to come, and the state says which are built', async t => {
+  const {dir} = project();
+  assert.equal(run('plan', '03-pricing.options/quiet.html', '--parts', 'Hero, Plans,FAQ', '--dir', dir).status, 0);
+  mkdirSync(join(dir, '03-pricing.options'));
+  writeFileSync(join(dir, '03-pricing.options', 'quiet.html'), page('Quiet') + '<header data-seenry-part="Hero">Hi</header>');
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await new Promise(done => server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); }));
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const state = JSON.parse((await call(actual, '/state')).body), quiet = state.sections.find(s => s.id === '03-pricing').frames[0];
+  assert.deepEqual([quiet.plan, quiet.parts], [['Hero', 'Plans', 'FAQ'], ['Hero']]);
 });
 
 test('each save names the parts it added, so the feed reads like the build', async t => {
