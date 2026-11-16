@@ -40,16 +40,17 @@ function project() {
 }
 
 /** The protocol the Seenry worker speaks, kept in memory. */
-async function fakeSeenry({feedback = []} = {}) {
-  const state = {blobs: new Map(), pushes: [], uploads: [], acked: [], polls: 0, unlinked: false, feedback};
+async function fakeSeenry({feedback = [], pollSeconds = 0, limit = 0} = {}) {
+  const state = {blobs: new Map(), pushes: [], uploads: [], acked: [], polls: 0, unlinked: false, feedback, feedbackChecks: 0};
   const token = 'seenry_canvas_' + 'x'.repeat(43);
   const server = createServer(async (req, res) => {
     const chunks = []; for await (const c of req) chunks.push(c);
-    const body = Buffer.concat(chunks), send = (status, data) => { res.writeHead(status, {'content-type': 'application/json'}); res.end(JSON.stringify(data)); };
+    const body = Buffer.concat(chunks), send = (status, data) => { res.writeHead(status, {'content-type': 'application/json'}); res.end(JSON.stringify(pollSeconds && status === 200 ? {...data, pollSeconds} : data)); };
     const url = new URL(req.url, 'http://x');
     if (url.pathname === '/api/canvas/link/start') return send(200, {deviceCode: 'd'.repeat(43), userCode: 'BCDF-GHJK', verificationUrl: 'http://seenry.test/canvases/link?code=BCDF-GHJK', expiresIn: 30, interval: 0});
     if (url.pathname === '/api/canvas/link/poll') return ++state.polls < 2 ? send(200, {status: 'pending'}) : send(200, {status: 'approved', token, machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}});
     if (req.headers.authorization !== 'Bearer ' + token || state.unlinked) return send(401, {detail: 'Link this machine first'});
+    if (limit && url.pathname === '/api/canvas/sync/push') return send(limit, {detail: 'Free accounts sync one canvas. Upgrade to sync more.'});
     if (url.pathname === '/api/canvas/sync/push') {
       const data = JSON.parse(body); state.pushes.push(data);
       const missing = [...new Set([...data.files.map(f => f.hash), ...data.screens.filter(s => s.png).map(s => s.png.hash)])].filter(h => !state.blobs.has(h));
@@ -60,6 +61,7 @@ async function fakeSeenry({feedback = []} = {}) {
       if (sha(body) !== hash) return send(400, {detail: 'hash mismatch'});
       state.blobs.set(hash, body); state.uploads.push(hash); return send(200, {hash, stored: true});
     }
+    if (url.pathname === '/api/canvas/sync/feedback') state.feedbackChecks++;
     if (url.pathname === '/api/canvas/sync/feedback') return send(200, {canvasId: 'c1', events: state.feedback.filter(e => !state.acked.includes(e.id))});
     if (url.pathname === '/api/canvas/sync/feedback/ack') { state.acked.push(...JSON.parse(body).ids); return send(200, {acked: 1}); }
     if (url.pathname === '/api/canvas/sync/status') return send(200, {machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}, canvases: [...new Set(state.pushes.map(p => p.localKey))].map(localKey => ({id: 'c1', title: 'Kept', localKey, screens: 3, pending: 0, pushedAt: Date.now(), url: 'http://seenry.test/canvases/c1'}))});
@@ -201,4 +203,28 @@ test('open starts the watch on a linked machine, Share returns the Seenry link, 
     assert.equal(alive(), false, 'the watch stopped with the canvas');
     assert.ok(!existsSync(join(p.dir, '.sync.json')));
   } finally { await run(canvas, ['stop', p.dir], {cwd: p.root}); await seenry.close(); }
+});
+
+test('watch never asks for feedback faster than the plan allows, and stops on a plan limit with its message', async () => {
+  const slow = await fakeSeenry({pollSeconds: 2}), p = project();
+  try {
+    const env = await linked(slow, p);
+    const child = spawn(process.execPath, [sync, 'watch', '--pull-every', '100', '--debounce', '0'], {cwd: p.root, env: {...process.env, ...env}});
+    await new Promise(r => setTimeout(r, 3500));
+    child.kill();
+    assert.ok(slow.state.pushes.length >= 1);
+    assert.ok(slow.state.feedbackChecks >= 1 && slow.state.feedbackChecks <= 2, `${slow.state.feedbackChecks} checks in 3.5 s with pollSeconds 2`);
+  } finally { await slow.close(); }
+  const limited = await fakeSeenry({limit: 402}), q = project();
+  try {
+    const env = await linked(limited, q);
+    const pushed = await run(sync, ['push'], {cwd: q.root, env});
+    assert.equal(pushed.status, 3);
+    assert.match(pushed.err, /Free accounts sync one canvas/);
+    const started = Date.now(), watched = await run(sync, ['watch', '--debounce', '0'], {cwd: q.root, env});
+    assert.equal(watched.status, 3, 'the watch stops instead of retrying');
+    assert.ok(Date.now() - started < 5000);
+    assert.match(watched.err, /Sync stopped: Free accounts sync one canvas/);
+    assert.ok(!existsSync(join(q.dir, '.sync.json')), 'the canvas no longer says Synced to Seenry');
+  } finally { await limited.close(); }
 });

@@ -92,7 +92,7 @@ Feedback lists picks, "More like this" requests, approved screens, screens that 
 | Command | Does |
 | --- | --- |
 | `node <skill>/scripts/sync.mjs link [--server url] [--name "Studio iMac"]` | Prints a code and a link; the person approves it while signed in. The token goes to `~/.config/seenry/canvas-sync.json` (mode 0600), never into the project |
-| `sync.mjs push [dir]` / `watch [dir]` | Pushes screens, tokens, images and fresh renders; only files whose content changed are uploaded. `watch` pushes on every change and pulls feedback every 10 seconds |
+| `sync.mjs push [dir]` / `watch [dir]` | Pushes screens, tokens, images and fresh renders; only files whose content changed are uploaded. `watch` pushes on every change and pulls feedback as often as the account's plan allows (the server's `pollSeconds`, 10 s by default); at a plan limit (402) it stops with the server's message, and when rate-limited (429) it waits as told |
 | `sync.mjs pull [dir]` | Writes feedback sent online into `feedback.json`, `FEEDBACK.md` and `review.json`, exactly as Send to agent does, so a running or later `wait` gets it |
 | `sync.mjs status` / `unlink` | Shows the link and this canvas online / forgets this machine |
 

@@ -9,6 +9,7 @@
  *  node sync.mjs status [dir]            show the link, this canvas online and feedback waiting to be pulled
  *  node sync.mjs unlink                  forget this machine here and on the server
  *
+ * watch asks for feedback no more often than the server's pollSeconds (10 s by default) and stops on a plan limit (402).
  * The canvas folder defaults to .seenry/canvas. The token lives in your config folder (mode 0600), never in the
  * project. The local canvas never depends on the server: when it is unreachable, sync waits and tries again.
  * Plain Node 18+, no packages.
@@ -61,13 +62,21 @@ function agentName() {
   return '';
 }
 
+// The server's plan sets how often a machine may ask for feedback (pollSeconds); the watch never asks faster.
+let serverPoll = 0;
+const LIMITED = new Set([402, 429]);
 async function api(config, path, {method = 'GET', body, raw} = {}) {
   const headers = {authorization: `Bearer ${config.token}`};
   if (body !== undefined) headers['content-type'] = 'application/json';
   if (raw) headers['content-type'] = 'application/octet-stream';
   const response = await fetch(config.server + path, {method, headers, body: raw || (body !== undefined ? JSON.stringify(body) : undefined)});
   const data = await response.json().catch(() => null);
-  if (!response.ok) { const error = new Error(data?.detail || `Seenry answered ${response.status}`); error.status = response.status; throw error; }
+  if (Number(data?.pollSeconds) > 0) serverPoll = Number(data.pollSeconds);
+  if (!response.ok) {
+    const error = new Error(data?.detail || data?.message || data?.error || `Seenry answered ${response.status}`);
+    error.status = response.status; error.retryAfter = Number(response.headers.get('retry-after')) || 0;
+    throw error;
+  }
   return data;
 }
 function requireConfig() {
@@ -307,7 +316,8 @@ async function status() {
 async function watch(config) {
   const signature = () => { try { const {files} = collectFiles(); return JSON.stringify([agentWaiting(), mtime(join(dir, 'canvas.json')), ...files.map(f => [f.path, f.size, mtime(join(dir, f.path))]), existsSync(join(dir, '.renders')) ? readdirSync(join(dir, '.renders')).length : 0]); } catch { return ''; } };
   let pushed = '', seen = signature(), changedAt = 0, nextPull = 0, backoff = 0, offline = false;
-  const debounce = Number(flag('debounce', 1500)), every = Number(flag('pull-every', 10000));
+  const debounce = Number(flag('debounce', 1500)), asked = Number(flag('pull-every', 10000));
+  const every = () => Math.max(asked, serverPoll * 1000 || 10000);
   // canvas.mjs reads this record to say "Synced to Seenry" and to stop the watch with the canvas.
   const record = join(dir, '.sync.json'), mark = url => { try { writeFileSync(record, JSON.stringify({pid: process.pid, server: config.server, url: url || ''})); } catch {} };
   const clear = () => { try { if (JSON.parse(readFileSync(record, 'utf8')).pid === process.pid) rmSync(record, {force: true}); } catch {} };
@@ -320,10 +330,17 @@ async function watch(config) {
       const current = signature();
       if (current !== seen) { seen = current; changedAt = now; }
       if (current !== pushed && now - changedAt >= debounce) { const result = await push(config, {quiet: true}); pushed = current; if (result?.url) mark(result.url); console.log(`${new Date().toLocaleTimeString()} pushed`); }
-      if (now >= nextPull) { nextPull = now + every; await pull(config, {quiet: true}); }
+      if (now >= nextPull) { nextPull = now + every(); await pull(config, {quiet: true}); }
       if (offline) { offline = false; console.log('Back online.'); }
     } catch (error) {
       if (error.status === 401) { console.error(error.message); process.exit(2); }
+      // A plan limit is not a network blip: say what the server said, and do not hammer it.
+      if (error.status === 402) { console.error(`Sync stopped: ${error.message}`); process.exit(3); }
+      if (error.status === 429) {
+        const seconds = Math.max(error.retryAfter, serverPoll, 60);
+        console.error(`Sync paused for ${seconds} s: ${error.message}`);
+        backoff = Date.now() + seconds * 1000; nextPull = Math.max(nextPull, backoff); offline = false; await wait(500); continue;
+      }
       if (!offline) console.error(`Sync paused: ${error.message}. The local canvas keeps working; retrying.`);
       offline = true; backoff = Date.now() + 15000;
     }
@@ -346,5 +363,5 @@ try {
   } else { console.error('Usage: node sync.mjs link|push|watch|pull|status|unlink [dir]'); process.exit(2); }
 } catch (error) {
   console.error(error.message || String(error));
-  process.exit(1);
+  process.exit(LIMITED.has(error.status) ? 3 : 1);
 }
