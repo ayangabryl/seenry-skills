@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.0
+
+### Fast path
+
+- **The person is the judge.** The default path is brief, three references looked at, one idea line per direction, a generated hero image per direction, hero-only sketches, the person's pick, then the full page, the build and one `check.mjs` run. First sketches are due on the canvas within 5 minutes and no step loops more than twice. Three eval rounds showed the written teardown, the pair judge and per-section loops added minutes without raising a page's level.
+- **Scripts hold what was skipped.** `canvas.mjs verify` blocks a sketch with no `<meta name="seenry-idea">` line or no generated or own image in its hero (a flat block or a plain gradient is measured and refused), and a full page whose hero image or `data-seenry-motif` never returns below the hero; `check.mjs` blocks the same on the built page. Each message gives the command that fixes it.
+- **No model judges by default.** The teardown, the pair judge, the photo check and the blind critic run only with `--studio`, or in an unattended run (`verify --judge`, a recorded `round --unattended`). `verify --quick` is now simply `verify`. A default `check.mjs` run ends `CHECKS PASS` with no score; a pick on the canvas counts as the go-ahead to build.
+- **Three times, kept.** `open`, `round` and `handoff` print the time to the first sketch, to the pick and to the finished build, and `canvas.json` keeps them as `timing`. `image.mjs --template` prints a job to fill in and `--wait` returns within 100 s.
+- **Eval.** `evals/baseline/run.mjs --director` runs with a person at the canvas (`direct.mjs watch`, `shots`, `pick`), records the timings and generated images, and `--without-example` removes the worked example from a run on its own job; `judge-cross.mjs` pairs a round against fixed comparators.
+
 ## 3.1.0
 
 ### Canvas online

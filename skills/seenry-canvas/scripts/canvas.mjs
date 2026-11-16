@@ -27,9 +27,11 @@
  *  node canvas.mjs tree    [screens]     the layout: boxes, text, the variable behind each style, specs, links
  *  node canvas.mjs verify  [screens]     overflow, clipped text, contrast in both modes, small text and targets, names,
  *                                        broken links, detached values, components drawn differently across screens; for
- *                                        options, the teardown, a pair render beside a reference, and the execution bar
+ *                                        sketches, an idea line and a real image in the hero; for the picked page, the
+ *                                        image or its motif returning below the hero; for options, the execution bar
  *                                        (product view inventory, hue families, headline lines and size)
- *  node canvas.mjs verify --quick        the rule-based checks only, in seconds: use it while iterating, never before showing
+ *  node canvas.mjs verify --studio       also the written teardown and a blind judge on each option beside its
+ *                                        references; --judge runs the judge alone, for a run nobody can review
  *  node canvas.mjs diff    [screens]     what visibly changed since the last render
  *  node canvas.mjs compare <screen> <url>   the built screen against its design: pixels, missing text, style differences
  *  --json on list, feedback, render, tree, verify, diff and compare prints machine-readable output.
@@ -48,6 +50,7 @@
  *  A frame's name is its <title>; <meta name="seenry-caption" content="..."> is the short line shown under it (else
  *  the axis up to its first colon or comma); <meta name="seenry-note" content="..."> is read when it is selected.
  *  <meta name="seenry-fidelity" content="sketch"> marks a one-screen sketch: the first screen only, extended after the pick.
+ *  <meta name="seenry-idea" content="…"> is the one idea that carries the page, and how image and interface meet.
  *  A link from one screen to another (<a href="02-next.phone.html">) is a prototype connection: the canvas draws it
  *  and Present mode follows it, like a Figma prototype.
  *  Plain Node, no packages, bound to 127.0.0.1. */
@@ -64,7 +67,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'open';
 const flag = (name, fallback) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? argv[i + 1] : fallback; };
-const SWITCHES = new Set(['--no-browser', '--browser', '--json', '--no-judge', '--quick']);
+const SWITCHES = new Set(['--no-browser', '--browser', '--json', '--no-judge', '--quick', '--studio', '--judge']);
 // Arguments after the command that are not a --flag or a flag's value.
 const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !SWITCHES.has(all[i - 1])));
 const ARGS = {status: 2, resolve: 1, archive: 1, log: 1, round: 1, say: 1, sync: 1}[command] || 0;
@@ -627,7 +630,7 @@ function frameFrom(folder, file, root = dir, prefix = '') {
   const {title, note, meta} = head(join(root, rel));
   const [w, h] = DEVICES[device];
   return {id: prefix + idFor(folder, file), kind: 'page', src: prefix + rel, name: title || pretty(clean), note, caption: captionOf(meta, note), device, w, h, rev: mtime(join(root, rel)), links: linksOf(folder, file, root), specs: specsIn(join(root, rel)).length,
-    axis: meta.axis || '', wins: meta.wins || '', cost: meta.cost || '', risk: /^(safe|bold)$/i.test(meta.risk || '') ? meta.risk.toLowerCase() : '', ask: (meta.ask || '').split('|').map(s => s.trim()).filter(Boolean).slice(0, 4), sketch: /^sketch$/i.test(meta.fidelity || '')};
+    axis: meta.axis || '', wins: meta.wins || '', cost: meta.cost || '', risk: /^(safe|bold)$/i.test(meta.risk || '') ? meta.risk.toLowerCase() : '', ask: (meta.ask || '').split('|').map(s => s.trim()).filter(Boolean).slice(0, 4), sketch: /^sketch$/i.test(meta.fidelity || ''), idea: (meta.idea || '').trim()};
 }
 
 /** Handoff annotations: elements a screen marks with data-spec="…". */
@@ -2177,6 +2180,7 @@ function serve(port, attempts = 20) {
             notes: (Array.isArray(d.notes) ? d.notes : []).slice(0, 200).map(n => ({frame: text(n.frame, 200), target: text(n.target, 160), selector: text(n.selector, 240), text: text(n.text, 2000)})),
             riff: (Array.isArray(d.riff) ? d.riff : []).slice(0, 20).map(r => ({section: text(r.section, 120), frame: text(r.frame, 200)})),
             general: text(d.general, 4000), at: new Date().toISOString()};
+          if (Object.keys(clean.picks).length) { const m = readManifest(); if (stamp(m, 'picked', clean.at)) writeManifest(m); }
           writeFileSync(join(dir, 'feedback.json'), JSON.stringify(clean, null, 2) + '\n');
           writeFileSync(join(dir, 'FEEDBACK.md'), '# Canvas feedback\n\n' + feedbackLines(clean).join('\n') + '\n');
           const review = readReview(), now = Date.now();
@@ -2390,6 +2394,7 @@ function resolveOptions(state, sectionId) {
       if (next !== html) writeFileSync(file, next);
     }
   }
+  { const m = readManifest(); if (stamp(m, 'picked', state.feedback?.picks?.[sectionId] === pick ? state.feedback.at : undefined)) writeManifest(m); }
   console.log(`Kept ${pick} in ${to}/.`);
 }
 
@@ -2404,6 +2409,7 @@ function round(text, unattended) {
   if (unattended) { manifest.unattended = {at: new Date().toISOString(), reason: String(unattended).slice(0, 400)}; manifest.log = [...(Array.isArray(manifest.log) ? manifest.log : []), {at: manifest.unattended.at, text: 'Unattended: ' + manifest.unattended.reason}]; }
   manifest.sections = {...manifest.sections};
   if (Array.isArray(manifest.planned)) manifest.planned = manifest.planned.filter(p => !existsSync(join(dir, String(p))));
+  if (unattended) stamp(manifest, 'picked');
   const lines = [];
   for (const s of state.sections.filter(s => !s.system && !s.reference)) {
     const approved = s.frames.filter(f => state.approvals[f.id] === 'approved').length;
@@ -2414,6 +2420,7 @@ function round(text, unattended) {
   }
   writeManifest(manifest);
   activity('round', text ? `Round done: ${text}` : 'Round done');
+  if (timingLine(manifest)) lines.push(timingLine(manifest));
   console.log(lines.join('\n') + (text ? '\nLogged.' : '') + (unattended ? '\nUnattended run recorded. No screen is approved: say which option you chose and why, and list every screen as not approved by a person.' : ''));
 }
 
@@ -2443,10 +2450,11 @@ function handoff() {
   if (archive.length) lines.push('## Decided against', '', ...archive.map(([id, a]) => `- ${id}: ${a.reason}`), '');
   if (state.log.length) lines.push('## Change log', '', ...[...state.log].reverse().map(l => `- ${String(l.at).slice(0, 10)}: ${l.text}`), '');
   const took = firstOptionTime(manifest);
-  if (took) lines.push('## Speed', '', `First option shown ${took} after the canvas was started.`, '');
+  if (took) lines.push('## Speed', '', `First option shown ${took} after the canvas was started.`, ...(timingLine(manifest) ? [timingLine(manifest)] : []), '');
   writeFileSync(join(dir, 'HANDOFF.md'), lines.join('\n'));
   activity('handoff', 'Wrote the handoff for the build');
   console.log(`Wrote ${join(dir, 'HANDOFF.md')}`);
+  if (timingLine(manifest)) console.log(timingLine(manifest));
 }
 
 const span = ms => ms < 90000 ? `${Math.max(1, Math.round(ms / 1000))} s` : `${Math.round(ms / 60000)} min`;
@@ -2454,12 +2462,31 @@ function firstOptionTime(manifest) {
   const a = Date.parse(manifest.started || ''), b = Date.parse(manifest.firstOption || '');
   return a && b && b >= a ? span(b - a) : '';
 }
+/** Seconds from the start (init or plan) to the first sketch shown, to the person's pick, and to the finished build
+ *  (check.mjs stamps `built` when its gate passes). Kept in canvas.json as `timing`; null until each has happened. */
+const FIRST_SKETCH_TARGET = 300;
+function timingOf(manifest) {
+  const start = Date.parse(manifest.started || ''), secs = key => { const t = Date.parse(manifest[key] || ''); return start && t && t >= start ? Math.round((t - start) / 1000) : null; };
+  return {firstSketchSeconds: secs('firstOption'), pickSeconds: secs('picked'), builtSeconds: secs('built')};
+}
+function stamp(manifest, key, at = new Date().toISOString()) {
+  if (manifest.error || !manifest.started || manifest[key]) return false;
+  manifest[key] = at; manifest.timing = timingOf(manifest);
+  return true;
+}
+function timingLine(manifest) {
+  const t = timingOf(manifest), parts = [];
+  if (t.firstSketchSeconds !== null) parts.push(`first sketch at ${span(t.firstSketchSeconds * 1000)}${t.firstSketchSeconds > FIRST_SKETCH_TARGET ? ' (target: within 5 min)' : ''}`);
+  if (t.pickSeconds !== null) parts.push(`pick at ${span(t.pickSeconds * 1000)}`);
+  if (t.builtSeconds !== null) parts.push(`build finished at ${span(t.builtSeconds * 1000)}`);
+  return parts.length ? `Time since the canvas was started: ${parts.join(', ')}.` : '';
+}
 /** Called when the canvas is shown to the person: the first time options are on it, the time since the start is kept. */
 function markShown() {
   const manifest = readManifest();
   if (manifest.error || manifest.firstOption || !manifest.started) return '';
   if (!readState().sections.some(s => s.choose && !s.study && s.frames.length)) return '';
-  manifest.firstOption = new Date().toISOString(); writeManifest(manifest);
+  stamp(manifest, 'firstOption'); writeManifest(manifest);
   return firstOptionTime(manifest);
 }
 
@@ -2721,7 +2748,12 @@ const readPairs = () => { try { return JSON.parse(readFileSync(pairLog(), 'utf8'
 
 async function verify(names) {
   const state = readState(), frames = pickFrames(state, names), issues = [], byClass = {};
-  activity('check', `Checking ${frames.length === 1 ? frames[0].name : frames.length + ' screens'}${argv.includes('--quick') ? ' (quick)' : ''}`, frames.length === 1 ? frames[0].id : '');
+  // The person is the judge. Model judges (the pair judge, the reskin check) and the written teardown run only when
+  // asked for with --studio (or "speed": "studio" in canvas.json), or when nobody can review (--judge, or a recorded
+  // unattended round). Three rounds of testing: they added minutes and never raised a page's level.
+  const manifest = readManifest(), studio = argv.includes('--studio') || state.speed === 'studio';
+  const judged = !argv.includes('--no-judge') && (studio || argv.includes('--judge') || !!manifest.unattended);
+  activity('check', `Checking ${frames.length === 1 ? frames[0].name : frames.length + ' screens'}`, frames.length === 1 ? frames[0].id : '');
   const known = new Set(state.sections.flatMap(s => s.frames.map(f => f.src)));
   const find = id => { for (const s of state.sections) for (const f of s.frames) if (f.id === id) return {section: s, frame: f}; return null; };
   await withBrowser(async (browser, base) => {
@@ -2753,17 +2785,38 @@ async function verify(names) {
   // each option put beside a reference, and the execution bar on desktop screens. Showing options composed from memory
   // was the top failure in testing. A wireframe stage (set in canvas.json) is exempt: it has no look to study yet.
   const optionFrames = frames.filter(f => find(f.id)?.section.choose);
-  if (optionFrames.length && !['map', 'wireframe'].includes(state.stage)) {
+  const drawn = !['map', 'wireframe'].includes(state.stage);
+  const bar = drawn ? await executionBar() : null;
+  // What a weaker model skips unless a script holds it: the one idea in a line, a real image in the hero of every
+  // sketch, and that image or its motif coming back below the hero once the pick is a full page.
+  const sketches = drawn ? optionFrames.filter(f => f.sketch) : [], pages = drawn ? frames.filter(f => !f.sketch && f.idea && !find(f.id)?.section.choose) : [];
+  for (const f of sketches) if (f.idea.split(/\s+/).filter(Boolean).length < 6) issues.push({frame: f.id, mode: 'light', severity: 'error', kind: 'idea', selector: 'meta[name=seenry-idea]', message: `${f.idea ? `Its idea line is ${f.idea.split(/\s+/).length} words (needs 6 or more)` : 'No idea line (needs 1)'}. Add to the <head> of ${f.src}: <meta name="seenry-idea" content="<the idea that carries the whole page>; <how the hero image and the interface meet>">`});
+  if (bar?.collectHero && (sketches.length || pages.length)) {
+    const seenry = resolve(dir, '..'), imageScript = relative(process.cwd(), join(here, '..', '..', 'seenry', 'scripts', 'image.mjs')), jobs = relative(process.cwd(), join(dir, 'img', 'jobs.json'));
+    const pending = existsSync(join(seenry, 'images.pending'));
+    const own = url => { try { const file = resolve(dir, '.' + decodeURIComponent(new URL(url).pathname)); return file.startsWith(dir + sep) && existsSync(file); } catch { return false; } };
+    await withBrowser(async (browser, base) => {
+      for (const f of [...sketches, ...pages]) {
+        const [[, w, h]] = devicesFor(f); if (w < 1200) continue;
+        const {context, page} = await openPage(browser, base + f.src.split('/').map(encodeURIComponent).join('/'), w, h, 'light');
+        const hero = bar.judgeHero(await page.evaluate(bar.collectHero), {sketch: f.sketch, full: !f.sketch, own});
+        await context.close();
+        for (const m of hero.noImage) issues.push({frame: f.id, mode: 'light', severity: 'error', kind: 'hero-image', selector: 'img', message: `No generated or own image in the hero: ${m}. ${pending ? `Images are still generating. Run: node ${imageScript} --wait   then verify again.` : `Write one art-directed job for it in ${jobs} (fields: node ${imageScript} --template), run: node ${imageScript} --batch ${jobs} --background   then place the file in the hero as an <img> or a background and run verify again.`}`});
+        for (const m of hero.noReturn) issues.push({frame: f.id, mode: 'light', severity: 'error', kind: 'idea-return', selector: 'section', message: `The idea stops at the hero: ${m}. Then run: node ${relative(process.cwd(), fileURLToPath(import.meta.url))} verify ${f.id}`});
+        for (const m of hero.notes) issues.push({frame: f.id, mode: 'light', severity: 'warn', kind: 'idea-return', selector: 'section', message: m});
+      }
+    });
+  }
+  if (optionFrames.length && drawn) {
     const seenry = resolve(dir, '..'), tearFile = join(seenry, 'teardown.md');
-    const bar = await executionBar();
     // With no teardown yet, verify writes one: full-size crops of up to three references and a section each to fill in.
     let tear = existsSync(tearFile) ? readFileSync(tearFile, 'utf8') : '', started = 0;
-    if (!tear.trim()) {
+    if (studio && !tear.trim()) {
       const td = await seenryScript('teardown.mjs'), images = d => existsSync(d) ? readdirSync(d).filter(n => /\.(png|jpe?g|webp|avif)$/i.test(n)).sort().map(n => join(d, n)) : [];
       const inputs = [...images(join(seenry, 'level')), ...images(join(dir, 'refs'))].slice(0, 3);
       if (td && inputs.length) { await withBrowser(async browser => { started = (await td.prepareTeardown({dir: seenry, inputs, browser})).length; }); tear = readFileSync(tearFile, 'utf8'); }
     }
-    const problems = bar ? bar.teardownProblems(tear) : !tear.trim() ? ['it does not exist'] : tear.length < 900 ? ['it is too short to hold measurements per reference'] : [];
+    const problems = !studio ? [] : bar ? bar.teardownProblems(tear) : !tear.trim() ? ['it does not exist'] : tear.length < 900 ? ['it is too short to hold measurements per reference'] : [];
     if (problems.length) issues.push({frame: find(optionFrames[0].id).section.id, mode: 'light', severity: 'error', kind: 'teardown', selector: relative(process.cwd(), tearFile), message: started
       ? `Fill in ${relative(process.cwd(), tearFile)}: it was just written with ${started} reference sections, and their full-size crops are in ${relative(process.cwd(), join(dir, 'refs', 'crops'))}. Open each crop and replace every __ with a count or a measurement.`
       : `Finish ${relative(process.cwd(), tearFile)} before any option is shown: ${problems.join('; ')}.${existsSync(join(dir, 'refs')) && readdirSync(join(dir, 'refs')).some(n => /\.(png|jpe?g|webp|avif)$/i.test(n)) || existsSync(join(seenry, 'level')) ? '' : ` Save two or more reference screens to ${relative(process.cwd(), join(dir, 'refs'))} first; verify then writes the crops and the sections to fill in.`}`});
@@ -2776,8 +2829,7 @@ async function verify(names) {
     const asWord = s => new RegExp(`(^|[^a-z0-9-])${s.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^a-z0-9-])`);
     const namedRefs = allRefs.filter(p => asWord(basename(p)).test(composeText) || (basename(p, extname(p)).length >= 4 && asWord(basename(p, extname(p))).test(composeText)));
     const pairWith = (namedRefs.length ? namedRefs : [refFiles(join(seenry, 'level'))[0], refFiles(join(dir, 'refs'))[0]].filter(Boolean)).slice(0, 2);
-    const quick = argv.includes('--quick');
-    if (hasRefs && !argv.includes('--no-judge') && !quick) for (const f of optionFrames) {
+    if (hasRefs && judged) for (const f of optionFrames) {
       const src = join(dir, f.src), changed = existsSync(src) ? statSync(src).mtimeMs : 0;
       for (const ref of pairWith) {
         const had = readPairs().find(e => e.frame === f.id && e.reference === basename(ref));
@@ -2790,7 +2842,7 @@ async function verify(names) {
     // is put beside the example's screenshot too, unless the brief is the example's own product.
     const exampleShot = join(here, '..', '..', 'seenry', 'assets', 'examples', 'waterline', 'waterline-example.jpg');
     const briefText = [join(seenry, 'brief.md'), join(seenry, 'BRIEF.md')].filter(existsSync).map(p => readFileSync(p, 'utf8')).join('\n');
-    if (existsSync(exampleShot) && !argv.includes('--no-judge') && !quick && !/ledgerline/i.test(briefText)) for (const f of optionFrames) {
+    if (existsSync(exampleShot) && judged && !/ledgerline/i.test(briefText)) for (const f of optionFrames) {
       const [[, w]] = devicesFor(f); if (w < 1200) continue;
       const src = join(dir, f.src), changed = existsSync(src) ? statSync(src).mtimeMs : 0;
       const had = readPairs().find(e => e.frame === f.id && e.reference === basename(exampleShot));
@@ -2801,7 +2853,7 @@ async function verify(names) {
     // A pair render is only evidence once someone other than the builder has judged it: a yes to "reskin" or
     // "less finished" blocks the option until it is fixed and paired again.
     const judge = await seenryScript('judge_pair.mjs'), pairs = readPairs().filter(e => optionFrames.some(f => f.id === e.frame));
-    for (const e of quick ? [] : pairs) {
+    for (const e of judged ? pairs : []) {
       const src = join(dir, find(e.frame)?.frame.src || ''), stale = existsSync(src) && statSync(src).mtimeMs > Date.parse(e.at || 0);
       if (judge?.blocked(e.verdict)) issues.push({frame: e.frame, mode: 'light', severity: 'error', kind: 'pair-verdict', selector: e.reference, message: judge.pairBlocks([e])[0] + (stale ? ' The screen changed since: pair it again for a new verdict.' : '')});
       else if (!e.verdict || e.verdict.skipped) issues.push({frame: e.frame, mode: 'light', severity: 'warn', kind: 'pair-verdict', selector: e.reference, message: `Paired with ${e.reference} but not judged (${e.verdict?.skipped || 'no verdict'}): the pair image is yours to look at, the verdict is not yours to give. Run pair again where a model CLI is available.`});
@@ -2841,12 +2893,12 @@ async function verify(names) {
   const detached = blocks.filter(b => wanted.has(b[0]) && b.slice(1).some(l => /detached|does not link/.test(l))).map(b => b.join('\n')).join('\n');
   const errors = issues.filter(i => i.severity === 'error').length;
   activity('check', errors ? `Found ${errors} problem${errors === 1 ? '' : 's'} to fix${issues.length - errors ? `, ${issues.length - errors} to look at` : ''}` : `Checks pass${issues.length ? `, ${issues.length} warning${issues.length === 1 ? '' : 's'}` : ''}`, frames.length === 1 ? frames[0].id : '');
-  if (json) console.log(JSON.stringify({errors, warnings: issues.length - errors, quick: argv.includes('--quick'), issues, detached}, null, 2));
+  if (json) console.log(JSON.stringify({errors, warnings: issues.length - errors, judged, issues, detached}, null, 2));
   else {
     for (const i of issues) console.log(`${i.severity === 'error' ? 'ERROR' : 'warn '}  ${i.frame}${i.mode === 'dark' ? ' (dark)' : ''}  ${i.selector}\n       ${i.message}`);
     if (detached) console.log(detached);
     console.log(issues.length ? `\n${errors} error${errors === 1 ? '' : 's'}, ${issues.length - errors} warning${issues.length - errors === 1 ? '' : 's'} in ${frames.length} screen${frames.length === 1 ? '' : 's'}.` : `All ${frames.length} screens pass.`);
-    if (argv.includes('--quick')) console.log('Quick: rules only. The pairs and the judge did not run, so run verify without --quick before you show anything.');
+    if (optionFrames.length && drawn) console.log(judged ? 'A blind judge compared each option with its references.' : `No model judged these options: the person does.${errors ? '' : ` Next: node ${relative(process.cwd(), fileURLToPath(import.meta.url))} open   then wait for their pick.`}`);
   }
   return errors ? 1 : 0;
 }
@@ -3010,6 +3062,7 @@ if (command === 'init') {
   if (synced) console.log(synced.started ? `This machine is linked to Seenry: started sync.mjs watch, so the canvas and its feedback stay in sync online (log: ${join(dir, '.sync.log')}).` : 'Syncing to Seenry (sync.mjs watch is running).');
   activity('open', 'Opened the canvas for you');
   const took = markShown(); if (took) console.log(`First option shown ${took} after the canvas was started.`);
+  const times = timingLine(readManifest()); if (times) console.log(times);
   if (state.error) console.log(state.error);
 } else if (command === 'list') {
   const state = readState();

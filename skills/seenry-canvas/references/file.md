@@ -64,6 +64,7 @@ Put these in the screen's `<head>`.
 | `<meta name="seenry-cost" content="…">` | For an option: what it gives up |
 | `data-seenry-part="Plan cards"` on an element | The part's name, shown on Seenry's cursor and in the live feed as the part is added |
 | `<meta name="seenry-fidelity" content="sketch">` | For an option: drawn as its first screen only. Remove it once the picked sketch is a full page |
+| `<meta name="seenry-idea" content="…">` | The idea that carries the whole page, and how the hero image and the interface meet. `verify` blocks a sketch without it, and holds the full page to it |
 
 ## Tokens
 
@@ -125,7 +126,7 @@ Present opens on the flow of the selected screen and follows the links between s
 }
 ```
 
-`round`, `status`, `resolve`, `archive` and `log` write `sections`, `log` and `archive` for you; `init`, `plan` and `open` write `started`, `planned` and `firstOption`.
+`round`, `status`, `resolve`, `archive` and `log` write `sections`, `log` and `archive` for you; `init`, `plan` and `open` write `started`, `planned` and `firstOption`; the pick writes `picked`, the build gate `built`, and `timing` holds each in seconds from the start.
 
 ## A shared design system
 

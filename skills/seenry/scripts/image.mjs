@@ -5,6 +5,7 @@
  *  node image.mjs --subject "..." --concept "..." --palette "#2b1314,#e6e0d5,#6b1f24" --grade desaturated-one-accent \
  *                 --light "..." --light-reason "..." --texture grain --texture-reason "..." \
  *                 --slot "hero, right of the headline" --field "left two-thirds" --mode cutout --prop "..." --out assets/hero.png
+ *  --template print one filled job to copy; --background start detached and return; --wait wait for a background batch
  *  --dry      print the composed prompts and exit, without generating
  *  --raw      accept free-text {"prompt": "...", "out": "..."} jobs (old behaviour); stock tells are still reported
  *  --variants 3 --brand "<brand>" [--refs a.png,b.png]   generate 3 candidates per shot and keep the one photo_check.mjs
@@ -26,10 +27,25 @@ const args = process.argv.slice(2);
 // marker (.seenry/images.pending) stays until the job ends; check.mjs and `image.mjs --wait` wait for it.
 const pendingFile = resolve(process.env.SEENRY_DIR || '.seenry', 'images.pending');
 markWorkDir(pendingFile);
+// Hosts cap a foreground command near two minutes, so --wait returns within 100 s and says to run it again.
 if (args.includes('--wait')) {
   const start = Date.now();
-  while (existsSync(pendingFile) && Date.now() - start < 30 * 60 * 1000) await new Promise(r => setTimeout(r, 3000));
-  console.log(existsSync(pendingFile) ? 'Images still generating after 30 minutes; check .seenry/images.log.' : 'Images ready.');
+  while (existsSync(pendingFile) && Date.now() - start < 100 * 1000) await new Promise(r => setTimeout(r, 2000));
+  let log = ''; try { log = readFileSync(resolve(dirname(pendingFile), 'images.log'), 'utf8').trim().split('\n').filter(l => /^[✓✗]|image\(s\) generated/.test(l)).slice(-6).join('\n'); } catch {}
+  console.log(existsSync(pendingFile) ? `Images still generating. Keep building, then run the same command again.${log ? '\n' + log : ''}` : `Images ready.${log ? '\n' + log : ''}`);
+  process.exit(0);
+}
+// --template prints one filled job, so a batch file can be written without opening an example.
+if (args.includes('--template')) {
+  console.log(JSON.stringify([{out: '.seenry/canvas/img/<direction>.jpg', ratio: '3:2',
+    subject: 'What is in the frame, from which distance, and where the weight sits (for example: a terraced street at dusk photographed with a thermal camera from across the road, one house glowing at the far right)',
+    concept: 'The idea the image carries, in a sentence: the same idea as the sketch\'s seenry-idea line',
+    palette: {shadows: '#1B1030', highlights: '#F6E7D8', accent: '#E4572E'}, grade: 'duotone',
+    light: 'one light source', light_reason: 'why this light belongs to the brand',
+    texture: 'grain | halftone | dry-brush | none', texture_reason: 'why this surface',
+    placement: {slot: 'the full-bleed hero, 1440 by 900', field: 'the area kept empty for the headline or the product view', mode: 'bleed | tile | cutout'},
+    prop: 'the brand colour or mark inside the frame', exclude: 'text, letters, logos, people'}], null, 2));
+  console.log('\nOne job per image, in one file. Palette hexes come from tokens.css. Then: node image.mjs --batch <file> --background');
   process.exit(0);
 }
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : fallback; };
@@ -151,5 +167,5 @@ if (variants > 1) {
   }
 }
 if (!ok) console.log(`No image was generated (the account's image tool may be unavailable: a 403 means it is blocked, not out of credits). Do not ship a type-only page and do not swap in unrelated art. Produce the same subject another way: build objects in code (SceneKit or RealityKit with PBR materials for 3D objects, SVG or SwiftUI shapes for stickers), source license-clear photos of that exact subject (python3 ${join(here, '..', '..', 'seenry-assets', 'scripts', 'assets.py')} images --q "<subject>"), and say so in the report.`);
-console.log(`${ok}/${jobs.length} image(s) generated.${variants > 1 ? ' The best variant of each shot now has the requested name.' : ` Next: node ${join(here, 'photo_check.mjs')} <images> --use "<slot>" --brand "<brand>"`}`);
+console.log(`${ok}/${jobs.length} image(s) generated.${variants > 1 ? ' The best variant of each shot now has the requested name.' : ' Open each one and look at it before it goes on a screen.'}`);
 process.exit(ok === jobs.length ? 0 : 1);

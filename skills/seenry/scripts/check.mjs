@@ -5,8 +5,9 @@
  *  node check.mjs --screens home.png,detail.png,sheet.png --video rec.mov --brief BRIEF.md   (native apps: SwiftUI,
  *    UIKit, React Native, Flutter; simulator screenshots in flow order and a screen recording of the interactions)
  *
- *  1. Renders the page with review_board.mjs. Any slop or craft blocker fails the round before a critic is asked.
- *  2. With zero blockers, runs critic.mjs: a fresh model scores the page against the reference screens.
+ *  1. Renders the page with review_board.mjs. Any slop or craft blocker fails the round.
+ *  2. With zero blockers the default run ends: CHECKS PASS, no model score, the person is the judge. With --studio, or
+ *     when the canvas records an unattended run, critic.mjs runs: a fresh model scores the page against the references.
  *  3. Prints PASS when the critic's overall reaches --target (default 9: a local heuristic, not evidence of outperforming another product)
  *     and impact and execution are 8 or more, else FAIL with the fixes to apply.
  *  Rounds are numbered; every critic result is kept as <dir>/review/critic-N.json and summarized in check.json. */
@@ -223,9 +224,14 @@ const canvasManifest = existsSync(join(canvasDir, 'canvas.json')) ? (() => { try
 const canvasReview = existsSync(join(canvasDir, 'review.json')) ? (() => { try { return JSON.parse(readFileSync(join(canvasDir, 'review.json'), 'utf8')); } catch { return {}; } })() : {};
 const approvedScreens = Object.values(canvasReview.frames || {}).filter(f => f && f.status === 'approved').length;
 const unattended = canvasManifest.unattended?.reason || '';
+// The person is the judge. Model judges (the blind critic, the detail, choreography, motion and photo judges, the pair
+// verdicts) and the written teardown run only with --studio, or when nobody can review: an unattended run recorded on
+// the canvas. Native screens have no DOM for the board to check, so they are always judged.
+const studio = !!native || args.includes('--studio') || !!unattended;
+const picked = !!canvasManifest.picked;
 const canvasScript = join(here, '..', '..', 'seenry-canvas', 'scripts', 'canvas.mjs');
 // Verdicts canvas.mjs verify recorded when it put each option beside a reference; screens archived since are ignored.
-const pairVerdicts = (() => { try { return pairBlocks(JSON.parse(readFileSync(join(canvasDir, '.renders', 'pair', 'pair.json'), 'utf8')).entries.filter(e => !e.src || existsSync(join(canvasDir, e.src)))); } catch { return []; } })();
+const pairVerdicts = !studio ? [] : (() => { try { return pairBlocks(JSON.parse(readFileSync(join(canvasDir, '.renders', 'pair', 'pair.json'), 'utf8')).entries.filter(e => !e.src || existsSync(join(canvasDir, e.src)))); } catch { return []; } })();
 // A page that moves says why: MOTION.md holds a row per moving thing with the change it explains, and the CSS a
 // reduced-motion block. Uniform fade-ups with no reason were the motion every generated page shipped.
 function motionGaps() {
@@ -256,11 +262,11 @@ const stackFile = native ? null : [join(project, 'DESIGN.md'), join(process.cwd(
 const stack = native ? {block: '', warn: ''} : stackProblems(stackFile ? readFileSync(stackFile, 'utf8') : '', {emptyProject: ![project, process.cwd()].some(d => existsSync(join(d, 'package.json')))});
 const missing = [
   !briefFile && `brief: write ${join(dir, 'brief.md')} (who it is for, the one job of each screen, the content that exists, what is fixed) and pass it with --brief`,
-  studied < 2 && `references: save the studied reference screens to ${join(canvasDir, 'refs')}/ (ten or more; the gate needs at least 2)`,
-  teardownGaps.length && `teardown: ${teardownFile} ${teardownGaps.join('; ')}. Open every reference at full size, crop its product UI and its second section, and write the counts and measurements (references/execution-bar.md)`,
-  studied >= 2 && !composed && `composition: write ${join(dir, 'compose.md')} naming, for each option and section, two or three references, the principle and numbers taken from each, and the product's own idea`,
+  studied < 2 && `references: save the three reference screens the page is held to in ${join(canvasDir, 'refs')}/ (the gate needs at least 2)`,
+  studio && teardownGaps.length && `teardown: ${teardownFile} ${teardownGaps.join('; ')}. Open every reference at full size, crop its product UI and its second section, and write the counts and measurements (references/execution-bar.md)`,
+  studio && studied >= 2 && !composed && `composition: write ${join(dir, 'compose.md')} naming, for each option and section, two or three references, the principle and numbers taken from each, and the product's own idea`,
   !native && !tokensFound && `tokens: no tokens.css in ${canvasDir} or the project; set the type and color system (seenry-identity) before building`,
-  !native && existsSync(canvasDir) && !approvedScreens && !unattended && `approval: no screen is approved on the canvas. Show the options to the person (canvas.mjs open, then wait), or for a run with nobody to review record it: node ${canvasScript} round "<what you chose and why>" --unattended "<why nobody can review>"`,
+  !native && existsSync(canvasDir) && !approvedScreens && !picked && !unattended && `approval: no option is picked and no screen is approved on the canvas. Show the options to the person (canvas.mjs open, then wait), or for a run with nobody to review record it: node ${canvasScript} round "<what you chose and why>" --unattended "<why nobody can review>"`,
   native && !video && 'motion recording: record the interactions (xcrun simctl io booted recordVideo rec.mov, or adb shell screenrecord) and pass --video rec.mov',
   ...pairVerdicts.map(m => `pair: ${m}`),
   ...motionGaps(),
@@ -277,7 +283,7 @@ if (missing.length) {
 process.stdout.write(board.stdout);
 if (stack.warn) console.log(`\n■ stack (a warning, not a blocker)  ${stack.warn}.`);
 // Photographs must pass photo_check.mjs before the critic is asked; weak imagery is the most-cited gap.
-if (!/^https?:/.test(target) && existsSync(target)) {
+if (studio && !/^https?:/.test(target) && existsSync(target)) {
   const html = readFileSync(target, 'utf8');
   const photos = [...new Set([...html.matchAll(/(?:src|href|url\()\s*=?\s*["']?([^"')\s>]+\.(?:png|jpe?g|webp|avif))/gi)].map(m => m[1]).filter(u => !/^(https?:|data:)/.test(u)))];
   const report = join(review, 'photos.json');
@@ -321,6 +327,17 @@ if (!native && existsSync(join(here, 'token_lint.mjs'))) {
   const lint = spawnSync('node', [join(here, 'token_lint.mjs'), project, ...(args.includes('--changed') ? ['--changed'] : [])], {encoding: 'utf8'});
   if (lint.status === 1) { blockers++; console.log('\n■ ' + lint.stdout.trim().split('\n').join('\n  ')); }
 }
+// The build is finished when its gate has run: the moment is kept on the canvas beside the first sketch and the pick,
+// whether the gate passed or not, so a run that stops on blockers still has its time.
+function stampBuilt() {
+  if (!canvasManifest.started || !(picked || approvedScreens || unattended) || !existsSync(join(canvasDir, 'canvas.json'))) return '';
+  canvasManifest.built = new Date().toISOString();
+  const start = Date.parse(canvasManifest.started), secs = key => { const t = Date.parse(canvasManifest[key] || ''); return start && t && t >= start ? Math.round((t - start) / 1000) : null; };
+  canvasManifest.timing = {firstSketchSeconds: secs('firstOption'), pickSeconds: secs('picked'), builtSeconds: secs('built')};
+  try { writeFileSync(join(canvasDir, 'canvas.json'), JSON.stringify(canvasManifest, null, 2) + '\n'); } catch {}
+  const min = n => n === null ? null : n < 90 ? `${n} s` : `${Math.round(n / 60)} min`, t = canvasManifest.timing;
+  return ` Time since the canvas was started: ${[t.firstSketchSeconds !== null && `first sketch at ${min(t.firstSketchSeconds)}`, t.pickSeconds !== null && `pick at ${min(t.pickSeconds)}`, `build finished at ${min(t.builtSeconds)}`].filter(Boolean).join(', ')}.`;
+}
 if (blockers) {
   const last = history[history.length - 1];
   if (last && !last.critic && fingerprint && last.hash === fingerprint) {
@@ -329,8 +346,17 @@ if (blockers) {
   }
   history.push({round, blockers, critic: null, hash: fingerprint});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
-  console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one above, then run check.mjs again. The critic runs once the board is clean; board rounds do not use up critic rounds.`);
+  console.log(`\nFAIL round ${round}: ${blockers} blocker(s). Fix every one above, then run check.mjs again${studio ? '. The critic runs once the board is clean; board rounds do not use up critic rounds' : ` once.${round >= 2 ? ' That was the second round: report what is left instead of a third.' : ''}${stampBuilt()}`}`);
   process.exit(1);
+}
+
+// The default path ends here: every mechanical check is clean and no model is asked for a score.
+if (!studio) {
+  history.push({round, blockers: 0, critic: null, hash: fingerprint, mechanical: true});
+  writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
+  const times = stampBuilt();
+  console.log(`\nCHECKS PASS round ${round}: 0 blockers. No model scored this page: the person who picked the direction is the judge. Show it to them and report "checks pass, not scored".${times} For a blind critic's score, run check.mjs again with --studio.`);
+  process.exit(0);
 }
 
 // Quick mode's critic rounds are spent: later edits get a board check only, and the report quotes the final critic round.

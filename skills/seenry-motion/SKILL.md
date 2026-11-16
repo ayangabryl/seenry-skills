@@ -4,7 +4,7 @@ description: "Builds and fixes interface animation, and decides when nothing sho
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.1.0"
+  version: "3.2.0"
 ---
 
 # Seenry Motion

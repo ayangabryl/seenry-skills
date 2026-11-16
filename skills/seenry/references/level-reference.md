@@ -9,7 +9,7 @@ A person showed a designer's landing-page posts. Builds briefed only with what t
 ## Do
 
 1. Save five or more full-size images of the work to `.seenry/level/`. Pass the images, never a description, to every agent and critic.
-2. Run `canvas.mjs verify`: the level images are torn down first, into `.seenry/teardown.md`.
+2. Run `canvas.mjs verify --studio`: the level images are torn down first, into `.seenry/teardown.md`.
 3. Write `.seenry/level.md`:
 
 ```

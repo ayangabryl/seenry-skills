@@ -228,6 +228,69 @@ export function judgeExecution(data, {allow = []} = {}) {
   return {thinProduct, template, offGrid, notes, families};
 }
 
+/** The hero image and where it returns. Runs inside the page; must stay self-contained. An image counts as the hero
+ *  when it paints a tenth or more of the first screen. `flat` is true for a block of colour or a plain gradient,
+ *  measured on a 48px copy. */
+export async function collectHero() {
+  const vw = innerWidth, vh = innerHeight;
+  const visible = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && Number(s.opacity) > 0.05; };
+  const painted = [];
+  for (const el of [...document.body.querySelectorAll('*')].slice(0, 6000)) {
+    if (!visible(el)) continue;
+    const tag = el.tagName.toLowerCase(), s = getComputedStyle(el), r = el.getBoundingClientRect();
+    if (r.width < 80 || r.height < 60) continue;
+    const urls = tag === 'img' ? [el.currentSrc || el.src] : tag === 'image' ? [new URL(el.getAttribute('href') || el.getAttribute('xlink:href') || '', document.baseURI).href] : [...s.backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g)].map(m => new URL(m[1], document.baseURI).href);
+    const top = r.top + scrollY, shown = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0)) * Math.max(0, Math.min(top + r.height, vh) - Math.max(top, 0));
+    for (const url of urls) if (url && !/^data:/.test(url)) painted.push({url, top: Math.round(top), w: Math.round(r.width), h: Math.round(r.height), share: shown / (vw * vh), motif: !!el.closest('[data-seenry-motif]')});
+  }
+  const stats = new Map();
+  const measure = url => new Promise(done => {
+    const img = new Image();
+    img.onload = () => { try {
+      const c = document.createElement('canvas'), n = 48; c.width = c.height = n;
+      const ctx = c.getContext('2d', {willReadFrequently: true}); ctx.drawImage(img, 0, 0, n, n);
+      const d = ctx.getImageData(0, 0, n, n).data, lum = [], colours = new Set();
+      for (let i = 0; i < d.length; i += 4) { lum.push(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]); colours.add((d[i] >> 4) << 8 | (d[i + 1] >> 4) << 4 | d[i + 2] >> 4); }
+      // Texture: the share of pixels where brightness bends (a second difference over 3). A block of colour, bands
+      // and any smooth gradient bend almost nowhere; a photograph or a painting bends across much of the frame.
+      let bent = 0;
+      for (let y = 1; y < n - 1; y++) for (let x = 1; x < n - 1; x++) { const i = y * n + x; if (Math.max(Math.abs(lum[i - 1] - 2 * lum[i] + lum[i + 1]), Math.abs(lum[i - n] - 2 * lum[i] + lum[i + n])) > 3) bent++; }
+      const texture = Math.round(bent / ((n - 2) * (n - 2)) * 1000) / 1000;
+      done({colours: colours.size, texture, flat: colours.size < 6 || texture < 0.03, width: img.naturalWidth});
+    } catch { done({unread: true}); } };
+    img.onerror = () => done({missing: true});
+    img.src = url;
+  });
+  const first = painted.filter(p => p.top < vh * 0.9 && p.share >= 0.1).sort((a, b) => b.share - a.share);
+  for (const p of first.slice(0, 6)) if (!stats.has(p.url)) stats.set(p.url, await measure(p.url));
+  const candidates = first.slice(0, 6).map(p => ({...p, ...stats.get(p.url), returns: painted.filter(q => q.top >= vh && q.url === p.url && q.w >= 120).length}));
+  const motifs = [...document.querySelectorAll('[data-seenry-motif]')].filter(el => { if (!visible(el)) return false; const r = el.getBoundingClientRect(); return r.top + scrollY >= vh && r.width >= 120 && r.height >= 60 && (el.matches('img, svg, canvas, video') || el.querySelector('img, svg, canvas, video') || /url\(/.test(getComputedStyle(el).backgroundImage)); }).length;
+  const gradient = [...document.body.querySelectorAll('*')].slice(0, 3000).some(el => { const r = el.getBoundingClientRect(); return r.top < vh && r.width * r.height >= vw * vh * 0.1 && /gradient\(/.test(getComputedStyle(el).backgroundImage); });
+  return {vw, vh, height: document.documentElement.scrollHeight, candidates, motifs, gradient};
+}
+
+const RASTER = /\.(png|jpe?g|webp|avif)(?:[?#].*)?$/i;
+/** What blocks, in one line each. `own(url)` says whether the file is the project's own (on the canvas: a file that
+ *  exists in the canvas folder). sketch: the hero must hold a real image. full: it must come back below the hero. */
+export function judgeHero(data, {sketch = false, full = false, own = () => true} = {}) {
+  const out = {noImage: [], noReturn: [], notes: []};
+  const real = c => RASTER.test(c.url) && !c.flat && !c.missing && own(c.url);
+  const hero = (data.candidates || []).find(real) || null, name = u => decodeURIComponent(String(u).split('/').pop().split(/[?#]/)[0]);
+  if ((sketch || full) && !hero) {
+    const c = (data.candidates || [])[0];
+    out.noImage.push(!c ? `the first screen holds 0 images covering a tenth of it or more (needs 1)${data.gradient ? '; a CSS gradient is not an image' : ''}`
+      : c.missing || !own(c.url) ? `${name(c.url)} is not a file in the project (needs 1 image that exists)`
+      : c.flat ? `${name(c.url)} is a flat block or a plain gradient (${c.colours} colours, ${Math.round((c.texture || 0) * 100)}% textured), a placeholder (needs 1 generated or own image)`
+      : `${name(c.url)} is not a photograph or generated image file (needs png, jpg, webp or avif)`);
+  }
+  if (full && hero && data.height >= data.vh * 2.5) {
+    const n = (hero.returns || 0) + (data.motifs || 0);
+    if (!n) out.noReturn.push(`the hero image ${name(hero.url)} returns 0 times below the first screen (needs 1 or more): bring it back in a new crop behind a lower section and in the closing, or mark the element that carries its motif data-seenry-motif`);
+    else if (n === 1) out.notes.push(`the hero image or its motif returns once below the first screen; pages that hold one idea to the footer bring it back in three places`);
+  }
+  return {...out, hero: hero ? name(hero.url) : null};
+}
+
 const TOPICS = [['UI element count', /\b\d+\s+(distinct\s+)?(ui\s+)?(elements?|controls?|kinds)\b|ui elements?\s*[:|]\s*\d/i], ['visualisation types', /visuali[sz]ation|chart (form|type)s?|mini[- ]visual/i], ['headline size, weight and lines', /headline[^\n]*\d+\s*px|\d+\s*px[^\n]*headline/i], ['hues', /\bhues?\b/i], ['image and UI interlock', /interlock|in front of|overlap|melts?|sinks?|layered/i], ['repeating motif', /motif|repeats?|continues/i], ['logo treatment', /logos?/i], ['button and pill details', /button|pill|tab/i]];
 
 /** What a real teardown holds: a section per reference, each with numbers, covering the measured topics. */
