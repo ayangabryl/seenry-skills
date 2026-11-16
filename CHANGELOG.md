@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased
+## 3.1.0
+
+### Canvas online
+
+- **Sync to a Seenry account.** `scripts/sync.mjs` links a machine with a code approved in the browser (token in `~/.config/seenry`, mode 0600, never in the project), pushes only changed files, and pulls feedback sent online into the same files `wait` reads, no more often than the account's plan allows (`pollSeconds`); a plan limit stops the watch with the server's message. `canvas.mjs open` starts `sync.mjs watch` by itself once the machine is linked; `canvas.mjs link` and `canvas.mjs sync …` pass through to it, and `stop` ends both.
+- **Share means something.** Linked, Share copies the canvas's Seenry link and the panel says "Synced to Seenry"; unlinked, a popover says the address works only on this computer and how to link.
+- **Workbench canvas.** The canvas is redesigned as a workbench: a screen list grouped by what needs the person, a composer that turns a click on any element into a chip, and the decision first. `open` detects T3 Code, the Claude app, Codex, Cursor, VS Code and cloud sessions and prints the exact call for the app's pane, and `wait` returns within 100 s with a line to resume.
+- **A quieter canvas.** Approved sections leave the canvas while a decision is open and stay one click away in the list; sent comments are pinned, numbered, on the element they name; frame captions come from a short `seenry-caption`, or the axis up to its first colon or comma.
+- **Always on.** `install.py --project <dir>` writes a short Seenry index between `seenry:start` and `seenry:end` markers into the project's `AGENTS.md`, and into a `CLAUDE.md` that does not import it, so agents load the skills without being told; `--instructions-only`, `--remove-instructions` and `--global-instructions` cover the rest. `evals/always-on` measures the difference.
 
 ### Kits removed
 

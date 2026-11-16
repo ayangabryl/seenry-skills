@@ -55,10 +55,11 @@ Put these in the screen's `<head>`.
 
 | Tag | Holds |
 | --- | --- |
+| `<meta name="seenry-caption" content="…">` | The line under the frame on the canvas: five or six words, under 48 characters ("Ink on cream, one vermilion line"). Without it the canvas cuts the axis at its first colon or comma |
 | `<meta name="seenry-note" content="…">` | One line the person reads when they select the screen |
 | `<meta name="seenry-ask" content="Question one?\|Question two?">` | Two or three review questions about what this screen must get right, in the person's words |
 | `<meta name="seenry-risk" content="safe">` or `bold` | For an option: whether it is the expected answer or the bold one |
-| `<meta name="seenry-axis" content="…">` | For an option: the direction it explores, in a phrase |
+| `<meta name="seenry-axis" content="…">` | For an option: the direction it explores, in a phrase; the full line shows in review, the caption on the canvas |
 | `<meta name="seenry-wins" content="…">` | For an option: when it is the right choice |
 | `<meta name="seenry-cost" content="…">` | For an option: what it gives up |
 | `data-seenry-part="Plan cards"` on an element | The part's name, shown on Seenry's cursor and in the live feed as the part is added |

@@ -10,12 +10,23 @@ import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 
 const script = resolve('skills/seenry-canvas/scripts/canvas.mjs');
+process.env.SEENRY_CONFIG_DIR = mkdtempSync(join(tmpdir(), 'seenry-no-link-'));
 let playwright = process.env.SEENRY_PLAYWRIGHT;
 if (!playwright) { try { playwright = createRequire(join(process.cwd(), 'x.js')).resolve('playwright'); } catch {} }
 const skip = playwright ? false : 'Playwright is not installed';
 // The pair judge is a model call; tests switch it off or answer for it with SEENRY_PAIR_STUB.
 const runWith = (env, ...args) => spawnSync(process.execPath, [script, ...args, ...(process.env.SEENRY_PLAYWRIGHT ? ['--playwright', process.env.SEENRY_PLAYWRIGHT] : [])], {encoding: 'utf8', timeout: 120000, env: {...process.env, SEENRY_PAIR_JUDGE: 'off', ...env}});
 const run = (...args) => runWith({}, ...args);
+
+/** Resolves when the canvas server is listening; fails with its output when it exits first. */
+function started(server) {
+  return new Promise((done, fail) => {
+    let err = '';
+    server.stderr?.on('data', d => { err += d; });
+    server.stdout.on('data', d => { if (String(d).includes('Seenry canvas')) done(); });
+    server.on('exit', code => fail(new Error(`The canvas server exited (${code}) before listening: ${err.trim()}`)));
+  });
+}
 
 function project() {
   const root = mkdtempSync(join(tmpdir(), 'seenry-agent-')), dir = join(root, '.seenry', 'canvas');
@@ -209,4 +220,75 @@ test('verify --quick runs the rules without pairing or judging, and says so', {s
   assert.ok(!result.issues.some(i => /^pair/.test(i.kind)), 'no pair or verdict issues in quick mode');
   assert.ok(!existsSync(join(dir, '.renders', 'pair')), 'nothing was paired');
   assert.ok(result.issues.some(i => i.kind === 'product'), 'the rule checks still run');
+});
+
+// The person's side: pick under the selected option, point at an element, send; and the side-pane layout.
+test('the canvas UI picks an option, turns a click on an element into a chip, and sends both to wait', {skip}, async t => {
+  const {dir} = project();
+  mkdirSync(join(dir, '02-home.options'));
+  const option = name => `<!doctype html><meta charset="utf-8"><title>Home · ${name}</title><meta name="seenry-axis" content="${name} axis"><h1 data-seenry-part="Hero">${name} headline</h1>`;
+  writeFileSync(join(dir, '02-home.options', 'a-tide.html'), option('Tide'));
+  writeFileSync(join(dir, '02-home.options', 'b-dusk.html'), option('Dusk'));
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5900 + Math.floor(Math.random() * 90))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const url = `http://127.0.0.1:${JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port}/`;
+  const {chromium} = createRequire(import.meta.url)(playwright);
+  let browser; try { browser = await chromium.launch(); } catch { browser = await chromium.launch({channel: 'chrome'}); }
+  t.after(() => browser.close());
+  const errors = [], page = await browser.newPage({viewport: {width: 1440, height: 900}});
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(url);
+  await page.locator('.frame[data-id="02-home/a-tide"] .lab').click();
+  await page.locator('#pick button', {hasText: 'Pick Tide'}).click();
+  await page.frameLocator('.frame[data-id="02-home/a-tide"] iframe').locator('h1').click();
+  assert.equal(await page.locator('#chips .chip').innerText(), 'Tide · h1');
+  await page.fill('#general', 'Lighter headline');
+  assert.match(await page.locator('#status').innerText(), /1 pick · 1 note/);
+  await page.locator('#send').click();
+  await page.waitForFunction(() => /Saved|Sent/.test(document.getElementById('status').textContent));
+  const feedback = JSON.parse(readFileSync(join(dir, 'feedback.json'), 'utf8'));
+  assert.equal(feedback.picks['02-home'], '02-home/a-tide');
+  assert.deepEqual([feedback.notes[0].frame, feedback.notes[0].selector, feedback.notes[0].text], ['02-home/a-tide', 'h1', 'Lighter headline']);
+  await page.setViewportSize({width: 640, height: 900});
+  await page.waitForFunction(() => document.body.dataset.narrow === 'true');
+  assert.equal(await page.locator('#side').isVisible(), false, 'no list of its own in a side pane');
+  assert.deepEqual(await page.locator('#tabs [role="tab"]').allInnerTexts(), ['Tide', 'Dusk']);
+  assert.equal(await page.locator('#stage iframe').count(), 1, 'one screen at a time');
+  assert.deepEqual(errors, []);
+});
+
+test('the canvas tucks approved sections away, pins sent comments, captions short and explains Share', {skip}, async t => {
+  const {dir} = project();
+  mkdirSync(join(dir, '02-home.options'));
+  const option = (name, axis) => `<!doctype html><meta charset="utf-8"><title>Home · ${name}</title><meta name="seenry-axis" content="${axis}"><style>body{margin:0}h1{margin:200px 0 0 300px}</style><h1>${name} headline</h1>`;
+  writeFileSync(join(dir, '02-home.options', 'a-tide.html'), option('Tide', 'One cobalt field: a painted sea sets the floor'));
+  writeFileSync(join(dir, '02-home.options', 'b-dusk.html'), option('Dusk', 'Black page, one band of dusk light'));
+  const later = Date.now() + 60000;
+  writeFileSync(join(dir, 'review.json'), JSON.stringify({frames: {'01-flow/01-good': {status: 'approved', at: later}, '01-flow/02-bad': {status: 'approved', at: later}}}));
+  writeFileSync(join(dir, 'feedback.json'), JSON.stringify({stage: '', picks: {}, frames: [], riff: [], general: '', at: new Date(later).toISOString(),
+    notes: [{frame: '02-home/b-dusk', target: '“Dusk headline”', selector: 'h1', text: 'Warmer'}]}));
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(5700 + Math.floor(Math.random() * 90))], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const url = `http://127.0.0.1:${JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port}/`;
+  const {chromium} = createRequire(import.meta.url)(playwright);
+  let browser; try { browser = await chromium.launch(); } catch { browser = await chromium.launch({channel: 'chrome'}); }
+  t.after(() => browser.close());
+  const errors = [], page = await browser.newPage({viewport: {width: 1440, height: 900}});
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(url);
+  await page.waitForSelector('.frame[data-id="02-home/b-dusk"] .pin');
+  assert.equal(await page.locator('.frame[data-id="01-flow/01-good"]').isVisible(), false, 'an approved section takes no room under the decision');
+  assert.equal(await page.locator('.frame[data-id="02-home/a-tide"] .cap').innerText(), 'One cobalt field');
+  const pin = await page.locator('.frame[data-id="02-home/b-dusk"] .pin').evaluate(n => [n.textContent, parseFloat(n.style.left), parseFloat(n.style.top)]);
+  assert.equal(pin[0], '1');
+  assert.ok(pin[1] > 300 && pin[1] < 900 && pin[2] >= 180 && pin[2] < 260, `pinned at the headline: ${pin}`);
+  assert.equal(await page.locator('#sync-text').innerText(), 'Synced with the folder');
+  await page.locator('#list button[data-section="01-flow"]').click();
+  await page.waitForFunction(() => !document.querySelector('.frame[data-id="01-flow/01-good"]').hidden);
+  await page.locator('#share').click();
+  await page.waitForSelector('#share-pop:not([hidden])');
+  assert.match(await page.locator('#share-pop').innerText(), /only works on this computer[\s\S]*sync\.mjs link/);
+  assert.deepEqual(errors, []);
 });

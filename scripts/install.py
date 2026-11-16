@@ -1,11 +1,15 @@
 """Install Seenry with shared agent links and reversible upgrades.
 Default is a dry run. No network, credentials or MCP configuration changes.
+With --project, also writes a short always-on Seenry index into the project's AGENTS.md.
 """
 import argparse
+import difflib
 import hashlib
 import json
 import os
+import re
 import shutil
+import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +22,19 @@ RETIRED = (
     'seenry-writing', 'seenry-polish', 'seenry-change-review', 'seenry-explain', 'seenry-stress', 'seenry-variants',
 )
 AGENTS = ('agents', 'codex', 'claude', 'cursor', 'antigravity')
+START, END = '<!-- seenry:start -->', '<!-- seenry:end -->'
+INDEX = START + """
+## Seenry design skills
+
+For any task that adds or changes something people see (a page, screen, form, component, styling, layout or animation), look at the project, then load the `seenry` skill before writing UI code. Prefer the skill's guidance over memory.
+
+Router: new page, screen, redesign → `seenry` | fonts, color, brand → `seenry-identity` | mockups, options → `seenry-canvas` | spacing, radius, states → `seenry-craft` | animation → `seenry-motion` | library or framework → `seenry-libraries` | photos, icons, font files → `seenry-assets` | review, accessibility → `seenry-review` | edge-case data → `seenry-break` | too busy → `seenry-subtract` | whole-app audit → `seenry-audit` | native mobile → `seenry-apps` | product film → `seenry-video`
+
+Show designs on the Seenry canvas before writing product code. Pick the stack with `seenry-libraries`.
+
+Skills live in `{skills}/<name>/SKILL.md`.
+""" + END
+CLAUDE_IMPORT = re.compile(r'^@(\./)?AGENTS\.md\s*$', re.M)
 
 def exists(path):
     return path.exists() or path.is_symlink()
@@ -146,6 +163,94 @@ def apply(manifest):
         raise
     return journal
 
+def index_block(skills):
+    return INDEX.replace('{skills}', skills)
+
+def skills_label(home):
+    home = Path(home).absolute()
+    return '~/.agents/skills' if home == Path.home().absolute() else (home / '.agents/skills').as_posix()
+
+def _span(text):
+    start, end = text.find(START), text.find(END)
+    if start < 0 and end < 0:
+        return None
+    if start < 0 or end < start or text.count(START) > 1 or text.count(END) > 1:
+        raise ValueError('Unbalanced or repeated Seenry markers; fix them by hand first.')
+    return start, end + len(END)
+
+def upsert_block(text, block):
+    span = _span(text)
+    if span:
+        return text[:span[0]] + block + text[span[1]:]
+    if not text.strip():
+        return block + '\n'
+    return text.rstrip('\n') + '\n\n' + block + '\n'
+
+def remove_block(text):
+    span = _span(text)
+    if not span:
+        return text
+    before, after = text[:span[0]].rstrip('\n'), text[span[1]:].lstrip('\n')
+    if not before:
+        return after
+    return before + '\n' + ('\n' + after if after else '')
+
+def _imports_agents(text):
+    span = _span(text)
+    return bool(CLAUDE_IMPORT.search(text[:span[0]] + text[span[1]:] if span else text))
+
+def instruction_targets(project=None, home=None, remove=False):
+    # Claude Code reads AGENTS.md itself only when no CLAUDE.md exists, so a CLAUDE.md that
+    # does not already import @AGENTS.md gets its own copy; Codex and Cursor read AGENTS.md.
+    targets = []
+    if project:
+        project = Path(project)
+        targets.append((project / 'AGENTS.md', 'upsert'))
+        claude = project / 'CLAUDE.md'
+        if claude.exists() or (project / 'CLAUDE.local.md').exists():
+            text = claude.read_text(encoding='utf-8') if claude.exists() else ''
+            targets.append((claude, 'remove' if _imports_agents(text) else 'upsert'))
+    if home:
+        targets += [(Path(home) / '.codex/AGENTS.md', 'upsert'), (Path(home) / '.claude/CLAUDE.md', 'upsert')]
+    return [(file, 'remove' if remove else action) for file, action in targets]
+
+def plan_instructions(targets, block):
+    changes = []
+    for file, action in targets:
+        old = file.read_text(encoding='utf-8') if file.exists() else None
+        if action == 'remove' and old is None:
+            continue
+        new = remove_block(old) if action == 'remove' else upsert_block(old or '', block)
+        if new != old:
+            changes.append({'path': file, 'old': old, 'new': new})
+    return changes
+
+def diff_instructions(changes):
+    out = []
+    for change in changes:
+        name = str(change['path'])
+        old = (change['old'] or '').splitlines(keepends=True)
+        out += difflib.unified_diff(old, change['new'].splitlines(keepends=True),
+                                    '/dev/null' if change['old'] is None else name, name)
+    return ''.join(out)
+
+def write_instructions(changes):
+    for change in changes:
+        path = change['path']
+        if not change['new'].strip() and change['old'] is not None:
+            path.unlink()
+            continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_name(path.name + '.seenry-tmp')
+        temporary.write_text(change['new'], encoding='utf-8')
+        temporary.replace(path)
+
+def ask(question):
+    try:
+        return input(question + ' [Y/n] ').strip().lower() in ('', 'y', 'yes')
+    except EOFError:
+        return True
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--home', type=Path, default=Path.home())
@@ -154,6 +259,13 @@ def main():
     parser.add_argument('--link-mode', choices=['symlink', 'copy'], default='symlink')
     parser.add_argument('--apply', action='store_true')
     parser.add_argument('--rollback', type=Path, help='Restore one trusted local install manifest; no --apply needed.')
+    parser.add_argument('--project', type=Path, help="Project whose AGENTS.md (and CLAUDE.md, when it has one) gets the Seenry index.")
+    parser.add_argument('--instructions', action=argparse.BooleanOptionalAction, default=None,
+                        help='Write the Seenry index into the project files (default yes with --project; asks when interactive).')
+    parser.add_argument('--global-instructions', action='store_true',
+                        help='Also write the index into ~/.codex/AGENTS.md and ~/.claude/CLAUDE.md.')
+    parser.add_argument('--instructions-only', action='store_true', help='Skip installing skills; only write or remove the index.')
+    parser.add_argument('--remove-instructions', action='store_true', help='Remove the Seenry index from the project (and global files with --global-instructions).')
     args = parser.parse_args()
     try:
         if args.rollback:
@@ -164,13 +276,35 @@ def main():
             undo(manifest, file.parent)
             print(json.dumps({'status': 'rolled-back', 'manifest': str(file)}))
             return
-        result = plan(args.home, args.source, args.replace, args.link_mode)
+        home = args.home if args.global_instructions else None
+        if args.remove_instructions:
+            changes = plan_instructions(instruction_targets(args.project, home, remove=True), None)
+            sys.stderr.write(diff_instructions(changes))
+            if args.apply:
+                write_instructions(changes)
+            print(json.dumps({'status': 'removed' if args.apply else 'planned',
+                              'instructions': [str(c['path']) for c in changes]}, indent=2))
+            return
+        want = args.instructions
+        if args.project and want is None:
+            want = ask(f'Add the Seenry index to the agent instructions in {args.project}?') if args.apply and sys.stdin.isatty() else True
+        changes = plan_instructions(instruction_targets(args.project if want else None, home),
+                                    index_block(skills_label(args.home)))
+        report = {}
+        if not args.instructions_only:
+            result = plan(args.home, args.source, args.replace, args.link_mode)
+            if args.apply:
+                manifest = apply(result)
+                report = {'status': result['status'], 'manifest': str(manifest) if manifest else None}
+            else:
+                report = {'status': result['status'], 'install': [x['path'] for x in result['new']],
+                          'archive': [x['path'] for x in result['old']], 'link_mode': args.link_mode}
         if args.apply:
-            manifest = apply(result)
-            print(json.dumps({'status': result['status'], 'manifest': str(manifest) if manifest else None}, indent=2))
+            write_instructions(changes)
         else:
-            print(json.dumps({'status': result['status'], 'install': [x['path'] for x in result['new']],
-                              'archive': [x['path'] for x in result['old']], 'link_mode': args.link_mode}, indent=2))
+            sys.stderr.write(diff_instructions(changes))
+        report['instructions'] = [str(c['path']) for c in changes]
+        print(json.dumps(report, indent=2))
     except (OSError, ValueError, KeyError) as exc:
         parser.exit(1, str(exc) + '\n')
 

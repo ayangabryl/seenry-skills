@@ -498,6 +498,67 @@
       }
     },
     {
+      "name": "get_level_bar",
+      "title": "Get the level to reach",
+      "description": "Return a short, varied shortlist that sets the quality bar for a section or screen type (default hero): human-rated references first, then AI-tagged ones, one per brand, spread across what owns the first screen (image and product together, image-led, product-led, type-led). Optional q adds industry or product words as a boost, never a filter, so a thin category still returns a strong bar. Each item carries its inferred techniques, why it works and an inspect call, plus the study steps to run before composing. Use it at the start of any new page, and whenever the person has shown no reference of their own. Costs 3 credits.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "element": {
+            "default": "hero",
+            "description": "Section or screen type in plain words, e.g. \"hero\", \"pricing\", \"dashboard\".",
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 40
+          },
+          "q": {
+            "description": "Industry or product words used as a boost, e.g. \"finance forecasting\".",
+            "type": "string",
+            "maxLength": 300
+          },
+          "classes": {
+            "maxItems": 4,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "image-and-product",
+                "image-led",
+                "product-led",
+                "type-led"
+              ]
+            }
+          },
+          "families": {
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "sections",
+                "websites",
+                "apps"
+              ]
+            }
+          },
+          "limit": {
+            "default": 6,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
       "name": "get_library_guide",
       "title": "Choose a research workflow",
       "description": "Discover the library model, curated skills, tool routing, pagination and evidence limits before research.",
