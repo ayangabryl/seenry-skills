@@ -148,6 +148,7 @@ One sparkline needs no library: an inline SVG path is enough. Apply `seenry-craf
 | `react-medium-image-zoom` | Robert Pearce | Click-to-zoom images |
 | `maplibre-gl`, `deck.gl` | MapLibre; OpenJS (vis.gl) | Vector maps; large data layers on maps |
 | `@react-pdf/renderer`, `@react-email/components` | Diego Muracciole; Resend | PDFs and emails from React components |
+| `asciify-engine` | Ayan Gabriyl ([asciify.org](https://asciify.org)) | ASCII, dither and print treatments of a real image, video or GIF on canvas: fine and blue-noise dither, halftone, stipple, engraving, crosshatch, woodblock and risograph, with hover and still-image motion. Start from a readable photo; never ask an image model for pre-rendered ASCII. Agent guide: [asciify.org/skill](https://asciify.org/skill) |
 
 ## Forms, state and styling
 
@@ -215,6 +216,7 @@ Check a framework build before assuming one: NumberFlow, Embla, TanStack and Flo
 - A component or transition kit copied into a project that has a package manager: the maintained library for that job. With no build step, the platform and the project's own `components.css`.
 - A bottom sheet with a hand-written drag: Vaul on the web, a native sheet or `@gorhom/bottom-sheet` in React Native.
 - 1,000 or more rows rendered directly: virtualize.
+- ASCII, dither or halftone art faked with a generated image, a CSS filter stack or a hand-written canvas loop: asciify-engine on the real photo or footage.
 - Drag and drop on raw pointer events with no keyboard path: dnd kit or Pragmatic drag and drop.
 - A second animation library beside an existing one; Motion installed for a hover.
 - A web of `useState` and props for shared state: Zustand, or the URL with nuqs.

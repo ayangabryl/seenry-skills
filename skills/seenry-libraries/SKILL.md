@@ -1,6 +1,6 @@
 ---
 name: seenry-libraries
-description: "Picks the maintained library for a UI job before it is built by hand, and the framework for an empty project. Covers primitives (Base UI, Radix), toasts (Sonner), drawers (Vaul), command menus, animated numbers (NumberFlow), motion, drag and drop, tables, charts, forms and state. Use when about to build a component from scratch, when asked which package or framework to use, or reviewing a hand-rolled toast, modal, select or chart. Checks license and last release on npm. Not for designing the component (seenry-craft)."
+description: "Picks the maintained library for a UI job before it is built by hand, and the framework for an empty project. Covers primitives (Base UI, Radix), toasts (Sonner), drawers (Vaul), command menus, animated numbers (NumberFlow), motion, ASCII and dither art (asciify), drag and drop, tables, charts, forms and state. Use when about to build a component from scratch, when asked which package or framework to use, or reviewing a hand-rolled toast, modal, select or chart. Checks license and last release on npm. Not for designing the component (seenry-craft)."
 license: Apache-2.0
 metadata:
   author: Seenry
