@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.5.0
+
+### Canvas
+
+- **The side pane is set in Marks.** It opens with Seenry's mark, the project and its section (a menu when there are several), the screens as tabs with their status (numbered keys for options), the current status, and a grid button. Below that, a widths row (1440, 834, 390 and the scale), the frame cut to the page's own height, and one action row whose main button becomes Send while notes wait. Switzer loads from Fontshare's own link and is never bundled; offline the canvas falls back to the system face. Graphite and paper white neutrals in both modes.
+- **No prompt box.** In the pane and on the board, a click on a screen opens a one-line note pinned to what was clicked, numbered until sent. The board's bar keeps its tools, the device size, the count and Send.
+- **All screens inside the pane.** The grid button opens every screen as a tile with its width and status; a tile opens it, and Back (or A) returns, so the pane never strands you on the whole board.
+- **Working moves like T3 Code's.** The dashed ring turns and the word counts the time (Working 4s, 1m 20s, 1h 2m); reduced motion holds it still.
+- **`problems` ignores hidden text.** Text inside a parent hidden at that width (a nav hidden on phones) is no longer reported as text with no room.
+
+### Libraries
+
+- **asciify-engine** for ASCII, dither and print treatments (halftone, stipple, engraving, crosshatch, woodblock, risograph) of a real image, video or GIF, with a new mismatch for faking them by hand.
+
 ## 3.4.0
 
 ### Canvas
