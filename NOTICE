@@ -8,6 +8,13 @@ Kowalski; their notices are retained in skills/seenry/licenses/NOTICE.md
 and skills/seenry-motion/licenses/NOTICE.md. Bundled third-party runtimes
 keep their own licenses beside their files.
 
+The canvas status icons are drawn from Lucide (https://lucide.dev),
+ISC License, Copyright (c) for portions of Lucide are held by Cole
+Bemis 2013-2022 as part of Feather (MIT); all other copyright (c) for
+Lucide are held by Lucide Contributors 2022. The status convention (one
+icon and one short word per state) follows T3 Code
+(https://github.com/pingdotgg/t3code, MIT License).
+
 "Seenry" and the Seenry logo are trademarks of Seenry. This license does
 not grant permission to use them, except as required to describe the
 origin of the work.

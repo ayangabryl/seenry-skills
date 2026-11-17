@@ -768,6 +768,7 @@ const PAGE = String.raw`<!doctype html>
 :root { color-scheme: light dark;
   --canvas: #efefed; --paper: #ffffff; --surface: #f4f4f3; --surface-2: #ececea; --ink: #171717; --on-ink: #ffffff; --text: #383838; --muted: #6d6d6d; --faint: #949494;
   --line: rgb(0 0 0 / .07); --line-2: rgb(0 0 0 / .13); --blue: #2b63e8; --blue-soft: #e9effd; --amber: #c2710c; --green: #1f8a4c; --red: #c7362f; --live: #2b63e8;
+  --st-approval: #b45309; --st-input: #4f46e5; --st-working: #0369a1; --st-failed: #dc2626; --st-done: #047857;
   --float: 0 0 0 1px rgb(0 0 0 / .06), 0 10px 30px rgb(0 0 0 / .08), 0 2px 6px rgb(0 0 0 / .04);
   --shade: rgb(0 0 0 / .05); --frame-line: rgb(0 0 0 / .07); --tile: #171717; --eye: #ffffff; --avatar: #d8d3c8;
   --heading: var(--ink); --ink-2: var(--muted); --ink-3: var(--faint); --ok: var(--green); --warn: var(--amber); --sel: var(--blue); --line-strong: var(--line-2); --fill: rgb(0 0 0 / .045); --fill-2: rgb(0 0 0 / .08);
@@ -777,11 +778,13 @@ const PAGE = String.raw`<!doctype html>
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --canvas: #0c0c0c; --paper: #181818; --surface: #222221; --surface-2: #2b2b2a; --ink: #f2f2f0; --on-ink: #111111; --text: #d6d6d4; --muted: #9a9a98; --faint: #767674;
   --line: rgb(255 255 255 / .08); --line-2: rgb(255 255 255 / .16); --blue: #7aa2ff; --blue-soft: rgb(122 162 255 / .16); --amber: #f0a046; --green: #4cc27e; --red: #ff6b61;
+  --st-approval: #fcd34d; --st-input: #a5b4fc; --st-working: #7dd3fc; --st-failed: #fca5a5; --st-done: #6ee7b7;
   --float: 0 0 0 1px rgb(255 255 255 / .08), 0 16px 40px rgb(0 0 0 / .5); --shade: rgb(0 0 0 / .45); --frame-line: rgb(255 255 255 / .1); --tile: #f2f2f0; --eye: #111111; --avatar: #3a3833;
   --fill: rgb(255 255 255 / .06); --fill-2: rgb(255 255 255 / .11); } }
 :root[data-theme="dark"] { color-scheme: dark;
   --canvas: #0c0c0c; --paper: #181818; --surface: #222221; --surface-2: #2b2b2a; --ink: #f2f2f0; --on-ink: #111111; --text: #d6d6d4; --muted: #9a9a98; --faint: #767674;
   --line: rgb(255 255 255 / .08); --line-2: rgb(255 255 255 / .16); --blue: #7aa2ff; --blue-soft: rgb(122 162 255 / .16); --amber: #f0a046; --green: #4cc27e; --red: #ff6b61;
+  --st-approval: #fcd34d; --st-input: #a5b4fc; --st-working: #7dd3fc; --st-failed: #fca5a5; --st-done: #6ee7b7;
   --float: 0 0 0 1px rgb(255 255 255 / .08), 0 16px 40px rgb(0 0 0 / .5); --shade: rgb(0 0 0 / .45); --frame-line: rgb(255 255 255 / .1); --tile: #f2f2f0; --eye: #111111; --avatar: #3a3833;
   --fill: rgb(255 255 255 / .06); --fill-2: rgb(255 255 255 / .11); }
 :root[data-theme="light"] { color-scheme: light; }
@@ -792,6 +795,14 @@ button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 .spin { color: var(--blue); animation: spin 1.6s linear infinite; }
+/* Status indicator, as T3 Code draws a thread's: 12 px icon, 2 px stroke, one 12 px word, 4 px apart, no spin. */
+.status-ind { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; line-height: 1; white-space: nowrap; }
+.status-ind .si { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.status-ind[data-s="working"] { color: var(--st-working); } .status-ind[data-s="waiting"] { color: var(--muted); }
+.status-ind[data-s="approval"] { color: var(--st-approval); } .status-ind[data-s="input"] { color: var(--st-input); }
+.status-ind[data-s="failed"] { color: var(--st-failed); } .status-ind[data-s="done"] { color: var(--st-done); }
+#tabs .pill .status-ind { margin-right: 6px; }
+.lab .st .status-ind .si, .it .rt .status-ind .si { width: 12px; height: 12px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 .float { background: var(--paper); box-shadow: var(--float); }
@@ -1091,6 +1102,7 @@ body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 <script>
 const EMBEDDED = /*STATE*/null;
 /*PROBLEMS*/
+/*STATUS*/
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...children) => { const node = Object.assign(document.createElement(tag), props); node.append(...children.filter(c => c !== '' && c != null && c !== false)); return node; };
 const attr = (node, name, value) => { node.setAttribute(name, value); return node; };
@@ -1184,6 +1196,12 @@ function building(f) {
   return (missing(f).length > 0 && recent) || (a.active && a.frame === f.id) || replaying.has(f.id);
 }
 const working = () => frames().filter(building);
+function statusOf(f) {
+  if (!f || !f.section || !isDesign(f.section) || f.section.archived) return null;
+  return seenryStatus({building: building(f), page: f.kind === 'page', option: !!(f.section.choose && !f.section.study), open: isOpen(f.section), sent: state.approvals[f.id] || ''});
+}
+const statusIcon = k => { const s = document.createElement('span'); s.innerHTML = '<svg class="si" viewBox="0 0 24 24" aria-hidden="true">' + SEENRY_STATUS[k].paths + '</svg>'; return s.firstChild; };
+const statusEl = (k, word = true) => { const n = el('span', {className: 'status-ind', title: SEENRY_STATUS[k].label}, statusIcon(k), word ? document.createTextNode(SEENRY_STATUS[k].label) : ''); n.dataset.s = k; if (!word) n.setAttribute('aria-label', SEENRY_STATUS[k].label); return n; };
 
 // ---------- Layout ----------
 function layout() {
@@ -1471,13 +1489,16 @@ function fillHead(s) {
   s.head.replaceChildren(document.createTextNode(s.name), el('span', {textContent: line}), refs);
 }
 function labelFor(node, f) {
-  const st = building(f) ? ['', 'Building'] : f.section.choose && picks[f.section.id] === f.id ? ['check', 'Picked'] : status[f.id] === 'approved' ? ['check', 'Approved'] : status[f.id] === 'change' ? ['', 'Needs changes'] : f.sketch ? ['', 'Sketch'] : f.kind === 'pending' ? ['', 'Being drawn'] : ['', ''];
+  // Choices made here and not sent yet are marked as such; everything else shows the screen's status.
+  const k = building(f) ? 'working' : null;
+  const st = k ? ['', ''] : f.section.choose && picks[f.section.id] === f.id ? ['check', 'Picked, not sent'] : touched.has(f.id) && status[f.id] === 'approved' ? ['check', 'Approved, not sent'] : touched.has(f.id) && status[f.id] === 'change' ? ['', 'Needs changes, not sent'] : ['', ''];
+  const sk = k || (st[1] ? null : statusOf(f));
   const [w, h] = size(f), dims = f.kind === 'image' ? '' : f.device === 'desktop' && !device ? String(w) : w + ' × ' + h;
-  const list = probList(f.id), key = short(f) + dims + st.join() + list.join('|');
+  const list = probList(f.id), key = short(f) + dims + st.join() + (sk || '') + list.join('|');
   const lab = node.querySelector('.lab'); if (lab.__key === key) return; lab.__key = key;
   node.dataset.problems = list.length > 0;
   const pb = list.length ? el('span', {className: 'pb', textContent: list.length + (list.length === 1 ? ' layout problem' : ' layout problems'), title: list.join('\n')}) : '';
-  lab.replaceChildren(el('b', {textContent: short(f)}), el('span', {textContent: dims}), pb, st[1] ? el('span', {className: 'st'}, st[0] ? icon(st[0]) : '', document.createTextNode(st[1])) : '');
+  lab.replaceChildren(el('b', {textContent: short(f)}), el('span', {textContent: dims}), pb, st[1] ? el('span', {className: 'st'}, st[0] ? icon(st[0]) : '', document.createTextNode(st[1])) : sk ? el('span', {className: 'st'}, statusEl(sk)) : '');
   const cap = node.querySelector('.cap');
   if (cap && f.kind !== 'pending') { cap.textContent = list[0] || f.caption || ''; cap.title = list.length ? list.join('\n') : f.axis || f.note || ''; }
 }
@@ -1718,15 +1739,19 @@ function renderSide() {
   $('share').title = seenry ? 'Copy the Seenry link to this canvas' : 'Share this canvas';
   const q = filterText.toLowerCase(), hit = (...t) => !q || t.join(' ').toLowerCase().includes(q);
   const current = sel(), cur = s => current && current.section.id === s.id;
-  const design = placed().filter(isDesign), needs = [], done = [], other = [];
+  const design = placed().filter(isDesign), needs = [], done = [], other = [], waiting = [];
   for (const s of design) {
     const ready = pagesOf(s), dev = ready[0] && ready[0].device !== 'desktop' ? ' · ' + ready[0].device : '';
     if (!ready.length) continue;
-    if (isOpen(s)) needs.push(row(s.name, ready.length + ' direction' + (ready.length === 1 ? '' : 's') + (state.rounds ? ' · round ' + (state.rounds + 1) : ''), [el('span', {className: 'dot', style: 'background:var(--amber)'}), el('span', {className: 'need', textContent: 'Pick'})], () => go(s), cur(s), s.id));
+    if (isOpen(s)) needs.push(row(s.name, ready.length + ' direction' + (ready.length === 1 ? '' : 's') + (state.rounds ? ' · round ' + (state.rounds + 1) : ''), statusEl('approval'), () => go(s), cur(s), s.id));
     else {
       const left = ready.filter(f => status[f.id] !== 'approved' && !(s.choose && picks[s.id]));
-      if (left.length && !s.choose) needs.push(row(s.name, plural(ready.length, 'screen', 'screens') + ' · ' + left.length + ' to review' + dev, [el('span', {className: 'dot', style: 'background:var(--amber)'}), el('span', {className: 'need', textContent: 'Review'})], () => go(s), cur(s), s.id));
-      else (s.choose && picks[s.id] ? other : done).push(row(s.name, s.choose && picks[s.id] ? 'Picked ' + short(find(picks[s.id])) : ready.length + (ready.length === 1 ? ' screen' : ' screens') + dev, s.choose && picks[s.id] ? el('span', {className: 'm', textContent: 'Send'}) : icon('check', 'ok'), () => go(s), cur(s), s.id));
+      // Your turn only while a screen waits for your review; screens sent back are queued for Seenry, not for you.
+      const st = f => statusOf({...f, section: s}), yours = left.filter(f => st(f) === 'approval'), queued = left.filter(f => st(f) === 'waiting');
+      if (yours.length && !s.choose) needs.push(row(s.name, plural(ready.length, 'screen', 'screens') + ' · ' + yours.length + ' to review' + dev, statusEl('approval'), () => go(s), cur(s), s.id));
+      else if (queued.length && !s.choose) waiting.push(row(s.name, plural(queued.length, 'screen', 'screens') + ' sent back' + dev, statusEl('waiting'), () => go(s), cur(s), s.id));
+      else if (left.length && !s.choose) continue;
+      else (s.choose && picks[s.id] ? other : done).push(row(s.name, s.choose && picks[s.id] ? 'Picked ' + short(find(picks[s.id])) : ready.length + (ready.length === 1 ? ' screen' : ' screens') + dev, s.choose && picks[s.id] ? el('span', {className: 'm', textContent: 'Send'}) : statusEl('done'), () => go(s), cur(s), s.id));
     }
   }
   const a = agentNow(), busy = working().map(f => {
@@ -1734,15 +1759,15 @@ function renderSide() {
     const follow = attr(el('span', {className: 'follow', textContent: 'Follow'}), 'data-on', following);
     follow.onclick = e => { e.stopPropagation(); following = true; show(f.id, true); renderSide(); };
     const t = el('span', {textContent: clock(Date.now() - (startOf(f.id) || Date.now()))}); t.dataset.since = startOf(f.id) || '';
-    return row(f.section.name + ' · ' + short(f), [document.createTextNode(part + ' · '), follow], [icon('spin', 'spin'), t], () => { select(f.id); focusFrame(f.id); }, current && current.id === f.id);
+    return row(f.section.name + ' · ' + short(f), [document.createTextNode(part + ' · '), follow], [statusEl('working', false), t], () => { select(f.id); focusFrame(f.id); }, current && current.id === f.id);
   });
   const system = state.sections.filter(s => (s.system && !s.archived && !s.cover) || s.reference).map(s => row(s.id === 'foundations' ? 'Tokens' : s.name, s.id === 'foundations' ? 'Type, colour, space' : s.id === 'components' ? 'Shared controls, drawn from components.css' : s.reference ? s.frames.length + ' reference' + (s.frames.length === 1 ? '' : 's') : s.note, '', () => go(s), cur(s), s.id));
   const group = (name, items, count) => { const list = items.filter(b => hit(b.textContent)); return list.length ? [el('div', {className: 'gl'}, document.createTextNode(name), count ? el('span', {textContent: String(list.length)}) : ''), ...list] : []; };
-  const all = [...group('Needs you', needs, true), ...group('Seenry is working', busy, true), ...group('Picked, not sent yet', other, true), ...group('Approved', done, true), ...group('System', system, false)];
+  const all = [...group('Needs you', needs, true), ...group('Seenry is working', busy, true), ...group('Queued for Seenry', waiting, true), ...group('Picked, not sent yet', other, true), ...group('Approved', done, true), ...group('System', system, false)];
   $('list').replaceChildren(...(all.length ? all : [el('p', {className: 'sb-empty', textContent: q ? 'No screen matches.' : 'Seenry hasn’t drawn anything yet. Screens appear here the moment they are written.'})]));
   const w = working()[0];
   $('pill-work').hidden = !w && !state.agentWaiting;
-  $('pill-work').replaceChildren(...(w ? [icon('spin', 'spin'), document.createTextNode('Seenry is building ' + short(w))] : state.agentWaiting ? [el('span', {className: 'dot', style: 'background:var(--amber)'}), document.createTextNode('Seenry is waiting for you')] : []));
+  $('pill-work').replaceChildren(...(w ? [statusEl('working', false), document.createTextNode('Seenry is building ' + short(w))] : state.agentWaiting ? [statusEl('approval', false), document.createTextNode('Seenry is waiting for you')] : []));
 }
 function go(s) { if (narrow) { const f = s.frames[0]; if (f) { paneId = f.id; render(); } return; } shownSection = s.id; selected = null; inspected = null; fitSection(s.id); render(); }
 function toggleSide() { sideOpen = !sideOpen; store.set('seenry-canvas-side', sideOpen ? 'open' : 'closed'); render(); }
@@ -2201,7 +2226,7 @@ function buildPane() {
   const s = f.section, list = s.frames.map(x => ({...x, section: s})), i = list.findIndex(x => x.id === f.id);
   const pickSection = design.length > 1 ? el('select', {}, ...design.map(d => el('option', {value: d.id, textContent: d.name, selected: d.id === s.id}))) : '';
   if (pickSection) { pickSection.setAttribute('aria-label', 'Section'); pickSection.onchange = () => { const d = design.find(x => x.id === pickSection.value); paneId = d.frames[0].id; render(); }; }
-  tabs.replaceChildren(pickSection, ...list.map(x => { const b = attr(attr(el('button', {type: 'button', className: 'pill'}, building(x) ? icon('spin', 'spin') : '', document.createTextNode(short(x))), 'role', 'tab'), 'aria-selected', x.id === f.id); b.onclick = () => { paneId = x.id; selected = x.id; render(); }; return b; }), el('span', {className: 'n', textContent: (i + 1) + ' of ' + list.length}));
+  tabs.replaceChildren(pickSection, ...list.map(x => { const b = attr(attr(el('button', {type: 'button', className: 'pill'}, statusOf(x) ? statusEl(statusOf(x), false) : '', document.createTextNode(short(x))), 'role', 'tab'), 'aria-selected', x.id === f.id); b.onclick = () => { paneId = x.id; selected = x.id; render(); }; return b; }), el('span', {className: 'n', textContent: (i + 1) + ' of ' + list.length}));
   const key = f.id + '@' + f.rev + '@' + f.kind + '@' + device;
   if (paneKey !== key) {
     paneKey = key;
@@ -2377,6 +2402,26 @@ apply(); load(); listen();
 
 // Cheap structural checks on a rendered screen, run by the canvas after every save and by "canvas.mjs problems".
 // Runs inside the screen's own document; no backticks, the canvas page embeds it as text.
+// Status, shown the way T3 Code shows a thread (pingdotgg/t3code, MIT; SidebarThreadRow's TOP_STATUS_ICONS): a 12 px icon
+// from Lucide (ISC) and one short word, chosen by priority. "Waiting" is grey and means queued, never "needs you".
+const STATUS_JS = String.raw`const SEENRY_STATUS = {
+  working: {label: 'Working', paths: '<path d="M10.1 2.182a10 10 0 0 1 3.8 0"/><path d="M13.9 21.818a10 10 0 0 1-3.8 0"/><path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"/><path d="M2.182 13.9a10 10 0 0 1 0-3.8"/><path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"/><path d="M21.818 10.1a10 10 0 0 1 0 3.8"/><path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"/><path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"/>'},
+  waiting: {label: 'Waiting', paths: '<path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/>'},
+  approval: {label: 'Approval', paths: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M9.1 9a3 3 0 0 1 5.82 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'},
+  input: {label: 'Input', paths: '<path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'},
+  failed: {label: 'Failed', paths: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>'},
+  done: {label: 'Done', paths: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>'}
+};
+// One screen's status from plain facts, so every place on the canvas says the same thing.
+// x: {building, page, option, open, sent} where sent is the review already handed to the agent ('approved', 'change' or '').
+function seenryStatus(x) {
+  if (x.building) return 'working';
+  if (!x.page) return null;
+  if (x.option) return x.open ? 'approval' : null;
+  if (x.sent === 'approved') return 'done';
+  if (x.sent === 'change') return 'waiting';
+  return 'approval';
+}`;
 const PROBLEMS_JS = String.raw`function seenryProblems(doc, limit) {
   limit = limit || 8;
   var win = doc.defaultView, W = doc.documentElement.clientWidth, out = [];
@@ -2459,7 +2504,7 @@ const PROBLEMS_JS = String.raw`function seenryProblems(doc, limit) {
   return out.slice(0, limit);
 }`;
 
-const page = embedded => PAGE.replace('/*PROBLEMS*/', () => PROBLEMS_JS).replace('/*STATE*/null', () => embedded ? JSON.stringify(embedded).replace(/</g, '\\u003c') : 'null');
+const page = embedded => PAGE.replace('/*PROBLEMS*/', () => PROBLEMS_JS).replace('/*STATUS*/', () => STATUS_JS).replace('/*STATE*/null', () => embedded ? JSON.stringify(embedded).replace(/</g, '\\u003c') : 'null');
 
 const seen = new Map(), seenParts = new Map(), seenChunks = new Map(); let seenReady = false;
 const partsIn = path => { try { return [...readFileSync(path, 'utf8').matchAll(/\bdata-seenry-part\s*=\s*["']([^"']{1,80})["']/g)].map(m => unescape(m[1])); } catch { return []; } };
