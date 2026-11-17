@@ -848,6 +848,9 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 .body iframe, .body img { display: block; width: 100%; height: 100%; border: 0; background: var(--screen-bg, #fff); transition: opacity 260ms var(--out); }
 .body img { object-fit: cover; object-position: top; }
 .shield { position: absolute; inset: 0; }
+.frame[data-cut="true"] .body::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; pointer-events: none; background: linear-gradient(to bottom, transparent, var(--screen-bg, #fff) 92%); }
+.more { left: 50%; bottom: calc(18px * var(--inv)); top: auto; transform: translateX(-50%) scale(var(--inv)); transform-origin: 50% 100%; height: 32px; padding: 0 14px; border: 0; border-radius: 99px; background: var(--ink); color: var(--bg, #fff); font: 500 13px/32px var(--font); white-space: nowrap; cursor: pointer; box-shadow: 0 4px 14px rgb(0 0 0 / .18); }
+.more[hidden] { display: none; }
 .frame[data-live="true"] .shield, #viewport:is([data-tool="comment"], [data-tool="inspect"]) .frame[data-kind="page"] .shield { display: none; }
 .marks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
 .hl { position: absolute; border-radius: 2px; box-shadow: 0 0 0 calc(1.5px * var(--inv)) var(--blue); }
@@ -1140,7 +1143,8 @@ const pagesOf = s => s.frames.filter(f => f.kind === 'page');
 const isOpen = s => s.choose && !s.study && !s.archived && !picks[s.id] && pagesOf(s).length > 0;
 const live = () => location.protocol !== 'file:';
 function size(f) { return device && (f.kind === 'page' || f.kind === 'pending') && isDesign(f.section) ? DEVICES[device] : [f.w, f.h]; }
-function clip(f) { const [w, h] = size(f); return fullHeight ? MAX_H : Math.max(h, Math.round(w * 1.2)); }
+const expanded = new Set();
+function clip(f) { const [w, h] = size(f); return fullHeight || expanded.has(f.id) ? MAX_H : Math.max(h, Math.round(w * 1.2)); }
 function height(f) {
   const h = size(f)[1];
   if (f.kind === 'pending' || (f.kind === 'page' && missing(f).length && building(f))) return clip(f);
@@ -1441,7 +1445,10 @@ function build() {
       }
       body.append(el('div', {className: 'marks'}));
       const lab = el('div', {className: 'ui lab'}), cap = el('div', {className: 'ui cap', textContent: f.kind === 'pending' ? '' : (f.caption || ''), title: f.kind === 'pending' ? '' : (f.axis || f.note || '')});
-      const node = el('div', {className: 'frame'}, lab, body, el('div', {className: 'shield'}), cap);
+      const more = el('button', {type: 'button', className: 'ui more'});
+      more.addEventListener('pointerdown', e => e.stopPropagation());
+      more.addEventListener('click', e => { e.stopPropagation(); if (expanded.has(f.id)) expanded.delete(f.id); else expanded.add(f.id); place(); });
+      const node = el('div', {className: 'frame'}, lab, body, el('div', {className: 'shield'}), cap, more);
       node.dataset.id = f.id; node.dataset.device = f.device; node.dataset.kind = f.kind;
       lab.addEventListener('click', e => { e.stopPropagation(); select(f.id); });
       nodes[f.id] = node; world.append(node);
@@ -1512,6 +1519,9 @@ function place() {
     Object.assign(node.style, {left: box.x + 'px', top: box.y + 'px', width: box.w + 'px', height: box.h + 'px'}); node.style.setProperty('--w', box.w);
     node.dataset.selected = selected === f.id; node.dataset.live = selected === f.id && tool === 'move' && f.kind === 'page' && live();
     node.dataset.building = building(f); node.dataset.status = status[f.id] || ''; node.dataset.archived = !!f.section.archived;
+    const full = f.kind === 'page' ? heights[f.id] || 0 : 0, cut = full > box.h + 4, open = expanded.has(f.id) && !fullHeight;
+    node.dataset.cut = cut; const more = node.querySelector('.more');
+    if (more) { more.hidden = !(cut || open); more.textContent = open ? 'Show less' : 'Whole page · ' + full.toLocaleString() + ' px'; }
     labelFor(node, f); placeMarks(f);
   }
   placePick(boxes); drawLinks(boxes);
