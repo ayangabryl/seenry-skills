@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.1
+
+- **`start.mjs` runs through a symlinked install.** It compared the script path without resolving links, so the default symlink install printed nothing on the first call of every task.
+
 ## 3.3.0
 
 ### Style briefs
