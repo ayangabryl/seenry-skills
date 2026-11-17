@@ -318,7 +318,7 @@ test('verify blocks a full page whose hero image never returns below the hero', 
 });
 
 // The person's side: pick under the selected option, point at an element, send; and the side-pane layout.
-test('the canvas UI picks an option, turns a click on an element into a chip, and sends both to wait', {skip}, async t => {
+test('the canvas UI picks an option, pins a note on a clicked element, and sends both to wait', {skip}, async t => {
   const {dir} = project();
   mkdirSync(join(dir, '02-home.options'));
   const option = name => `<!doctype html><meta charset="utf-8"><title>Home · ${name}</title><meta name="seenry-axis" content="${name} axis"><h1 data-seenry-part="Hero">${name} headline</h1>`;
@@ -337,8 +337,11 @@ test('the canvas UI picks an option, turns a click on an element into a chip, an
   await page.locator('.frame[data-id="02-home/a-tide"] .lab').click();
   await page.locator('#pick button', {hasText: 'Pick Tide'}).click();
   await page.frameLocator('.frame[data-id="02-home/a-tide"] iframe').locator('h1').click();
-  assert.equal(await page.locator('#chips .chip').innerText(), 'Tide · h1');
-  await page.fill('#general', 'Lighter headline');
+  assert.match(await page.locator('#pane-note small').innerText(), /^1 · Tide · h1 · at 1440$/);
+  assert.equal(await page.locator('#general').isVisible(), false, 'no prompt box: the note is written where it points');
+  await page.fill('#pane-note textarea', 'Lighter headline');
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('.frame[data-id="02-home/a-tide"] .marks .pin').innerText(), '1', 'the note is pinned and numbered on the frame');
   assert.match(await page.locator('#status').innerText(), /1 pick · 1 note/);
   await page.locator('#send').click();
   await page.waitForFunction(() => /Saved|Sent/.test(document.getElementById('status').textContent));
@@ -348,7 +351,8 @@ test('the canvas UI picks an option, turns a click on an element into a chip, an
   await page.setViewportSize({width: 640, height: 900});
   await page.waitForFunction(() => document.body.dataset.narrow === 'true');
   assert.equal(await page.locator('#side').isVisible(), false, 'no list of its own in a side pane');
-  assert.deepEqual(await page.locator('#tabs [role="tab"]').allInnerTexts(), ['Tide', 'Dusk']);
+  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#tabs [role="tab"]')].map(t => [t.querySelector('.key')?.textContent, t.lastChild.textContent])), [['1', 'Tide'], ['2', 'Dusk']], 'options are numbered tabs');
+  assert.match(await page.locator('#proj').innerText(), /Home/, 'the pane names its section');
   assert.equal(await page.locator('#stage iframe').count(), 1, 'one screen at a time');
   assert.deepEqual(errors, []);
 });
@@ -498,18 +502,18 @@ test('in an agent app\'s pane the canvas follows the host theme and drops its ow
   const {dir} = project();
   const {page, errors} = await canvasPage(t, dir, {width: 1200, colorScheme: 'dark', query: '?embed=1'});
   await page.waitForSelector('.frame iframe');
-  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(12, 12, 12)', 'the canvas is dark with the host');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(0.13 0.003 270)', 'the canvas is graphite with the host');
   assert.equal(await page.locator('#side .sb-head b').isVisible(), false, 'no second title bar');
   assert.equal(await page.locator('#side').isVisible(), false, 'the screen list starts closed in a pane');
   await page.waitForFunction(() => document.querySelector('.frame[data-id="01-flow/01-good"] iframe').contentDocument?.documentElement.dataset.theme === 'dark');
   await page.emulateMedia({colorScheme: 'light'});
   await page.waitForFunction(() => document.querySelector('.frame[data-id="01-flow/01-good"] iframe').contentDocument.documentElement.dataset.theme !== 'dark');
-  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(239, 239, 237)');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(0.955 0.002 270)');
   await page.setViewportSize({width: 900, height: 900});
   await page.waitForFunction(() => document.body.dataset.narrow === 'true', null, {timeout: 3000});
   // ?theme= wins over the host.
   await page.goto(page.url().replace('?embed=1', '?embed=1&theme=dark'));
   await page.waitForSelector('#stage iframe');
-  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(12, 12, 12)');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(0.13 0.003 270)');
   assert.deepEqual(errors, []);
 });
