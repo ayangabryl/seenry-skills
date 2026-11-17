@@ -599,6 +599,8 @@ test('the pane is set in Marks: Switzer from Fontshare, a header with the projec
   assert.match(html, /--font: "Switzer", system-ui/, 'offline it falls back to the system face');
   assert.match(html, /<header id="pane-head"><span id="proj"><\/span>/, 'the pane opens with the project and its section');
   assert.match(html, /body\[data-narrow="true"\] #composer \{ display: none; \}/, 'no prompt box in the pane');
+  assert.match(html, /#composer \.txt \{ display: none; \}/, 'no prompt box on the board either: notes are pinned');
+  assert.match(html, /function buildOverview\(/, 'the grid button opens all screens inside the pane, with a way back');
   assert.match(html, /function openNote\(node, f\)/, 'a click in the pane opens a note pinned to what was clicked');
   assert.match(html, /!n\.getClientRects\(\)\.length\) return;/, 'text inside a hidden parent is not counted as text with no room');
 });

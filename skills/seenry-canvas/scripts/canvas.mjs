@@ -954,6 +954,8 @@ body[data-side="closed"] { --side: 0px; }
 .chip button:hover { background: color-mix(in oklab, var(--blue) 14%, transparent); }
 #general { flex: 1; min-width: 80px; height: 40px; padding: 3px 0 0; border: 0; background: none; resize: none; outline: none; color: var(--ink); font-size: 15px; line-height: 20px; }
 #general::placeholder { color: var(--faint); }
+#composer { height: auto; padding: 8px 8px 8px 10px; border-radius: 16px; }
+#composer .txt { display: none; }
 .bar { display: flex; align-items: center; gap: 2px; }
 .bar .tools { display: flex; align-items: center; gap: 2px; }
 #device { color: var(--muted); }
@@ -1013,6 +1015,19 @@ body[data-narrow="true"] :is(#viewport, #side, #side-pill, #top, #zoom, #inspect
 #tabs .key { display: inline-grid; place-items: center; min-width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 0 0 1px var(--line-2); color: var(--muted); font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
 #pane-status { display: inline-flex; align-items: center; align-self: center; padding: 0 6px 0 10px; }
 #pane-board { align-self: center; }
+#pane-board[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
+#tabs .ov-title { align-self: center; padding: 0 8px; color: var(--ink); font-size: 13px; font-weight: 500; }
+body[data-overview="true"] #pane-sub { display: none; }
+body[data-overview="true"] #stage { margin-top: 16px; overflow-y: auto; }
+.ov { display: grid; align-items: start; padding-bottom: 16px; }
+.ov-tile { display: grid; gap: 8px; padding: 0; border: 0; background: none; text-align: left; color: var(--ink); }
+.ov-thumb { position: relative; overflow: hidden; border-radius: 6px; background: var(--surface); box-shadow: 0 0 0 1px var(--line-2); pointer-events: none; }
+.ov-thumb iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; }
+.ov-tile:hover .ov-thumb, .ov-tile[aria-current="true"] .ov-thumb { box-shadow: 0 0 0 1.5px var(--ink); }
+.ov-cap { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 13px; }
+.ov-cap b { font-weight: 500; }
+.ov-cap small { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-tile > .status-ind { margin-top: -2px; }
 #to-pane[hidden] { display: none; }
 #pane-sub { flex: none; display: flex; align-items: center; gap: 2px; height: 44px; padding: 0 16px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
 #pane-sub button { height: 26px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--muted); }
@@ -1025,7 +1040,7 @@ body[data-narrow="true"] :is(#viewport, #side, #side-pill, #top, #zoom, #inspect
 #stage .body iframe { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .pane-marks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
 .p-pin { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: oklch(0.17 0.003 270); color: oklch(0.985 0.001 270); box-shadow: 0 0 0 2px oklch(0.985 0.001 270), 0 2px 6px rgb(0 0 0 / .2); font: 600 12px/22px var(--font); text-align: center; font-variant-numeric: tabular-nums; }
-#pane-note { position: absolute; z-index: 3; width: min(300px, calc(100% - 16px)); display: grid; gap: 8px; padding: 12px; border-radius: 8px; background: var(--paper); color: var(--ink); box-shadow: var(--float); }
+#pane-note { position: fixed; z-index: 30; width: min(300px, calc(100% - 16px)); display: grid; gap: 8px; padding: 12px; border-radius: 8px; background: var(--paper); color: var(--ink); box-shadow: var(--float); }
 #pane-note small { color: var(--muted); font-size: 12px; }
 #pane-note textarea { min-height: 44px; padding: 0; border: 0; outline: 0; background: none; resize: none; font-size: 14px; line-height: 1.4; }
 #pane-note .row { display: flex; justify-content: flex-end; gap: 6px; }
@@ -1091,7 +1106,7 @@ body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 <button type="button" id="side-pill" class="float" hidden title="Show the screen list (L)"><span class="ib" data-i="panel"></span><span class="mark" id="pill-mark" style="width:24px;height:24px"></span><b id="pill-title"></b><span class="work" id="pill-work" hidden></span></button>
 <div id="top" class="float"><span class="who"><span class="avatar" id="me-2"></span><button type="button" id="mark" title="Follow Seenry as it works (A)" aria-pressed="true"></button></span>
   <button type="button" class="ib" id="play" data-i="play" title="Present: play the screens full size, following their links (P)" aria-label="Present"></button>
-  <button type="button" class="pill" id="to-pane" hidden title="Back to one screen at a time">One screen</button>
+  <button type="button" class="pill" id="to-pane" hidden title="Back to one screen at a time">Back to the pane</button>
   <button type="button" class="pill ink" id="share" data-i="share" aria-haspopup="dialog" aria-expanded="false" title="Share this canvas">Share</button></div>
 <div id="zoom" class="float" role="group" aria-label="Zoom"><button type="button" class="ib" id="zoom-out" aria-label="Zoom out" title="Zoom out (−)">−</button><button type="button" id="zoom-level" title="Zoom to 100%">100%</button><button type="button" class="ib" id="zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button><span class="sep"></span><button type="button" class="pill ghost" id="zoom-fit" title="Fit everything (1). The decision: 2">Fit</button></div>
 <main id="pane" aria-label="Canvas">
@@ -1173,7 +1188,7 @@ for (const id of ['mark', 'side-mark', 'pill-mark']) $(id).innerHTML = EYES;
 let state = null, view = {x: 0, y: 0, z: 1}, selected = null, tool = 'move', following = true, lastAt = '', narrow = false, fitted = false;
 let showLinks = true, showGrid = false, dark = THEME ? THEME === 'dark' : HOST_DARK.matches, darkSet = false, showSpecs = false, fullHeight = false, device = null;
 let sideOpen = store.get('seenry-canvas-side') ? store.get('seenry-canvas-side') !== 'closed' : !EMBED;
-let playing = null, flow = null, reviewing = null, inspected = null, paneId = null, paneKey = '', online = true, flashText = '', flashTimer = 0, filterText = '';
+let overview = false, playing = null, flow = null, reviewing = null, inspected = null, paneId = null, paneKey = '', online = true, flashText = '', flashTimer = 0, filterText = '';
 const status = {}, picks = {}, notes = [], heights = {}, nodes = {}, touched = new Set(), riffs = [], chips = [];
 const DEFAULT_ASK = ['Is anything missing on this screen?', 'Is it clear what to do first?', 'Does anything look wrong or out of place?'];
 
@@ -1423,9 +1438,9 @@ function arm(iframe, f) {
   doc.addEventListener('click', e => {
     if (!pointing() || !live()) return;
     e.preventDefault(); e.stopPropagation(); mark(null);
-    if (tool === 'inspect' && !narrow) inspect(e.target, f); else if (narrow) openNote(e.target, f); else addChip(e.target, f);
+    if (tool === 'inspect' && !narrow) inspect(e.target, f); else openNote(e.target, f);
   }, true);
-  doc.addEventListener('scroll', () => { placeMarks(f); if (narrow) { closeNote(); panePins(); } }, {passive: true});
+  doc.addEventListener('scroll', () => { placeMarks(f); closeNote(); if (narrow) panePins(); }, {passive: true});
   doc.addEventListener('keydown', e => { if (e.key === 'Escape') { setTool('move'); selected = null; render(); } });
 }
 function cursorNode(text) { const c = el('div', {className: 'cursor'}); c.innerHTML = ARROW; c.append(el('span', {textContent: text || 'Seenry'})); return c; }
@@ -1537,7 +1552,8 @@ function placeMarks(f) {
   const layer = node.querySelector('.marks'); if (!layer) return;
   let sy = 0; try { sy = node.querySelector('iframe').contentWindow.scrollY || 0; } catch (e) {}
   const marks = chips.filter(c => c.frame === f.id && c.box).map(c => el('div', {className: 'hl', style: 'left:' + c.box.x + 'px;top:' + (c.box.y - sy) + 'px;width:' + c.box.w + 'px;height:' + c.box.h + 'px'}, el('span', {className: 'tag', textContent: c.tag})));
-  layer.replaceChildren(...marks, ...pinsFor(f, node, sy));
+  const fw = size(f)[0], mine = notes.map((n, i) => { if (n.frame !== f.id || !n.box) return ''; const l = n.box.x + n.box.w > fw * 0.85; return el('div', {className: 'pin' + (l ? ' l' : ''), textContent: String(i + 1), title: n.text, style: 'left:' + (l ? n.box.x : n.box.x + n.box.w) + 'px;top:' + (n.box.y - sy) + 'px'}); }).filter(Boolean);
+  layer.replaceChildren(...marks, ...mine, ...(mine.length ? [] : pinsFor(f, node, sy)));
 }
 // Comments already sent on this version of a screen, numbered as the agent reads them, pinned to their element.
 function pinsFor(f, node, sy) {
@@ -1592,7 +1608,7 @@ function actionsFor(f, inPane) {
     out.push(b(status[f.id] === 'approved' ? 'Approved' : 'Approve', 'ink', set('approved'), 'check', status[f.id] === 'approved'));
     out.push(b('Needs changes', inPane ? 'soft' : '', set('change'), '', status[f.id] === 'change'));
   }
-  if (!inPane) out.push(b('Comment', '', () => addScreen(f)));
+  if (!inPane) out.push(b('Comment', '', () => openNote(null, f)));
   return out;
 }
 function placePick(boxes) {
@@ -1862,7 +1878,7 @@ function renderInspector() {
   box.replaceChildren(...parts);
 }
 function renderHint() {
-  const t = playing || reviewing ? '' : tool === 'comment' ? 'Click any element on a screen to point Seenry at it. Esc to stop.' : tool === 'inspect' ? 'Click any element to see its values and variables. Esc to stop.' : '';
+  const t = playing || reviewing ? '' : tool === 'comment' ? 'Click anything on a screen to leave a note. Esc to stop.' : tool === 'inspect' ? 'Click any element to see its values and variables. Esc to stop.' : '';
   $('hint').hidden = !t; $('hint').textContent = t;
 }
 
@@ -2245,7 +2261,7 @@ function setNarrow(on) {
 }
 NARROW.addEventListener('change', () => setNarrow(wantsNarrow()));
 $('pane-board').append(icon('grid'));
-$('pane-board').onclick = () => { const q = new URLSearchParams(location.search); q.set('view', 'canvas'); location.search = q; };
+$('pane-board').onclick = () => { overview = !overview; closeNote(); render(); };
 $('to-pane').hidden = QUERY.get('view') !== 'canvas';
 $('to-pane').onclick = () => { const q = new URLSearchParams(location.search); q.delete('view'); location.search = q; };
 function buildPane() {
@@ -2257,6 +2273,8 @@ function buildPane() {
   const tabs = $('tabs'), proj = $('proj');
   const head = (name, sec) => [el('span', {innerHTML: MARK, style: 'display:contents'}), el('b', {textContent: name}), sec ? el('small', {textContent: sec}) : ''];
   if (!f) { proj.replaceChildren(...head(state.title)); tabs.replaceChildren(); $('pane-status').replaceChildren(); $('pane-sub').replaceChildren(); $('pane-act').replaceChildren(); $('stage').replaceChildren(el('div', {className: 'p-empty'}, el('span', {className: 'mark', style: 'width:40px;height:40px', innerHTML: EYES}), el('span', {textContent: 'Seenry hasn’t drawn anything yet. Screens appear here the moment they are written.'}))); return; }
+  $('pane-board').setAttribute('aria-pressed', overview); document.body.dataset.overview = overview;
+  if (overview) { buildOverview(design, f, head); return; }
   const s = f.section, list = s.frames.map(x => ({...x, section: s})), i = list.findIndex(x => x.id === f.id), opt = !!(s.choose && !s.study);
   proj.replaceChildren(...head(state.title, s.name + (opt && isOpen(s) ? ' · pick one' : '')));
   if (design.length > 1) {
@@ -2285,6 +2303,29 @@ function buildPane() {
   $('pane-act').replaceChildren(why, ...paneActions(f));
   scalePane(); panePins();
 }
+// The overview: every screen at its width, with its status. A tile opens the screen; the button comes back.
+function buildOverview(design, f, head) {
+  $('proj').replaceChildren(...head(state.title));
+  $('tabs').replaceChildren(el('span', {className: 'ov-title', textContent: 'All screens'}));
+  $('pane-status').replaceChildren(); $('pane-sub').replaceChildren();
+  const all = design.flatMap(s => s.frames.filter(x => x.kind === 'page').map(x => ({...x, section: s})));
+  const key = 'overview@' + all.map(x => x.id + x.rev).join() + '@' + $('stage').clientWidth;
+  if (paneKey !== key) {
+    paneKey = key; closeNote();
+    const W = $('stage').clientWidth, cols = W >= 640 ? 3 : 2, gap = 16, tw = Math.floor((W - gap * (cols - 1)) / cols);
+    const grid = el('div', {className: 'ov', style: 'grid-template-columns:repeat(' + cols + ',' + tw + 'px);gap:' + gap + 'px'});
+    for (const x of all) {
+      const [w, h] = size(x), k = tw / w, th = Math.round(Math.min(h, w * 1.2) * k), st = statusOf(x);
+      const thumb = el('div', {className: 'ov-thumb', style: 'height:' + th + 'px'}, el('iframe', {src: x.src + '?v=' + x.rev, title: x.name, loading: 'lazy', tabIndex: -1, style: 'width:' + w + 'px;height:' + Math.round(th / k) + 'px;transform:scale(' + k + ')'}));
+      const tile = el('button', {type: 'button', className: 'ov-tile'}, thumb, el('span', {className: 'ov-cap'}, st ? statusEl(st, false) : '', el('b', {textContent: short(x)}), el('small', {textContent: (x.section.choose ? x.section.name + ' · ' : '') + w})), st ? statusEl(st) : '');
+      tile.setAttribute('aria-current', x.id === f.id); tile.onclick = () => { paneId = x.id; selected = x.id; overview = false; render(); };
+      grid.append(tile);
+    }
+    $('stage').replaceChildren(grid);
+  }
+  const back = el('button', {type: 'button', className: 'pill soft', textContent: 'Back to ' + short(f)}); back.onclick = () => { overview = false; render(); };
+  $('pane-act').replaceChildren(el('span', {className: 'why', textContent: flashText || 'Click a screen to open it. Press A to come back here.'}), back);
+}
 // What the pane's action row offers: one quiet choice and one main button, which becomes Send while anything waits.
 function paneWaiting() {
   const n = notes.length, r = riffs.length, ch = [...touched].filter(id => status[id] === 'change').length;
@@ -2312,28 +2353,38 @@ function paneScroll() { try { return $('stage').querySelector('iframe').contentW
 function panePins() {
   const layer = $('stage').querySelector('.pane-marks'); if (!layer) return;
   const k = paneScale(), sy = paneScroll();
-  layer.replaceChildren(...notes.map((n, i) => n.frame === paneId && n.box ? el('div', {className: 'p-pin', textContent: String(i + 1), title: n.text, style: 'left:' + Math.round((n.box.x + n.box.w) * k + 14) + 'px;top:' + Math.round((n.box.y - sy) * k + 4) + 'px'}) : '').filter(Boolean));
+  const fw = (find(paneId) ? size(find(paneId))[0] : 1440);
+  layer.replaceChildren(...notes.map((n, i) => { if (n.frame !== paneId || !n.box) return ''; const l = n.box.x + n.box.w > fw * 0.85; return el('div', {className: 'p-pin', textContent: String(i + 1), title: n.text, style: 'left:' + Math.round(l ? n.box.x * k - 14 : (n.box.x + n.box.w) * k + 14) + 'px;top:' + Math.round((n.box.y - sy) * k + 4) + 'px'}); }).filter(Boolean));
 }
 function closeNote() { const n = $('pane-note'); if (n) n.remove(); }
+// A note: click an element (or a whole screen), write one line, and it is pinned there, numbered, until you send.
 function openNote(node, f) {
   closeNote();
-  const d = describe(node), win = node.ownerDocument.defaultView, r = node.getBoundingClientRect(), k = paneScale();
-  const part = node.closest('[data-seenry-part]'), tag = node.tagName.toLowerCase();
-  const what = /^(div|span|section|article|main|p|li|ul|figure|svg|g|path)$/.test(tag) && part ? part.getAttribute('data-seenry-part') : tag;
-  const range = node.ownerDocument.createRange(); range.selectNodeContents(node);
-  const ink = range.getBoundingClientRect(), t = ink.width && ink.height ? ink : r;
-  const box = {x: t.left + win.scrollX, y: t.top + win.scrollY, w: t.width, h: t.height};
+  let fr = null; try { fr = node ? node.ownerDocument.defaultView.frameElement : (narrow ? $('stage').querySelector('iframe') : nodes[f.id] && nodes[f.id].querySelector('iframe')); } catch (e) {}
+  if (!fr) return;
+  const fb = fr.getBoundingClientRect(), z = fb.width / (fr.offsetWidth || fb.width) || 1;
+  let what = 'whole screen', d = {target: 'whole screen', selector: ''}, box = null, r = {left: 12, top: 12, bottom: 12};
+  if (node) {
+    const win = node.ownerDocument.defaultView, part = node.closest('[data-seenry-part]'), tag = node.tagName.toLowerCase();
+    d = describe(node); r = node.getBoundingClientRect();
+    what = /^(div|span|section|article|main|p|li|ul|figure|svg|g|path)$/.test(tag) && part ? part.getAttribute('data-seenry-part') : tag;
+    const range = node.ownerDocument.createRange(); range.selectNodeContents(node);
+    const ink = range.getBoundingClientRect(), t = ink.width && ink.height ? ink : r;
+    box = {x: t.left + win.scrollX, y: t.top + win.scrollY, w: t.width, h: t.height};
+  }
   const area = el('textarea', {rows: 2, placeholder: 'What should change?'}); area.setAttribute('aria-label', 'Note on ' + what);
   const add = () => { const text = area.value.trim(); if (!text) { area.focus(); return; } notes.push({frame: f.id, target: d.target, selector: d.selector, text, box}); closeNote(); render(); };
   const cancel = el('button', {type: 'button', className: 'pill soft', textContent: 'Cancel'}); cancel.onclick = closeNote;
   const ok = el('button', {type: 'button', className: 'pill ink', textContent: 'Add note'}); ok.onclick = add;
   area.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); add(); } else if (e.key === 'Escape') closeNote(); });
-  const W = $('stage').clientWidth, H = $('stage').clientHeight, x = Math.max(8, Math.min(W - 308, r.left * k)), below = r.bottom * k + 8, y = below + 150 < H ? below : Math.max(8, r.top * k - 158);
-  const pop = el('div', {id: 'pane-note', style: 'left:' + Math.round(x) + 'px;top:' + Math.round(y) + 'px'}, el('small', {textContent: (notes.length + 1) + ' · ' + what + ' · at ' + size(f)[0]}), area, el('div', {className: 'row'}, cancel, ok));
+  const sx = fb.left + r.left * z, below = fb.top + r.bottom * z + 8;
+  const x = Math.max(8, Math.min(innerWidth - 308, sx)), y = below + 160 < innerHeight ? below : Math.max(8, fb.top + r.top * z - 168);
+  const pop = el('div', {id: 'pane-note', style: 'left:' + Math.round(x) + 'px;top:' + Math.round(y) + 'px'}, el('small', {textContent: (notes.length + 1) + ' · ' + short(f) + ' · ' + what + ' · at ' + size(f)[0]}), area, el('div', {className: 'row'}, cancel, ok));
   pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Add a note');
-  $('stage').append(pop); area.focus();
+  document.body.append(pop); area.focus();
 }
 function scalePane() {
+  if (overview) return;
   const f = find(paneId), body = $('stage').querySelector('.body'); if (!f || !body) return;
   const W = $('stage').clientWidth, H = $('stage').clientHeight, [w] = size(f), k = Math.min(1, W / w);
   let page = 0; try { const d = body.querySelector('iframe').contentDocument; page = Math.max(0, ...[...d.body.children].map(c => c.getBoundingClientRect().bottom + d.defaultView.scrollY)); } catch (e) {}
@@ -2343,7 +2394,7 @@ function scalePane() {
   const pk = $('pane-k'); if (pk) pk.textContent = Math.round(k * 100) + '%';
   panePins();
 }
-new ResizeObserver(() => { if (narrow) scalePane(); }).observe($('stage'));
+new ResizeObserver(() => { if (narrow) { if (overview) buildPane(); else scalePane(); } }).observe($('stage'));
 
 // ---------- Send: picks, approvals, chips and text go to the agent's wait ----------
 function summary(extra, general) {
@@ -2416,7 +2467,7 @@ addEventListener('keydown', e => {
   else if (k === 'v') setTool('move');
   else if (k === 'c') setTool(tool === 'comment' ? 'move' : 'comment');
   else if (k === 'i') setTool(tool === 'inspect' ? 'move' : 'inspect');
-  else if (k === 'a') toggleFollow();
+  else if (k === 'a') { if (narrow) { overview = !overview; closeNote(); render(); } else toggleFollow(); }
   else if (k === 'l') toggleSide();
   else if (k === 'b' || e.key === '2') fitDecision();
   else if (k === 'm' || e.key === '1') fitAll();
