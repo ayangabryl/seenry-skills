@@ -560,3 +560,28 @@ test('the local canvas and online sync answer More like this with the same three
   assert.equal(modes('canvas.mjs'), modes('sync.mjs'));
   assert.equal((modes('canvas.mjs').match(/^  '/gm) || []).length, 3);
 });
+
+test('every screen shows one status, the way T3 Code shows a thread: an icon and one word', async t => {
+  const {dir} = project();
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const html = (await call(actual, '/')).body, code = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].at(-1)[1];
+  const from = code.indexOf('const SEENRY_STATUS'), to = code.indexOf('\n}', code.indexOf('function seenryStatus(')) + 2;
+  assert.ok(from >= 0 && to > from, 'the status module is in the page');
+  const {SEENRY_STATUS, seenryStatus} = new Function(code.slice(from, to) + '; return {SEENRY_STATUS, seenryStatus};')();
+  assert.deepEqual(Object.keys(SEENRY_STATUS), ['working', 'waiting', 'approval', 'input', 'failed', 'done']);
+  assert.deepEqual(Object.values(SEENRY_STATUS).map(s => s.label), ['Working', 'Waiting', 'Approval', 'Input', 'Failed', 'Done']);
+  const at = x => seenryStatus({building: false, page: true, option: false, open: false, sent: '', ...x});
+  assert.equal(at({building: true}), 'working');
+  assert.equal(at({building: true, sent: 'approved'}), 'working');
+  assert.equal(at({}), 'approval');
+  assert.equal(at({sent: 'approved'}), 'done');
+  assert.equal(at({sent: 'change'}), 'waiting');
+  assert.equal(at({page: false}), null);
+  assert.equal(at({option: true, open: true}), 'approval');
+  assert.equal(at({option: true, open: false}), null);
+  assert.match(code, /function statusOf\(f\)/);
+});
