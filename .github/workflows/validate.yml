@@ -28,7 +28,10 @@ jobs:
       - run: node --test tests/transition-contracts.test.mjs
       - run: node --check skills/seenry-canvas/scripts/canvas.mjs
       - run: node --check skills/seenry-canvas/scripts/sync.mjs
-      - run: node --test tests/canvas.test.mjs tests/canvas-sync.test.mjs tests/identity.test.mjs
+      - run: node --test tests/canvas.test.mjs tests/canvas-sync.test.mjs tests/identity.test.mjs tests/model-cli.test.mjs
+      - run: node --test tests/style-briefs.test.mjs tests/start.test.mjs tests/blockers.test.mjs
+      - run: node --check skills/seenry/scripts/start.mjs
+      - run: node --check skills/seenry/scripts/check.mjs
       - name: Validate motion judgment protocol without model calls
         run: node tests/motion-judgment-contract.test.cjs
       - run: node --check skills/seenry/scripts/browser_evidence.mjs

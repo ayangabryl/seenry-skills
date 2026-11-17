@@ -19,8 +19,11 @@
  *  node canvas.mjs round "what changed" [dir]   after applying feedback: resolve picks, log it, set every section's status
  *  node canvas.mjs round "what changed" --unattended "why nobody can review" [dir]   record a run with no person: nothing is approved
  *  node canvas.mjs init [dir] --library <path>   link a shared design system (another canvas folder) instead of local tokens
- *  node canvas.mjs plan <file>… [--parts "Nav,Hero"] [--dir dir]   name the screens (and their parts) you are about to draw
+ *  node canvas.mjs plan <file>… [--parts "Nav,Hero,Plans"] [--dir dir]   name the screens (and their parts) you are about to
+ *                                        draw; the canvas shows each part the moment it is written
  *  node canvas.mjs say "what you are doing" [--frame id] [dir]   one line on the canvas's live activity feed, for the person watching
+ *  node canvas.mjs problems [screens] [--dir dir]   layout problems after the last save, at the screen's width and at 390:
+ *                                        sideways overflow, cut-off text, collapsed parts, overlapping text. Exits 1 on any
  *
  *  The agent's eyes (Playwright): screens are ids or section names; none means every screen. --dir picks the canvas.
  *  node canvas.mjs render  [screens] [--device phone|tablet|desktop|all] [--mode light|dark|both] [--scale 2]   PNGs to look at
@@ -55,7 +58,7 @@
  *  and Present mode follows it, like a Figma prototype.
  *  Plain Node, no packages, bound to 127.0.0.1. */
 import {createServer} from 'node:http';
-import {existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, rmSync, openSync, readSync, closeSync, renameSync, realpathSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, rmSync, openSync, readSync, closeSync, renameSync, realpathSync, watch} from 'node:fs';
 import {resolve, join, extname, basename, dirname, sep, relative} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {spawn, spawnSync} from 'node:child_process';
@@ -72,7 +75,7 @@ const SWITCHES = new Set(['--no-browser', '--browser', '--json', '--no-judge', '
 const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !SWITCHES.has(all[i - 1])));
 const ARGS = {status: 2, resolve: 1, archive: 1, log: 1, round: 1, say: 1, sync: 1}[command] || 0;
 // Commands that take screens as arguments find the canvas with --dir; the others also take it as the next argument.
-const FRAME_COMMANDS = new Set(['render', 'tree', 'verify', 'diff', 'compare', 'pair', 'plan']);
+const FRAME_COMMANDS = new Set(['render', 'tree', 'verify', 'diff', 'compare', 'pair', 'plan', 'problems']);
 const dir = resolve(flag('dir') || (FRAME_COMMANDS.has(command) ? '' : positional[ARGS]) || '.seenry/canvas');
 const pidFile = join(dir, '.canvas.json');
 const waitFile = join(dir, '.waiting.json');
@@ -394,7 +397,7 @@ function host() {
   const e = process.env, bundle = e.__CFBundleIdentifier || '', term = e.TERM_PROGRAM || '';
   if (e.CLAUDE_CODE_REMOTE === 'true' || e.CONDUCTOR_IS_LOCAL === '0') return {id: 'cloud', name: 'a cloud session'};
   if (e.T3CODE_THREAD_ID || e.CLAUDE_CODE_ENTRYPOINT === 't3-code' || /t3code/i.test(bundle))
-    return {id: 't3', name: 'T3 Code', tell: (url, port) => `Call preview_open with target {"kind": "environment-port", "port": ${port}} (or url ${url}) to show it in T3 Code's preview pane.`};
+    return {id: 't3', name: 'T3 Code', tell: (url, port) => `Call preview_open with target {"kind": "environment-port", "port": ${port}, "path": "/?embed=1"} (or url ${url}?embed=1) to show it in T3 Code's preview pane.`};
   if (e.CODEX_THREAD_ID || /com\.openai\.codex/i.test(bundle))
     return {id: 'codex', name: 'the Codex app', tell: url => `Use @Browser to open ${url} in the Codex app's browser.`};
   if (/^claude-desktop/.test(e.CLAUDE_CODE_ENTRYPOINT || '') || /com\.anthropic\.claude/i.test(bundle))
@@ -725,7 +728,8 @@ function readState({pending = false} = {}) {
   for (const s of sections) for (const f of s.frames) {
     if (f.kind !== 'page' && f.kind !== 'pending') continue;
     const rel = f.kind === 'pending' ? f.rel : f.src;
-    f.plan = Array.isArray(planned[rel]) ? planned[rel].map(String).slice(0, 12) : [];
+    const spec = Array.isArray(planned[rel]) ? planned[rel].map(String).slice(0, 12) : [];
+    f.plan = spec.map(p => p.replace(/\s*:\s*\d+\s*$/, '').trim());
     f.parts = f.kind === 'page' && !s.library ? partsIn(join(dir, f.src)) : [];
   }
   const ids = new Set(sections.flatMap(s => s.frames.map(f => f.id)));
@@ -763,18 +767,24 @@ const PAGE = String.raw`<!doctype html>
    selection, amber for what needs the person, green for approved. Every other colour on the canvas comes from the screens. */
 :root { color-scheme: light dark;
   --canvas: #efefed; --paper: #ffffff; --surface: #f4f4f3; --surface-2: #ececea; --ink: #171717; --on-ink: #ffffff; --text: #383838; --muted: #6d6d6d; --faint: #949494;
-  --line: rgb(0 0 0 / .07); --line-2: rgb(0 0 0 / .13); --blue: #2b63e8; --blue-soft: #e9effd; --amber: #c2710c; --green: #1f8a4c; --live: #2b63e8;
+  --line: rgb(0 0 0 / .07); --line-2: rgb(0 0 0 / .13); --blue: #2b63e8; --blue-soft: #e9effd; --amber: #c2710c; --green: #1f8a4c; --red: #c7362f; --live: #2b63e8;
   --float: 0 0 0 1px rgb(0 0 0 / .06), 0 10px 30px rgb(0 0 0 / .08), 0 2px 6px rgb(0 0 0 / .04);
   --shade: rgb(0 0 0 / .05); --frame-line: rgb(0 0 0 / .07); --tile: #171717; --eye: #ffffff; --avatar: #d8d3c8;
   --heading: var(--ink); --ink-2: var(--muted); --ink-3: var(--faint); --ok: var(--green); --warn: var(--amber); --sel: var(--blue); --line-strong: var(--line-2); --fill: rgb(0 0 0 / .045); --fill-2: rgb(0 0 0 / .08);
   --out: cubic-bezier(0.23, 1, 0.32, 1); --font: "Open Runde", ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif; --side: 280px;
   font: 400 15px/1.35 var(--font); }
 /* Dark is its own palette (seenry-web sx.css): near-black field, surfaces step up in lightness instead of casting shadows. */
-@media (prefers-color-scheme: dark) { :root {
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --canvas: #0c0c0c; --paper: #181818; --surface: #222221; --surface-2: #2b2b2a; --ink: #f2f2f0; --on-ink: #111111; --text: #d6d6d4; --muted: #9a9a98; --faint: #767674;
-  --line: rgb(255 255 255 / .08); --line-2: rgb(255 255 255 / .16); --blue: #7aa2ff; --blue-soft: rgb(122 162 255 / .16); --amber: #f0a046; --green: #4cc27e;
+  --line: rgb(255 255 255 / .08); --line-2: rgb(255 255 255 / .16); --blue: #7aa2ff; --blue-soft: rgb(122 162 255 / .16); --amber: #f0a046; --green: #4cc27e; --red: #ff6b61;
   --float: 0 0 0 1px rgb(255 255 255 / .08), 0 16px 40px rgb(0 0 0 / .5); --shade: rgb(0 0 0 / .45); --frame-line: rgb(255 255 255 / .1); --tile: #f2f2f0; --eye: #111111; --avatar: #3a3833;
   --fill: rgb(255 255 255 / .06); --fill-2: rgb(255 255 255 / .11); } }
+:root[data-theme="dark"] { color-scheme: dark;
+  --canvas: #0c0c0c; --paper: #181818; --surface: #222221; --surface-2: #2b2b2a; --ink: #f2f2f0; --on-ink: #111111; --text: #d6d6d4; --muted: #9a9a98; --faint: #767674;
+  --line: rgb(255 255 255 / .08); --line-2: rgb(255 255 255 / .16); --blue: #7aa2ff; --blue-soft: rgb(122 162 255 / .16); --amber: #f0a046; --green: #4cc27e; --red: #ff6b61;
+  --float: 0 0 0 1px rgb(255 255 255 / .08), 0 16px 40px rgb(0 0 0 / .5); --shade: rgb(0 0 0 / .45); --frame-line: rgb(255 255 255 / .1); --tile: #f2f2f0; --eye: #111111; --avatar: #3a3833;
+  --fill: rgb(255 255 255 / .06); --fill-2: rgb(255 255 255 / .11); }
+:root[data-theme="light"] { color-scheme: light; }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; overflow: hidden; background: var(--canvas); color: var(--text); -webkit-font-smoothing: antialiased; }
 button, textarea, select, input { font: inherit; color: inherit; }
@@ -830,26 +840,28 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 .frame[data-status="approved"] .lab .st { color: var(--green); }
 .frame[data-status="change"] .lab .st { color: var(--amber); }
 .cap { left: 0; top: 100%; width: calc(var(--w) * var(--z) * 1px); padding-top: 10px; transform: scale(var(--inv)); overflow: hidden; text-overflow: ellipsis; font-size: 13px; color: var(--muted); }
-.body { position: absolute; inset: 0; overflow: hidden; border-radius: calc(5px * var(--inv)); background: #fff; box-shadow: 0 0 0 calc(1px * var(--inv)) var(--frame-line), 0 calc(6px * var(--inv)) calc(20px * var(--inv)) var(--shade); }
+.body { position: absolute; inset: 0; overflow: hidden; border-radius: calc(5px * var(--inv)); background: var(--screen-bg, #fff); box-shadow: 0 0 0 calc(1px * var(--inv)) var(--frame-line), 0 calc(6px * var(--inv)) calc(20px * var(--inv)) var(--shade); }
 .frame[data-device="phone"] .body { border-radius: 36px; }
 .frame[data-building="true"] .body { box-shadow: 0 0 0 calc(1.5px * var(--inv)) var(--blue), 0 calc(6px * var(--inv)) calc(20px * var(--inv)) var(--shade); }
 .frame[data-selected="true"] .body { box-shadow: 0 0 0 calc(2px * var(--inv)) var(--blue), 0 calc(6px * var(--inv)) calc(20px * var(--inv)) var(--shade); }
 .frame[data-archived="true"] .body { opacity: .55; }
-.body iframe, .body img { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
+.body iframe, .body img { display: block; width: 100%; height: 100%; border: 0; background: var(--screen-bg, #fff); transition: opacity 260ms var(--out); }
 .body img { object-fit: cover; object-position: top; }
 .shield { position: absolute; inset: 0; }
+.frame[data-cut="true"] .body::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; pointer-events: none; background: linear-gradient(to bottom, transparent, var(--screen-bg, #fff) 92%); }
+.more { left: 50%; bottom: calc(18px * var(--inv)); top: auto; transform: translateX(-50%) scale(var(--inv)); transform-origin: 50% 100%; height: 32px; padding: 0 14px; border: 0; border-radius: 99px; background: var(--ink); color: var(--bg, #fff); font: 500 13px/32px var(--font); white-space: nowrap; cursor: pointer; box-shadow: 0 4px 14px rgb(0 0 0 / .18); }
+.more[hidden] { display: none; }
 .frame[data-live="true"] .shield, #viewport:is([data-tool="comment"], [data-tool="inspect"]) .frame[data-kind="page"] .shield { display: none; }
 .marks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
 .hl { position: absolute; border-radius: 2px; box-shadow: 0 0 0 calc(1.5px * var(--inv)) var(--blue); }
 .pin { position: absolute; width: 26px; height: 26px; border-radius: 50%; transform: scale(var(--inv)) translate(6px, -25%); transform-origin: 0 0; background: #171717; color: #fff; box-shadow: 0 0 0 2px #fff, 0 2px 8px rgb(0 0 0 / .3); font: 600 12px/26px var(--font); text-align: center; font-variant-numeric: tabular-nums; }
 .pin.l { transform: scale(var(--inv)) translate(calc(-100% - 6px), -25%); }
 .tag { position: absolute; left: calc(-1.5px * var(--inv)); top: 0; height: 20px; padding: 0 6px; border-radius: 4px 4px 4px 0; transform: scale(var(--inv)) translateY(-100%); transform-origin: 0 0; background: var(--blue); color: #fff; font: 500 11px/20px var(--font); white-space: nowrap; }
-.blank { position: absolute; inset: 0; background: #fff; }
-.todo { position: absolute; left: 0; right: 0; bottom: 0; height: calc(12% + var(--n) * 12%); pointer-events: none; background: linear-gradient(rgb(255 255 255 / 0), #fff 18%); }
-.todo .ghosts { inset: 22% 6% 5%; gap: 8%; }
-#stage .todo .ghosts { gap: 10px; }
-.ghosts { position: absolute; inset: 12% 6% 4%; display: flex; flex-direction: column; gap: 3%; }
-.ghosts div { flex: 1; display: grid; place-items: center; border: calc(1.5px * var(--inv)) dashed #c4c8d2; border-radius: calc(5px * var(--inv)); color: #8a91a0; font: 400 calc(13px * var(--inv)) / 1 var(--font); }
+.blank { position: absolute; inset: 0; overflow: hidden; background: var(--screen-bg, #fff); transition: opacity 260ms var(--out); }
+.lab .pb { flex: none; color: var(--red); font-weight: 500; }
+.frame[data-problems="true"] .cap { color: var(--red); }
+#pane-act .why.pb { color: var(--red); }
+@media (prefers-reduced-motion: no-preference) { .frame { transition: height 320ms var(--out); } #viewport.panning .frame { transition: none; } }
 .cursor { position: absolute; z-index: 2; display: flex; align-items: flex-start; pointer-events: none; transform: scale(var(--inv)); transform-origin: 0 0; }
 .cursor svg, #pick-cursor svg { width: 15px; height: 15px; flex: none; filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / .25)); }
 .cursor span { height: 22px; margin: 11px 0 0 -2px; padding: 0 9px; border-radius: 3px 99px 99px 99px; background: var(--live); color: #fff; font: 500 12px/22px var(--font); white-space: nowrap; }
@@ -981,7 +993,7 @@ body[data-narrow="true"] :is(#viewport, #side, #side-pill, #top, #zoom, #inspect
 #stage .body iframe { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 #stage .ghosts div { border-width: 1.5px; font-size: 13px; }
 #stage .cursor { transform: none; }
-#pane-act { flex: none; display: flex; align-items: center; gap: 6px; padding: 12px 16px 0; min-width: 0; }
+#pane-act { flex: none; display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 12px 16px 0; min-width: 0; }
 #pane-act .why { margin-left: auto; min-width: 0; padding-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--muted); }
 body[data-narrow="true"] #composer { position: static; flex: none; width: auto; min-width: 0; margin: 16px; translate: none; box-shadow: inset 0 0 0 1px var(--line-2); }
 body[data-narrow="true"] #composer .tools { display: none; }
@@ -1018,7 +1030,15 @@ body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 #review .risk[data-risk="bold"] { background: color-mix(in oklab, var(--amber) 18%, transparent); color: var(--amber); }
 #review .grow { flex: 1; }
 @media (max-width: 819px) { #review { grid-template-columns: 1fr; grid-template-rows: 55vh 1fr; } }
-@media (max-width: 1100px) { #composer { min-width: 0; width: calc(100vw - var(--side) - 180px); } }
+@media (max-width: 1100px) { #composer { min-width: 0; width: min(620px, calc(100vw - var(--side) - 260px)); } }
+/* Inside an agent app's preview pane the app already shows the title: no brand row, tighter margins. */
+:root[data-embed="true"] #side .sb-head :is(#side-mark, b) { display: none; }
+:root[data-embed="true"] #side { top: 8px; left: 8px; bottom: 8px; }
+:root[data-embed="true"] #top { top: 8px; right: 8px; height: 40px; }
+:root[data-embed="true"] #side-pill { top: 8px; left: 8px; }
+:root[data-embed="true"] #side-pill b { display: none; }
+:root[data-embed="true"] #zoom { right: 8px; bottom: 8px; }
+:root[data-embed="true"] body[data-narrow="true"] #tabs { padding-top: 6px; }
 </style>
 </head>
 <body>
@@ -1070,6 +1090,7 @@ body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 </div>
 <script>
 const EMBEDDED = /*STATE*/null;
+/*PROBLEMS*/
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...children) => { const node = Object.assign(document.createElement(tag), props); node.append(...children.filter(c => c !== '' && c != null && c !== false)); return node; };
 const attr = (node, name, value) => { node.setAttribute(name, value); return node; };
@@ -1097,13 +1118,19 @@ const ICONS = {
 const icon = (name, cls) => { const s = document.createElement('span'); s.innerHTML = '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 16 16" aria-hidden="true">' + ICONS[name] + '</svg>'; return s.firstChild; };
 const ARROW = '<svg viewBox="0 0 15 15" aria-hidden="true"><path d="M1.5 1.2l4 11.6 2-4.9 4.9-2z" fill="' + LIVE + '" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg>';
 const EYES = '<svg viewBox="0 0 64 64" aria-hidden="true"><rect class="seen-tile" width="64" height="64" rx="18"/><g class="seen-look"><rect class="seen-eye" x="18.5" y="22" width="10" height="20" rx="5"/><rect class="seen-eye" x="35.5" y="22" width="10" height="20" rx="5"/></g></svg>';
-const REDUCED = matchMedia('(prefers-reduced-motion: reduce)');
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)'), HOST_DARK = matchMedia('(prefers-color-scheme: dark)');
+const QUERY = new URLSearchParams(location.search), THEME = /^(light|dark)$/.test(QUERY.get('theme') || '') ? QUERY.get('theme') : '';
+// Inside an agent app's preview pane (an Electron webview, a frame, or ?embed=1) the app owns the title bar and the theme.
+const EMBED = QUERY.get('embed') === '0' ? false : QUERY.has('embed') || (() => { try { return window.top !== window; } catch (e) { return true; } })() || /\bElectron\//.test(navigator.userAgent);
+document.documentElement.dataset.embed = EMBED;
+if (THEME) document.documentElement.dataset.theme = THEME;
 const store = {get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }};
 document.querySelectorAll('[data-i]').forEach(n => n.prepend(icon(n.dataset.i)));
 for (const id of ['mark', 'side-mark', 'pill-mark']) $(id).innerHTML = EYES;
 
 let state = null, view = {x: 0, y: 0, z: 1}, selected = null, tool = 'move', following = true, lastAt = '', narrow = false, fitted = false;
-let showLinks = true, showGrid = false, dark = false, showSpecs = false, fullHeight = false, device = null, sideOpen = store.get('seenry-canvas-side') !== 'closed';
+let showLinks = true, showGrid = false, dark = THEME ? THEME === 'dark' : HOST_DARK.matches, darkSet = false, showSpecs = false, fullHeight = false, device = null;
+let sideOpen = store.get('seenry-canvas-side') ? store.get('seenry-canvas-side') !== 'closed' : !EMBED;
 let playing = null, flow = null, reviewing = null, inspected = null, paneId = null, paneKey = '', online = true, flashText = '', flashTimer = 0, filterText = '';
 const status = {}, picks = {}, notes = [], heights = {}, nodes = {}, touched = new Set(), riffs = [], chips = [];
 const DEFAULT_ASK = ['Is anything missing on this screen?', 'Is it clear what to do first?', 'Does anything look wrong or out of place?'];
@@ -1116,7 +1143,8 @@ const pagesOf = s => s.frames.filter(f => f.kind === 'page');
 const isOpen = s => s.choose && !s.study && !s.archived && !picks[s.id] && pagesOf(s).length > 0;
 const live = () => location.protocol !== 'file:';
 function size(f) { return device && (f.kind === 'page' || f.kind === 'pending') && isDesign(f.section) ? DEVICES[device] : [f.w, f.h]; }
-function clip(f) { const [w, h] = size(f); return fullHeight ? MAX_H : Math.max(h, Math.round(w * 1.2)); }
+const expanded = new Set();
+function clip(f) { const [w, h] = size(f); return fullHeight || expanded.has(f.id) ? MAX_H : Math.max(h, Math.round(w * 1.2)); }
 function height(f) {
   const h = size(f)[1];
   if (f.kind === 'pending' || (f.kind === 'page' && missing(f).length && building(f))) return clip(f);
@@ -1182,7 +1210,7 @@ function zoomAt(cx, cy, z) {
   if (state) place();
 }
 // The part of the window nothing floats over: right of the screen list, under the top bar, above the composer.
-function safe() { return {l: sideOpen ? 12 + 268 + 8 : 8, t: 64, r: innerWidth - 8, b: innerHeight - 140}; }
+function safe() { const m = EMBED ? 8 : 12; return {l: sideOpen ? m + 268 + 8 : 8, t: EMBED ? 56 : 64, r: innerWidth - 8, b: innerHeight - 140}; }
 function fitBox(box, top) {
   const s = safe(), pad = 36, w = s.r - s.l - pad * 2, h = s.b - s.t - pad;
   view.z = Math.max(0.03, Math.min(1, w / box.w, h / box.h));
@@ -1336,6 +1364,7 @@ function arm(iframe, f) {
     const h = Math.min(MAX_H, Math.max(size(f)[1], doc.documentElement.scrollHeight));
     if (Math.abs((heights[f.id] || f.h) - h) > 2) { heights[f.id] = h; place(); }
   };
+  iframe.__measure = () => { if (iframe.closest('#world')) measure(); };
   if (iframe.closest('#world')) { measure(); setTimeout(measure, 400); setTimeout(measure, 1500); }
   applyView(doc); setTimeout(() => applyView(doc), 600);
   const pointing = () => narrow ? !!iframe.closest('#stage') : tool !== 'move' || (selected === f.id && iframe.closest('#world'));
@@ -1351,30 +1380,48 @@ function arm(iframe, f) {
   doc.addEventListener('scroll', () => placeMarks(f), {passive: true});
   doc.addEventListener('keydown', e => { if (e.key === 'Escape') { setTool('move'); selected = null; render(); } });
 }
-// The parts a screen still lacks (plan --parts) show as dashed outlines over the bottom of the frame, under Seenry's cursor.
-function todo(body, f) {
-  if (!body) return;
-  const want = f.kind === 'page' && building(f) ? (missing(f).length ? missing(f) : agentNow().frame === f.id ? ['Next part'] : []) : [];
-  const key = want.join('|') + (replaying.has(f.id) ? '+' : '');
-  if (body.__todo === key) return; body.__todo = key;
-  body.querySelector('.todo')?.remove();
-  if (!want.length) return;
-  const c = cursorNode(); c.style.right = '18%'; c.style.top = '0';
-  const box = el('div', {className: 'todo', style: '--n:' + Math.min(3, want.length)}, el('div', {className: 'ghosts'}, ...want.slice(0, 3).map(n => el('div', {textContent: n}))), replaying.has(f.id) ? '' : c);
-  body.append(box);
-}
-function ghostAll() {
-  for (const f of frames()) {
-    todo(nodes[f.id] && nodes[f.id].querySelector('.body'), f);
-    if (narrow && paneId === f.id) todo($('stage').querySelector('.body'), f);
-  }
-}
-
 function cursorNode(text) { const c = el('div', {className: 'cursor'}); c.innerHTML = ARROW; c.append(el('span', {textContent: text || 'Seenry'})); return c; }
+
+// ---------- Live build: each save patched into the open screen, showing only what the agent has written ----------
+const CURSOR_CSS = '#seenry-cursor{position:absolute;left:0;top:0;z-index:2147483647;pointer-events:none;transform-origin:0 0;transition:transform 420ms cubic-bezier(.23,1,.32,1),opacity 300ms;display:flex;align-items:flex-start}#seenry-cursor svg{width:15px;height:15px;flex:none;filter:drop-shadow(0 1px 1.5px rgb(0 0 0 / .25))}#seenry-cursor span{height:22px;margin:11px 0 0 -2px;padding:0 9px;border-radius:3px 99px 99px 99px;background:' + LIVE + ';color:#fff;font:500 12px/22px "Open Runde",ui-rounded,system-ui,sans-serif;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 0 1px rgb(255 255 255 / .6),0 4px 12px rgb(43 99 232 / .28)}#seenry-cursor.flip{flex-direction:row-reverse}#seenry-cursor.flip span{margin:11px -2px 0 0;border-radius:99px 3px 99px 99px}#seenry-cursor.flip svg{transform:scaleX(-1)}';
+function liveCss(doc) {
+  if (doc.getElementById('seenry-live-css')) return;
+  const st = doc.createElement('style'); st.id = 'seenry-live-css'; st.textContent = CURSOR_CSS + '[data-seenry-problem]{outline:2px dashed #e5484d!important;outline-offset:2px!important}';
+  (doc.head || doc.documentElement).append(st);
+}
+// The agent's insertion point: the <!-- next --> marker, else the end of the body.
+function marker(doc) {
+  const walk = doc.createTreeWalker(doc.body, NodeFilter.SHOW_COMMENT);
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) if (n.nodeValue.trim().toLowerCase() === 'next') return n;
+  return null;
+}
+const invFor = fr => { const m = (fr.style.transform || '').match(/scale\(([\d.]+)\)/), k = fr.closest('#world') ? (glideZ == null ? view.z : glideZ) : m ? Number(m[1]) : 1; return Math.min(8, 1 / Math.max(0.05, k)); };
+// Seenry's cursor sits on the part that just landed, so the person sees where the build is.
+function pointAt(fr, f, n, glideTo) {
+  const doc = fr.contentDocument, win = doc.defaultView;
+  liveCss(doc);
+  let cur = doc.getElementById('seenry-cursor'); const fresh = !cur;
+  if (!cur) { cur = doc.createElement('div'); cur.id = 'seenry-cursor'; cur.setAttribute('aria-hidden', 'true'); cur.innerHTML = ARROW + '<span>Seenry</span>'; doc.body.append(cur); }
+  clearTimeout(cur.__bye); cur.style.opacity = '1';
+  const r = n.getBoundingClientRect();
+  if (r.top > win.innerHeight * 0.8 || r.bottom < 0) win.scrollTo({top: Math.max(0, r.top + win.scrollY - win.innerHeight * 0.3), behavior: REDUCED.matches ? 'auto' : 'smooth'});
+  if (glideTo !== false) followUnit(fr, f, r);
+  const inv = invFor(fr);
+  const x = r.left + win.scrollX + Math.min(48, r.width * 0.06), y = r.top + win.scrollY + Math.min(40, r.height * 0.3);
+  cur.style.transitionDuration = (fresh || REDUCED.matches ? 0 : 640) + 'ms, 300ms';
+  cur.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(y) + 'px) scale(' + inv + ')';
+}
+function aim(fr, f) {
+  let doc; try { doc = fr.contentDocument; } catch (e) { return; }
+  if (!doc || !doc.body || replaying.has(f.id)) return;
+  const cur = doc.getElementById('seenry-cursor');
+  if (cur && building(f)) return;
+  if (cur) { clearTimeout(cur.__bye); cur.__bye = setTimeout(() => { cur.style.opacity = '0'; setTimeout(() => { if (cur.style.opacity === '0') cur.remove(); }, 400); }, 1600); }
+}
+// A planned screen with nothing written yet is an empty page, Seenry's cursor waiting at its top corner.
 function blankFor(f) {
-  const names = (f.plan && f.plan.length) ? f.plan : ['Being drawn'];
-  const c = cursorNode(); c.style.left = '46%'; c.style.top = '34%';
-  return el('div', {className: 'blank'}, el('div', {className: 'ghosts'}, ...names.map(n => el('div', {textContent: n}))), c);
+  const c = cursorNode(); c.style.left = 'calc(40px * var(--k, 1))'; c.style.top = 'calc(32px * var(--k, 1))';
+  return el('div', {className: 'blank'}, c);
 }
 
 function build() {
@@ -1393,12 +1440,15 @@ function build() {
       } else {
         const iframe = el('iframe', {src: f.src + '?v=' + f.rev, title: f.name});
         if (!isDesign(s)) iframe.loading = 'lazy';
-        iframe.addEventListener('load', () => { arm(iframe, f); frameLoaded(iframe, f); placeMarks(f); });
+        iframe.addEventListener('load', () => onFrameLoad(iframe, f.id));
         body.append(iframe);
       }
       body.append(el('div', {className: 'marks'}));
       const lab = el('div', {className: 'ui lab'}), cap = el('div', {className: 'ui cap', textContent: f.kind === 'pending' ? '' : (f.caption || ''), title: f.kind === 'pending' ? '' : (f.axis || f.note || '')});
-      const node = el('div', {className: 'frame'}, lab, body, el('div', {className: 'shield'}), cap);
+      const more = el('button', {type: 'button', className: 'ui more'});
+      more.addEventListener('pointerdown', e => e.stopPropagation());
+      more.addEventListener('click', e => { e.stopPropagation(); if (expanded.has(f.id)) expanded.delete(f.id); else expanded.add(f.id); place(); });
+      const node = el('div', {className: 'frame'}, lab, body, el('div', {className: 'shield'}), cap, more);
       node.dataset.id = f.id; node.dataset.device = f.device; node.dataset.kind = f.kind;
       lab.addEventListener('click', e => { e.stopPropagation(); select(f.id); });
       nodes[f.id] = node; world.append(node);
@@ -1423,9 +1473,13 @@ function fillHead(s) {
 function labelFor(node, f) {
   const st = building(f) ? ['', 'Building'] : f.section.choose && picks[f.section.id] === f.id ? ['check', 'Picked'] : status[f.id] === 'approved' ? ['check', 'Approved'] : status[f.id] === 'change' ? ['', 'Needs changes'] : f.sketch ? ['', 'Sketch'] : f.kind === 'pending' ? ['', 'Being drawn'] : ['', ''];
   const [w, h] = size(f), dims = f.kind === 'image' ? '' : f.device === 'desktop' && !device ? String(w) : w + ' × ' + h;
-  const key = short(f) + dims + st.join();
+  const list = probList(f.id), key = short(f) + dims + st.join() + list.join('|');
   const lab = node.querySelector('.lab'); if (lab.__key === key) return; lab.__key = key;
-  lab.replaceChildren(el('b', {textContent: short(f)}), el('span', {textContent: dims}), st[1] ? el('span', {className: 'st'}, st[0] ? icon(st[0]) : '', document.createTextNode(st[1])) : '');
+  node.dataset.problems = list.length > 0;
+  const pb = list.length ? el('span', {className: 'pb', textContent: list.length + (list.length === 1 ? ' layout problem' : ' layout problems'), title: list.join('\n')}) : '';
+  lab.replaceChildren(el('b', {textContent: short(f)}), el('span', {textContent: dims}), pb, st[1] ? el('span', {className: 'st'}, st[0] ? icon(st[0]) : '', document.createTextNode(st[1])) : '');
+  const cap = node.querySelector('.cap');
+  if (cap && f.kind !== 'pending') { cap.textContent = list[0] || f.caption || ''; cap.title = list.length ? list.join('\n') : f.axis || f.note || ''; }
 }
 function placeMarks(f) {
   const node = nodes[f.id]; if (!node) return;
@@ -1465,9 +1519,12 @@ function place() {
     Object.assign(node.style, {left: box.x + 'px', top: box.y + 'px', width: box.w + 'px', height: box.h + 'px'}); node.style.setProperty('--w', box.w);
     node.dataset.selected = selected === f.id; node.dataset.live = selected === f.id && tool === 'move' && f.kind === 'page' && live();
     node.dataset.building = building(f); node.dataset.status = status[f.id] || ''; node.dataset.archived = !!f.section.archived;
+    const full = f.kind === 'page' ? heights[f.id] || 0 : 0, cut = full > box.h + 4, open = expanded.has(f.id) && !fullHeight;
+    node.dataset.cut = cut; const more = node.querySelector('.more');
+    if (more) { more.hidden = !(cut || open); more.textContent = open ? 'Show less' : 'Whole page · ' + full.toLocaleString() + ' px'; }
     labelFor(node, f); placeMarks(f);
   }
-  placePick(boxes); drawLinks(boxes); ghostAll();
+  placePick(boxes); drawLinks(boxes);
   if (!fitted && Object.keys(boxes).length) { fitted = true; fitDecision(); }
 }
 // Under the selected screen: the decision it asks for.
@@ -1796,7 +1853,9 @@ function toggleFollow() { following = !following; if (following) show(agentNow()
 function toggleLinks() { showLinks = !showLinks; place(); }
 function toggleGrid() { showGrid = !showGrid; eachDoc(applyView); }
 function toggleSpecs() { showSpecs = !showSpecs; eachDoc(applyView); render(); }
-function toggleDark() { dark = !dark; eachDoc(applyView); flash(dark ? 'Screens in dark mode' : 'Screens in light mode'); }
+// Screens follow the host's light or dark setting until the person picks one with D.
+HOST_DARK.addEventListener('change', () => { if (darkSet || THEME) return; dark = HOST_DARK.matches; eachDoc(applyView); });
+function toggleDark() { dark = !dark; darkSet = true; eachDoc(applyView); flash(dark ? 'Screens in dark mode' : 'Screens in light mode'); }
 function toggleFull() { fullHeight = !fullHeight; place(); }
 $('mark').addEventListener('click', toggleFollow);
 async function copy(text) { try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; } }
@@ -1835,7 +1894,7 @@ function gaze() {
 }
 function renderLive() {
   if (!state) return;
-  renderSide(); renderTop(); ghostAll();
+  renderSide(); renderTop();
   const a = agentNow();
   if (a.last && a.last.at !== lastAt) { const fresh = lastAt !== ''; lastAt = a.last.at; if (fresh) blink($('mark')); if (following && fresh && a.frame) show(a.frame, true); }
   gaze();
@@ -1843,7 +1902,8 @@ function renderLive() {
 function show(id, follow) {
   if (!id || !find(id)) return;
   if (narrow) { if (follow) { paneId = id; buildPane(); } return; }
-  if (follow) { if (!replaying.has(id)) focusFrame(id); return; }
+  // A screen being built keeps the camera the live build set; refitting it on every save is what made the view lurch.
+  if (follow) { if (!replaying.has(id) && !building(find(id))) focusFrame(id); return; }
   select(id); focusFrame(id);
 }
 setInterval(() => { if (state) renderLive(); }, 15000);
@@ -1854,20 +1914,25 @@ setInterval(() => { document.querySelectorAll('[data-since]').forEach(n => { con
 // its text types in. With reduced motion the changed parts are outlined instead.
 const SKIP = new Set(['SCRIPT', 'STYLE', 'LINK', 'META', 'TITLE', 'TEMPLATE', 'NOSCRIPT', 'BR', 'HEAD', 'SOURCE', 'TRACK']);
 const snaps = new WeakMap(), born = new Set(), parked = new Map(), replaying = new Set();
-let glideFrame = 0;
+let glideFrame = 0, glideZ = null;
 function glide(tx, ty, tz) {
-  cancelAnimationFrame(glideFrame);
+  cancelAnimationFrame(glideFrame); glideZ = tz;
   const from = {x: view.x, y: view.y, z: view.z}, t0 = performance.now(), d = REDUCED.matches ? 0 : 560;
-  const tick = now => { const p = d ? Math.min(1, (now - t0) / d) : 1, e = 1 - Math.pow(1 - p, 3); view.x = from.x + (tx - from.x) * e; view.y = from.y + (ty - from.y) * e; view.z = from.z + (tz - from.z) * e; apply(); if (p < 1) glideFrame = requestAnimationFrame(tick); else place(); };
+  const tick = now => { const p = d ? Math.min(1, (now - t0) / d) : 1, e = 1 - Math.pow(1 - p, 3); view.x = from.x + (tx - from.x) * e; view.y = from.y + (ty - from.y) * e; view.z = from.z + (tz - from.z) * e; apply(); if (p < 1) glideFrame = requestAnimationFrame(tick); else { glideZ = null; place(); } };
   glideFrame = requestAnimationFrame(tick);
 }
 // Follow keeps the component being built in view: the frame's width fits the canvas and the view glides to the cursor.
-function followUnit(fr, f, r) {
-  if (!following || narrow || !fr.closest('#world')) return;
-  const s = safe(), w = s.r - s.l, z = Math.min(1, (w - 120) / size(f)[0]), box = layout()[f.id];
+function followUnit(fr, f, r) { if (fr.closest('#world')) followTo(f, r.top, r.height); }
+// One zoom for the whole build (the frame's width fits the window); the view moves only when the work leaves the middle.
+function followTo(f, top, h) {
+  if (!following || narrow) return;
+  const s = safe(), w = s.r - s.l, z = Math.min(1, (w - 120) / size(f)[0]), was = view.z;
+  view.z = z; const box = layout()[f.id]; view.z = was;
   if (!box) return;
-  const sy = s.t + (s.b - s.t) * 0.4 - (box.y + r.top + r.height / 2) * z, sx = s.l + w / 2 - (box.x + box.w / 2) * z;
-  if (Math.abs(sx - view.x) < 24 && Math.abs(sy - view.y) < 24 && Math.abs(z - view.z) < 0.01) return;
+  const sx = s.l + w / 2 - (box.x + box.w / 2) * z;
+  const sy = Math.min(s.t + 24 - box.y * z, s.t + (s.b - s.t) * 0.4 - (box.y + top + Math.min(h, 200) / 2) * z);
+  const at = view.y + (box.y + top) * view.z, inBand = at > s.t + (s.b - s.t) * 0.12 && at < s.b - (s.b - s.t) * 0.3;
+  if (Math.abs(z - view.z) < 0.01 && Math.abs(sx - view.x) < 24 && (inBand || Math.abs(sy - view.y) < 24)) return;
   glide(sx, sy, z);
 }
 const ownText = n => { let t = ''; for (const c of n.childNodes) if (c.nodeType === 3) t += c.nodeValue; return t.trim().replace(/\s+/g, ' '); };
@@ -1900,7 +1965,8 @@ function frameLoaded(fr, f, reveal = () => {}) {
     if (prev) { const left = new Map(prev), changed = all.filter(n => { const k = sigOf(n), c = left.get(k) || 0; if (c) { left.set(k, c - 1); return false; } return true; }); if (changed.length) list = changed; }
     else if (born.has(f.id)) list = all;
     born.delete(f.id);
-    if (list && list.length) replay(fr, f, list, !prev);
+    const now = find(f.id) || f;
+    if (list && list.length && !(now.plan && now.plan.length)) replay(fr, f, list, !prev);
     reveal();
   };
   (doc.fonts ? doc.fonts.ready : Promise.resolve()).then(() => setTimeout(go, 80));
@@ -1918,11 +1984,141 @@ function swap(fr, f) {
     if (!next.isConnected) return;
     snaps.set(next, snaps.get(fr));
     try { applyView(next.contentDocument); } catch (e) {}
-    arm(next, f);
-    frameLoaded(next, f, () => { next.style.visibility = ''; delete next.dataset.next; fr.remove(); });
+    let y = 0; try { y = fr.contentWindow.scrollY; } catch (e) {}
+    onFrameLoad(next, f.id, () => { try { next.contentWindow.scrollTo(0, y); } catch (e) {} next.style.visibility = ''; delete next.dataset.next; fr.remove(); });
   });
   fr.after(next);
 }
+// Every screen load goes through here: wire it up and check its layout.
+function onFrameLoad(fr, id, reveal) {
+  const f = find(id);
+  if (!f || !fr.isConnected) { if (reveal) reveal(); return; }
+  let doc = null; try { doc = fr.contentDocument; } catch (e) {}
+  fr.__ready = true; fr.__busy = false; fr.dataset.rev = f.rev;
+  arm(fr, f);
+  if (doc && doc.body && f.kind === 'page' && isDesign(f.section)) {
+    remember(fr, f); aim(fr, f);
+    const bg = c => c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent' ? c : '';
+    const color = bg(getComputedStyle(doc.body).backgroundColor) || bg(getComputedStyle(doc.documentElement).backgroundColor);
+    if (color) document.documentElement.style.setProperty('--screen-bg', color);
+    check(fr, f);
+  }
+  frameLoaded(fr, f, reveal);
+  placeMarks(f);
+}
+// A save that adds or changes parts is patched into the open document: no reload, no white frame, the scroll stays put.
+// Anything else (the head changed, a script was added, the page rewrote its own DOM) falls back to a hidden reload.
+const parseHTML = t => new DOMParser().parseFromString(t, 'text/html');
+const attrsOf = n => n ? [...n.attributes].map(a => a.name + '=' + a.value).join(' ') : '';
+const looseText = n => [...n.childNodes].filter(c => c.nodeType === 3).map(c => c.nodeValue.trim()).filter(Boolean).join(' ');
+const isOurs = n => (n.id || '').startsWith('seenry-') || n.classList.contains('seenry-spec-pin');
+function remember(fr, f) {
+  const rev = String(f.rev);
+  fetch(f.src + '?v=' + rev, {cache: 'no-store'}).then(r => r.text()).then(t => { if (fr.isConnected && fr.dataset.rev === rev) fr.__text = t; }).catch(() => {});
+}
+function snapOf(doc) { const m = new Map(); for (const n of unitsOf(doc)) { const k = sigOf(n); m.set(k, (m.get(k) || 0) + 1); } return m; }
+function diffKids(liveP, a, b) {
+  const old = [...a.children], neu = [...b.children], kids = [...liveP.children].filter(n => !isOurs(n));
+  if (kids.length !== old.length || kids.some((n, i) => n.tagName !== old[i].tagName) || looseText(a) !== looseText(b)) return null;
+  let p = 0; while (p < old.length && p < neu.length && old[p].outerHTML === neu[p].outerHTML) p++;
+  let s = 0; while (s < old.length - p && s < neu.length - p && old[old.length - 1 - s].outerHTML === neu[neu.length - 1 - s].outerHTML) s++;
+  const gone = old.slice(p, old.length - s), add = neu.slice(p, neu.length - s);
+  if (gone.length === 1 && add.length === 1 && gone[0].tagName === add[0].tagName && attrsOf(gone[0]) === attrsOf(add[0]) && !add[0].hasAttribute('data-seenry-part')) {
+    const deeper = diffKids(kids[p], gone[0], add[0]); if (deeper) return deeper;
+  }
+  return {parent: liveP, gone: kids.slice(p, kids.length - s), add, anchor: kids[kids.length - s] || null, after: p ? kids[p - 1] : null};
+}
+async function patch(fr, f) {
+  const old = fr.__text; let doc = null; try { doc = fr.contentDocument; } catch (e) {}
+  if (old == null || !doc || !doc.body || !fr.__ready) return null;
+  let text; try { text = await (await fetch(f.src + '?v=' + f.rev, {cache: 'no-store'})).text(); } catch (e) { return null; }
+  if (!fr.isConnected || fr.contentDocument !== doc) return null;
+  const a = parseHTML(old), b = parseHTML(text);
+  if (a.head.innerHTML !== b.head.innerHTML || attrsOf(a.documentElement) !== attrsOf(b.documentElement) || attrsOf(a.body) !== attrsOf(b.body)) return null;
+  const d = diffKids(doc.body, a.body, b.body);
+  if (!d || d.add.some(n => n.tagName === 'SCRIPT' || n.querySelector('script'))) return null;
+  fr.__text = text;
+  const added = d.add.map(n => doc.importNode(n, true));
+  for (const n of added) d.parent.insertBefore(n, d.anchor);
+  for (const n of d.gone) n.remove();
+  return {added, replaced: d.gone.length > 0};
+}
+function landed(fr, f, r) {
+  fr.__busy = false; fr.dataset.rev = f.rev;
+  const doc = fr.contentDocument, now = find(f.id) || f;
+  if (!REDUCED.matches) for (const n of r.added) if (n.animate) n.animate([{opacity: 0, transform: 'translateY(' + (r.replaced ? 0 : 10) + 'px)'}, {opacity: 1, transform: 'none'}], {duration: r.replaced ? 200 : 360, easing: 'cubic-bezier(.23,1,.32,1)'});
+  applyView(doc); snaps.set(fr, snapOf(doc));
+  const last = r.added[r.added.length - 1];
+  if (last) pointAt(fr, now, last);
+  aim(fr, now);
+  setTimeout(() => { if (fr.__measure) fr.__measure(); }, 420);
+  check(fr, now); placeMarks(now);
+}
+function refresh(body, f, old) {
+  if (!body) return;
+  if (old.kind === 'pending' && f.kind === 'page') return land(body, f);
+  const fr = body.querySelector('iframe:not([data-next]), img');
+  if (!fr) return;
+  if (fr.tagName !== 'IFRAME' || f.kind !== 'page' || !isDesign(f.section)) return swap(fr, f);
+  fr.__busy = true;
+  fr.__chain = (fr.__chain || Promise.resolve()).then(() => patch(fr, f)).then(r => {
+    if (!fr.isConnected) return;
+    if (r) landed(fr, f, r); else { fr.__busy = false; swap(fr, f); }
+  }, () => { fr.__busy = false; swap(fr, f); });
+}
+// The first save of a planned screen: its shell loads under the empty placeholder, which then fades.
+function land(body, f) {
+  const blank = body.querySelector('.blank'), frame = body.closest('.frame');
+  if (frame) { frame.dataset.kind = 'page'; const cap = frame.querySelector('.cap'); if (cap) { cap.textContent = f.caption || ''; cap.title = f.axis || f.note || ''; } }
+  for (const x of body.querySelectorAll('iframe')) x.remove();
+  const fr = el('iframe', {src: f.src + '?v=' + f.rev, title: f.name}); fr.style.opacity = '0';
+  fr.addEventListener('load', () => onFrameLoad(fr, f.id, () => {
+    fr.style.opacity = '';
+    if (blank) { if (REDUCED.matches) blank.remove(); else { blank.style.opacity = '0'; setTimeout(() => blank.remove(), 300); } }
+  }));
+  body.prepend(fr);
+  if (body.closest('#stage')) scalePane();
+}
+
+// ---------- Layout problems after every save, at the screen's width and at 390 ----------
+const probs = {};
+let checking = Promise.resolve();
+const probList = id => (probs[id] || []).flatMap(r => r.problems.map(p => r.width + ' · ' + p.where + ': ' + p.message));
+function check(fr, f) {
+  clearTimeout(fr.__check);
+  fr.__check = setTimeout(() => { checking = checking.then(() => runCheck(fr, f.id)).catch(() => {}); }, 500);
+}
+function phoneProblems(f) {
+  return new Promise(done => {
+    let over = false;
+    const x = el('iframe', {src: f.src + '?v=' + f.rev, title: 'Layout check at 390', tabIndex: -1});
+    const end = v => { if (over) return; over = true; x.remove(); done(v); };
+    x.setAttribute('aria-hidden', 'true');
+    x.style.cssText = 'position:fixed;left:-20000px;top:0;width:390px;height:844px;border:0;opacity:0;pointer-events:none';
+    x.onload = () => { try { const d = x.contentDocument; (d.fonts ? d.fonts.ready : Promise.resolve()).then(() => setTimeout(() => { try { end(seenryProblems(d, 8)); } catch (e) { end(null); } }, 80)); } catch (e) { end(null); } };
+    setTimeout(() => end(null), 8000);
+    document.body.append(x);
+  });
+}
+async function runCheck(fr, id) {
+  const f = find(id);
+  if (!f || f.kind !== 'page' || !isDesign(f.section) || !fr.isConnected) return;
+  // The cursor replay types text in; judge the screen once it has settled.
+  if (replaying.has(id)) { check(fr, f); return; }
+  let doc = null; try { doc = fr.contentDocument; } catch (e) {}
+  if (!doc || !doc.body) return;
+  const rev = f.rev, results = [{width: size(f)[0], problems: seenryProblems(doc, 8)}];
+  if (f.device !== 'phone' && !device && !find(f.id + '.phone')) { const p = await phoneProblems(f); if (p) results.push({width: 390, problems: p}); }
+  if (!find(id) || find(id).rev !== rev) return;
+  probs[id] = results;
+  for (const n of doc.querySelectorAll('[data-seenry-problem]')) n.removeAttribute('data-seenry-problem');
+  liveCss(doc);
+  for (const p of results[0].problems) { try { const n = doc.querySelector(p.selector); if (n) n.setAttribute('data-seenry-problem', p.kind); } catch (e) {} }
+  if (live()) fetch('problems', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({frame: id, rev, results})}).catch(() => {});
+  if (nodes[id]) labelFor(nodes[id], f);
+  if (narrow && paneId === id) buildPane();
+}
+
 function replay(fr, f, units, fresh) {
   const doc = fr.contentDocument, win = doc.defaultView, token = {};
   doc.__seenry = token;
@@ -1985,14 +2181,15 @@ function replay(fr, f, units, fresh) {
 }
 
 // ---------- Inside an agent app's side pane: tabs, one screen fitted to the width ----------
-const wantsNarrow = () => { const v = new URLSearchParams(location.search).get('view'); return v === 'pane' || (v !== 'canvas' && matchMedia('(max-width: 819px)').matches); };
+const NARROW = matchMedia(EMBED ? '(max-width: 959px)' : '(max-width: 819px)');
+const wantsNarrow = () => { const v = QUERY.get('view'); return v === 'pane' || (v !== 'canvas' && NARROW.matches); };
 function setNarrow(on) {
   narrow = on; document.body.dataset.narrow = on;
   (on ? $('pane') : document.body).append($('composer'));
   if (on) { paneKey = ''; buildPane(); } else { $('stage').replaceChildren(); fitted = false; place(); }
   render();
 }
-matchMedia('(max-width: 819px)').addEventListener('change', () => setNarrow(wantsNarrow()));
+NARROW.addEventListener('change', () => setNarrow(wantsNarrow()));
 function buildPane() {
   if (!state) return;
   const design = placed().filter(isDesign).filter(s => s.frames.length);
@@ -2009,18 +2206,20 @@ function buildPane() {
   if (paneKey !== key) {
     paneKey = key;
     const body = el('div', {className: 'body'});
-    if (f.kind === 'page') { const fr = el('iframe', {src: f.src + '?v=' + f.rev, title: f.name}); fr.addEventListener('load', () => { arm(fr, f); frameLoaded(fr, f); }); body.append(fr); }
+    if (f.kind === 'page') { const fr = el('iframe', {src: f.src + '?v=' + f.rev, title: f.name}); fr.addEventListener('load', () => onFrameLoad(fr, f.id)); body.append(fr); }
     else body.append(blankFor(f));
     $('stage').replaceChildren(body);
   }
-  $('pane-act').replaceChildren(...actionsFor(f, true), el('span', {className: 'why', textContent: f.caption || '', title: f.axis || f.note || ''}));
+  const issues = probList(f.id);
+  $('pane-act').replaceChildren(...actionsFor(f, true), issues.length ? el('span', {className: 'why pb', textContent: issues.length + (issues.length === 1 ? ' layout problem' : ' layout problems'), title: issues.join('\n')}) : el('span', {className: 'why', textContent: f.caption || '', title: f.axis || f.note || ''}));
   scalePane();
 }
 function scalePane() {
   const f = find(paneId), body = $('stage').querySelector('.body'); if (!f || !body) return;
   const W = $('stage').clientWidth, H = $('stage').clientHeight, [w] = size(f), k = Math.min(1, W / w);
   Object.assign(body.style, {width: Math.round(w * k) + 'px', height: H + 'px'});
-  const fr = body.querySelector('iframe'); if (fr) Object.assign(fr.style, {width: w + 'px', height: Math.round(H / k) + 'px', transform: 'scale(' + k + ')'});
+  for (const fr of body.querySelectorAll('iframe')) Object.assign(fr.style, {width: w + 'px', height: Math.round(H / k) + 'px', transform: 'scale(' + k + ')', transformOrigin: '0 0'});
+  body.style.setProperty('--k', k);
 }
 new ResizeObserver(() => { if (narrow) scalePane(); }).observe($('stage'));
 
@@ -2127,38 +2326,168 @@ function syncApprovals() {
 // For canvas.mjs shot: the canvas alone, fitted to the decision or to everything.
 window.seenryShot = whole => { for (const id of ['side', 'side-pill', 'top', 'composer', 'zoom', 'hint', 'inspector']) $(id).style.display = 'none'; sideOpen = false; selected = null; place(); if (whole) fitAll(); else fitDecision(); };
 
+let pollTimer = 0, loading = false, again = false, pushed = false;
 async function load() {
   if (EMBEDDED) { state = EMBEDDED; build(); syncApprovals(); setNarrow(wantsNarrow()); return; }
+  if (loading) { again = true; return; }
+  loading = true; clearTimeout(pollTimer);
   try {
     const next = await (await fetch('state', {cache: 'no-store'})).json();
     if (!online) { online = true; renderSide(); }
     if (!state || next.rev !== state.rev) {
-      const first = !state, shape = s => s.sections.map(x => x.id + ':' + x.frames.map(f => f.id + '/' + f.kind).join(',')).join('|');
+      // A planned screen and its first save are one frame: pending turns into page in place, it is not rebuilt.
+      const first = !state, shape = s => s.sections.map(x => x.id + ':' + x.frames.map(f => f.id + '/' + (f.kind === 'pending' ? 'page' : f.kind)).join(',')).join('|');
       const same = !first && shape(next) === shape(state), before = state;
       state = next;
       if (before) { const had = new Set(before.sections.flatMap(x => x.frames).filter(f => f.kind === 'page').map(f => f.id)); for (const f of frames()) if (f.kind === 'page' && !had.has(f.id)) born.add(f.id); }
       if (same) {
         for (const s of state.sections) { const o = before.sections.find(x => x.id === s.id); s.head = o.head; s.box = o.box; }
-        for (const f of frames()) { const old = before.sections.flatMap(s => s.frames).find(o => o.id === f.id); if (old && old.rev !== f.rev) { swap(nodes[f.id]?.querySelector('iframe:not([data-next]), img'), f); if (narrow && paneId === f.id) { paneKey = f.id + '@' + f.rev + '@' + f.kind + '@' + device; swap($('stage').querySelector('iframe:not([data-next])'), f); } } }
+        for (const f of frames()) {
+          const old = before.sections.flatMap(s => s.frames).find(o => o.id === f.id);
+          if (!old || (old.rev === f.rev && old.kind === f.kind)) continue;
+          refresh(nodes[f.id] && nodes[f.id].querySelector('.body'), f, old);
+          if (narrow && paneId === f.id) { paneKey = f.id + '@' + f.rev + '@' + f.kind + '@' + device; refresh($('stage').querySelector('.body'), f, old); }
+        }
       } else { if (selected && !find(selected)) selected = null; build(); if (narrow) paneKey = ''; }
       syncApprovals(); if (first) setNarrow(wantsNarrow()); else render();
+      if (first && following) { const now = frames().find(f => f.kind === 'pending' || (f.kind === 'page' && building(f))); if (now) requestAnimationFrame(() => followTo(now, 0, 80)); }
+      if (before && !same && following) {
+        const fresh = frames().find(f => f.kind === 'pending' && !before.sections.some(x => x.frames.some(o => o.id === f.id)));
+        if (fresh) requestAnimationFrame(() => followTo(fresh, 0, 80));
+      }
     }
   } catch (e) { if (online) { online = false; if (state) renderSide(); } }
-  setTimeout(load, 1500);
+  loading = false;
+  if (again) { again = false; return load(); }
+  pollTimer = setTimeout(load, pushed ? 10000 : 1500);
 }
-apply(); load();
+// The server pushes an event the moment a file in the canvas changes; polling stays as the fallback.
+function listen() {
+  if (EMBEDDED || !live() || !window.EventSource) return;
+  const es = new EventSource('events');
+  es.onopen = () => { pushed = true; };
+  es.onerror = () => { pushed = false; clearTimeout(pollTimer); pollTimer = setTimeout(load, 1500); };
+  es.onmessage = () => load();
+}
+apply(); load(); listen();
 </script>
 </body>
 </html>
 `;
 
-const page = embedded => PAGE.replace('/*STATE*/null', embedded ? JSON.stringify(embedded).replace(/</g, '\\u003c') : 'null');
+// Cheap structural checks on a rendered screen, run by the canvas after every save and by "canvas.mjs problems".
+// Runs inside the screen's own document; no backticks, the canvas page embeds it as text.
+const PROBLEMS_JS = String.raw`function seenryProblems(doc, limit) {
+  limit = limit || 8;
+  var win = doc.defaultView, W = doc.documentElement.clientWidth, out = [];
+  if (!doc.body) return out;
+  var ours = function (n) { return !!n.closest('[id^="seenry-"], .seenry-spec-pin'); };
+  var label = function (n) {
+    var p = n.closest('[data-seenry-part]'), tag = n.tagName.toLowerCase();
+    var name = tag + (n.id ? '#' + n.id : '') + (n.classList && n.classList.length ? '.' + [].slice.call(n.classList, 0, 2).join('.') : '');
+    return (p && p !== n ? p.getAttribute('data-seenry-part') + ' › ' : p === n ? n.getAttribute('data-seenry-part') + ' › ' : '') + name;
+  };
+  var path = function (n) {
+    var parts = [];
+    for (var x = n; x && x.nodeType === 1 && x !== doc.body && parts.length < 10; x = x.parentElement) {
+      var i = 1, s = x.previousElementSibling; for (; s; s = s.previousElementSibling) if (s.tagName === x.tagName) i++;
+      parts.unshift(x.tagName.toLowerCase() + (x.id ? '#' + x.id : ':nth-of-type(' + i + ')'));
+    }
+    return (x === doc.body ? 'body > ' : '') + parts.join(' > ');
+  };
+  var own = function (n) { var t = ''; for (var c = n.firstChild; c; c = c.nextSibling) if (c.nodeType === 3) t += c.nodeValue; return t.trim().replace(/\s+/g, ' '); };
+  var shown = function (n, c) { return c.display !== 'none' && c.visibility !== 'hidden' && Number(c.opacity) > 0.05; };
+  var add = function (kind, n, message) { if (out.some(function (p) { return p.selector === path(n) && p.kind === kind; })) return; out.push({kind: kind, selector: path(n), where: label(n), message: message}); };
+  var all = [].slice.call(doc.body.querySelectorAll('*')).filter(function (n) { return !ours(n) && !/^(SCRIPT|STYLE|LINK|META|TEMPLATE|NOSCRIPT|BR|SOURCE|TRACK|TITLE)$/.test(n.tagName) && !(n.closest('svg') && n.tagName.toLowerCase() !== 'svg'); });
+  var style = new Map(); all.forEach(function (n) { style.set(n, win.getComputedStyle(n)); });
+  var clippedBy = function (n) {
+    for (var x = n.parentElement; x && x !== doc.body && x !== doc.documentElement; x = x.parentElement) {
+      var c = style.get(x) || win.getComputedStyle(x);
+      if (c.overflowX !== 'visible') return x;
+    }
+    return null;
+  };
+  // 1. Sideways overflow: the outermost element that runs past the screen's edge.
+  var wide = all.filter(function (n) {
+    var c = style.get(n); if (!shown(n, c) || c.position === 'fixed') return false;
+    var r = n.getBoundingClientRect(); if (r.width < 2 || r.height < 2) return false;
+    return (r.right + win.scrollX > W + 1 || r.left + win.scrollX < -1) && !clippedBy(n);
+  });
+  // Children that spill out of a box that fits are reported once, on the box that holds them.
+  var groups = new Map();
+  wide.filter(function (n) { return wide.indexOf(n.parentElement) < 0; }).forEach(function (n) {
+    var p = n.parentElement, key = p && p !== doc.body && p !== doc.documentElement ? p : n, r = n.getBoundingClientRect(), g = groups.get(key) || {right: 0, left: 0};
+    g.right = Math.max(g.right, r.right + win.scrollX); g.left = Math.min(g.left, r.left + win.scrollX); groups.set(key, g);
+  });
+  Array.from(groups.entries()).sort(function (a, b) { return b[1].right - a[1].right; }).slice(0, 3).forEach(function (e) {
+    var n = e[0], g = e[1], spill = n !== doc.body && wide.indexOf(n) < 0 ? 'Its content is wider than the screen' : 'Wider than the screen';
+    add('overflow', n, g.left < -1 ? 'Runs off the left edge by ' + Math.round(-g.left) + 'px' : spill + ': runs to ' + Math.round(g.right) + 'px of ' + W + (doc.documentElement.scrollWidth > W + 1 ? ', so the page scrolls sideways' : ', cut off'));
+  });
+  // 2. Text cut off by its own box (an ellipsis or line clamp is a choice, not a problem).
+  all.forEach(function (n) {
+    var c = style.get(n); if (!shown(n, c) || !(n.textContent || '').trim()) return;
+    if (c.textOverflow === 'ellipsis' || (c.webkitLineClamp && c.webkitLineClamp !== 'none') || /^(INPUT|TEXTAREA|SELECT)$/.test(n.tagName)) return;
+    var hx = c.overflowX !== 'visible' && c.overflowX !== 'auto' && c.overflowX !== 'scroll', hy = c.overflowY !== 'visible' && c.overflowY !== 'auto' && c.overflowY !== 'scroll';
+    if (c.position === 'absolute' && n.clientWidth <= 2) return;
+    if (hy && n.scrollHeight > n.clientHeight + 3 && own(n)) add('clipped', n, 'Text cut off: shows ' + n.clientHeight + 'px of ' + n.scrollHeight + 'px');
+    else if (hx && n.scrollWidth > n.clientWidth + 3 && own(n)) add('clipped', n, 'Text cut off: shows ' + n.clientWidth + 'px of ' + n.scrollWidth + 'px wide');
+  });
+  // 3. Collapsed: a part, or text, with no room.
+  all.forEach(function (n) {
+    var c = style.get(n); if (c.display === 'none' || c.visibility === 'hidden') return;
+    var r = n.getBoundingClientRect(), part = n.hasAttribute('data-seenry-part');
+    if (part && (r.height < 2 || r.width < 2) && (n.children.length || own(n))) add('collapsed', n, 'Collapsed to ' + Math.round(r.width) + ' × ' + Math.round(r.height) + 'px');
+    else if (!part && own(n).length > 1 && c.position !== 'absolute' && c.position !== 'fixed' && (r.width < 1 || r.height < 1) && c.display !== 'contents') add('collapsed', n, 'Text with no room: ' + Math.round(r.width) + ' × ' + Math.round(r.height) + 'px');
+    if (n.tagName === 'IMG' && n.complete && n.naturalWidth === 0 && n.getAttribute('src')) add('image', n, 'Image did not load: ' + n.getAttribute('src').slice(0, 60));
+  });
+  // 4. Overlaps: two pieces of text, or a control and text, drawn over each other.
+  var leaves = all.filter(function (n) {
+    var c = style.get(n); if (!shown(n, c)) return false;
+    return (own(n) && !/^(SPAN|B|STRONG|EM|I|SMALL|SUP|SUB|CODE|MARK|ABBR|LABEL)$/.test(n.tagName) || /^(BUTTON|INPUT|SELECT|TEXTAREA)$/.test(n.tagName));
+  }).slice(0, 220).map(function (n) {
+    var rg = doc.createRange(); rg.selectNodeContents(n); var r = /^(BUTTON|INPUT|SELECT|TEXTAREA)$/.test(n.tagName) ? n.getBoundingClientRect() : rg.getBoundingClientRect();
+    return {n: n, r: r};
+  }).filter(function (x) { return x.r.width > 2 && x.r.height > 2; });
+  for (var i = 0; i < leaves.length && out.length < limit * 2; i++) for (var j = i + 1; j < leaves.length; j++) {
+    var a = leaves[i], b = leaves[j]; if (a.n.contains(b.n) || b.n.contains(a.n)) continue;
+    var w = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left), h = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
+    if (w <= 2 || h <= 2) continue;
+    var small = Math.min(a.r.width * a.r.height, b.r.width * b.r.height);
+    if (w * h < 0.25 * small || w * h < 40) continue;
+    add('overlap', b.n, 'Overlaps ' + label(a.n) + ' (“' + (own(a.n) || a.n.tagName.toLowerCase()).slice(0, 30) + '”)');
+  }
+  return out.slice(0, limit);
+}`;
 
-const seen = new Map(), seenParts = new Map(); let seenReady = false;
+const page = embedded => PAGE.replace('/*PROBLEMS*/', () => PROBLEMS_JS).replace('/*STATE*/null', () => embedded ? JSON.stringify(embedded).replace(/</g, '\\u003c') : 'null');
+
+const seen = new Map(), seenParts = new Map(), seenChunks = new Map(); let seenReady = false;
 const partsIn = path => { try { return [...readFileSync(path, 'utf8').matchAll(/\bdata-seenry-part\s*=\s*["']([^"']{1,80})["']/g)].map(m => unescape(m[1])); } catch { return []; } };
+/** Each part's source, from its marker to the next one: enough to tell a one-part edit from a regenerated file. */
+function partChunks(html) {
+  const marks = [...String(html).matchAll(/\bdata-seenry-part\s*=\s*["']([^"']{1,80})["']/g)], out = {};
+  marks.forEach((m, i) => { out[unescape(m[1])] = html.slice(m.index, i + 1 < marks.length ? marks[i + 1].index : undefined); });
+  return out;
+}
+/** A save that changes every part of a screen that already had two or more is a rewrite, not a patch. */
+function rewroteParts(before = {}, after = {}) {
+  const kept = Object.keys(before).filter(k => k in after);
+  return Object.keys(before).length >= 2 && kept.length >= 2 && kept.every(k => before[k] !== after[k]) ? kept.length : 0;
+}
 function serve(port, attempts = 20) {
   if (!existsSync(dir)) init();
   writeFoundations();
+  // Saves reach the page the moment they land: a folder watch pushes a server-sent event, and the page polls only as a fallback.
+  const listeners = new Set(), changed = new Set(); let pushTimer = 0;
+  const push = () => { const files = [...changed].slice(0, 50); changed.clear(); for (const res of listeners) { try { res.write(`data: ${JSON.stringify({files})}\n\n`); } catch {} } };
+  try {
+    watch(dir, {recursive: true}, (event, name) => {
+      const rel = String(name || '').split(sep).join('/');
+      if (!rel || rel.split('/').some(part => part.startsWith('.') && part !== '.activity.jsonl')) return;
+      changed.add(rel); clearTimeout(pushTimer); pushTimer = setTimeout(push, 30);
+    }).on('error', () => {});
+  } catch {}
+  setInterval(() => { for (const res of listeners) { try { res.write(': still here\n\n'); } catch {} } }, 25000).unref();
   const server = createServer((req, res) => {
     const send = (code, body, type = 'text/plain; charset=utf-8') => { res.writeHead(code, {'content-type': type, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff'}); res.end(body); };
     const host = String(req.headers.host || '');
@@ -2194,6 +2523,27 @@ function serve(port, attempts = 20) {
       });
       return;
     }
+    if (req.method === 'GET' && path === '/events') {
+      res.writeHead(200, {'content-type': 'text/event-stream; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', connection: 'keep-alive'});
+      res.write('retry: 1000\n\n'); listeners.add(res);
+      req.on('close', () => listeners.delete(res));
+      return;
+    }
+    if (req.method === 'POST' && path === '/problems') {
+      const origin = req.headers.origin;
+      if (origin && origin !== `http://${host}`) return send(403, 'Forbidden');
+      let body = '';
+      req.on('data', chunk => { body += chunk; if (body.length > 262144) req.destroy(); });
+      req.on('end', () => {
+        try {
+          const d = JSON.parse(body), text = (v, n) => String(v ?? '').slice(0, n);
+          const results = (Array.isArray(d.results) ? d.results : []).slice(0, 4).map(r => ({width: Math.round(Number(r.width)) || 0, problems: (Array.isArray(r.problems) ? r.problems : []).slice(0, 12).map(p => ({kind: text(p.kind, 20), where: text(p.where, 160), selector: text(p.selector, 240), message: text(p.message, 240)}))}));
+          writeProblems(text(d.frame, 200), Number(d.rev) || 0, results);
+          send(200, '{"ok":true}', TYPES['.json']);
+        } catch { send(400, 'Bad request'); }
+      });
+      return;
+    }
     if (req.method === 'POST' && path === '/share') {
       const origin = req.headers.origin;
       if (origin && origin !== `http://${host}`) return send(403, 'Forbidden');
@@ -2216,8 +2566,10 @@ function serve(port, attempts = 20) {
         const was = seen.get(f.id);
         if (was !== f.rev) {
           const parts = partsIn(join(dir, f.src)), before = seenParts.get(f.id) || [], added = parts.filter(p => !before.includes(p));
-          if (seenReady) { edited = true; activity('edit', added.length ? `Added ${added.join(', ')} to ${f.name}` : `${was === undefined ? 'Started' : 'Changed'} ${f.name}`, f.id); }
-          seenParts.set(f.id, parts);
+          let chunks = {}; try { chunks = partChunks(readFileSync(join(dir, f.src), 'utf8')); } catch {}
+          const rewrote = rewroteParts(seenChunks.get(f.id), chunks);
+          if (seenReady) { edited = true; activity(rewrote ? 'warn' : 'edit', rewrote ? `Rewrote ${f.name}: ${rewrote} parts changed in one save. Patch the part that needs it instead` : added.length ? `Added ${added.join(', ')} to ${f.name}` : `${was === undefined ? 'Started' : 'Changed'} ${f.name}`, f.id); }
+          seenParts.set(f.id, parts); seenChunks.set(f.id, chunks);
         }
         seen.set(f.id, f.rev);
       }
@@ -2250,6 +2602,52 @@ function serve(port, attempts = 20) {
   process.on('SIGINT', close); process.on('SIGTERM', close);
 }
 
+const problemsFile = () => join(dir, '.problems.json');
+function readProblems() { try { return JSON.parse(readFileSync(problemsFile(), 'utf8')); } catch { return {frames: {}}; } }
+function writeProblems(frame, rev, results) {
+  if (!frame) return;
+  const all = readProblems(); all.frames = all.frames || {};
+  all.frames[frame] = {rev, at: new Date().toISOString(), results};
+  writeFileSync(problemsFile(), JSON.stringify(all, null, 2) + '\n');
+}
+
+/** Layout problems on each screen after its last save: from the open canvas when it has checked this save, else from a
+ *  headless browser at the screen's width and at 390. Short, so the agent reads it between saves. */
+async function problems(names) {
+  const state = readState(), frames = pickFrames(state, names).filter(f => f.kind === 'page');
+  const twins = new Set(frames.filter(f => f.device === 'phone').map(f => f.id.replace(/\.phone$/, '')));
+  const widthsFor = f => f.device === 'phone' || twins.has(f.id) ? [f.w] : [f.w, 390];
+  const stored = readProblems().frames || {}, report = [], stale = [];
+  for (const f of frames) { const s = stored[f.id]; if (s && s.rev === f.rev) report.push({frame: f.id, src: f.src, from: 'canvas', results: s.results}); else stale.push(f); }
+  if (stale.length) {
+    await withBrowser(async (browser, base) => {
+      for (const f of stale) {
+        const results = [];
+        for (const w of widthsFor(f)) {
+          const {context, page} = await openPage(browser, base + f.src.split('/').map(encodeURIComponent).join('/'), w, w === 390 ? 844 : f.h, 'light');
+          results.push({width: w, problems: await page.evaluate(`(${PROBLEMS_JS})(document, 8)`)});
+          await context.close();
+        }
+        writeProblems(f.id, f.rev, results);
+        report.push({frame: f.id, src: f.src, from: 'browser', results});
+      }
+    });
+  }
+  report.sort((a, b) => frames.findIndex(f => f.id === a.frame) - frames.findIndex(f => f.id === b.frame));
+  const count = report.reduce((n, r) => n + r.results.reduce((m, x) => m + x.problems.length, 0), 0);
+  if (json) console.log(JSON.stringify({count, screens: report}, null, 2));
+  else {
+    for (const r of report) {
+      const n = r.results.reduce((m, x) => m + x.problems.length, 0);
+      if (!n) continue;
+      console.log(`${r.frame}  ${n} problem${n === 1 ? '' : 's'}`);
+      for (const x of r.results) for (const p of x.problems) console.log(`  ${String(x.width).padEnd(5)} ${p.where}: ${p.message}`);
+    }
+    console.log(count ? `Fix these in the part that holds them, then run problems again.` : `No layout problems in ${report.length} screen${report.length === 1 ? '' : 's'}${report.length && report.every(r => r.results.length > 1) ? ' at their width and at 390' : ''}.`);
+  }
+  return count ? 1 : 0;
+}
+
 function running() {
   try { const info = JSON.parse(readFileSync(pidFile, 'utf8')); process.kill(info.pid, 0); return info; } catch { return null; }
 }
@@ -2262,10 +2660,16 @@ function printList(state) {
   if (!state.sections.length) console.log('No screens yet.');
 }
 
+// The three fixed ways to answer More like this; sync.mjs keeps the same three words for feedback sent online.
+const RIFF_MODES = [
+  'Same style, new layout: keep its tokens, type, image and idea line; recompose the first screen (what leads, where the image sits, the grid).',
+  'New style, same content: keep every word, number and the product view; change the type, colour, image treatment and surfaces.',
+  'Break its rule: name one rule this option obeys that nobody asked for (everything centred, the image always behind the text, one column), then make the version that breaks it on purpose.',
+];
 function feedbackLines(feedback) {
   const lines = [];
   for (const [section, id] of Object.entries(feedback.picks || {})) lines.push(`Picked in ${section}: ${id}`);
-  for (const r of feedback.riff || []) lines.push(`More like this in ${r.section}: ${r.frame}. Make a new round of options around it; do not resolve the section yet.`);
+  for (const r of feedback.riff || []) lines.push(`More like this in ${r.section}: ${r.frame}. Make three new options around it, one per mode, each named by its mode in seenry-axis; do not resolve the section yet. ${RIFF_MODES.map((m, i) => `(${i + 1}) ${m}`).join(' ')}`);
   const of = v => (feedback.frames || []).filter(f => f.status === v).map(f => f.id);
   if (of('approved').length) lines.push(`Approved: ${of('approved').join(', ')}`);
   if (of('change').length) lines.push(`Needs changes: ${of('change').join(', ')}`);
@@ -3111,6 +3515,8 @@ if (command === 'init') {
   writeManifest(manifest);
   activity('plan', `Planning ${positional.length} screen${positional.length === 1 ? '' : 's'}: ${positional.map(p => pretty(basename(p).replace(/(\.(phone|tablet|laptop|desktop))?\.html$/i, ''))).join(', ')}`);
   console.log(manifest.planned.length ? `Planned: ${manifest.planned.join(', ')}. Each shows as a placeholder on the canvas until its file is written.` : 'Every planned screen already exists.');
+} else if (command === 'problems') {
+  process.exitCode = await problems(positional);
 } else if (command === 'say') {
   if (!positional[0]) { console.error('Usage: canvas.mjs say "what you are doing, in one line" [--frame <screen>]'); process.exit(2); }
   activity('say', positional[0], flag('frame', ''));
@@ -3191,5 +3597,5 @@ if (command === 'init') {
   markShown();
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|plan|say|open|link|sync|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|plan|say|problems|open|link|sync|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
 }

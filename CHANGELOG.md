@@ -1,5 +1,33 @@
 # Changelog
 
+## Unreleased
+
+### Style briefs
+
+- **A shelf of sixteen style briefs.** `skills/seenry/references/styles/` holds sixteen visual identities (image interlock, product stage, dark technical, editorial type, clinic warm, place photographic and more), each with the same nine headings: identity, type, colour roles, imagery, how image and interface meet, below-the-hero moves, phone, never, seen in. Each is at most 480 words, names no section order and cites the Seenry library references it was drawn from. Its Imagery block holds two image jobs, a hero and a returning motif; `art_prompt.mjs` gains `extends` so the motif inherits the hero's palette, grade, light and texture, and refuses a job that still holds a `<…>` placeholder.
+- **One first call.** `scripts/start.mjs "<brief>"` prints the two or three styles whose keywords the brief uses, the bans and the nine steps, and nothing else; `--style <slug>` prints one brief whole. Matching is keyword overlap, with no model call. `SKILL.md` makes it the first call of every task.
+- **Bans in one list.** `references/bans.md` gathers the habits that make a page read as generated (a card around everything, the default section stack, eyebrow labels, glow blobs, icons in tinted circles, invented proof). `SKILL.md`, the loader, `unslop.md` and `imagery.md` point to it.
+
+### Canvas
+
+- **Patch, never regenerate.** `seenry` and `seenry-canvas` both say to fix a screen with an edit to the part that is wrong. The canvas feed now reads "Rewrote <screen>" when one save changes every part of a screen that already had two or more.
+- **Three ways to answer More like this.** Feedback for a More like this request lists three fixed modes, one option each: same style with a new layout, a new style with the same content, and breaking one rule the option obeys that nobody asked for. `canvas.mjs` and `sync.mjs` send the same three.
+
+### Final check
+
+- **Five blockers, ranked.** `check.mjs` prints the five blockers that matter most (the missing study first, then the page's level, then visible craft, the rest of the board, motion details), each on one line with its fix, and keeps every section in `review/blockers.txt`. `--all` prints everything as before. `review_board.mjs` writes each blocker to `board.json` as a ranked item.
+
+### Canvas live build
+
+- **Built in place, not reloaded.** The canvas shows only what the agent has written: a planned screen is an empty page with Seenry's cursor waiting, and no part is drawn before it exists. Each save is patched into the open document: the new part fades in where it was written and Seenry's cursor moves to it. No white frame, no zoom change mid-build, no scroll jump; with reduced motion nothing moves. A save that changes the `<head>` still reloads, out of sight, keeping the scroll position. Recorded on a scripted shell plus five parts 2.5 s apart: a save reached the screen in about 60 ms (was 0.1 to 1.1 s), each part was fully shown in about 60 ms (was 0.5 to 5.5 s while the cursor typed it in), and the camera moved in 68 frames instead of 429.
+- **Pushed, not polled.** The server watches the canvas folder and pushes an event on every save (`/events`); the page falls back to polling only when the stream is down.
+- **Layout problems on every save.** The canvas checks each save at the screen's width and at 390 for sideways overflow, text cut off by its box, collapsed parts, images that did not load and overlapping text, outlines each problem on the screen and labels the frame. `canvas.mjs problems [screens]` prints the same short list for the agent (rendering headless when no canvas has checked that save) and exits 1 on any.
+- **At home in an agent app's pane.** In an Electron webview, a frame or `?embed=1` the canvas follows the host's light or dark setting (screens too, until the person presses D), drops its own title row, starts with the screen list closed and shows one screen at a time below 960px. `?theme=` fixes a theme. `open` in T3 Code now opens `/?embed=1`. Tested in T3 Code's preview pane; the Claude app and Codex app panes are untested.
+
+### Model-agnostic helpers
+
+- **The host's CLI, the person's model.** `model_cli.mjs`, and every critic and judge that uses it (`critic.mjs`, `judge_pair.mjs`, `photo_check.mjs`, `pick.mjs`, `detail_critic.mjs`, `choreography.mjs`, `motion_*`, `film_critic.mjs`), runs on the agent app's own CLI (Claude Code inside Claude Code, Codex inside Codex) and passes no model, so the CLI uses the person's selected or default model. The built-in Codex model list and its hard-coded fallback ids are gone, and so is the fixed reasoning effort. `image.mjs` no longer probes models. `independent_flow_gate.py` carries the model from the person's Codex config. `SEENRY_MODEL` (or `SEENRY_CODEX_MODEL`, `SEENRY_CLAUDE_MODEL`) and `SEENRY_CRITIC_EFFORT` name one explicitly.
+
 ## 3.2.0
 
 ### Fast path

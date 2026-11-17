@@ -762,9 +762,11 @@ const named = args.includes('--named');
 // product stage do not apply, and tables, dividers and initials avatars are normal there.
 const appSkip = args.includes('--app') ? new Set(['noReturn', 'thinProduct', 'phoneHero', 'heroNoImage', 'fewImages', 'floatingImage', 'noMaterial', 'tooMuchCopy', 'splitHeader', 'denseHero', 'headlineCrowd', 'brandBand', 'initialsAvatar', 'dividers', 'repeatedVisual']) : new Set();
 let blockers = 0;
+// Each blocker as one ranked line, so check.mjs can print the few that matter (blockers.mjs).
+const items = [];
 for (const [w, r] of Object.entries(report.widths)) {
   console.log(`\n■ ${w}px  weights ${r.weights.join('/')}${r.weights.length > 3 ? '  (more than 3)' : ''}`);
-  if (r.weights.length > 3) blockers++;
+  if (r.weights.length > 3) { blockers++; items.push({rank: 3, text: `${w}px: ${r.weights.length} font weights (${r.weights.join('/')}); keep 3 or fewer`}); }
   // What decides whether the page is at the references' level prints first; the small tidy-ups follow.
   const first = ['thinProduct', 'noReturn', 'sameCrop', 'offGrid', 'bareChart', 'chartCollision', 'floatingImage', 'textOverImage'];
   for (const [k, list] of Object.entries(r.findings).sort(([a], [b]) => (first.includes(b) ? 1 : 0) - (first.includes(a) ? 1 : 0))) {
@@ -772,6 +774,7 @@ for (const [w, r] of Object.entries(report.widths)) {
     if (appSkip.has(k)) continue;
     if (allow.has(k)) { console.log(`  allowed by the pattern map: ${names[k]} ×${list.length}`); continue; }
     blockers++;
+    items.push({rank: first.includes(k) ? 1 : craftKeys.has(k) ? 2 : 3, text: `${w}px: ${names[k]} ×${list.length}${list[0] ? `: ${list[0]}` : ''}`});
     console.log(`  ${names[k]} ×${list.length}${named && !craftKeys.has(k) ? `  [${k}: if the named site does this on purpose, add it to the Allow line in patterns.md]` : ''}`);
     for (const x of [...new Set(list)].slice(0, 4)) console.log(`    ${x}`);
   }
@@ -787,9 +790,12 @@ if (!m.reducedMotion) motionGaps.push('no prefers-reduced-motion handling');
 console.log(`\n■ motion  transitions ${m.withTransition}/${m.interactive} · press ${m.pressState ? 'yes' : 'no'} · reduced-motion ${m.reducedMotion ? 'yes' : 'no'} · keyframes ${m.keyframes}`);
 for (const g of motionGaps) console.log(`  ${g}`);
 blockers += motionGaps.length;
+for (const g of motionGaps) items.push({rank: 4, text: `motion: ${g}`});
 for (const g of report.stateGaps || []) console.log(`  state: ${g}`);
 blockers += (report.stateGaps || []).length;
+for (const g of report.stateGaps || []) items.push({rank: 3, text: `state: ${g}`});
 report.blockers = blockers;
+report.items = items;
 writeFileSync(join(out, 'board.json'), JSON.stringify(report, null, 2));
 console.log(`\n${blockers} blocker(s). Look at ${join(out, 'board.png')} and ${join(out, 'first.png')} before scoring.`);
 if (args.includes('--strict') && blockers) process.exit(1);

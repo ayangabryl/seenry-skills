@@ -50,6 +50,7 @@ Use these words exactly, in what you write and what you say to the person.
 7. **Everything works.** Real copy, plausible names and numbers, links between screens, every state the screen needs. No lorem ipsum, no dead buttons.
 8. **Build the full page on the canvas, live.** A sketch is one write. A full page is its shell first, then one part per save, so the person watches it come together.
 9. **The person never does the bookkeeping.** You run `round` after each round; you never ask them to label, archive or name anything.
+10. **Patch, never regenerate.** Fix a screen with a targeted edit to the part that is wrong. Never rewrite a whole file that already has parts: it throws away what was approved and hides what changed. The canvas feed says "Rewrote" when one save changes every part of a screen.
 
 ## Workflow
 
@@ -134,7 +135,9 @@ With nobody to review (told to choose yourself, "auto-pick", a headless or unatt
 
 Run `round "<the pick and their note>"`, then extend the picked sketch to the full page and remove its `seenry-fidelity` line. The idea goes to the footer: the hero image comes back in lower sections in new crops, and `verify` blocks a full page where it never does.
 
-**Build each full page live, one part per save.** First write its shell: the `<head>` with `tokens.css`, `components.css`, the fonts and the page's styles, and an empty `<body>` holding only a `<!-- next -->` marker. The empty frame appears on the canvas at once. Then add the parts in reading order, one edit each, inserting before the marker: the navigation, the headline, the lede, the product view, each section, the footer. Give each part's root element `data-seenry-part="Plan cards"`. Every save shows on the canvas as it lands, and the feed reads "Added Plan cards to Pricing". Change a part with an edit to that part alone, never by rewriting the file.
+**Build each full page live, one part per save.** Name its parts first: `plan 03-pricing/01-plans.html --parts "Nav,Hero,Plan cards,Footer"`. The canvas shows an empty page with Seenry's cursor waiting; it never draws a part before you write it. Then write its shell: the `<head>` with `tokens.css`, `components.css`, the fonts and every style the page will need, and an empty `<body>` holding only a `<!-- next -->` marker. Then add the parts in reading order, one edit each, inserting before the marker: the navigation, the headline, the lede, the product view, each section, the footer. Give each part's root element `data-seenry-part="Plan cards"`, the same name as in the plan. Each save lands in place within a fraction of a second: the part appears where you wrote it, Seenry's cursor moves to it, and the feed reads "Added Plan cards to Pricing". Keep styles in the shell: a save that changes the `<head>` reloads the screen instead of patching it. Change a part with an edit to that part alone, never by rewriting the file.
+
+After each part, run `problems <screen>`: it lists sideways overflow, cut-off text, collapsed parts and overlapping text at the screen's width and at 390, from the canvas's own check of that save. Fix them in that part before the next one.
 
 Build every other screen in the tokens, one file per screen and state, linked to the next screen in its flow. On a long page, compose each section the same way, and give neighboring sections different principles so their compositions differ; three sections in a row with the same layout read as a template. Put `data-spec` on anything with behavior, and two or three review questions in `seenry-ask` about what that screen must get right. A control used on two screens (a button, a field, a tag, a card) goes in `components.css` with one comment line, `/* @component Button | <button class="btn">Save</button> | <button class="btn btn-quiet">Cancel</button> */`, and every screen links that file; the canvas draws the Components sheet from those lines, so there is no sheet to keep by hand. Naming and conventions are in [the file](references/file.md).
 
@@ -142,7 +145,15 @@ Build every other screen in the tokens, one file per screen and state, linked to
 
 ### 8. Round
 
-Apply every comment, or say why not. A "More like this" means two or three new options around that one, in the same section. Then:
+Apply every comment, or say why not, each as an edit to the part it names. A "More like this" means three new options around that one, in the same section, one per mode, each mode named in its `seenry-axis`:
+
+| Mode | Keep | Change |
+| --- | --- | --- |
+| Same style, new layout | Tokens, type, image, idea line | The composition: what leads, where the image sits, the grid |
+| New style, same content | Every word, number and the product view | Type, colour, image treatment, surfaces |
+| Break its rule | Everything else | One rule the option obeys that nobody asked for (all centred, image always behind, one column), broken on purpose |
+
+The canvas sends these three with the request: `feedbackLines` in `scripts/canvas.mjs` (and in `scripts/sync.mjs` for feedback sent online) prints them under each More like this. Then:
 
 ```sh
 node <skill>/scripts/canvas.mjs round "what changed and why, in one line"
@@ -182,7 +193,7 @@ If asked which you would choose, answer from how the product is used (how often,
 | "Show me", "design this", "mock it up" | Steps 1 to 6 |
 | "Options for X", "try a few directions" | Steps 4 to 6 for that screen alone; one screen or component per run |
 | "Five options for X" | The same with that many, at most five; more dilutes the comparison |
-| "Riff on Ledger", "more like Ledger", or More like this in the review | New options that diverge around it; the section stays open |
+| "Riff on Ledger", "more like Ledger", or More like this in the review | Three options around it, one per mode (step 8); the section stays open |
 | "Keep Ledger" | Pick it, run `round`, continue with the screens; the losing options go to the archive |
 | "Wireframes first", "do it properly" | Studio speed |
 | "Build it" | Only after approval: step 9 |

@@ -98,6 +98,30 @@ def disposition(results):
     ) else 'Revise'
 
 
+def user_model(env=None):
+    """The model the person chose: SEENRY_MODEL or SEENRY_CODEX_MODEL, else the `model` in their Codex config.
+
+    The reviewer runs with --ignore-user-config so the person's MCP servers and instructions stay out of a blind
+    review; their model choice is carried over here instead, so the gate never falls back to a model of its own.
+    """
+    env = os.environ if env is None else env
+    named = (env.get('SEENRY_MODEL') or env.get('SEENRY_CODEX_MODEL') or '').strip()
+    if named:
+        return named
+    config = Path(env.get('CODEX_HOME') or Path.home() / '.codex') / 'config.toml'
+    try:
+        for line in config.read_text(encoding='utf-8').splitlines():
+            stripped = line.strip()
+            if stripped.startswith('['):
+                break
+            key, _, value = stripped.partition('=')
+            if key.strip() == 'model' and value.strip():
+                return value.strip().strip('"\'')
+    except OSError:
+        pass
+    return None
+
+
 def run_review(kind, args, staged, executable):
     folder = args.out / kind
     folder.mkdir(parents=True, exist_ok=True)
@@ -120,8 +144,9 @@ def run_review(kind, args, staged, executable):
     cmd = [executable, 'exec', '--ephemeral', '--ignore-user-config', '--skip-git-repo-check',
            '-s', 'workspace-write', '-c', 'approval_policy=never', '-C', str(folder),
            '--output-schema', str(SCHEMA), '-o', str(report)]
-    if args.model:
-        cmd.extend(['-m', args.model])
+    model = args.model or user_model()
+    if model:
+        cmd.extend(['-m', model])
     if args.effort:
         cmd.extend(['-c', f'model_reasoning_effort={args.effort}'])
     for capture in staged['captures']:

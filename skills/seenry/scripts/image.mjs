@@ -5,7 +5,8 @@
  *  node image.mjs --subject "..." --concept "..." --palette "#2b1314,#e6e0d5,#6b1f24" --grade desaturated-one-accent \
  *                 --light "..." --light-reason "..." --texture grain --texture-reason "..." \
  *                 --slot "hero, right of the headline" --field "left two-thirds" --mode cutout --prop "..." --out assets/hero.png
- *  --template print one filled job to copy; --background start detached and return; --wait wait for a background batch
+ *  --template print one filled job to copy (a style brief from start.mjs --style holds two for its style); --background
+ *             start detached and return; --wait wait for a background batch
  *  --dry      print the composed prompts and exit, without generating
  *  --raw      accept free-text {"prompt": "...", "out": "..."} jobs (old behaviour); stock tells are still reported
  *  --variants 3 --brand "<brand>" [--refs a.png,b.png]   generate 3 candidates per shot and keep the one photo_check.mjs
@@ -18,9 +19,9 @@ import {existsSync, readFileSync, copyFileSync, mkdirSync, mkdtempSync, readdirS
 import {resolve, dirname, join, extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn} from 'node:child_process';
-import {findCli, codexModels} from './model_cli.mjs';
+import {findCli, modelFor} from './model_cli.mjs';
 import {markWorkDir} from './workdir.mjs';
-import {validateJob, composePrompt, rawWarnings} from './art_prompt.mjs';
+import {validateJob, composePrompt, rawWarnings, inherit} from './art_prompt.mjs';
 
 const args = process.argv.slice(2);
 // --background: start the same job detached and return at once, so the page is built while images generate. A pending
@@ -57,7 +58,7 @@ const single = flag('prompt') !== undefined ? {prompt: flag('prompt'), out: flag
   placement: {slot: flag('slot'), field: flag('field'), mode: flag('mode')}, prop: flag('prop'), ratio: flag('ratio'), exclude: flag('exclude'),
   out: flag('out'), use: flag('use'),
 };
-const base = flag('batch') ? JSON.parse(readFileSync(resolve(flag('batch')), 'utf8')) : [single];
+const base = inherit(flag('batch') ? JSON.parse(readFileSync(resolve(flag('batch')), 'utf8')) : [single]);
 const ART = ['subject', 'concept', 'palette', 'grade', 'light', 'texture', 'placement', 'prop'];
 const refusals = [];
 base.forEach((j, n) => {
@@ -97,15 +98,8 @@ const jobs = base.flatMap(j => variants === 1 ? [j] : Array.from({length: varian
 const found = findCli('codex');
 if (!found) { console.error('No working Codex CLI found, so no image model is available. Use the host image tool, seenry-assets (OPENAI_API_KEY or GEMINI_API_KEY), license-clear photos, or the museum art set in references/new-site.md.'); process.exit(2); }
 
-// The image tool runs inside a Codex session; use the first model this account offers.
-let model = process.env.SEENRY_CODEX_MODEL || null;
-if (!model) {
-  const {spawnSync} = await import('node:child_process');
-  for (const m of codexModels()) {
-    const t = spawnSync(found.bin, ['exec', '--skip-git-repo-check', '-s', 'read-only', '-m', m, 'Reply only: ok'], {encoding: 'utf8', timeout: 120000});
-    if (t.status === 0 && !/not supported/i.test(t.stdout + t.stderr)) { model = m; break; }
-  }
-}
+// The image tool runs inside a Codex session on the person's own model; SEENRY_MODEL or SEENRY_CODEX_MODEL names another.
+const model = modelFor('codex') || null;
 // The image tool is missing for the whole account when one job reports it; stop instead of retrying every job.
 let toolMissing = false;
 function generate({prompt, out}) {

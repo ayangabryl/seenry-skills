@@ -17,7 +17,7 @@ For software, combine 1 and 4: the stage art is the crafted visual and the produ
 
 ## Rules
 
-- No stock "people pointing at laptops", no isometric 3D blobs, no generic abstract gradient meshes behind every section.
+- None of the image [bans](bans.md): stock people at laptops, isometric blobs, a gradient mesh behind every section.
 - Use one visual language across the page: same crop style, same corner radius, same frame, same lighting.
 - Compose every image into the layout with a technique from [image composition](image-composition.md): type on a calm field, a cut-out in front of the type, product UI over the image, an edge blended into the ground. A boxed photo floating in an empty band reads as stock however good the photo is.
 - The first-screen image carries the page and holds 8 or more in `scripts/photo_check.mjs --page` in place; regenerate it with the prompt it writes, up to three times. Other images keep their floor.

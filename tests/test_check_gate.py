@@ -67,7 +67,7 @@ class CheckGate(unittest.TestCase):
         for p in [self.scripts, self.project/'.seenry/research', self.project/'.seenry/refs', self.project/'.seenry/explore']:
             p.mkdir(parents=True)
         shutil.copyfile(ROOT/'skills/seenry/scripts/check.mjs',self.scripts/'check.mjs')
-        for name in ('motion_contract.mjs','history.mjs','workdir.mjs','execution_bar.mjs','judge_pair.mjs','model_cli.mjs','motion_doc.mjs'):
+        for name in ('motion_contract.mjs','history.mjs','workdir.mjs','execution_bar.mjs','judge_pair.mjs','model_cli.mjs','motion_doc.mjs','blockers.mjs'):
             dep=ROOT/'skills/seenry/scripts'/name
             if dep.exists(): shutil.copyfile(dep,self.scripts/name)
         (self.scripts/'review_board.mjs').write_text(BOARD)
@@ -729,7 +729,9 @@ class CheckGate(unittest.TestCase):
         r=self.run_gate();self.assert_blocked(r)
         self.assertIn('pair: home/a: visibly less finished than ref.png: product UI: 14 kinds, yours has 1',r.stdout)
         self.assertNotIn('home/gone',r.stdout)
-        self.assertLess(r.stdout.index('do these first'),r.stdout.index('BOARD OUTPUT'))
+        full=(self.project/'.seenry/review/blockers.txt').read_text()
+        self.assertLess(full.index('do these first'),full.index('BOARD OUTPUT'))
+        self.assertNotIn('BOARD OUTPUT',r.stdout,'the short check prints ranked blockers, not every section')
 
     def test_the_critic_is_given_the_references_the_composition_names(self):
         for name in ['c.png','z-kept.png']:
