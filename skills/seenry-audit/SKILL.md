@@ -4,7 +4,7 @@ description: "Audits a whole app or site (motion, visual craft, accessibility, p
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.3.1"
+  version: "3.4.0"
 ---
 
 # Seenry Audit
