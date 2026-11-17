@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.0
+
+### Canvas
+
+- **Status the way T3 Code shows a thread.** Every screen shows one 12 px icon and one short word, chosen by priority: Working while Seenry builds it, Approval while it waits for your review or pick, Waiting (grey) once you sent it back and Seenry has not started, Done once approved. Frame labels, the screen list, the pane's tabs and the working pill all use one function, `seenryStatus`. The icons are T3 Code's (MIT), drawn from Lucide (ISC); credits are in `NOTICE`. Screens you sent back move from Needs you to a new Queued for Seenry group. The review data model is unchanged.
+
 ## 3.3.1
 
 - **`start.mjs` runs through a symlinked install.** It compared the script path without resolving links, so the default symlink install printed nothing on the first call of every task.
