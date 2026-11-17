@@ -807,7 +807,9 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 #tabs .pill .status-ind { margin-right: 6px; }
 .lab .st .status-ind .si, .it .rt .status-ind .si { width: 12px; height: 12px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+.status-ind[data-s="working"] .si { animation: spin 1.8s linear infinite; transform-origin: 50% 50%; }
+.status-ind .dur { margin-left: 2px; color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .spin, .status-ind[data-s="working"] .si { animation: none; } }
 .float { background: var(--paper); box-shadow: var(--float); }
 .ib { display: grid; place-items: center; width: 32px; height: 32px; flex: none; padding: 0; border: 0; border-radius: 9px; background: none; color: var(--muted); transition: background-color 150ms var(--out), color 150ms var(--out); }
 .ib:hover, .ib[aria-pressed="true"], .ib[aria-expanded="true"] { background: var(--surface); color: var(--ink); }
@@ -1246,7 +1248,19 @@ function statusOf(f) {
   return seenryStatus({building: building(f), page: f.kind === 'page', option: !!(f.section.choose && !f.section.study), open: isOpen(f.section), sent: state.approvals[f.id] || ''});
 }
 const statusIcon = k => { const s = document.createElement('span'); s.innerHTML = '<svg class="si" viewBox="0 0 24 24" aria-hidden="true">' + SEENRY_STATUS[k].paths + '</svg>'; return s.firstChild; };
-const statusEl = (k, word = true) => { const n = el('span', {className: 'status-ind', title: SEENRY_STATUS[k].label}, statusIcon(k), word ? document.createTextNode(SEENRY_STATUS[k].label) : ''); n.dataset.s = k; if (!word) n.setAttribute('aria-label', SEENRY_STATUS[k].label); return n; };
+// Working moves, as T3 Code's working thread does: the dashed ring turns and the word counts the time ("Working 1m 20s").
+// Every ring shares one phase, so a re-render never restarts it.
+const seenWorking = {};
+const since = ms => { const s = Math.max(0, Math.floor(ms / 1000)), m = Math.floor(s / 60), h = Math.floor(m / 60); return h ? h + 'h ' + (m % 60) + 'm' : m ? m + 'm ' + (s % 60) + 's' : s + 's'; };
+const statusEl = (k, word = true, id) => {
+  const ic = statusIcon(k), n = el('span', {className: 'status-ind', title: SEENRY_STATUS[k].label}, ic, word ? document.createTextNode(SEENRY_STATUS[k].label) : '');
+  n.dataset.s = k; if (!word) n.setAttribute('aria-label', SEENRY_STATUS[k].label);
+  if (k === 'working') {
+    ic.style.animationDelay = -(Date.now() % 1800) + 'ms';
+    if (word && id) { const t = startOf(id) || (seenWorking[id] ||= Date.now()), d = el('span', {className: 'dur', textContent: since(Date.now() - t)}); d.dataset.since = t; d.dataset.fmt = 'since'; n.append(d); }
+  }
+  return n;
+};
 
 // ---------- Layout ----------
 function layout() {
@@ -1543,7 +1557,7 @@ function labelFor(node, f) {
   const lab = node.querySelector('.lab'); if (lab.__key === key) return; lab.__key = key;
   node.dataset.problems = list.length > 0;
   const pb = list.length ? el('span', {className: 'pb', textContent: list.length + (list.length === 1 ? ' layout problem' : ' layout problems'), title: list.join('\n')}) : '';
-  lab.replaceChildren(el('b', {textContent: short(f)}), el('span', {textContent: dims}), pb, st[1] ? el('span', {className: 'st'}, st[0] ? icon(st[0]) : '', document.createTextNode(st[1])) : sk ? el('span', {className: 'st'}, statusEl(sk)) : '');
+  lab.replaceChildren(el('b', {textContent: short(f)}), el('span', {textContent: dims}), pb, st[1] ? el('span', {className: 'st'}, st[0] ? icon(st[0]) : '', document.createTextNode(st[1])) : sk ? el('span', {className: 'st'}, statusEl(sk, true, f.id)) : '');
   const cap = node.querySelector('.cap');
   if (cap && f.kind !== 'pending') { cap.textContent = list[0] || f.caption || ''; cap.title = list.length ? list.join('\n') : f.axis || f.note || ''; }
 }
@@ -1978,7 +1992,7 @@ function show(id, follow) {
   select(id); focusFrame(id);
 }
 setInterval(() => { if (state) renderLive(); }, 15000);
-setInterval(() => { document.querySelectorAll('[data-since]').forEach(n => { const t = Number(n.dataset.since); if (t) n.textContent = clock(Date.now() - t); }); }, 1000);
+setInterval(() => { document.querySelectorAll('[data-since]').forEach(n => { const t = Number(n.dataset.since); if (t) n.textContent = (n.dataset.fmt === 'since' ? since : clock)(Date.now() - t); }); }, 1000);
 
 // Seenry's cursor. A screen is written to disk whole, so when one lands or changes the canvas compares it with what was
 // there and plays the change back: the cursor travels to each new or changed component in reading order, it lands, and
@@ -2284,7 +2298,7 @@ function buildPane() {
     proj.append(pick);
   }
   tabs.replaceChildren(...list.map((x, k) => { const st = statusOf(x); const b = attr(attr(el('button', {type: 'button'}, opt ? el('span', {className: 'key', textContent: String(k + 1)}) : st ? statusEl(st, false) : '', document.createTextNode(short(x))), 'role', 'tab'), 'aria-selected', x.id === f.id); b.onclick = () => { paneId = x.id; selected = x.id; closeNote(); render(); }; return b; }));
-  const st = statusOf(f); $('pane-status').replaceChildren(st ? statusEl(st) : '');
+  const st = statusOf(f); $('pane-status').replaceChildren(st ? statusEl(st, true, f.id) : '');
   const own = f.device || 'desktop', cur = device || own;
   $('pane-sub').replaceChildren(...['desktop', 'tablet', 'phone'].map(d => { const b = attr(el('button', {type: 'button', textContent: String(DEVICES[d][0]), title: DEVICE_NAMES[d]}), 'aria-pressed', cur === d); b.onclick = () => { closeNote(); setDevice(d === own ? null : d); }; return b; }), el('span', {className: 'k', id: 'pane-k'}), el('span', {className: 'n', textContent: (i + 1) + ' of ' + list.length}));
   const key = f.id + '@' + f.rev + '@' + f.kind + '@' + device;
@@ -2317,7 +2331,7 @@ function buildOverview(design, f, head) {
     for (const x of all) {
       const [w, h] = size(x), k = tw / w, th = Math.round(Math.min(h, w * 1.2) * k), st = statusOf(x);
       const thumb = el('div', {className: 'ov-thumb', style: 'height:' + th + 'px'}, el('iframe', {src: x.src + '?v=' + x.rev, title: x.name, loading: 'lazy', tabIndex: -1, style: 'width:' + w + 'px;height:' + Math.round(th / k) + 'px;transform:scale(' + k + ')'}));
-      const tile = el('button', {type: 'button', className: 'ov-tile'}, thumb, el('span', {className: 'ov-cap'}, st ? statusEl(st, false) : '', el('b', {textContent: short(x)}), el('small', {textContent: (x.section.choose ? x.section.name + ' · ' : '') + w})), st ? statusEl(st) : '');
+      const tile = el('button', {type: 'button', className: 'ov-tile'}, thumb, el('span', {className: 'ov-cap'}, st ? statusEl(st, false) : '', el('b', {textContent: short(x)}), el('small', {textContent: (x.section.choose ? x.section.name + ' · ' : '') + w})), st ? statusEl(st, true, x.id) : '');
       tile.setAttribute('aria-current', x.id === f.id); tile.onclick = () => { paneId = x.id; selected = x.id; overview = false; render(); };
       grid.append(tile);
     }
