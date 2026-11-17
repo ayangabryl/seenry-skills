@@ -585,3 +585,20 @@ test('every screen shows one status, the way T3 Code shows a thread: an icon and
   assert.equal(at({option: true, open: false}), null);
   assert.match(code, /function statusOf\(f\)/);
 });
+
+test('the pane is set in Marks: Switzer from Fontshare, a header with the project, notes pinned on the frame, no prompt box', async t => {
+  const {dir} = project();
+  const port = 4900 + Math.floor(Math.random() * 300);
+  const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
+  t.after(() => server.kill());
+  await started(server);
+  const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
+  const html = (await call(actual, '/')).body;
+  assert.match(html, /<link rel="stylesheet" href="https:\/\/api\.fontshare\.com\/v2\/css\?f\[\]=switzer@/, 'Switzer loads from Fontshare\'s own link');
+  assert.doesNotMatch(html, /@font-face \{ font-family: "Switzer"/, 'Switzer is never bundled: its licence does not allow redistribution');
+  assert.match(html, /--font: "Switzer", system-ui/, 'offline it falls back to the system face');
+  assert.match(html, /<header id="pane-head"><span id="proj"><\/span>/, 'the pane opens with the project and its section');
+  assert.match(html, /body\[data-narrow="true"\] #composer \{ display: none; \}/, 'no prompt box in the pane');
+  assert.match(html, /function openNote\(node, f\)/, 'a click in the pane opens a note pinned to what was clicked');
+  assert.match(html, /!n\.getClientRects\(\)\.length\) return;/, 'text inside a hidden parent is not counted as text with no room');
+});
