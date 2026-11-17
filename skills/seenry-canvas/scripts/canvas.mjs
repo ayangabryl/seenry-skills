@@ -759,30 +759,33 @@ const PAGE = String.raw`<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seenry canvas</title>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap">
 <style>
 @font-face { font-family: "Open Runde"; src: url("/_seenry/fonts/runde-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "Open Runde"; src: url("/_seenry/fonts/runde-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
 @font-face { font-family: "Open Runde"; src: url("/_seenry/fonts/runde-Semibold.woff2") format("woff2"); font-weight: 600 700; font-display: swap; }
-/* Seenry's materials: white paper, #f4f4f3 wells, #171717 ink, hairlines, Open Runde, two sizes. One blue for live work and
-   selection, amber for what needs the person, green for approved. Every other colour on the canvas comes from the screens. */
+/* Seenry's identity, Marks: graphite and paper white, hairlines, Switzer (loaded from Fontshare's own link, never bundled:
+   its licence does not allow redistribution; offline it falls back to the system face). One blue for live work, the six
+   status colours for what each screen needs. Every other colour on the canvas comes from the screens. */
 :root { color-scheme: light dark;
-  --canvas: #efefed; --paper: #ffffff; --surface: #f4f4f3; --surface-2: #ececea; --ink: #171717; --on-ink: #ffffff; --text: #383838; --muted: #6d6d6d; --faint: #949494;
+  --canvas: oklch(0.955 0.002 270); --paper: oklch(0.985 0.001 270); --surface: oklch(0.945 0.002 270); --surface-2: oklch(0.92 0.002 270); --ink: oklch(0.17 0.003 270); --on-ink: oklch(0.985 0.001 270); --text: oklch(0.27 0.003 270); --muted: oklch(0.47 0.004 270); --faint: oklch(0.6 0.004 270);
   --line: rgb(0 0 0 / .07); --line-2: rgb(0 0 0 / .13); --blue: #2b63e8; --blue-soft: #e9effd; --amber: #c2710c; --green: #1f8a4c; --red: #c7362f; --live: #2b63e8;
   --st-approval: #b45309; --st-input: #4f46e5; --st-working: #0369a1; --st-failed: #dc2626; --st-done: #047857;
   --float: 0 0 0 1px rgb(0 0 0 / .06), 0 10px 30px rgb(0 0 0 / .08), 0 2px 6px rgb(0 0 0 / .04);
   --shade: rgb(0 0 0 / .05); --frame-line: rgb(0 0 0 / .07); --tile: #171717; --eye: #ffffff; --avatar: #d8d3c8;
   --heading: var(--ink); --ink-2: var(--muted); --ink-3: var(--faint); --ok: var(--green); --warn: var(--amber); --sel: var(--blue); --line-strong: var(--line-2); --fill: rgb(0 0 0 / .045); --fill-2: rgb(0 0 0 / .08);
-  --out: cubic-bezier(0.23, 1, 0.32, 1); --font: "Open Runde", ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif; --side: 280px;
+  --out: cubic-bezier(0.23, 1, 0.32, 1); --font: "Switzer", system-ui, -apple-system, "Segoe UI", sans-serif; --side: 280px;
   font: 400 15px/1.35 var(--font); }
 /* Dark is its own palette (seenry-web sx.css): near-black field, surfaces step up in lightness instead of casting shadows. */
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --canvas: #0c0c0c; --paper: #181818; --surface: #222221; --surface-2: #2b2b2a; --ink: #f2f2f0; --on-ink: #111111; --text: #d6d6d4; --muted: #9a9a98; --faint: #767674;
+  --canvas: oklch(0.13 0.003 270); --paper: oklch(0.16 0.003 270); --surface: oklch(0.205 0.003 270); --surface-2: oklch(0.24 0.003 270); --ink: oklch(0.975 0 0); --on-ink: oklch(0.16 0.003 270); --text: oklch(0.88 0.002 270); --muted: oklch(0.72 0.004 270); --faint: oklch(0.58 0.004 270);
   --line: rgb(255 255 255 / .08); --line-2: rgb(255 255 255 / .16); --blue: #7aa2ff; --blue-soft: rgb(122 162 255 / .16); --amber: #f0a046; --green: #4cc27e; --red: #ff6b61;
   --st-approval: #fcd34d; --st-input: #a5b4fc; --st-working: #7dd3fc; --st-failed: #fca5a5; --st-done: #6ee7b7;
   --float: 0 0 0 1px rgb(255 255 255 / .08), 0 16px 40px rgb(0 0 0 / .5); --shade: rgb(0 0 0 / .45); --frame-line: rgb(255 255 255 / .1); --tile: #f2f2f0; --eye: #111111; --avatar: #3a3833;
   --fill: rgb(255 255 255 / .06); --fill-2: rgb(255 255 255 / .11); } }
 :root[data-theme="dark"] { color-scheme: dark;
-  --canvas: #0c0c0c; --paper: #181818; --surface: #222221; --surface-2: #2b2b2a; --ink: #f2f2f0; --on-ink: #111111; --text: #d6d6d4; --muted: #9a9a98; --faint: #767674;
+  --canvas: oklch(0.13 0.003 270); --paper: oklch(0.16 0.003 270); --surface: oklch(0.205 0.003 270); --surface-2: oklch(0.24 0.003 270); --ink: oklch(0.975 0 0); --on-ink: oklch(0.16 0.003 270); --text: oklch(0.88 0.002 270); --muted: oklch(0.72 0.004 270); --faint: oklch(0.58 0.004 270);
   --line: rgb(255 255 255 / .08); --line-2: rgb(255 255 255 / .16); --blue: #7aa2ff; --blue-soft: rgb(122 162 255 / .16); --amber: #f0a046; --green: #4cc27e; --red: #ff6b61;
   --st-approval: #fcd34d; --st-input: #a5b4fc; --st-working: #7dd3fc; --st-failed: #fca5a5; --st-done: #6ee7b7;
   --float: 0 0 0 1px rgb(255 255 255 / .08), 0 16px 40px rgb(0 0 0 / .5); --shade: rgb(0 0 0 / .45); --frame-line: rgb(255 255 255 / .1); --tile: #f2f2f0; --eye: #111111; --avatar: #3a3833;
@@ -804,7 +807,9 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 #tabs .pill .status-ind { margin-right: 6px; }
 .lab .st .status-ind .si, .it .rt .status-ind .si { width: 12px; height: 12px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+.status-ind[data-s="working"] .si { animation: spin 1.8s linear infinite; transform-origin: 50% 50%; }
+.status-ind .dur { margin-left: 2px; color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .spin, .status-ind[data-s="working"] .si { animation: none; } }
 .float { background: var(--paper); box-shadow: var(--float); }
 .ib { display: grid; place-items: center; width: 32px; height: 32px; flex: none; padding: 0; border: 0; border-radius: 9px; background: none; color: var(--muted); transition: background-color 150ms var(--out), color 150ms var(--out); }
 .ib:hover, .ib[aria-pressed="true"], .ib[aria-expanded="true"] { background: var(--surface); color: var(--ink); }
@@ -951,6 +956,8 @@ body[data-side="closed"] { --side: 0px; }
 .chip button:hover { background: color-mix(in oklab, var(--blue) 14%, transparent); }
 #general { flex: 1; min-width: 80px; height: 40px; padding: 3px 0 0; border: 0; background: none; resize: none; outline: none; color: var(--ink); font-size: 15px; line-height: 20px; }
 #general::placeholder { color: var(--faint); }
+#composer { height: auto; padding: 8px 8px 8px 10px; border-radius: 16px; }
+#composer .txt { display: none; }
 .bar { display: flex; align-items: center; gap: 2px; }
 .bar .tools { display: flex; align-items: center; gap: 2px; }
 #device { color: var(--muted); }
@@ -993,21 +1000,57 @@ body[data-side="closed"] { --side: 0px; }
 #pane { position: fixed; inset: 0; display: none; flex-direction: column; background: var(--paper); }
 body[data-narrow="true"] #pane { display: flex; }
 body[data-narrow="true"] :is(#viewport, #side, #side-pill, #top, #zoom, #inspector) { display: none !important; }
-#tabs { height: 52px; flex: none; display: flex; align-items: center; gap: 2px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
-#tabs .pill { height: 30px; }
-#tabs .pill[aria-selected="true"] { background: var(--surface); color: var(--ink); }
-#tabs .pill[aria-selected="false"] { color: var(--muted); }
-#tabs select { height: 30px; max-width: 40%; margin-right: 6px; padding: 0 8px; border: 0; border-radius: 99px; background: var(--surface); font-size: 13px; font-weight: 500; color: var(--ink); }
-#tabs .n { margin-left: auto; padding-left: 12px; font-size: 13px; color: var(--muted); white-space: nowrap; }
-#stage { position: relative; flex: 1; min-height: 0; margin: 0 16px; }
-#stage .body { inset: auto; left: 0; top: 0; border-radius: 6px; box-shadow: 0 0 0 2px var(--blue); }
+#pane-head { flex: none; display: flex; align-items: stretch; gap: 4px; height: 44px; padding: 0 8px; border-bottom: 1px solid var(--line); }
+#proj { position: relative; display: inline-flex; align-items: center; gap: 6px; align-self: center; min-width: 0; height: 30px; padding: 0 6px; border-radius: 6px; color: var(--ink); font-size: 13px; white-space: nowrap; }
+#proj:hover { background: var(--fill); }
+#proj:focus-within { outline: 2px solid var(--blue); outline-offset: 0; }
+#proj .mk { width: 18px; height: 18px; flex: none; }
+#proj b { font-weight: 600; }
+#proj small { overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 13px; }
+#proj select { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+#pane-head .rule { align-self: center; width: 1px; height: 16px; margin: 0 4px; background: var(--line-2); flex: none; }
+#tabs { flex: 1; min-width: 0; display: flex; align-items: stretch; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+#tabs [role="tab"] { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 0 8px; border: 0; background: none; color: var(--muted); font-size: 13px; white-space: nowrap; }
+#tabs [role="tab"]:hover { color: var(--ink); }
+#tabs [role="tab"][aria-selected="true"] { color: var(--ink); font-weight: 500; }
+#tabs [role="tab"][aria-selected="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 1.5px; background: var(--ink); }
+#tabs .key { display: inline-grid; place-items: center; min-width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 0 0 1px var(--line-2); color: var(--muted); font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+#pane-status { display: inline-flex; align-items: center; align-self: center; padding: 0 6px 0 10px; }
+#pane-board { align-self: center; }
+#pane-board[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
+#tabs .ov-title { align-self: center; padding: 0 8px; color: var(--ink); font-size: 13px; font-weight: 500; }
+body[data-overview="true"] #pane-sub { display: none; }
+body[data-overview="true"] #stage { margin-top: 16px; overflow-y: auto; }
+.ov { display: grid; align-items: start; padding-bottom: 16px; }
+.ov-tile { display: grid; gap: 8px; padding: 0; border: 0; background: none; text-align: left; color: var(--ink); }
+.ov-thumb { position: relative; overflow: hidden; border-radius: 6px; background: var(--surface); box-shadow: 0 0 0 1px var(--line-2); pointer-events: none; }
+.ov-thumb iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; }
+.ov-tile:hover .ov-thumb, .ov-tile[aria-current="true"] .ov-thumb { box-shadow: 0 0 0 1.5px var(--ink); }
+.ov-cap { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 13px; }
+.ov-cap b { font-weight: 500; }
+.ov-cap small { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-tile > .status-ind { margin-top: -2px; }
+#to-pane[hidden] { display: none; }
+#pane-sub { flex: none; display: flex; align-items: center; gap: 2px; height: 44px; padding: 0 16px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+#pane-sub button { height: 26px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--muted); }
+#pane-sub button:hover { color: var(--ink); }
+#pane-sub button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 500; }
+#pane-sub .k { margin-left: 6px; }
+#pane-sub .n { margin-left: auto; }
+#stage { position: relative; flex: 1; min-height: 0; margin: 0 16px 12px; }
+#stage .body { inset: auto; left: 0; top: 0; border-radius: 6px; box-shadow: 0 0 0 1px var(--line-2), 0 10px 30px rgb(0 0 0 / .07); }
 #stage .body iframe { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.pane-marks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
+.p-pin { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: oklch(0.17 0.003 270); color: oklch(0.985 0.001 270); box-shadow: 0 0 0 2px oklch(0.985 0.001 270), 0 2px 6px rgb(0 0 0 / .2); font: 600 12px/22px var(--font); text-align: center; font-variant-numeric: tabular-nums; }
+#pane-note { position: fixed; z-index: 30; width: min(300px, calc(100% - 16px)); display: grid; gap: 8px; padding: 12px; border-radius: 8px; background: var(--paper); color: var(--ink); box-shadow: var(--float); }
+#pane-note small { color: var(--muted); font-size: 12px; }
+#pane-note textarea { min-height: 44px; padding: 0; border: 0; outline: 0; background: none; resize: none; font-size: 14px; line-height: 1.4; }
+#pane-note .row { display: flex; justify-content: flex-end; gap: 6px; }
 #stage .ghosts div { border-width: 1.5px; font-size: 13px; }
 #stage .cursor { transform: none; }
-#pane-act { flex: none; display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 12px 16px 0; min-width: 0; }
-#pane-act .why { margin-left: auto; min-width: 0; padding-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--muted); }
-body[data-narrow="true"] #composer { position: static; flex: none; width: auto; min-width: 0; margin: 16px; translate: none; box-shadow: inset 0 0 0 1px var(--line-2); }
-body[data-narrow="true"] #composer .tools { display: none; }
+#pane-act { flex: none; display: flex; align-items: center; gap: 6px; min-height: 52px; padding: 8px 16px; min-width: 0; border-top: 1px solid var(--line); }
+#pane-act .why { flex: 1; min-width: 0; padding-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--muted); }
+body[data-narrow="true"] #composer { display: none; }
 body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 .p-empty { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; color: var(--muted); font-size: 13px; }
 
@@ -1049,7 +1092,6 @@ body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 :root[data-embed="true"] #side-pill { top: 8px; left: 8px; }
 :root[data-embed="true"] #side-pill b { display: none; }
 :root[data-embed="true"] #zoom { right: 8px; bottom: 8px; }
-:root[data-embed="true"] body[data-narrow="true"] #tabs { padding-top: 6px; }
 </style>
 </head>
 <body>
@@ -1066,9 +1108,12 @@ body[data-narrow="true"] #hint { left: 50%; top: 60px; }
 <button type="button" id="side-pill" class="float" hidden title="Show the screen list (L)"><span class="ib" data-i="panel"></span><span class="mark" id="pill-mark" style="width:24px;height:24px"></span><b id="pill-title"></b><span class="work" id="pill-work" hidden></span></button>
 <div id="top" class="float"><span class="who"><span class="avatar" id="me-2"></span><button type="button" id="mark" title="Follow Seenry as it works (A)" aria-pressed="true"></button></span>
   <button type="button" class="ib" id="play" data-i="play" title="Present: play the screens full size, following their links (P)" aria-label="Present"></button>
+  <button type="button" class="pill" id="to-pane" hidden title="Back to one screen at a time">Back to the pane</button>
   <button type="button" class="pill ink" id="share" data-i="share" aria-haspopup="dialog" aria-expanded="false" title="Share this canvas">Share</button></div>
 <div id="zoom" class="float" role="group" aria-label="Zoom"><button type="button" class="ib" id="zoom-out" aria-label="Zoom out" title="Zoom out (−)">−</button><button type="button" id="zoom-level" title="Zoom to 100%">100%</button><button type="button" class="ib" id="zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button><span class="sep"></span><button type="button" class="pill ghost" id="zoom-fit" title="Fit everything (1). The decision: 2">Fit</button></div>
-<main id="pane" aria-label="Canvas"><div id="tabs" role="tablist" aria-label="Screens"></div><div id="stage"></div><div id="pane-act"></div></main>
+<main id="pane" aria-label="Canvas">
+  <header id="pane-head"><span id="proj"></span><span class="rule"></span><div id="tabs" role="tablist" aria-label="Screens"></div><span id="pane-status"></span><button type="button" class="ib" id="pane-board" title="Open the whole canvas" aria-label="Open the whole canvas"></button></header>
+  <div id="pane-sub"></div><div id="stage"></div><div id="pane-act"></div></main>
 <div id="composer" class="float">
   <div class="txt"><span id="chips"></span><textarea id="general" rows="2" aria-label="Tell Seenry what to change" placeholder="Tell Seenry what to change"></textarea></div>
   <div class="bar"><span class="tools" role="group" aria-label="Tools">
@@ -1125,8 +1170,10 @@ const ICONS = {
   x: '<path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/>',
   spin: '<circle cx="8" cy="8" r="5.2" stroke-dasharray="2.2 2.6"/>',
   cloud: '<path d="M5 12.4h6.4a2.5 2.5 0 0 0 .4-4.96A4 4 0 0 0 4.1 8.2 2.2 2.2 0 0 0 5 12.4z"/>',
-  more: '<path d="M3.6 8h.01M8 8h.01M12.4 8h.01" stroke-width="2.4"/>'
+  more: '<path d="M3.6 8h.01M8 8h.01M12.4 8h.01" stroke-width="2.4"/>',
+  grid: '<rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/>'
 };
+const MARK = '<svg class="mk" viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M18 0h28c9.94 0 18 8.06 18 18v28c0 9.94-8.06 18-18 18H18C8.06 64 0 55.94 0 46V18C0 8.06 8.06 0 18 0Zm5.5 22a5 5 0 0 0-5 5v10a5 5 0 0 0 10 0V27a5 5 0 0 0-5-5Zm17 0a5 5 0 0 0-5 5v10a5 5 0 0 0 10 0V27a5 5 0 0 0-5-5Z"/></svg>';
 const icon = (name, cls) => { const s = document.createElement('span'); s.innerHTML = '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 16 16" aria-hidden="true">' + ICONS[name] + '</svg>'; return s.firstChild; };
 const ARROW = '<svg viewBox="0 0 15 15" aria-hidden="true"><path d="M1.5 1.2l4 11.6 2-4.9 4.9-2z" fill="' + LIVE + '" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg>';
 const EYES = '<svg viewBox="0 0 64 64" aria-hidden="true"><rect class="seen-tile" width="64" height="64" rx="18"/><g class="seen-look"><rect class="seen-eye" x="18.5" y="22" width="10" height="20" rx="5"/><rect class="seen-eye" x="35.5" y="22" width="10" height="20" rx="5"/></g></svg>';
@@ -1143,7 +1190,7 @@ for (const id of ['mark', 'side-mark', 'pill-mark']) $(id).innerHTML = EYES;
 let state = null, view = {x: 0, y: 0, z: 1}, selected = null, tool = 'move', following = true, lastAt = '', narrow = false, fitted = false;
 let showLinks = true, showGrid = false, dark = THEME ? THEME === 'dark' : HOST_DARK.matches, darkSet = false, showSpecs = false, fullHeight = false, device = null;
 let sideOpen = store.get('seenry-canvas-side') ? store.get('seenry-canvas-side') !== 'closed' : !EMBED;
-let playing = null, flow = null, reviewing = null, inspected = null, paneId = null, paneKey = '', online = true, flashText = '', flashTimer = 0, filterText = '';
+let overview = false, playing = null, flow = null, reviewing = null, inspected = null, paneId = null, paneKey = '', online = true, flashText = '', flashTimer = 0, filterText = '';
 const status = {}, picks = {}, notes = [], heights = {}, nodes = {}, touched = new Set(), riffs = [], chips = [];
 const DEFAULT_ASK = ['Is anything missing on this screen?', 'Is it clear what to do first?', 'Does anything look wrong or out of place?'];
 
@@ -1201,7 +1248,19 @@ function statusOf(f) {
   return seenryStatus({building: building(f), page: f.kind === 'page', option: !!(f.section.choose && !f.section.study), open: isOpen(f.section), sent: state.approvals[f.id] || ''});
 }
 const statusIcon = k => { const s = document.createElement('span'); s.innerHTML = '<svg class="si" viewBox="0 0 24 24" aria-hidden="true">' + SEENRY_STATUS[k].paths + '</svg>'; return s.firstChild; };
-const statusEl = (k, word = true) => { const n = el('span', {className: 'status-ind', title: SEENRY_STATUS[k].label}, statusIcon(k), word ? document.createTextNode(SEENRY_STATUS[k].label) : ''); n.dataset.s = k; if (!word) n.setAttribute('aria-label', SEENRY_STATUS[k].label); return n; };
+// Working moves, as T3 Code's working thread does: the dashed ring turns and the word counts the time ("Working 1m 20s").
+// Every ring shares one phase, so a re-render never restarts it.
+const seenWorking = {};
+const since = ms => { const s = Math.max(0, Math.floor(ms / 1000)), m = Math.floor(s / 60), h = Math.floor(m / 60); return h ? h + 'h ' + (m % 60) + 'm' : m ? m + 'm ' + (s % 60) + 's' : s + 's'; };
+const statusEl = (k, word = true, id) => {
+  const ic = statusIcon(k), n = el('span', {className: 'status-ind', title: SEENRY_STATUS[k].label}, ic, word ? document.createTextNode(SEENRY_STATUS[k].label) : '');
+  n.dataset.s = k; if (!word) n.setAttribute('aria-label', SEENRY_STATUS[k].label);
+  if (k === 'working') {
+    ic.style.animationDelay = -(Date.now() % 1800) + 'ms';
+    if (word && id) { const t = startOf(id) || (seenWorking[id] ||= Date.now()), d = el('span', {className: 'dur', textContent: since(Date.now() - t)}); d.dataset.since = t; d.dataset.fmt = 'since'; n.append(d); }
+  }
+  return n;
+};
 
 // ---------- Layout ----------
 function layout() {
@@ -1393,9 +1452,9 @@ function arm(iframe, f) {
   doc.addEventListener('click', e => {
     if (!pointing() || !live()) return;
     e.preventDefault(); e.stopPropagation(); mark(null);
-    if (tool === 'inspect' && !narrow) inspect(e.target, f); else addChip(e.target, f);
+    if (tool === 'inspect' && !narrow) inspect(e.target, f); else openNote(e.target, f);
   }, true);
-  doc.addEventListener('scroll', () => placeMarks(f), {passive: true});
+  doc.addEventListener('scroll', () => { placeMarks(f); closeNote(); if (narrow) panePins(); }, {passive: true});
   doc.addEventListener('keydown', e => { if (e.key === 'Escape') { setTool('move'); selected = null; render(); } });
 }
 function cursorNode(text) { const c = el('div', {className: 'cursor'}); c.innerHTML = ARROW; c.append(el('span', {textContent: text || 'Seenry'})); return c; }
@@ -1498,7 +1557,7 @@ function labelFor(node, f) {
   const lab = node.querySelector('.lab'); if (lab.__key === key) return; lab.__key = key;
   node.dataset.problems = list.length > 0;
   const pb = list.length ? el('span', {className: 'pb', textContent: list.length + (list.length === 1 ? ' layout problem' : ' layout problems'), title: list.join('\n')}) : '';
-  lab.replaceChildren(el('b', {textContent: short(f)}), el('span', {textContent: dims}), pb, st[1] ? el('span', {className: 'st'}, st[0] ? icon(st[0]) : '', document.createTextNode(st[1])) : sk ? el('span', {className: 'st'}, statusEl(sk)) : '');
+  lab.replaceChildren(el('b', {textContent: short(f)}), el('span', {textContent: dims}), pb, st[1] ? el('span', {className: 'st'}, st[0] ? icon(st[0]) : '', document.createTextNode(st[1])) : sk ? el('span', {className: 'st'}, statusEl(sk, true, f.id)) : '');
   const cap = node.querySelector('.cap');
   if (cap && f.kind !== 'pending') { cap.textContent = list[0] || f.caption || ''; cap.title = list.length ? list.join('\n') : f.axis || f.note || ''; }
 }
@@ -1507,7 +1566,8 @@ function placeMarks(f) {
   const layer = node.querySelector('.marks'); if (!layer) return;
   let sy = 0; try { sy = node.querySelector('iframe').contentWindow.scrollY || 0; } catch (e) {}
   const marks = chips.filter(c => c.frame === f.id && c.box).map(c => el('div', {className: 'hl', style: 'left:' + c.box.x + 'px;top:' + (c.box.y - sy) + 'px;width:' + c.box.w + 'px;height:' + c.box.h + 'px'}, el('span', {className: 'tag', textContent: c.tag})));
-  layer.replaceChildren(...marks, ...pinsFor(f, node, sy));
+  const fw = size(f)[0], mine = notes.map((n, i) => { if (n.frame !== f.id || !n.box) return ''; const l = n.box.x + n.box.w > fw * 0.85; return el('div', {className: 'pin' + (l ? ' l' : ''), textContent: String(i + 1), title: n.text, style: 'left:' + (l ? n.box.x : n.box.x + n.box.w) + 'px;top:' + (n.box.y - sy) + 'px'}); }).filter(Boolean);
+  layer.replaceChildren(...marks, ...mine, ...(mine.length ? [] : pinsFor(f, node, sy)));
 }
 // Comments already sent on this version of a screen, numbered as the agent reads them, pinned to their element.
 function pinsFor(f, node, sy) {
@@ -1562,7 +1622,7 @@ function actionsFor(f, inPane) {
     out.push(b(status[f.id] === 'approved' ? 'Approved' : 'Approve', 'ink', set('approved'), 'check', status[f.id] === 'approved'));
     out.push(b('Needs changes', inPane ? 'soft' : '', set('change'), '', status[f.id] === 'change'));
   }
-  if (!inPane) out.push(b('Comment', '', () => addScreen(f)));
+  if (!inPane) out.push(b('Comment', '', () => openNote(null, f)));
   return out;
 }
 function placePick(boxes) {
@@ -1800,7 +1860,7 @@ function countText() {
   const n = notes.length + (chips.length || ($('general').value.trim() ? 1 : 0));
   return [p && plural(p, 'pick', 'picks'), r && r + ' more like', ok && ok + ' approved', ch && ch + ' to change', n && plural(n, 'note', 'notes')].filter(Boolean).join(' · ');
 }
-function flash(text) { flashText = text; clearTimeout(flashTimer); flashTimer = setTimeout(() => { flashText = ''; renderComposer(); }, 4200); renderComposer(); }
+function flash(text) { flashText = text; clearTimeout(flashTimer); flashTimer = setTimeout(() => { flashText = ''; renderComposer(); if (narrow) buildPane(); }, 4200); renderComposer(); if (narrow) buildPane(); }
 function renderComposer() {
   $('chips').replaceChildren(...chips.map((c, i) => { const x = attr(el('button', {type: 'button'}, icon('x')), 'aria-label', 'Remove ' + c.label); x.onclick = () => { chips.splice(i, 1); render(); }; return el('span', {className: 'chip', title: c.target}, icon(c.selector ? 'inspect' : 'comment'), el('span', {textContent: c.label}), x); }));
   $('general').placeholder = chips.length ? 'What should change?' : state && state.agentWaiting ? 'Seenry is waiting. Tell it what to change' : 'Tell Seenry what to change';
@@ -1832,7 +1892,7 @@ function renderInspector() {
   box.replaceChildren(...parts);
 }
 function renderHint() {
-  const t = playing || reviewing ? '' : tool === 'comment' ? 'Click any element on a screen to point Seenry at it. Esc to stop.' : tool === 'inspect' ? 'Click any element to see its values and variables. Esc to stop.' : '';
+  const t = playing || reviewing ? '' : tool === 'comment' ? 'Click anything on a screen to leave a note. Esc to stop.' : tool === 'inspect' ? 'Click any element to see its values and variables. Esc to stop.' : '';
   $('hint').hidden = !t; $('hint').textContent = t;
 }
 
@@ -1932,7 +1992,7 @@ function show(id, follow) {
   select(id); focusFrame(id);
 }
 setInterval(() => { if (state) renderLive(); }, 15000);
-setInterval(() => { document.querySelectorAll('[data-since]').forEach(n => { const t = Number(n.dataset.since); if (t) n.textContent = clock(Date.now() - t); }); }, 1000);
+setInterval(() => { document.querySelectorAll('[data-since]').forEach(n => { const t = Number(n.dataset.since); if (t) n.textContent = (n.dataset.fmt === 'since' ? since : clock)(Date.now() - t); }); }, 1000);
 
 // Seenry's cursor. A screen is written to disk whole, so when one lands or changes the canvas compares it with what was
 // there and plays the change back: the cursor travels to each new or changed component in reading order, it lands, and
@@ -2210,43 +2270,145 @@ const NARROW = matchMedia(EMBED ? '(max-width: 959px)' : '(max-width: 819px)');
 const wantsNarrow = () => { const v = QUERY.get('view'); return v === 'pane' || (v !== 'canvas' && NARROW.matches); };
 function setNarrow(on) {
   narrow = on; document.body.dataset.narrow = on;
-  (on ? $('pane') : document.body).append($('composer'));
   if (on) { paneKey = ''; buildPane(); } else { $('stage').replaceChildren(); fitted = false; place(); }
   render();
 }
 NARROW.addEventListener('change', () => setNarrow(wantsNarrow()));
+$('pane-board').append(icon('grid'));
+$('pane-board').onclick = () => { overview = !overview; closeNote(); render(); };
+$('to-pane').hidden = QUERY.get('view') !== 'canvas';
+$('to-pane').onclick = () => { const q = new URLSearchParams(location.search); q.delete('view'); location.search = q; };
 function buildPane() {
   if (!state) return;
   const design = placed().filter(isDesign).filter(s => s.frames.length);
   let f = find(paneId);
   if (!f || !isDesign(f.section)) { const s = design.find(isOpen) || design[0]; f = s ? find(s.frames[0].id) : null; }
   paneId = f ? f.id : null;
-  const tabs = $('tabs');
-  if (!f) { tabs.replaceChildren(); $('pane-act').replaceChildren(); $('stage').replaceChildren(el('div', {className: 'p-empty'}, el('span', {className: 'mark', style: 'width:40px;height:40px', innerHTML: EYES}), el('span', {textContent: 'Seenry hasn’t drawn anything yet. Screens appear here the moment they are written.'}))); return; }
-  const s = f.section, list = s.frames.map(x => ({...x, section: s})), i = list.findIndex(x => x.id === f.id);
-  const pickSection = design.length > 1 ? el('select', {}, ...design.map(d => el('option', {value: d.id, textContent: d.name, selected: d.id === s.id}))) : '';
-  if (pickSection) { pickSection.setAttribute('aria-label', 'Section'); pickSection.onchange = () => { const d = design.find(x => x.id === pickSection.value); paneId = d.frames[0].id; render(); }; }
-  tabs.replaceChildren(pickSection, ...list.map(x => { const b = attr(attr(el('button', {type: 'button', className: 'pill'}, statusOf(x) ? statusEl(statusOf(x), false) : '', document.createTextNode(short(x))), 'role', 'tab'), 'aria-selected', x.id === f.id); b.onclick = () => { paneId = x.id; selected = x.id; render(); }; return b; }), el('span', {className: 'n', textContent: (i + 1) + ' of ' + list.length}));
+  const tabs = $('tabs'), proj = $('proj');
+  const head = (name, sec) => [el('span', {innerHTML: MARK, style: 'display:contents'}), el('b', {textContent: name}), sec ? el('small', {textContent: sec}) : ''];
+  if (!f) { proj.replaceChildren(...head(state.title)); tabs.replaceChildren(); $('pane-status').replaceChildren(); $('pane-sub').replaceChildren(); $('pane-act').replaceChildren(); $('stage').replaceChildren(el('div', {className: 'p-empty'}, el('span', {className: 'mark', style: 'width:40px;height:40px', innerHTML: EYES}), el('span', {textContent: 'Seenry hasn’t drawn anything yet. Screens appear here the moment they are written.'}))); return; }
+  $('pane-board').setAttribute('aria-pressed', overview); document.body.dataset.overview = overview;
+  if (overview) { buildOverview(design, f, head); return; }
+  const s = f.section, list = s.frames.map(x => ({...x, section: s})), i = list.findIndex(x => x.id === f.id), opt = !!(s.choose && !s.study);
+  proj.replaceChildren(...head(state.title, s.name + (opt && isOpen(s) ? ' · pick one' : '')));
+  if (design.length > 1) {
+    proj.append(icon('down'));
+    const pick = el('select', {}, ...design.map(d => el('option', {value: d.id, textContent: d.name, selected: d.id === s.id})));
+    pick.setAttribute('aria-label', 'Section'); pick.onchange = () => { const d = design.find(x => x.id === pick.value); paneId = d.frames[0].id; closeNote(); render(); };
+    proj.append(pick);
+  }
+  tabs.replaceChildren(...list.map((x, k) => { const st = statusOf(x); const b = attr(attr(el('button', {type: 'button'}, opt ? el('span', {className: 'key', textContent: String(k + 1)}) : st ? statusEl(st, false) : '', document.createTextNode(short(x))), 'role', 'tab'), 'aria-selected', x.id === f.id); b.onclick = () => { paneId = x.id; selected = x.id; closeNote(); render(); }; return b; }));
+  const st = statusOf(f); $('pane-status').replaceChildren(st ? statusEl(st, true, f.id) : '');
+  const own = f.device || 'desktop', cur = device || own;
+  $('pane-sub').replaceChildren(...['desktop', 'tablet', 'phone'].map(d => { const b = attr(el('button', {type: 'button', textContent: String(DEVICES[d][0]), title: DEVICE_NAMES[d]}), 'aria-pressed', cur === d); b.onclick = () => { closeNote(); setDevice(d === own ? null : d); }; return b; }), el('span', {className: 'k', id: 'pane-k'}), el('span', {className: 'n', textContent: (i + 1) + ' of ' + list.length}));
   const key = f.id + '@' + f.rev + '@' + f.kind + '@' + device;
   if (paneKey !== key) {
-    paneKey = key;
+    paneKey = key; closeNote();
     const body = el('div', {className: 'body'});
     if (f.kind === 'page') { const fr = el('iframe', {src: f.src + '?v=' + f.rev, title: f.name}); fr.addEventListener('load', () => onFrameLoad(fr, f.id)); body.append(fr); }
     else body.append(blankFor(f));
+    body.append(el('div', {className: 'pane-marks'}));
     $('stage').replaceChildren(body);
   }
-  const issues = probList(f.id);
-  $('pane-act').replaceChildren(...actionsFor(f, true), issues.length ? el('span', {className: 'why pb', textContent: issues.length + (issues.length === 1 ? ' layout problem' : ' layout problems'), title: issues.join('\n')}) : el('span', {className: 'why', textContent: f.caption || '', title: f.axis || f.note || ''}));
-  scalePane();
+  const issues = probList(f.id), mine = notes.filter(n => n.frame === f.id).length;
+  const why = flashText ? el('span', {className: 'why', textContent: flashText})
+    : issues.length ? el('span', {className: 'why pb', textContent: issues.length + (issues.length === 1 ? ' layout problem' : ' layout problems'), title: issues.join('\n')})
+    : el('span', {className: 'why', textContent: mine ? 'Click anything else to add a note, or send.' : opt ? (f.wins || f.caption || '') : f.kind === 'page' && live() ? 'Click anything to leave a note.' : (f.caption || ''), title: f.cost ? 'Costs: ' + f.cost : f.axis || f.note || ''});
+  $('pane-act').replaceChildren(why, ...paneActions(f));
+  scalePane(); panePins();
+}
+// The overview: every screen at its width, with its status. A tile opens the screen; the button comes back.
+function buildOverview(design, f, head) {
+  $('proj').replaceChildren(...head(state.title));
+  $('tabs').replaceChildren(el('span', {className: 'ov-title', textContent: 'All screens'}));
+  $('pane-status').replaceChildren(); $('pane-sub').replaceChildren();
+  const all = design.flatMap(s => s.frames.filter(x => x.kind === 'page').map(x => ({...x, section: s})));
+  const key = 'overview@' + all.map(x => x.id + x.rev).join() + '@' + $('stage').clientWidth;
+  if (paneKey !== key) {
+    paneKey = key; closeNote();
+    const W = $('stage').clientWidth, cols = W >= 640 ? 3 : 2, gap = 16, tw = Math.floor((W - gap * (cols - 1)) / cols);
+    const grid = el('div', {className: 'ov', style: 'grid-template-columns:repeat(' + cols + ',' + tw + 'px);gap:' + gap + 'px'});
+    for (const x of all) {
+      const [w, h] = size(x), k = tw / w, th = Math.round(Math.min(h, w * 1.2) * k), st = statusOf(x);
+      const thumb = el('div', {className: 'ov-thumb', style: 'height:' + th + 'px'}, el('iframe', {src: x.src + '?v=' + x.rev, title: x.name, loading: 'lazy', tabIndex: -1, style: 'width:' + w + 'px;height:' + Math.round(th / k) + 'px;transform:scale(' + k + ')'}));
+      const tile = el('button', {type: 'button', className: 'ov-tile'}, thumb, el('span', {className: 'ov-cap'}, st ? statusEl(st, false) : '', el('b', {textContent: short(x)}), el('small', {textContent: (x.section.choose ? x.section.name + ' · ' : '') + w})), st ? statusEl(st, true, x.id) : '');
+      tile.setAttribute('aria-current', x.id === f.id); tile.onclick = () => { paneId = x.id; selected = x.id; overview = false; render(); };
+      grid.append(tile);
+    }
+    $('stage').replaceChildren(grid);
+  }
+  const back = el('button', {type: 'button', className: 'pill soft', textContent: 'Back to ' + short(f)}); back.onclick = () => { overview = false; render(); };
+  $('pane-act').replaceChildren(el('span', {className: 'why', textContent: flashText || 'Click a screen to open it. Press A to come back here.'}), back);
+}
+// What the pane's action row offers: one quiet choice and one main button, which becomes Send while anything waits.
+function paneWaiting() {
+  const n = notes.length, r = riffs.length, ch = [...touched].filter(id => status[id] === 'change').length;
+  return n ? 'Send ' + plural(n, 'note', 'notes') : r ? 'Ask for more like this' : ch ? 'Send: needs changes' : '';
+}
+function paneActions(f) {
+  if (!f || f.kind !== 'page' || !isDesign(f.section)) return [];
+  const s = f.section, opt = !!(s.choose && !s.study), out = [];
+  const b = (text, cls, fn, pressed) => { const x = el('button', {type: 'button', className: 'pill ' + cls}, document.createTextNode(text)); if (pressed != null) x.setAttribute('aria-pressed', pressed); x.onclick = e => { e.stopPropagation(); fn(); }; return x; };
+  if (opt) {
+    const riffed = riffs.some(r => r.frame === f.id);
+    out.push(b(riffed ? 'Asked for more' : 'More like this', 'soft', () => { const k = riffs.findIndex(r => r.frame === f.id); if (k >= 0) riffs.splice(k, 1); else { riffs.push({section: s.id, frame: f.id}); picks[s.id] = null; } render(); }, riffed));
+  } else {
+    out.push(b('Needs changes', 'soft', () => { status[f.id] = status[f.id] === 'change' ? '' : 'change'; touched.add(f.id); if (status[f.id] === 'change' && !notes.some(n => n.frame === f.id)) flash('Click what should change, then send'); render(); }, status[f.id] === 'change'));
+  }
+  const waiting = paneWaiting();
+  if (waiting) out.push(b(waiting, 'ink', send));
+  else if (opt) { const picked = picks[s.id] === f.id; out.push(b(picked ? 'Picked ' + short(f) : 'Pick ' + short(f), 'ink', () => { if (picked) return; picks[s.id] = f.id; for (let k = riffs.length - 1; k >= 0; k--) if (riffs[k].section === s.id) riffs.splice(k, 1); send(); }, picked)); }
+  else { const ok = status[f.id] === 'approved' || state.approvals[f.id] === 'approved'; out.push(b(ok ? 'Approved' : 'Approve ' + short(f), 'ink', () => { if (ok) return; status[f.id] = 'approved'; touched.add(f.id); send(); }, ok)); }
+  return out;
+}
+// Notes in the pane: click an element, write one line, and it is pinned there, numbered, until you send.
+function paneScale() { const body = $('stage').querySelector('.body'); return body ? +body.style.getPropertyValue('--k') || 1 : 1; }
+function paneScroll() { try { return $('stage').querySelector('iframe').contentWindow.scrollY || 0; } catch (e) { return 0; } }
+function panePins() {
+  const layer = $('stage').querySelector('.pane-marks'); if (!layer) return;
+  const k = paneScale(), sy = paneScroll();
+  const fw = (find(paneId) ? size(find(paneId))[0] : 1440);
+  layer.replaceChildren(...notes.map((n, i) => { if (n.frame !== paneId || !n.box) return ''; const l = n.box.x + n.box.w > fw * 0.85; return el('div', {className: 'p-pin', textContent: String(i + 1), title: n.text, style: 'left:' + Math.round(l ? n.box.x * k - 14 : (n.box.x + n.box.w) * k + 14) + 'px;top:' + Math.round((n.box.y - sy) * k + 4) + 'px'}); }).filter(Boolean));
+}
+function closeNote() { const n = $('pane-note'); if (n) n.remove(); }
+// A note: click an element (or a whole screen), write one line, and it is pinned there, numbered, until you send.
+function openNote(node, f) {
+  closeNote();
+  let fr = null; try { fr = node ? node.ownerDocument.defaultView.frameElement : (narrow ? $('stage').querySelector('iframe') : nodes[f.id] && nodes[f.id].querySelector('iframe')); } catch (e) {}
+  if (!fr) return;
+  const fb = fr.getBoundingClientRect(), z = fb.width / (fr.offsetWidth || fb.width) || 1;
+  let what = 'whole screen', d = {target: 'whole screen', selector: ''}, box = null, r = {left: 12, top: 12, bottom: 12};
+  if (node) {
+    const win = node.ownerDocument.defaultView, part = node.closest('[data-seenry-part]'), tag = node.tagName.toLowerCase();
+    d = describe(node); r = node.getBoundingClientRect();
+    what = /^(div|span|section|article|main|p|li|ul|figure|svg|g|path)$/.test(tag) && part ? part.getAttribute('data-seenry-part') : tag;
+    const range = node.ownerDocument.createRange(); range.selectNodeContents(node);
+    const ink = range.getBoundingClientRect(), t = ink.width && ink.height ? ink : r;
+    box = {x: t.left + win.scrollX, y: t.top + win.scrollY, w: t.width, h: t.height};
+  }
+  const area = el('textarea', {rows: 2, placeholder: 'What should change?'}); area.setAttribute('aria-label', 'Note on ' + what);
+  const add = () => { const text = area.value.trim(); if (!text) { area.focus(); return; } notes.push({frame: f.id, target: d.target, selector: d.selector, text, box}); closeNote(); render(); };
+  const cancel = el('button', {type: 'button', className: 'pill soft', textContent: 'Cancel'}); cancel.onclick = closeNote;
+  const ok = el('button', {type: 'button', className: 'pill ink', textContent: 'Add note'}); ok.onclick = add;
+  area.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); add(); } else if (e.key === 'Escape') closeNote(); });
+  const sx = fb.left + r.left * z, below = fb.top + r.bottom * z + 8;
+  const x = Math.max(8, Math.min(innerWidth - 308, sx)), y = below + 160 < innerHeight ? below : Math.max(8, fb.top + r.top * z - 168);
+  const pop = el('div', {id: 'pane-note', style: 'left:' + Math.round(x) + 'px;top:' + Math.round(y) + 'px'}, el('small', {textContent: (notes.length + 1) + ' · ' + short(f) + ' · ' + what + ' · at ' + size(f)[0]}), area, el('div', {className: 'row'}, cancel, ok));
+  pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Add a note');
+  document.body.append(pop); area.focus();
 }
 function scalePane() {
+  if (overview) return;
   const f = find(paneId), body = $('stage').querySelector('.body'); if (!f || !body) return;
   const W = $('stage').clientWidth, H = $('stage').clientHeight, [w] = size(f), k = Math.min(1, W / w);
-  Object.assign(body.style, {width: Math.round(w * k) + 'px', height: H + 'px'});
+  let page = 0; try { const d = body.querySelector('iframe').contentDocument; page = Math.max(0, ...[...d.body.children].map(c => c.getBoundingClientRect().bottom + d.defaultView.scrollY)); } catch (e) {}
+  Object.assign(body.style, {width: Math.round(w * k) + 'px', height: (page ? Math.min(H, Math.round(page * k)) : H) + 'px'});
   for (const fr of body.querySelectorAll('iframe')) Object.assign(fr.style, {width: w + 'px', height: Math.round(H / k) + 'px', transform: 'scale(' + k + ')', transformOrigin: '0 0'});
   body.style.setProperty('--k', k);
+  const pk = $('pane-k'); if (pk) pk.textContent = Math.round(k * 100) + '%';
+  panePins();
 }
-new ResizeObserver(() => { if (narrow) scalePane(); }).observe($('stage'));
+new ResizeObserver(() => { if (narrow) { if (overview) buildPane(); else scalePane(); } }).observe($('stage'));
 
 // ---------- Send: picks, approvals, chips and text go to the agent's wait ----------
 function summary(extra, general) {
@@ -2263,7 +2425,7 @@ async function send() {
   const text = $('general').value.trim();
   if (chips.length && !text) { flash('Say what to change about ' + chips[0].label); $('general').focus(); return; }
   const drafted = chips.map(c => ({frame: c.frame, target: c.target, selector: c.selector, text})), general = chips.length ? '' : text;
-  const feedback = {stage: state.stage, picks, riff: riffs.slice(), frames: frames().filter(f => status[f.id] && touched.has(f.id)).map(f => ({id: f.id, status: status[f.id]})), notes: [...notes, ...drafted].map(({x, y, ...n}) => n), general};
+  const feedback = {stage: state.stage, picks, riff: riffs.slice(), frames: frames().filter(f => status[f.id] && touched.has(f.id)).map(f => ({id: f.id, status: status[f.id]})), notes: [...notes, ...drafted].map(({x, y, box, ...n}) => n), general};
   if (!feedback.frames.length && !feedback.notes.length && !general && !feedback.riff.length && !Object.values(picks).some(Boolean)) { flash('Pick, approve or say what to change first'); return; }
   let saved = false;
   if (live()) { try { saved = (await fetch('feedback', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(feedback)})).ok; } catch (e) {} }
@@ -2319,7 +2481,7 @@ addEventListener('keydown', e => {
   else if (k === 'v') setTool('move');
   else if (k === 'c') setTool(tool === 'comment' ? 'move' : 'comment');
   else if (k === 'i') setTool(tool === 'inspect' ? 'move' : 'inspect');
-  else if (k === 'a') toggleFollow();
+  else if (k === 'a') { if (narrow) { overview = !overview; closeNote(); render(); } else toggleFollow(); }
   else if (k === 'l') toggleSide();
   else if (k === 'b' || e.key === '2') fitDecision();
   else if (k === 'm' || e.key === '1') fitAll();
@@ -2479,7 +2641,7 @@ const PROBLEMS_JS = String.raw`function seenryProblems(doc, limit) {
   });
   // 3. Collapsed: a part, or text, with no room.
   all.forEach(function (n) {
-    var c = style.get(n); if (c.display === 'none' || c.visibility === 'hidden') return;
+    var c = style.get(n); if (c.display === 'none' || c.visibility === 'hidden' || !n.getClientRects().length) return;
     var r = n.getBoundingClientRect(), part = n.hasAttribute('data-seenry-part');
     if (part && (r.height < 2 || r.width < 2) && (n.children.length || own(n))) add('collapsed', n, 'Collapsed to ' + Math.round(r.width) + ' × ' + Math.round(r.height) + 'px');
     else if (!part && own(n).length > 1 && c.position !== 'absolute' && c.position !== 'fixed' && (r.width < 1 || r.height < 1) && c.display !== 'contents') add('collapsed', n, 'Text with no room: ' + Math.round(r.width) + ' × ' + Math.round(r.height) + 'px');
