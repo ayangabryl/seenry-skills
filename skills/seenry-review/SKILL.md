@@ -4,7 +4,7 @@ description: "Reviews one screen, component or UI diff and returns ranked findin
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.6.1"
+  version: "3.7.0"
 ---
 
 # Seenry Review

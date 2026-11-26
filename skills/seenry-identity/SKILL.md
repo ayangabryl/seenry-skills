@@ -4,7 +4,7 @@ description: "Chooses a product's typefaces and colors and writes tokens.css. Us
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.6.1"
+  version: "3.7.0"
 ---
 
 # Seenry Identity
