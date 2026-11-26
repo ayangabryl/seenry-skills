@@ -45,7 +45,7 @@ Report what you can show: a measurement, a screenshot, a failing check, a rule w
 | "Review / critique / audit this page, screen or site" | **Screen review** |
 | "Review this branch / PR / commit / my changes" | **Change review**: run `git diff` against the base, list changed UI surfaces, render them before and after, review only those |
 | "Stress test / break this component" | **Stress test**, with `seenry-break` |
-| "Is this accessible / WCAG" | **Screen review**, accessibility pass only, with [the checklist](../seenry-craft/references/accessibility.md) |
+| "Is this accessible / WCAG" | **Screen review**, accessibility pass only, with [the checklist](../seenry-craft/references/accessibility.md); `better-accessibility`, when installed, deepens it ([companions](../seenry/references/companions.md)) |
 | "Review / improve the animations", "where should this animate" | **Motion review** |
 | "How was this built / explain this interaction" | **Explain** |
 
@@ -95,7 +95,7 @@ The question is "did this change make the interface worse?", not "what is wrong 
 
 ## Motion review
 
-Inventory every transition, animation and gesture in scope: frequency tier, purpose, tool, properties, duration, curve or spring, interruption, reduced-motion and hover gating. Watch each at normal speed and at 10% in the DevTools Animations panel. Judge against the [motion standards](references/motion-standards.md): ten standards, the flag-on-sight list, the fix order, the Before / After / Why table and a Block or Approve verdict. List missed opportunities and rejected candidates as well. To remove motion, hand over to `seenry-subtract`; to plan fixes across a whole app, `seenry-audit`.
+Inventory every transition, animation and gesture in scope: frequency tier, purpose, tool, properties, duration, curve or spring, interruption, reduced-motion and hover gating. Watch each at normal speed and at 10% in the DevTools Animations panel. Judge against the [motion standards](references/motion-standards.md): ten standards, the flag-on-sight list, the fix order, the Before / After / Why table and a Block or Approve verdict. List missed opportunities and rejected candidates as well. To remove motion, hand over to `seenry-subtract`; to plan fixes across a whole app, `seenry-audit`. When `review-animations` is installed, run it as a second reviewer and merge its findings into this report ([companions](../seenry/references/companions.md)).
 
 ## Stress test
 

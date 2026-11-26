@@ -143,5 +143,6 @@ Read one only when the task is in that area.
 | Accessibility checks | [accessibility](references/accessibility.md) |
 | Phone browser quirks | [mobile web](references/mobile-web.md) |
 | Interface copy | [writing](references/writing.md) |
+| `better-ui`, `better-typography`, `better-colors`, `better-layout` or `better-writing` is installed | [companions](../seenry/references/companions.md): they check; these values and the tokens lead |
 
 Parts of this skill adapt MIT-licensed work by Jakub Krehel and Emil Kowalski; see [the notice](licenses/NOTICE.md).

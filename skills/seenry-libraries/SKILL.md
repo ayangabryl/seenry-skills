@@ -113,3 +113,4 @@ Opinionated and brief: the pick, the reason in a line, the flag if any. When two
 | Libraries by job, mismatches, flags | [catalog](references/catalog.md) |
 | Sonner: the right call, styling ladder, fixes | [Sonner in practice](references/sonner.md) |
 | Check packages on npm | `scripts/check.mjs` |
+| `pick-ui-library`, `libraries-dev` or `ask-sonner` is installed | [companions](../seenry/references/companions.md): sources, while this skill checks and decides |
