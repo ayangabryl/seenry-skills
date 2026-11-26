@@ -22,7 +22,7 @@ Every command is `node <skill>/scripts/canvas.mjs <command>`. The canvas folder 
 | `open [--browser] [--port n]` | Starts the canvas in the background on `127.0.0.1` at a port fixed per project, opens the browser on the options waiting for a pick, prints the address. Inside an agent app it opens no tab and prints the exact call for that app's pane (table below); `--browser` opens a tab anyway. In a cloud session it starts no server and writes `canvas.html` to publish. Prints the time since `init` or `plan` to the first sketch shown, to the person's pick and to the finished build, and keeps them in `canvas.json` (`firstOption`, `picked`, `built`, and `timing` in seconds) |
 | `list` | Prints sections, screens, sizes and links as the canvas sees them |
 | `problems [screens] [--json]` | The layout problems in the last save, at the screen's width and at 390: sideways overflow, text cut off by its box, a part or text collapsed to nothing, an image that did not load, text drawn over text. Short, so run it after each part. The open canvas checks every save itself, outlines each problem on the screen and labels the frame; this reads its result, or renders the screen headless when the canvas has not checked that save. Exits 1 on any |
-| `link` / `sync [push\|pull\|status\|unlink]` | Passed through to `sync.mjs` (below). `link`, or `sync` alone, then starts `sync.mjs watch` in the background; `open` starts it too whenever this machine is linked, so syncing needs no extra step |
+| `link` / `library` / `sync [push\|pull\|status\|unlink]` | Passed through to `sync.mjs` (below). `link` (once it has linked), or `sync` alone, then starts `sync.mjs watch` in the background; `open` starts it too whenever this machine is linked, so syncing needs no extra step |
 | `stop` | Stops the canvas and its sync |
 
 | App (detected by) | `open` prints |
@@ -99,9 +99,11 @@ Feedback lists picks, "More like this" requests (each with the three variation m
 
 | Command | Does |
 | --- | --- |
-| `node <skill>/scripts/sync.mjs link [--server url] [--name "Studio iMac"]` | Prints a code and a link; the person approves it while signed in. The token goes to `~/.config/seenry/canvas-sync.json` (mode 0600), never into the project |
+| `node <skill>/scripts/sync.mjs link [--server url] [--name "Studio iMac"]` | Prints a code and a link, then waits up to ten minutes while the person approves it signed in; a dropped connection or server error is retried. The token goes to `~/.config/seenry/canvas-sync.json` (mode 0600), never into the project. Linking again from the same computer replaces its old link and keeps its canvases |
+| `sync.mjs link --start`, then `link --finish [--wait 90]` | The same link in two steps, for an agent: `--start` prints the link and code and returns at once, so they can be shown to the person; `--finish` completes it, and exits 4 with the link again while it is still waiting |
+| `sync.mjs library [--agent claude-code]` | Adds the Seenry reference library (MCP) to the agent with this computer's own key, which a Seenry Pro account's approval of the link creates (`link --no-library` asks for none). For Claude Code it runs `claude mcp add` itself; for other agents it prints where the key is (`~/.config/seenry/canvas-library-key`, mode 0600) and what to add. The key is never printed |
 | `sync.mjs push [dir]` / `watch [dir]` | Pushes screens, tokens, images and fresh renders; only files whose content changed are uploaded. `watch` pushes on every change and pulls feedback as often as the account's plan allows (the server's `pollSeconds`, 10 s by default); at a plan limit (402) it stops with the server's message, and when rate-limited (429) it waits as told |
 | `sync.mjs pull [dir]` | Writes feedback sent online into `feedback.json`, `FEEDBACK.md` and `review.json`, exactly as Send to agent does, so a running or later `wait` gets it |
-| `sync.mjs status` / `unlink` | Shows the link and this canvas online / forgets this machine |
+| `sync.mjs status` / `unlink` | Shows the link, the library key and this canvas online / forgets this machine and its library key, here and on the server |
 
 References in `refs/`, the archive, hidden files and `canvas.json` stay on the machine. Screens are shown online in a sandbox with no access to the person's account.

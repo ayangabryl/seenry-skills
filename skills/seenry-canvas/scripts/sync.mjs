@@ -2,7 +2,10 @@
 /**
  * Seenry canvas sync: mirror a local canvas to your Seenry account and bring online feedback back.
  *
- *  node sync.mjs link   [--server url] [--name "Studio iMac"]   link this machine (prints a code to approve in the browser)
+ *  node sync.mjs link   [--server url] [--name "Studio iMac"]   link this machine (prints a code to approve in the browser, then waits)
+ *  node sync.mjs link --start           print the link and code and return at once (for agents: show them, then run --finish)
+ *  node sync.mjs link --finish [--wait 90]   complete a link begun with --start; exits 4 while it is still waiting for approval
+ *  node sync.mjs library [--agent claude-code]   add the Seenry reference library (MCP) to your agent with this computer's key
  *  node sync.mjs push   [dir]            push the canvas once (only files whose content changed are uploaded)
  *  node sync.mjs watch  [dir]            push on every change and pull feedback as it arrives, until stopped
  *  node sync.mjs pull   [dir]            write feedback sent online into the canvas, exactly as Send to agent does
@@ -10,19 +13,20 @@
  *  node sync.mjs unlink                  forget this machine here and on the server
  *
  * watch asks for feedback no more often than the server's pollSeconds (10 s by default) and stops on a plan limit (402).
- * The canvas folder defaults to .seenry/canvas. The token lives in your config folder (mode 0600), never in the
- * project. The local canvas never depends on the server: when it is unreachable, sync waits and tries again.
+ * The canvas folder defaults to .seenry/canvas. The token and the library key live in your config folder (mode 0600),
+ * never in the project, and are never printed. A Seenry Pro account's approval also creates the library key. The local canvas never depends on the server: when it is unreachable, sync waits and tries again.
  * Plain Node 18+, no packages.
  */
 import {createHash} from 'node:crypto';
 import {existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, chmodSync, rmSync, realpathSync, openSync, readSync, closeSync} from 'node:fs';
 import {join, resolve, extname, basename, dirname, relative, sep} from 'node:path';
 import {homedir, hostname} from 'node:os';
+import {spawnSync} from 'node:child_process';
 
 const argv = process.argv.slice(2);
 const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'status';
 const flag = (name, fallback) => { const i = argv.indexOf(`--${name}`); return i >= 0 && argv[i + 1] !== undefined ? argv[i + 1] : fallback; };
-const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !['--json', '--once'].includes(all[i - 1])));
+const positional = argv.slice(1).filter((a, i, all) => !a.startsWith('--') && !(i > 0 && all[i - 1].startsWith('--') && !['--json', '--once', '--start', '--finish', '--no-library'].includes(all[i - 1])));
 const json = argv.includes('--json');
 const dir = resolve(flag('dir') || positional[0] || '.seenry/canvas');
 
@@ -41,14 +45,18 @@ function readConfig() {
     return JSON.parse(readFileSync(path, 'utf8'));
   } catch { return null; }
 }
-function writeConfig(config) {
+// A link begun with --start (its device code), and the library key a Pro approval hands over. Same folder, same mode.
+const pendingFile = () => join(configDir(), 'canvas-link-pending.json');
+const libraryKeyFile = () => join(configDir(), 'canvas-library-key');
+function writePrivate(path, text) {
   const folder = configDir();
   const project = resolve(dir, '..', '..');
   if (isInside(folder, dir) || (real(project) !== real(homedir()) && isInside(folder, project))) throw new Error(`Refusing to keep the token inside a project (${folder}). Set SEENRY_CONFIG_DIR to a folder in your home directory.`);
   mkdirSync(folder, {recursive: true, mode: 0o700});
-  writeFileSync(configFile(), JSON.stringify(config, null, 2) + '\n', {mode: 0o600});
-  chmodSync(configFile(), 0o600);
+  writeFileSync(path, text, {mode: 0o600});
+  chmodSync(path, 0o600);
 }
+const writeConfig = config => writePrivate(configFile(), JSON.stringify(config, null, 2) + '\n');
 // Compared through real paths, so a symlinked temp or home folder cannot hide that one is inside the other.
 function real(path) { let p = resolve(path), rest = ''; while (!existsSync(p) && p !== dirname(p)) { rest = join(basename(p), rest); p = dirname(p); } return join(realpathSync(p), rest); }
 function isInside(child, parent) { const rel = relative(real(parent), real(child)); return rel === '' || (!rel.startsWith('..') && !rel.startsWith(sep) && !/^[a-z]:/i.test(rel)); }
@@ -286,25 +294,95 @@ async function pull(config, {quiet = false} = {}) {
 
 // ── Commands ──────────────────────────────────────────────────────────────────────────────────────────────────
 const wait = ms => new Promise(r => setTimeout(r, ms));
-async function link() {
-  const server = String(flag('server', process.env.SEENRY_SERVER || readConfig()?.server || 'https://seenry.design')).replace(/\/+$/, '');
+const serverUrl = () => String(flag('server', process.env.SEENRY_SERVER || readConfig()?.server || 'https://seenry.design')).replace(/\/+$/, '');
+
+/** Asks Seenry for a link code. A computer that is already linked sends its token, so the new link takes its place. */
+async function beginLink(server) {
+  const old = readConfig();
   const name = flag('name', hostname().replace(/\.local$/, '')), agent = flag('agent', agentName());
-  const start = await fetch(server + '/api/canvas/link/start', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({name, agent})});
+  const headers = {'content-type': 'application/json', ...(old?.token && old.server === server ? {authorization: `Bearer ${old.token}`} : {})};
+  const start = await fetch(server + '/api/canvas/link/start', {method: 'POST', headers, body: JSON.stringify({name, agent, ...(argv.includes('--no-library') ? {} : {library: true})})});
   const begun = await start.json().catch(() => null);
   if (!start.ok) throw new Error(begun?.detail || `Seenry answered ${start.status}`);
-  console.log(`To link ${name}, open\n  ${begun.verificationUrl}\nand confirm the code ${begun.userCode}. Waiting…`);
-  const deadline = Date.now() + begun.expiresIn * 1000;
-  while (Date.now() < deadline) {
-    await wait((Number(flag('interval', begun.interval)) || 3) * 1000);
-    const response = await fetch(server + '/api/canvas/link/poll', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({deviceCode: begun.deviceCode})});
-    const data = await response.json().catch(() => null);
+  return {server, name, deviceCode: begun.deviceCode, userCode: begun.userCode, verificationUrl: begun.verificationUrl, expiresAt: Date.now() + begun.expiresIn * 1000, interval: Number(flag('interval', begun.interval)) || 3};
+}
+
+/**
+ * Asks whether the code was approved until `until`. A dropped connection or a server error is not an answer:
+ * the approval may take ten minutes, so it asks again. Returns false when `until` passes first.
+ */
+async function awaitApproval(pending, until) {
+  while (Date.now() < until) {
+    await wait(pending.interval * 1000);
+    let response, data = null;
+    try {
+      response = await fetch(pending.server + '/api/canvas/link/poll', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({deviceCode: pending.deviceCode})});
+      data = await response.json().catch(() => null);
+    } catch { continue; }
     if (response.ok && data?.status === 'pending') continue;
-    if (!response.ok) throw new Error(data?.detail || `Seenry answered ${response.status}`);
-    writeConfig({server, token: data.token, machine: data.machine, account: data.account, linkedAt: new Date().toISOString()});
-    console.log(`Linked ${data.machine.name} to ${data.account.email}. The token is in ${configFile()} (readable only by you).`);
+    if (response.status >= 500 || response.status === 429) continue;
+    if (!response.ok) { rmSync(pendingFile(), {force: true}); throw new Error(data?.detail || `Seenry answered ${response.status}`); }
+    saveLink(pending.server, data);
+    return true;
+  }
+  return false;
+}
+
+/** Writes the token (and the library key, when the approval made one). Neither is ever printed. */
+function saveLink(server, data) {
+  const key = data.library?.key;
+  writeConfig({server, token: data.token, machine: data.machine, account: data.account, linkedAt: new Date().toISOString(), ...(data.library?.url ? {library: {url: data.library.url}} : {})});
+  if (key) writePrivate(libraryKeyFile(), key + '\n'); else rmSync(libraryKeyFile(), {force: true});
+  rmSync(pendingFile(), {force: true});
+  console.log(`Linked ${data.machine.name} to ${data.account.email}. The token is in ${configFile()} (readable only by you).`);
+  if (key) console.log('The reference library is ready for this computer. Add it to your agent with: node sync.mjs library --agent <claude-code|codex|cursor|…>');
+  else if (data.library?.error) console.log(`The reference library was not connected: ${data.library.error}`);
+}
+
+async function link() {
+  const server = serverUrl();
+  if (argv.includes('--finish')) {
+    const pending = readJson(pendingFile(), null);
+    if (!pending?.deviceCode) { console.error('No link is waiting. Start one with: node sync.mjs link --start'); process.exit(2); }
+    if (pending.expiresAt <= Date.now()) { rmSync(pendingFile(), {force: true}); throw new Error('The code expired before it was approved. Run link --start again.'); }
+    if (await awaitApproval(pending, Math.min(pending.expiresAt, Date.now() + Number(flag('wait', 90)) * 1000))) return;
+    console.log(`Not approved yet. Open\n  ${pending.verificationUrl}\nand confirm the code ${pending.userCode}, then run link --finish again.`);
+    process.exit(4);
+  }
+  const pending = await beginLink(server);
+  if (argv.includes('--start')) {
+    writePrivate(pendingFile(), JSON.stringify(pending) + '\n');
+    console.log(`To link ${pending.name}, open\n  ${pending.verificationUrl}\nand confirm the code ${pending.userCode}. Then run: node sync.mjs link --finish`);
     return;
   }
-  throw new Error('The code expired before it was approved. Run link again.');
+  console.log(`To link ${pending.name}, open\n  ${pending.verificationUrl}\nand confirm the code ${pending.userCode}. Waiting…`);
+  if (!await awaitApproval(pending, pending.expiresAt)) throw new Error('The code expired before it was approved. Run link again.');
+}
+
+/**
+ * Adds the reference library to an agent with this computer's key. Claude Code has a command that takes the key
+ * directly, so it is run here and the key never reaches the chat. Other agents are told where the key is.
+ */
+function library() {
+  const config = requireConfig(), keyPath = libraryKeyFile(), url = config.library?.url || 'https://mcp.seenry.design/pro';
+  const key = existsSync(keyPath) ? readFileSync(keyPath, 'utf8').trim() : '';
+  if (!key) { console.log('Reference library: no key on this computer. One is created when a Seenry Pro account approves the link, so with Pro, run link again; without it, skip this step.'); return; }
+  const agent = String(flag('agent', '')).toLowerCase();
+  if (agent === 'claude-code') {
+    const claude = (...args) => spawnSync('claude', ['mcp', ...args], {encoding: 'utf8', stdio: 'pipe'});
+    const existing = claude('get', 'seenry');
+    if (!existing.error) {
+      // `get` prints the stored header, so its output is read here and never shown.
+      if (existing.status === 0 && !String(existing.stdout).includes(url)) { console.log('Reference library: Claude Code already has a different MCP server named seenry. It was left as it is; remove it and run this again to replace it.'); return; }
+      if (existing.status === 0) claude('remove', 'seenry', '-s', 'user');
+      const added = claude('add', '--transport', 'http', '--scope', 'user', 'seenry', url, '--header', `Authorization: Bearer ${key}`);
+      if (added.status === 0) { console.log('Reference library: added to Claude Code for every project (MCP server "seenry"). Start a new session, or run /mcp, to load it.'); return; }
+    }
+  }
+  console.log(`Reference library: this computer's key is in ${keyPath} (readable only by you).`);
+  console.log(`Add an MCP server named "seenry" at ${url} with the header "Authorization: Bearer <the key in that file>".`);
+  console.log(`Codex: add export SEENRY_PRO_KEY="$(cat ${keyPath})" to your shell profile, then run codex mcp add seenry --url ${url} --bearer-token-env-var SEENRY_PRO_KEY`);
+  console.log('Keep the key out of the chat and out of project files.');
 }
 
 async function status() {
@@ -314,6 +392,7 @@ async function status() {
   const key = existsSync(dir) ? localKey() : null, here = data.canvases.find(c => c.localKey === key);
   if (json) { console.log(JSON.stringify({...data, server: config.server, canvas: here || null}, null, 2)); return; }
   console.log(`Linked as ${data.machine.name} to ${data.account.email} on ${config.server}`);
+  console.log(existsSync(libraryKeyFile()) ? 'Reference library: this computer has a key (node sync.mjs library adds it to your agent).' : 'Reference library: no key on this computer.');
   if (here) console.log(`This canvas: ${here.title}, ${here.screens} screens, last pushed ${new Date(here.pushedAt).toLocaleString()}${here.pending ? `, ${here.pending} feedback waiting (run pull)` : ''}\n${here.url}`);
   else console.log(existsSync(dir) ? 'This canvas is not online yet. Run: node sync.mjs push' : `No canvas at ${dir}.`);
   if (data.canvases.length > (here ? 1 : 0)) console.log(`${data.canvases.length} canvas${data.canvases.length === 1 ? '' : 'es'} from this machine are online.`);
@@ -357,6 +436,7 @@ async function watch(config) {
 const needsCanvas = () => { if (!existsSync(join(dir))) { console.error(`No canvas at ${dir}. Pass the folder, e.g. node sync.mjs ${command} .seenry/canvas`); process.exit(2); } };
 try {
   if (command === 'link') await link();
+  else if (command === 'library') library();
   else if (command === 'push') { needsCanvas(); await push(requireConfig()); }
   else if (command === 'pull') { needsCanvas(); await pull(requireConfig()); }
   else if (command === 'watch') { needsCanvas(); await watch(requireConfig()); }
@@ -364,9 +444,9 @@ try {
   else if (command === 'unlink') {
     const config = readConfig();
     if (config?.token) { try { await api(config, '/api/canvas/sync/unlink', {method: 'POST', body: {}}); } catch (error) { if (error.status !== 401) console.error(`Could not reach Seenry (${error.message}); forgetting the token here anyway. Unlink it on the Canvases page.`); } }
-    rmSync(configFile(), {force: true});
+    rmSync(configFile(), {force: true}); rmSync(libraryKeyFile(), {force: true}); rmSync(pendingFile(), {force: true});
     console.log(config?.token ? 'Unlinked this machine.' : 'This machine was not linked.');
-  } else { console.error('Usage: node sync.mjs link|push|watch|pull|status|unlink [dir]'); process.exit(2); }
+  } else { console.error('Usage: node sync.mjs link|library|push|watch|pull|status|unlink [dir]'); process.exit(2); }
 } catch (error) {
   console.error(error.message || String(error));
   process.exit(LIMITED.has(error.status) ? 3 : 1);
