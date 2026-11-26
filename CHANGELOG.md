@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.6.0
+
+### Taste
+
+- **The agent reads the person's taste.** On a computer linked to their Seenry account, `start.mjs` (the first call of every task) prints their taste file: what they chose, what they never want, and the sites and images they love. The project and the brief still come first. `sync.mjs taste` prints it on its own; `--no-taste` leaves it out. Nothing waits on it: unlinked, switched off or offline, the task starts as before.
+
+### Canvas
+
+- **One approval links the computer and the reference library.** `link` now asks for the library too. When a Seenry Pro account approves it, this computer gets its own access key, kept in the config folder (mode 0600) and never printed. `library --agent claude-code` adds the MCP server to Claude Code itself; for other agents it says where the key is and what to add.
+- **`link --start` and `link --finish`.** An agent can show the link and code at once instead of sitting on a command that waits ten minutes: `--start` prints them and returns, `--finish` completes the link (exit 4 while it is still waiting for approval).
+- **`link` no longer gives up on a hiccup.** A dropped connection or a server error while it waits is retried until the code expires.
+- **Linking again replaces the old link.** The computer sends its current token, so its canvases stay with it and nothing is duplicated online. `unlink` also forgets the library key.
+
 ## 3.5.0
 
 ### Canvas

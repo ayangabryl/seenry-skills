@@ -6,11 +6,14 @@
  *  node start.mjs --style <slug>                      that style brief in full, then the bans and the steps
  *  node start.mjs                                     reads .seenry/brief.md when it exists
  *
- *  --no-steps leaves out the steps; --json prints {matches, bans, steps} for another tool.
- * Matching is keyword overlap against references/styles/index.json: no model is asked. */
+ *  --no-steps leaves out the steps; --json prints {matches, bans, steps, taste} for another tool.
+ * Matching is keyword overlap against references/styles/index.json: no model is asked.
+ * When this computer is linked to the person's Seenry account (seenry-canvas link), their taste file is printed
+ * too: what they chose, what they never want, the sites and images they love. --no-taste leaves it out. */
 import {existsSync, readFileSync, realpathSync} from 'node:fs';
 import {join, dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {homedir} from 'node:os';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const stylesDir = join(root, 'references', 'styles');
@@ -50,7 +53,19 @@ export function steps() {
   return [...text.matchAll(/^\| (\d+) \| \*\*([^*]+?)\.?\*\*[^|]*\| ([^|]*) \|/gm)].map(([, n, name, run]) => `${n}. ${name}${/^\s*\(/.test(run) ? '' : `: ${run.trim()}`}`);
 }
 
-function main(args) {
+/** The person's taste file from their Seenry account, read with the link this computer already has. Empty when the
+ *  computer is not linked, taste is switched off, or Seenry does not answer in time: a task never waits on it. */
+export async function taste({timeout = 2500} = {}) {
+  try {
+    const folder = process.env.SEENRY_CONFIG_DIR || join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'seenry');
+    const config = JSON.parse(readFileSync(join(folder, 'canvas-sync.json'), 'utf8'));
+    if (!config?.token || !/^https?:\/\//.test(config.server || '')) return '';
+    const response = await fetch(config.server.replace(/\/+$/, '') + '/api/account/taste.md', {headers: {authorization: `Bearer ${config.token}`}, signal: AbortSignal.timeout(timeout)});
+    return response.status === 200 ? (await response.text()).trim() : '';
+  } catch { return ''; }
+}
+
+async function main(args) {
   const flag = name => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : undefined; };
   const valued = new Set(['--style']);
   const free = args.filter((a, i) => !a.startsWith('--') && !valued.has(args[i - 1])).join(' ').trim();
@@ -63,7 +78,8 @@ function main(args) {
 
   if (slug && !index.some(s => s.slug === slug)) { console.error(`No style "${slug}". The shelf: ${index.map(s => s.slug).join(', ')}`); return 2; }
   const matches = slug ? index.filter(s => s.slug === slug) : matchStyles(brief, index);
-  if (args.includes('--json')) { console.log(JSON.stringify({matches, bans: bans(), steps: steps()}, null, 2)); return 0; }
+  const mine = args.includes('--no-taste') ? '' : await taste();
+  if (args.includes('--json')) { console.log(JSON.stringify({matches, bans: bans(), steps: steps(), taste: mine}, null, 2)); return 0; }
 
   const out = [];
   if (slug) {
@@ -78,10 +94,11 @@ function main(args) {
     out.push('One direction may take a style; the others answer the brief differently.');
   }
   out.push('', 'Never (references/bans.md):', ...bans().map(b => `  - ${b}`));
+  if (mine) out.push('', 'Their taste, from their Seenry account. The project and the brief come first; use this where they leave a choice open:', ...mine.split('\n').filter(l => !/^# Taste\s*$/.test(l)).map(l => `  ${l}`.trimEnd()));
   if (!args.includes('--no-steps')) out.push('', 'Steps (SKILL.md):', ...steps().map(s => `  ${s}`));
   console.log(out.join('\n'));
   return 0;
 }
 
 const real = path => { try { return realpathSync(path); } catch { return resolve(path); } };
-if (process.argv[1] && real(process.argv[1]) === real(fileURLToPath(import.meta.url))) process.exitCode = main(process.argv.slice(2));
+if (process.argv[1] && real(process.argv[1]) === real(fileURLToPath(import.meta.url))) process.exitCode = await main(process.argv.slice(2));

@@ -2,8 +2,8 @@
 // pulling online feedback into the exact files `wait` and `feedback` read, and staying offline-safe. No browser.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, statSync, readdirSync} from 'node:fs';
-import {join, resolve} from 'node:path';
+import {mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, statSync, readdirSync, chmodSync} from 'node:fs';
+import {join, resolve, delimiter} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
@@ -40,15 +40,18 @@ function project() {
 }
 
 /** The protocol the Seenry worker speaks, kept in memory. */
-async function fakeSeenry({feedback = [], pollSeconds = 0, limit = 0} = {}) {
-  const state = {blobs: new Map(), pushes: [], uploads: [], acked: [], polls: 0, unlinked: false, feedback, feedbackChecks: 0};
+async function fakeSeenry({feedback = [], pollSeconds = 0, limit = 0, pro = false, pollErrors = 0, never = false} = {}) {
+  const state = {blobs: new Map(), pushes: [], uploads: [], acked: [], polls: 0, unlinked: false, feedback, feedbackChecks: 0, starts: []};
+  const libraryKey = 'seenry_pro_' + 'k'.repeat(43);
   const token = 'seenry_canvas_' + 'x'.repeat(43);
   const server = createServer(async (req, res) => {
     const chunks = []; for await (const c of req) chunks.push(c);
     const body = Buffer.concat(chunks), send = (status, data) => { res.writeHead(status, {'content-type': 'application/json'}); res.end(JSON.stringify(pollSeconds && status === 200 ? {...data, pollSeconds} : data)); };
     const url = new URL(req.url, 'http://x');
+    if (url.pathname === '/api/canvas/link/start') state.starts.push({body: JSON.parse(body), authorization: req.headers.authorization || ''});
     if (url.pathname === '/api/canvas/link/start') return send(200, {deviceCode: 'd'.repeat(43), userCode: 'BCDF-GHJK', verificationUrl: 'http://seenry.test/canvases/link?code=BCDF-GHJK', expiresIn: 30, interval: 0});
-    if (url.pathname === '/api/canvas/link/poll') return ++state.polls < 2 ? send(200, {status: 'pending'}) : send(200, {status: 'approved', token, machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}});
+    if (url.pathname === '/api/canvas/link/poll' && ++state.polls <= pollErrors) return send(500, {detail: 'The library is temporarily unavailable.'});
+    if (url.pathname === '/api/canvas/link/poll') return never || state.polls - pollErrors < 2 ? send(200, {status: 'pending'}) : send(200, {status: 'approved', token, machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}, ...(pro && state.starts.at(-1)?.body.library ? {library: {url: 'http://mcp.seenry.test/pro', key: libraryKey}} : {})});
     if (req.headers.authorization !== 'Bearer ' + token || state.unlinked) return send(401, {detail: 'Link this machine first'});
     if (limit && url.pathname === '/api/canvas/sync/push') return send(limit, {detail: 'Free accounts sync one canvas. Upgrade to sync more.'});
     if (url.pathname === '/api/canvas/sync/push') {
@@ -65,11 +68,12 @@ async function fakeSeenry({feedback = [], pollSeconds = 0, limit = 0} = {}) {
     if (url.pathname === '/api/canvas/sync/feedback') return send(200, {canvasId: 'c1', events: state.feedback.filter(e => !state.acked.includes(e.id))});
     if (url.pathname === '/api/canvas/sync/feedback/ack') { state.acked.push(...JSON.parse(body).ids); return send(200, {acked: 1}); }
     if (url.pathname === '/api/canvas/sync/status') return send(200, {machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}, canvases: [...new Set(state.pushes.map(p => p.localKey))].map(localKey => ({id: 'c1', title: 'Kept', localKey, screens: 3, pending: 0, pushedAt: Date.now(), url: 'http://seenry.test/canvases/c1'}))});
+    if (url.pathname === '/api/account/taste.md') { res.writeHead(200, {'content-type': 'text/markdown'}); return res.end('# Taste\n\n## What they chose\n\n- Light pages\n'); }
     if (url.pathname === '/api/canvas/sync/unlink') { state.unlinked = true; return send(200, {unlinked: true}); }
     send(404, {detail: 'nope'});
   });
   await new Promise(r => server.listen(0, '127.0.0.1', r));
-  return {state, url: `http://127.0.0.1:${server.address().port}`, close: () => new Promise(r => server.close(r))};
+  return {state, libraryKey, url: `http://127.0.0.1:${server.address().port}`, close: () => new Promise(r => server.close(r))};
 }
 
 async function linked(seenry, p) {
@@ -227,4 +231,91 @@ test('watch never asks for feedback faster than the plan allows, and stops on a 
     assert.match(watched.err, /Sync stopped: Free accounts sync one canvas/);
     assert.ok(!existsSync(join(q.dir, '.sync.json')), 'the canvas no longer says Synced to Seenry');
   } finally { await limited.close(); }
+});
+
+const allText = d => readdirSync(d, {withFileTypes: true}).flatMap(e => e.isDirectory() ? allText(join(d, e.name)) : [readFileSync(join(d, e.name), 'utf8')]);
+
+test('link asks for the library, outlasts a server error while it waits, and keeps the key out of sight', async () => {
+  const seenry = await fakeSeenry({pro: true, pollErrors: 2}), p = project();
+  try {
+    const env = {SEENRY_CONFIG_DIR: p.config};
+    const first = await run(sync, ['link', '--server', seenry.url, '--name', 'Test Mac', '--interval', '0.05'], {cwd: p.root, env});
+    assert.equal(first.status, 0, first.err);
+    assert.equal(seenry.state.starts[0].body.library, true);
+    assert.equal(seenry.state.starts[0].authorization, '', 'a first link has no machine to replace');
+    const keyFile = join(p.config, 'canvas-library-key');
+    assert.equal(readFileSync(keyFile, 'utf8').trim(), seenry.libraryKey);
+    if (process.platform !== 'win32') assert.equal(statSync(keyFile).mode & 0o777, 0o600);
+    assert.equal(JSON.parse(readFileSync(join(p.config, 'canvas-sync.json'), 'utf8')).library.url, 'http://mcp.seenry.test/pro');
+    assert.ok(!(first.out + first.err).includes(seenry.libraryKey), 'the key is never printed');
+    assert.ok(!allText(p.root).some(text => text.includes(seenry.libraryKey)), 'nor written into the project');
+    assert.match(first.out, /reference library is ready/i);
+
+    // Linking again from the same computer names the machine it replaces.
+    seenry.state.polls = 0;
+    const again = await run(sync, ['link', '--server', seenry.url, '--interval', '0.05', '--no-library'], {cwd: p.root, env});
+    assert.equal(again.status, 0, again.err);
+    assert.match(seenry.state.starts[1].authorization, /^Bearer seenry_canvas_/);
+    assert.equal(seenry.state.starts[1].body.library, undefined);
+    assert.ok(!existsSync(keyFile), 'a link without the library leaves no stale key behind');
+  } finally { await seenry.close(); }
+});
+
+test('link --start returns at once with the link and code, and --finish completes it', async () => {
+  const seenry = await fakeSeenry(), waiting = await fakeSeenry({never: true}), p = project(), q = project();
+  try {
+    const env = {SEENRY_CONFIG_DIR: p.config};
+    const begun = await run(sync, ['link', '--start', '--server', seenry.url, '--name', 'Test Mac', '--interval', '0.05'], {cwd: p.root, env});
+    assert.equal(begun.status, 0, begun.err);
+    assert.match(begun.out, /canvases\/link\?code=BCDF-GHJK[\s\S]*link --finish/);
+    assert.equal(seenry.state.polls, 0, 'nothing waits for the approval');
+    assert.ok(!existsSync(join(p.config, 'canvas-sync.json')));
+    const pendingFile = join(p.config, 'canvas-link-pending.json');
+    if (process.platform !== 'win32') assert.equal(statSync(pendingFile).mode & 0o777, 0o600);
+    const done = await run(sync, ['link', '--finish'], {cwd: p.root, env});
+    assert.equal(done.status, 0, done.err);
+    assert.match(done.out, /Linked Test Mac to me@example\.com/);
+    assert.ok(!existsSync(pendingFile));
+    assert.equal((await run(sync, ['link', '--finish'], {cwd: p.root, env})).status, 2, 'nothing left to finish');
+
+    // Not approved inside the wait: it says so, repeats the link, and can be run again.
+    const slow = {SEENRY_CONFIG_DIR: q.config};
+    assert.equal((await run(sync, ['link', '--start', '--server', waiting.url, '--interval', '0.05'], {cwd: q.root, env: slow})).status, 0);
+    const still = await run(sync, ['link', '--finish', '--wait', '0.3'], {cwd: q.root, env: slow});
+    assert.equal(still.status, 4);
+    assert.match(still.out, /Not approved yet[\s\S]*BCDF-GHJK/);
+    assert.ok(existsSync(join(q.config, 'canvas-link-pending.json')), 'the same code can still be approved');
+  } finally { await seenry.close(); await waiting.close(); }
+});
+
+test('library adds the server to Claude Code itself and tells other agents where the key is', async () => {
+  const seenry = await fakeSeenry({pro: true}), p = project();
+  try {
+    // A stand-in for the claude command that records what it was asked to do.
+    const bin = mkdtempSync(join(tmpdir(), 'seenry-bin-')), log = join(bin, 'calls.txt');
+    writeFileSync(join(bin, 'claude'), `#!/bin/sh\necho "$@" >> "${log}"\n[ "$2" = "get" ] && exit 1\nexit 0\n`); chmodSync(join(bin, 'claude'), 0o755);
+    const env = {SEENRY_CONFIG_DIR: p.config, PATH: bin + delimiter + process.env.PATH};
+    assert.equal((await run(sync, ['library', '--agent', 'claude-code'], {cwd: p.root, env})).status, 2, 'asks to link first');
+    assert.equal((await run(sync, ['link', '--server', seenry.url, '--interval', '0.05'], {cwd: p.root, env})).status, 0);
+    if (process.platform !== 'win32') {
+      const added = await run(sync, ['library', '--agent', 'claude-code'], {cwd: p.root, env});
+      assert.equal(added.status, 0, added.err);
+      assert.match(added.out, /added to Claude Code/);
+      assert.ok(!(added.out + added.err).includes(seenry.libraryKey));
+      assert.match(readFileSync(log, 'utf8'), new RegExp(`mcp add --transport http --scope user seenry http://mcp\\.seenry\\.test/pro --header Authorization: Bearer ${seenry.libraryKey}`));
+    }
+    const told = await run(sync, ['library', '--agent', 'codex'], {cwd: p.root, env});
+    assert.equal(told.status, 0);
+    assert.ok(told.out.includes(join(p.config, 'canvas-library-key')));
+    assert.match(told.out, /codex mcp add seenry --url http:\/\/mcp\.seenry\.test\/pro --bearer-token-env-var SEENRY_PRO_KEY/);
+    assert.ok(!told.out.includes(seenry.libraryKey), 'the key itself is never printed');
+
+    const taste = await run(sync, ['taste'], {cwd: p.root, env});
+    assert.equal(taste.status, 0, taste.err);
+    assert.match(taste.out, /## What they chose\n\n- Light pages/);
+
+    assert.equal((await run(sync, ['unlink'], {cwd: p.root, env})).status, 0);
+    assert.ok(!existsSync(join(p.config, 'canvas-library-key')), 'unlink forgets the key here');
+    assert.match((await run(sync, ['taste'], {cwd: p.root, env})).out, /not linked/);
+  } finally { await seenry.close(); }
 });

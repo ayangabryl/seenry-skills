@@ -4,7 +4,7 @@ description: "Directs and renders a short product film as code: launch video, fe
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.5.0"
+  version: "3.6.0"
 ---
 
 # Direct the film, then render it

@@ -1,13 +1,16 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {spawnSync} from 'node:child_process';
+import {spawnSync, spawn} from 'node:child_process';
+import {createServer} from 'node:http';
 import {mkdtempSync, mkdirSync, writeFileSync, readFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {tmpdir} from 'node:os';
 import {matchStyles, bans, steps, loadIndex} from '../skills/seenry/scripts/start.mjs';
 
 const script = resolve('skills/seenry/scripts/start.mjs');
-const run = (args, cwd = process.cwd()) => spawnSync(process.execPath, [script, ...args], {encoding: 'utf8', cwd});
+// An empty config folder, so a developer's own Seenry link never leaks their taste into these runs.
+const unlinked = mkdtempSync(join(tmpdir(), 'seenry-start-config-'));
+const run = (args, cwd = process.cwd(), env = {}) => spawnSync(process.execPath, [script, ...args], {encoding: 'utf8', cwd, env: {...process.env, SEENRY_CONFIG_DIR: unlinked, ...env}});
 
 test('a brief finds the styles whose keywords it uses, best first, at most three', () => {
   assert.equal(matchStyles('A landing page for a developer CLI and API, dark')[0].slug, 'dark-technical');
@@ -64,4 +67,31 @@ test('with no words it reads .seenry/brief.md, and says so when there is none', 
   const json = JSON.parse(run(['--json', 'restaurant booking'], dir).stdout);
   assert.equal(json.matches[0].slug, 'place-photographic');
   assert.equal(json.steps.length, 9);
+});
+
+test('on a linked computer the first call prints the person\'s taste, and never waits on a server that is away', async () => {
+  const file = '# Taste\n\n## What they chose\n\n- Light pages\n- Big headlines\n\n## Never\n\n- Carousels that move on their own\n\n## Sites and images they love\n\n- Linear: <https://linear.app/>\n';
+  let asked = '';
+  const server = createServer((req, res) => { asked = `${req.url} ${req.headers.authorization}`; res.writeHead(200, {'content-type': 'text/markdown'}); res.end(file); });
+  await new Promise(r => server.listen(0, '127.0.0.1', r));
+  const config = mkdtempSync(join(tmpdir(), 'seenry-start-linked-')), token = 'seenry_canvas_' + 'x'.repeat(43);
+  const link = url => writeFileSync(join(config, 'canvas-sync.json'), JSON.stringify({server: url, token}));
+  // The server lives in this process, so the script runs without blocking it.
+  const start = args => new Promise(done => { const child = spawn(process.execPath, [script, ...args], {env: {...process.env, SEENRY_CONFIG_DIR: config}}); let out = ''; child.stdout.on('data', c => { out += c; }); child.on('close', status => done({status, out})); });
+  try {
+    link(`http://127.0.0.1:${server.address().port}`);
+    const linked = await start(['pricing page for a saas product']);
+    assert.equal(linked.status, 0);
+    assert.equal(asked, `/api/account/taste.md Bearer ${token}`);
+    assert.match(linked.out, /Their taste, from their Seenry account[\s\S]*Light pages[\s\S]*Carousels that move on their own[\s\S]*linear\.app/);
+    assert.ok(linked.out.indexOf('Their taste') > linked.out.indexOf('Never (references/bans.md)'), 'after the bans, before the steps');
+    assert.ok(!linked.out.includes(token));
+    assert.equal(JSON.parse((await start(['pricing page', '--json'])).out).taste, file.trim());
+    assert.ok(!(await start(['pricing page', '--no-taste'])).out.includes('Their taste'));
+  } finally { await new Promise(r => server.close(r)); }
+  link('http://127.0.0.1:9');
+  const away = await start(['pricing page for a saas product']);
+  assert.equal(away.status, 0);
+  assert.ok(!away.out.includes('Their taste'));
+  assert.match(away.out, /Never \(references\/bans\.md\)/);
 });
