@@ -2,6 +2,10 @@
 
 ## 3.6.0
 
+### Taste
+
+- **The agent reads the person's taste.** On a computer linked to their Seenry account, `start.mjs` (the first call of every task) prints their taste file: what they chose, what they never want, and the sites and images they love. The project and the brief still come first. `sync.mjs taste` prints it on its own; `--no-taste` leaves it out. Nothing waits on it: unlinked, switched off or offline, the task starts as before.
+
 ### Canvas
 
 - **One approval links the computer and the reference library.** `link` now asks for the library too. When a Seenry Pro account approves it, this computer gets its own access key, kept in the config folder (mode 0600) and never printed. `library --agent claude-code` adds the MCP server to Claude Code itself; for other agents it says where the key is and what to add.
