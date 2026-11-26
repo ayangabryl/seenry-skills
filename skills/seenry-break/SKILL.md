@@ -4,7 +4,7 @@ description: "Stress-tests a component or screen with realistic worst-case data 
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.6.0"
+  version: "3.6.1"
 ---
 
 # Seenry Break

@@ -1,6 +1,6 @@
 # Bans
 
-The habits that make a page read as generated. Never do these, unless the person asks for one by name. Many are measured by `review_board.mjs` (through `canvas.mjs verify` and `check.mjs`); the rest are on you. A style brief's own Never list adds to these, never replaces them.
+The habits that make a page read as generated. Never do these, unless the person asks for one by name or their taste lists it under Allowed (they switched that ban off on Seenry). Many are measured by `review_board.mjs` (through `canvas.mjs verify` and `check.mjs`); the rest are on you. A style brief's own Never list adds to these, never replaces them.
 
 ## Layout
 

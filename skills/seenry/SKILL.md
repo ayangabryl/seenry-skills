@@ -4,7 +4,7 @@ description: "Designs and builds a web page, site, dashboard or product screen f
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.6.0"
+  version: "3.6.1"
 ---
 
 # Seenry
@@ -13,7 +13,7 @@ Takes a design task from brief to built page. The person is the judge: the idea 
 
 Worked example: [Waterline](assets/examples/waterline/README.md). Copy its path and principles, never the page.
 
-**First call, every task:** `node scripts/start.mjs "<the brief in a few words>"` (or `.seenry/brief.md`). It prints the two or three [style briefs](references/styles/index.json) that fit, the [bans](references/bans.md) and the steps below. On a computer linked to the person's Seenry account it also prints their taste (what they chose, what they never want, the sites and images they love): the project and the brief come first, and their taste settles what those leave open. `--style <slug>` prints one brief whole: a visual identity (type, colour roles, imagery, how image and interface meet, section moves), never a page order. One direction may take a style; the others answer the brief their own way.
+**First call, every task:** `node scripts/start.mjs "<the brief in a few words>"` (or `.seenry/brief.md`). It prints the two or three [style briefs](references/styles/index.json) that fit, the [bans](references/bans.md) and the steps below. On a computer linked to the person's Seenry account it also prints their taste (what they chose, what they never want, the sites and images they love): the project and the brief come first, and their taste settles what those leave open. Its Never list adds to the bans; anything under its Allowed heading is fine for this person even where the bans list it. Open the sites and references it names before choosing a direction, and say in the report what you took from it. `--style <slug>` prints one brief whole: a visual identity (type, colour roles, imagery, how image and interface meet, section moves), never a page order. One direction may take a style; the others answer the brief their own way.
 
 ## Route
 

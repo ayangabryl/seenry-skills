@@ -41,8 +41,8 @@ function project() {
 
 /** The protocol the Seenry worker speaks, kept in memory. */
 async function fakeSeenry({feedback = [], pollSeconds = 0, limit = 0, pro = false, pollErrors = 0, never = false} = {}) {
-  const state = {blobs: new Map(), pushes: [], uploads: [], acked: [], polls: 0, unlinked: false, feedback, feedbackChecks: 0, starts: []};
-  const libraryKey = 'seenry_pro_' + 'k'.repeat(43);
+  const state = {blobs: new Map(), pushes: [], uploads: [], acked: [], polls: 0, unlinked: false, feedback, feedbackChecks: 0, starts: [], redeems: []};
+  const libraryKey = 'seenry_pro_' + 'k'.repeat(43), setupCode = 'seenry_setup_' + 's'.repeat(43);
   const token = 'seenry_canvas_' + 'x'.repeat(43);
   const server = createServer(async (req, res) => {
     const chunks = []; for await (const c of req) chunks.push(c);
@@ -50,6 +50,7 @@ async function fakeSeenry({feedback = [], pollSeconds = 0, limit = 0, pro = fals
     const url = new URL(req.url, 'http://x');
     if (url.pathname === '/api/canvas/link/start') state.starts.push({body: JSON.parse(body), authorization: req.headers.authorization || ''});
     if (url.pathname === '/api/canvas/link/start') return send(200, {deviceCode: 'd'.repeat(43), userCode: 'BCDF-GHJK', verificationUrl: 'http://seenry.test/canvases/link?code=BCDF-GHJK', expiresIn: 30, interval: 0});
+    if (url.pathname === '/api/canvas/link/redeem') { const sent = JSON.parse(body); state.redeems.push({body: sent, authorization: req.headers.authorization || ''}); if (sent.code !== setupCode || state.redeems.length > 1) return send(410, {detail: 'This setup code was already used or has expired. Run link --start to link with a code you approve in the browser.'}); return send(200, {status: 'approved', token, machine: {id: 'm1', name: sent.name}, account: {email: 'me@example.com'}, ...(pro ? {library: {url: 'http://mcp.seenry.test/pro', key: libraryKey}} : {})}); }
     if (url.pathname === '/api/canvas/link/poll' && ++state.polls <= pollErrors) return send(500, {detail: 'The library is temporarily unavailable.'});
     if (url.pathname === '/api/canvas/link/poll') return never || state.polls - pollErrors < 2 ? send(200, {status: 'pending'}) : send(200, {status: 'approved', token, machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}, ...(pro && state.starts.at(-1)?.body.library ? {library: {url: 'http://mcp.seenry.test/pro', key: libraryKey}} : {})});
     if (req.headers.authorization !== 'Bearer ' + token || state.unlinked) return send(401, {detail: 'Link this machine first'});
@@ -73,7 +74,7 @@ async function fakeSeenry({feedback = [], pollSeconds = 0, limit = 0, pro = fals
     send(404, {detail: 'nope'});
   });
   await new Promise(r => server.listen(0, '127.0.0.1', r));
-  return {state, libraryKey, url: `http://127.0.0.1:${server.address().port}`, close: () => new Promise(r => server.close(r))};
+  return {state, libraryKey, setupCode, url: `http://127.0.0.1:${server.address().port}`, close: () => new Promise(r => server.close(r))};
 }
 
 async function linked(seenry, p) {
@@ -317,5 +318,25 @@ test('library adds the server to Claude Code itself and tells other agents where
     assert.equal((await run(sync, ['unlink'], {cwd: p.root, env})).status, 0);
     assert.ok(!existsSync(join(p.config, 'canvas-library-key')), 'unlink forgets the key here');
     assert.match((await run(sync, ['taste'], {cwd: p.root, env})).out, /not linked/);
+  } finally { await seenry.close(); }
+});
+
+test('link --code links at once with the setup code from the prompt, and says what to do when it is spent', async () => {
+  const seenry = await fakeSeenry({pro: true}), p = project(), q = project();
+  try {
+    const env = {SEENRY_CONFIG_DIR: p.config};
+    const done = await run(sync, ['link', '--code', seenry.setupCode, '--server', seenry.url, '--name', 'Prompt Mac'], {cwd: p.root, env});
+    assert.equal(done.status, 0, done.err);
+    assert.match(done.out, /Linked Prompt Mac to me@example\.com/);
+    assert.equal(seenry.state.polls, 0, 'nothing to approve, nothing to wait for');
+    assert.deepEqual(seenry.state.redeems[0].body, {code: seenry.setupCode, name: 'Prompt Mac', agent: seenry.state.redeems[0].body.agent});
+    assert.equal(readFileSync(join(p.config, 'canvas-library-key'), 'utf8').trim(), seenry.libraryKey);
+    assert.ok(!(done.out + done.err).includes(seenry.libraryKey) && !(done.out + done.err).includes(seenry.setupCode), 'neither the key nor the code is printed');
+    assert.ok(!allText(p.root).some(text => text.includes(seenry.setupCode)), 'the code is not written into the project');
+
+    const spent = await run(sync, ['link', '--code', seenry.setupCode, '--server', seenry.url], {cwd: q.root, env: {SEENRY_CONFIG_DIR: q.config}});
+    assert.equal(spent.status, 1);
+    assert.match(spent.err, /already used or has expired[\s\S]*link --start/);
+    assert.ok(!existsSync(join(q.config, 'canvas-sync.json')));
   } finally { await seenry.close(); }
 });

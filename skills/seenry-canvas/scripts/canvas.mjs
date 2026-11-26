@@ -41,6 +41,7 @@
  *  node canvas.mjs static [dir]            write canvas.html, which opens from disk with no server
  *  node canvas.mjs shot   [dir] [--playwright path]  write canvas.png, for sessions with no browser to show
  *  node canvas.mjs link   [dir]            link this machine to Seenry (sync.mjs link), then sync the canvas in the background
+ *  node canvas.mjs link --code <setup code>  link at once with the one-time code from a setup prompt copied inside Seenry
  *  node canvas.mjs link --start | --finish  for agents: --start prints the link and code and returns at once; --finish completes it
  *  node canvas.mjs library [--agent claude-code]   add the Seenry reference library (MCP) to your agent (sync.mjs library)
  *  node canvas.mjs taste                   print the person's taste file from their Seenry account (sync.mjs taste)
