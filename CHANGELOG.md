@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.6.0
+
+### Canvas
+
+- **One approval links the computer and the reference library.** `link` now asks for the library too. When a Seenry Pro account approves it, this computer gets its own access key, kept in the config folder (mode 0600) and never printed. `library --agent claude-code` adds the MCP server to Claude Code itself; for other agents it says where the key is and what to add.
+- **`link --start` and `link --finish`.** An agent can show the link and code at once instead of sitting on a command that waits ten minutes: `--start` prints them and returns, `--finish` completes the link (exit 4 while it is still waiting for approval).
+- **`link` no longer gives up on a hiccup.** A dropped connection or a server error while it waits is retried until the code expires.
+- **Linking again replaces the old link.** The computer sends its current token, so its canvases stay with it and nothing is duplicated online. `unlink` also forgets the library key.
+
 ## 3.5.0
 
 ### Canvas
