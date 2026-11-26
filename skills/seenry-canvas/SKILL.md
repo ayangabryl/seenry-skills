@@ -51,6 +51,7 @@ Use these words exactly, in what you write and what you say to the person.
 8. **Build the full page on the canvas, live.** A sketch is one write. A full page is its shell first, then one part per save, so the person watches it come together.
 9. **The person never does the bookkeeping.** You run `round` after each round; you never ask them to label, archive or name anything.
 10. **Patch, never regenerate.** Fix a screen with a targeted edit to the part that is wrong. Never rewrite a whole file that already has parts: it throws away what was approved and hides what changed. The canvas feed says "Rewrote" when one save changes every part of a screen.
+11. **Keep the canvas readable.** The person sees only the current round and the approved screens. When a new round of options replaces an old one that nobody picked (`round` archives losers only after a pick), move each old option with `archive <section>/<screen> --reason "Replaced by round 3: …"` (ids from `list`). Name every screen plainly in its `<title>`, by what it is ("Home · Empty", "Pricing · Annual"), never by round, version or model ("v3 final", "Option B new").
 
 ## Workflow
 
