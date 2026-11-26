@@ -3,6 +3,7 @@
  * Seenry canvas sync: mirror a local canvas to your Seenry account and bring online feedback back.
  *
  *  node sync.mjs link   [--server url] [--name "Studio iMac"]   link this machine (prints a code to approve in the browser, then waits)
+ *  node sync.mjs link --code <setup code>   link at once with the one-time code a setup prompt copied from Seenry carries
  *  node sync.mjs link --start           print the link and code and return at once (for agents: show them, then run --finish)
  *  node sync.mjs link --finish [--wait 90]   complete a link begun with --start; exits 4 while it is still waiting for approval
  *  node sync.mjs library [--agent claude-code]   add the Seenry reference library (MCP) to your agent with this computer's key
@@ -340,8 +341,21 @@ function saveLink(server, data) {
   else if (data.library?.error) console.log(`The reference library was not connected: ${data.library.error}`);
 }
 
+/** Links with the one-time code from a setup prompt copied inside Seenry: no approval in the browser. */
+async function redeem(server, code) {
+  const old = readConfig();
+  const name = flag('name', hostname().replace(/\.local$/, '')), agent = flag('agent', agentName());
+  const headers = {'content-type': 'application/json', ...(old?.token && old.server === server ? {authorization: `Bearer ${old.token}`} : {})};
+  const response = await fetch(server + '/api/canvas/link/redeem', {method: 'POST', headers, body: JSON.stringify({code, name, agent, ...(argv.includes('--no-library') ? {library: false} : {})})});
+  const data = await response.json().catch(() => null);
+  if (!response.ok) { const error = new Error(data?.detail || `Seenry answered ${response.status}`); error.status = response.status; throw error; }
+  saveLink(server, data);
+}
+
 async function link() {
   const server = serverUrl();
+  const code = flag('code');
+  if (code) return redeem(server, code);
   if (argv.includes('--finish')) {
     const pending = readJson(pendingFile(), null);
     if (!pending?.deviceCode) { console.error('No link is waiting. Start one with: node sync.mjs link --start'); process.exit(2); }
@@ -353,7 +367,7 @@ async function link() {
   const pending = await beginLink(server);
   if (argv.includes('--start')) {
     writePrivate(pendingFile(), JSON.stringify(pending) + '\n');
-    console.log(`To link ${pending.name}, open\n  ${pending.verificationUrl}\nand confirm the code ${pending.userCode}. Then run: node sync.mjs link --finish`);
+    console.log(`To link ${pending.name}, open\n  ${pending.verificationUrl}\nand confirm the code ${pending.userCode}. Then run link --finish with the same script.`);
     return;
   }
   console.log(`To link ${pending.name}, open\n  ${pending.verificationUrl}\nand confirm the code ${pending.userCode}. Waiting…`);

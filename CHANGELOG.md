@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.6.1
+
+### Taste
+
+- **A ban the person switched off is allowed.** Their taste file lists it under Allowed, and the bans now say so. The skill also says how to use the file: Never adds to the bans, the named sites and references are opened before choosing a direction, and the report says what was taken from it.
+
+### Canvas
+
+- **`link --code <setup code>`.** A setup prompt copied inside Seenry carries a one-time code, so the agent links the computer at once with no approval in the browser. The code works once, for 15 minutes; used or expired, `link --start` still works.
+
 ## 3.6.0
 
 ### Taste
