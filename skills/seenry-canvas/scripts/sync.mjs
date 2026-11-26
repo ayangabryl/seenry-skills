@@ -6,6 +6,7 @@
  *  node sync.mjs link --start           print the link and code and return at once (for agents: show them, then run --finish)
  *  node sync.mjs link --finish [--wait 90]   complete a link begun with --start; exits 4 while it is still waiting for approval
  *  node sync.mjs library [--agent claude-code]   add the Seenry reference library (MCP) to your agent with this computer's key
+ *  node sync.mjs taste                   print the person's taste file from their Seenry account (seenry's start.mjs prints it too)
  *  node sync.mjs push   [dir]            push the canvas once (only files whose content changed are uploaded)
  *  node sync.mjs watch  [dir]            push on every change and pull feedback as it arrives, until stopped
  *  node sync.mjs pull   [dir]            write feedback sent online into the canvas, exactly as Send to agent does
@@ -359,6 +360,16 @@ async function link() {
   if (!await awaitApproval(pending, pending.expiresAt)) throw new Error('The code expired before it was approved. Run link again.');
 }
 
+/** The person's taste, as they set it on Seenry: what they chose, what they never want, what they love. */
+async function taste() {
+  const config = readConfig();
+  if (!config?.token) { console.log('Taste: this computer is not linked to a Seenry account, so there is no taste to read. Run: node sync.mjs link'); return; }
+  const response = await fetch(config.server + '/api/account/taste.md', {headers: {authorization: `Bearer ${config.token}`}});
+  if (response.status === 204) { console.log('Taste: switched off in their Seenry account. Design from the project and the brief.'); return; }
+  if (!response.ok) { const data = await response.json().catch(() => null), error = new Error(data?.detail || `Seenry answered ${response.status}`); error.status = response.status; throw error; }
+  console.log((await response.text()).trim());
+}
+
 /**
  * Adds the reference library to an agent with this computer's key. Claude Code has a command that takes the key
  * directly, so it is run here and the key never reaches the chat. Other agents are told where the key is.
@@ -437,6 +448,7 @@ const needsCanvas = () => { if (!existsSync(join(dir))) { console.error(`No canv
 try {
   if (command === 'link') await link();
   else if (command === 'library') library();
+  else if (command === 'taste') await taste();
   else if (command === 'push') { needsCanvas(); await push(requireConfig()); }
   else if (command === 'pull') { needsCanvas(); await pull(requireConfig()); }
   else if (command === 'watch') { needsCanvas(); await watch(requireConfig()); }
@@ -446,7 +458,7 @@ try {
     if (config?.token) { try { await api(config, '/api/canvas/sync/unlink', {method: 'POST', body: {}}); } catch (error) { if (error.status !== 401) console.error(`Could not reach Seenry (${error.message}); forgetting the token here anyway. Unlink it on the Canvases page.`); } }
     rmSync(configFile(), {force: true}); rmSync(libraryKeyFile(), {force: true}); rmSync(pendingFile(), {force: true});
     console.log(config?.token ? 'Unlinked this machine.' : 'This machine was not linked.');
-  } else { console.error('Usage: node sync.mjs link|library|push|watch|pull|status|unlink [dir]'); process.exit(2); }
+  } else { console.error('Usage: node sync.mjs link|library|taste|push|watch|pull|status|unlink [dir]'); process.exit(2); }
 } catch (error) {
   console.error(error.message || String(error));
   process.exit(LIMITED.has(error.status) ? 3 : 1);

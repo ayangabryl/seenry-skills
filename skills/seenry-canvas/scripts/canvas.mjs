@@ -43,6 +43,7 @@
  *  node canvas.mjs link   [dir]            link this machine to Seenry (sync.mjs link), then sync the canvas in the background
  *  node canvas.mjs link --start | --finish  for agents: --start prints the link and code and returns at once; --finish completes it
  *  node canvas.mjs library [--agent claude-code]   add the Seenry reference library (MCP) to your agent (sync.mjs library)
+ *  node canvas.mjs taste                   print the person's taste file from their Seenry account (sync.mjs taste)
  *  node canvas.mjs sync   [push|pull|status|unlink] [dir]   pass through to sync.mjs; with none, start the background watch
  *  node canvas.mjs stop   [dir]            stop the canvas and its sync
  *
@@ -3738,7 +3739,7 @@ if (command === 'init') {
   rmSync(pidFile, {force: true});
   const synced = stopSync();
   console.log((info ? 'Canvas stopped.' : 'No canvas was running.') + (synced ? ' Stopped syncing to Seenry.' : ''));
-} else if (command === 'link' || command === 'sync' || command === 'library') {
+} else if (command === 'link' || command === 'sync' || command === 'library' || command === 'taste') {
   // Passed through to sync.mjs; after a link, or with no subcommand, the watch starts in the background.
   if (!existsSync(syncScript)) { console.error(`sync.mjs is not beside canvas.mjs (${here}). Install the seenry-canvas skill to sync online.`); process.exit(2); }
   const sub = command === 'sync' ? positional[0] || 'watch' : command, rest = argv.slice(1).filter(a => a !== sub && a !== '--dir' && a !== flag('dir'));

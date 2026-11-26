@@ -68,6 +68,7 @@ async function fakeSeenry({feedback = [], pollSeconds = 0, limit = 0, pro = fals
     if (url.pathname === '/api/canvas/sync/feedback') return send(200, {canvasId: 'c1', events: state.feedback.filter(e => !state.acked.includes(e.id))});
     if (url.pathname === '/api/canvas/sync/feedback/ack') { state.acked.push(...JSON.parse(body).ids); return send(200, {acked: 1}); }
     if (url.pathname === '/api/canvas/sync/status') return send(200, {machine: {id: 'm1', name: 'Test Mac'}, account: {email: 'me@example.com'}, canvases: [...new Set(state.pushes.map(p => p.localKey))].map(localKey => ({id: 'c1', title: 'Kept', localKey, screens: 3, pending: 0, pushedAt: Date.now(), url: 'http://seenry.test/canvases/c1'}))});
+    if (url.pathname === '/api/account/taste.md') { res.writeHead(200, {'content-type': 'text/markdown'}); return res.end('# Taste\n\n## What they chose\n\n- Light pages\n'); }
     if (url.pathname === '/api/canvas/sync/unlink') { state.unlinked = true; return send(200, {unlinked: true}); }
     send(404, {detail: 'nope'});
   });
@@ -309,7 +310,12 @@ test('library adds the server to Claude Code itself and tells other agents where
     assert.match(told.out, /codex mcp add seenry --url http:\/\/mcp\.seenry\.test\/pro --bearer-token-env-var SEENRY_PRO_KEY/);
     assert.ok(!told.out.includes(seenry.libraryKey), 'the key itself is never printed');
 
+    const taste = await run(sync, ['taste'], {cwd: p.root, env});
+    assert.equal(taste.status, 0, taste.err);
+    assert.match(taste.out, /## What they chose\n\n- Light pages/);
+
     assert.equal((await run(sync, ['unlink'], {cwd: p.root, env})).status, 0);
     assert.ok(!existsSync(join(p.config, 'canvas-library-key')), 'unlink forgets the key here');
+    assert.match((await run(sync, ['taste'], {cwd: p.root, env})).out, /not linked/);
   } finally { await seenry.close(); }
 });
