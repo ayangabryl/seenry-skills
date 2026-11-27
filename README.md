@@ -51,8 +51,18 @@ Against Emil's skill, Seenry won 59 judgments, tied 15 and lost 6, and led 15 of
 ## Install
 
 ```sh
-npx skills add ayangabryl/seenry-skills
+npx skills add ayangabryl/seenry-skills -g -y
 ```
+
+With no `--agent`, the installer finds the agents on the computer (Claude Code, Codex, Cursor, Antigravity, Gemini CLI, GitHub Copilot, Kimi Code and more) and installs for all of them. [SETUP.md](SETUP.md) has the one-paste setup prompt.
+
+To update later, from any agent:
+
+```sh
+node ~/.agents/skills/seenry-canvas/scripts/canvas.mjs update
+```
+
+It runs `npx skills update -g -y` (Seenry's skills and the other installed skills, companions included), prints each change from old to new version, and restarts a running canvas on the new code. The person's canvases are not touched. Seenry older than 3.8.0 has no `update`: run `npx skills update -g -y` once, then `canvas.mjs update` restarts the canvas.
 
 Or clone and install locally (previews by default):
 
@@ -87,7 +97,7 @@ Each repository keeps its own license and terms.
 
 ## Seenry MCP
 
-The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, and iOS app screens and flows. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
+The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, and iOS app screens and flows. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. On a computer linked with Seenry Pro, `canvas.mjs library` adds the server with that computer's own key to every agent it finds: Claude Code through `claude mcp add`, and Codex, Cursor, Antigravity, Gemini CLI, GitHub Copilot and Kimi Code in their own user-level config file (never a project's; other servers kept, a backup made first, the key never printed). Any other agent gets the step to do by hand. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.
 
 Every skill uses the Seenry MCP tool contract and prefer connected MCP tools. Scripted research uses the same endpoint and an existing `SEENRY_PRO_KEY`: run `node skills/seenry/scripts/research.mjs --brief BRIEF.md --family websites --terms "<focused query>"` from this repository, or the installed skill's absolute script path. The script makes at most three tool calls (planned maximum 11 credits), saves the source context and images it used, and stops on service, auth or quota errors. Without a key it writes an explicitly unresearched handoff for connected tools or permitted web research.
 

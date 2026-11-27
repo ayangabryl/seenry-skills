@@ -289,26 +289,28 @@ test('link --start returns at once with the link and code, and --finish complete
   } finally { await seenry.close(); await waiting.close(); }
 });
 
-test('library adds the server to Claude Code itself and tells other agents where the key is', async () => {
+test('library adds the server to Claude Code itself and says how to add it to an agent it cannot find', async () => {
   const seenry = await fakeSeenry({pro: true}), p = project();
   try {
     // A stand-in for the claude command that records what it was asked to do.
     const bin = mkdtempSync(join(tmpdir(), 'seenry-bin-')), log = join(bin, 'calls.txt');
     writeFileSync(join(bin, 'claude'), `#!/bin/sh\necho "$@" >> "${log}"\n[ "$2" = "get" ] && exit 1\nexit 0\n`); chmodSync(join(bin, 'claude'), 0o755);
-    const env = {SEENRY_CONFIG_DIR: p.config, PATH: bin + delimiter + process.env.PATH};
+    // A fake home folder: library writes agents' own config files, and must never reach the real ones.
+    const home = mkdtempSync(join(tmpdir(), 'seenry-home-'));
+    const env = {SEENRY_CONFIG_DIR: p.config, PATH: bin + delimiter + process.env.PATH, HOME: home, USERPROFILE: home, CODEX_HOME: '', COPILOT_HOME: ''};
     assert.equal((await run(sync, ['library', '--agent', 'claude-code'], {cwd: p.root, env})).status, 2, 'asks to link first');
     assert.equal((await run(sync, ['link', '--server', seenry.url, '--interval', '0.05'], {cwd: p.root, env})).status, 0);
     if (process.platform !== 'win32') {
       const added = await run(sync, ['library', '--agent', 'claude-code'], {cwd: p.root, env});
       assert.equal(added.status, 0, added.err);
-      assert.match(added.out, /added to Claude Code/);
+      assert.match(added.out, /Claude Code: added for every project/);
       assert.ok(!(added.out + added.err).includes(seenry.libraryKey));
       assert.match(readFileSync(log, 'utf8'), new RegExp(`mcp add --transport http --scope user seenry http://mcp\\.seenry\\.test/pro --header Authorization: Bearer ${seenry.libraryKey}`));
     }
     const told = await run(sync, ['library', '--agent', 'codex'], {cwd: p.root, env});
     assert.equal(told.status, 0);
     assert.ok(told.out.includes(join(p.config, 'canvas-library-key')));
-    assert.match(told.out, /codex mcp add seenry --url http:\/\/mcp\.seenry\.test\/pro --bearer-token-env-var SEENRY_PRO_KEY/);
+    assert.match(told.out, /Codex: could not: it was not found on this computer\. By hand: add \[mcp_servers\.seenry\] with url = "http:\/\/mcp\.seenry\.test\/pro"/);
     assert.ok(!told.out.includes(seenry.libraryKey), 'the key itself is never printed');
 
     const taste = await run(sync, ['taste'], {cwd: p.root, env});

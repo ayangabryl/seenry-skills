@@ -6,7 +6,7 @@
  *  node sync.mjs link --code <setup code>   link at once with the one-time code a setup prompt copied from Seenry carries
  *  node sync.mjs link --start           print the link and code and return at once (for agents: show them, then run --finish)
  *  node sync.mjs link --finish [--wait 90]   complete a link begun with --start; exits 4 while it is still waiting for approval
- *  node sync.mjs library [--agent claude-code]   add the Seenry reference library (MCP) to your agent with this computer's key
+ *  node sync.mjs library [--agent <id>]  add the Seenry reference library (MCP) to every agent on this computer (or one)
  *  node sync.mjs taste                   print the person's taste file from their Seenry account (seenry's start.mjs prints it too)
  *  node sync.mjs push   [dir]            push the canvas once (only files whose content changed are uploaded)
  *  node sync.mjs watch  [dir]            push on every change and pull feedback as it arrives, until stopped
@@ -20,8 +20,8 @@
  * Plain Node 18+, no packages.
  */
 import {createHash} from 'node:crypto';
-import {existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, chmodSync, rmSync, realpathSync, openSync, readSync, closeSync} from 'node:fs';
-import {join, resolve, extname, basename, dirname, relative, sep} from 'node:path';
+import {existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, chmodSync, rmSync, realpathSync, openSync, readSync, closeSync, copyFileSync} from 'node:fs';
+import {join, resolve, extname, basename, dirname, relative, sep, delimiter, isAbsolute} from 'node:path';
 import {homedir, hostname} from 'node:os';
 import {spawnSync} from 'node:child_process';
 
@@ -337,7 +337,7 @@ function saveLink(server, data) {
   if (key) writePrivate(libraryKeyFile(), key + '\n'); else rmSync(libraryKeyFile(), {force: true});
   rmSync(pendingFile(), {force: true});
   console.log(`Linked ${data.machine.name} to ${data.account.email}. The token is in ${configFile()} (readable only by you).`);
-  if (key) console.log('The reference library is ready for this computer. Add it to your agent with: node sync.mjs library --agent <claude-code|codex|cursor|…>');
+  if (key) console.log('The reference library is ready for this computer. Add it to every agent on this computer with: node sync.mjs library');
   else if (data.library?.error) console.log(`The reference library was not connected: ${data.library.error}`);
 }
 
@@ -384,30 +384,157 @@ async function taste() {
   console.log((await response.text()).trim());
 }
 
+// ── The reference library in every agent on this computer ─────────────────────────────────────────────────────
+// Each entry is the agent's own user-level config, from its docs. Only home-level files are written, never a project's.
+const home = () => homedir();
+const onPath = name => (process.env.PATH || '').split(delimiter).some(d => d && ['', '.cmd', '.exe'].some(ext => existsSync(join(d, name + ext))));
+const codexHome = () => process.env.CODEX_HOME || join(home(), '.codex');
+const copilotHome = () => process.env.COPILOT_HOME || join(home(), '.copilot');
+const bearer = key => ({Authorization: `Bearer ${key}`});
+const AGENTS = [
+  {id: 'claude-code', name: 'Claude Code', aliases: ['claude'], found: () => onPath('claude') || existsSync(join(home(), '.claude')), add: addClaude,
+    manual: (url, keyPath) => `run claude mcp add --transport http --scope user seenry ${url} --header "Authorization: Bearer $(cat ${keyPath})"`},
+  {id: 'codex', name: 'Codex', found: () => existsSync(codexHome()), file: () => join(codexHome(), 'config.toml'), add: addCodex,
+    manual: (url, keyPath) => `add [mcp_servers.seenry] with url = "${url}" and http_headers = { Authorization = "Bearer <the key in ${keyPath}>" } to ${join(codexHome(), 'config.toml')}`},
+  {id: 'cursor', name: 'Cursor', found: () => existsSync(join(home(), '.cursor')), file: () => join(home(), '.cursor', 'mcp.json'), servers: 'mcpServers',
+    entry: (url, key) => ({url, headers: bearer(key)})},
+  {id: 'antigravity', name: 'Antigravity', found: () => ['antigravity', 'antigravity-cli', 'antigravity-ide', join('config', 'mcp_config.json')].some(d => existsSync(join(home(), '.gemini', d))),
+    file: () => join(home(), '.gemini', 'config', 'mcp_config.json'), servers: 'mcpServers', entry: (url, key) => ({serverUrl: url, headers: bearer(key)})},
+  {id: 'gemini-cli', name: 'Gemini CLI', aliases: ['gemini'], found: () => existsSync(join(home(), '.gemini', 'settings.json')) || onPath('gemini'),
+    file: () => join(home(), '.gemini', 'settings.json'), servers: 'mcpServers', entry: (url, key) => ({httpUrl: url, headers: bearer(key)})},
+  {id: 'github-copilot', name: 'GitHub Copilot (VS Code and CLI)', aliases: ['copilot', 'vscode'], found: () => existsSync(copilotHome()),
+    file: () => join(copilotHome(), 'mcp-config.json'), servers: 'mcpServers', entry: (url, key) => ({type: 'http', url, headers: bearer(key), tools: ['*']})},
+  {id: 'kimi-code-cli', name: 'Kimi Code', aliases: ['kimi', 'kimi-cli'], found: () => existsSync(join(home(), '.kimi')),
+    file: () => join(home(), '.kimi', 'mcp.json'), servers: 'mcpServers', entry: (url, key) => ({url, transport: 'http', headers: bearer(key)})},
+];
+for (const a of AGENTS) if (!a.add) { a.add = addJson; a.manual = (url, keyPath) => `add "seenry": ${JSON.stringify(a.entry(url, `<the key in ${keyPath}>`))} under "${a.servers}" in ${a.file()}`; }
+
+const tilde = path => { const h = home(), rel = relative(h, path); return rel && !rel.startsWith('..') && !isAbsolute(rel) ? join('~', rel) : path; };
+/** A config file the library may write: in the home folder, never inside the project this runs in. */
+function homeLevel(file) {
+  const cwd = process.cwd();
+  if (!isInside(file, home())) return `${tilde(file)} is outside your home folder`;
+  if (real(cwd) !== real(home()) && isInside(file, cwd)) return `${tilde(file)} would be inside this project`;
+  return '';
+}
+/** Copies the file before it changes (readable only by you: it may hold other keys), then writes it in place, so a linked dotfile stays linked. */
+function rewrite(file, text) {
+  let backup = '';
+  if (existsSync(file)) {
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*/, '');
+    backup = `${file}.seenry-backup-${stamp}`;
+    copyFileSync(file, backup); chmodSync(backup, 0o600);
+    writeFileSync(file, text);
+  } else {
+    mkdirSync(dirname(file), {recursive: true, mode: 0o700});
+    writeFileSync(file, text, {mode: 0o600});
+  }
+  if (process.platform !== 'win32' && (statSync(file).mode & 0o077) !== 0) chmodSync(file, 0o600);
+  return backup;
+}
+const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const usesVariable = text => /\$\{|\$[A-Z_]|\{env:/.test(text);
+
+function addJson(agent, url, key) {
+  const file = agent.file(), refused = homeLevel(file);
+  if (refused) return {state: 'could not', why: refused};
+  const text = existsSync(file) ? readFileSync(file, 'utf8') : '';
+  let data = {};
+  if (text.trim()) { try { data = JSON.parse(text); } catch { return {state: 'could not', why: `${tilde(file)} is not plain JSON (it may have comments), so it was left as it is`}; } }
+  if (!plain(data) || (data[agent.servers] !== undefined && !plain(data[agent.servers]))) return {state: 'could not', why: `${tilde(file)} has a layout this script does not know, so it was left as it is`};
+  const servers = data[agent.servers] || {}, existing = servers.seenry, wanted = agent.entry(url, key);
+  if (existing !== undefined) {
+    if (!plain(existing)) return {state: 'could not', why: `the "seenry" entry in ${tilde(file)} has a layout this script does not know`};
+    const at = existing.url || existing.serverUrl || existing.httpUrl || '';
+    if (at !== url) return {state: 'left', why: `${tilde(file)} already has a different MCP server named seenry (${at || 'no URL'}); remove it and run this again to replace it`};
+    const auth = plain(existing.headers) ? Object.entries(existing.headers).find(([k]) => k.toLowerCase() === 'authorization')?.[1] : undefined;
+    if (auth === `Bearer ${key}`) return {state: 'set', file};
+    if (typeof auth === 'string' && usesVariable(auth)) return {state: 'set', file, note: 'it reads the key from an environment variable'};
+    // Same server, new or missing key (a relink makes a new one): keep the entry's other settings, change the header.
+    const headers = Object.fromEntries(Object.entries(plain(existing.headers) ? existing.headers : {}).filter(([k]) => k.toLowerCase() !== 'authorization'));
+    servers.seenry = {...existing, headers: {...headers, ...wanted.headers}};
+  } else servers.seenry = wanted;
+  data[agent.servers] = servers;
+  const indent = (text.match(/\n([ \t]+)"/) || [])[1] || '  ';
+  const backup = rewrite(file, JSON.stringify(data, null, indent) + '\n');
+  return {state: existing ? 'updated' : 'added', file, backup};
+}
+
+/** Codex keeps TOML and this script reads no packages, so it only appends a new table, or swaps the key in its own line. */
+function addCodex(agent, url, key) {
+  const file = agent.file(), refused = homeLevel(file);
+  if (refused) return {state: 'could not', why: refused};
+  const text = existsSync(file) ? readFileSync(file, 'utf8') : '', lines = text.split('\n');
+  const named = String.raw`\s*mcp_servers\s*\.\s*(?:seenry|"seenry"|'seenry')\s*`;
+  const own = new RegExp(String.raw`^\s*\[${named}(?:\]|\.)`), table = /^\s*\[/;
+  const elsewhere = [new RegExp(`^${named}[.=]`), /^\s*mcp_servers\s*=/, /^\s*\[\s*mcp_servers\s*\]/];
+  if (lines.some(l => elsewhere.some(r => r.test(l)))) return {state: 'could not', why: `${tilde(file)} defines its MCP servers in a form this script does not edit, so it was left as it is`};
+  const mine = []; let inside = false;
+  lines.forEach((l, i) => { if (table.test(l)) inside = own.test(l); if (inside) mine.push(i); });
+  if (!mine.length) {
+    const block = `[mcp_servers.seenry]\nurl = ${JSON.stringify(url)}\nhttp_headers = { Authorization = ${JSON.stringify(`Bearer ${key}`)} }\n`;
+    const backup = rewrite(file, text + (text && !text.endsWith('\n') ? '\n' : '') + (text.trim() ? '\n' : '') + block);
+    return {state: 'added', file, backup};
+  }
+  const at = (mine.map(i => lines[i].match(/^\s*url\s*=\s*["']([^"']*)["']/)).find(Boolean) || [])[1] || '';
+  if (at !== url) return {state: 'left', why: `${tilde(file)} already has a different MCP server named seenry (${at || 'no URL'}); remove it and run this again to replace it`};
+  const authLines = mine.filter(i => /authorization/i.test(lines[i]));
+  if (authLines.some(i => lines[i].includes(`Bearer ${key}"`) || lines[i].includes(`Bearer ${key}'`))) return {state: 'set', file};
+  if (mine.some(i => /bearer_token_env_var|env_http_headers/.test(lines[i]))) return {state: 'set', file, note: 'it reads the key from an environment variable'};
+  const swap = authLines.filter(i => /Bearer [^"']*["']/.test(lines[i]));
+  if (swap.length !== 1) return {state: 'could not', why: `the seenry server in ${tilde(file)} has no Authorization header this script can update`};
+  lines[swap[0]] = lines[swap[0]].replace(/Bearer [^"']*(["'])/, (_, q) => `Bearer ${key}${q}`);
+  return {state: 'updated', file, backup: rewrite(file, lines.join('\n'))};
+}
+
+/** Claude Code has a command that takes the key directly, so it is run here and the key never reaches the chat. */
+function addClaude(agent, url, key) {
+  const claude = (...args) => spawnSync('claude', ['mcp', ...args], {encoding: 'utf8', stdio: 'pipe'});
+  const existing = claude('get', 'seenry');
+  if (existing.error) return {state: 'could not', why: 'the claude command was not found'};
+  // `get` prints the stored header, so its output is read here and never shown.
+  const said = String(existing.stdout);
+  if (existing.status === 0 && !said.includes(url)) return {state: 'left', why: 'Claude Code already has a different MCP server named seenry; remove it and run this again to replace it'};
+  if (existing.status === 0 && said.includes(`Bearer ${key}`)) return {state: 'set'};
+  if (existing.status === 0) claude('remove', 'seenry', '-s', 'user');
+  const added = claude('add', '--transport', 'http', '--scope', 'user', 'seenry', url, '--header', `Authorization: Bearer ${key}`);
+  return added.status === 0 ? {state: existing.status === 0 ? 'updated' : 'added'} : {state: 'could not', why: 'claude mcp add did not succeed'};
+}
+
 /**
- * Adds the reference library to an agent with this computer's key. Claude Code has a command that takes the key
- * directly, so it is run here and the key never reaches the chat. Other agents are told where the key is.
+ * Adds the reference library to every agent installed on this computer, or to the one --agent names. The key is read
+ * from the config folder and written only into each agent's own home-level config; it is never printed.
  */
 function library() {
   const config = requireConfig(), keyPath = libraryKeyFile(), url = config.library?.url || 'https://mcp.seenry.design/pro';
   const key = existsSync(keyPath) ? readFileSync(keyPath, 'utf8').trim() : '';
   if (!key) { console.log('Reference library: no key on this computer. One is created when a Seenry Pro account approves the link, so with Pro, run link again; without it, skip this step.'); return; }
-  const agent = String(flag('agent', '')).toLowerCase();
-  if (agent === 'claude-code') {
-    const claude = (...args) => spawnSync('claude', ['mcp', ...args], {encoding: 'utf8', stdio: 'pipe'});
-    const existing = claude('get', 'seenry');
-    if (!existing.error) {
-      // `get` prints the stored header, so its output is read here and never shown.
-      if (existing.status === 0 && !String(existing.stdout).includes(url)) { console.log('Reference library: Claude Code already has a different MCP server named seenry. It was left as it is; remove it and run this again to replace it.'); return; }
-      if (existing.status === 0) claude('remove', 'seenry', '-s', 'user');
-      const added = claude('add', '--transport', 'http', '--scope', 'user', 'seenry', url, '--header', `Authorization: Bearer ${key}`);
-      if (added.status === 0) { console.log('Reference library: added to Claude Code for every project (MCP server "seenry"). Start a new session, or run /mcp, to load it.'); return; }
-    }
+  const asked = String(flag('agent', 'all')).toLowerCase();
+  const chosen = asked === 'all' ? null : AGENTS.find(a => a.id === asked || a.aliases?.includes(asked));
+  const general = () => {
+    console.log(`Add an MCP server named "seenry" at ${url} with the header "Authorization: Bearer <the key in ${keyPath}>" to the agent's user-level settings.`);
+    console.log('Keep the key out of the chat and out of project files.');
+  };
+  if (asked !== 'all' && !chosen) {
+    console.log(`Reference library: "${asked}" is not one this script can set up (${AGENTS.map(a => a.id).join(', ')}).`);
+    general(); return;
   }
-  console.log(`Reference library: this computer's key is in ${keyPath} (readable only by you).`);
-  console.log(`Add an MCP server named "seenry" at ${url} with the header "Authorization: Bearer <the key in that file>".`);
-  console.log(`Codex: add export SEENRY_PRO_KEY="$(cat ${keyPath})" to your shell profile, then run codex mcp add seenry --url ${url} --bearer-token-env-var SEENRY_PRO_KEY`);
-  console.log('Keep the key out of the chat and out of project files.');
+  const targets = chosen ? [chosen] : AGENTS.filter(a => a.found()), missing = chosen ? [] : AGENTS.filter(a => !targets.includes(a));
+  console.log(`Reference library (MCP server "seenry", ${url}):`);
+  if (!targets.length) { console.log('  No agent this script knows was found on this computer.'); general(); return; }
+  for (const agent of targets) {
+    let result;
+    if (chosen && agent.id !== 'claude-code' && !agent.found()) result = {state: 'could not', why: 'it was not found on this computer'};
+    else { try { result = agent.add(agent, url, key); } catch (error) { result = {state: 'could not', why: String(error.message || error).split(key).join('<key>')}; } }
+    const where = preposition => result.file ? ` ${preposition} ${tilde(result.file)}` : agent.id === 'claude-code' ? ' for every project' : '';
+    if (result.state === 'added' || result.state === 'updated') {
+      console.log(`  ${agent.name}: ${result.state === 'added' ? 'added' : 'key updated'}${where(result.state === 'added' ? 'to' : 'in')}${result.backup ? ` (backup: ${tilde(result.backup)})` : ''}. Restart it to load the server.`);
+    } else if (result.state === 'set') console.log(`  ${agent.name}: already set${where('in')}${result.note ? `; ${result.note}` : ''}.`);
+    else if (result.state === 'left') console.log(`  ${agent.name}: left as it is: ${result.why}.`);
+    else console.log(`  ${agent.name}: could not: ${result.why}. By hand: ${agent.manual(url, keyPath)}.`);
+  }
+  if (missing.length) console.log(`Not found on this computer: ${missing.map(a => a.name).join(', ')}. For any other agent, add the same server by hand.`);
+  console.log(`The key stays in ${keyPath} (readable only by you) and was not printed.`);
 }
 
 async function status() {
@@ -417,7 +544,7 @@ async function status() {
   const key = existsSync(dir) ? localKey() : null, here = data.canvases.find(c => c.localKey === key);
   if (json) { console.log(JSON.stringify({...data, server: config.server, canvas: here || null}, null, 2)); return; }
   console.log(`Linked as ${data.machine.name} to ${data.account.email} on ${config.server}`);
-  console.log(existsSync(libraryKeyFile()) ? 'Reference library: this computer has a key (node sync.mjs library adds it to your agent).' : 'Reference library: no key on this computer.');
+  console.log(existsSync(libraryKeyFile()) ? 'Reference library: this computer has a key (node sync.mjs library adds it to every agent on this computer).' : 'Reference library: no key on this computer.');
   if (here) console.log(`This canvas: ${here.title}, ${here.screens} screens, last pushed ${new Date(here.pushedAt).toLocaleString()}${here.pending ? `, ${here.pending} feedback waiting (run pull)` : ''}\n${here.url}`);
   else console.log(existsSync(dir) ? 'This canvas is not online yet. Run: node sync.mjs push' : `No canvas at ${dir}.`);
   if (data.canvases.length > (here ? 1 : 0)) console.log(`${data.canvases.length} canvas${data.canvases.length === 1 ? '' : 'es'} from this machine are online.`);

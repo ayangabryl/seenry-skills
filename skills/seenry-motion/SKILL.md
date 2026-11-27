@@ -4,7 +4,7 @@ description: "Builds and fixes interface animation, and decides when nothing sho
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.7.0"
+  version: "3.8.0"
 ---
 
 # Seenry Motion
@@ -35,7 +35,7 @@ Reuse the project's tokens when they hold these numbers; never invent a curve.
 | Element | Enter | Exit | Curve | Starts from |
 | --- | --- | --- | --- | --- |
 | Press | 80ms | 120ms | out | `scale: 0.97` |
-| Hover tint, colour | 120ms | 120ms | fade | colour only, never position |
+| Hover tint, colour | 120ms | 120ms | fade | colour only, never position; no hover shadow, lift or scale unless the person asks |
 | Tooltip | 120ms after 400ms dwell | 80ms | out | `opacity: 0; scale: 0.97`, trigger side |
 | Menu, dropdown, popover | 180ms | 100ms | out | `opacity: 0; scale: 0.96; translate: 0 -4px`, trigger corner |
 | Dialog | 240ms | 140ms | out | `opacity: 0; scale: 0.96`, centre |

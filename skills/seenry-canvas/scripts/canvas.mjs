@@ -43,7 +43,8 @@
  *  node canvas.mjs link   [dir]            link this machine to Seenry (sync.mjs link), then sync the canvas in the background
  *  node canvas.mjs link --code <setup code>  link at once with the one-time code from a setup prompt copied inside Seenry
  *  node canvas.mjs link --start | --finish  for agents: --start prints the link and code and returns at once; --finish completes it
- *  node canvas.mjs library [--agent claude-code]   add the Seenry reference library (MCP) to your agent (sync.mjs library)
+ *  node canvas.mjs library [--agent <id>]  add the Seenry reference library (MCP) to every agent on this computer, or one
+ *  node canvas.mjs update [dir]           update Seenry's skills and the other installed skills, restart a running canvas
  *  node canvas.mjs taste                   print the person's taste file from their Seenry account (sync.mjs taste)
  *  node canvas.mjs sync   [push|pull|status|unlink] [dir]   pass through to sync.mjs; with none, start the background watch
  *  node canvas.mjs stop   [dir]            stop the canvas and its sync
@@ -450,12 +451,12 @@ function syncInfo() {
   return {available: existsSync(syncScript), linked: !!config, watching: !!watching, server: config ? String(config.server || '') : '', account: config?.account?.email || '', url: watching?.url || ''};
 }
 /** Starts sync.mjs watch in the background when this machine is linked and nothing watches this canvas yet. */
-function startSync() {
-  if (!existsSync(syncScript) || !syncConfig()) return null;
+function startSync(script = syncScript) {
+  if (!existsSync(script) || !syncConfig()) return null;
   const was = syncWatching(); if (was) return was;
   mkdirSync(dir, {recursive: true});
   const log = openSync(join(dir, '.sync.log'), 'a');
-  const child = spawn(process.execPath, [syncScript, 'watch', dir], {detached: true, stdio: ['ignore', log, log]});
+  const child = spawn(process.execPath, [script, 'watch', dir], {detached: true, stdio: ['ignore', log, log]});
   child.unref();
   writeFileSync(syncFile(), JSON.stringify({pid: child.pid, started: new Date().toISOString()}));
   return {pid: child.pid, started: true};
@@ -3140,6 +3141,89 @@ function markShown() {
 }
 
 /** The running canvas server, started in the background when there is none. */
+// ---------- update: the skills installer brings the new files, then a running canvas restarts on them ----------
+/** npx, or the script in SEENRY_NPX run with this Node (the tests' stand-in). Never waits on a prompt. */
+function npx(args) {
+  const fake = process.env.SEENRY_NPX, windows = process.platform === 'win32';
+  return spawnSync(fake ? process.execPath : windows ? 'npx.cmd' : 'npx', fake ? [fake, ...args] : args,
+    {encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], shell: !fake && windows, timeout: 10 * 60 * 1000, maxBuffer: 64 * 1024 * 1024});
+}
+/** Each installed skill's version (metadata.version) and a hash of its files, so a skill without a version still shows a change. */
+function skillState(path) {
+  let text = ''; try { text = readFileSync(join(path, 'SKILL.md'), 'utf8'); } catch { return null; }
+  const front = text.startsWith('---') ? text.slice(3, text.indexOf('\n---', 3)) : '';
+  const version = (front.match(/^\s*version:\s*["']?([^"'\s]+)/m) || [])[1] || '';
+  const hash = createHash('sha256'), files = [];
+  const walk = (folder, depth) => {
+    if (depth > 6 || files.length > 4000) return;
+    let entries = []; try { entries = readdirSync(folder, {withFileTypes: true}); } catch { return; }
+    for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (e.name === 'node_modules' || e.name === '.git') continue;
+      const full = join(folder, e.name);
+      let info; try { info = statSync(full); } catch { continue; }
+      if (info.isDirectory()) walk(full, depth + 1); else if (info.isFile()) files.push(full);
+    }
+  };
+  walk(path, 0);
+  for (const file of files) { hash.update(relative(path, file)); try { hash.update(readFileSync(file)); } catch {} }
+  return {path, version, hash: hash.digest('hex')};
+}
+/** The globally installed skills, from the installer; this skill's own siblings when the installer cannot list them. */
+function installedSkills() {
+  const skills = new Map();
+  const listed = npx(['-y', 'skills', 'ls', '-g', '--json']);
+  try { for (const s of JSON.parse(listed.stdout)) if (s?.name && s.path) skills.set(s.name, s.path); } catch {}
+  const root = resolve(here, '..', '..');
+  try { for (const name of readdirSync(root)) if (/^seenry(-|$)/.test(name) && !skills.has(name) && existsSync(join(root, name, 'SKILL.md'))) skills.set(name, join(root, name)); } catch {}
+  const out = new Map();
+  for (const [name, path] of skills) { const state = skillState(path); if (state) out.set(name, state); }
+  return out;
+}
+const alive = pid => { try { process.kill(pid, 0); return true; } catch { return false; } };
+async function update() {
+  const before = installedSkills();
+  console.log(`Updating ${before.size || 'the'} installed skill${before.size === 1 ? '' : 's'} (npx skills update -g -y)…`);
+  const run = npx(['-y', 'skills', 'update', '-g', '-y']);
+  if (run.error || run.status !== 0) {
+    const said = `${run.stderr || ''}${run.stdout || ''}`.trim().split('\n').slice(-8).join('\n');
+    console.error(`The update did not finish${run.error ? ` (${run.error.code === 'ENOENT' ? 'npx was not found: install Node 18 or newer' : run.error.message})` : ''}. Nothing was restarted.${said ? `\n${said}` : ''}`);
+    return 1;
+  }
+  const after = installedSkills(), changed = [];
+  for (const [name, now] of after) {
+    const was = before.get(name);
+    if (!was) changed.push(`${name}: new${now.version ? ` (${now.version})` : ''}`);
+    else if (was.version !== now.version) changed.push(`${name} ${was.version || '?'} → ${now.version || '?'}`);
+    else if (was.hash !== now.hash) changed.push(`${name}: updated`);
+  }
+  for (const line of changed) console.log(`  ${line}`);
+  const same = after.size - changed.length;
+  console.log(changed.length ? `${changed.length} updated${same ? `, ${same} already current` : ''}.` : `Everything was already current (${after.size} skill${after.size === 1 ? '' : 's'}).`);
+
+  // The running canvas is old code in memory: restart it on the installed script, on the same port, once the old one is gone.
+  const info = running(), canvasDir = after.get('seenry-canvas')?.path, script = canvasDir && existsSync(join(canvasDir, 'scripts', 'canvas.mjs')) ? join(canvasDir, 'scripts', 'canvas.mjs') : fileURLToPath(import.meta.url);
+  const stale = info && (changed.some(l => l.startsWith('seenry-canvas')) || mtime(script) > mtime(pidFile));
+  if (!info) console.log(`No canvas is running in ${dir}, so nothing needed a restart.`);
+  else if (!stale) console.log(`The canvas at http://127.0.0.1:${info.port}/ already runs the current code.`);
+  else {
+    const watching = syncWatching();
+    if (watching) stopSync();
+    try { process.kill(info.pid); } catch {}
+    for (let i = 0; i < 50 && alive(info.pid); i++) await new Promise(r => setTimeout(r, 100));
+    if (alive(info.pid)) { console.error(`The canvas (pid ${info.pid}) did not stop, so it still runs the old code. Run "canvas.mjs stop", then "canvas.mjs open".`); return 1; }
+    rmSync(pidFile, {force: true});
+    const log = openSync(join(dir, '.canvas.log'), 'a');
+    spawn(process.execPath, [script, 'serve', dir, '--port', String(info.port)], {detached: true, stdio: ['ignore', log, log]}).unref();
+    let now = null;
+    for (let i = 0; i < 50 && !(now = running()); i++) await new Promise(r => setTimeout(r, 100));
+    if (watching) startSync(join(dirname(script), 'sync.mjs'));
+    if (!now) { console.error(`The canvas did not come back. See ${join(dir, '.canvas.log')}, then run "canvas.mjs open".`); return 1; }
+    console.log(`Restarted the canvas on the new code: http://127.0.0.1:${now.port}/${now.port === info.port ? '' : ' (a new port: reload the pane at this address)'}. Your screens and feedback are as they were.${watching ? ' Sync to Seenry restarted too.' : ''}`);
+  }
+  if (changed.length) console.log('Start a new agent session to load the new skill instructions.');
+  return 0;
+}
+
 async function startServer() {
   if (!existsSync(dir)) init();
   let info = running();
@@ -3787,6 +3871,8 @@ if (command === 'init') {
   if (sub === 'unlink') process.exit(0);
   const synced = startSync();
   console.log(synced ? `Syncing ${dir} to Seenry in the background (log: ${join(dir, '.sync.log')}). "canvas.mjs stop" stops it.` : 'This machine is not linked to Seenry. Run: node canvas.mjs link');
+} else if (command === 'update') {
+  process.exit(await update());
 } else if (command === 'feedback' || command === 'wait') {
   const path = join(dir, 'feedback.json'), deliveredFile = join(dir, '.delivered.json');
   const newest = () => { const s = readState(); return Math.max(mtime(join(dir, 'canvas.json')), ...s.sections.flatMap(x => x.frames.map(f => f.rev)), 0); };
@@ -3843,5 +3929,5 @@ if (command === 'init') {
   markShown();
   console.log(`Wrote ${join(dir, 'canvas.png')}`);
 } else {
-  console.error('Usage: node canvas.mjs init|plan|say|problems|open|link|sync|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
+  console.error('Usage: node canvas.mjs init|plan|say|problems|open|link|library|update|sync|wait|feedback|list|check|render|tree|verify|diff|compare|pair|round|status|resolve|archive|log|handoff|static|shot|serve|stop'); process.exit(2);
 }
