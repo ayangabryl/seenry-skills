@@ -4,7 +4,7 @@ description: "Reviews one screen, component or UI diff and returns ranked findin
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.8.0"
+  version: "3.8.1"
 ---
 
 # Seenry Review
@@ -61,7 +61,7 @@ Report what you can show: a measurement, a screenshot, a failing check, a rule w
    - **Layout.** Shared content edges, section rhythm, grouping (2x rule), reading order, phone reflow.
    - **Type.** Family count, sizes and weights per component and page, display weight and tracking, line length, wrapping.
    - **Color and surface.** Accent area and roles, contrast, elevation choices, radius family and concentricity.
-   - **Components and states.** Hover, focus, active, disabled, loading, empty, error, overflow.
+   - **Components and states.** Hover, focus, active, disabled, loading, empty, error, overflow. Hover changes colour only and press is a small scale on real controls; a hover lift, scale or new shadow, or a heavy pressed style, is a finding unless the person asked for it ([design practices](../seenry/references/design-practices.md#hover-and-press)).
    - **Content.** Specific or generic copy, realistic data, claims with proof.
    - **Accessibility.** Keyboard path, focus visibility, names, contrast, targets, zoom, reduced motion.
 4. **Compare** against a reference when useful: with Seenry MCP, pull the same page type from 2–3 strong sites (`search_references` with `page_type`, or `list_sites` + `get_design`) and name the specific relationship that differs. See [benchmarks](../seenry/references/benchmarks.md).
