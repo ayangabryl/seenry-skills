@@ -72,6 +72,19 @@ python3 scripts/install.py --project . --remove-instructions --apply
 
 `--no-instructions` skips the index. Global files (`~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`) change only with `--global-instructions`. [evals/always-on](evals/always-on) measures how often the agent loads the skill with and without the index.
 
+## Companion skills
+
+Seenry works alone, and also alongside specialist skills by other authors. Install them from their own repositories; Seenry never bundles them. [Companions](skills/seenry/references/companions.md) says which skill leads each step when both are installed (Seenry runs the brief, canvas, references and checks; a companion handles the one job it is best at), and that a missing companion never blocks.
+
+```sh
+npx skills add emilkowalski/skills --skill animate animate-expo animation-performance animation-vocabulary apple-design ask-emil ask-sonner break-ui choreograph emil-design-eng find-animation-opportunities gestures improve-animations learn-taste mobile-native pick-ui-library prototype remove-animations review-animations write-swift
+npx skills add Jakubantalik/transitions.dev --skill transitions-dev transitions-polish
+npx skills add Jakubantalik/Libraries.dev --skill libraries-dev
+npx skills add jakubkrehel/skills --skill better-typography better-colors better-layout better-accessibility better-writing better-ui
+```
+
+Each repository keeps its own license and terms.
+
 ## Seenry MCP
 
 The read-only Seenry MCP at `https://mcp.seenry.design` serves captured websites and sections, measured CSS evidence, recordings, and iOS app screens and flows. It needs a Seenry Pro key sent as `Authorization: Bearer <key>`; the server does not offer OAuth sign-in. [.mcp.json](.mcp.json) reads the key from the `SEENRY_PRO_KEY` environment variable. Without MCP the skills fall back to the bundled benchmarks and ordinary browsing.

@@ -502,18 +502,18 @@ test('in an agent app\'s pane the canvas follows the host theme and drops its ow
   const {dir} = project();
   const {page, errors} = await canvasPage(t, dir, {width: 1200, colorScheme: 'dark', query: '?embed=1'});
   await page.waitForSelector('.frame iframe');
-  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(0.13 0.003 270)', 'the canvas is graphite with the host');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(0.165 0.006 265)', 'the canvas is dark with the host');
   assert.equal(await page.locator('#side .sb-head b').isVisible(), false, 'no second title bar');
   assert.equal(await page.locator('#side').isVisible(), false, 'the screen list starts closed in a pane');
   await page.waitForFunction(() => document.querySelector('.frame[data-id="01-flow/01-good"] iframe').contentDocument?.documentElement.dataset.theme === 'dark');
   await page.emulateMedia({colorScheme: 'light'});
   await page.waitForFunction(() => document.querySelector('.frame[data-id="01-flow/01-good"] iframe').contentDocument.documentElement.dataset.theme !== 'dark');
-  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(0.955 0.002 270)');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(1 0 0)');
   await page.setViewportSize({width: 900, height: 900});
   await page.waitForFunction(() => document.body.dataset.narrow === 'true', null, {timeout: 3000});
   // ?theme= wins over the host.
   await page.goto(page.url().replace('?embed=1', '?embed=1&theme=dark'));
   await page.waitForSelector('#stage iframe');
-  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(0.13 0.003 270)');
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'oklch(0.165 0.006 265)');
   assert.deepEqual(errors, []);
 });

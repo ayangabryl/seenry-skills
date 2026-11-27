@@ -4,7 +4,7 @@ description: "Designs and builds a web page, site, dashboard or product screen f
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.6.1"
+  version: "3.7.0"
 ---
 
 # Seenry
@@ -81,6 +81,8 @@ The full process, only when asked for: `--studio` on both commands adds a writte
 | "Audit" or "polish" the whole app | `seenry-audit` | `plans/` | Run the plans |
 | A native mobile app; a product film | `seenry-apps`; `seenry-video` | | |
 
+Skills by other authors (Emil Kowalski, Jakub Krehel, transitions.dev, Libraries.dev) may be installed beside these. [Companions](references/companions.md) says which one leads each step; a missing companion never blocks.
+
 ## Report
 
 ```
@@ -106,3 +108,5 @@ Assumed:   every fact you supplied that the person should replace
 | Where components come from, stack choices | [building](references/building.md), [stack](references/stack.md) |
 | Replicas, surfaces in an existing app | [replication](references/replication.md), [surfaces](references/surfaces.md) |
 | A design sheet, only when asked | [sheet](references/sheet.md) |
+| A companion skill is installed, or the person names one | [companions](references/companions.md) |
+| Practices people sent pages back for (one hue, text on photos, swaps, widths) | [design practices](references/design-practices.md), before step 5 and again at step 9 |

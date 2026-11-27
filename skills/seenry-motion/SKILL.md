@@ -4,7 +4,7 @@ description: "Builds and fixes interface animation, and decides when nothing sho
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.6.1"
+  version: "3.7.0"
 ---
 
 # Seenry Motion
@@ -126,3 +126,4 @@ The script prints the measured and the allowed value per finding: `ease-in`, a d
 | Designing a control no library has | [interaction craft](references/interaction-craft.md) |
 | Asked why a value is what it is (measured from shipped products) | [production motion](references/production-motion.md) |
 | React Native or Expo | [Expo motion](../seenry-apps/references/expo-motion.md) |
+| `animate`, `choreograph`, `transitions-dev` or another motion skill is installed | [companions](../seenry/references/companions.md): this skill keeps the gate, `MOTION.md` and the score |

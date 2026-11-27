@@ -15,6 +15,10 @@ Lucide are held by Lucide Contributors 2022. The status convention (one
 icon and one short word per state) follows T3 Code
 (https://github.com/pingdotgg/t3code, MIT License).
 
+The canvas interface is set in Inter, Copyright 2016 The Inter Project
+Authors, SIL Open Font License 1.1; the license sits beside the font in
+skills/seenry-canvas/assets/fonts.
+
 "Seenry" and the Seenry logo are trademarks of Seenry. This license does
 not grant permission to use them, except as required to describe the
 origin of the work.

@@ -586,7 +586,7 @@ test('every screen shows one status, the way T3 Code shows a thread: an icon and
   assert.match(code, /function statusOf\(f\)/);
 });
 
-test('the pane is set in Marks: Switzer from Fontshare, a header with the project, notes pinned on the frame, no prompt box', async t => {
+test('the pane is set in Calm: Inter shipped with the skill, a header with the project, notes pinned on the frame, no prompt box', async t => {
   const {dir} = project();
   const port = 4900 + Math.floor(Math.random() * 300);
   const server = spawn(process.execPath, [script, 'serve', dir, '--port', String(port)], {stdio: 'pipe'});
@@ -594,9 +594,12 @@ test('the pane is set in Marks: Switzer from Fontshare, a header with the projec
   await started(server);
   const actual = JSON.parse(readFileSync(join(dir, '.canvas.json'), 'utf8')).port;
   const html = (await call(actual, '/')).body;
-  assert.match(html, /<link rel="stylesheet" href="https:\/\/api\.fontshare\.com\/v2\/css\?f\[\]=switzer@/, 'Switzer loads from Fontshare\'s own link');
-  assert.doesNotMatch(html, /@font-face \{ font-family: "Switzer"/, 'Switzer is never bundled: its licence does not allow redistribution');
-  assert.match(html, /--font: "Switzer", system-ui/, 'offline it falls back to the system face');
+  assert.doesNotMatch(html, /fontshare\.com/, 'no font is fetched from a third party');
+  assert.match(html, /@font-face \{ font-family: "Inter"; src: url\("\/_seenry\/fonts\/Inter-latin-opsz\.woff2"\)/, 'Inter (OFL) ships with the skill');
+  assert.match(html, /--font: "Inter", system-ui/, 'offline it falls back to the system face');
+  const font = await call(actual, '/_seenry/fonts/Inter-latin-opsz.woff2');
+  assert.equal(font.status, 200, 'the canvas serves the bundled Inter');
+  assert.equal((await call(actual, '/_seenry/fonts/Inter-LICENSE.txt')).status, 404, 'and nothing else from the fonts folder');
   assert.match(html, /<header id="pane-head"><span id="proj"><\/span>/, 'the pane opens with the project and its section');
   assert.match(html, /body\[data-narrow="true"\] #composer \{ display: none; \}/, 'no prompt box in the pane');
   assert.match(html, /#composer \.txt \{ display: none; \}/, 'no prompt box on the board either: notes are pinned');

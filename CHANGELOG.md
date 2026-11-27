@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.7.0
+
+### Companions
+
+- **Seenry works beside other authors' skills.** Emil Kowalski's skills, Jakub Krehel's `better-*` skills, transitions.dev and Libraries.dev can be installed next to Seenry from their own repositories; the README gives the commands. [`references/companions.md`](skills/seenry/references/companions.md) names the skill that leads each step and what the companion adds: Seenry keeps the brief, canvas, references, `MOTION.md` and the checks, and a companion does the one job it is best at. One skill writes each thing; `break-ui` and `seenry-break` never both run, and `ask-emil` is never invoked inside a Seenry run. A companion that is not installed never blocks: the Seenry skill covers the step. Nothing from the companions is copied into this repository.
+- **Pointers where the overlap is.** `seenry-motion`, `seenry-craft`, `seenry-libraries` and `seenry-review` each name their companions and say who leads.
+
+### Practices
+
+- **[`references/design-practices.md`](skills/seenry/references/design-practices.md).** What pages were sent back for, as checkable rules: one hue per page, no colour field behind pictures, text on photos that passes contrast, swaps that move only the content, blur only on the changing words, clean example work, one headline and one picture per screen, little text on marketing pages, real proof only, official marks on sign-in buttons, and checks at 1440, about 1057 and 390 and in dark mode.
+
+### Canvas
+
+- **The canvas shows the current round.** When a new round replaces options nobody picked, the agent archives the old ones with `archive <section>/<screen> --reason "…"`, so the person sees only the current round and the approved screens. Screens are named by what they are, never by round or version.
+- **The canvas wears Seenry's Calm look.** Its own interface (board, toolbar, section and screen names, pick buttons, comments, status, archive) now uses one neutral ink, Inter at medium weight (OFL, shipped in `assets/fonts` and served by the canvas, so nothing loads from a font host), pill buttons, statuses as short words in pills and a 2 px ink ring on the picked screen, in light and dark. Archived screens fold behind one "Archived (n)" line at the foot of the board. The screens themselves render untouched.
+- Canvas: arrows between screens come only from links in the content, not from a shared sidebar, header or tab bar, so the board no longer fills with lines.
+
 ## 3.6.1
 
 ### Taste
