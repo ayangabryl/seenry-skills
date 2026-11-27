@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.8.1
+
+- **Hover findings in review and audit.** `seenry-review` and `seenry-audit` now report a hover that lifts, grows, tilts or adds a drop shadow, a decorative hover animation, and a heavy pressed style, unless the person asked for it. `seenry-craft` cards fill one surface step on hover instead of lifting, and the audit's hover example changes colour instead of scale, so no skill contradicts the hover rule from 3.8.0.
+
 ## 3.8.0
 
 ### Setup

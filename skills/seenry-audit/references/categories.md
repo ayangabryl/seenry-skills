@@ -26,7 +26,7 @@ Every animation answers "why does this move?": feedback, orientation, state, con
 | Occasional: dialogs, drawers, toasts | Standard animation |
 | Rare: onboarding, success, celebration | May delight |
 
-Look for motion on keyboard-triggered actions, command menus with open and close transitions, and decoration on rows and hovers hit constantly. The strongest fix is often to delete it. Full tree: [gate](../../seenry-motion/references/gate.md).
+Look for motion on keyboard-triggered actions, command menus with open and close transitions, and decoration on rows and hovers hit constantly. A hover that lifts, grows, tilts or adds a drop shadow, a decorative hover animation, and a heavy pressed style (ripple, deep inset, colour flash) are findings unless the person asked for them: hover is a colour or opacity change, press a 0.97 scale on real controls. The strongest fix is often to delete it. Full tree: [gate](../../seenry-motion/references/gate.md).
 
 ## 2. Easing and duration
 
@@ -84,7 +84,7 @@ Look for the above, plus `setProperty('--x', …)` in drag handlers and rAF loop
   .el { transition: opacity 0.2s ease; } /* keep opacity, drop movement */
 }
 @media (hover: hover) and (pointer: fine) {
-  .el:hover { scale: 1.02; } /* touch fires false hovers */
+  .el:hover { background: var(--surface-2); } /* colour only; touch fires false hovers */
 }
 ```
 
