@@ -601,6 +601,9 @@ function linksOf(folder, file, root = dir) {
   let text = '';
   try { text = readFileSync(join(root, folder, file), 'utf8').slice(0, 400000); } catch { return []; }
   if (root !== dir) return [];
+  // Links in the app's chrome (sidebar, header, tab bar, footer) reach every screen; drawn, they cover the board in lines.
+  // Only links in the content are flow.
+  text = text.replace(/<(nav|aside|header|footer)\b[\s\S]*?<\/\1>/gi, '');
   const out = new Set();
   for (const m of text.matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"'#?]+\.html)(?:[#?][^"']*)?["']/gi)) {
     if (/^[a-z]+:/i.test(m[1]) || m[1].startsWith('/')) continue;
