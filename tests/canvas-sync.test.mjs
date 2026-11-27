@@ -298,7 +298,10 @@ test('library adds the server to Claude Code itself and says how to add it to an
     // A fake home folder: library writes agents' own config files, and must never reach the real ones.
     const home = mkdtempSync(join(tmpdir(), 'seenry-home-'));
     const env = {SEENRY_CONFIG_DIR: p.config, PATH: bin + delimiter + process.env.PATH, HOME: home, USERPROFILE: home, CODEX_HOME: '', COPILOT_HOME: ''};
-    assert.equal((await run(sync, ['library', '--agent', 'claude-code'], {cwd: p.root, env})).status, 2, 'asks to link first');
+    const unlinked = await run(sync, ['library', '--agent', 'claude-code'], {cwd: p.root, env});
+    assert.equal(unlinked.status, 0, 'a computer with no link still gets the always-on instructions');
+    assert.match(unlinked.out, /Claude Code: added to ~[^\n]*CLAUDE\.md[\s\S]*not linked to Seenry, so no MCP server was added/);
+    assert.ok(existsSync(join(home, '.claude', 'CLAUDE.md')));
     assert.equal((await run(sync, ['link', '--server', seenry.url, '--interval', '0.05'], {cwd: p.root, env})).status, 0);
     if (process.platform !== 'win32') {
       const added = await run(sync, ['library', '--agent', 'claude-code'], {cwd: p.root, env});

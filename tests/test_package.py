@@ -1,5 +1,7 @@
 import importlib.util
+import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -177,6 +179,23 @@ class AgentInstructions(unittest.TestCase):
         self.assertEqual([f.name for f, _ in installer.instruction_targets(self.project)], ['AGENTS.md'])
         names = [f.relative_to(home).as_posix() for f, _ in installer.instruction_targets(home=home)]
         self.assertEqual(names, ['.codex/AGENTS.md', '.claude/CLAUDE.md'])
+
+@unittest.skipUnless(shutil.which('node'), 'needs Node')
+class CanvasWritesTheInstallersBlock(unittest.TestCase):
+    # canvas.mjs library and update write the always-on block through sync.mjs; with a different text the two tools
+    # would rewrite each other's block on every run.
+    def test_sync_mjs_block_is_install_py_block(self):
+        with tempfile.TemporaryDirectory() as temp:
+            home = Path(temp)
+            (home / '.claude').mkdir()
+            env = {**os.environ, 'HOME': str(home), 'USERPROFILE': str(home), 'CODEX_HOME': '', 'COPILOT_HOME': '',
+                   'SEENRY_CONFIG_DIR': str(home / 'config'), 'PATH': str(home / 'bin')}
+            sync = ROOT / 'skills/seenry-canvas/scripts/sync.mjs'
+            done = subprocess.run([shutil.which('node'), str(sync), 'instructions'], cwd=home, env=env,
+                                  capture_output=True, text=True, timeout=60)
+            self.assertEqual(done.returncode, 0, done.stderr)
+            written = (home / '.claude/CLAUDE.md').read_text(encoding='utf-8')
+            self.assertEqual(written, installer.index_block((ROOT / 'skills').as_posix()) + '\n')
 
 if __name__ == '__main__':
     unittest.main()

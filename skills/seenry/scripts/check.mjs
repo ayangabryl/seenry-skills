@@ -233,6 +233,8 @@ const canvasManifest = existsSync(join(canvasDir, 'canvas.json')) ? (() => { try
 const canvasReview = existsSync(join(canvasDir, 'review.json')) ? (() => { try { return JSON.parse(readFileSync(join(canvasDir, 'review.json'), 'utf8')); } catch { return {}; } })() : {};
 const approvedScreens = Object.values(canvasReview.frames || {}).filter(f => f && f.status === 'approved').length;
 const unattended = canvasManifest.unattended?.reason || '';
+// The person said to skip the canvas ("just build it"): the brief records it, and no pick is asked for.
+const skipped = briefFile ? ((readFileSync(briefFile, 'utf8').match(/^[ \t>*_-]*Canvas:[ \t*_]*skipped\b[ \t:,.-]*(.*)$/mi) || [])[1] ?? null) : null;
 // The person is the judge. Model judges (the blind critic, the detail, choreography, motion and photo judges, the pair
 // verdicts) and the written teardown run only with --studio, or when nobody can review: an unattended run recorded on
 // the canvas. Native screens have no DOM for the board to check, so they are always judged.
@@ -275,7 +277,7 @@ const missing = [
   studio && teardownGaps.length && `teardown: ${teardownFile} ${teardownGaps.join('; ')}. Open every reference at full size, crop its product UI and its second section, and write the counts and measurements (references/execution-bar.md)`,
   studio && studied >= 2 && !composed && `composition: write ${join(dir, 'compose.md')} naming, for each option and section, two or three references, the principle and numbers taken from each, and the product's own idea`,
   !native && !tokensFound && `tokens: no tokens.css in ${canvasDir} or the project; set the type and color system (seenry-identity) before building`,
-  !native && existsSync(canvasDir) && !approvedScreens && !picked && !unattended && `approval: no option is picked and no screen is approved on the canvas. Show the options to the person (canvas.mjs open, then wait), or for a run with nobody to review record it: node ${canvasScript} round "<what you chose and why>" --unattended "<why nobody can review>"`,
+  !native && existsSync(canvasDir) && !approvedScreens && !picked && !unattended && skipped === null && `approval: no option is picked and no screen is approved on the canvas. Show the options to the person (canvas.mjs open, then wait), or for a run with nobody to review record it: node ${canvasScript} round "<what you chose and why>" --unattended "<why nobody can review>"; when the person said to skip the canvas, write the line Canvas: skipped "<their words>" in the brief`,
   native && !video && 'motion recording: record the interactions (xcrun simctl io booted recordVideo rec.mov, or adb shell screenrecord) and pass --video rec.mov',
   ...pairVerdicts.map(m => `pair: ${m}`),
   ...motionGaps(),
@@ -366,11 +368,13 @@ if (blockers) {
   process.exit(1);
 }
 
+const skippedLine = skipped !== null && !picked && !approvedScreens ? `\nCanvas skipped${skipped.trim() ? ` (${skipped.trim()})` : ''}: no option was picked on the canvas. Report it as skipped at the person's word.` : '';
 // The default path ends here: every mechanical check is clean and no model is asked for a score.
 if (!studio) {
   history.push({round, blockers: 0, critic: null, hash: fingerprint, mechanical: true});
   writeFileSync(join(review, 'check.json'), JSON.stringify(history, null, 2));
   const times = stampBuilt();
+  if (skippedLine) console.log(skippedLine);
   console.log(`\nCHECKS PASS round ${round}: 0 blockers. No model scored this page: the person who picked the direction is the judge. Show it to them and report "checks pass, not scored".${times} For a blind critic's score, run check.mjs again with --studio.`);
   process.exit(0);
 }
@@ -455,6 +459,7 @@ if (choreo !== null && choreo < 8.5) console.log(`\nChoreography ${choreo}/10: a
 if (impact !== null && impact < 8) console.log(`\nImpact ${impact}/10: the page is correct but would not stop a scroller${levelText || levelImages.length ? ' at the level reference\'s strength' : ''}. Apply the impact fixes first: a larger subject composed into the layout, the product at real scale beside it, a committed color field. A page does not pass below 8 on impact.`);
 if (execution !== null && execution < 8) console.log(`\nExecution ${execution}/10: the idea is there and the finish is not. Build, in this order: the material at real size (for a product, the view as a whole app: chrome, metric cards that each carry their own mini visual, a second chart form in the one hue, a selected state; for any other page, the work, goods or place itself shown large and art-directed), image and layout meeting in depth, one moment in every section down to the footer on one grid, then logos as marks and a two-line headline. A page does not pass below 8 on execution.`);
 if (unattended) console.log(`\nUnattended run (${unattended}): no person approved these screens. Report them as not approved.`);
+else if (skippedLine) console.log(skippedLine);
 const clarity = Number.isFinite(verdict.scores.clarity) ? verdict.scores.clarity : null;
 if (clarity !== null && clarity < 8) console.log(`\nClarity ${clarity}/10: fix every chart and product view listed under "Unclear at a glance" before anything else: a value axis with tick labels and units, gridlines, a legend for more than one series, the state (now, past, planned), labels clear of the lines, and real app chrome with believable data around each product view.`);
 if (copied) console.log(`\nCopied reference: the critic found a section that reproduces ${copied} nearly unchanged. Rework it: combine the lesson with another reference or the brand idea so the page is your own.`);

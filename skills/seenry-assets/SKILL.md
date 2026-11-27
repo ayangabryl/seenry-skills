@@ -4,7 +4,7 @@ description: "Finds or generates the images a design needs: photos, hero art, pr
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.8.1"
+  version: "3.9.0"
 ---
 
 # Seenry Assets

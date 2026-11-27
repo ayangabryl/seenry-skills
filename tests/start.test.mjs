@@ -5,7 +5,7 @@ import {createServer} from 'node:http';
 import {mkdtempSync, mkdirSync, writeFileSync, readFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {tmpdir} from 'node:os';
-import {matchStyles, bans, steps, loadIndex} from '../skills/seenry/scripts/start.mjs';
+import {matchStyles, bans, steps, loadIndex, projectMode} from '../skills/seenry/scripts/start.mjs';
 
 const script = resolve('skills/seenry/scripts/start.mjs');
 // An empty config folder, so a developer's own Seenry link never leaks their taste into these runs.
@@ -34,6 +34,43 @@ test('the bans and steps come from their files, one line each', () => {
   assert.equal(s.length, 9);
   assert.match(s[0], /^1\. Brief: `<canvas> init`/);
   assert.match(s[8], /^9\. Check: .*check\.mjs/);
+  assert.match(s[6], /^7\. Extend: `<canvas> verify` \(canvas only\)/);
+  assert.match(s[7], /^8\. Build: `<canvas> compare <sketch> <url>`/);
+});
+
+test('the mode says where the pick is built: in the project\'s framework, or on the canvas for an empty folder', () => {
+  const empty = mkdtempSync(join(tmpdir(), 'seenry-mode-'));
+  mkdirSync(join(empty, '.seenry'));
+  assert.deepEqual(projectMode(empty), {project: false, framework: '', evidence: ''});
+  const out = run(['pricing page for a saas product'], empty).stdout;
+  assert.match(out, /Mode: empty folder: full page on canvas\./);
+  assert.match(out, /Skip the canvas when the person says "just build it", "no options", "skip the canvas", "straight in code", or their project instructions say so/);
+  assert.match(out, /MOTION\.md and check\.mjs still run/);
+
+  const next = mkdtempSync(join(tmpdir(), 'seenry-mode-'));
+  writeFileSync(join(next, 'package.json'), JSON.stringify({dependencies: {next: '15.0.0', react: '19.0.0'}}));
+  assert.equal(projectMode(next).framework, 'Next.js', 'the meta-framework, not the library under it');
+  const built = run(['pricing page for a saas product'], next);
+  assert.match(built.stdout, /Mode: project found \(package\.json\): build the pick in Next\.js\. Step 7 writes the full page straight in its code, not on the canvas/);
+  assert.ok(built.stdout.split('\n').length <= 50, `${built.stdout.split('\n').length} lines`);
+  assert.equal(JSON.parse(run(['--json', 'pricing'], next).stdout).mode.framework, 'Next.js');
+  assert.doesNotMatch(run(['pricing', '--no-steps'], next).stdout, /Mode:/);
+
+  const setup = mkdtempSync(join(tmpdir(), 'seenry-mode-'));
+  writeFileSync(join(setup, 'package.json'), JSON.stringify({devDependencies: {playwright: '1.50.0'}}));
+  assert.equal(projectMode(setup).project, false, 'the Playwright the setup installs is not an app');
+  writeFileSync(join(setup, 'package.json'), JSON.stringify({scripts: {dev: 'node server.js'}, devDependencies: {playwright: '1.50.0'}}));
+  assert.equal(projectMode(setup).project, true);
+
+  const rails = mkdtempSync(join(tmpdir(), 'seenry-mode-'));
+  writeFileSync(join(rails, 'Gemfile'), "gem 'rails', '~> 8.0'\n");
+  assert.equal(projectMode(rails).framework, 'Rails');
+  const vite = mkdtempSync(join(tmpdir(), 'seenry-mode-'));
+  writeFileSync(join(vite, 'package.json'), JSON.stringify({devDependencies: {vite: '6.0.0'}}));
+  assert.equal(projectMode(vite).framework, 'Vite');
+  const site = mkdtempSync(join(tmpdir(), 'seenry-mode-'));
+  writeFileSync(join(site, 'index.html'), '<!doctype html>');
+  assert.equal(projectMode(site).project, true);
 });
 
 test('the command prints matches, bans and steps, short', () => {

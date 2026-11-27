@@ -1,21 +1,21 @@
 ---
 name: seenry-canvas
-description: "Designs screens as live HTML on a local canvas before any product code, for the person to review and approve. Use when asked for a mockup, options, variants, wireframes or a prototype, when designing or redesigning a screen or flow, or to compare a built screen with its approved design. Not for the whole brief-to-build path (seenry) or choosing fonts and colors (seenry-identity). Needs Node; rendering uses Playwright."
+description: "Designs screens as live HTML on a local canvas, where the person picks between options and approves; with a project, the pick is then built in its code, and a whole page is mocked here only with no project or when asked. Use when asked for a mockup, options, variants, wireframes or a prototype, when designing or redesigning a screen or flow, or to compare a built screen with its approved design. Not for the whole brief-to-build path (seenry) or choosing fonts and colors (seenry-identity). Needs Node; rendering uses Playwright."
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.8.1"
+  version: "3.9.0"
 ---
 
 # Seenry Canvas
 
-This skill designs a product's screens on a local canvas before any product code is written, then checks the built product against them. It is the agent's design tool, the way Figma is a designer's.
+This skill puts a product's options on a local canvas for the person to pick, mocks whole pages there when there is no project yet or when asked, then checks the built product against them. It is the agent's design tool, the way Figma is a designer's.
 
 ## Hand-off
 
 | Reads | Leaves | Next |
 | --- | --- | --- |
-| `.seenry/brief.md`, `tokens.css`, the references in `refs/` | Approved screens on the canvas and `HANDOFF.md` | Build the approved screen (`seenry` step 8), then `canvas.mjs compare` |
+| `.seenry/brief.md`, `tokens.css`, the references in `refs/` | The pick and approved screens on the canvas, `HANDOFF.md` | Build the pick in the project's code (`seenry` steps 7 and 8), then `canvas.mjs compare` |
 
 ## Operating posture
 
@@ -41,14 +41,14 @@ Use these words exactly, in what you write and what you say to the person.
 
 ## Hard rules
 
-1. **No product code until the screens are approved.** Everything lives on the canvas. Building starts from `HANDOFF.md`.
-2. **Every proposed design goes on the canvas.** Never describe a design only in words or show it only as code. The one exception is a one-line fix inside an existing screen.
+1. **Options are picked on the canvas; the pick is built where it will live.** With a project, the picked option is built in its code; a whole page is mocked here only for an empty folder or when the person asks to see it first. No product code before the pick, unless the person says to skip the canvas ("just build it").
+2. **Every proposed option goes on the canvas.** Never describe one only in words or show it only as code. The exceptions: a one-line fix inside an existing screen, and a person who said to skip the canvas.
 3. **Every value comes from the tokens, every repeated control from `components.css`.** `check` and `verify` fail on a typed color, size, space or radius, and `check` flags a screen that redefines a shared component.
 4. **You look before anyone else does.** Render every screen you change, look at the image, and pass `verify` before you show it. Two rounds at most; then show it and name what is left.
 5. **A sketch is an idea and an image.** Each carries one line, `seenry-idea`: the idea that will hold the whole page, and how its hero image and the interface meet. Its hero holds a generated or own image, never a flat block or a gradient. `verify` blocks a sketch without either.
 6. **Options diverge on a named axis.** Before building, state each option's axis in a phrase. Two options that differ only in color or copy are one option.
 7. **Everything works.** Real copy, plausible names and numbers, links between screens, every state the screen needs. No lorem ipsum, no dead buttons.
-8. **Build the full page on the canvas, live.** A sketch is one write. A full page is its shell first, then one part per save, so the person watches it come together.
+8. **A full page on the canvas is built live.** A sketch is one write. A full page drawn here is its shell first, then one part per save, so the person watches it come together.
 9. **The person never does the bookkeeping.** You run `round` after each round; you never ask them to label, archive or name anything.
 10. **Patch, never regenerate.** Fix a screen with a targeted edit to the part that is wrong. Never rewrite a whole file that already has parts: it throws away what was approved and hides what changed. The canvas feed says "Rewrote" when one save changes every part of a screen.
 11. **Keep the canvas readable.** The person sees only the current round and the approved screens. When a new round of options replaces an old one that nobody picked (`round` archives losers only after a pick), move each old option with `archive <section>/<screen> --reason "Replaced by round 3: …"` (ids from `list`). Name every screen plainly in its `<title>`, by what it is ("Home · Empty", "Pricing · Annual"), never by round, version or model ("v3 final", "Option B new").
@@ -66,7 +66,7 @@ Copy this checklist and tick it as you go:
 - [ ] 4. Sketches: an idea line and a hero image each, the main screen in 2–3 named one-screen sketches, on the canvas within 5 minutes
 - [ ] 5. Look and verify: at most two rounds
 - [ ] 6. Review: canvas open, the pick received
-- [ ] 7. Screens: the pick extended to the full page, then every other screen, linked, with specs
+- [ ] 7. Screens: the pick extended to the full page (in the project's code when there is one), then every other screen, linked, with specs
 - [ ] 8. Round: feedback applied, round run; back to 5 until approved
 - [ ] 9. Hand off, build, compare
 ```
@@ -124,7 +124,7 @@ Stop after two rounds of render, look and fix. If something still fails, show th
 
 ### 6. Review
 
-With a person present, run `open` (the canvas opens on the options waiting for a pick, side by side). Inside an agent app it opens no tab and prints the exact call that shows the canvas in that app's own pane; make it, so the person never leaves the app. In a cloud session it writes `canvas.html` to publish instead. `open` prints the time to the first sketch, to the pick and to the finished build, and keeps them in `canvas.json`. Tell the person in two lines what is on the canvas and what you need from them, then run `wait`: it returns when they press Send, or within 100 s with a line to run it again. They pick, ask for more like one, or click an element and say what to change. If your agent cannot wait, end the turn and run `feedback` when they say they are done. To share it beyond this computer, run `canvas.mjs link` once; `open` then keeps it synced to their Seenry account. After a link with Seenry Pro, `canvas.mjs library` adds the reference library to every agent on the computer. When the person asks to update Seenry, run `canvas.mjs update`: it updates the installed skills and restarts a running canvas on the new code, and their screens stay as they are.
+With a person present, run `open` (the canvas opens on the options waiting for a pick, side by side). Inside an agent app it opens no tab and prints the exact call that shows the canvas in that app's own pane; make it, so the person never leaves the app. In a cloud session it writes `canvas.html` to publish instead. `open` prints the time to the first sketch, to the pick and to the finished build, and keeps them in `canvas.json`. Tell the person in two lines what is on the canvas and what you need from them, then run `wait`: it returns when they press Send, or within 100 s with a line to run it again. They pick, ask for more like one, or click an element and say what to change. If your agent cannot wait, end the turn and run `feedback` when they say they are done. To share it beyond this computer, run `canvas.mjs link` once; `open` then keeps it synced to their Seenry account. `canvas.mjs library` tells every agent on the computer to load Seenry when the person mentions it, and after a link with Seenry Pro adds the reference library to each. When the person asks to update Seenry, run `canvas.mjs update`: it updates the installed skills and restarts a running canvas on the new code, and their screens stay as they are.
 
 The person who asked for the design counts as present, in a cloud session too: give them the canvas address (announce the port if your environment can preview it) or show `canvas.png` from `shot`, show the options side by side, and take their pick in chat. Never pick for them and report screenshots of a finished page instead.
 
@@ -134,9 +134,9 @@ With nobody to review (told to choose yourself, "auto-pick", a headless or unatt
 
 ### 7. Screens
 
-Run `round "<the pick and their note>"`, then extend the picked sketch to the full page and remove its `seenry-fidelity` line. The idea goes to the footer: the hero image comes back in lower sections in new crops, and `verify` blocks a full page where it never does.
+Run `round "<the pick and their note>"`, then extend the picked sketch to the full page. With a project, write it in the project's code (`seenry` step 7) and keep the sketch here: `compare <sketch> <url>` shows the build beside it. With no project, or when the person asks to see the whole page first, extend it here and remove its `seenry-fidelity` line. The idea goes to the footer: the hero image comes back in lower sections in new crops, and `verify` blocks a full page where it never does.
 
-**Build each full page live, one part per save.** Name its parts first: `plan 03-pricing/01-plans.html --parts "Nav,Hero,Plan cards,Footer"`. The canvas shows an empty page with Seenry's cursor waiting; it never draws a part before you write it. Then write its shell: the `<head>` with `tokens.css`, `components.css`, the fonts and every style the page will need, and an empty `<body>` holding only a `<!-- next -->` marker. Then add the parts in reading order, one edit each, inserting before the marker: the navigation, the headline, the lede, the product view, each section, the footer. Give each part's root element `data-seenry-part="Plan cards"`, the same name as in the plan. Each save lands in place within a fraction of a second: the part appears where you wrote it, Seenry's cursor moves to it, and the feed reads "Added Plan cards to Pricing". Keep styles in the shell: a save that changes the `<head>` reloads the screen instead of patching it. Change a part with an edit to that part alone, never by rewriting the file.
+**On the canvas, build each full page live, one part per save.** Name its parts first: `plan 03-pricing/01-plans.html --parts "Nav,Hero,Plan cards,Footer"`. The canvas shows an empty page with Seenry's cursor waiting; it never draws a part before you write it. Then write its shell: the `<head>` with `tokens.css`, `components.css`, the fonts and every style the page will need, and an empty `<body>` holding only a `<!-- next -->` marker. Then add the parts in reading order, one edit each, inserting before the marker: the navigation, the headline, the lede, the product view, each section, the footer. Give each part's root element `data-seenry-part="Plan cards"`, the same name as in the plan. Each save lands in place within a fraction of a second: the part appears where you wrote it, Seenry's cursor moves to it, and the feed reads "Added Plan cards to Pricing". Keep styles in the shell: a save that changes the `<head>` reloads the screen instead of patching it. Change a part with an edit to that part alone, never by rewriting the file.
 
 After each part, run `problems <screen>`: it lists sideways overflow, cut-off text, collapsed parts and overlapping text at the screen's width and at 390, from the canvas's own check of that save. Fix them in that part before the next one.
 
@@ -166,7 +166,7 @@ It archives the options that lost with the reason, logs the round on the cover a
 
 ### 9. Hand off, build, compare
 
-Run `handoff` and build from `HANDOFF.md` in the project's stack, moving `tokens.css` and the fonts in unchanged and following every spec. For each built screen:
+Run `handoff` and build from `HANDOFF.md` in the project's stack (the picked page may already be there, from step 7), moving `tokens.css` and the fonts in unchanged and following every spec. For each built screen:
 
 ```sh
 node <skill>/scripts/canvas.mjs compare <screen> <url of the running screen>
@@ -197,7 +197,8 @@ If asked which you would choose, answer from how the product is used (how often,
 | "Riff on Ledger", "more like Ledger", or More like this in the review | Three options around it, one per mode (step 8); the section stays open |
 | "Keep Ledger" | Pick it, run `round`, continue with the screens; the losing options go to the archive |
 | "Wireframes first", "do it properly" | Studio speed |
-| "Build it" | Only after approval: step 9 |
+| "Build it" | After the pick: step 9 |
+| "Just build it", "skip the canvas", "no options", "straight in code" | No canvas: one direction, built in the code (`seenry` route) |
 | "Does the build match?" | `compare` each screen |
 
 ## Tone

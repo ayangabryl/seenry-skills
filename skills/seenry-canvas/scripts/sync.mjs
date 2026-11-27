@@ -6,7 +6,9 @@
  *  node sync.mjs link --code <setup code>   link at once with the one-time code a setup prompt copied from Seenry carries
  *  node sync.mjs link --start           print the link and code and return at once (for agents: show them, then run --finish)
  *  node sync.mjs link --finish [--wait 90]   complete a link begun with --start; exits 4 while it is still waiting for approval
- *  node sync.mjs library [--agent <id>]  add the Seenry reference library (MCP) to every agent on this computer (or one)
+ *  node sync.mjs library [--agent <id>]  add the Seenry reference library (MCP) to every agent on this computer (or one),
+ *                                       after writing the always-on Seenry instructions (no link or key needed for those)
+ *  node sync.mjs instructions [--agent <id>]   only write or refresh the always-on Seenry instructions in each agent
  *  node sync.mjs taste                   print the person's taste file from their Seenry account (seenry's start.mjs prints it too)
  *  node sync.mjs push   [dir]            push the canvas once (only files whose content changed are uploaded)
  *  node sync.mjs watch  [dir]            push on every change and pull feedback as it arrives, until stopped
@@ -24,6 +26,7 @@ import {existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSyn
 import {join, resolve, extname, basename, dirname, relative, sep, delimiter, isAbsolute} from 'node:path';
 import {homedir, hostname} from 'node:os';
 import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 
 const argv = process.argv.slice(2);
 const command = argv[0] && !argv[0].startsWith('--') ? argv[0] : 'status';
@@ -391,19 +394,26 @@ const onPath = name => (process.env.PATH || '').split(delimiter).some(d => d && 
 const codexHome = () => process.env.CODEX_HOME || join(home(), '.codex');
 const copilotHome = () => process.env.COPILOT_HOME || join(home(), '.copilot');
 const bearer = key => ({Authorization: `Bearer ${key}`});
+// `rules` is the user-level instruction file the agent documents; agents without one (Cursor keeps user rules in its
+// settings, Kimi Code documents none) get no always-on block.
+const geminiRules = () => join(home(), '.gemini', 'GEMINI.md');
 const AGENTS = [
   {id: 'claude-code', name: 'Claude Code', aliases: ['claude'], found: () => onPath('claude') || existsSync(join(home(), '.claude')), add: addClaude,
+    rules: () => join(home(), '.claude', 'CLAUDE.md'),
     manual: (url, keyPath) => `run claude mcp add --transport http --scope user seenry ${url} --header "Authorization: Bearer $(cat ${keyPath})"`},
-  {id: 'codex', name: 'Codex', found: () => existsSync(codexHome()), file: () => join(codexHome(), 'config.toml'), add: addCodex,
+  {id: 'codex', name: 'Codex', found: () => existsSync(codexHome()), file: () => join(codexHome(), 'config.toml'), add: addCodex, rules: () => join(codexHome(), 'AGENTS.md'),
     manual: (url, keyPath) => `add [mcp_servers.seenry] with url = "${url}" and http_headers = { Authorization = "Bearer <the key in ${keyPath}>" } to ${join(codexHome(), 'config.toml')}`},
   {id: 'cursor', name: 'Cursor', found: () => existsSync(join(home(), '.cursor')), file: () => join(home(), '.cursor', 'mcp.json'), servers: 'mcpServers',
     entry: (url, key) => ({url, headers: bearer(key)})},
   {id: 'antigravity', name: 'Antigravity', found: () => ['antigravity', 'antigravity-cli', 'antigravity-ide', join('config', 'mcp_config.json')].some(d => existsSync(join(home(), '.gemini', d))),
-    file: () => join(home(), '.gemini', 'config', 'mcp_config.json'), servers: 'mcpServers', entry: (url, key) => ({serverUrl: url, headers: bearer(key)})},
+    file: () => join(home(), '.gemini', 'config', 'mcp_config.json'), servers: 'mcpServers', entry: (url, key) => ({serverUrl: url, headers: bearer(key)}),
+    rules: geminiRules, rulesName: 'Gemini CLI and Antigravity'},
   {id: 'gemini-cli', name: 'Gemini CLI', aliases: ['gemini'], found: () => existsSync(join(home(), '.gemini', 'settings.json')) || onPath('gemini'),
-    file: () => join(home(), '.gemini', 'settings.json'), servers: 'mcpServers', entry: (url, key) => ({httpUrl: url, headers: bearer(key)})},
+    file: () => join(home(), '.gemini', 'settings.json'), servers: 'mcpServers', entry: (url, key) => ({httpUrl: url, headers: bearer(key)}),
+    rules: geminiRules, rulesName: 'Gemini CLI and Antigravity', rulesFound: () => existsSync(join(home(), '.gemini'))},
   {id: 'github-copilot', name: 'GitHub Copilot (VS Code and CLI)', aliases: ['copilot', 'vscode'], found: () => existsSync(copilotHome()),
-    file: () => join(copilotHome(), 'mcp-config.json'), servers: 'mcpServers', entry: (url, key) => ({type: 'http', url, headers: bearer(key), tools: ['*']})},
+    file: () => join(copilotHome(), 'mcp-config.json'), servers: 'mcpServers', entry: (url, key) => ({type: 'http', url, headers: bearer(key), tools: ['*']}),
+    rules: () => join(copilotHome(), 'copilot-instructions.md'), rulesName: 'GitHub Copilot CLI'},
   {id: 'kimi-code-cli', name: 'Kimi Code', aliases: ['kimi', 'kimi-cli'], found: () => existsSync(join(home(), '.kimi')),
     file: () => join(home(), '.kimi', 'mcp.json'), servers: 'mcpServers', entry: (url, key) => ({url, transport: 'http', headers: bearer(key)})},
 ];
@@ -501,16 +511,77 @@ function addClaude(agent, url, key) {
   return added.status === 0 ? {state: existing.status === 0 ? 'updated' : 'added'} : {state: 'could not', why: 'claude mcp add did not succeed'};
 }
 
+// ── Always-on instructions: agents that do not load skills on their own still read their user-level instructions ──
+// The same block, between the same markers, as scripts/install.py writes; a test keeps the two identical.
+const START = '<!-- seenry:start -->', END = '<!-- seenry:end -->';
+const ROUTER = 'Router: new page, screen, redesign → `seenry` | fonts, color, brand → `seenry-identity` | mockups, options → `seenry-canvas` | spacing, radius, states → `seenry-craft` | animation → `seenry-motion` | library or framework → `seenry-libraries` | photos, icons, font files → `seenry-assets` | review, accessibility → `seenry-review` | edge-case data → `seenry-break` | too busy → `seenry-subtract` | whole-app audit → `seenry-audit` | native mobile → `seenry-apps` | product film → `seenry-video`';
+const rulesBlock = skills => [START, '## Seenry design skills', '',
+  'When the person mentions Seenry, or asks for anything people see (a page, screen, form, component, styling, layout or animation), load the `seenry` skill first and run its flow without setup questions. Prefer the skill\'s guidance over memory.', '',
+  ROUTER, '',
+  'Pick between options on the Seenry canvas, then build the pick in the project\'s code; skip the canvas when the person says just build it. Pick the stack with `seenry-libraries`.', '',
+  `Skills live in \`${skills}/<name>/SKILL.md\`.`, END].join('\n');
+/** The text with the block in place: replaced between the markers, or appended. Every byte outside them is kept. */
+function withBlock(text, block) {
+  const start = text.indexOf(START), end = text.indexOf(END);
+  if (start < 0 && end < 0) return text + (!text.trim() || /\n\r?\n$/.test(text) ? '' : text.endsWith('\n') ? '\n' : '\n\n') + block + '\n';
+  if (start < 0 || end < start || text.includes(START, start + 1) || text.includes(END, end + 1)) return null;
+  return text.slice(0, start) + block + text.slice(end + END.length);
+}
+/** Instruction files are not secret, so unlike rewrite() this keeps the file's mode; it still backs up first. */
+function rewriteText(file, text) {
+  if (!existsSync(file)) { mkdirSync(dirname(file), {recursive: true}); writeFileSync(file, text); return ''; }
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*/, ''), backup = `${file}.seenry-backup-${stamp}`;
+  copyFileSync(file, backup);
+  writeFileSync(file, text);
+  return backup;
+}
+/**
+ * Writes or refreshes the Seenry block in the user-level instruction file of every agent found here (or the one
+ * --agent names), so an agent loads the seenry skill whenever Seenry is mentioned. Needs no link and no key.
+ */
+function instructions(chosen = null) {
+  if (argv.includes('--no-instructions')) return;
+  const skills = tilde(resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')).split(sep).join('/');
+  const block = rulesBlock(skills), files = new Map();
+  for (const agent of chosen ? [chosen] : AGENTS) {
+    if (!agent.rules || !(agent.found() || agent.rulesFound?.())) continue;
+    const file = agent.rules();
+    if (!files.has(file)) files.set(file, agent.rulesName || agent.name);
+  }
+  if (!files.size) { console.log(`Always-on instructions: no agent here${chosen ? ` (${chosen.name})` : ''} has a user-level instruction file this script knows.`); return; }
+  console.log('Always-on instructions (agents load the seenry skill when Seenry is mentioned):');
+  for (const [file, who] of files) {
+    const refused = homeLevel(file);
+    if (refused) { console.log(`  ${who}: could not: ${refused}.`); continue; }
+    try {
+      const old = existsSync(file) ? readFileSync(file, 'utf8') : null, next = withBlock(old ?? '', block);
+      if (next === null) console.log(`  ${who}: left as it is: ${tilde(file)} has unbalanced or repeated Seenry markers; fix them by hand.`);
+      else if (next === old) console.log(`  ${who}: already current in ${tilde(file)}.`);
+      else {
+        const backup = rewriteText(file, next);
+        console.log(`  ${who}: ${old?.includes(START) ? 'updated in' : 'added to'} ${tilde(file)}${backup ? ` (backup: ${tilde(backup)})` : ''}.`);
+      }
+    } catch (error) { console.log(`  ${who}: could not: ${error.message || error}.`); }
+  }
+}
+const chosenAgent = () => {
+  const asked = String(flag('agent', 'all')).toLowerCase();
+  return {asked, chosen: asked === 'all' ? null : AGENTS.find(a => a.id === asked || a.aliases?.includes(asked))};
+};
+
 /**
  * Adds the reference library to every agent installed on this computer, or to the one --agent names. The key is read
- * from the config folder and written only into each agent's own home-level config; it is never printed.
+ * from the config folder and written only into each agent's own home-level config; it is never printed. The always-on
+ * instructions come first, so a computer with no link or no Pro key still gets them.
  */
 function library() {
-  const config = requireConfig(), keyPath = libraryKeyFile(), url = config.library?.url || 'https://mcp.seenry.design/pro';
+  const {asked, chosen} = chosenAgent();
+  if (asked === 'all' || chosen) instructions(chosen);
+  const config = readConfig();
+  if (!config?.token) { console.log('Reference library: this computer is not linked to Seenry, so no MCP server was added. It needs Seenry Pro: run link, then library again; without Pro, skip this step.'); return; }
+  const keyPath = libraryKeyFile(), url = config.library?.url || 'https://mcp.seenry.design/pro';
   const key = existsSync(keyPath) ? readFileSync(keyPath, 'utf8').trim() : '';
   if (!key) { console.log('Reference library: no key on this computer. One is created when a Seenry Pro account approves the link, so with Pro, run link again; without it, skip this step.'); return; }
-  const asked = String(flag('agent', 'all')).toLowerCase();
-  const chosen = asked === 'all' ? null : AGENTS.find(a => a.id === asked || a.aliases?.includes(asked));
   const general = () => {
     console.log(`Add an MCP server named "seenry" at ${url} with the header "Authorization: Bearer <the key in ${keyPath}>" to the agent's user-level settings.`);
     console.log('Keep the key out of the chat and out of project files.');
@@ -589,6 +660,7 @@ const needsCanvas = () => { if (!existsSync(join(dir))) { console.error(`No canv
 try {
   if (command === 'link') await link();
   else if (command === 'library') library();
+  else if (command === 'instructions') { const {asked, chosen} = chosenAgent(); if (asked !== 'all' && !chosen) { console.error(`"${asked}" is not an agent this script knows (${AGENTS.map(a => a.id).join(', ')}).`); process.exit(2); } instructions(chosen); }
   else if (command === 'taste') await taste();
   else if (command === 'push') { needsCanvas(); await push(requireConfig()); }
   else if (command === 'pull') { needsCanvas(); await pull(requireConfig()); }
@@ -599,7 +671,7 @@ try {
     if (config?.token) { try { await api(config, '/api/canvas/sync/unlink', {method: 'POST', body: {}}); } catch (error) { if (error.status !== 401) console.error(`Could not reach Seenry (${error.message}); forgetting the token here anyway. Unlink it on the Canvases page.`); } }
     rmSync(configFile(), {force: true}); rmSync(libraryKeyFile(), {force: true}); rmSync(pendingFile(), {force: true});
     console.log(config?.token ? 'Unlinked this machine.' : 'This machine was not linked.');
-  } else { console.error('Usage: node sync.mjs link|library|taste|push|watch|pull|status|unlink [dir]'); process.exit(2); }
+  } else { console.error('Usage: node sync.mjs link|library|instructions|taste|push|watch|pull|status|unlink [dir]'); process.exit(2); }
 } catch (error) {
   console.error(error.message || String(error));
   process.exit(LIMITED.has(error.status) ? 3 : 1);

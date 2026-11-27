@@ -43,8 +43,10 @@
  *  node canvas.mjs link   [dir]            link this machine to Seenry (sync.mjs link), then sync the canvas in the background
  *  node canvas.mjs link --code <setup code>  link at once with the one-time code from a setup prompt copied inside Seenry
  *  node canvas.mjs link --start | --finish  for agents: --start prints the link and code and returns at once; --finish completes it
- *  node canvas.mjs library [--agent <id>]  add the Seenry reference library (MCP) to every agent on this computer, or one
- *  node canvas.mjs update [dir]           update Seenry's skills and the other installed skills, restart a running canvas
+ *  node canvas.mjs library [--agent <id>]  write the always-on Seenry instructions into each agent's own instruction file,
+ *                                        then add the Seenry reference library (MCP) to every agent on this computer, or one
+ *  node canvas.mjs update [dir]           update Seenry's skills and the other installed skills, refresh the always-on
+ *                                        instructions, restart a running canvas
  *  node canvas.mjs taste                   print the person's taste file from their Seenry account (sync.mjs taste)
  *  node canvas.mjs sync   [push|pull|status|unlink] [dir]   pass through to sync.mjs; with none, start the background watch
  *  node canvas.mjs stop   [dir]            stop the canvas and its sync
@@ -57,7 +59,8 @@
  *  A file ending .phone.html, .tablet.html or .laptop.html renders at that device size; anything else is desktop.
  *  A frame's name is its <title>; <meta name="seenry-caption" content="..."> is the short line shown under it (else
  *  the axis up to its first colon or comma); <meta name="seenry-note" content="..."> is read when it is selected.
- *  <meta name="seenry-fidelity" content="sketch"> marks a one-screen sketch: the first screen only, extended after the pick.
+ *  <meta name="seenry-fidelity" content="sketch"> marks a one-screen sketch: the first screen only, extended after the pick
+ *  (in the project's code when there is one, else on the canvas).
  *  <meta name="seenry-idea" content="…"> is the one idea that carries the page, and how image and interface meet.
  *  A link from one screen to another (<a href="02-next.phone.html">) is a prototype connection: the canvas draws it
  *  and Present mode follows it, like a Figma prototype.
@@ -3066,7 +3069,7 @@ function round(text, unattended) {
     const sketches = s.choose ? 0 : s.frames.filter(f => f.sketch).length;
     const status = !s.choose && !sketches && approved === s.frames.length ? 'ready' : sketches ? 'in-progress' : 'review';
     manifest.sections[s.id] = {...manifest.sections[s.id], status};
-    lines.push(`${s.id}: ${STATUSES[status]}${s.choose ? ' (options still open)' : sketches ? ` (${sketches} picked sketch${sketches === 1 ? '' : 'es'} to extend to the full page: then remove its seenry-fidelity meta)` : ` (${approved} of ${s.frames.length} approved)`}`);
+    lines.push(`${s.id}: ${STATUSES[status]}${s.choose ? ' (options still open)' : sketches ? ` (${sketches} picked sketch${sketches === 1 ? '' : 'es'} to extend to the full page, in the project's code or here; here, then remove its seenry-fidelity meta)` : ` (${approved} of ${s.frames.length} approved)`}`);
   }
   writeManifest(manifest);
   activity('round', text ? `Round done: ${text}` : 'Round done');
@@ -3199,9 +3202,14 @@ async function update() {
   for (const line of changed) console.log(`  ${line}`);
   const same = after.size - changed.length;
   console.log(changed.length ? `${changed.length} updated${same ? `, ${same} already current` : ''}.` : `Everything was already current (${after.size} skill${after.size === 1 ? '' : 's'}).`);
+  // The always-on Seenry block in each agent's instruction file, written by the newly installed sync.mjs so it carries
+  // this release's text. It needs no link; a failure here never fails the update.
+  const canvasDir = after.get('seenry-canvas')?.path;
+  const newSync = canvasDir && existsSync(join(canvasDir, 'scripts', 'sync.mjs')) ? join(canvasDir, 'scripts', 'sync.mjs') : syncScript;
+  if (existsSync(newSync)) { const said = spawnSync(process.execPath, [newSync, 'instructions'], {encoding: 'utf8'}); process.stdout.write(`${said.stdout || ''}`); }
 
   // The running canvas is old code in memory: restart it on the installed script, on the same port, once the old one is gone.
-  const info = running(), canvasDir = after.get('seenry-canvas')?.path, script = canvasDir && existsSync(join(canvasDir, 'scripts', 'canvas.mjs')) ? join(canvasDir, 'scripts', 'canvas.mjs') : fileURLToPath(import.meta.url);
+  const info = running(), script = canvasDir && existsSync(join(canvasDir, 'scripts', 'canvas.mjs')) ? join(canvasDir, 'scripts', 'canvas.mjs') : fileURLToPath(import.meta.url);
   const stale = info && (changed.some(l => l.startsWith('seenry-canvas')) || mtime(script) > mtime(pidFile));
   if (!info) console.log(`No canvas is running in ${dir}, so nothing needed a restart.`);
   else if (!stale) console.log(`The canvas at http://127.0.0.1:${info.port}/ already runs the current code.`);
