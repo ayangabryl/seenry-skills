@@ -14,6 +14,7 @@
 ### Canvas
 
 - **The canvas shows the current round.** When a new round replaces options nobody picked, the agent archives the old ones with `archive <section>/<screen> --reason "…"`, so the person sees only the current round and the approved screens. Screens are named by what they are, never by round or version.
+- **The canvas wears Seenry's Calm look.** Its own interface (board, toolbar, section and screen names, pick buttons, comments, status, archive) now uses one neutral ink, Inter at medium weight (OFL, shipped in `assets/fonts` and served by the canvas, so nothing loads from a font host), pill buttons, statuses as short words in pills and a 2 px ink ring on the picked screen, in light and dark. Archived screens fold behind one "Archived (n)" line at the foot of the board. The screens themselves render untouched.
 
 ## 3.6.1
 
