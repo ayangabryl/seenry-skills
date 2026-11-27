@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.8.0
+
+### Setup
+
+- **The reference library in every agent at once.** `canvas.mjs library` with no `--agent` finds the agents on the computer and adds the Seenry MCP server, with this computer's key, to each one it can configure safely, one line per agent: added, already set, left as it is, or could not, with the step to do by hand. Claude Code goes through `claude mcp add`. Codex (`~/.codex/config.toml`), Cursor (`~/.cursor/mcp.json`), Antigravity (`~/.gemini/config/mcp_config.json`), Gemini CLI (`~/.gemini/settings.json`), GitHub Copilot in VS Code and the CLI (`~/.copilot/mcp-config.json`) and Kimi Code (`~/.kimi/mcp.json`) get the server in their own user-level file, as their docs describe. It writes only home-level files and never a project's. Other servers are kept, a file is backed up before it changes (mode 0600), a new file is created with mode 0600, a file with comments or an unknown layout is left alone, a rotated key is swapped in place, and a second run changes nothing. The key is never printed. `--agent <id>` still sets up one agent.
+- **`canvas.mjs update`.** One command from any agent, with no flags: it runs `npx skills update -g -y` (Seenry's skills and the companions already installed), prints each change from old to new version, and restarts a running canvas and its sync on the new code at the same address. Screens and feedback are left as they are. When the update fails, it says so and restarts nothing.
+- **SETUP.md** connects the library with `library` alone and adds a one-paste update prompt. The installer, run without `-a`, already installs for every agent it detects.
+
 ## 3.7.0
 
 ### Companions
