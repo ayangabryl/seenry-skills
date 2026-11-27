@@ -4,7 +4,7 @@ description: "Designs screens as live HTML on a local canvas, where the person p
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.9.0"
+  version: "3.9.1"
 ---
 
 # Seenry Canvas
@@ -124,7 +124,7 @@ Stop after two rounds of render, look and fix. If something still fails, show th
 
 ### 6. Review
 
-With a person present, run `open` (the canvas opens on the options waiting for a pick, side by side). Inside an agent app it opens no tab and prints the exact call that shows the canvas in that app's own pane; make it, so the person never leaves the app. In a cloud session it writes `canvas.html` to publish instead. `open` prints the time to the first sketch, to the pick and to the finished build, and keeps them in `canvas.json`. Tell the person in two lines what is on the canvas and what you need from them, then run `wait`: it returns when they press Send, or within 100 s with a line to run it again. They pick, ask for more like one, or click an element and say what to change. If your agent cannot wait, end the turn and run `feedback` when they say they are done. To share it beyond this computer, run `canvas.mjs link` once; `open` then keeps it synced to their Seenry account. `canvas.mjs library` tells every agent on the computer to load Seenry when the person mentions it, and after a link with Seenry Pro adds the reference library to each. When the person asks to update Seenry, run `canvas.mjs update`: it updates the installed skills and restarts a running canvas on the new code, and their screens stay as they are.
+With a person present, run `open` (the canvas opens on the options waiting for a pick, side by side). Inside an agent app it opens no tab and prints the exact call that shows the canvas in that app's own pane; make it, so the person never leaves the app. In a cloud session it writes `canvas.html` to publish instead. `open` prints the time to the first sketch, to the pick and to the finished build, and keeps them in `canvas.json`. Tell the person in two lines what is on the canvas and what you need from them, then run `wait`: it returns when they press Send, or within 100 s with a line to run it again. They pick, ask for more like one, or click an element and say what to change. If your agent cannot wait, end the turn and run `feedback` when they say they are done. To share it beyond this computer, run `canvas.mjs link` once; `open` then keeps it synced to their Seenry account. `canvas.mjs library` tells every agent on the computer to load Seenry when the person mentions it, and after a link with a verified Seenry account (50 library credits once on Free, 2,000 a month on Pro) adds the reference library to each. When the person asks to update Seenry, run `canvas.mjs update`: it updates the installed skills and restarts a running canvas on the new code, and their screens stay as they are.
 
 The person who asked for the design counts as present, in a cloud session too: give them the canvas address (announce the port if your environment can preview it) or show `canvas.png` from `shot`, show the options side by side, and take their pick in chat. Never pick for them and report screenshots of a finished page instead.
 
