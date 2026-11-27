@@ -353,7 +353,7 @@
     {
       "name": "get_credits",
       "title": "Check MCP usage",
-      "description": "Read this account’s monthly allowance or verified-owner unlimited status, remaining credits when capped, UTC reset date and per-tool breakdown. Always free, including when the allowance is exhausted. All keys share one balance. Research briefs cost 10 credits; other research calls cost 1 credit, individual assets 2, videos, flows, page-part batches, measurement comparisons and reference context 5.",
+      "description": "Read this account’s allowance (50 credits once on Free, 2,000 a month on Pro, or unlimited for the verified owner), remaining credits, the UTC reset date on Pro and a per-tool breakdown. Always free, including when the allowance is exhausted. All keys share one balance. Research briefs cost 10 credits; other research calls cost 1 credit, individual assets 2, videos, flows, page-part batches, measurement comparisons and reference context 5.",
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
