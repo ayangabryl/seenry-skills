@@ -776,7 +776,7 @@ const PAGE = String.raw`<!doctype html>
   --canvas: oklch(1 0 0); --paper: oklch(1 0 0); --surface: oklch(0.967 0 0); --surface-2: oklch(0.945 0 0); --ink: oklch(0.145 0 0); --on-ink: oklch(1 0 0); --ink-hover: oklch(0.27 0 0); --text: oklch(0.145 0 0); --muted: oklch(0.45 0 0); --faint: oklch(0.5 0 0);
   --line: oklch(0.915 0 0); --line-2: oklch(0.86 0 0); --blue: var(--ink); --blue-soft: var(--surface); --amber: oklch(0.42 0.09 70); --green: oklch(0.4 0.09 150); --red: oklch(0.55 0.19 27); --live: var(--ink);
   --warn-soft: oklch(0.95 0.06 88); --ok-soft: oklch(0.95 0.05 150); --bad-soft: oklch(0.95 0.03 27);
-  --st-approval: var(--amber); --st-input: var(--ink); --st-working: var(--ink); --st-failed: var(--red); --st-done: var(--green);
+  --st-approval: var(--ink); --st-input: var(--ink); --st-working: var(--ink); --st-failed: var(--red); --st-done: var(--green);
   --float: 0 0 0 1px oklch(0 0 0 / 0.05), 0 12px 32px -12px oklch(0 0 0 / 0.16); --raised: 0 1px 2px oklch(0 0 0 / 0.06), 0 0 0 1px oklch(0 0 0 / 0.04);
   --shade: oklch(0 0 0 / 0.05); --frame-line: oklch(0 0 0 / 0.07); --tile: oklch(0.145 0 0); --eye: oklch(1 0 0); --avatar: oklch(0.915 0 0);
   --heading: var(--ink); --ink-2: var(--muted); --ink-3: var(--faint); --ok: var(--green); --warn: var(--amber); --sel: var(--ink); --line-strong: var(--line-2); --fill: oklch(0 0 0 / 0.045); --fill-2: oklch(0 0 0 / 0.08);
@@ -818,7 +818,7 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 .status-ind.word { height: 22px; gap: 5px; padding: 0 8px; border-radius: 999px; background: var(--surface); font-size: 13px; letter-spacing: -0.01em; }
 .lab .status-ind.word { background: var(--surface); }
 #pane-status .status-ind.word { padding: 0; background: none; }
-.status-ind.word[data-s="approval"] { background: var(--warn-soft); } .status-ind.word[data-s="done"] { background: var(--ok-soft); } .status-ind.word[data-s="failed"] { background: var(--bad-soft); }
+.status-ind.word[data-s="approval"] { background: var(--ink); color: var(--on-ink); } .status-ind.word[data-s="done"] { background: var(--surface); color: var(--muted); } .status-ind.word[data-s="failed"] { background: var(--bad-soft); }
 @media (prefers-reduced-motion: reduce) { .spin, .status-ind[data-s="working"] .si { animation: none; } }
 .float { background: var(--paper); box-shadow: var(--float); }
 .ib { display: grid; place-items: center; width: 32px; height: 32px; flex: none; padding: 0; border: 0; border-radius: 999px; background: none; color: var(--muted); transition: background-color 150ms var(--out), color 150ms var(--out), scale var(--press) var(--out); }
