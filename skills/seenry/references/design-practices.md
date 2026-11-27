@@ -21,6 +21,11 @@ Short rules learned from pages that people sent back. Each one is checkable on t
 - **Real proof only.** No invented customers, quotes, logos, figures or reviews ([bans](bans.md)). With no proof yet, show the product working instead.
 - **Official marks on sign-in buttons.** "Continue with Google", Apple, GitHub and the rest use that company's own logo, colours and wording from its brand guidelines, never a redrawn icon or a monochrome guess.
 
+## Hover and press
+
+- **Hover changes colour, nothing else.** No drop shadow that appears on hover, no card or picture that lifts, grows or tilts, no decorative hover animation. Hover is a tint or opacity change in about 120ms, only on devices with a fine pointer. Add more only when the person asks for it.
+- **Press is a small scale on real controls.** Buttons and controls scale to 0.97 for about 100ms; cards, rows and text do not. No heavy pressed styles, no ripple.
+
 ## Before showing it
 
 - **Three widths.** Render at 1440, about 1057 (a laptop with a side panel open) and 390. The middle width is where grids break, text wraps badly and nav overflows.
