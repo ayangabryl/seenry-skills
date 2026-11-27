@@ -3152,7 +3152,7 @@ function npx(args) {
 function skillState(path) {
   let text = ''; try { text = readFileSync(join(path, 'SKILL.md'), 'utf8'); } catch { return null; }
   const front = text.startsWith('---') ? text.slice(3, text.indexOf('\n---', 3)) : '';
-  const version = (front.match(/^\s+version:\s*["']?([^"'\s]+)/m) || [])[1] || '';
+  const version = (front.match(/^\s*version:\s*["']?([^"'\s]+)/m) || [])[1] || '';
   const hash = createHash('sha256'), files = [];
   const walk = (folder, depth) => {
     if (depth > 6 || files.length > 4000) return;

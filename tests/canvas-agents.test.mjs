@@ -32,8 +32,8 @@ const fakeClaude = (bin, log, stored = '') => {
 test('library with no --agent finds every installed agent and adds the server, keeping their other servers', () => {
   const c = computer(['.cursor', '.codex', '.gemini/antigravity', '.kimi', '.copilot', '.claude']);
   const cursor = join(c.home, '.cursor', 'mcp.json'), codex = join(c.home, '.codex', 'config.toml');
-  writeFileSync(cursor, JSON.stringify({mcpServers: {blender: {command: 'uvx', args: ['blender-mcp']}}}, null, 4) + '\n');
-  writeFileSync(codex, 'model = "o3"\n\n[mcp_servers.rea]\ncommand = "rea"\n\n[mcp_servers.rea.env]\nPATH_X = "1"\n');
+  writeFileSync(cursor, JSON.stringify({mcpServers: {notes: {command: 'uvx', args: ['notes-mcp']}}}, null, 4) + '\n');
+  writeFileSync(codex, 'model = "o3"\n\n[mcp_servers.tasks]\ncommand = "tasks"\n\n[mcp_servers.tasks.env]\nPATH_X = "1"\n');
   const log = join(c.bin, 'claude.log');
   if (posix) fakeClaude(c.bin, log);
 
@@ -48,17 +48,17 @@ test('library with no --agent finds every installed agent and adds the server, k
   } else assert.match(first.stdout, /Claude Code: could not: the claude command was not found\. By hand: run claude mcp add[^\n]*\$\(cat /);
 
   const cursorData = JSON.parse(read(cursor));
-  assert.deepEqual(cursorData.mcpServers.blender, {command: 'uvx', args: ['blender-mcp']}, 'other servers are kept');
+  assert.deepEqual(cursorData.mcpServers.notes, {command: 'uvx', args: ['notes-mcp']}, 'other servers are kept');
   assert.deepEqual(cursorData.mcpServers.seenry, {url: URL, headers: {Authorization: `Bearer ${KEY}`}});
   assert.match(read(cursor), /^\{\n {4}"mcpServers"/, 'the file keeps its indentation');
-  assert.equal(read(codex), 'model = "o3"\n\n[mcp_servers.rea]\ncommand = "rea"\n\n[mcp_servers.rea.env]\nPATH_X = "1"\n\n'
+  assert.equal(read(codex), 'model = "o3"\n\n[mcp_servers.tasks]\ncommand = "tasks"\n\n[mcp_servers.tasks.env]\nPATH_X = "1"\n\n'
     + `[mcp_servers.seenry]\nurl = "${URL}"\nhttp_headers = { Authorization = "Bearer ${KEY}" }\n`, 'Codex gets a table appended, nothing else changes');
   assert.deepEqual(JSON.parse(read(join(c.home, '.gemini', 'config', 'mcp_config.json'))), {mcpServers: {seenry: {serverUrl: URL, headers: {Authorization: `Bearer ${KEY}`}}}});
   assert.deepEqual(JSON.parse(read(join(c.home, '.copilot', 'mcp-config.json'))).mcpServers.seenry, {type: 'http', url: URL, headers: {Authorization: `Bearer ${KEY}`}, tools: ['*']});
   assert.deepEqual(JSON.parse(read(join(c.home, '.kimi', 'mcp.json'))).mcpServers.seenry, {url: URL, transport: 'http', headers: {Authorization: `Bearer ${KEY}`}});
   assert.ok(!existsSync(join(c.home, '.gemini', 'settings.json')), 'an agent that is not installed is not configured');
   assert.equal(backups(join(c.home, '.cursor')).length, 1, 'a file is backed up before it changes');
-  assert.equal(read(join(c.home, '.cursor', backups(join(c.home, '.cursor'))[0])), JSON.stringify({mcpServers: {blender: {command: 'uvx', args: ['blender-mcp']}}}, null, 4) + '\n');
+  assert.equal(read(join(c.home, '.cursor', backups(join(c.home, '.cursor'))[0])), JSON.stringify({mcpServers: {notes: {command: 'uvx', args: ['notes-mcp']}}}, null, 4) + '\n');
   assert.equal(backups(join(c.home, '.kimi')).length, 0, 'a new file has nothing to back up');
   if (posix) for (const f of [cursor, codex, join(c.home, '.kimi', 'mcp.json'), join(c.home, '.cursor', backups(join(c.home, '.cursor'))[0])]) assert.equal(statSync(f).mode & 0o777, 0o600, f);
   assert.ok(!readdirSync(c.project).length, 'nothing is written into the project');
