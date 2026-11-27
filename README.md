@@ -1,6 +1,6 @@
 # Seenry skills
 
-Agent skills that make an AI work like a design studio. The agent designs every screen first on a local canvas, the person reviews and picks, and only then is the product built, with exact craft values and real references from the optional Seenry MCP.
+Agent skills that make an AI work like a design studio. The agent puts two or three hero sketches on a local canvas, the person picks, and the pick is built once, straight in the project's code, with exact craft values and real references from the optional Seenry MCP. "Just build it" skips the canvas. Mention Seenry in any agent ("seenry, redo my pricing page") and it runs the whole flow.
 
 | Skill | Use it for |
 | --- | --- |
@@ -24,7 +24,7 @@ Agent skills that make an AI work like a design studio. The agent designs every 
 2. **Build the default, then leave it.** The agent builds the page any model would make for this brief and puts it on the canvas, so every option can show how it differs.
 3. **Compose from real references.** Ten or more real screens from the Seenry library, judged on a contact sheet. Each option, and each section of a long page, takes one principle from each of two or three references, with the numbers, and builds its own layout around the product's idea; copying one reference's structure happens only when the person asks to replicate. `canvas.mjs pair` puts a screen beside each reference to catch a reskin. Words, logos and images are never taken.
 4. **Type and color from an idea.** `seenry-identity` names the clichés, sets specimens of open-source, Fontshare and premium typefaces with the real copy, builds color studies from real sources, and writes the pick into `tokens.css` with each font's license.
-5. **Design every screen on the canvas.** `node skills/seenry-canvas/scripts/canvas.mjs open` serves a pan-and-zoom canvas on `127.0.0.1`. Each flow is a section, each screen a live HTML frame at phone, tablet or desktop size, and options sit side by side. The person approves screens, picks options and pins comments on elements; the agent reads them with `canvas.mjs feedback`.
+5. **Pick on the canvas, build in the code.** `node skills/seenry-canvas/scripts/canvas.mjs open` serves a pan-and-zoom canvas on `127.0.0.1`. Each flow is a section, each screen a live HTML frame at phone, tablet or desktop size, and options sit side by side. The person picks options, approves screens and pins comments on elements; the agent reads them with `canvas.mjs feedback`. With a project, the pick is then written straight in its code and `canvas.mjs compare` shows it beside the sketch; a whole page is drawn on the canvas only for an empty folder or when asked. "Just build it", "no options", "skip the canvas" or "straight in code" goes straight to code with one direction.
 6. **Pick the look, then design every screen in it.** One `tokens.css` that every screen links, so a change updates them all, and the same file moves into the product.
 7. **Build once and check once.** Craft values from `seenry-craft`, motion from `seenry-motion`, worst-case data from `seenry-break`, then a rendered audit at 1440 and 390 and a side-by-side with the approved screens. No scoring loop and no second model.
 8. **Take away, then plan.** `seenry-subtract` removes what does not earn its place; `seenry-audit` turns a whole app into plans a cheaper model can run.
@@ -62,7 +62,7 @@ To update later, from any agent:
 node ~/.agents/skills/seenry-canvas/scripts/canvas.mjs update
 ```
 
-It runs `npx skills update -g -y` (Seenry's skills and the other installed skills, companions included), prints each change from old to new version, and restarts a running canvas on the new code. The person's canvases are not touched. Seenry older than 3.8.0 has no `update`: run `npx skills update -g -y` once, then `canvas.mjs update` restarts the canvas.
+It runs `npx skills update -g -y` (Seenry's skills and the other installed skills, companions included), prints each change from old to new version, refreshes the always-on Seenry block in each agent's instruction file, and restarts a running canvas on the new code. The person's canvases are not touched. Seenry older than 3.8.0 has no `update`: run `npx skills update -g -y` once, then `canvas.mjs update` restarts the canvas.
 
 Or clone and install locally (previews by default):
 
@@ -80,7 +80,9 @@ python3 scripts/install.py --project . --instructions-only --apply  # index only
 python3 scripts/install.py --project . --remove-instructions --apply
 ```
 
-`--no-instructions` skips the index. Global files (`~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`) change only with `--global-instructions`. [evals/always-on](evals/always-on) measures how often the agent loads the skill with and without the index.
+`--no-instructions` skips the index. Global files (`~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`) change only with `--global-instructions`.
+
+The one-paste setup does this for every agent at user level: `canvas.mjs library` first writes the same block into each detected agent's own instruction file (Claude Code `~/.claude/CLAUDE.md`, Codex `~/.codex/AGENTS.md`, Gemini CLI and Antigravity `~/.gemini/GEMINI.md`, the GitHub Copilot CLI `~/.copilot/copilot-instructions.md`), with no link or Pro key needed. Agents that never load skills on their own then load `seenry` whenever the person mentions Seenry. Only the block changes, a backup is made first, a second run changes nothing, and `--no-instructions` skips it. [evals/always-on](evals/always-on) measures how often the agent loads the skill with and without the index.
 
 ## Companion skills
 

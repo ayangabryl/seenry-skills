@@ -6,7 +6,7 @@ Decide the stack before building, in this order. Do not ask the user; pick, and 
 2. **The project has one** (`package.json`, lockfile, config). Use it, and the libraries already installed for each job. If it uses a competitor of a pick below, keep the competitor and say so once.
 3. **Empty project.** Pick the framework from the first table, then only the libraries the page needs from the second. Plain HTML is a choice for the cases listed, never the default.
 
-The canvas design is always HTML. This file is about step 8, the build.
+Canvas sketches are always HTML. With a project, the pick is written straight in its stack at step 7; in an empty folder, the full canvas page moves into the stack picked here at step 8.
 
 ## Framework for an empty project
 

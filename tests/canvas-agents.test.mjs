@@ -125,6 +125,86 @@ test('library --agent sets up one agent, says when it is missing, and never writ
   assert.deepEqual(readdirSync(join(c.project, '.codex')), []);
 });
 
+// ── Always-on instructions ─────────────────────────────────────────────────────────────────────────────────────
+const START = '<!-- seenry:start -->', END = '<!-- seenry:end -->';
+const blockIn = text => text.slice(text.indexOf(START), text.indexOf(END) + END.length);
+
+test('library writes the always-on block into each agent\'s own instruction file, even on a computer with no link or key', () => {
+  const c = computer(['.claude', '.codex', '.gemini', '.cursor']);
+  rmSync(join(c.config, 'canvas-sync.json')); rmSync(join(c.config, 'canvas-library-key'));
+  const out = c.library();
+  assert.equal(out.status, 0, out.stderr);
+  const files = [join(c.home, '.claude', 'CLAUDE.md'), join(c.home, '.codex', 'AGENTS.md'), join(c.home, '.gemini', 'GEMINI.md')];
+  for (const f of files) {
+    const text = read(f);
+    assert.ok(text.startsWith(START) && text.endsWith(END + '\n'), f);
+    assert.match(text, /## Seenry design skills/);
+    assert.match(text, /When the person mentions Seenry[^\n]*load the `seenry` skill first/);
+    assert.match(text, /Router: new page, screen, redesign → `seenry`/);
+    assert.match(text, /Pick between options on the Seenry canvas, then build the pick in the project's code; skip the canvas when the person says just build it\./);
+  }
+  assert.equal(new Set(files.map(f => blockIn(read(f)))).size, 1, 'one block for every agent');
+  assert.match(out.stdout, /Claude Code: added to ~[/\\]\.claude[/\\]CLAUDE\.md/);
+  assert.match(out.stdout, /Codex: added to ~/);
+  assert.match(out.stdout, /Gemini CLI and Antigravity: added to ~[/\\]\.gemini[/\\]GEMINI\.md/);
+  assert.ok(!existsSync(join(c.home, '.cursor', 'rules')) && readdirSync(join(c.home, '.cursor')).length === 0, 'Cursor documents no user-level file');
+  assert.match(out.stdout, /not linked to Seenry, so no MCP server was added/);
+  assert.ok(!readdirSync(c.project).length, 'nothing is written into the project');
+
+  const again = c.library();
+  assert.equal((again.stdout.match(/already current in/g) || []).length, 3, again.stdout);
+  for (const d of ['.claude', '.codex', '.gemini']) assert.equal(backups(join(c.home, d)).length, 0, 'a new file has nothing to back up');
+});
+
+test('the block is replaced in place, every byte outside the markers is kept, and a backup is made first', () => {
+  const c = computer(['.claude', '.codex']);
+  const claude = join(c.home, '.claude', 'CLAUDE.md'), codex = join(c.home, '.codex', 'AGENTS.md');
+  const before = '# Mine\r\n\r\nTabs, not spaces.\r\n\r\n', after = '\r\n\r\n## Later\r\n\r\nKeep me.\r\n\r\n\r\n';
+  const original = before + START + '\n## Seenry design skills\n\nShow designs on the Seenry canvas before writing product code.\n' + END + after;
+  writeFileSync(claude, original);
+  const plain = '# Codex rules\n\nNo emojis.\n\n\n';
+  writeFileSync(codex, plain);
+  const out = c.library('--no-instructions');
+  assert.ok(!out.stdout.includes('Always-on'), '--no-instructions skips them');
+  assert.equal(read(claude), original);
+
+  const run = c.library();
+  assert.match(run.stdout, /Claude Code: updated in ~[^\n]*\(backup: ~/);
+  const now = read(claude);
+  assert.ok(now.startsWith(before) && now.endsWith(after), 'outside the markers nothing changed');
+  assert.doesNotMatch(now, /before writing product code/);
+  assert.match(now, /build the pick in the project's code/);
+  assert.equal(read(join(c.home, '.claude', backups(join(c.home, '.claude'))[0])), original, 'the backup is the file as it was');
+  assert.ok(read(codex).startsWith(plain), 'an appended block keeps the file before it byte for byte');
+  assert.equal(read(codex), plain + blockIn(now) + '\n');
+
+  const snapshot = [claude, codex].map(read);
+  const second = c.library();
+  assert.deepEqual([claude, codex].map(read), snapshot, 'a second run changes nothing');
+  assert.equal(backups(join(c.home, '.claude')).length, 1);
+  assert.equal(backups(join(c.home, '.codex')).length, 1);
+  assert.equal((second.stdout.match(/already current in/g) || []).length, 2);
+
+  const broken = '# Mine\n' + START + '\nhalf a block\n';
+  writeFileSync(claude, broken);
+  assert.match(c.library().stdout, /Claude Code: left as it is: [^\n]*unbalanced or repeated Seenry markers/);
+  assert.equal(read(claude), broken);
+});
+
+test('instructions alone, for one agent, and never into the project', () => {
+  const c = computer(['.claude', '.codex']);
+  const sync1 = (...args) => spawnSync(process.execPath, [sync, 'instructions', ...args], {cwd: c.project, encoding: 'utf8', env: {...process.env, ...c.env}});
+  const one = sync1('--agent', 'codex');
+  assert.equal(one.status, 0, one.stderr);
+  assert.ok(existsSync(join(c.home, '.codex', 'AGENTS.md')) && !existsSync(join(c.home, '.claude', 'CLAUDE.md')));
+  assert.ok(!one.stdout.includes('Reference library'), 'instructions never touch MCP config');
+  assert.equal(sync1('--agent', 'notepad').status, 2);
+  mkdirSync(join(c.project, '.codex'));
+  const inside = spawnSync(process.execPath, [sync, 'instructions'], {cwd: c.project, encoding: 'utf8', env: {...process.env, ...c.env, CODEX_HOME: join(c.project, '.codex')}});
+  assert.match(inside.stdout, /Codex: could not: [^\n]*would be inside this project/);
+  assert.deepEqual(readdirSync(join(c.project, '.codex')), []);
+});
+
 // ── update ─────────────────────────────────────────────────────────────────────────────────────────────────────
 /** A copy of the installed skills, and a stand-in npx that lists them, records each call and "updates" them. */
 function installed({fail = false} = {}) {
@@ -148,7 +228,9 @@ else if (args.join(' ') === '-y skills update -g -y') {
 `);
   const project = mkdtempSync(join(tmpdir(), 'seenry-update-')), dir = join(project, '.seenry', 'canvas');
   const script = join(skills, 'seenry-canvas', 'scripts', 'canvas.mjs');
-  const env = {...process.env, SEENRY_NPX: npx, SEENRY_CONFIG_DIR: mkdtempSync(join(tmpdir(), 'seenry-no-link-'))};
+  // A fake home too: update refreshes the always-on instructions in agents' own files, never the real ones here.
+  const home = mkdtempSync(join(tmpdir(), 'seenry-update-home-'));
+  const env = {...process.env, SEENRY_NPX: npx, SEENRY_CONFIG_DIR: mkdtempSync(join(tmpdir(), 'seenry-no-link-')), HOME: home, USERPROFILE: home, CODEX_HOME: '', COPILOT_HOME: '', PATH: join(home, 'bin')};
   const update = (...args) => spawnSync(process.execPath, [script, 'update', ...args], {cwd: project, encoding: 'utf8', env});
   // Async when a canvas runs: the test started that server, so its event loop must stay free to reap it once killed.
   const updating = (...args) => new Promise(done => {
@@ -157,7 +239,7 @@ else if (args.join(' ') === '-y skills update -g -y') {
     child.stdout.on('data', c => { stdout += c; }); child.stderr.on('data', c => { stderr += c; });
     child.on('close', status => done({status, stdout, stderr}));
   });
-  return {skills, log, project, dir, script, env, update, updating};
+  return {skills, log, project, dir, script, env, home, update, updating};
 }
 const version = skills => read(join(skills, 'seenry-canvas', 'SKILL.md')).match(/version: "([^"]+)"/)[1];
 const get = port => new Promise((done, fail) => request({host: '127.0.0.1', port, path: '/'}, res => { res.resume(); done(res.statusCode); }).on('error', fail).end());
@@ -175,6 +257,13 @@ test('update takes no flags, runs the installer for every global skill, and says
   assert.match(out.stdout, /No canvas is running/);
   assert.match(out.stdout, /Start a new agent session/);
   assert.ok(!existsSync(s.dir), 'update never makes a canvas');
+  assert.match(out.stdout, /Always-on instructions: no agent here/);
+
+  mkdirSync(join(s.home, '.claude'));
+  const refreshed = s.update();
+  assert.equal(refreshed.status, 0, refreshed.stderr);
+  assert.match(refreshed.stdout, /Claude Code: added to ~/, 'update refreshes the block with the newly installed script');
+  assert.match(read(join(s.home, '.claude', 'CLAUDE.md')), /Pick between options on the Seenry canvas/);
 });
 
 test('update restarts a running canvas on the new code, on its port, and leaves the screens alone', async t => {

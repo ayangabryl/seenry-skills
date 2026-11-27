@@ -23,14 +23,15 @@ RETIRED = (
 )
 AGENTS = ('agents', 'codex', 'claude', 'cursor', 'antigravity')
 START, END = '<!-- seenry:start -->', '<!-- seenry:end -->'
+# skills/seenry-canvas/scripts/sync.mjs writes the same block (canvas.mjs library and update); keep the two identical.
 INDEX = START + """
 ## Seenry design skills
 
-For any task that adds or changes something people see (a page, screen, form, component, styling, layout or animation), look at the project, then load the `seenry` skill before writing UI code. Prefer the skill's guidance over memory.
+When the person mentions Seenry, or asks for anything people see (a page, screen, form, component, styling, layout or animation), load the `seenry` skill first and run its flow without setup questions. Prefer the skill's guidance over memory.
 
 Router: new page, screen, redesign → `seenry` | fonts, color, brand → `seenry-identity` | mockups, options → `seenry-canvas` | spacing, radius, states → `seenry-craft` | animation → `seenry-motion` | library or framework → `seenry-libraries` | photos, icons, font files → `seenry-assets` | review, accessibility → `seenry-review` | edge-case data → `seenry-break` | too busy → `seenry-subtract` | whole-app audit → `seenry-audit` | native mobile → `seenry-apps` | product film → `seenry-video`
 
-Show designs on the Seenry canvas before writing product code. Pick the stack with `seenry-libraries`.
+Pick between options on the Seenry canvas, then build the pick in the project's code; skip the canvas when the person says just build it. Pick the stack with `seenry-libraries`.
 
 Skills live in `{skills}/<name>/SKILL.md`.
 """ + END

@@ -808,6 +808,16 @@ class CheckGate(unittest.TestCase):
         self.assertEqual(r.returncode,0,r.stdout+r.stderr)
         self.assertNotIn('Unattended',r.stdout)
 
+    def test_a_skip_recorded_in_the_brief_passes_with_no_pick_and_is_reported(self):
+        d=self.canvas()
+        (d/'img').mkdir();(d/'img/hero.jpg').write_bytes(b'jpg')
+        (self.project/'brief.md').write_text('Settings for a bank app.\nCanvas: skipped "just build it, no options"\n')
+        r=self.run_gate(studio=False)
+        self.assertNotIn('approval:',r.stdout)
+        self.assertIn('Canvas skipped ("just build it, no options")',r.stdout)
+        (self.project/'brief.md').write_text('Settings for a bank app.\n')
+        self.assertIn('Canvas: skipped',self.run_gate(studio=False).stdout,'the approval message names the skip record')
+
     def test_recorded_unattended_run_passes_and_is_reported_as_unapproved(self):
         d=self.canvas()
         (d/'canvas.json').write_text(json.dumps({'unattended':{'at':'2026-11-16','reason':'headless test run'}}))

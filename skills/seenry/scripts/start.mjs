@@ -6,11 +6,13 @@
  *  node start.mjs --style <slug>                      that style brief in full, then the bans and the steps
  *  node start.mjs                                     reads .seenry/brief.md when it exists
  *
- *  --no-steps leaves out the steps; --json prints {matches, bans, steps, taste} for another tool.
+ *  --no-steps leaves out the steps and the mode; --json prints {matches, bans, steps, mode, taste} for another tool.
+ * The mode says where the pick is built: in the project's own code when this folder holds one (a package.json, a
+ * framework, an app), on the canvas as a full page when the folder is empty.
  * Matching is keyword overlap against references/styles/index.json: no model is asked.
  * When this computer is linked to the person's Seenry account (seenry-canvas link), their taste file is printed
  * too: what they chose, what they never want, the sites and images they love. --no-taste leaves it out. */
-import {existsSync, readFileSync, realpathSync} from 'node:fs';
+import {existsSync, readFileSync, readdirSync, realpathSync} from 'node:fs';
 import {join, dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {homedir} from 'node:os';
@@ -53,6 +55,48 @@ export function steps() {
   return [...text.matchAll(/^\| (\d+) \| \*\*([^*]+?)\.?\*\*[^|]*\| ([^|]*) \|/gm)].map(([, n, name, run]) => `${n}. ${name}${/^\s*\(/.test(run) ? '' : `: ${run.trim()}`}`);
 }
 
+// The first matching dependency names the framework, so a meta-framework wins over the library under it.
+const FRAMEWORKS = [['next', 'Next.js'], ['astro', 'Astro'], ['@remix-run/react', 'Remix'], ['@react-router/dev', 'React Router'], ['nuxt', 'Nuxt'],
+  ['@sveltejs/kit', 'SvelteKit'], ['gatsby', 'Gatsby'], ['@builder.io/qwik', 'Qwik'], ['@11ty/eleventy', 'Eleventy'], ['expo', 'Expo'],
+  ['react-native', 'React Native'], ['@angular/core', 'Angular'], ['solid-js', 'Solid'], ['svelte', 'Svelte'], ['vue', 'Vue'], ['react', 'React'], ['vite', 'Vite']];
+const MARKERS = [['Gemfile', /\brails\b/, 'Rails', 'Ruby'], ['composer.json', /laravel/, 'Laravel', 'PHP'], ['manage.py', null, 'Django'], ['pubspec.yaml', null, 'Flutter'],
+  ['Package.swift', null, 'Swift'], ['go.mod', null, 'Go'], ['pyproject.toml', /django/i, 'Django', 'Python'], ['Cargo.toml', null, 'Rust']];
+
+/** Where the picked direction is built. A folder with a package.json, a framework's marker file or HTML pages is a
+ *  project: the pick goes straight into its code. Anything else is an empty folder: the full page goes on the canvas. */
+export function projectMode(cwd = process.cwd()) {
+  const read = name => { try { return readFileSync(join(cwd, name), 'utf8'); } catch { return null; } };
+  const pkg = read('package.json');
+  if (pkg !== null) {
+    let deps = {}, scripts = {};
+    try { const data = JSON.parse(pkg); deps = {...data.dependencies, ...data.devDependencies}; scripts = data.scripts || {}; } catch {}
+    const found = FRAMEWORKS.find(([name]) => name in deps);
+    if (found) return {project: true, framework: found[1], evidence: 'package.json'};
+    // Setup installs Playwright into an empty folder; that package.json alone is not an app.
+    const app = Object.keys(deps).some(d => !/^(@playwright\/test|playwright(-core)?)$/.test(d)) || Object.keys(scripts).length || ['src', 'app', 'pages'].some(d => existsSync(join(cwd, d)));
+    if (app) return {project: true, framework: 'its Node setup', evidence: 'package.json'};
+  }
+  for (const [file, pattern, named, plain = named] of MARKERS) {
+    const text = read(file);
+    if (text !== null) return {project: true, framework: !pattern || pattern.test(text) ? named : plain, evidence: file};
+  }
+  let html = '';
+  try { html = readdirSync(cwd).find(f => /\.html?$/i.test(f)) || ''; } catch {}
+  return html ? {project: true, framework: 'its plain HTML', evidence: html} : {project: false, framework: '', evidence: ''};
+}
+
+export const SKIP_PHRASES = ['just build it', 'no options', 'skip the canvas', 'straight in code'];
+
+/** The mode as two lines: where the pick is built, and when the canvas is skipped altogether. */
+export function modeLines(mode = projectMode()) {
+  return [
+    mode.project
+      ? `Mode: project found (${mode.evidence}): build the pick in ${mode.framework}. Step 7 writes the full page straight in its code, not on the canvas; step 8 shows it beside the picked sketch.`
+      : 'Mode: empty folder: full page on canvas. Step 7 extends the pick there; step 8 picks the stack and moves the page into it.',
+    `Skip the canvas when the person says ${SKIP_PHRASES.map(p => `"${p}"`).join(', ')}, or their project instructions say so: one direction, straight in code (steps 1 to 4, then 7 to 9; write Canvas: skipped "<their words>" in .seenry/brief.md). The brief, references, taste, bans, MOTION.md and check.mjs still run.`,
+  ];
+}
+
 /** The person's taste file from their Seenry account, read with the link this computer already has. Empty when the
  *  computer is not linked, taste is switched off, or Seenry does not answer in time: a task never waits on it. */
 export async function taste({timeout = 2500} = {}) {
@@ -79,7 +123,7 @@ async function main(args) {
   if (slug && !index.some(s => s.slug === slug)) { console.error(`No style "${slug}". The shelf: ${index.map(s => s.slug).join(', ')}`); return 2; }
   const matches = slug ? index.filter(s => s.slug === slug) : matchStyles(brief, index);
   const mine = args.includes('--no-taste') ? '' : await taste();
-  if (args.includes('--json')) { console.log(JSON.stringify({matches, bans: bans(), steps: steps(), taste: mine}, null, 2)); return 0; }
+  if (args.includes('--json')) { console.log(JSON.stringify({matches, bans: bans(), steps: steps(), mode: projectMode(), taste: mine}, null, 2)); return 0; }
 
   const out = [];
   if (slug) {
@@ -95,7 +139,7 @@ async function main(args) {
   }
   out.push('', 'Never (references/bans.md):', ...bans().map(b => `  - ${b}`));
   if (mine) out.push('', 'Their taste, from their Seenry account. The project and the brief come first; use this where they leave a choice open:', ...mine.split('\n').filter(l => !/^# Taste\s*$/.test(l)).map(l => `  ${l}`.trimEnd()));
-  if (!args.includes('--no-steps')) out.push('', 'Steps (SKILL.md):', ...steps().map(s => `  ${s}`));
+  if (!args.includes('--no-steps')) out.push('', 'Steps (SKILL.md):', ...steps().map(s => `  ${s}`), '', ...modeLines());
   console.log(out.join('\n'));
   return 0;
 }

@@ -554,5 +554,32 @@
     ],
     "calls": [],
     "check": "Writes the idea and the clichés first; fetches four candidates with identity.mjs and records licenses in fonts.json; sets specimens with the product's real copy, not lorem ipsum; builds three color studies from real photographed sources with ground, ink, dominant and one accent; passes canvas.mjs verify contrast in both modes; does not ship the subject's cliché color without a reason; writes the pick into tokens.css with tuned tracking and real italics."
+  },
+  {
+    "id": "mention-builds-pick-in-project",
+    "request": "seenry, redo my pricing page",
+    "skills": [
+      "seenry"
+    ],
+    "calls": [],
+    "check": "In a Next.js project: loads the seenry skill from the mention alone and asks no setup questions; start.mjs reports the project mode; two or three hero-only sketches go on the canvas and the person picks; the pick is then written as the full page in the project's Next.js code with the same tokens and images (no full-page canvas extension), and canvas.mjs compare shows it beside the picked sketch; check.mjs runs at the end."
+  },
+  {
+    "id": "just-build-it",
+    "request": "Redesign our settings screen, just build it, no options.",
+    "skills": [
+      "seenry"
+    ],
+    "calls": [],
+    "check": "Skips the canvas: no canvas init, no options and no wait. One direction goes straight into the project's code; writes Canvas: skipped with their words in .seenry/brief.md; the brief, references, taste from start.mjs, the bans, MOTION.md and check.mjs still run; the report says the canvas was skipped at the person's word."
+  },
+  {
+    "id": "empty-folder-full-page-on-canvas",
+    "request": "Design a landing page for a new ceramics studio. This folder is empty.",
+    "skills": [
+      "seenry"
+    ],
+    "calls": [],
+    "check": "start.mjs reports the empty-folder mode; after the pick the full page is extended on the canvas and verified, then a stack is chosen with a Stack line in DESIGN.md (not plain HTML by default) and the page moves into it."
   }
 ]
