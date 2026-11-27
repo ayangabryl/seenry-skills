@@ -26,7 +26,7 @@ Then ask me what I want to design.
 Paste this into any agent. It updates Seenry and the companion skills for every agent on the computer, and restarts the canvas if it is open.
 
 ```text
-Update Seenry: run node ~/.agents/skills/seenry-canvas/scripts/canvas.mjs update and tell me what changed. Then tell me to start a new session so you load the new skills.
+Update Seenry: run node ~/.agents/skills/seenry-canvas/scripts/canvas.mjs update and tell me what changed. If it prints a usage line instead (Seenry older than 3.8.0), run npx skills update -g -y, then the same canvas.mjs update command again. Then tell me to start a new session so you load the new skills.
 ```
 
 The companion skills are not part of Seenry and are not affiliated with it; each installs under its author’s own licence.
