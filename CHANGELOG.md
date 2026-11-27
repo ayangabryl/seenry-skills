@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.9.0
+
+### Code first
+
+- **The pick is built where it will live.** The three-option pick stays the default: two or three hero-only sketches on the canvas, and the person picks. With a project (a `package.json`, a framework, an app), step 7 now writes the picked page straight in the project's code, with the same tokens and images and the idea carried hero to footer, instead of drawing the whole page on the canvas and porting it at step 8. The full-page canvas extension stays for an empty folder, or when the person asks to see the whole page first. `canvas.mjs compare <sketch> <url>` shows the build beside the picked sketch.
+- **Skip the canvas.** "Just build it", "no options", "skip the canvas", "straight in code", or project instructions that say so: one direction, straight in code. The brief, references, taste, bans, `MOTION.md` and `check.mjs` still run, and no step waits on the canvas. The line `Canvas: skipped "<their words>"` in `.seenry/brief.md` records it; `check.mjs` then asks for no pick and reports the canvas as skipped.
+- **`start.mjs` prints the mode.** "Mode: project found (package.json): build the pick in Next.js" or "Mode: empty folder: full page on canvas", the skip phrases, and `mode` in `--json`. It reads `package.json` dependencies and the usual marker files (Gemfile, composer.json, manage.py, pubspec.yaml and others); a `package.json` holding only Playwright, as the setup leaves it, is still an empty folder.
+- `seenry-canvas`: its description and rule 1 now say the canvas is where options are picked, and where a whole page is mocked when asked or when there is no project; with a project the pick is built in code. Everything else about the canvas is unchanged.
+
+### Automatic on mention
+
+- **`seenry` loads whenever Seenry is mentioned.** Its description says so, and "seenry, redo my pricing page" in any agent runs the whole flow without setup questions.
+- **The always-on block in every agent.** `canvas.mjs library` (and `sync.mjs library`) now first writes the Seenry block between `<!-- seenry:start -->` and `<!-- seenry:end -->` into each detected agent's documented user-level instruction file: Claude Code `~/.claude/CLAUDE.md`, Codex `~/.codex/AGENTS.md` (`$CODEX_HOME`), Gemini CLI and Antigravity `~/.gemini/GEMINI.md`, and the GitHub Copilot CLI `~/.copilot/copilot-instructions.md`. Cursor and Kimi Code document no such file and are skipped. It needs no link and no Pro key, so the one-paste setup gives it to everyone. A missing file is created when the agent is installed; an existing one is backed up first and only the block changes, every byte outside the markers kept; a second run changes nothing; unbalanced markers are left alone. `--no-instructions` skips it, and `sync.mjs instructions` writes it alone. `canvas.mjs update` refreshes it with the newly installed script.
+- The block's text, in `scripts/install.py` and `sync.mjs` alike (a test keeps them identical): load `seenry` first when the person mentions Seenry or asks for something people see; the router; pick between options on the canvas, then build the pick in the project's code; skip the canvas when the person says just build it.
+- `library` on a computer that is not linked now says so and exits 0 instead of 2, after writing the block.
+
 ## 3.8.1
 
 - **Hover findings in review and audit.** `seenry-review` and `seenry-audit` now report a hover that lifts, grows, tilts or adds a drop shadow, a decorative hover animation, and a heavy pressed style, unless the person asked for it. `seenry-craft` cards fill one surface step on hover instead of lifting, and the audit's hover example changes colour instead of scale, so no skill contradicts the hover rule from 3.8.0.
