@@ -26,6 +26,7 @@ Short rules learned from pages that people sent back. Each one is checkable on t
 ## Hover and press
 
 - **Hover changes colour, nothing else.** No drop shadow that appears on hover, no card or picture that lifts, grows or tilts, no decorative hover animation. Hover is a tint or opacity change in about 120ms, only on devices with a fine pointer. Add more only when the person asks for it.
+- **No grey box on tap.** Phones draw a dark tap highlight over every link and button unless the page turns it off: set `-webkit-tap-highlight-color: transparent` on `html`, and let the control's own press and `:focus-visible` ring give the feedback.
 - **Press is a small scale on real controls.** Buttons and controls scale to 0.97 for about 100ms; cards, rows and text do not. No heavy pressed styles, no ripple.
 
 ## Before showing it

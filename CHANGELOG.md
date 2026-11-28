@@ -3,6 +3,7 @@
 ## 3.9.3
 
 - **Dividers and ⌘K** (`seenry/references/design-practices.md`): no full-width lines between sections (space or a tone change; full-bleed rules only at structural edges), and a command menu only in apps people live in or large docs, never on a landing page, portfolio or phone. Ported from the earlier dividers-and-search proposal.
+- **No grey box on tap** (design practices, seenry-review): pages turn off the phone's default tap highlight; review reports it when left on. The canvas does the same, and its overview thumbnails show an outline on hover instead of a ring shadow.
 
 ## 3.9.2
 
