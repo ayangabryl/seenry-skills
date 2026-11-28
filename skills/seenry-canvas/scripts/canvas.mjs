@@ -804,7 +804,7 @@ const PAGE = String.raw`<!doctype html>
   --fill: oklch(1 0 0 / 0.06); --fill-2: oklch(1 0 0 / 0.11); }
 :root[data-theme="light"] { color-scheme: light; }
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; overflow: hidden; background: var(--canvas); color: var(--text); -webkit-font-smoothing: antialiased; }
+html, body { height: 100%; margin: 0; overflow: hidden; background: var(--canvas); color: var(--text); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
 button, textarea, select, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -844,7 +844,7 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
   .chip button:hover { background: var(--fill-2); }
   #proj:hover { background: var(--fill); }
   #device:hover, #tabs [role="tab"]:hover, #pane-sub button:hover, .set .fold:hover { color: var(--ink); }
-  .ov-tile:hover .ov-thumb { box-shadow: 0 0 0 1.5px var(--ink); }
+  .ov-tile:hover .ov-thumb { outline: 1.5px solid var(--ink); outline-offset: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .ib, .pill, #send, .set .fold, .set .fold svg, #r-pill button { transition: none; } .pill:active, .ib:active, #send:active, .set .fold:active, #r-pill button:active { scale: none; } }
 .sep { width: 1px; height: 18px; flex: none; margin: 0 4px; background: var(--line-2); }

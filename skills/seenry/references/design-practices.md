@@ -19,11 +19,14 @@ Short rules learned from pages that people sent back. Each one is checkable on t
 - **Little text on marketing pages.** A headline, one short line under it, and labels. Anything longer goes to a page someone chose to open.
 - **Example work is clean.** A screenshot, portfolio piece or template shown on the page is held to the same bar as the page itself: real copy, no placeholder, no default styling. A messy example makes the product look messy.
 - **Real proof only.** No invented customers, quotes, logos, figures or reviews ([bans](bans.md)). With no proof yet, show the product working instead.
+- **No full-width lines between sections.** Sections part with space or a tone change. A full-bleed rule belongs only at a structural edge: app chrome, a table's head and foot, a card's header. A marketing header gets its line only once content scrolls under it ([lines](../../seenry-craft/references/lines.md)).
+- **⌘K only where people move by name.** A command menu fits an app people live in or docs with dozens of pages, opened from the shortcut and a visible search button, listing actions as well as places. A landing page, portfolio or small site has none; a shop or content site gets a plain search field. Never a shortcut hint on a phone, and Ctrl K on Windows.
 - **Official marks on sign-in buttons.** "Continue with Google", Apple, GitHub and the rest use that company's own logo, colours and wording from its brand guidelines, never a redrawn icon or a monochrome guess.
 
 ## Hover and press
 
 - **Hover changes colour, nothing else.** No drop shadow that appears on hover, no card or picture that lifts, grows or tilts, no decorative hover animation. Hover is a tint or opacity change in about 120ms, only on devices with a fine pointer. Add more only when the person asks for it.
+- **No grey box on tap.** Phones draw a dark tap highlight over every link and button unless the page turns it off: set `-webkit-tap-highlight-color: transparent` on `html`, and let the control's own press and `:focus-visible` ring give the feedback.
 - **Press is a small scale on real controls.** Buttons and controls scale to 0.97 for about 100ms; cards, rows and text do not. No heavy pressed styles, no ripple.
 
 ## Before showing it

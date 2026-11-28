@@ -39,6 +39,7 @@ Every animation in scope is measured against all ten. A miss is a finding.
 - A parent custom property driving child transforms
 - No reduced-motion handling on movement; ungated `:hover` motion
 - A hover that lifts, grows, tilts or adds a drop shadow, or a decorative hover animation, unless the person asked for it
+- The browser's default tap highlight left on (no `-webkit-tap-highlight-color: transparent`), a dark box on every tap on a phone
 - A heavy pressed style (ripple, deep inset, colour flash) where a 0.97 scale on the control is enough
 - Symmetric timing on a press-and-release or hold
 - A group entering all at once where a 30–80ms stagger belongs, or a stagger on a frequent surface

@@ -4,7 +4,7 @@ description: "Designs and builds native mobile screens and flows (SwiftUI, UIKit
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.9.2"
+  version: "3.9.3"
 ---
 
 # Seenry Apps

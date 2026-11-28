@@ -4,7 +4,7 @@ description: "Picks the maintained library for a UI job before it is built by ha
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.9.2"
+  version: "3.9.3"
 ---
 
 # Seenry Libraries
