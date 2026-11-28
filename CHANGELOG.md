@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.9.1
+
+- **The library is not Pro-only.** `library`, `link` and the canvas skill say any verified Seenry account gets a key when it approves a link (Free: 50 library credits once; Pro: 2,000 a month), matching seenry.design.
+
 ## 3.9.0
 
 ### Code first

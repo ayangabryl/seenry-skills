@@ -18,7 +18,7 @@
  *
  * watch asks for feedback no more often than the server's pollSeconds (10 s by default) and stops on a plan limit (402).
  * The canvas folder defaults to .seenry/canvas. The token and the library key live in your config folder (mode 0600),
- * never in the project, and are never printed. A Seenry Pro account's approval also creates the library key. The local canvas never depends on the server: when it is unreachable, sync waits and tries again.
+ * never in the project, and are never printed. A verified account's approval also creates the library key (50 credits once on Free, 2,000 a month on Pro). The local canvas never depends on the server: when it is unreachable, sync waits and tries again.
  * Plain Node 18+, no packages.
  */
 import {createHash} from 'node:crypto';
@@ -578,10 +578,10 @@ function library() {
   const {asked, chosen} = chosenAgent();
   if (asked === 'all' || chosen) instructions(chosen);
   const config = readConfig();
-  if (!config?.token) { console.log('Reference library: this computer is not linked to Seenry, so no MCP server was added. It needs Seenry Pro: run link, then library again; without Pro, skip this step.'); return; }
+  if (!config?.token) { console.log('Reference library: this computer is not linked to Seenry, so no MCP server was added. Run link (any verified Seenry account; Free gets 50 library credits once), then library again; or skip this step.'); return; }
   const keyPath = libraryKeyFile(), url = config.library?.url || 'https://mcp.seenry.design/pro';
   const key = existsSync(keyPath) ? readFileSync(keyPath, 'utf8').trim() : '';
-  if (!key) { console.log('Reference library: no key on this computer. One is created when a Seenry Pro account approves the link, so with Pro, run link again; without it, skip this step.'); return; }
+  if (!key) { console.log('Reference library: no key on this computer. One is created when a verified Seenry account approves the link (Free gets 50 library credits once), so run link again, or skip this step.'); return; }
   const general = () => {
     console.log(`Add an MCP server named "seenry" at ${url} with the header "Authorization: Bearer <the key in ${keyPath}>" to the agent's user-level settings.`);
     console.log('Keep the key out of the chat and out of project files.');
