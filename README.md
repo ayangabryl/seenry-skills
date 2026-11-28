@@ -62,7 +62,7 @@ To update later, from any agent:
 node ~/.agents/skills/seenry-canvas/scripts/canvas.mjs update
 ```
 
-It runs `npx skills update -g -y` (Seenry's skills and the other installed skills, companions included), prints each change from old to new version, refreshes the always-on Seenry block in each agent's instruction file, and restarts a running canvas on the new code. The person's canvases are not touched. Seenry older than 3.8.0 has no `update`: run `npx skills update -g -y` once, then `canvas.mjs update` restarts the canvas.
+It runs `npx skills update` on the skills installed on disk, by name (Seenry's and the companions; a skill you removed is not brought back), prints each change from old to new version, refreshes the always-on Seenry block in each agent's instruction file, and restarts a running canvas on the new code. The person's canvases are not touched. Seenry older than 3.8.0 has no `update`: run `npx skills update -g -y` once, then `canvas.mjs update` restarts the canvas.
 
 Or clone and install locally (previews by default):
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.9.2
+
+- **`update` never brings back removed skills.** It names the skills installed on disk (`npx skills update <names> -g -y`). A bare `npx skills update` reinstalled every skill in the installer's lock file, including ones the person had deleted.
+
 ## 3.9.1
 
 - **The library is not Pro-only.** `library`, `link` and the canvas skill say any verified Seenry account gets a key when it approves a link (Free: 50 library credits once; Pro: 2,000 a month), matching seenry.design.

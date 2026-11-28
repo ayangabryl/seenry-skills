@@ -4,7 +4,7 @@ description: "Removes what an interface does not need: animation on frequent act
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.9.1"
+  version: "3.9.2"
 ---
 
 # Seenry Subtract

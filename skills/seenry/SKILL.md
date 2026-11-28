@@ -4,7 +4,7 @@ description: "Designs and builds a web page, site, dashboard or product screen f
 license: Apache-2.0
 metadata:
   author: Seenry
-  version: "3.9.1"
+  version: "3.9.2"
 ---
 
 # Seenry
