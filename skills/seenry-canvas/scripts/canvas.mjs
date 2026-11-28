@@ -3185,8 +3185,10 @@ function installedSkills() {
 const alive = pid => { try { process.kill(pid, 0); return true; } catch { return false; } };
 async function update() {
   const before = installedSkills();
-  console.log(`Updating ${before.size || 'the'} installed skill${before.size === 1 ? '' : 's'} (npx skills update -g -y)…`);
-  const run = npx(['-y', 'skills', 'update', '-g', '-y']);
+  // Named, never bare: a bare update reinstalls every skill in the installer's lock file, including ones the person deleted.
+  const names = [...before.keys()];
+  console.log(`Updating ${names.length} installed skill${names.length === 1 ? '' : 's'} (npx skills update <installed> -g -y)…`);
+  const run = npx(['-y', 'skills', 'update', ...names, '-g', '-y']);
   if (run.error || run.status !== 0) {
     const said = `${run.stderr || ''}${run.stdout || ''}`.trim().split('\n').slice(-8).join('\n');
     console.error(`The update did not finish${run.error ? ` (${run.error.code === 'ENOENT' ? 'npx was not found: install Node 18 or newer' : run.error.message})` : ''}. Nothing was restarted.${said ? `\n${said}` : ''}`);

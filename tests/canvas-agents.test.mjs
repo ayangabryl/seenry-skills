@@ -219,7 +219,7 @@ function installed({fail = false} = {}) {
 const args = process.argv.slice(2), skills = ${JSON.stringify(skills)};
 appendFileSync(${JSON.stringify(log)}, args.join(' ') + '\\n');
 if (args.join(' ') === '-y skills ls -g --json') console.log(JSON.stringify(['seenry-canvas', 'animate', 'quiet'].map(name => ({name, path: skills + '/' + name, scope: 'global'}))));
-else if (args.join(' ') === '-y skills update -g -y') {
+else if (args.join(' ') === '-y skills update seenry-canvas animate quiet -g -y') {
   if (${fail}) { console.error('network down'); process.exit(1); }
   const file = skills + '/seenry-canvas/SKILL.md';
   writeFileSync(file, readFileSync(file, 'utf8').replace(/version: "[^"]+"/, 'version: "9.9.9"'));
@@ -245,11 +245,11 @@ const version = skills => read(join(skills, 'seenry-canvas', 'SKILL.md')).match(
 const get = port => new Promise((done, fail) => request({host: '127.0.0.1', port, path: '/'}, res => { res.resume(); done(res.statusCode); }).on('error', fail).end());
 const alive = pid => { try { process.kill(pid, 0); return true; } catch { return false; } };
 
-test('update takes no flags, runs the installer for every global skill, and says what changed', () => {
+test('update takes no flags, runs the installer for the installed skills by name, and says what changed', () => {
   const s = installed(), was = version(s.skills);
   const out = s.update();
   assert.equal(out.status, 0, out.stderr + out.stdout);
-  assert.deepEqual(read(s.log).trim().split('\n'), ['-y skills ls -g --json', '-y skills update -g -y', '-y skills ls -g --json']);
+  assert.deepEqual(read(s.log).trim().split('\n'), ['-y skills ls -g --json', '-y skills update seenry-canvas animate quiet -g -y', '-y skills ls -g --json']);
   assert.ok(out.stdout.includes(`seenry-canvas ${was} → 9.9.9`), out.stdout);
   assert.match(out.stdout, /animate: updated/);
   assert.ok(!out.stdout.includes('quiet'), 'an unchanged skill is only counted');
