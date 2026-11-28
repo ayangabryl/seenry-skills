@@ -19,6 +19,8 @@ Short rules learned from pages that people sent back. Each one is checkable on t
 - **Little text on marketing pages.** A headline, one short line under it, and labels. Anything longer goes to a page someone chose to open.
 - **Example work is clean.** A screenshot, portfolio piece or template shown on the page is held to the same bar as the page itself: real copy, no placeholder, no default styling. A messy example makes the product look messy.
 - **Real proof only.** No invented customers, quotes, logos, figures or reviews ([bans](bans.md)). With no proof yet, show the product working instead.
+- **No full-width lines between sections.** Sections part with space or a tone change. A full-bleed rule belongs only at a structural edge: app chrome, a table's head and foot, a card's header. A marketing header gets its line only once content scrolls under it ([lines](../../seenry-craft/references/lines.md)).
+- **⌘K only where people move by name.** A command menu fits an app people live in or docs with dozens of pages, opened from the shortcut and a visible search button, listing actions as well as places. A landing page, portfolio or small site has none; a shop or content site gets a plain search field. Never a shortcut hint on a phone, and Ctrl K on Windows.
 - **Official marks on sign-in buttons.** "Continue with Google", Apple, GitHub and the rest use that company's own logo, colours and wording from its brand guidelines, never a redrawn icon or a monochrome guess.
 
 ## Hover and press

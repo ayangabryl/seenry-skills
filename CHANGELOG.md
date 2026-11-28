@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.9.3
+
+- **Dividers and ⌘K** (`seenry/references/design-practices.md`): no full-width lines between sections (space or a tone change; full-bleed rules only at structural edges), and a command menu only in apps people live in or large docs, never on a landing page, portfolio or phone. Ported from the earlier dividers-and-search proposal.
+
 ## 3.9.2
 
 - **`update` never brings back removed skills.** It names the skills installed on disk (`npx skills update <names> -g -y`). A bare `npx skills update` reinstalled every skill in the installer's lock file, including ones the person had deleted.
